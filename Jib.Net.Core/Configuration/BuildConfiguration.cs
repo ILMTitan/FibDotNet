@@ -14,58 +14,57 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.cloud.tools.jib.api.ImageFormat;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.cache.Cache;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.OCIManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Immutable configuration options for the builder process. */
 public class BuildConfiguration {
 
   /** The default target format of the container manifest. */
-  private static final Class<? extends BuildableManifestTemplate> DEFAULT_TARGET_FORMAT =
-      V22ManifestTemplate.class;
+  private static readonly Class<? extends BuildableManifestTemplate> DEFAULT_TARGET_FORMAT =
+      typeof(V22ManifestTemplate);
 
   /** The default tool identifier. */
-  private static final String DEFAULT_TOOL_NAME = "jib";
+  private static readonly string DEFAULT_TOOL_NAME = "jib";
 
   /** Builds an immutable {@link BuildConfiguration}. Instantiate with {@link #builder}. */
   public static class Builder {
 
     // All the parameters below are set to their default values.
-    @Nullable private ImageConfiguration baseImageConfiguration;
-    @Nullable private ImageConfiguration targetImageConfiguration;
-    private ImmutableSet<String> additionalTargetImageTags = ImmutableSet.of();
-    @Nullable private ContainerConfiguration containerConfiguration;
-    @Nullable private Path applicationLayersCacheDirectory;
-    @Nullable private Path baseImageLayersCacheDirectory;
-    private boolean allowInsecureRegistries = false;
-    private boolean offline = false;
+    private ImageConfiguration baseImageConfiguration;
+    private ImageConfiguration targetImageConfiguration;
+    private ImmutableSet<string> additionalTargetImageTags = ImmutableSet.of();
+    private ContainerConfiguration containerConfiguration;
+    private Path applicationLayersCacheDirectory;
+    private Path baseImageLayersCacheDirectory;
+    private bool allowInsecureRegistries = false;
+    private bool offline = false;
     private ImmutableList<LayerConfiguration> layerConfigurations = ImmutableList.of();
     private Class<? extends BuildableManifestTemplate> targetFormat = DEFAULT_TARGET_FORMAT;
-    private String toolName = DEFAULT_TOOL_NAME;
+    private string toolName = DEFAULT_TOOL_NAME;
     private EventHandlers eventHandlers = EventHandlers.NONE;
-    @Nullable private ExecutorService executorService;
+    private ExecutorService executorService;
 
     private Builder() {}
 
@@ -98,7 +97,7 @@ public class BuildConfiguration {
      * @param tags a set of tags
      * @return this
      */
-    public Builder setAdditionalTargetImageTags(Set<String> tags) {
+    public Builder setAdditionalTargetImageTags(Set<string> tags) {
       additionalTargetImageTags = ImmutableSet.copyOf(tags);
       return this;
     }
@@ -145,8 +144,8 @@ public class BuildConfiguration {
     public Builder setTargetFormat(ImageFormat targetFormat) {
       this.targetFormat =
           targetFormat == ImageFormat.Docker
-              ? V22ManifestTemplate.class
-              : OCIManifestTemplate.class;
+              ? typeof(V22ManifestTemplate)
+              : typeof(OCIManifestTemplate);
       return this;
     }
 
@@ -156,7 +155,7 @@ public class BuildConfiguration {
      * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
      * @return this
      */
-    public Builder setAllowInsecureRegistries(boolean allowInsecureRegistries) {
+    public Builder setAllowInsecureRegistries(bool allowInsecureRegistries) {
       this.allowInsecureRegistries = allowInsecureRegistries;
       return this;
     }
@@ -167,7 +166,7 @@ public class BuildConfiguration {
      * @param offline if {@code true}, the build will run in offline mode
      * @return this
      */
-    public Builder setOffline(boolean offline) {
+    public Builder setOffline(bool offline) {
       this.offline = offline;
       return this;
     }
@@ -189,7 +188,7 @@ public class BuildConfiguration {
      * @param toolName the tool name
      * @return this
      */
-    public Builder setToolName(String toolName) {
+    public Builder setToolName(string toolName) {
       this.toolName = toolName;
       return this;
     }
@@ -223,9 +222,9 @@ public class BuildConfiguration {
      * @return the corresponding build configuration
      * @throws IOException if an I/O exception occurs
      */
-    public BuildConfiguration build() throws IOException {
+    public BuildConfiguration build() {
       // Validates the parameters.
-      List<String> missingFields = new ArrayList<>();
+      List<string> missingFields = new ArrayList<>();
       if (baseImageConfiguration == null) {
         missingFields.add("base image configuration");
       }
@@ -277,21 +276,18 @@ public class BuildConfiguration {
         default:
           missingFields.add("and " + missingFields.remove(missingFields.size() - 1));
           StringJoiner errorMessage = new StringJoiner(", ", "", " are required but not set");
-          for (String missingField : missingFields) {
+          foreach (string missingField in missingFields)
+          {
             errorMessage.add(missingField);
           }
           throw new IllegalStateException(errorMessage.toString());
       }
     }
 
-    @Nullable
-    @VisibleForTesting
     Path getBaseImageLayersCacheDirectory() {
       return baseImageLayersCacheDirectory;
     }
 
-    @Nullable
-    @VisibleForTesting
     Path getApplicationLayersCacheDirectory() {
       return applicationLayersCacheDirectory;
     }
@@ -306,33 +302,33 @@ public class BuildConfiguration {
     return new Builder();
   }
 
-  private final ImageConfiguration baseImageConfiguration;
-  private final ImageConfiguration targetImageConfiguration;
-  private final ImmutableSet<String> additionalTargetImageTags;
-  @Nullable private final ContainerConfiguration containerConfiguration;
-  private final Cache baseImageLayersCache;
-  private final Cache applicationLayersCache;
+  private readonly ImageConfiguration baseImageConfiguration;
+  private readonly ImageConfiguration targetImageConfiguration;
+  private readonly ImmutableSet<string> additionalTargetImageTags;
+  private final ContainerConfiguration containerConfiguration;
+  private readonly Cache baseImageLayersCache;
+  private readonly Cache applicationLayersCache;
   private Class<? extends BuildableManifestTemplate> targetFormat;
-  private final boolean allowInsecureRegistries;
-  private final boolean offline;
-  private final ImmutableList<LayerConfiguration> layerConfigurations;
-  private final String toolName;
-  private final EventHandlers eventHandlers;
-  private final ExecutorService executorService;
+  private readonly bool allowInsecureRegistries;
+  private readonly bool offline;
+  private readonly ImmutableList<LayerConfiguration> layerConfigurations;
+  private readonly string toolName;
+  private readonly EventHandlers eventHandlers;
+  private readonly ExecutorService executorService;
 
   /** Instantiate with {@link #builder}. */
   private BuildConfiguration(
       ImageConfiguration baseImageConfiguration,
       ImageConfiguration targetImageConfiguration,
-      ImmutableSet<String> additionalTargetImageTags,
-      @Nullable ContainerConfiguration containerConfiguration,
+      ImmutableSet<string> additionalTargetImageTags,
+      ContainerConfiguration containerConfiguration,
       Cache baseImageLayersCache,
       Cache applicationLayersCache,
       Class<? extends BuildableManifestTemplate> targetFormat,
-      boolean allowInsecureRegistries,
-      boolean offline,
+      bool allowInsecureRegistries,
+      bool offline,
       ImmutableList<LayerConfiguration> layerConfigurations,
-      String toolName,
+      string toolName,
       EventHandlers eventHandlers,
       ExecutorService executorService) {
     this.baseImageConfiguration = baseImageConfiguration;
@@ -358,15 +354,14 @@ public class BuildConfiguration {
     return targetImageConfiguration;
   }
 
-  public ImmutableSet<String> getAllTargetImageTags() {
-    ImmutableSet.Builder<String> allTargetImageTags =
+  public ImmutableSet<string> getAllTargetImageTags() {
+    ImmutableSet.Builder<string> allTargetImageTags =
         ImmutableSet.builderWithExpectedSize(1 + additionalTargetImageTags.size());
     allTargetImageTags.add(targetImageConfiguration.getImageTag());
     allTargetImageTags.addAll(additionalTargetImageTags);
     return allTargetImageTags.build();
   }
 
-  @Nullable
   public ContainerConfiguration getContainerConfiguration() {
     return containerConfiguration;
   }
@@ -375,7 +370,7 @@ public class BuildConfiguration {
     return targetFormat;
   }
 
-  public String getToolName() {
+  public string getToolName() {
     return toolName;
   }
 
@@ -410,7 +405,7 @@ public class BuildConfiguration {
    *
    * @return {@code true} if insecure connections will be allowed; {@code false} otherwise
    */
-  public boolean getAllowInsecureRegistries() {
+  public bool getAllowInsecureRegistries() {
     return allowInsecureRegistries;
   }
 
@@ -419,7 +414,7 @@ public class BuildConfiguration {
    *
    * @return {@code true} if the build will run in offline mode; {@code false} otherwise
    */
-  public boolean isOffline() {
+  public bool isOffline() {
     return offline;
   }
 
@@ -460,4 +455,5 @@ public class BuildConfiguration {
         .setAllowInsecureRegistries(getAllowInsecureRegistries())
         .setUserAgentSuffix(getToolName());
   }
+}
 }

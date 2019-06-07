@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
 
 /**
  * JSON template for Docker Manifest Schema V2.1
@@ -59,51 +58,50 @@ import javax.annotation.Nullable;
  * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-1/">Image Manifest Version 2,
  *     Schema 1</a>
  */
-public class V21ManifestTemplate implements ManifestTemplate {
+public class V21ManifestTemplate : ManifestTemplate {
 
-  public static final String MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v1+json";
+  public static readonly string MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v1+json";
 
-  private final int schemaVersion = 1;
+  private readonly int schemaVersion = 1;
 
   /** The list of layer references. */
-  private final List<LayerObjectTemplate> fsLayers = new ArrayList<>();
+  private readonly List<LayerObjectTemplate> fsLayers = new ArrayList<>();
 
-  private final List<HistoryObjectTemplate> history = new ArrayList<>();
+  private readonly List<HistoryObjectTemplate> history = new ArrayList<>();
 
   /**
    * Template for inner JSON object representing a layer as part of the list of layer references.
    */
-  @VisibleForTesting
+
   static class LayerObjectTemplate implements JsonTemplate {
 
-    @Nullable private DescriptorDigest blobSum;
+    private DescriptorDigest blobSum;
 
-    @Nullable
     DescriptorDigest getDigest() {
       return blobSum;
     }
   }
 
   /** Template for inner JSON object representing history for a layer. */
-  private static class HistoryObjectTemplate implements JsonTemplate {
-
+  private class HistoryObjectTemplate : JsonTemplate  {
     // The value is basically free-form; they may be structured differently in practice, e.g.,
     // {"architecture": "amd64", "config": {"User": "1001", ...}, "parent": ...}
     // {"id": ..., "container_config": {"Cmd":[""]}}
-    @Nullable private String v1Compatibility;
+    private string v1Compatibility;
   }
 
   public List<DescriptorDigest> getLayerDigests() {
     List<DescriptorDigest> layerDigests = new ArrayList<>();
 
-    for (LayerObjectTemplate layerObjectTemplate : fsLayers) {
+    foreach (LayerObjectTemplate layerObjectTemplate in fsLayers)
+
+    {
       layerDigests.add(layerObjectTemplate.blobSum);
     }
 
     return layerDigests;
   }
 
-  @Override
   public int getSchemaVersion() {
     return schemaVersion;
   }
@@ -124,16 +122,17 @@ public class V21ManifestTemplate implements ManifestTemplate {
       if (history.isEmpty()) {
         return Optional.empty();
       }
-      String v1Compatibility = history.get(0).v1Compatibility;
+      string v1Compatibility = history.get(0).v1Compatibility;
       if (v1Compatibility == null) {
         return Optional.empty();
       }
 
       return Optional.of(
-          JsonTemplateMapper.readJson(v1Compatibility, ContainerConfigurationTemplate.class));
+          JsonTemplateMapper.readJson(v1Compatibility, typeof(ContainerConfigurationTemplate)));
     } catch (IOException ex) {
       // not a container configuration; ignore and continue
       return Optional.empty();
     }
   }
+}
 }

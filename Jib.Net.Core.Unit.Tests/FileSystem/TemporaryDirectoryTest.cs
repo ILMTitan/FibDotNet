@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link TemporaryDirectory}. */
 public class TemporaryDirectoryTest {
 
   private static void createFilesInDirectory(Path directory)
-      throws IOException, URISyntaxException {
+      {
     Path testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
     new DirectoryWalker(testFilesDirectory)
         .filterRoot()
-        .walk(path -> Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
+        .walk(path => Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
   }
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Test
-  public void testClose_directoryDeleted() throws IOException, URISyntaxException {
-    try (TemporaryDirectory temporaryDirectory =
+  [TestMethod]
+  public void testClose_directoryDeleted() {
+    using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
       createFilesInDirectory(temporaryDirectory.getDirectory());
 
@@ -51,11 +50,11 @@ public class TemporaryDirectoryTest {
     }
   }
 
-  @Test
-  public void testClose_directoryNotDeletedIfMoved() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testClose_directoryNotDeletedIfMoved() {
     Path destinationParent = temporaryFolder.newFolder().toPath();
 
-    try (TemporaryDirectory temporaryDirectory =
+    using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
       createFilesInDirectory(temporaryDirectory.getDirectory());
 
@@ -67,4 +66,5 @@ public class TemporaryDirectoryTest {
       Assert.assertTrue(Files.exists(destinationParent.resolve("destination")));
     }
   }
+}
 }

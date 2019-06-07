@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Test;
+
+
 
 /** Tests for {@link UnixPathParser}. */
 public class UnixPathParserTest {
 
-  @Test
+  [TestMethod]
   public void testParse() {
     Assert.assertEquals(ImmutableList.of("some", "path"), UnixPathParser.parse("/some/path"));
     Assert.assertEquals(ImmutableList.of("some", "path"), UnixPathParser.parse("some/path/"));
@@ -35,4 +34,5 @@ public class UnixPathParserTest {
     Assert.assertEquals(
         ImmutableList.of("T:\\dir", "real", "path"), UnixPathParser.parse("T:\\dir/real/path"));
   }
+}
 }

@@ -14,72 +14,71 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.http.Response;
-import java.net.MalformedURLException;
-import java.net.URL;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link AuthenticationMethodRetriever}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class AuthenticationMethodRetrieverTest {
 
-  @Mock private HttpResponseException mockHttpResponseException;
-  @Mock private HttpHeaders mockHeaders;
+  [Mock] private HttpResponseException mockHttpResponseException;
+  [Mock] private HttpHeaders mockHeaders;
 
-  private final RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
+  private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
-  private final AuthenticationMethodRetriever testAuthenticationMethodRetriever =
+  private readonly AuthenticationMethodRetriever testAuthenticationMethodRetriever =
       new AuthenticationMethodRetriever(fakeRegistryEndpointRequestProperties, "user-agent");
 
-  @Test
+  [TestMethod]
   public void testGetContent() {
     Assert.assertNull(testAuthenticationMethodRetriever.getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testGetAccept() {
     Assert.assertEquals(0, testAuthenticationMethodRetriever.getAccept().size());
   }
 
-  @Test
+  [TestMethod]
   public void testHandleResponse() {
     Assert.assertNull(
-        testAuthenticationMethodRetriever.handleResponse(Mockito.mock(Response.class)));
+        testAuthenticationMethodRetriever.handleResponse(Mockito.mock(typeof(Response))));
   }
 
-  @Test
-  public void testGetApiRoute() throws MalformedURLException {
+  [TestMethod]
+  public void testGetApiRoute() {
     Assert.assertEquals(
-        new URL("http://someApiBase/"),
+        new Uri("http://someApiBase/"),
         testAuthenticationMethodRetriever.getApiRoute("http://someApiBase/"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetHttpMethod() {
     Assert.assertEquals(HttpMethods.GET, testAuthenticationMethodRetriever.getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testGetActionDescription() {
     Assert.assertEquals(
         "retrieve authentication method for someServerUrl",
         testAuthenticationMethodRetriever.getActionDescription());
   }
 
-  @Test
-  public void testHandleHttpResponseException_invalidStatusCode() throws RegistryErrorException {
+  [TestMethod]
+  public void testHandleHttpResponseException_invalidStatusCode() {
     Mockito.when(mockHttpResponseException.getStatusCode()).thenReturn(-1);
 
     try {
@@ -92,8 +91,8 @@ public class AuthenticationMethodRetrieverTest {
     }
   }
 
-  @Test
-  public void tsetHandleHttpResponseException_noHeader() throws HttpResponseException {
+  [TestMethod]
+  public void tsetHandleHttpResponseException_noHeader() {
     Mockito.when(mockHttpResponseException.getStatusCode())
         .thenReturn(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
     Mockito.when(mockHttpResponseException.getHeaders()).thenReturn(mockHeaders);
@@ -110,10 +109,10 @@ public class AuthenticationMethodRetrieverTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testHandleHttpResponseException_badAuthenticationMethod()
-      throws HttpResponseException {
-    String authenticationMethod = "bad authentication method";
+      {
+    string authenticationMethod = "bad authentication method";
 
     Mockito.when(mockHttpResponseException.getStatusCode())
         .thenReturn(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
@@ -133,10 +132,10 @@ public class AuthenticationMethodRetrieverTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testHandleHttpResponseException_pass()
-      throws RegistryErrorException, HttpResponseException, MalformedURLException {
-    String authenticationMethod =
+      {
+    string authenticationMethod =
         "Bearer realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"";
 
     Mockito.when(mockHttpResponseException.getStatusCode())
@@ -148,7 +147,8 @@ public class AuthenticationMethodRetrieverTest {
         testAuthenticationMethodRetriever.handleHttpResponseException(mockHttpResponseException);
 
     Assert.assertEquals(
-        new URL("https://somerealm?service=someservice&scope=repository:someImageName:someScope"),
+        new Uri("https://somerealm?service=someservice&scope=repository:someImageName:someScope"),
         registryAuthenticator.getAuthenticationUrl(null, "someScope"));
   }
+}
 }

@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
-import javax.annotation.Nullable;
+
 
 /**
  * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link
@@ -25,7 +24,8 @@ import javax.annotation.Nullable;
  */
 class RegistryErrorException extends RegistryException {
 
-  RegistryErrorException(String message, @Nullable Throwable cause) {
+  RegistryErrorException(string message, Throwable cause) {
     super(message, cause);
   }
+}
 }

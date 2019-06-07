@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib;
+namespace com.google.cloud.tools.jib {
 
-import com.google.common.base.Strings;
-import org.junit.Assert;
+
 
 /** Configuration for integration tests. */
 public class IntegrationTestingConfiguration {
 
-  public static String getGCPProject() {
-    String projectId = System.getenv("JIB_INTEGRATION_TESTING_PROJECT");
+  public static string getGCPProject() {
+    string projectId = System.getenv("JIB_INTEGRATION_TESTING_PROJECT");
     if (Strings.isNullOrEmpty(projectId)) {
       Assert.fail(
           "Must set environment variable JIB_INTEGRATION_TESTING_PROJECT to the GCP project to use for integration testing.");
@@ -32,4 +31,5 @@ public class IntegrationTestingConfiguration {
   }
 
   private IntegrationTestingConfiguration() {}
+}
 }

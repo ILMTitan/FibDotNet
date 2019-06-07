@@ -14,12 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
 /** Exception thrown when the number of layers found did not match expectations. */
-public class LayerCountMismatchException extends Exception {
+public class LayerCountMismatchException : Exception {
 
-  public LayerCountMismatchException(String message) {
-    super(message);
+  public LayerCountMismatchException(string message) : base(message) {
+    
   }
+}
 }

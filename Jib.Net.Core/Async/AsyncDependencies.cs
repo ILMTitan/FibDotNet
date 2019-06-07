@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.async;
+namespace com.google.cloud.tools.jib.async {
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
+
+
+
+
+
 
 /**
  * Builds a list of dependency {@link ListenableFuture}s to wait on before calling a {@link
@@ -35,14 +34,14 @@ public class AsyncDependencies {
    * @param listeningExecutorService the {@link ListeningExecutorService}
    * @return a new {@link AsyncDependencies}
    */
-  public static AsyncDependencies using(ListeningExecutorService listeningExecutorService) {
+  public static AsyncDependencies @using(ListeningExecutorService listeningExecutorService) {
     return new AsyncDependencies(listeningExecutorService);
   }
 
-  private final ListeningExecutorService listeningExecutorService;
+  private readonly ListeningExecutorService listeningExecutorService;
 
   /** Stores the list of {@link ListenableFuture}s to wait on. */
-  private final List<ListenableFuture<?>> futures = new ArrayList<>();
+  private readonly List<Task> futures = new ArrayList<Task>();
 
   private AsyncDependencies(ListeningExecutorService listeningExecutorService) {
     this.listeningExecutorService = listeningExecutorService;
@@ -54,7 +53,7 @@ public class AsyncDependencies {
    * @param asyncStep the {@link AsyncStep}
    * @return this
    */
-  public AsyncDependencies addStep(AsyncStep<?> asyncStep) {
+  public AsyncDependencies addStep(AsyncStep asyncStep) {
     futures.add(asyncStep.getFuture());
     return this;
   }
@@ -65,8 +64,8 @@ public class AsyncDependencies {
    * @param asyncSteps the {@link AsyncStep}s
    * @return this
    */
-  public AsyncDependencies addSteps(List<? extends AsyncStep<?>> asyncSteps) {
-    asyncSteps.forEach(this::addStep);
+  public AsyncDependencies addSteps(List<AsyncStep> asyncSteps) {
+    asyncSteps.forEach(this.addStep);
     return this;
   }
 
@@ -78,7 +77,8 @@ public class AsyncDependencies {
    * @param <C> the return type of {@code combiner}
    * @return a {@link ListenableFuture} to handle completion of the call to {@code combiner}
    */
-  public <C> ListenableFuture<C> whenAllSucceed(Callable<C> combiner) {
+  public ListenableFuture<C> whenAllSucceed<C>(Callable<C> combiner) {
     return Futures.whenAllSucceed(futures).call(combiner, listeningExecutorService);
   }
+}
 }

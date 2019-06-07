@@ -14,36 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ProgressEventDispatcher}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ProgressEventDispatcherTest {
 
-  @Mock private EventHandlers mockEventHandlers;
+  [Mock] private EventHandlers mockEventHandlers;
 
-  @Test
+  [TestMethod]
   public void testDispatch() {
-    try (ProgressEventDispatcher progressEventDispatcher =
-            ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 10);
-        ProgressEventDispatcher ignored =
-            progressEventDispatcher.newChildProducer().create("ignored", 20)) {
+    using(ProgressEventDispatcher progressEventDispatcher =
+            ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 10))
+    using(ProgressEventDispatcher ignored =
+            progressEventDispatcher.newChildProducer().create("ignored", 20))
+    {
+
       // empty
     }
 
     ArgumentCaptor<ProgressEvent> progressEventArgumentCaptor =
-        ArgumentCaptor.forClass(ProgressEvent.class);
+        ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(4))
         .dispatch(progressEventArgumentCaptor.capture());
     List<ProgressEvent> progressEvents = progressEventArgumentCaptor.getAllValues();
@@ -57,16 +58,16 @@ public class ProgressEventDispatcherTest {
     Assert.assertEquals(9, progressEvents.get(3).getUnits());
   }
 
-  @Test
+  [TestMethod]
   public void testDispatch_safeWithtooMuchProgress() {
-    try (ProgressEventDispatcher progressEventDispatcher =
+    using (ProgressEventDispatcher progressEventDispatcher =
         ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 10)) {
       progressEventDispatcher.dispatchProgress(6);
       progressEventDispatcher.dispatchProgress(8);
       progressEventDispatcher.dispatchProgress(1);
     }
 
-    ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(ProgressEvent.class);
+    ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(4)).dispatch(eventsCaptor.capture());
     List<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
 
@@ -82,18 +83,20 @@ public class ProgressEventDispatcherTest {
     Assert.assertEquals(0, progressEvents.get(3).getUnits());
   }
 
-  @Test
+  [TestMethod]
   public void testDispatch_safeWithTooManyChildren() {
-    try (ProgressEventDispatcher progressEventDispatcher =
-            ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 1);
-        ProgressEventDispatcher ignored1 =
-            progressEventDispatcher.newChildProducer().create("ignored", 5);
-        ProgressEventDispatcher ignored2 =
-            progressEventDispatcher.newChildProducer().create("ignored", 4)) {
+    using(ProgressEventDispatcher progressEventDispatcher =
+            ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 1))
+    using(ProgressEventDispatcher ignored1 =
+            progressEventDispatcher.newChildProducer().create("ignored", 5))
+    using(ProgressEventDispatcher ignored2 =
+            progressEventDispatcher.newChildProducer().create("ignored", 4))
+    {
+
       // empty
     }
 
-    ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(ProgressEvent.class);
+    ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(5)).dispatch(eventsCaptor.capture());
     List<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
 
@@ -112,4 +115,5 @@ public class ProgressEventDispatcherTest {
     Assert.assertEquals(4, progressEvents.get(3).getUnits()); // when child2 closes
     Assert.assertEquals(5, progressEvents.get(4).getUnits()); // when child1 closes
   }
+}
 }

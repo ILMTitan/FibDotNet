@@ -14,32 +14,31 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.RegistryAuthenticationFailedException;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.global.JibSystemProperties;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.Connection;
-import com.google.cloud.tools.jib.http.Request;
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Verify;
-import com.google.common.io.CharStreams;
-import com.google.common.net.MediaType;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Authenticates push/pull access with a registry service.
@@ -61,12 +60,11 @@ public class RegistryAuthenticator {
    * @see <a
    *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
    */
-  @Nullable
   static RegistryAuthenticator fromAuthenticationMethod(
-      String authenticationMethod,
+      string authenticationMethod,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      String userAgent)
-      throws RegistryAuthenticationFailedException {
+      string userAgent)
+      {
     // If the authentication method starts with 'basic ' (case insensitive), no registry
     // authentication is needed.
     if (authenticationMethod.matches("^(?i)(basic) .*")) {
@@ -91,12 +89,12 @@ public class RegistryAuthenticator {
           authenticationMethod,
           "realm");
     }
-    String realm = realmMatcher.group(1);
+    string realm = realmMatcher.group(1);
 
     Pattern servicePattern = Pattern.compile("service=\"(.*?)\"");
     Matcher serviceMatcher = servicePattern.matcher(authenticationMethod);
     // use the provided registry location when missing service (e.g., for OpenShift)
-    String service =
+    string service =
         serviceMatcher.find()
             ? serviceMatcher.group(1)
             : registryEndpointRequestProperties.getServerUrl();
@@ -105,7 +103,7 @@ public class RegistryAuthenticator {
   }
 
   private static RegistryAuthenticationFailedException newRegistryAuthenticationFailedException(
-      String registry, String repository, String authenticationMethod, String authParam) {
+      string registry, string repository, string authenticationMethod, string authParam) {
     return new RegistryAuthenticationFailedException(
         registry,
         repository,
@@ -116,10 +114,9 @@ public class RegistryAuthenticator {
   }
 
   /** Template for the authentication response JSON. */
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  private static class AuthenticationResponseTemplate implements JsonTemplate {
-
-    @Nullable private String token;
+  [JsonIgnoreProperties(ignoreUnknown = true)]
+  private class AuthenticationResponseTemplate : JsonTemplate  {
+    private string token;
 
     /**
      * {@code access_token} is accepted as an alias for {@code token}.
@@ -127,11 +124,10 @@ public class RegistryAuthenticator {
      * @see <a
      *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
      */
-    @Nullable private String access_token;
+    private string access_token;
 
     /** @return {@link #token} if not null, or {@link #access_token} */
-    @Nullable
-    private String getToken() {
+    private string getToken() {
       if (token != null) {
         return token;
       }
@@ -139,16 +135,16 @@ public class RegistryAuthenticator {
     }
   }
 
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final String realm;
-  private final String service;
-  private final String userAgent;
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly string realm;
+  private readonly string service;
+  private readonly string userAgent;
 
   RegistryAuthenticator(
-      String realm,
-      String service,
+      string realm,
+      string service,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      String userAgent) {
+      string userAgent) {
     this.realm = realm;
     this.service = service;
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
@@ -162,8 +158,8 @@ public class RegistryAuthenticator {
    * @return an {@code Authorization} authenticating the pull
    * @throws RegistryAuthenticationFailedException if authentication fails
    */
-  public Authorization authenticatePull(@Nullable Credential credential)
-      throws RegistryAuthenticationFailedException {
+  public Authorization authenticatePull(Credential credential)
+      {
     return authenticate(credential, "pull");
   }
 
@@ -174,13 +170,12 @@ public class RegistryAuthenticator {
    * @return an {@code Authorization} authenticating the push
    * @throws RegistryAuthenticationFailedException if authentication fails
    */
-  public Authorization authenticatePush(@Nullable Credential credential)
-      throws RegistryAuthenticationFailedException {
+  public Authorization authenticatePush(Credential credential)
+      {
     return authenticate(credential, "pull,push");
   }
 
-  @VisibleForTesting
-  String getServiceScopeRequestParameters(String scope) {
+  string getServiceScopeRequestParameters(string scope) {
     return "service="
         + service
         + "&scope=repository:"
@@ -189,17 +184,15 @@ public class RegistryAuthenticator {
         + scope;
   }
 
-  @VisibleForTesting
-  URL getAuthenticationUrl(@Nullable Credential credential, String scope)
-      throws MalformedURLException {
+  Uri getAuthenticationUrl(Credential credential, string scope)
+      {
     return isOAuth2Auth(credential)
-        ? new URL(realm) // Required parameters will be sent via POST .
-        : new URL(realm + "?" + getServiceScopeRequestParameters(scope));
+        ? new Uri(realm) // Required parameters will be sent via POST .
+        : new Uri(realm + "?" + getServiceScopeRequestParameters(scope));
   }
 
-  @VisibleForTesting
-  String getAuthRequestParameters(@Nullable Credential credential, String scope) {
-    String serviceScope = getServiceScopeRequestParameters(scope);
+  string getAuthRequestParameters(Credential credential, string scope) {
+    string serviceScope = getServiceScopeRequestParameters(scope);
     return isOAuth2Auth(credential)
         ? serviceScope
             // https://github.com/GoogleContainerTools/jib/pull/1545
@@ -210,8 +203,7 @@ public class RegistryAuthenticator {
         : serviceScope;
   }
 
-  @VisibleForTesting
-  boolean isOAuth2Auth(@Nullable Credential credential) {
+  bool isOAuth2Auth(Credential credential) {
     return credential != null && credential.isOAuth2RefreshToken();
   }
 
@@ -225,9 +217,9 @@ public class RegistryAuthenticator {
    * @see <a
    *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
    */
-  private Authorization authenticate(@Nullable Credential credential, String scope)
-      throws RegistryAuthenticationFailedException {
-    try (Connection connection =
+  private Authorization authenticate(Credential credential, string scope)
+      {
+    using (Connection connection =
         Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope))) {
       Request.Builder requestBuilder =
           Request.builder()
@@ -235,7 +227,7 @@ public class RegistryAuthenticator {
               .setUserAgent(userAgent);
 
       if (isOAuth2Auth(credential)) {
-        String parameters = getAuthRequestParameters(credential, scope);
+        string parameters = getAuthRequestParameters(credential, scope);
         requestBuilder.setBody(
             new BlobHttpContent(Blobs.from(parameters), MediaType.FORM_DATA.toString()));
       } else if (credential != null) {
@@ -246,11 +238,11 @@ public class RegistryAuthenticator {
       Request request = requestBuilder.build();
       Response response =
           isOAuth2Auth(credential) ? connection.post(request) : connection.get(request);
-      String responseString =
+      string responseString =
           CharStreams.toString(new InputStreamReader(response.getBody(), StandardCharsets.UTF_8));
 
       AuthenticationResponseTemplate responseJson =
-          JsonTemplateMapper.readJson(responseString, AuthenticationResponseTemplate.class);
+          JsonTemplateMapper.readJson(responseString, typeof(AuthenticationResponseTemplate));
 
       if (responseJson.getToken() == null) {
         throw new RegistryAuthenticationFailedException(
@@ -270,4 +262,5 @@ public class RegistryAuthenticator {
           ex);
     }
   }
+}
 }

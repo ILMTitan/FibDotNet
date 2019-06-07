@@ -14,15 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.filesystem.UnixPathParser;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.StringJoiner;
-import javax.annotation.concurrent.Immutable;
+
+
+
 
 /**
  * Represents a Unix-style path in absolute form (containing all path components relative to the
@@ -30,7 +26,6 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>This class is immutable and thread-safe.
  */
-@Immutable
 public class AbsoluteUnixPath {
 
   /**
@@ -40,7 +35,7 @@ public class AbsoluteUnixPath {
    * @param unixPath the Unix-style path string in absolute form
    * @return a new {@link AbsoluteUnixPath}
    */
-  public static AbsoluteUnixPath get(String unixPath) {
+  public static AbsoluteUnixPath get(string unixPath) {
     Preconditions.checkArgument(
         unixPath.startsWith("/"), "Path does not start with forward slash (/): " + unixPath);
 
@@ -58,28 +53,30 @@ public class AbsoluteUnixPath {
     Preconditions.checkArgument(
         path.getRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
 
-    ImmutableList.Builder<String> pathComponents =
+    ImmutableList.Builder<string> pathComponents =
         ImmutableList.builderWithExpectedSize(path.getNameCount());
-    for (Path pathComponent : path) {
+    foreach (Path pathComponent in path)
+    {
       pathComponents.add(pathComponent.toString());
     }
     return new AbsoluteUnixPath(pathComponents.build());
   }
 
   /** Path components after the file system root. This should always match {@link #unixPath}. */
-  private final ImmutableList<String> pathComponents;
+  private readonly ImmutableList<string> pathComponents;
 
   /**
    * Unix-style path, in absolute form. Does not end with trailing slash, except for the file system
    * root ({@code /}). This should always match {@link #pathComponents}.
    */
-  private final String unixPath;
+  private readonly string unixPath;
 
-  private AbsoluteUnixPath(ImmutableList<String> pathComponents) {
+  private AbsoluteUnixPath(ImmutableList<string> pathComponents) {
     this.pathComponents = pathComponents;
 
     StringJoiner pathJoiner = new StringJoiner("/", "/", "");
-    for (String pathComponent : pathComponents) {
+    foreach (string pathComponent in pathComponents)
+    {
       pathJoiner.add(pathComponent);
     }
     unixPath = pathJoiner.toString();
@@ -92,7 +89,7 @@ public class AbsoluteUnixPath {
    * @return a new {@link AbsoluteUnixPath} representing the resolved path
    */
   public AbsoluteUnixPath resolve(RelativeUnixPath relativeUnixPath) {
-    ImmutableList.Builder<String> newPathComponents =
+    ImmutableList.Builder<string> newPathComponents =
         ImmutableList.builderWithExpectedSize(
             pathComponents.size() + relativeUnixPath.getRelativePathComponents().size());
     newPathComponents.addAll(pathComponents);
@@ -120,7 +117,7 @@ public class AbsoluteUnixPath {
    * @param relativeUnixPath the relative path to resolve against
    * @return a new {@link AbsoluteUnixPath} representing the resolved path
    */
-  public AbsoluteUnixPath resolve(String relativeUnixPath) {
+  public AbsoluteUnixPath resolve(string relativeUnixPath) {
     return resolve(RelativeUnixPath.get(relativeUnixPath));
   }
 
@@ -129,25 +126,25 @@ public class AbsoluteUnixPath {
    *
    * @return the string form
    */
-  @Override
-  public String toString() {
+
+  public string toString() {
     return unixPath;
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof AbsoluteUnixPath)) {
+    if (!(other is AbsoluteUnixPath)) {
       return false;
     }
     AbsoluteUnixPath otherAbsoluteUnixPath = (AbsoluteUnixPath) other;
     return unixPath.equals(otherAbsoluteUnixPath.unixPath);
   }
 
-  @Override
   public int hashCode() {
     return unixPath.hashCode();
   }
+}
+
 }

@@ -14,48 +14,46 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.Layer;
-import com.google.cloud.tools.jib.image.LayerCountMismatchException;
-import com.google.cloud.tools.jib.image.LayerPropertyNotFoundException;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link JsonToImageTranslator}. */
 public class JsonToImageTranslatorTest {
 
-  @Test
+  [TestMethod]
   public void testToImage_v21()
-      throws IOException, LayerPropertyNotFoundException, DigestException, URISyntaxException,
-          BadContainerConfigurationFormatException {
+      {
     // Loads the JSON string.
     Path jsonFile =
         Paths.get(getClass().getClassLoader().getResource("core/json/v21manifest.json").toURI());
 
     // Deserializes into a manifest JSON object.
     V21ManifestTemplate manifestTemplate =
-        JsonTemplateMapper.readJsonFromFile(jsonFile, V21ManifestTemplate.class);
+        JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(V21ManifestTemplate));
 
     Image image = JsonToImageTranslator.toImage(manifestTemplate);
 
@@ -71,23 +69,21 @@ public class JsonToImageTranslatorTest {
         layers.get(1).getBlobDescriptor().getDigest());
   }
 
-  @Test
+  [TestMethod]
   public void testToImage_v22()
-      throws IOException, LayerPropertyNotFoundException, LayerCountMismatchException,
-          DigestException, URISyntaxException, BadContainerConfigurationFormatException {
-    testToImage_buildable("core/json/v22manifest.json", V22ManifestTemplate.class);
+      {
+    testToImage_buildable("core/json/v22manifest.json", typeof(V22ManifestTemplate));
   }
 
-  @Test
+  [TestMethod]
   public void testToImage_oci()
-      throws IOException, LayerPropertyNotFoundException, LayerCountMismatchException,
-          DigestException, URISyntaxException, BadContainerConfigurationFormatException {
-    testToImage_buildable("core/json/ocimanifest.json", OCIManifestTemplate.class);
+      {
+    testToImage_buildable("core/json/ocimanifest.json", typeof(OCIManifestTemplate));
   }
 
-  @Test
-  public void testPortMapToList() throws BadContainerConfigurationFormatException {
-    ImmutableSortedMap<String, Map<?, ?>> input =
+  [TestMethod]
+  public void testPortMapToList() {
+    ImmutableSortedMap<string, Map<object, object>> input =
         ImmutableSortedMap.of(
             "1000",
             ImmutableMap.of(),
@@ -98,13 +94,14 @@ public class JsonToImageTranslatorTest {
     ImmutableSet<Port> expected = ImmutableSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000));
     Assert.assertEquals(expected, JsonToImageTranslator.portMapToSet(input));
 
-    ImmutableList<Map<String, Map<?, ?>>> badInputs =
+    ImmutableList<Map<string, Map<object, object>>> badInputs =
         ImmutableList.of(
             ImmutableMap.of("abc", ImmutableMap.of()),
             ImmutableMap.of("1000-2000", ImmutableMap.of()),
             ImmutableMap.of("/udp", ImmutableMap.of()),
             ImmutableMap.of("123/xxx", ImmutableMap.of()));
-    for (Map<String, Map<?, ?>> badInput : badInputs) {
+    foreach (Map<string, Map<object, object>> badInput in badInputs)
+    {
       try {
         JsonToImageTranslator.portMapToSet(badInput);
         Assert.fail();
@@ -113,9 +110,9 @@ public class JsonToImageTranslatorTest {
     }
   }
 
-  @Test
-  public void testVolumeMapToList() throws BadContainerConfigurationFormatException {
-    ImmutableSortedMap<String, Map<?, ?>> input =
+  [TestMethod]
+  public void testVolumeMapToList() {
+    ImmutableSortedMap<string, Map<object, object>> input =
         ImmutableSortedMap.of(
             "/var/job-result-data", ImmutableMap.of(), "/var/log/my-app-logs", ImmutableMap.of());
     ImmutableSet<AbsoluteUnixPath> expected =
@@ -124,12 +121,13 @@ public class JsonToImageTranslatorTest {
             AbsoluteUnixPath.get("/var/log/my-app-logs"));
     Assert.assertEquals(expected, JsonToImageTranslator.volumeMapToSet(input));
 
-    ImmutableList<Map<String, Map<?, ?>>> badInputs =
+    ImmutableList<Map<string, Map<object, object>>> badInputs =
         ImmutableList.of(
             ImmutableMap.of("var/job-result-data", ImmutableMap.of()),
             ImmutableMap.of("log", ImmutableMap.of()),
             ImmutableMap.of("C:/udp", ImmutableMap.of()));
-    for (Map<String, Map<?, ?>> badInput : badInputs) {
+    foreach (Map<string, Map<object, object>> badInput in badInputs)
+    {
       try {
         JsonToImageTranslator.volumeMapToSet(badInput);
         Assert.fail();
@@ -138,7 +136,7 @@ public class JsonToImageTranslatorTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testJsonToImageTranslatorRegex() {
     assertGoodEnvironmentPattern("NAME=VALUE", "NAME", "VALUE");
     assertGoodEnvironmentPattern("A1203921=www=ww", "A1203921", "www=ww");
@@ -151,29 +149,27 @@ public class JsonToImageTranslatorTest {
   }
 
   private void assertGoodEnvironmentPattern(
-      String input, String expectedName, String expectedValue) {
+      string input, string expectedName, string expectedValue) {
     Matcher matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
     Assert.assertTrue(matcher.matches());
     Assert.assertEquals(expectedName, matcher.group("name"));
     Assert.assertEquals(expectedValue, matcher.group("value"));
   }
 
-  private void assertBadEnvironmentPattern(String input) {
+  private void assertBadEnvironmentPattern(string input) {
     Matcher matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
     Assert.assertFalse(matcher.matches());
   }
 
-  private <T extends BuildableManifestTemplate> void testToImage_buildable(
-      String jsonFilename, Class<T> manifestTemplateClass)
-      throws IOException, LayerPropertyNotFoundException, LayerCountMismatchException,
-          DigestException, URISyntaxException, BadContainerConfigurationFormatException {
+  private void testToImage_buildable<T>(
+      string jsonFilename, Class<T> manifestTemplateClass) where T : BuildableManifestTemplate {
     // Loads the container configuration JSON.
     Path containerConfigurationJsonFile =
         Paths.get(
             getClass().getClassLoader().getResource("core/json/containerconfig.json").toURI());
     ContainerConfigurationTemplate containerConfigurationTemplate =
         JsonTemplateMapper.readJsonFromFile(
-            containerConfigurationJsonFile, ContainerConfigurationTemplate.class);
+            containerConfigurationJsonFile, typeof(ContainerConfigurationTemplate));
 
     // Loads the manifest JSON.
     Path manifestJsonFile =
@@ -225,4 +221,5 @@ public class JsonToImageTranslatorTest {
     Assert.assertEquals("value2", image.getLabels().get("key2"));
     Assert.assertEquals(2, image.getLabels().size());
   }
+}
 }

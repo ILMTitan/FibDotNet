@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+
+
+
+
+
 
 /** Provides known aliases and alternative hosts for a given registry. */
 public class RegistryAliasGroup {
 
-  private static final ImmutableList<ImmutableSet<String>> REGISTRY_ALIAS_GROUPS =
+  private static readonly ImmutableList<ImmutableSet<string>> REGISTRY_ALIAS_GROUPS =
       ImmutableList.of(
           // Docker Hub alias group (https://github.com/moby/moby/pull/28100)
           ImmutableSet.of(
               "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io"));
 
   /** Some registry names are symbolic. */
-  private static final ImmutableMap<String, String> REGISTRY_HOST_MAP =
+  private static readonly ImmutableMap<string, string> REGISTRY_HOST_MAP =
       ImmutableMap.of(
           // https://github.com/docker/hub-feedback/issues/1767
           "docker.io", "registry-1.docker.io");
@@ -46,12 +45,13 @@ public class RegistryAliasGroup {
    * @param registry the registry for which the alias group is requested
    * @return non-empty list of registries where {@code registry} is the first element
    */
-  public static List<String> getAliasesGroup(String registry) {
-    for (ImmutableSet<String> aliasGroup : REGISTRY_ALIAS_GROUPS) {
+  public static List<string> getAliasesGroup(string registry) {
+    foreach (ImmutableSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
+    {
       if (aliasGroup.contains(registry)) {
         // Found a group. Move the requested "registry" to the front before returning it.
-        Stream<String> self = Stream.of(registry);
-        Stream<String> withoutSelf = aliasGroup.stream().filter(alias -> !registry.equals(alias));
+        Stream<string> self = Stream.of(registry);
+        Stream<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.equals(alias));
         return Stream.concat(self, withoutSelf).collect(Collectors.toList());
       }
     }
@@ -65,7 +65,8 @@ public class RegistryAliasGroup {
    * @param registry the name of the registry
    * @return the registry host
    */
-  public static String getHost(String registry) {
+  public static string getHost(string registry) {
     return REGISTRY_HOST_MAP.getOrDefault(registry, registry);
   }
+}
 }

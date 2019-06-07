@@ -14,42 +14,41 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.frontend;
+namespace com.google.cloud.tools.jib.frontend {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.CredentialRetriever;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.registry.credentials.CredentialHelperNotFoundException;
-import com.google.cloud.tools.jib.registry.credentials.CredentialHelperUnhandledServerUrlException;
-import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
-import com.google.cloud.tools.jib.registry.credentials.DockerConfigCredentialRetriever;
-import com.google.cloud.tools.jib.registry.credentials.DockerCredentialHelper;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Static factories for various {@link CredentialRetriever}s. */
 public class CredentialRetrieverFactory {
 
   /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
-  @VisibleForTesting
+
   @FunctionalInterface
   interface DockerCredentialHelperFactory {
-    DockerCredentialHelper create(String registry, Path credentialHelper);
+    DockerCredentialHelper create(string registry, Path credentialHelper);
   }
 
   /**
    * Defines common credential helpers to use as defaults. Maps from registry suffix to credential
    * helper suffix.
    */
-  private static final ImmutableMap<String, String> COMMON_CREDENTIAL_HELPERS =
+  private static readonly ImmutableMap<string, string> COMMON_CREDENTIAL_HELPERS =
       ImmutableMap.of("gcr.io", "gcr", "amazonaws.com", "ecr-login");
 
   /**
@@ -72,14 +71,13 @@ public class CredentialRetrieverFactory {
    */
   public static CredentialRetrieverFactory forImage(ImageReference imageReference) {
     return new CredentialRetrieverFactory(
-        imageReference, logEvent -> {}, DockerCredentialHelper::new);
+        imageReference, logEvent => {}, DockerCredentialHelper.new);
   }
 
-  private final ImageReference imageReference;
-  private final Consumer<LogEvent> logger;
-  private final DockerCredentialHelperFactory dockerCredentialHelperFactory;
+  private readonly ImageReference imageReference;
+  private readonly Consumer<LogEvent> logger;
+  private readonly DockerCredentialHelperFactory dockerCredentialHelperFactory;
 
-  @VisibleForTesting
   CredentialRetrieverFactory(
       ImageReference imageReference,
       Consumer<LogEvent> logger,
@@ -96,8 +94,8 @@ public class CredentialRetrieverFactory {
    * @param credentialSource the source of the credentials (for logging)
    * @return a new {@link CredentialRetriever}
    */
-  public CredentialRetriever known(Credential credential, String credentialSource) {
-    return () -> {
+  public CredentialRetriever known(Credential credential, string credentialSource) {
+    return () => {
       logGotCredentialsFrom(credentialSource);
       return Optional.of(credential);
     };
@@ -110,7 +108,7 @@ public class CredentialRetrieverFactory {
    * @param credentialHelper the credential helper executable
    * @return a new {@link CredentialRetriever}
    */
-  public CredentialRetriever dockerCredentialHelper(String credentialHelper) {
+  public CredentialRetriever dockerCredentialHelper(string credentialHelper) {
     return dockerCredentialHelper(Paths.get(credentialHelper));
   }
 
@@ -124,7 +122,7 @@ public class CredentialRetrieverFactory {
    *     href="https://github.com/docker/docker-credential-helpers#development">https://github.com/docker/docker-credential-helpers#development</a>
    */
   public CredentialRetriever dockerCredentialHelper(Path credentialHelper) {
-    return () -> {
+    return () => {
       logger.accept(LogEvent.info("Checking credentials from " + credentialHelper));
 
       try {
@@ -150,20 +148,22 @@ public class CredentialRetrieverFactory {
    * @return a new {@link CredentialRetriever}
    */
   public CredentialRetriever inferCredentialHelper() {
-    List<String> inferredCredentialHelperSuffixes = new ArrayList<>();
-    for (String registrySuffix : COMMON_CREDENTIAL_HELPERS.keySet()) {
+    List<string> inferredCredentialHelperSuffixes = new ArrayList<>();
+    foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.keySet())
+    {
       if (!imageReference.getRegistry().endsWith(registrySuffix)) {
         continue;
       }
-      String inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.get(registrySuffix);
+      string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.get(registrySuffix);
       if (inferredCredentialHelperSuffix == null) {
         throw new IllegalStateException("No COMMON_CREDENTIAL_HELPERS should be null");
       }
       inferredCredentialHelperSuffixes.add(inferredCredentialHelperSuffix);
     }
 
-    return () -> {
-      for (String inferredCredentialHelperSuffix : inferredCredentialHelperSuffixes) {
+    return () => {
+      foreach (string inferredCredentialHelperSuffix in inferredCredentialHelperSuffixes)
+      {
         try {
           return Optional.of(
               retrieveFromDockerCredentialHelper(
@@ -213,10 +213,9 @@ public class CredentialRetrieverFactory {
         new DockerConfigCredentialRetriever(imageReference.getRegistry(), dockerConfigFile));
   }
 
-  @VisibleForTesting
   CredentialRetriever dockerConfig(
       DockerConfigCredentialRetriever dockerConfigCredentialRetriever) {
-    return () -> {
+    return () => {
       try {
         Optional<Credential> dockerConfigCredentials =
             dockerConfigCredentialRetriever.retrieve(logger);
@@ -235,8 +234,7 @@ public class CredentialRetrieverFactory {
   }
 
   private Credential retrieveFromDockerCredentialHelper(Path credentialHelper)
-      throws CredentialHelperUnhandledServerUrlException, CredentialHelperNotFoundException,
-          IOException {
+      {
     Credential credentials =
         dockerCredentialHelperFactory
             .create(imageReference.getRegistry(), credentialHelper)
@@ -245,8 +243,9 @@ public class CredentialRetrieverFactory {
     return credentials;
   }
 
-  private void logGotCredentialsFrom(String credentialSource) {
+  private void logGotCredentialsFrom(string credentialSource) {
     logger.accept(
         LogEvent.info("Using " + credentialSource + " for " + imageReference.getRegistry()));
   }
+}
 }

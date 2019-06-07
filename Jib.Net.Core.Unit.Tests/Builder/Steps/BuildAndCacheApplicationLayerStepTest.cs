@@ -14,51 +14,50 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.cache.Cache;
-import com.google.cloud.tools.jib.cache.CacheCorruptedException;
-import com.google.cloud.tools.jib.cache.CachedLayer;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.ImageLayers;
-import com.google.cloud.tools.jib.image.LayerPropertyNotFoundException;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Resources;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BuildAndCacheApplicationLayerStep}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class BuildAndCacheApplicationLayerStepTest {
 
   // TODO: Consolidate with BuildStepsIntegrationTest.
-  private static final AbsoluteUnixPath EXTRACTION_PATH_ROOT =
+  private static readonly AbsoluteUnixPath EXTRACTION_PATH_ROOT =
       AbsoluteUnixPath.get("/some/extraction/path/");
 
-  private static final AbsoluteUnixPath EXTRA_FILES_LAYER_EXTRACTION_PATH =
+  private static readonly AbsoluteUnixPath EXTRA_FILES_LAYER_EXTRACTION_PATH =
       AbsoluteUnixPath.get("/extra");
 
   /**
@@ -66,28 +65,28 @@ public class BuildAndCacheApplicationLayerStepTest {
    * LayerConfiguration} with entries from those files.
    */
   private static LayerConfiguration makeLayerConfiguration(
-      String resourcePath, AbsoluteUnixPath extractionPath) throws URISyntaxException, IOException {
-    try (Stream<Path> fileStream =
+      string resourcePath, AbsoluteUnixPath extractionPath) {
+    using (Stream<Path> fileStream =
         Files.list(Paths.get(Resources.getResource(resourcePath).toURI()))) {
       LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
       fileStream.forEach(
-          sourceFile ->
+          sourceFile =>
               layerConfigurationBuilder.addEntry(
                   sourceFile, extractionPath.resolve(sourceFile.getFileName())));
       return layerConfigurationBuilder.build();
     }
   }
 
-  private static void assertBlobsEqual(Blob expectedBlob, Blob blob) throws IOException {
+  private static void assertBlobsEqual(Blob expectedBlob, Blob blob) {
     Assert.assertArrayEquals(Blobs.writeToByteArray(expectedBlob), Blobs.writeToByteArray(blob));
   }
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Mock private BuildConfiguration mockBuildConfiguration;
+  [Mock] private BuildConfiguration mockBuildConfiguration;
 
   private Cache cache;
-  @Mock private EventHandlers mockEventHandlers;
+  [Mock] private EventHandlers mockEventHandlers;
 
   private LayerConfiguration fakeDependenciesLayerConfiguration;
   private LayerConfiguration fakeSnapshotDependenciesLayerConfiguration;
@@ -96,8 +95,8 @@ public class BuildAndCacheApplicationLayerStepTest {
   private LayerConfiguration fakeExtraFilesLayerConfiguration;
   private LayerConfiguration emptyLayerConfiguration;
 
-  @Before
-  public void setUp() throws IOException, URISyntaxException {
+  [TestInitialize]
+  public void setUp() {
     fakeDependenciesLayerConfiguration =
         makeLayerConfiguration(
             "core/application/dependencies", EXTRACTION_PATH_ROOT.resolve("libs"));
@@ -126,7 +125,7 @@ public class BuildAndCacheApplicationLayerStepTest {
     Mockito.when(mockBuildConfiguration.getApplicationLayersCache()).thenReturn(cache);
   }
 
-  private ImageLayers buildFakeLayersToCache() throws ExecutionException {
+  private ImageLayers buildFakeLayersToCache() {
     ImageLayers.Builder applicationLayersBuilder = ImageLayers.builder();
 
     ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
@@ -135,18 +134,18 @@ public class BuildAndCacheApplicationLayerStepTest {
             mockBuildConfiguration,
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());
 
-    for (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep :
-        buildAndCacheApplicationLayerSteps) {
+    foreach (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
+
+    {
       applicationLayersBuilder.add(NonBlockingSteps.get(buildAndCacheApplicationLayerStep));
     }
 
     return applicationLayersBuilder.build();
   }
 
-  @Test
+  [TestMethod]
   public void testRun()
-      throws LayerPropertyNotFoundException, IOException, ExecutionException,
-          CacheCorruptedException {
+      {
     ImmutableList<LayerConfiguration> fakeLayerConfigurations =
         ImmutableList.of(
             fakeDependenciesLayerConfiguration,
@@ -206,9 +205,9 @@ public class BuildAndCacheApplicationLayerStepTest {
     assertBlobsEqual(applicationLayers.get(4).getBlob(), extraFilesCachedLayer.getBlob());
   }
 
-  @Test
+  [TestMethod]
   public void testRun_emptyLayersIgnored()
-      throws IOException, ExecutionException, CacheCorruptedException {
+      {
     ImmutableList<LayerConfiguration> fakeLayerConfigurations =
         ImmutableList.of(
             fakeDependenciesLayerConfiguration,
@@ -235,7 +234,7 @@ public class BuildAndCacheApplicationLayerStepTest {
     CachedLayer resourcesCachedLayer =
         cache.retrieve(resourcesLayerEntries).orElseThrow(AssertionError::new);
     CachedLayer classesCachedLayer =
-        cache.retrieve(classesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(classesLayerEntries).orElseThrow(AssertionError.new);
 
     // Verifies that the cached layers are up-to-date.
     Assert.assertEquals(
@@ -251,4 +250,5 @@ public class BuildAndCacheApplicationLayerStepTest {
     assertBlobsEqual(applicationLayers.get(1).getBlob(), resourcesCachedLayer.getBlob());
     assertBlobsEqual(applicationLayers.get(2).getBlob(), classesCachedLayer.getBlob());
   }
+}
 }

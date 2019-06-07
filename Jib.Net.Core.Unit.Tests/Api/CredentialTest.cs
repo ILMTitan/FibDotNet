@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link com.google.cloud.tools.jib.api.Credential}. */
 public class CredentialTest {
 
-  @Test
+  [TestMethod]
   public void testCredentialsHash() {
     Credential credentialA1 = Credential.from("username", "password");
     Credential credentialA2 = Credential.from("username", "password");
@@ -42,7 +41,7 @@ public class CredentialTest {
     Assert.assertEquals(new HashSet<>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
   }
 
-  @Test
+  [TestMethod]
   public void testCredentialsOAuth2RefreshToken() {
     Credential oauth2Credential = Credential.from("<token>", "eyJhbGciOi...3gw");
     Assert.assertTrue(
@@ -53,4 +52,5 @@ public class CredentialTest {
         "eyJhbGciOi...3gw",
         oauth2Credential.getPassword());
   }
+}
 }

@@ -14,30 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.HttpContent;
-import com.google.api.client.http.HttpHeaders;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
 
 /** Holds an HTTP request. */
 public class Request {
 
   /** The HTTP request headers. */
-  private final HttpHeaders headers;
+  private readonly HttpHeaders headers;
 
   /** The HTTP request body. */
-  @Nullable private final HttpContent body;
+  private final HttpContent body;
 
   /** HTTP connection and read timeout. */
-  @Nullable private final Integer httpTimeout;
+  private final Integer httpTimeout;
 
   public static class Builder {
 
-    private final HttpHeaders headers = new HttpHeaders().setAccept("*/*");
-    @Nullable private HttpContent body;
-    @Nullable private Integer httpTimeout;
+    private readonly HttpHeaders headers = new HttpHeaders().setAccept("*/*");
+    private HttpContent body;
+    private Integer httpTimeout;
 
     public Request build() {
       return new Request(this);
@@ -49,7 +48,7 @@ public class Request {
      * @param authorization the authorization
      * @return this
      */
-    public Builder setAuthorization(@Nullable Authorization authorization) {
+    public Builder setAuthorization(Authorization authorization) {
       if (authorization != null) {
         headers.setAuthorization(authorization.toString());
       }
@@ -62,8 +61,8 @@ public class Request {
      * @param mimeTypes the items to pass into the accept header
      * @return this
      */
-    public Builder setAccept(List<String> mimeTypes) {
-      headers.setAccept(String.join(",", mimeTypes));
+    public Builder setAccept(List<string> mimeTypes) {
+      headers.setAccept(string.join(",", mimeTypes));
       return this;
     }
 
@@ -73,7 +72,7 @@ public class Request {
      * @param userAgent the user agent
      * @return this
      */
-    public Builder setUserAgent(String userAgent) {
+    public Builder setUserAgent(string userAgent) {
       headers.setUserAgent(userAgent);
       return this;
     }
@@ -85,7 +84,7 @@ public class Request {
      * @param httpTimeout timeout in milliseconds
      * @return this
      */
-    public Builder setHttpTimeout(@Nullable Integer httpTimeout) {
+    public Builder setHttpTimeout(Integer httpTimeout) {
       this.httpTimeout = httpTimeout;
       return this;
     }
@@ -96,7 +95,7 @@ public class Request {
      * @param httpContent the body content
      * @return this
      */
-    public Builder setBody(@Nullable HttpContent httpContent) {
+    public Builder setBody(HttpContent httpContent) {
       this.body = httpContent;
       return this;
     }
@@ -116,13 +115,12 @@ public class Request {
     return headers;
   }
 
-  @Nullable
   HttpContent getHttpContent() {
     return body;
   }
 
-  @Nullable
   Integer getHttpTimeout() {
     return httpTimeout;
   }
+}
 }

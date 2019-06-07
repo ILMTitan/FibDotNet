@@ -14,38 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.Command;
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import com.google.cloud.tools.jib.event.progress.ProgressEventHandler;
-import com.google.cloud.tools.jib.registry.LocalRegistry;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-import org.hamcrest.CoreMatchers;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // TODO: now it looks like we can move everything here into JibIntegrationTest.
 /** Integration tests for {@link Containerizer}. */
@@ -54,17 +53,17 @@ public class ContainerizerIntegrationTest {
   /**
    * Helper class to hold a {@link ProgressEventHandler} and verify that it handles a full progress.
    */
-  private static class ProgressChecker {
+  private class ProgressChecker {
 
-    private final ProgressEventHandler progressEventHandler =
+    private readonly ProgressEventHandler progressEventHandler =
         new ProgressEventHandler(
-            update -> {
+            update => {
               lastProgress = update.getProgress();
               areTasksFinished = update.getUnfinishedLeafTasks().isEmpty();
             });
 
     private volatile double lastProgress = 0.0;
-    private volatile boolean areTasksFinished = false;
+    private volatile bool areTasksFinished = false;
 
     private void checkCompletion() {
       Assert.assertEquals(1.0, lastProgress, DOUBLE_ERROR_MARGIN);
@@ -72,18 +71,18 @@ public class ContainerizerIntegrationTest {
     }
   }
 
-  @ClassRule public static final LocalRegistry localRegistry = new LocalRegistry(5000);
+  [ClassRule] public static readonly LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  private static final ExecutorService executorService = Executors.newCachedThreadPool();
-  private static final Logger logger = LoggerFactory.getLogger(ContainerizerIntegrationTest.class);
-  private static final String DISTROLESS_DIGEST =
+  private static readonly ExecutorService executorService = Executors.newCachedThreadPool();
+  private static readonly Logger logger = LoggerFactory.getLogger(typeof(ContainerizerIntegrationTest));
+  private static readonly string DISTROLESS_DIGEST =
       "sha256:f488c213f278bc5f9ffe3ddf30c5dbb2303a15a74146b738d12453088e662880";
-  private static final double DOUBLE_ERROR_MARGIN = 1e-10;
+  private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
   public static ImmutableList<LayerConfiguration> fakeLayerConfigurations;
 
-  @BeforeClass
-  public static void setUp() throws URISyntaxException, IOException {
+  [ClassInitialize]
+  public static void setUp() {
     fakeLayerConfigurations =
         ImmutableList.of(
             makeLayerConfiguration("core/application/dependencies", "/app/libs/"),
@@ -91,7 +90,7 @@ public class ContainerizerIntegrationTest {
             makeLayerConfiguration("core/application/classes", "/app/classes/"));
   }
 
-  @AfterClass
+  [ClassCleanup]
   public static void cleanUp() {
     executorService.shutdown();
   }
@@ -101,21 +100,21 @@ public class ContainerizerIntegrationTest {
    * LayerConfiguration} from those files.
    */
   private static LayerConfiguration makeLayerConfiguration(
-      String resourcePath, String pathInContainer) throws URISyntaxException, IOException {
-    try (Stream<Path> fileStream =
+      string resourcePath, string pathInContainer) {
+    using (Stream<Path> fileStream =
         Files.list(Paths.get(Resources.getResource(resourcePath).toURI()))) {
       LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
       fileStream.forEach(
-          sourceFile ->
+          sourceFile =>
               layerConfigurationBuilder.addEntry(
                   sourceFile, AbsoluteUnixPath.get(pathInContainer + sourceFile.getFileName())));
       return layerConfigurationBuilder.build();
     }
   }
 
-  private static void assertDockerInspect(String imageReference)
-      throws IOException, InterruptedException {
-    String dockerContainerConfig = new Command("docker", "inspect", imageReference).run();
+  private static void assertDockerInspect(string imageReference)
+      {
+    string dockerContainerConfig = new Command("docker", "inspect", imageReference).run();
     Assert.assertThat(
         dockerContainerConfig,
         CoreMatchers.containsString(
@@ -132,31 +131,30 @@ public class ContainerizerIntegrationTest {
                 + "                \"key1\": \"value1\",\n"
                 + "                \"key2\": \"value2\"\n"
                 + "            }"));
-    String dockerConfigEnv =
+    string dockerConfigEnv =
         new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).run();
     Assert.assertThat(dockerConfigEnv, CoreMatchers.containsString("env1=envvalue1"));
     Assert.assertThat(dockerConfigEnv, CoreMatchers.containsString("env2=envvalue2"));
-    String history = new Command("docker", "history", imageReference).run();
+    string history = new Command("docker", "history", imageReference).run();
     Assert.assertThat(history, CoreMatchers.containsString("jib-integration-test"));
     Assert.assertThat(history, CoreMatchers.containsString("bazel build ..."));
   }
 
-  private static void assertLayerSizer(int expected, String imageReference)
-      throws IOException, InterruptedException {
+  private static void assertLayerSizer(int expected, string imageReference)
+      {
     Command command =
         new Command("docker", "inspect", "-f", "{{join .RootFS.Layers \",\"}}", imageReference);
-    String layers = command.run().trim();
+    string layers = command.run().trim();
     Assert.assertEquals(expected, Splitter.on(",").splitToList(layers).size());
   }
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private final ProgressChecker progressChecker = new ProgressChecker();
+  private readonly ProgressChecker progressChecker = new ProgressChecker();
 
-  @Test
+  [TestMethod]
   public void testSteps_forBuildToDockerRegistry()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
+      {
     long lastTime = System.nanoTime();
     JibContainer image1 =
         buildRegistryImage(
@@ -179,14 +177,14 @@ public class ContainerizerIntegrationTest {
 
     Assert.assertEquals(image1, image2);
 
-    String imageReference = "localhost:5000/testimage:testtag";
+    string imageReference = "localhost:5000/testimage:testtag";
     localRegistry.pull(imageReference);
     assertDockerInspect(imageReference);
     assertLayerSizer(7, imageReference);
     Assert.assertEquals(
         "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
 
-    String imageReferenceByDigest = "localhost:5000/testimage@" + image1.getDigest();
+    string imageReferenceByDigest = "localhost:5000/testimage@" + image1.getDigest();
     localRegistry.pull(imageReferenceByDigest);
     assertDockerInspect(imageReferenceByDigest);
     Assert.assertEquals(
@@ -194,29 +192,28 @@ public class ContainerizerIntegrationTest {
         new Command("docker", "run", "--rm", imageReferenceByDigest).run());
   }
 
-  @Test
+  [TestMethod]
   public void testSteps_forBuildToDockerRegistry_multipleTags()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
+      {
     buildRegistryImage(
         ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
         ImageReference.of("localhost:5000", "testimage", "testtag"),
         Arrays.asList("testtag2", "testtag3"));
 
-    String imageReference = "localhost:5000/testimage:testtag";
+    string imageReference = "localhost:5000/testimage:testtag";
     localRegistry.pull(imageReference);
     assertDockerInspect(imageReference);
     Assert.assertEquals(
         "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
 
-    String imageReference2 = "localhost:5000/testimage:testtag2";
+    string imageReference2 = "localhost:5000/testimage:testtag2";
     localRegistry.pull(imageReference2);
     assertDockerInspect(imageReference2);
     Assert.assertEquals(
         "Hello, world. An argument.\n",
         new Command("docker", "run", "--rm", imageReference2).run());
 
-    String imageReference3 = "localhost:5000/testimage:testtag3";
+    string imageReference3 = "localhost:5000/testimage:testtag3";
     localRegistry.pull(imageReference3);
     assertDockerInspect(imageReference3);
     Assert.assertEquals(
@@ -224,25 +221,23 @@ public class ContainerizerIntegrationTest {
         new Command("docker", "run", "--rm", imageReference3).run());
   }
 
-  @Test
+  [TestMethod]
   public void tesBuildToDockerRegistry_dockerHubBaseImage()
-      throws InvalidImageReferenceException, IOException, InterruptedException, ExecutionException,
-          RegistryException, CacheDirectoryCreationException {
+      {
     buildRegistryImage(
         ImageReference.parse("openjdk:8-jre-alpine"),
         ImageReference.of("localhost:5000", "testimage", "testtag"),
         Collections.emptyList());
 
-    String imageReference = "localhost:5000/testimage:testtag";
+    string imageReference = "localhost:5000/testimage:testtag";
     new Command("docker", "pull", imageReference).run();
     Assert.assertEquals(
         "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
   }
 
-  @Test
+  [TestMethod]
   public void testBuildToDockerDaemon()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
+      {
     buildDockerDaemonImage(
         ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
         ImageReference.of(null, "testdocker", null),
@@ -256,11 +251,10 @@ public class ContainerizerIntegrationTest {
         "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testdocker").run());
   }
 
-  @Test
+  [TestMethod]
   public void testBuildToDockerDaemon_multipleTags()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
-    String imageReference = "testdocker";
+      {
+    string imageReference = "testdocker";
     buildDockerDaemonImage(
         ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
         ImageReference.of(null, imageReference, null),
@@ -279,10 +273,9 @@ public class ContainerizerIntegrationTest {
         new Command("docker", "run", "--rm", imageReference + ":testtag3").run());
   }
 
-  @Test
+  [TestMethod]
   public void testBuildTarball()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
+      {
     Path outputPath = temporaryFolder.newFolder().toPath().resolve("test.tar");
     buildTarImage(
         ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
@@ -299,17 +292,15 @@ public class ContainerizerIntegrationTest {
   }
 
   private JibContainer buildRegistryImage(
-      ImageReference baseImage, ImageReference targetImage, List<String> additionalTags)
-      throws IOException, InterruptedException, RegistryException, CacheDirectoryCreationException,
-          ExecutionException {
+      ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
+      {
     return buildImage(
         baseImage, Containerizer.to(RegistryImage.named(targetImage)), additionalTags);
   }
 
   private JibContainer buildDockerDaemonImage(
-      ImageReference baseImage, ImageReference targetImage, List<String> additionalTags)
-      throws IOException, InterruptedException, RegistryException, CacheDirectoryCreationException,
-          ExecutionException {
+      ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
+      {
     return buildImage(
         baseImage, Containerizer.to(DockerDaemonImage.named(targetImage)), additionalTags);
   }
@@ -318,9 +309,8 @@ public class ContainerizerIntegrationTest {
       ImageReference baseImage,
       ImageReference targetImage,
       Path outputPath,
-      List<String> additionalTags)
-      throws IOException, InterruptedException, RegistryException, CacheDirectoryCreationException,
-          ExecutionException {
+      List<string> additionalTags)
+      {
     return buildImage(
         baseImage,
         Containerizer.to(TarImage.named(targetImage).saveTo(outputPath)),
@@ -328,9 +318,8 @@ public class ContainerizerIntegrationTest {
   }
 
   private JibContainer buildImage(
-      ImageReference baseImage, Containerizer containerizer, List<String> additionalTags)
-      throws IOException, InterruptedException, RegistryException, CacheDirectoryCreationException,
-          ExecutionException {
+      ImageReference baseImage, Containerizer containerizer, List<string> additionalTags)
+      {
     JibContainerBuilder containerBuilder =
         Jib.from(baseImage)
             .setEntrypoint(
@@ -349,9 +338,10 @@ public class ContainerizerIntegrationTest {
         .setAllowInsecureRegistries(true)
         .setToolName("jib-integration-test")
         .setExecutorService(executorService)
-        .addEventHandler(ProgressEvent.class, progressChecker.progressEventHandler);
-    additionalTags.forEach(containerizer::withAdditionalTag);
+        .addEventHandler(typeof(ProgressEvent), progressChecker.progressEventHandler);
+    additionalTags.forEach(containerizer.withAdditionalTag);
 
     return containerBuilder.containerize(containerizer);
   }
+}
 }

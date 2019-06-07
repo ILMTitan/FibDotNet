@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.api.client.util.Base64;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link DockerConfig}. */
 public class DockerConfigTest {
 
-  private static String decodeBase64(String base64String) {
-    return new String(Base64.decodeBase64(base64String), StandardCharsets.UTF_8);
+  private static string decodeBase64(string base64String) {
+    return new string(Base64.decodeBase64(base64String), StandardCharsets.UTF_8);
   }
 
-  @Test
-  public void test_fromJson() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void test_fromJson() {
     // Loads the JSON string.
     Path jsonFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     // Deserializes into a docker config JSON object.
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(jsonFile, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals("some:auth", decodeBase64(dockerConfig.getAuthFor("some registry")));
     Assert.assertEquals(
@@ -69,13 +68,13 @@ public class DockerConfigTest {
     Assert.assertNull(dockerConfig.getCredentialHelperFor("unknonwn registry"));
   }
 
-  @Test
-  public void testGetAuthFor_orderOfMatchPreference() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testGetAuthFor_orderOfMatchPreference() {
     Path json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals("my-registry: exact match", dockerConfig.getAuthFor("my-registry"));
     Assert.assertEquals("cool-registry: with https", dockerConfig.getAuthFor("cool-registry"));
@@ -86,75 +85,76 @@ public class DockerConfigTest {
         dockerConfig.getAuthFor("dull-registry"));
   }
 
-  @Test
-  public void testGetAuthFor_correctSuffixMatching() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testGetAuthFor_correctSuffixMatching() {
     Path json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertNull(dockerConfig.getAuthFor("example"));
   }
 
-  @Test
-  public void testGetCredentialHelperFor() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testGetCredentialHelperFor() {
     Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("just registry").getCredentialHelper());
   }
 
-  @Test
-  public void testGetCredentialHelperFor_withHttps() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testGetCredentialHelperFor_withHttps() {
     Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.protocol").getCredentialHelper());
   }
 
-  @Test
-  public void testGetCredentialHelperFor_withSuffix() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testGetCredentialHelperFor_withSuffix() {
     Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.suffix").getCredentialHelper());
   }
 
-  @Test
+  [TestMethod]
   public void testGetCredentialHelperFor_withProtocolAndSuffix()
-      throws URISyntaxException, IOException {
+      {
     Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertEquals(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.protocol.and.suffix").getCredentialHelper());
   }
 
-  @Test
+  [TestMethod]
   public void testGetCredentialHelperFor_correctSuffixMatching()
-      throws URISyntaxException, IOException {
+      {
     Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, DockerConfigTemplate.class));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
 
     Assert.assertNull(dockerConfig.getCredentialHelperFor("example"));
     Assert.assertNull(dockerConfig.getCredentialHelperFor("another.example"));
   }
+}
 }

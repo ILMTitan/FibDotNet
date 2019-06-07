@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.cloud.tools.jib.image.json.DescriptorDigestDeserializer;
-import com.google.cloud.tools.jib.image.json.DescriptorDigestSerializer;
-import java.security.DigestException;
+
+
+
+
 
 /**
  * Represents a SHA-256 content descriptor digest as defined by the Registry HTTP API v2 reference.
@@ -30,22 +29,22 @@ import java.security.DigestException;
  * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md#digests">OCI
  *     Content Descriptor Digest</a>
  */
-@JsonSerialize(using = DescriptorDigestSerializer.class)
-@JsonDeserialize(using = DescriptorDigestDeserializer.class)
+@JsonSerialize(using = typeof(DescriptorDigestSerializer))
+@JsonDeserialize(using = typeof(DescriptorDigestDeserializer))
 public class DescriptorDigest {
 
-  public static final int HASH_LENGTH = 64;
+  public static readonly int HASH_LENGTH = 64;
 
   /** Pattern matches a SHA-256 hash - 32 bytes in lowercase hexadecimal. */
-  private static final String HASH_REGEX = String.format("[a-f0-9]{%d}", HASH_LENGTH);
+  private static readonly string HASH_REGEX = string.format("[a-f0-9]{%d}", HASH_LENGTH);
 
   /** The algorithm prefix for the digest string. */
-  private static final String DIGEST_PREFIX = "sha256:";
+  private static readonly string DIGEST_PREFIX = "sha256:";
 
   /** Pattern matches a SHA-256 digest - a SHA-256 hash prefixed with "sha256:". */
-  static final String DIGEST_REGEX = DIGEST_PREFIX + HASH_REGEX;
+  static final string DIGEST_REGEX = DIGEST_PREFIX + HASH_REGEX;
 
-  private final String hash;
+  private readonly string hash;
 
   /**
    * Creates a new instance from a valid hash string.
@@ -54,7 +53,7 @@ public class DescriptorDigest {
    * @return a new {@link DescriptorDigest} created from the hash
    * @throws DigestException if the hash is invalid
    */
-  public static DescriptorDigest fromHash(String hash) throws DigestException {
+  public static DescriptorDigest fromHash(string hash) {
     if (!hash.matches(HASH_REGEX)) {
       throw new DigestException("Invalid hash: " + hash);
     }
@@ -69,42 +68,42 @@ public class DescriptorDigest {
    * @return a new {@link DescriptorDigest} created from the digest
    * @throws DigestException if the digest is invalid
    */
-  public static DescriptorDigest fromDigest(String digest) throws DigestException {
+  public static DescriptorDigest fromDigest(string digest) {
     if (!digest.matches(DIGEST_REGEX)) {
       throw new DigestException("Invalid digest: " + digest);
     }
 
     // Extracts the hash portion of the digest.
-    String hash = digest.substring(DIGEST_PREFIX.length());
+    string hash = digest.substring(DIGEST_PREFIX.length());
     return new DescriptorDigest(hash);
   }
 
-  private DescriptorDigest(String hash) {
+  private DescriptorDigest(string hash) {
     this.hash = hash;
   }
 
-  public String getHash() {
+  public string getHash() {
     return hash;
   }
 
-  @Override
-  public String toString() {
+  public string toString() {
     return "sha256:" + hash;
   }
 
   /** Pass-through hash code of the digest string. */
-  @Override
+
   public int hashCode() {
     return hash.hashCode();
   }
 
   /** Two digest objects are equal if their digest strings are equal. */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof DescriptorDigest) {
+
+  public bool equals(object obj) {
+    if (obj is DescriptorDigest) {
       return hash.equals(((DescriptorDigest) obj).hash);
     }
 
     return false;
   }
+}
 }

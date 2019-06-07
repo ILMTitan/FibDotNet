@@ -14,64 +14,63 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.hash.WritableContents;
-import com.google.common.io.Resources;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Blob}. */
 public class BlobTest {
 
-  @Test
-  public void testFromInputStream() throws IOException {
-    String expected = "crepecake";
+  [TestMethod]
+  public void testFromInputStream() {
+    string expected = "crepecake";
     InputStream inputStream = new ByteArrayInputStream(expected.getBytes(StandardCharsets.UTF_8));
     verifyBlobWriteTo(expected, Blobs.from(inputStream));
   }
 
-  @Test
-  public void testFromFile() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testFromFile() {
     Path fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-    String expected = new String(Files.readAllBytes(fileA), StandardCharsets.UTF_8);
+    string expected = new string(Files.readAllBytes(fileA), StandardCharsets.UTF_8);
     verifyBlobWriteTo(expected, Blobs.from(fileA));
   }
 
-  @Test
-  public void testFromString() throws IOException {
-    String expected = "crepecake";
+  [TestMethod]
+  public void testFromString() {
+    string expected = "crepecake";
     verifyBlobWriteTo(expected, Blobs.from(expected));
   }
 
-  @Test
-  public void testFromWritableContents() throws IOException {
-    String expected = "crepecake";
+  [TestMethod]
+  public void testFromWritableContents() {
+    string expected = "crepecake";
 
     WritableContents writableContents =
-        outputStream -> outputStream.write(expected.getBytes(StandardCharsets.UTF_8));
+        outputStream => outputStream.write(expected.getBytes(StandardCharsets.UTF_8));
 
     verifyBlobWriteTo(expected, Blobs.from(writableContents));
   }
 
   /** Checks that the {@link Blob} streams the expected string. */
-  private void verifyBlobWriteTo(String expected, Blob blob) throws IOException {
+  private void verifyBlobWriteTo(string expected, Blob blob) {
     OutputStream outputStream = new ByteArrayOutputStream();
     BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
 
-    String output = outputStream.toString();
+    string output = outputStream.toString();
     Assert.assertEquals(expected, output);
 
     byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
@@ -81,4 +80,5 @@ public class BlobTest {
         Digests.computeDigest(new ByteArrayInputStream(expectedBytes)).getDigest();
     Assert.assertEquals(expectedDigest, blobDescriptor.getDigest());
   }
+}
 }

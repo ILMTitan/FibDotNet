@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.hash.WritableContents;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+
+
+
+
+
+
 
 /** Static methods for {@link Blob}. */
 public class Blobs {
@@ -45,7 +44,7 @@ public class Blobs {
    * @param content the string to create the blob from
    * @return the {@link StringBlob}
    */
-  public static Blob from(String content) {
+  public static Blob from(string content) {
     return new StringBlob(content);
   }
 
@@ -60,8 +59,8 @@ public class Blobs {
    * @return the BLOB contents as a string
    * @throws IOException if writing out the BLOB contents fails
    */
-  public static String writeToString(Blob blob) throws IOException {
-    return new String(writeToByteArray(blob), StandardCharsets.UTF_8);
+  public static string writeToString(Blob blob) {
+    return new string(writeToByteArray(blob), StandardCharsets.UTF_8);
   }
 
   /**
@@ -71,11 +70,12 @@ public class Blobs {
    * @return the BLOB contents as a byte array
    * @throws IOException if writing out the BLOB contents fails
    */
-  public static byte[] writeToByteArray(Blob blob) throws IOException {
+  public static byte[] writeToByteArray(Blob blob) {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     blob.writeTo(byteArrayOutputStream);
     return byteArrayOutputStream.toByteArray();
   }
 
   private Blobs() {}
+}
 }

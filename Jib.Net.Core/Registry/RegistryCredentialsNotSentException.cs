@@ -14,12 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
 
 /** Thrown when registry request was unauthorized because credentials weren't sent. */
-public class RegistryCredentialsNotSentException extends RegistryException {
+public class RegistryCredentialsNotSentException : RegistryException {
 
   /**
    * Identifies the image registry and repository that denied access.
@@ -27,7 +26,7 @@ public class RegistryCredentialsNotSentException extends RegistryException {
    * @param registry the image registry
    * @param repository the image repository
    */
-  RegistryCredentialsNotSentException(String registry, String repository) {
+  RegistryCredentialsNotSentException(string registry, string repository) {
     super(
         "Required credentials for "
             + registry
@@ -35,4 +34,5 @@ public class RegistryCredentialsNotSentException extends RegistryException {
             + repository
             + " were not sent because the connection was over HTTP");
   }
+}
 }

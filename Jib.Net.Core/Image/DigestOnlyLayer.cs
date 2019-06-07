@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
+
+
 
 /** A {@link Layer} reference that only has its {@link DescriptorDigest}. */
-public class DigestOnlyLayer implements Layer {
+public class DigestOnlyLayer : Layer {
 
   /** The {@link BlobDescriptor} of the compressed layer content. */
-  private final BlobDescriptor blobDescriptor;
+  private readonly BlobDescriptor blobDescriptor;
 
   /**
    * Instantiate with a {@link DescriptorDigest}.
@@ -35,18 +34,16 @@ public class DigestOnlyLayer implements Layer {
     blobDescriptor = new BlobDescriptor(digest);
   }
 
-  @Override
-  public Blob getBlob() throws LayerPropertyNotFoundException {
+  public Blob getBlob() {
     throw new LayerPropertyNotFoundException("Blob not available for digest-only layer");
   }
 
-  @Override
   public BlobDescriptor getBlobDescriptor() {
     return blobDescriptor;
   }
 
-  @Override
-  public DescriptorDigest getDiffId() throws LayerPropertyNotFoundException {
+  public DescriptorDigest getDiffId() {
     throw new LayerPropertyNotFoundException("Diff ID not available for digest-only layer");
   }
+}
 }

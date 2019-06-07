@@ -14,21 +14,20 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.hash;
+namespace com.google.cloud.tools.jib.hash {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.DigestException;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+
+
+
+
+
+
 
 /** A {@link DigestOutputStream} that also keeps track of the total number of bytes written. */
-public class CountingDigestOutputStream extends DigestOutputStream {
+public class CountingDigestOutputStream : DigestOutputStream {
 
-  private static final String SHA_256_ALGORITHM = "SHA-256";
+  private static readonly string SHA_256_ALGORITHM = "SHA-256";
 
   private long bytesSoFar = 0;
 
@@ -37,8 +36,8 @@ public class CountingDigestOutputStream extends DigestOutputStream {
    *
    * @param outputStream the {@link OutputStream} to wrap.
    */
-  public CountingDigestOutputStream(OutputStream outputStream) {
-    super(outputStream, null);
+  public CountingDigestOutputStream(OutputStream outputStream) : base(outputStream, null) {
+    
     try {
       setMessageDigest(MessageDigest.getInstance(SHA_256_ALGORITHM));
     } catch (NoSuchAlgorithmException ex) {
@@ -60,10 +59,11 @@ public class CountingDigestOutputStream extends DigestOutputStream {
 
       // Encodes each hashed byte into 2-character hexadecimal representation.
       StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.length);
-      for (byte b : hashedBytes) {
-        stringBuilder.append(String.format("%02x", b));
+      foreach (byte b in hashedBytes)
+      {
+        stringBuilder.append(string.format("%02x", b));
       }
-      String hash = stringBuilder.toString();
+      string hash = stringBuilder.toString();
 
       BlobDescriptor blobDescriptor =
           new BlobDescriptor(bytesSoFar, DescriptorDigest.fromHash(hash));
@@ -75,15 +75,14 @@ public class CountingDigestOutputStream extends DigestOutputStream {
     }
   }
 
-  @Override
-  public void write(byte[] data, int offset, int length) throws IOException {
+  public void write(byte[] data, int offset, int length) {
     super.write(data, offset, length);
     bytesSoFar += length;
   }
 
-  @Override
-  public void write(int singleByte) throws IOException {
+  public void write(int singleByte) {
     super.write(singleByte);
     bytesSoFar++;
   }
+}
 }

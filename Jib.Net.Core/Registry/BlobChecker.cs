@@ -14,29 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.Response;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
  * exists.
  */
-class BlobChecker implements RegistryEndpointProvider<BlobDescriptor> {
-
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final DescriptorDigest blobDigest;
+class BlobChecker : $2 {
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly DescriptorDigest blobDigest;
 
   BlobChecker(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
@@ -46,8 +44,8 @@ class BlobChecker implements RegistryEndpointProvider<BlobDescriptor> {
   }
 
   /** @return the BLOB's content descriptor */
-  @Override
-  public BlobDescriptor handleResponse(Response response) throws RegistryErrorException {
+
+  public BlobDescriptor handleResponse(Response response) {
     long contentLength = response.getContentLength();
     if (contentLength < 0) {
       throw new RegistryErrorExceptionBuilder(getActionDescription())
@@ -58,10 +56,8 @@ class BlobChecker implements RegistryEndpointProvider<BlobDescriptor> {
     return new BlobDescriptor(contentLength, blobDigest);
   }
 
-  @Override
-  @Nullable
   public BlobDescriptor handleHttpResponseException(HttpResponseException httpResponseException)
-      throws RegistryErrorException, HttpResponseException {
+      {
     if (httpResponseException.getStatusCode() != HttpStatusCodes.STATUS_CODE_NOT_FOUND) {
       throw httpResponseException;
     }
@@ -82,30 +78,24 @@ class BlobChecker implements RegistryEndpointProvider<BlobDescriptor> {
     throw httpResponseException;
   }
 
-  @Override
-  public URL getApiRoute(String apiRouteBase) throws MalformedURLException {
-    return new URL(
+  public Uri getApiRoute(string apiRouteBase) {
+    return new Uri(
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
   }
 
-  @Nullable
-  @Override
   public BlobHttpContent getContent() {
     return null;
   }
 
-  @Override
-  public List<String> getAccept() {
+  public List<string> getAccept() {
     return Collections.emptyList();
   }
 
-  @Override
-  public String getHttpMethod() {
+  public string getHttpMethod() {
     return HttpMethods.HEAD;
   }
 
-  @Override
-  public String getActionDescription() {
+  public string getActionDescription() {
     return "check BLOB exists for "
         + registryEndpointRequestProperties.getServerUrl()
         + "/"
@@ -113,4 +103,5 @@ class BlobChecker implements RegistryEndpointProvider<BlobDescriptor> {
         + " with digest "
         + blobDigest;
   }
+}
 }

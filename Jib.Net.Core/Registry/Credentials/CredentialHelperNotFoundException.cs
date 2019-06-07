@@ -14,14 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import java.nio.file.Path;
 
 /** Thrown because the requested credential helper CLI does not exist. */
-public class CredentialHelperNotFoundException extends CredentialRetrievalException {
+public class CredentialHelperNotFoundException : CredentialRetrievalException {
 
   CredentialHelperNotFoundException(Path credentialHelper, Throwable cause) {
     super("The system does not have " + credentialHelper + " CLI", cause);
   }
+}
 }

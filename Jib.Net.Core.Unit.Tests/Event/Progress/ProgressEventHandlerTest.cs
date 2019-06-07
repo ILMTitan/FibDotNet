@@ -14,66 +14,65 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import com.google.cloud.tools.jib.MultithreadedExecutor;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.DoubleAccumulator;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ProgressEventHandler}. */
 public class ProgressEventHandlerTest {
 
   /** {@link Allocation} tree for testing. */
-  private static class AllocationTree {
+  private class AllocationTree {
 
     /** The root node. */
-    private static final Allocation root = Allocation.newRoot("root", 2);
+    private static readonly Allocation root = Allocation.newRoot("root", 2);
 
     /** First child of the root node. */
-    private static final Allocation child1 = root.newChild("child1", 1);
+    private static readonly Allocation child1 = root.newChild("child1", 1);
     /** Child of the first child of the root node. */
-    private static final Allocation child1Child = child1.newChild("child1Child", 100);
+    private static readonly Allocation child1Child = child1.newChild("child1Child", 100);
 
     /** Second child of the root node. */
-    private static final Allocation child2 = root.newChild("child2", 200);
+    private static readonly Allocation child2 = root.newChild("child2", 200);
 
     private AllocationTree() {}
   }
 
-  private static final double DOUBLE_ERROR_MARGIN = 1e-10;
+  private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  @Test
-  public void testAccept() throws ExecutionException, InterruptedException, IOException {
-    try (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor()) {
-      DoubleAccumulator maxProgress = new DoubleAccumulator(Double::max, 0);
+  [TestMethod]
+  public void testAccept() {
+    using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor()) {
+      DoubleAccumulator maxProgress = new DoubleAccumulator(Double.max, 0);
 
       ProgressEventHandler progressEventHandler =
-          new ProgressEventHandler(update -> maxProgress.accumulate(update.getProgress()));
+          new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
       EventHandlers eventHandlers =
-          EventHandlers.builder().add(ProgressEvent.class, progressEventHandler).build();
+          EventHandlers.builder().add(typeof(ProgressEvent), progressEventHandler).build();
 
       // Adds root, child1, and child1Child.
       multithreadedExecutor.invoke(
-          () -> {
+          () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.root, 0L));
             return null;
           });
       multithreadedExecutor.invoke(
-          () -> {
+          () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
             return null;
           });
       multithreadedExecutor.invoke(
-          () -> {
+          () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 0L));
             return null;
           });
@@ -84,14 +83,14 @@ public class ProgressEventHandlerTest {
       callables.addAll(
           Collections.nCopies(
               50,
-              () -> {
+              () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 1L));
                 return null;
               }));
       callables.addAll(
           Collections.nCopies(
               100,
-              () -> {
+              () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 1L));
                 return null;
               }));
@@ -105,7 +104,7 @@ public class ProgressEventHandlerTest {
       multithreadedExecutor.invokeAll(
           Collections.nCopies(
               100,
-              () -> {
+              () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
                 return null;
               }));
@@ -117,4 +116,5 @@ public class ProgressEventHandlerTest {
       Assert.assertEquals(1.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
     }
   }
+}
 }

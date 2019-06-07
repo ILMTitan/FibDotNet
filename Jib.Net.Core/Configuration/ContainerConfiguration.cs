@@ -14,43 +14,42 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Immutable configuration options for the container. */
 public class ContainerConfiguration {
 
   /** The default creation time of the container (constant to ensure reproducibility by default). */
-  public static final Instant DEFAULT_CREATION_TIME = Instant.EPOCH;
+  public static readonly Instant DEFAULT_CREATION_TIME = Instant.EPOCH;
 
   /** Builder for instantiating a {@link ContainerConfiguration}. */
   public static class Builder {
 
     private Instant creationTime = DEFAULT_CREATION_TIME;
-    @Nullable private ImmutableList<String> entrypoint;
-    @Nullable private ImmutableList<String> programArguments;
-    @Nullable private Map<String, String> environmentMap;
-    @Nullable private Set<Port> exposedPorts;
-    @Nullable private Set<AbsoluteUnixPath> volumes;
-    @Nullable private Map<String, String> labels;
-    @Nullable private String user;
-    @Nullable private AbsoluteUnixPath workingDirectory;
+    private ImmutableList<string> entrypoint;
+    private ImmutableList<string> programArguments;
+    private Map<string, string> environmentMap;
+    private Set<Port> exposedPorts;
+    private Set<AbsoluteUnixPath> volumes;
+    private Map<string, string> labels;
+    private string user;
+    private AbsoluteUnixPath workingDirectory;
 
     /**
      * Sets the image creation time.
@@ -69,7 +68,7 @@ public class ContainerConfiguration {
      * @param programArguments the list of arguments
      * @return this
      */
-    public Builder setProgramArguments(@Nullable List<String> programArguments) {
+    public Builder setProgramArguments(List<string> programArguments) {
       if (programArguments == null) {
         this.programArguments = null;
       } else {
@@ -86,22 +85,22 @@ public class ContainerConfiguration {
      * @param environmentMap the map
      * @return this
      */
-    public Builder setEnvironment(@Nullable Map<String, String> environmentMap) {
+    public Builder setEnvironment(Map<string, string> environmentMap) {
       if (environmentMap == null) {
         this.environmentMap = null;
       } else {
         Preconditions.checkArgument(
-            !Iterables.any(environmentMap.keySet(), Objects::isNull),
+            !Iterables.any(environmentMap.keySet(), Objects.isNull),
             "environment map contains null keys");
         Preconditions.checkArgument(
-            !Iterables.any(environmentMap.values(), Objects::isNull),
+            !Iterables.any(environmentMap.values(), Objects.isNull),
             "environment map contains null values");
         this.environmentMap = new HashMap<>(environmentMap);
       }
       return this;
     }
 
-    public void addEnvironment(String name, String value) {
+    public void addEnvironment(string name, string value) {
       if (environmentMap == null) {
         environmentMap = new HashMap<>();
       }
@@ -114,7 +113,7 @@ public class ContainerConfiguration {
      * @param exposedPorts the set of ports
      * @return this
      */
-    public Builder setExposedPorts(@Nullable Set<Port> exposedPorts) {
+    public Builder setExposedPorts(Set<Port> exposedPorts) {
       if (exposedPorts == null) {
         this.exposedPorts = null;
       } else {
@@ -138,7 +137,7 @@ public class ContainerConfiguration {
      * @param volumes the set of volumes
      * @return this
      */
-    public Builder setVolumes(@Nullable Set<AbsoluteUnixPath> volumes) {
+    public Builder setVolumes(Set<AbsoluteUnixPath> volumes) {
       if (volumes == null) {
         this.volumes = null;
       } else {
@@ -161,20 +160,20 @@ public class ContainerConfiguration {
      * @param labels the map of labels
      * @return this
      */
-    public Builder setLabels(@Nullable Map<String, String> labels) {
+    public Builder setLabels(Map<string, string> labels) {
       if (labels == null) {
         this.labels = null;
       } else {
         Preconditions.checkArgument(
-            !Iterables.any(labels.keySet(), Objects::isNull), "labels map contains null keys");
+            !Iterables.any(labels.keySet(), Objects.isNull), "labels map contains null keys");
         Preconditions.checkArgument(
-            !Iterables.any(labels.values(), Objects::isNull), "labels map contains null values");
+            !Iterables.any(labels.values(), Objects.isNull), "labels map contains null values");
         this.labels = new HashMap<>(labels);
       }
       return this;
     }
 
-    public void addLabel(String key, String value) {
+    public void addLabel(string key, string value) {
       if (labels == null) {
         labels = new HashMap<>();
       }
@@ -187,7 +186,7 @@ public class ContainerConfiguration {
      * @param entrypoint the tokenized command to run when the container starts
      * @return this
      */
-    public Builder setEntrypoint(@Nullable List<String> entrypoint) {
+    public Builder setEntrypoint(List<string> entrypoint) {
       if (entrypoint == null) {
         this.entrypoint = null;
       } else {
@@ -206,7 +205,7 @@ public class ContainerConfiguration {
      * @param user the username/UID and optionally the groupname/GID
      * @return this
      */
-    public Builder setUser(@Nullable String user) {
+    public Builder setUser(string user) {
       this.user = user;
       return this;
     }
@@ -217,7 +216,7 @@ public class ContainerConfiguration {
      * @param workingDirectory the working directory
      * @return this
      */
-    public Builder setWorkingDirectory(@Nullable AbsoluteUnixPath workingDirectory) {
+    public Builder setWorkingDirectory(AbsoluteUnixPath workingDirectory) {
       this.workingDirectory = workingDirectory;
       return this;
     }
@@ -252,26 +251,26 @@ public class ContainerConfiguration {
     return new Builder();
   }
 
-  private final Instant creationTime;
-  @Nullable private final ImmutableList<String> entrypoint;
-  @Nullable private final ImmutableList<String> programArguments;
-  @Nullable private final ImmutableMap<String, String> environmentMap;
-  @Nullable private final ImmutableSet<Port> exposedPorts;
-  @Nullable private final ImmutableSet<AbsoluteUnixPath> volumes;
-  @Nullable private final ImmutableMap<String, String> labels;
-  @Nullable private final String user;
-  @Nullable private final AbsoluteUnixPath workingDirectory;
+  private readonly Instant creationTime;
+  private final ImmutableList<string> entrypoint;
+  private final ImmutableList<string> programArguments;
+  private final ImmutableMap<string, string> environmentMap;
+  private final ImmutableSet<Port> exposedPorts;
+  private final ImmutableSet<AbsoluteUnixPath> volumes;
+  private final ImmutableMap<string, string> labels;
+  private final string user;
+  private final AbsoluteUnixPath workingDirectory;
 
   private ContainerConfiguration(
       Instant creationTime,
-      @Nullable ImmutableList<String> entrypoint,
-      @Nullable ImmutableList<String> programArguments,
-      @Nullable ImmutableMap<String, String> environmentMap,
-      @Nullable ImmutableSet<Port> exposedPorts,
-      @Nullable ImmutableSet<AbsoluteUnixPath> volumes,
-      @Nullable ImmutableMap<String, String> labels,
-      @Nullable String user,
-      @Nullable AbsoluteUnixPath workingDirectory) {
+      ImmutableList<string> entrypoint,
+      ImmutableList<string> programArguments,
+      ImmutableMap<string, string> environmentMap,
+      ImmutableSet<Port> exposedPorts,
+      ImmutableSet<AbsoluteUnixPath> volumes,
+      ImmutableMap<string, string> labels,
+      string user,
+      AbsoluteUnixPath workingDirectory) {
     this.creationTime = creationTime;
     this.entrypoint = entrypoint;
     this.programArguments = programArguments;
@@ -287,53 +286,43 @@ public class ContainerConfiguration {
     return creationTime;
   }
 
-  @Nullable
-  public ImmutableList<String> getEntrypoint() {
+  public ImmutableList<string> getEntrypoint() {
     return entrypoint;
   }
 
-  @Nullable
-  public ImmutableList<String> getProgramArguments() {
+  public ImmutableList<string> getProgramArguments() {
     return programArguments;
   }
 
-  @Nullable
-  public ImmutableMap<String, String> getEnvironmentMap() {
+  public ImmutableMap<string, string> getEnvironmentMap() {
     return environmentMap;
   }
 
-  @Nullable
   public ImmutableSet<Port> getExposedPorts() {
     return exposedPorts;
   }
 
-  @Nullable
   public ImmutableSet<AbsoluteUnixPath> getVolumes() {
     return volumes;
   }
 
-  @Nullable
-  public String getUser() {
+  public string getUser() {
     return user;
   }
 
-  @Nullable
-  public ImmutableMap<String, String> getLabels() {
+  public ImmutableMap<string, string> getLabels() {
     return labels;
   }
 
-  @Nullable
   public AbsoluteUnixPath getWorkingDirectory() {
     return workingDirectory;
   }
 
-  @Override
-  @VisibleForTesting
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ContainerConfiguration)) {
+    if (!(other is ContainerConfiguration)) {
       return false;
     }
     ContainerConfiguration otherContainerConfiguration = (ContainerConfiguration) other;
@@ -347,10 +336,9 @@ public class ContainerConfiguration {
         && Objects.equals(workingDirectory, otherContainerConfiguration.workingDirectory);
   }
 
-  @Override
-  @VisibleForTesting
   public int hashCode() {
     return Objects.hash(
         creationTime, entrypoint, programArguments, environmentMap, exposedPorts, labels, user);
   }
+}
 }

@@ -14,22 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import javax.annotation.Nullable;
 
 /** Thrown when interacting with a registry. */
-public class RegistryException extends Exception {
+public class RegistryException : Exception {
 
-  public RegistryException(String message, @Nullable Throwable cause) {
-    super(message, cause);
+  public RegistryException(string message, Throwable cause) : base(message, cause) {
+    
   }
 
-  public RegistryException(String message) {
-    super(message);
+  public RegistryException(string message) : base(message) {
+    
   }
 
-  public RegistryException(Throwable cause) {
-    super(cause);
+  public RegistryException(Throwable cause) : base(cause) {
+    
   }
+}
 }

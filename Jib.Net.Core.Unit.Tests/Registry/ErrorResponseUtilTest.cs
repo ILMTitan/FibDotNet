@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpResponseException;
-import org.apache.http.HttpStatus;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Test for {@link ErrorReponseUtil}. */
 public class ErrorResponseUtilTest {
 
-  @Test
-  public void testGetErrorCode_knownErrorCode() throws HttpResponseException {
+  [TestMethod]
+  public void testGetErrorCode_knownErrorCode() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
                 HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
@@ -39,7 +38,7 @@ public class ErrorResponseUtilTest {
   }
 
   /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
-  @Test
+  [TestMethod]
   public void testGetErrorCode_unknownErrorCode() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
@@ -56,7 +55,7 @@ public class ErrorResponseUtilTest {
   }
 
   /** Multiple error objects should cause original exception to be rethrown. */
-  @Test
+  [TestMethod]
   public void testGetErrorCode_multipleErrors() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
@@ -76,7 +75,7 @@ public class ErrorResponseUtilTest {
   }
 
   /** An non-error object should cause original exception to be rethrown. */
-  @Test
+  [TestMethod]
   public void testGetErrorCode_invalidErrorObject() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
@@ -90,4 +89,5 @@ public class ErrorResponseUtilTest {
       Assert.assertSame(httpResponseException, ex);
     }
   }
+}
 }

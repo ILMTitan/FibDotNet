@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.events;
+namespace com.google.cloud.tools.jib.event.events {
 
-import com.google.cloud.tools.jib.api.JibEvent;
-import com.google.cloud.tools.jib.event.progress.Allocation;
+
 
 /**
  * Event representing progress. The progress accounts for allocation units in an {@link Allocation},
@@ -25,16 +24,16 @@ import com.google.cloud.tools.jib.event.progress.Allocation;
  *
  * @see Allocation
  */
-public class ProgressEvent implements JibEvent {
+public class ProgressEvent : JibEvent {
 
   /**
    * The allocation this progress is for. Each progress unit accounts for a single allocation unit
    * on the {@link Allocation}.
    */
-  private final Allocation allocation;
+  private readonly Allocation allocation;
 
   /** Units of progress. */
-  private final long progressUnits;
+  private readonly long progressUnits;
 
   public ProgressEvent(Allocation allocation, long progressUnits) {
     this.allocation = allocation;
@@ -59,4 +58,5 @@ public class ProgressEvent implements JibEvent {
   public long getUnits() {
     return progressUnits;
   }
+}
 }

@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import java.time.Instant;
-import java.util.Objects;
-import javax.annotation.Nullable;
+
+
+
+
+
+
 
 /**
  * Represents an item in the container configuration's {@code history} list.
@@ -30,38 +29,38 @@ import javax.annotation.Nullable;
  * @see <a href=https://github.com/opencontainers/image-spec/blob/master/config.md#properties>OCI
  *     image spec ({@code history} field)</a>
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class HistoryEntry implements JsonTemplate {
+[JsonIgnoreProperties(ignoreUnknown = true)]
+public class HistoryEntry : JsonTemplate {
 
   public static class Builder {
 
-    @Nullable private Instant creationTimestamp;
-    @Nullable private String author;
-    @Nullable private String createdBy;
-    @Nullable private String comment;
-    @Nullable private Boolean emptyLayer;
+    private Instant creationTimestamp;
+    private string author;
+    private string createdBy;
+    private string comment;
+    private bool emptyLayer;
 
     public Builder setCreationTimestamp(Instant creationTimestamp) {
       this.creationTimestamp = creationTimestamp;
       return this;
     }
 
-    public Builder setAuthor(String author) {
+    public Builder setAuthor(string author) {
       this.author = author;
       return this;
     }
 
-    public Builder setCreatedBy(String createdBy) {
+    public Builder setCreatedBy(string createdBy) {
       this.createdBy = createdBy;
       return this;
     }
 
-    public Builder setComment(String comment) {
+    public Builder setComment(string comment) {
       this.comment = comment;
       return this;
     }
 
-    public Builder setEmptyLayer(Boolean emptyLayer) {
+    public Builder setEmptyLayer(bool emptyLayer) {
       this.emptyLayer = emptyLayer;
       return this;
     }
@@ -89,40 +88,35 @@ public class HistoryEntry implements JsonTemplate {
 
   /** The ISO-8601 formatted timestamp at which the image was created. */
   @JsonProperty("created")
-  @Nullable
-  private String creationTimestamp;
+  private string creationTimestamp;
 
   /** The name of the author specified when committing the image. */
   @JsonProperty("author")
-  @Nullable
-  private String author;
+  private string author;
 
   /** The command used to build the layer. */
   @JsonProperty("created_by")
-  @Nullable
-  private String createdBy;
+  private string createdBy;
 
   /** A custom message set when creating the layer. */
   @JsonProperty("comment")
-  @Nullable
-  private String comment;
+  private string comment;
 
   /**
-   * Whether or not the entry corresponds to a layer in the container ({@code @Nullable Boolean} to
+   * Whether or not the entry corresponds to a layer in the container ({@code bool} to
    * make field optional).
    */
   @JsonProperty("empty_layer")
-  @Nullable
-  private Boolean emptyLayer;
+  private bool emptyLayer;
 
   public HistoryEntry() {}
 
   private HistoryEntry(
-      @Nullable String creationTimestamp,
-      @Nullable String author,
-      @Nullable String createdBy,
-      @Nullable String comment,
-      @Nullable Boolean emptyLayer) {
+      string creationTimestamp,
+      string author,
+      string createdBy,
+      string comment,
+      bool emptyLayer) {
     this.author = author;
     this.creationTimestamp = creationTimestamp;
     this.createdBy = createdBy;
@@ -136,16 +130,15 @@ public class HistoryEntry implements JsonTemplate {
    * @return {@code true} if the history object corresponds to a layer in the container
    */
   @JsonIgnore
-  public boolean hasCorrespondingLayer() {
+  public bool hasCorrespondingLayer() {
     return emptyLayer == null ? false : emptyLayer;
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (other instanceof HistoryEntry) {
+    if (other is HistoryEntry) {
       HistoryEntry otherHistory = (HistoryEntry) other;
       return Objects.equals(otherHistory.creationTimestamp, creationTimestamp)
           && Objects.equals(otherHistory.author, author)
@@ -156,13 +149,12 @@ public class HistoryEntry implements JsonTemplate {
     return false;
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(author, creationTimestamp, createdBy, comment, emptyLayer);
   }
 
-  @Override
-  public String toString() {
+  public string toString() {
     return createdBy == null ? "" : createdBy;
   }
+}
 }

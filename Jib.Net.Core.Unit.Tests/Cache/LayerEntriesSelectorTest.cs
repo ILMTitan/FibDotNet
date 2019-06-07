@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.FilePermissions;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.cache.LayerEntriesSelector.LayerEntryTemplate;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link LayerEntriesSelector}. */
 public class LayerEntriesSelectorTest {
@@ -47,21 +46,22 @@ public class LayerEntriesSelectorTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
   private ImmutableList<LayerEntry> outOfOrderLayerEntries;
   private ImmutableList<LayerEntry> inOrderLayerEntries;
 
   private static ImmutableList<LayerEntryTemplate> toLayerEntryTemplates(
-      ImmutableList<LayerEntry> layerEntries) throws IOException {
+      ImmutableList<LayerEntry> layerEntries) {
     ImmutableList.Builder<LayerEntryTemplate> builder = ImmutableList.builder();
-    for (LayerEntry layerEntry : layerEntries) {
+    foreach (LayerEntry layerEntry in layerEntries)
+    {
       builder.add(new LayerEntryTemplate(layerEntry));
     }
     return builder.build();
   }
 
-  @Before
-  public void setUp() throws IOException {
+  [TestInitialize]
+  public void setUp() {
     Path folder = temporaryFolder.newFolder().toPath();
     Path file1 = Files.createDirectory(folder.resolve("files"));
     Path file2 = Files.createFile(folder.resolve("files").resolve("two"));
@@ -103,37 +103,37 @@ public class LayerEntriesSelectorTest {
             testLayerEntry6);
   }
 
-  @Test
-  public void testLayerEntryTemplate_compareTo() throws IOException {
+  [TestMethod]
+  public void testLayerEntryTemplate_compareTo() {
     Assert.assertEquals(
         toLayerEntryTemplates(inOrderLayerEntries),
         ImmutableList.sortedCopyOf(toLayerEntryTemplates(outOfOrderLayerEntries)));
   }
 
-  @Test
-  public void testToSortedJsonTemplates() throws IOException {
+  [TestMethod]
+  public void testToSortedJsonTemplates() {
     Assert.assertEquals(
         toLayerEntryTemplates(inOrderLayerEntries),
         LayerEntriesSelector.toSortedJsonTemplates(outOfOrderLayerEntries));
   }
 
-  @Test
-  public void testGenerateSelector_empty() throws IOException {
+  [TestMethod]
+  public void testGenerateSelector_empty() {
     DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableList.of());
     Assert.assertEquals(
         expectedSelector, LayerEntriesSelector.generateSelector(ImmutableList.of()));
   }
 
-  @Test
-  public void testGenerateSelector() throws IOException {
+  [TestMethod]
+  public void testGenerateSelector() {
     DescriptorDigest expectedSelector =
         Digests.computeJsonDigest(toLayerEntryTemplates(inOrderLayerEntries));
     Assert.assertEquals(
         expectedSelector, LayerEntriesSelector.generateSelector(outOfOrderLayerEntries));
   }
 
-  @Test
-  public void testGenerateSelector_fileModified() throws IOException {
+  [TestMethod]
+  public void testGenerateSelector_fileModified() {
     Path layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
     Files.setLastModifiedTime(layerFile, FileTime.from(Instant.EPOCH));
@@ -152,8 +152,8 @@ public class LayerEntriesSelectorTest {
         expectedSelector, LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry)));
   }
 
-  @Test
-  public void testGenerateSelector_permissionsModified() throws IOException {
+  [TestMethod]
+  public void testGenerateSelector_permissionsModified() {
     Path layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
     LayerEntry layerEntry111 =
@@ -174,4 +174,5 @@ public class LayerEntriesSelectorTest {
         LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry111)),
         LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry222)));
   }
+}
 }

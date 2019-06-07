@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event;
+namespace com.google.cloud.tools.jib.event {
 
-import com.google.cloud.tools.jib.api.JibEvent;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import java.util.function.Consumer;
+
+
+
+
+
 
 /** Builds a set of event handlers to handle {@link JibEvent}s. */
 public class EventHandlers {
@@ -29,7 +28,7 @@ public class EventHandlers {
   /** Builder for {@link EventHandlers}. */
   public static class Builder {
 
-    private final Multimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> handlers =
+    private readonly Multimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> handlers =
         ArrayListMultimap.create();
 
     /**
@@ -44,7 +43,7 @@ public class EventHandlers {
      * @param <E> the type of {@code eventClass}
      * @return this
      */
-    public <E extends JibEvent> Builder add(Class<E> eventType, Consumer<? super E> eventConsumer) {
+    public Builder add<E>(Class<E> eventType, Consumer<E> eventConsumer) where E : JibEvent {
       handlers.put(eventType, new Handler<>(eventType, eventConsumer));
       return this;
     }
@@ -55,10 +54,10 @@ public class EventHandlers {
   }
 
   /** An empty {@link EventHandlers}. */
-  public static final EventHandlers NONE = new Builder().build();
+  public static readonly EventHandlers NONE = new Builder().build();
 
   /** Maps from {@link JibEvent} class to handlers for that event type. */
-  private final ImmutableMultimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> handlers;
+  private readonly ImmutableMultimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> handlers;
 
   private EventHandlers(Multimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> handlers) {
     this.handlers = ImmutableMultimap.copyOf(handlers);
@@ -82,8 +81,8 @@ public class EventHandlers {
     if (handlers.isEmpty()) {
       return;
     }
-    handlers.get(JibEvent.class).forEach(handler -> handler.handle(jibEvent));
-    handlers.get(jibEvent.getClass()).forEach(handler -> handler.handle(jibEvent));
+    handlers.get(typeof(JibEvent)).forEach(handler => handler.handle(jibEvent));
+    handlers.get(jibEvent.getClass()).forEach(handler => handler.handle(jibEvent));
   }
 
   /**
@@ -91,8 +90,9 @@ public class EventHandlers {
    *
    * @return the map from {@link JibEvent} type to a list of {@link Handler}s
    */
-  @VisibleForTesting
+
   ImmutableMultimap<Class<? extends JibEvent>, Handler<? extends JibEvent>> getHandlers() {
     return ImmutableMultimap.copyOf(handlers);
   }
+}
 }

@@ -14,25 +14,23 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import com.google.cloud.tools.jib.event.events.TimerEvent;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
-class Timer implements TimerEvent.Timer {
+class Timer : $2 {
+  private readonly Clock clock;
+  private final Timer parentTimer;
 
-  private final Clock clock;
-  @Nullable private final Timer parentTimer;
-
-  private final Instant startTime;
+  private readonly Instant startTime;
   private Instant lapStartTime;
 
-  Timer(Clock clock, @Nullable Timer parentTimer) {
+  Timer(Clock clock, Timer parentTimer) {
     this.clock = clock;
     this.parentTimer = parentTimer;
 
@@ -40,7 +38,6 @@ class Timer implements TimerEvent.Timer {
     lapStartTime = startTime;
   }
 
-  @Override
   public Optional<? extends Timer> getParent() {
     return Optional.ofNullable(parentTimer);
   }
@@ -65,4 +62,5 @@ class Timer implements TimerEvent.Timer {
   Duration getElapsedTime() {
     return Duration.between(startTime, clock.instant());
   }
+}
 }

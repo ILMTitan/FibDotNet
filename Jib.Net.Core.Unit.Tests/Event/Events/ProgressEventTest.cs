@@ -14,50 +14,49 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.events;
+namespace com.google.cloud.tools.jib.event.events {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.progress.Allocation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
 
 /** Tests for {@link ProgressEvent}. */
 public class ProgressEventTest {
 
   /** {@link Allocation} tree for testing. */
-  private static class AllocationTree {
+  private class AllocationTree {
 
     /** The root node. */
-    private static final Allocation root = Allocation.newRoot("ignored", 2);
+    private static readonly Allocation root = Allocation.newRoot("ignored", 2);
 
     /** First child of the root node. */
-    private static final Allocation child1 = root.newChild("ignored", 1);
+    private static readonly Allocation child1 = root.newChild("ignored", 1);
     /** Child of the first child of the root node. */
-    private static final Allocation child1Child = child1.newChild("ignored", 100);
+    private static readonly Allocation child1Child = child1.newChild("ignored", 100);
 
     /** Second child of the root node. */
-    private static final Allocation child2 = root.newChild("ignored", 200);
+    private static readonly Allocation child2 = root.newChild("ignored", 200);
 
     private AllocationTree() {}
   }
 
   private static EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer) {
-    return EventHandlers.builder().add(ProgressEvent.class, progressEventConsumer).build();
+    return EventHandlers.builder().add(typeof(ProgressEvent), progressEventConsumer).build();
   }
 
-  private static final double DOUBLE_ERROR_MARGIN = 1e-10;
+  private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  private final Map<Allocation, Long> allocationCompletionMap = new HashMap<>();
+  private readonly Map<Allocation, Long> allocationCompletionMap = new HashMap<>();
 
   private double progress = 0.0;
 
-  @Test
+  [TestMethod]
   public void testAccumulateProgress() {
     Consumer<ProgressEvent> progressEventConsumer =
-        progressEvent -> {
+        progressEvent => {
           double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
           long units = progressEvent.getUnits();
 
@@ -79,10 +78,10 @@ public class ProgressEventTest {
     Assert.assertEquals(1.0, progress, DOUBLE_ERROR_MARGIN);
   }
 
-  @Test
+  [TestMethod]
   public void testSmoke() {
     Consumer<ProgressEvent> progressEventConsumer =
-        progressEvent -> {
+        progressEvent => {
           Allocation allocation = progressEvent.getAllocation();
           long units = progressEvent.getUnits();
 
@@ -112,12 +111,12 @@ public class ProgressEventTest {
     Assert.assertEquals(2, allocationCompletionMap.get(AllocationTree.root).longValue());
   }
 
-  @Test
+  [TestMethod]
   public void testType() {
     // Used to test whether or not progress event was consumed
-    boolean[] called = new boolean[] {false};
+    bool[] called = new bool[] {false};
     Consumer<ProgressEvent> buildImageConsumer =
-        progressEvent -> {
+        progressEvent => {
           called[0] = true;
         };
 
@@ -143,7 +142,8 @@ public class ProgressEventTest {
     if (allocation.getAllocationUnits() == units) {
       allocation
           .getParent()
-          .ifPresent(parentAllocation -> updateCompletionMap(parentAllocation, 1));
+          .ifPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
     }
   }
+}
 }

@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.events;
+namespace com.google.cloud.tools.jib.event.events {
 
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.LogEvent.Level;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
 
 /** Tests for {@link LogEvent}. */
 public class LogEventTest {
 
-  private final Deque<LogEvent> receivedLogEvents = new ArrayDeque<>();
+  private readonly Deque<LogEvent> receivedLogEvents = new ArrayDeque<>();
 
   // Note that in actual code, the event handler should NOT perform thread unsafe operations like
   // here.
-  private final EventHandlers eventHandlers =
-      EventHandlers.builder().add(LogEvent.class, receivedLogEvents::offer).build();
+  private readonly EventHandlers eventHandlers =
+      EventHandlers.builder().add(typeof(LogEvent), receivedLogEvents.offer).build();
 
-  @Test
+  [TestMethod]
   public void testFactories() {
     eventHandlers.dispatch(LogEvent.error("error"));
     eventHandlers.dispatch(LogEvent.lifecycle("lifecycle"));
@@ -52,7 +51,7 @@ public class LogEventTest {
     Assert.assertTrue(receivedLogEvents.isEmpty());
   }
 
-  private void verifyNextLogEvent(Level level, String message) {
+  private void verifyNextLogEvent(Level level, string message) {
     Assert.assertFalse(receivedLogEvents.isEmpty());
 
     LogEvent logEvent = receivedLogEvents.poll();
@@ -60,4 +59,5 @@ public class LogEventTest {
     Assert.assertEquals(level, logEvent.getLevel());
     Assert.assertEquals(message, logEvent.getMessage());
   }
+}
 }

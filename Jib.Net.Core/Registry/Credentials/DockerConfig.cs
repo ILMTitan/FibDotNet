@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
-import com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate.AuthTemplate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
 
 /** Handles getting useful information from a {@link DockerConfigTemplate}. */
 class DockerConfig {
@@ -32,28 +31,26 @@ class DockerConfig {
    * Returns the first entry matching the given key predicates (short-circuiting in the order of
    * predicates).
    */
-  @Nullable
   private static <K, T> Map.Entry<K, T> findFirstInMapByKey(
       Map<K, T> map, List<Predicate<K>> keyMatches) {
     return keyMatches
         .stream()
-        .map(keyMatch -> findFirstInMapByKey(map, keyMatch))
+        .map(keyMatch => findFirstInMapByKey(map, keyMatch))
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
   }
 
   /** Returns the first entry matching the given key predicate. */
-  @Nullable
   private static <K, T> Map.Entry<K, T> findFirstInMapByKey(Map<K, T> map, Predicate<K> keyMatch) {
     return map.entrySet()
         .stream()
-        .filter(entry -> keyMatch.test(entry.getKey()))
+        .filter(entry => keyMatch.test(entry.getKey()))
         .findFirst()
         .orElse(null);
   }
 
-  private final DockerConfigTemplate dockerConfigTemplate;
+  private readonly DockerConfigTemplate dockerConfigTemplate;
 
   DockerConfig(DockerConfigTemplate dockerConfigTemplate) {
     this.dockerConfigTemplate = dockerConfigTemplate;
@@ -74,9 +71,8 @@ class DockerConfig {
    * @return the base64-encoded {@code Basic} authorization for {@code registry}, or {@code null} if
    *     none exists
    */
-  @Nullable
-  String getAuthFor(String registry) {
-    Map.Entry<String, AuthTemplate> authEntry =
+  string getAuthFor(string registry) {
+    Map.Entry<string, AuthTemplate> authEntry =
         findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry));
     return authEntry != null ? authEntry.getValue().getAuth() : null;
   }
@@ -95,18 +91,17 @@ class DockerConfig {
    * @return the {@link DockerCredentialHelper} or {@code null} if none is found for the given
    *     registry
    */
-  @Nullable
-  DockerCredentialHelper getCredentialHelperFor(String registry) {
-    List<Predicate<String>> registryMatchers = getRegistryMatchersFor(registry);
+  DockerCredentialHelper getCredentialHelperFor(string registry) {
+    List<Predicate<string>> registryMatchers = getRegistryMatchersFor(registry);
 
-    Map.Entry<String, ?> firstAuthMatch =
+    Map.Entry<string, ?> firstAuthMatch =
         findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers);
     if (firstAuthMatch != null && dockerConfigTemplate.getCredsStore() != null) {
       return new DockerCredentialHelper(
           firstAuthMatch.getKey(), dockerConfigTemplate.getCredsStore());
     }
 
-    Map.Entry<String, String> firstCredHelperMatch =
+    Map.Entry<string, string> firstCredHelperMatch =
         findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers);
     if (firstCredHelperMatch != null) {
       return new DockerCredentialHelper(
@@ -129,11 +124,12 @@ class DockerConfig {
    * @param registry the registry to get matchers for
    * @return the list of predicates to match possible aliases
    */
-  private List<Predicate<String>> getRegistryMatchersFor(String registry) {
-    Predicate<String> exactMatch = registry::equals;
-    Predicate<String> withHttps = ("https://" + registry)::equals;
-    Predicate<String> withSuffix = name -> name.startsWith(registry + "/");
-    Predicate<String> withHttpsAndSuffix = name -> name.startsWith("https://" + registry + "/");
+  private List<Predicate<string>> getRegistryMatchersFor(string registry) {
+    Predicate<string> exactMatch = registry.equals;
+    Predicate<string> withHttps = ("https://" + registry)::equals;
+    Predicate<string> withSuffix = name => name.startsWith(registry + "/");
+    Predicate<string> withHttpsAndSuffix = name => name.startsWith("https://" + registry + "/");
     return Arrays.asList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
   }
+}
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
 /**
  * Enumerated errors that can be received from the Registry API.
@@ -98,4 +98,5 @@ enum ErrorCodes {
 
   /** The operation was unsupported due to a missing implementation or invalid set of parameters. */
   UNSUPPORTED
+}
 }

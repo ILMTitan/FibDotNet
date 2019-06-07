@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.filesystem.UnixPathParser;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import javax.annotation.concurrent.Immutable;
+
+
+
 
 /**
  * Represents a Unix-style path in relative form (does not start at the file system root {@code /}).
  *
  * <p>This class is immutable and thread-safe.
  */
-@Immutable
+
 public class RelativeUnixPath {
 
   /**
@@ -36,17 +35,17 @@ public class RelativeUnixPath {
    * @param relativePath the relative path
    * @return a new {@link RelativeUnixPath}
    */
-  public static RelativeUnixPath get(String relativePath) {
+  public static RelativeUnixPath get(string relativePath) {
     Preconditions.checkArgument(
         !relativePath.startsWith("/"), "Path starts with forward slash (/): " + relativePath);
 
     return new RelativeUnixPath(UnixPathParser.parse(relativePath));
   }
 
-  private final ImmutableList<String> pathComponents;
+  private readonly ImmutableList<string> pathComponents;
 
   /** Instantiate with {@link #get}. */
-  private RelativeUnixPath(ImmutableList<String> pathComponents) {
+  private RelativeUnixPath(ImmutableList<string> pathComponents) {
     this.pathComponents = pathComponents;
   }
 
@@ -55,7 +54,8 @@ public class RelativeUnixPath {
    *
    * @return the relative path this represents, in a list of components
    */
-  ImmutableList<String> getRelativePathComponents() {
+  ImmutableList<string> getRelativePathComponents() {
     return pathComponents;
   }
+}
 }

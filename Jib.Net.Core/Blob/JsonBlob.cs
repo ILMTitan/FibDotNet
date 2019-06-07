@@ -14,24 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import java.io.IOException;
-import java.io.OutputStream;
+
+
+
 
 /** A {@link Blob} that holds {@link JsonTemplate}. */
-class JsonBlob implements Blob {
-
-  private final JsonTemplate template;
+class JsonBlob : $2 {
+  private readonly JsonTemplate template;
 
   JsonBlob(JsonTemplate template) {
     this.template = template;
   }
 
-  @Override
-  public BlobDescriptor writeTo(OutputStream outputStream) throws IOException {
+  public BlobDescriptor writeTo(OutputStream outputStream) {
     return Digests.computeDigest(template, outputStream);
   }
+}
 }

@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.event.progress.ThrottledAccumulatingConsumer;
-import com.google.common.base.Preconditions;
-import java.io.Closeable;
-import javax.annotation.Nullable;
+
+
+
+
 
 /**
  * Contains a {@link ProgressEventDispatcher} and throttles dispatching progress events with the
@@ -31,15 +30,14 @@ import javax.annotation.Nullable;
  * response headers are received, only after which can the {@link ProgressEventDispatcher} be
  * created.
  */
-class ThrottledProgressEventDispatcherWrapper implements Closeable {
-
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-  private final String description;
-  @Nullable private ProgressEventDispatcher progressEventDispatcher;
-  @Nullable private ThrottledAccumulatingConsumer throttledDispatcher;
+class ThrottledProgressEventDispatcherWrapper : $2 {
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly string description;
+  private ProgressEventDispatcher progressEventDispatcher;
+  private ThrottledAccumulatingConsumer throttledDispatcher;
 
   ThrottledProgressEventDispatcherWrapper(
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory, String description) {
+      ProgressEventDispatcher.Factory progressEventDispatcherFactory, string description) {
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.description = description;
   }
@@ -49,7 +47,6 @@ class ThrottledProgressEventDispatcherWrapper implements Closeable {
     throttledDispatcher.accept(progressUnits);
   }
 
-  @Override
   public void close() {
     Preconditions.checkNotNull(progressEventDispatcher);
     Preconditions.checkNotNull(throttledDispatcher);
@@ -61,6 +58,7 @@ class ThrottledProgressEventDispatcherWrapper implements Closeable {
     Preconditions.checkState(progressEventDispatcher == null);
     progressEventDispatcher = progressEventDispatcherFactory.create(description, allocationUnits);
     throttledDispatcher =
-        new ThrottledAccumulatingConsumer(progressEventDispatcher::dispatchProgress);
+        new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress);
   }
+}
 }

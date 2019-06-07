@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials.json;
+namespace com.google.cloud.tools.jib.registry.credentials.json {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /**
  * Template for a Docker config file.
@@ -58,59 +57,55 @@ import javax.annotation.Nullable;
  * @see <a
  *     href="https://www.projectatomic.io/blog/2016/03/docker-credentials-store/">https://www.projectatomic.io/blog/2016/03/docker-credentials-store/</a>
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class DockerConfigTemplate implements JsonTemplate {
+[JsonIgnoreProperties(ignoreUnknown = true)]
+public class DockerConfigTemplate : JsonTemplate {
 
   /** Template for an {@code auth} defined for a registry under {@code auths}. */
-  @JsonIgnoreProperties(ignoreUnknown = true)
+  [JsonIgnoreProperties(ignoreUnknown = true)]
   public static class AuthTemplate implements JsonTemplate {
 
-    @Nullable private String auth;
+    private string auth;
 
-    @Nullable
-    public String getAuth() {
+    public string getAuth() {
       return auth;
     }
   }
 
   /** Maps from registry to its {@link AuthTemplate}. */
-  private final Map<String, AuthTemplate> auths = new HashMap<>();
+  private readonly Map<string, AuthTemplate> auths = new HashMap<>();
 
-  @Nullable private String credsStore;
+  private string credsStore;
 
   /** Maps from registry to credential helper name. */
-  private final Map<String, String> credHelpers = new HashMap<>();
+  private readonly Map<string, string> credHelpers = new HashMap<>();
 
-  public Map<String, AuthTemplate> getAuths() {
+  public Map<string, AuthTemplate> getAuths() {
     return auths;
   }
 
-  @Nullable
-  public String getCredsStore() {
+  public string getCredsStore() {
     return credsStore;
   }
 
-  public Map<String, String> getCredHelpers() {
+  public Map<string, string> getCredHelpers() {
     return credHelpers;
   }
 
-  @VisibleForTesting
-  DockerConfigTemplate addAuth(String registry, @Nullable String auth) {
+  DockerConfigTemplate addAuth(string registry, string auth) {
     AuthTemplate authTemplate = new AuthTemplate();
     authTemplate.auth = auth;
     auths.put(registry, authTemplate);
     return this;
   }
 
-  @VisibleForTesting
-  DockerConfigTemplate setCredsStore(String credsStore) {
+  DockerConfigTemplate setCredsStore(string credsStore) {
     this.credsStore = credsStore;
     return this;
   }
 
-  @VisibleForTesting
-  DockerConfigTemplate addCredHelper(String registry, String credHelper) {
+  DockerConfigTemplate addCredHelper(string registry, string credHelper) {
     credHelpers.put(registry, credHelper);
     return this;
   }
+}
 }

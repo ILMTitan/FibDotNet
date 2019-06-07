@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.api.client.http.HttpResponseException;
 
 /** Thrown when a registry request was unauthorized and therefore authentication is needed. */
-public class RegistryUnauthorizedException extends RegistryException {
+public class RegistryUnauthorizedException : RegistryException {
 
-  private final String registry;
-  private final String repository;
+  private readonly string registry;
+  private readonly string repository;
 
   /**
    * Identifies the image registry and repository that denied access.
@@ -32,25 +31,26 @@ public class RegistryUnauthorizedException extends RegistryException {
    * @param cause the cause
    */
   public RegistryUnauthorizedException(
-      String registry, String repository, HttpResponseException cause) {
-    super("Unauthorized for " + registry + "/" + repository, cause);
+      string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository, cause) {
+    
     this.registry = registry;
     this.repository = repository;
   }
 
-  public String getRegistry() {
+  public string getRegistry() {
     return registry;
   }
 
-  public String getRepository() {
+  public string getRepository() {
     return repository;
   }
 
-  public String getImageReference() {
+  public string getImageReference() {
     return registry + "/" + repository;
   }
 
   public HttpResponseException getHttpResponseException() {
     return (HttpResponseException) getCause();
   }
+}
 }

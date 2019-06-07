@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import org.junit.Assert;
-import org.junit.Test;
+
 
 /** Tests for {@link Allocation}. */
 public class AllocationTest {
 
   /** Error margin for checking equality of two doubles. */
-  private static final double DOUBLE_ERROR_MARGIN = 1e-10;
+  private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  @Test
+  [TestMethod]
   public void testSmoke_linear() {
     Allocation root = Allocation.newRoot("root", 1);
     Allocation node1 = root.newChild("node1", 2);
@@ -49,7 +48,7 @@ public class AllocationTest {
     Assert.assertEquals(1.0, root.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
   }
 
-  @Test
+  [TestMethod]
   public void testFractionOfRoot_tree_partial() {
     Allocation root = Allocation.newRoot("ignored", 10);
     Allocation left = root.newChild("ignored", 2);
@@ -69,7 +68,7 @@ public class AllocationTest {
         1.0 / 10 / 4 / 100 / 200, rightRightDown.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
   }
 
-  @Test
+  [TestMethod]
   public void testFractionOfRoot_tree_complete() {
     Allocation root = Allocation.newRoot("ignored", 2);
 
@@ -90,4 +89,5 @@ public class AllocationTest {
             + rightDown.getFractionOfRoot() * rightDown.getAllocationUnits();
     Assert.assertEquals(1.0, total, DOUBLE_ERROR_MARGIN);
   }
+}
 }

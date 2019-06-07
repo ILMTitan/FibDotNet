@@ -14,12 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
 /** Exception thrown when accessing non-existent properties of layers. */
-public class LayerPropertyNotFoundException extends RuntimeException {
+public class LayerPropertyNotFoundException : RuntimeException {
 
-  LayerPropertyNotFoundException(String message) {
+  LayerPropertyNotFoundException(string message) {
     super(message);
   }
+}
 }

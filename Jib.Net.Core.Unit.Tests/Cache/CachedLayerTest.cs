@@ -14,26 +14,25 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.Blobs;
-import java.io.IOException;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
 
 /** Tests for {@link CachedLayer}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class CachedLayerTest {
 
-  @Mock private DescriptorDigest mockLayerDigest;
-  @Mock private DescriptorDigest mockLayerDiffId;
+  [Mock] private DescriptorDigest mockLayerDigest;
+  [Mock] private DescriptorDigest mockLayerDiffId;
 
-  @Test
+  [TestMethod]
   public void testBuilder_fail() {
     try {
       CachedLayer.builder().build();
@@ -60,8 +59,8 @@ public class CachedLayerTest {
     }
   }
 
-  @Test
-  public void testBuilder_pass() throws IOException {
+  [TestMethod]
+  public void testBuilder_pass() {
     CachedLayer.Builder cachedLayerBuilder =
         CachedLayer.builder()
             .setLayerDigest(mockLayerDigest)
@@ -76,4 +75,5 @@ public class CachedLayerTest {
     Assert.assertEquals(1337, cachedLayer.getSize());
     Assert.assertEquals("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
   }
+}
 }

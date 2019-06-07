@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CountingOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Cache}. */
 public class CacheTest {
@@ -51,8 +50,8 @@ public class CacheTest {
    */
   private static Blob compress(Blob blob) {
     return Blobs.from(
-        outputStream -> {
-          try (GZIPOutputStream compressorStream = new GZIPOutputStream(outputStream)) {
+        outputStream => {
+          using (GZIPOutputStream compressorStream = new GZIPOutputStream(outputStream)) {
             blob.writeTo(compressorStream);
           }
         });
@@ -65,7 +64,7 @@ public class CacheTest {
    * @return the decompressed {@link Blob}
    * @throws IOException if an I/O exception occurs
    */
-  private static Blob decompress(Blob blob) throws IOException {
+  private static Blob decompress(Blob blob) {
     return Blobs.from(new GZIPInputStream(new ByteArrayInputStream(Blobs.writeToByteArray(blob))));
   }
 
@@ -76,7 +75,7 @@ public class CacheTest {
    * @return the {@link DescriptorDigest} of {@code blob}
    * @throws IOException if an I/O exception occurs
    */
-  private static DescriptorDigest digestOf(Blob blob) throws IOException {
+  private static DescriptorDigest digestOf(Blob blob) {
     return blob.writeTo(ByteStreams.nullOutputStream()).getDigest();
   }
 
@@ -87,7 +86,7 @@ public class CacheTest {
    * @return the size (in bytes) of {@code blob}
    * @throws IOException if an I/O exception occurs
    */
-  private static long sizeOf(Blob blob) throws IOException {
+  private static long sizeOf(Blob blob) {
     CountingOutputStream countingOutputStream =
         new CountingOutputStream(ByteStreams.nullOutputStream());
     blob.writeTo(countingOutputStream);
@@ -102,7 +101,7 @@ public class CacheTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private Blob layerBlob1;
   private DescriptorDigest layerDigest1;
@@ -116,8 +115,8 @@ public class CacheTest {
   private long layerSize2;
   private ImmutableList<LayerEntry> layerEntries2;
 
-  @Before
-  public void setUp() throws IOException {
+  [TestInitialize]
+  public void setUp() {
     Path directory = temporaryFolder.newFolder().toPath();
     Files.createDirectory(directory.resolve("source"));
     Files.createFile(directory.resolve("source/file"));
@@ -143,8 +142,8 @@ public class CacheTest {
     layerEntries2 = ImmutableList.of();
   }
 
-  @Test
-  public void testWithDirectory_existsButNotDirectory() throws IOException {
+  [TestMethod]
+  public void testWithDirectory_existsButNotDirectory() {
     Path file = temporaryFolder.newFile().toPath();
 
     try {
@@ -156,9 +155,9 @@ public class CacheTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testWriteCompressed_retrieveByLayerDigest()
-      throws IOException, CacheCorruptedException {
+      {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeCompressedLayer(compress(layerBlob1)));
@@ -166,9 +165,9 @@ public class CacheTest {
     Assert.assertFalse(cache.retrieve(layerDigest2).isPresent());
   }
 
-  @Test
+  [TestMethod]
   public void testWriteUncompressedWithLayerEntries_retrieveByLayerDigest()
-      throws IOException, CacheCorruptedException {
+      {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
@@ -176,9 +175,9 @@ public class CacheTest {
     Assert.assertFalse(cache.retrieve(layerDigest2).isPresent());
   }
 
-  @Test
+  [TestMethod]
   public void testWriteUncompressedWithLayerEntries_retrieveByLayerEntries()
-      throws IOException, CacheCorruptedException {
+      {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
@@ -191,8 +190,8 @@ public class CacheTest {
     Assert.assertFalse(cache.retrieve(layerEntries1).isPresent());
   }
 
-  @Test
-  public void testRetrieveWithTwoEntriesInCache() throws IOException, CacheCorruptedException {
+  [TestMethod]
+  public void testRetrieveWithTwoEntriesInCache() {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
@@ -200,7 +199,7 @@ public class CacheTest {
     verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(AssertionError::new));
     verifyIsLayer2(cache.retrieve(layerDigest2).orElseThrow(AssertionError::new));
     verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(AssertionError::new));
-    verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(AssertionError::new));
+    verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(AssertionError.new));
   }
 
   /**
@@ -209,7 +208,7 @@ public class CacheTest {
    * @param cachedLayer the {@link CachedLayer} to verify
    * @throws IOException if an I/O exception occurs
    */
-  private void verifyIsLayer1(CachedLayer cachedLayer) throws IOException {
+  private void verifyIsLayer1(CachedLayer cachedLayer) {
     Assert.assertEquals("layerBlob1", Blobs.writeToString(decompress(cachedLayer.getBlob())));
     Assert.assertEquals(layerDigest1, cachedLayer.getDigest());
     Assert.assertEquals(layerDiffId1, cachedLayer.getDiffId());
@@ -222,10 +221,11 @@ public class CacheTest {
    * @param cachedLayer the {@link CachedLayer} to verify
    * @throws IOException if an I/O exception occurs
    */
-  private void verifyIsLayer2(CachedLayer cachedLayer) throws IOException {
+  private void verifyIsLayer2(CachedLayer cachedLayer) {
     Assert.assertEquals("layerBlob2", Blobs.writeToString(decompress(cachedLayer.getBlob())));
     Assert.assertEquals(layerDigest2, cachedLayer.getDigest());
     Assert.assertEquals(layerDiffId2, cachedLayer.getDiffId());
     Assert.assertEquals(layerSize2, cachedLayer.getSize());
   }
+}
 }

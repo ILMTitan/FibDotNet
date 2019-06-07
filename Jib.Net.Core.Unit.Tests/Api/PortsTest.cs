@@ -14,21 +14,20 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
 
 /** Tests for {@link Ports}. */
 public class PortsTest {
 
-  @Test
+  [TestMethod]
   public void testParse() {
-    List<String> goodInputs =
+    List<string> goodInputs =
         Arrays.asList("1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp");
     ImmutableSet<Port> expected =
         new ImmutableSet.Builder<Port>()
@@ -48,8 +47,9 @@ public class PortsTest {
     ImmutableSet<Port> result = Ports.parse(goodInputs);
     Assert.assertEquals(expected, result);
 
-    List<String> badInputs = Arrays.asList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
-    for (String input : badInputs) {
+    List<string> badInputs = Arrays.asList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
+    foreach (string input in badInputs)
+    {
       try {
         Ports.parse(Collections.singletonList(input));
         Assert.fail();
@@ -73,7 +73,8 @@ public class PortsTest {
     }
 
     badInputs = Arrays.asList("0", "70000", "0-400", "1-70000");
-    for (String input : badInputs) {
+    foreach (string input in badInputs)
+    {
       try {
         Ports.parse(Collections.singletonList(input));
         Assert.fail();
@@ -83,4 +84,5 @@ public class PortsTest {
       }
     }
   }
+}
 }

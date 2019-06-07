@@ -14,33 +14,32 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.common.io.ByteStreams;
-import java.io.IOException;
-import java.security.DigestException;
-import java.util.concurrent.atomic.LongAdder;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link BlobPuller}. */
 public class BlobPullerIntegrationTest {
 
-  @ClassRule public static LocalRegistry localRegistry = new LocalRegistry(5000);
+  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Test
-  public void testPull() throws IOException, RegistryException, InterruptedException {
+  [TestMethod]
+  public void testPull() {
     // Pulls the busybox image.
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
@@ -48,7 +47,7 @@ public class BlobPullerIntegrationTest {
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V21ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", V21ManifestTemplate.class);
+        registryClient.pullManifest("latest", typeof(V21ManifestTemplate));
 
     DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
 
@@ -58,18 +57,18 @@ public class BlobPullerIntegrationTest {
     Blob pulledBlob =
         registryClient.pullBlob(
             realDigest,
-            size -> {
+            size => {
               Assert.assertEquals(0, expectedSize.sum());
               expectedSize.add(size);
             },
-            totalByteCount::add);
+            totalByteCount.add);
     Assert.assertEquals(realDigest, pulledBlob.writeTo(ByteStreams.nullOutputStream()).getDigest());
     Assert.assertTrue(expectedSize.sum() > 0);
     Assert.assertEquals(expectedSize.sum(), totalByteCount.sum());
   }
 
-  @Test
-  public void testPull_unknownBlob() throws IOException, DigestException, InterruptedException {
+  [TestMethod]
+  public void testPull_unknownBlob() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     DescriptorDigest nonexistentDigest =
         DescriptorDigest.fromHash(
@@ -82,12 +81,12 @@ public class BlobPullerIntegrationTest {
 
     try {
       registryClient
-          .pullBlob(nonexistentDigest, ignored -> {}, ignored -> {})
+          .pullBlob(nonexistentDigest, ignored => {}, ignored => {})
           .writeTo(ByteStreams.nullOutputStream());
       Assert.fail("Trying to pull nonexistent blob should have errored");
 
     } catch (IOException ex) {
-      if (!(ex.getCause() instanceof RegistryErrorException)) {
+      if (!(ex.getCause() is RegistryErrorException)) {
         throw ex;
       }
       Assert.assertThat(
@@ -96,4 +95,5 @@ public class BlobPullerIntegrationTest {
               "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest));
     }
   }
+}
 }

@@ -14,12 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.async;
+namespace com.google.cloud.tools.jib.async {
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.util.concurrent.Callable;
+
+
+
 
 /**
  * Holds the future for an asynchronously-running step. Implementations should:
@@ -39,4 +38,5 @@ public interface AsyncStep<T> {
   /** @return the submitted future */
   // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.
   ListenableFuture<T> getFuture();
+}
 }

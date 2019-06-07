@@ -14,50 +14,46 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.HttpContent;
-import com.google.cloud.tools.jib.blob.Blob;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.function.Consumer;
+
+
+
+
 
 /** {@link Blob}-backed {@link HttpContent}. */
-public class BlobHttpContent implements HttpContent {
+public class BlobHttpContent : HttpContent {
 
-  private final Blob blob;
-  private final String contentType;
-  private final Consumer<Long> writtenByteCountListener;
+  private readonly Blob blob;
+  private readonly string contentType;
+  private readonly Consumer<Long> writtenByteCountListener;
 
-  public BlobHttpContent(Blob blob, String contentType) {
-    this(blob, contentType, ignored -> {});
+  public BlobHttpContent(Blob blob, string contentType) {
+    this(blob, contentType, ignored => {});
   }
 
-  public BlobHttpContent(Blob blob, String contentType, Consumer<Long> writtenByteCountListener) {
+  public BlobHttpContent(Blob blob, string contentType, Consumer<Long> writtenByteCountListener) {
     this.blob = blob;
     this.contentType = contentType;
     this.writtenByteCountListener = writtenByteCountListener;
   }
 
-  @Override
   public long getLength() {
     // Returns negative value for unknown length.
     return -1;
   }
 
-  @Override
-  public String getType() {
+  public string getType() {
     return contentType;
   }
 
-  @Override
-  public boolean retrySupported() {
+  public bool retrySupported() {
     return false;
   }
 
-  @Override
-  public void writeTo(OutputStream outputStream) throws IOException {
+  public void writeTo(OutputStream outputStream) {
     blob.writeTo(new NotifyingOutputStream(outputStream, writtenByteCountListener));
     outputStream.flush();
   }
+}
 }

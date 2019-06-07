@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
+
 
 /** Parses Unix-style paths. */
 public class UnixPathParser {
@@ -28,9 +27,10 @@ public class UnixPathParser {
    * @param unixPath the Unix-style path
    * @return a list of path components
    */
-  public static ImmutableList<String> parse(String unixPath) {
-    ImmutableList.Builder<String> pathComponents = ImmutableList.builder();
-    for (String pathComponent : Splitter.on('/').split(unixPath)) {
+  public static ImmutableList<string> parse(string unixPath) {
+    ImmutableList.Builder<string> pathComponents = ImmutableList.builder();
+    foreach (string pathComponent in Splitter.on('/').split(unixPath))
+    {
       if (pathComponent.isEmpty()) {
         // Skips empty components.
         continue;
@@ -41,4 +41,5 @@ public class UnixPathParser {
   }
 
   private UnixPathParser() {}
+}
 }

@@ -14,14 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.cloud.tools.jib.json.JsonTemplate;
+
 
 /** Parent class for image manifest JSON templates. */
-@JsonIgnoreProperties(ignoreUnknown = true)
+[JsonIgnoreProperties(ignoreUnknown = true)]
 public interface ManifestTemplate extends JsonTemplate {
 
   int getSchemaVersion();
+}
 }

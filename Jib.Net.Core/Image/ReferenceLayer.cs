@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
+
+
 
 /**
  * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
  * layer with its digest, size, and diff ID.
  */
-public class ReferenceLayer implements Layer {
+public class ReferenceLayer : Layer {
 
   /** The {@link BlobDescriptor} of the compressed layer content. */
-  private final BlobDescriptor blobDescriptor;
+  private readonly BlobDescriptor blobDescriptor;
 
   /** The digest of the uncompressed layer content. */
-  private final DescriptorDigest diffId;
+  private readonly DescriptorDigest diffId;
 
   /**
    * Instantiate with a {@link BlobDescriptor} and diff ID.
@@ -43,18 +42,16 @@ public class ReferenceLayer implements Layer {
     this.diffId = diffId;
   }
 
-  @Override
-  public Blob getBlob() throws LayerPropertyNotFoundException {
+  public Blob getBlob() {
     throw new LayerPropertyNotFoundException("Blob not available for reference layer");
   }
 
-  @Override
   public BlobDescriptor getBlobDescriptor() {
     return blobDescriptor;
   }
 
-  @Override
   public DescriptorDigest getDiffId() {
     return diffId;
   }
+}
 }

@@ -14,30 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.docker.json;
+namespace com.google.cloud.tools.jib.docker.json {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link DockerLoadManifestEntryTemplate}. */
 public class DockerLoadManifestTemplateTest {
 
-  @Test
-  public void testToJson() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testToJson() {
     // Loads the expected JSON string.
     Path jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
-    String expectedJson = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
     template.setRepoTags(
@@ -49,4 +48,5 @@ public class DockerLoadManifestTemplateTest {
     List<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
   }
+}
 }

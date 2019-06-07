@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.configuration.DockerHealthCheck;
-import com.google.cloud.tools.jib.image.DigestOnlyLayer;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.LayerCountMismatchException;
-import com.google.cloud.tools.jib.image.LayerPropertyNotFoundException;
-import com.google.cloud.tools.jib.image.ReferenceLayer;
-import com.google.cloud.tools.jib.image.ReferenceNoDiffIdLayer;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Translates {@link V21ManifestTemplate} and {@link V22ManifestTemplate} into {@link Image}. */
 public class JsonToImageTranslator {
@@ -49,7 +48,7 @@ public class JsonToImageTranslator {
    *
    * <p>Example matches: 100, 1000/tcp, 2000/udp
    */
-  private static final Pattern PORT_PATTERN =
+  private static readonly Pattern PORT_PATTERN =
       Pattern.compile("(?<portNum>\\d+)(?:/(?<protocol>tcp|udp))?");
 
   /**
@@ -58,7 +57,7 @@ public class JsonToImageTranslator {
    *
    * <p>Example matches: NAME=VALUE, A12345=$$$$$
    */
-  @VisibleForTesting
+
   static final Pattern ENVIRONMENT_PATTERN = Pattern.compile("(?<name>[^=]+)=(?<value>.*)");
 
   /**
@@ -71,11 +70,12 @@ public class JsonToImageTranslator {
    *     format
    */
   public static Image toImage(V21ManifestTemplate manifestTemplate)
-      throws LayerPropertyNotFoundException, BadContainerConfigurationFormatException {
-    Image.Builder imageBuilder = Image.builder(V21ManifestTemplate.class);
+      {
+    Image.Builder imageBuilder = Image.builder(typeof(V21ManifestTemplate));
 
     // V21 layers are in reverse order of V22. (The first layer is the latest one.)
-    for (DescriptorDigest digest : Lists.reverse(manifestTemplate.getLayerDigests())) {
+    foreach (DescriptorDigest digest in Lists.reverse(manifestTemplate.getLayerDigests()))
+    {
       imageBuilder.addLayer(new DigestOnlyLayer(digest));
     }
 
@@ -103,8 +103,7 @@ public class JsonToImageTranslator {
   public static Image toImage(
       BuildableManifestTemplate manifestTemplate,
       ContainerConfigurationTemplate containerConfigurationTemplate)
-      throws LayerCountMismatchException, LayerPropertyNotFoundException,
-          BadContainerConfigurationFormatException {
+      {
     List<ReferenceNoDiffIdLayer> layers = new ArrayList<>();
     for (BuildableManifestTemplate.ContentDescriptorTemplate layerObjectTemplate :
         manifestTemplate.getLayers()) {
@@ -139,9 +138,8 @@ public class JsonToImageTranslator {
 
   private static void configureBuilderWithContainerConfiguration(
       Image.Builder imageBuilder, ContainerConfigurationTemplate containerConfigurationTemplate)
-      throws BadContainerConfigurationFormatException {
-
-    containerConfigurationTemplate.getHistory().forEach(imageBuilder::addHistory);
+      {
+    containerConfigurationTemplate.getHistory().forEach(imageBuilder.addHistory);
 
     if (containerConfigurationTemplate.getCreated() != null) {
       try {
@@ -162,7 +160,7 @@ public class JsonToImageTranslator {
     imageBuilder.setEntrypoint(containerConfigurationTemplate.getContainerEntrypoint());
     imageBuilder.setProgramArguments(containerConfigurationTemplate.getContainerCmd());
 
-    List<String> baseHealthCheckCommand = containerConfigurationTemplate.getContainerHealthTest();
+    List<string> baseHealthCheckCommand = containerConfigurationTemplate.getContainerHealthTest();
     if (baseHealthCheckCommand != null) {
       DockerHealthCheck.Builder builder = DockerHealthCheck.fromCommand(baseHealthCheckCommand);
       if (containerConfigurationTemplate.getContainerHealthInterval() != null) {
@@ -193,7 +191,8 @@ public class JsonToImageTranslator {
     }
 
     if (containerConfigurationTemplate.getContainerEnvironment() != null) {
-      for (String environmentVariable : containerConfigurationTemplate.getContainerEnvironment()) {
+      foreach (string environmentVariable in containerConfigurationTemplate.getContainerEnvironment())
+      {
         Matcher matcher = ENVIRONMENT_PATTERN.matcher(environmentVariable);
         if (!matcher.matches()) {
           throw new BadContainerConfigurationFormatException(
@@ -210,20 +209,20 @@ public class JsonToImageTranslator {
 
   /**
    * Converts a map of exposed ports as strings to a set of {@link Port}s (e.g. {@code
-   * {"1000/tcp":{}}} -> {@code Port(1000, Protocol.TCP)}).
+   * {"1000/tcp":{}}} => {@code Port(1000, Protocol.TCP)}).
    *
    * @param portMap the map to convert
    * @return a set of {@link Port}s
    */
-  @VisibleForTesting
-  static ImmutableSet<Port> portMapToSet(@Nullable Map<String, Map<?, ?>> portMap)
-      throws BadContainerConfigurationFormatException {
+
+  static ImmutableSet<Port> portMapToSet(Map<string, Map<object, object>> portMap)
+      {
     if (portMap == null) {
       return ImmutableSet.of();
     }
     ImmutableSet.Builder<Port> ports = new ImmutableSet.Builder<>();
-    for (Map.Entry<String, Map<?, ?>> entry : portMap.entrySet()) {
-      String port = entry.getKey();
+    for (Map.Entry<string, Map<object, object>> entry : portMap.entrySet()) {
+      string port = entry.getKey();
       Matcher matcher = PORT_PATTERN.matcher(port);
       if (!matcher.matches()) {
         throw new BadContainerConfigurationFormatException(
@@ -231,7 +230,7 @@ public class JsonToImageTranslator {
       }
 
       int portNumber = Integer.parseInt(matcher.group("portNum"));
-      String protocol = matcher.group("protocol");
+      string protocol = matcher.group("protocol");
       ports.add(Port.parseProtocol(portNumber, protocol));
     }
     return ports.build();
@@ -239,20 +238,21 @@ public class JsonToImageTranslator {
 
   /**
    * Converts a map of volumes strings to a set of {@link AbsoluteUnixPath}s (e.g. {@code {@code
-   * {"/var/log/my-app-logs":{}}} -> AbsoluteUnixPath().get("/var/log/my-app-logs")}).
+   * {"/var/log/my-app-logs":{}}} => AbsoluteUnixPath().get("/var/log/my-app-logs")}).
    *
    * @param volumeMap the map to convert
    * @return a set of {@link AbsoluteUnixPath}s
    */
-  @VisibleForTesting
-  static ImmutableSet<AbsoluteUnixPath> volumeMapToSet(@Nullable Map<String, Map<?, ?>> volumeMap)
-      throws BadContainerConfigurationFormatException {
+
+  static ImmutableSet<AbsoluteUnixPath> volumeMapToSet(Map<string, Map<object, object>> volumeMap)
+      {
     if (volumeMap == null) {
       return ImmutableSet.of();
     }
 
     ImmutableSet.Builder<AbsoluteUnixPath> volumeList = ImmutableSet.builder();
-    for (String volume : volumeMap.keySet()) {
+    foreach (string volume in volumeMap.keySet())
+    {
       try {
         volumeList.add(AbsoluteUnixPath.get(volume));
       } catch (IllegalArgumentException exception) {
@@ -264,4 +264,5 @@ public class JsonToImageTranslator {
   }
 
   private JsonToImageTranslator() {}
+}
 }

@@ -14,29 +14,28 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ContainerConfigurationTemplate;
-import com.google.cloud.tools.jib.image.json.ManifestAndConfig;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-import javax.annotation.concurrent.Immutable;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Cache for storing data to be shared between Jib executions.
  *
  * <p>This class is immutable and safe to use across threads.
  */
-@Immutable
+
 public class Cache {
 
   /**
@@ -46,13 +45,13 @@ public class Cache {
    * @return a new {@link Cache}
    * @throws IOException if an I/O exception occurs
    */
-  public static Cache withDirectory(Path cacheDirectory) throws IOException {
+  public static Cache withDirectory(Path cacheDirectory) {
     Files.createDirectories(cacheDirectory);
     return new Cache(new CacheStorageFiles(cacheDirectory));
   }
 
-  private final CacheStorageWriter cacheStorageWriter;
-  private final CacheStorageReader cacheStorageReader;
+  private readonly CacheStorageWriter cacheStorageWriter;
+  private readonly CacheStorageReader cacheStorageReader;
 
   private Cache(CacheStorageFiles cacheStorageFiles) {
     this.cacheStorageWriter = new CacheStorageWriter(cacheStorageFiles);
@@ -71,7 +70,7 @@ public class Cache {
       ImageReference imageReference,
       BuildableManifestTemplate manifestTemplate,
       ContainerConfigurationTemplate containerConfigurationTemplate)
-      throws IOException {
+      {
     cacheStorageWriter.writeMetadata(
         imageReference, manifestTemplate, containerConfigurationTemplate);
   }
@@ -84,7 +83,7 @@ public class Cache {
    * @throws IOException if an I/O exception occurs
    */
   public void writeMetadata(ImageReference imageReference, V21ManifestTemplate manifestTemplate)
-      throws IOException {
+      {
     cacheStorageWriter.writeMetadata(imageReference, manifestTemplate);
   }
 
@@ -97,7 +96,7 @@ public class Cache {
    * @return the {@link CachedLayer} for the written layer
    * @throws IOException if an I/O exception occurs
    */
-  public CachedLayer writeCompressedLayer(Blob compressedLayerBlob) throws IOException {
+  public CachedLayer writeCompressedLayer(Blob compressedLayerBlob) {
     return cacheStorageWriter.writeCompressed(compressedLayerBlob);
   }
 
@@ -111,7 +110,7 @@ public class Cache {
    * @throws IOException if an I/O exception occurs
    */
   public CachedLayer writeUncompressedLayer(
-      Blob uncompressedLayerBlob, ImmutableList<LayerEntry> layerEntries) throws IOException {
+      Blob uncompressedLayerBlob, ImmutableList<LayerEntry> layerEntries) {
     return cacheStorageWriter.writeUncompressed(
         uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries));
   }
@@ -125,7 +124,7 @@ public class Cache {
    * @throws CacheCorruptedException if the cache is corrupted
    */
   public Optional<ManifestAndConfig> retrieveMetadata(ImageReference imageReference)
-      throws IOException, CacheCorruptedException {
+      {
     return cacheStorageReader.retrieveMetadata(imageReference);
   }
 
@@ -138,7 +137,7 @@ public class Cache {
    * @throws CacheCorruptedException if the cache is corrupted
    */
   public Optional<CachedLayer> retrieve(ImmutableList<LayerEntry> layerEntries)
-      throws IOException, CacheCorruptedException {
+      {
     Optional<DescriptorDigest> optionalSelectedLayerDigest =
         cacheStorageReader.select(LayerEntriesSelector.generateSelector(layerEntries));
     if (!optionalSelectedLayerDigest.isPresent()) {
@@ -157,7 +156,8 @@ public class Cache {
    * @throws IOException if an I/O exception occurs
    */
   public Optional<CachedLayer> retrieve(DescriptorDigest layerDigest)
-      throws IOException, CacheCorruptedException {
+      {
     return cacheStorageReader.retrieve(layerDigest);
   }
+}
 }

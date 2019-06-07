@@ -14,20 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Keeps track of the progress for {@link Allocation}s as well as their order in which they appear.
@@ -40,32 +39,30 @@ class AllocationCompletionTracker {
    * Holds the progress units remaining along with a creation order (index starting from 0). This is
    * used as the value of the {@link #completionMap}.
    */
-  private static class IndexedRemainingUnits implements Comparable<IndexedRemainingUnits> {
-
+  private class IndexedRemainingUnits : Comparable<IndexedRemainingUnits>  {
     /** Monotonically-increasing source for {@link #index}. */
-    private static final AtomicInteger currentIndex = new AtomicInteger();
+    private static readonly AtomicInteger currentIndex = new AtomicInteger();
 
     /** The creation order that monotonically increases. */
-    private final int index = currentIndex.getAndIncrement();
+    private readonly int index = currentIndex.getAndIncrement();
 
     /**
      * Remaining progress units until completion. This can be shared across multiple threads and
      * should be updated atomically.
      */
-    private final AtomicLong remainingUnits;
+    private readonly AtomicLong remainingUnits;
 
-    private final Allocation allocation;
+    public readonly Allocation allocation;
 
     private IndexedRemainingUnits(Allocation allocation) {
       this.allocation = allocation;
       remainingUnits = new AtomicLong(allocation.getAllocationUnits());
     }
 
-    private boolean isUnfinished() {
+    public bool isUnfinished() {
       return remainingUnits.get() != 0;
     }
 
-    @Override
     public int compareTo(IndexedRemainingUnits otherIndexedRemainingUnits) {
       return index - otherIndexedRemainingUnits.index;
     }
@@ -75,7 +72,7 @@ class AllocationCompletionTracker {
    * Maps from {@link Allocation} to 1) the number of progress units remaining in that {@link
    * Allocation}; as well as 2) the insertion order of the key.
    */
-  private final ConcurrentHashMap<Allocation, IndexedRemainingUnits> completionMap =
+  private readonly ConcurrentHashMap<Allocation, IndexedRemainingUnits> completionMap =
       new ConcurrentHashMap<>();
 
   /**
@@ -88,12 +85,12 @@ class AllocationCompletionTracker {
    * @param units the units of progress
    * @return {@code true} if the map was updated
    */
-  boolean updateProgress(Allocation allocation, long units) {
+  bool updateProgress(Allocation allocation, long units) {
     AtomicBoolean mapUpdated = new AtomicBoolean(units != 0);
 
     completionMap.compute(
         allocation,
-        (ignored, indexedRemainingUnits) -> {
+        (ignored, indexedRemainingUnits) => {
           if (indexedRemainingUnits == null) {
             indexedRemainingUnits = new IndexedRemainingUnits(allocation);
             mapUpdated.set(true);
@@ -115,14 +112,14 @@ class AllocationCompletionTracker {
    *
    * @return a list of unfinished {@link Allocation}s
    */
-  @VisibleForTesting
+
   List<Allocation> getUnfinishedAllocations() {
     return completionMap
         .values()
         .stream()
-        .filter(IndexedRemainingUnits::isUnfinished)
+        .filter(IndexedRemainingUnits.isUnfinished)
         .sorted()
-        .map(remainingUnits -> remainingUnits.allocation)
+        .map(remainingUnits => remainingUnits.allocation)
         .collect(Collectors.toList());
   }
 
@@ -156,17 +153,19 @@ class AllocationCompletionTracker {
       allocation
           .getParent()
           .ifPresent(
-              parentAllocation ->
+              parentAllocation =>
                   updateIndexedRemainingUnits(
                       Preconditions.checkNotNull(completionMap.get(parentAllocation)), 1L));
     }
   }
 
-  ImmutableList<String> getUnfinishedLeafTasks() {
+  ImmutableList<string> getUnfinishedLeafTasks() {
     List<Allocation> allUnfinished = getUnfinishedAllocations();
     Set<Allocation> unfinishedLeaves = new LinkedHashSet<>(allUnfinished); // preserves order
 
-    for (Allocation allocation : allUnfinished) {
+    foreach (Allocation allocation in allUnfinished)
+
+    {
       Optional<Allocation> parent = allocation.getParent();
 
       while (parent.isPresent()) {
@@ -176,6 +175,7 @@ class AllocationCompletionTracker {
     }
 
     return ImmutableList.copyOf(
-        unfinishedLeaves.stream().map(Allocation::getDescription).collect(Collectors.toList()));
+        unfinishedLeaves.stream().map(Allocation.getDescription).collect(Collectors.toList()));
   }
+}
 }

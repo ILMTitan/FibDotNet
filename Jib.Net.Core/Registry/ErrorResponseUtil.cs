@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpResponseException;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.json.ErrorEntryTemplate;
-import com.google.cloud.tools.jib.registry.json.ErrorResponseTemplate;
-import java.io.IOException;
-import java.util.List;
+
+
+
+
+
 
 /** Utility methods for parsing {@link ErrorResponseTemplate JSON-encoded error responses}. */
 public class ErrorResponseUtil {
@@ -36,20 +35,20 @@ public class ErrorResponseUtil {
    *     parsed, if there were multiple error objects, or if the error code is unknown.
    */
   public static ErrorCodes getErrorCode(HttpResponseException httpResponseException)
-      throws HttpResponseException {
+      {
     // Obtain the error response code.
-    String errorContent = httpResponseException.getContent();
+    string errorContent = httpResponseException.getContent();
     if (errorContent == null) {
       throw httpResponseException;
     }
 
     try {
       ErrorResponseTemplate errorResponse =
-          JsonTemplateMapper.readJson(errorContent, ErrorResponseTemplate.class);
+          JsonTemplateMapper.readJson(errorContent, typeof(ErrorResponseTemplate));
       List<ErrorEntryTemplate> errors = errorResponse.getErrors();
       // There may be multiple error objects
       if (errors.size() == 1) {
-        String errorCodeString = errors.get(0).getCode();
+        string errorCodeString = errors.get(0).getCode();
         // May not get an error code back.
         if (errorCodeString != null) {
           // throws IllegalArgumentException if unknown error code
@@ -67,4 +66,5 @@ public class ErrorResponseUtil {
 
   // not intended to be instantiated
   private ErrorResponseUtil() {}
+}
 }

@@ -14,43 +14,42 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.TimerEvent;
-import com.google.cloud.tools.jib.event.events.TimerEvent.State;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link TimerEventDispatcher}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class TimerEventDispatcherTest {
 
-  private final Deque<TimerEvent> timerEventQueue = new ArrayDeque<>();
+  private readonly Deque<TimerEvent> timerEventQueue = new ArrayDeque<>();
 
-  @Mock private Clock mockClock;
+  [Mock] private Clock mockClock;
 
-  @Test
+  [TestMethod]
   public void testLogging() {
     EventHandlers eventHandlers =
-        EventHandlers.builder().add(TimerEvent.class, timerEventQueue::add).build();
+        EventHandlers.builder().add(typeof(TimerEvent), timerEventQueue.add).build();
 
     Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH);
-    try (TimerEventDispatcher parentTimerEventDispatcher =
+    using (TimerEventDispatcher parentTimerEventDispatcher =
         new TimerEventDispatcher(eventHandlers, "description", mockClock, null)) {
       Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(1));
       parentTimerEventDispatcher.lap();
       Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(1).plusNanos(1));
-      try (TimerEventDispatcher ignored =
+      using (TimerEventDispatcher ignored =
           parentTimerEventDispatcher.subTimer("child description")) {
         Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(2));
         // Laps on close.
@@ -150,7 +149,7 @@ public class TimerEventDispatcherTest {
    * @param timerEvent the {@link TimerEvent} to verify
    * @param expectedDescription the expected description
    */
-  private void verifyDescription(TimerEvent timerEvent, String expectedDescription) {
+  private void verifyDescription(TimerEvent timerEvent, string expectedDescription) {
     Assert.assertEquals(expectedDescription, timerEvent.getDescription());
   }
 
@@ -164,4 +163,5 @@ public class TimerEventDispatcherTest {
     Assert.assertNotNull(timerEvent);
     return timerEvent;
   }
+}
 }

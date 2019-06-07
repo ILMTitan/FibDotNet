@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.nio.file.attribute.PosixFilePermission;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link FilePermissions}. */
 public class FilePermissionsTest {
 
-  @Test
+  [TestMethod]
   public void testFromOctalString() {
     Assert.assertEquals(new FilePermissions(0777), FilePermissions.fromOctalString("777"));
     Assert.assertEquals(new FilePermissions(0000), FilePermissions.fromOctalString("000"));
@@ -33,8 +32,9 @@ public class FilePermissionsTest {
     Assert.assertEquals(new FilePermissions(0755), FilePermissions.fromOctalString("755"));
     Assert.assertEquals(new FilePermissions(0644), FilePermissions.fromOctalString("644"));
 
-    ImmutableList<String> badStrings = ImmutableList.of("abc", "-123", "777444333", "987", "3");
-    for (String badString : badStrings) {
+    ImmutableList<string> badStrings = ImmutableList.of("abc", "-123", "777444333", "987", "3");
+    foreach (string badString in badStrings)
+    {
       try {
         FilePermissions.fromOctalString(badString);
         Assert.fail();
@@ -45,7 +45,7 @@ public class FilePermissionsTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testFromPosixFilePermissions() {
     Assert.assertEquals(
         new FilePermissions(0000), FilePermissions.fromPosixFilePermissions(ImmutableSet.of()));
@@ -66,4 +66,5 @@ public class FilePermissionsTest {
         FilePermissions.fromPosixFilePermissions(
             ImmutableSet.copyOf(PosixFilePermission.values())));
   }
+}
 }

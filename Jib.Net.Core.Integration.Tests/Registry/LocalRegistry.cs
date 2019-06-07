@@ -14,62 +14,60 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.Command;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
-import javax.annotation.Nullable;
-import org.junit.rules.ExternalResource;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Runs a local registry. */
-public class LocalRegistry extends ExternalResource {
+public class LocalRegistry : ExternalResource {
 
-  private final String containerName = "registry-" + UUID.randomUUID();
-  private final int port;
-  @Nullable private final String username;
-  @Nullable private final String password;
+  private readonly string containerName = "registry-" + UUID.randomUUID();
+  private readonly int port;
+  private final string username;
+  private final string password;
 
   public LocalRegistry(int port) {
     this(port, null, null);
   }
 
-  public LocalRegistry(int port, String username, String password) {
+  public LocalRegistry(int port, string username, string password) {
     this.port = port;
     this.username = username;
     this.password = password;
   }
 
   /** Starts the local registry. */
-  @Override
+
   protected void before() throws IOException, InterruptedException {
     start();
   }
 
-  @Override
   protected void after() {
     stop();
   }
 
   /** Starts the registry */
-  public void start() throws IOException, InterruptedException {
+  public void start() {
     // Runs the Docker registry.
-    ArrayList<String> dockerTokens =
+    ArrayList<string> dockerTokens =
         new ArrayList<>(
             Arrays.asList(
                 "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName));
     if (username != null && password != null) {
       // Generate the htpasswd file to store credentials
-      String credentialString =
+      string credentialString =
           new Command(
                   "docker",
                   "run",
@@ -124,7 +122,7 @@ public class LocalRegistry extends ExternalResource {
    * @throws IOException if the pull command fails
    * @throws InterruptedException if the pull command is interrupted
    */
-  public void pull(String from) throws IOException, InterruptedException {
+  public void pull(string from) {
     login();
     new Command("docker", "pull", from).run();
     logout();
@@ -138,7 +136,7 @@ public class LocalRegistry extends ExternalResource {
    * @throws IOException if the commands fail
    * @throws InterruptedException if the commands are interrupted
    */
-  public void pullAndPushToLocal(String from, String to) throws IOException, InterruptedException {
+  public void pullAndPushToLocal(string from, string to) {
     login();
     new Command("docker", "pull", from).run();
     new Command("docker", "tag", from, "localhost:" + port + "/" + to).run();
@@ -146,21 +144,21 @@ public class LocalRegistry extends ExternalResource {
     logout();
   }
 
-  private void login() throws IOException, InterruptedException {
+  private void login() {
     if (username != null && password != null) {
       new Command("docker", "login", "localhost:" + port, "-u", username, "--password-stdin")
           .run(password.getBytes(StandardCharsets.UTF_8));
     }
   }
 
-  private void logout() throws IOException, InterruptedException {
+  private void logout() {
     if (username != null && password != null) {
       new Command("docker", "logout", "localhost:" + port).run();
     }
   }
 
-  private void waitUntilReady() throws InterruptedException, MalformedURLException {
-    URL queryUrl = new URL("http://localhost:" + port + "/v2/_catalog");
+  private void waitUntilReady() {
+    Uri queryUrl = new Uri("http://localhost:" + port + "/v2/_catalog");
 
     for (int i = 0; i < 40; i++) {
       try {
@@ -174,4 +172,5 @@ public class LocalRegistry extends ExternalResource {
       Thread.sleep(250);
     }
   }
+}
 }

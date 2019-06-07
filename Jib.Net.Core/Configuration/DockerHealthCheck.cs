@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /** Configuration information for performing healthchecks on a Docker container. */
 public class DockerHealthCheck {
@@ -29,13 +28,13 @@ public class DockerHealthCheck {
   /** Builds the immutable {@link DockerHealthCheck}. */
   public static class Builder {
 
-    private final ImmutableList<String> command;
-    @Nullable private Duration interval;
-    @Nullable private Duration timeout;
-    @Nullable private Duration startPeriod;
-    @Nullable private Integer retries;
+    private readonly ImmutableList<string> command;
+    private Duration interval;
+    private Duration timeout;
+    private Duration startPeriod;
+    private Integer retries;
 
-    private Builder(ImmutableList<String> command) {
+    private Builder(ImmutableList<string> command) {
       this.command = command;
     }
 
@@ -95,24 +94,24 @@ public class DockerHealthCheck {
    * @param command the command
    * @return a new {@link DockerHealthCheck.Builder}
    */
-  public static DockerHealthCheck.Builder fromCommand(List<String> command) {
+  public static DockerHealthCheck.Builder fromCommand(List<string> command) {
     Preconditions.checkArgument(command.size() > 0, "command must not be empty");
     Preconditions.checkArgument(!command.contains(null), "command must not contain null elements");
     return new Builder(ImmutableList.copyOf(command));
   }
 
-  private final ImmutableList<String> command;
-  @Nullable private final Duration interval;
-  @Nullable private final Duration timeout;
-  @Nullable private final Duration startPeriod;
-  @Nullable private final Integer retries;
+  private readonly ImmutableList<string> command;
+  private final Duration interval;
+  private final Duration timeout;
+  private final Duration startPeriod;
+  private final Integer retries;
 
   private DockerHealthCheck(
-      ImmutableList<String> command,
-      @Nullable Duration interval,
-      @Nullable Duration timeout,
-      @Nullable Duration startPeriod,
-      @Nullable Integer retries) {
+      ImmutableList<string> command,
+      Duration interval,
+      Duration timeout,
+      Duration startPeriod,
+      Integer retries) {
     this.command = command;
     this.interval = interval;
     this.timeout = timeout;
@@ -126,7 +125,7 @@ public class DockerHealthCheck {
    *
    * @return the healthcheck command
    */
-  public List<String> getCommand() {
+  public List<string> getCommand() {
     return command;
   }
 
@@ -169,4 +168,5 @@ public class DockerHealthCheck {
   public Optional<Integer> getRetries() {
     return Optional.ofNullable(retries);
   }
+}
 }

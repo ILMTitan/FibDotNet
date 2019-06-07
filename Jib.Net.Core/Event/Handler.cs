@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event;
+namespace com.google.cloud.tools.jib.event {
 
-import com.google.cloud.tools.jib.api.JibEvent;
-import com.google.common.base.Preconditions;
-import java.util.function.Consumer;
+
+
 
 /** Handles a dispatched {@link JibEvent}. */
 class Handler<E extends JibEvent> {
 
-  private final Class<E> eventClass;
-  private final Consumer<? super E> eventConsumer;
+  private readonly Class<E> eventClass;
+  private readonly Consumer<E> eventConsumer;
 
-  Handler(Class<E> eventClass, Consumer<? super E> eventConsumer) {
+  Handler(Class<E> eventClass, Consumer<E> eventConsumer) {
     this.eventClass = eventClass;
     this.eventConsumer = eventConsumer;
   }
@@ -40,4 +39,5 @@ class Handler<E extends JibEvent> {
     Preconditions.checkArgument(eventClass.isInstance(jibEvent));
     eventConsumer.accept(eventClass.cast(jibEvent));
   }
+}
 }

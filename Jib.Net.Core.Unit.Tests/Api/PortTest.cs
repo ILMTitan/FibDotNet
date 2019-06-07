@@ -14,32 +14,32 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import org.junit.Assert;
-import org.junit.Test;
+
 
 /** Tests for {@link Port}. */
 public class PortTest {
 
-  @Test
+  [TestMethod]
   public void testTcp() {
     Port port = Port.tcp(5555);
     Assert.assertEquals(5555, port.getPort());
     Assert.assertEquals("5555/tcp", port.toString());
   }
 
-  @Test
+  [TestMethod]
   public void testUdp() {
     Port port = Port.udp(6666);
     Assert.assertEquals(6666, port.getPort());
     Assert.assertEquals("6666/udp", port.toString());
   }
 
-  @Test
+  [TestMethod]
   public void testParseProtocol() {
     Assert.assertEquals(Port.tcp(1111), Port.parseProtocol(1111, "tcp"));
     Assert.assertEquals(Port.udp(2222), Port.parseProtocol(2222, "udp"));
     Assert.assertEquals(Port.tcp(3333), Port.parseProtocol(3333, ""));
   }
+}
 }

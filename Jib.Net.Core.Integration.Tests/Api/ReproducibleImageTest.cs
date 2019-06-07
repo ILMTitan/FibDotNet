@@ -14,37 +14,36 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.io.CharStreams;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
-import java.util.zip.GZIPInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Verify that created image has explicit directory structures, default timestamps, permissions, and
@@ -52,15 +51,13 @@ import org.junit.rules.TemporaryFolder;
  */
 public class ReproducibleImageTest {
 
-  @ClassRule public static final TemporaryFolder imageLocation = new TemporaryFolder();
+  [ClassRule] public static readonly TemporaryFolder imageLocation = new TemporaryFolder();
 
   private static File imageTar;
 
-  @BeforeClass
+  [ClassInitialize]
   public static void createImage()
-      throws InvalidImageReferenceException, InterruptedException, CacheDirectoryCreationException,
-          IOException, RegistryException, ExecutionException {
-
+      {
     Path root = imageLocation.getRoot().toPath();
     Path fileA = Files.createFile(root.resolve("fileA.txt"));
     Path fileB = Files.createFile(root.resolve("fileB.txt"));
@@ -86,10 +83,10 @@ public class ReproducibleImageTest {
         .containerize(containerizer);
   }
 
-  @Test
-  public void testTarballStructure() throws IOException {
+  [TestMethod]
+  public void testTarballStructure() {
     // known content should produce known results
-    List<String> expected =
+    List<string> expected =
         ImmutableList.of(
             "c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz",
             "6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz",
@@ -97,8 +94,8 @@ public class ReproducibleImageTest {
             "config.json",
             "manifest.json");
 
-    List<String> actual = new ArrayList<>();
-    try (TarArchiveInputStream input =
+    List<string> actual = new ArrayList<>();
+    using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(imageTar.toPath()))) {
       TarArchiveEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
@@ -109,35 +106,35 @@ public class ReproducibleImageTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
-  public void testManifest() throws IOException {
-    try (InputStream input = Files.newInputStream(imageTar.toPath())) {
-      String exectedManifest =
+  [TestMethod]
+  public void testManifest() {
+    using (InputStream input = Files.newInputStream(imageTar.toPath())) {
+      string exectedManifest =
           "[{\"config\":\"config.json\",\"repoTags\":[\"jib-core/reproducible:latest\"],"
               + "\"layers\":[\"c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz\",\"6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz\",\"530c1954a2b087d0b989895ea56435c9dc739a973f2d2b6cb9bb98e55bbea7ac.tar.gz\"]}]";
-      String generatedManifest = extractFromTarFileAsString(imageTar, "manifest.json");
+      string generatedManifest = extractFromTarFileAsString(imageTar, "manifest.json");
       Assert.assertEquals(exectedManifest, generatedManifest);
     }
   }
 
-  @Test
-  public void testConfiguration() throws IOException {
-    try (InputStream input = Files.newInputStream(imageTar.toPath())) {
-      String exectedConfig =
+  [TestMethod]
+  public void testConfiguration() {
+    using (InputStream input = Files.newInputStream(imageTar.toPath())) {
+      string exectedConfig =
           "{\"created\":\"1970-01-01T00:00:00Z\",\"architecture\":\"amd64\",\"os\":\"linux\","
               + "\"config\":{\"Env\":[],\"Entrypoint\":[\"echo\",\"Hello World\"],\"ExposedPorts\":{},\"Labels\":{},\"Volumes\":{}},"
               + "\"history\":[{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"},{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"},{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"}],"
               + "\"rootfs\":{\"type\":\"layers\",\"diff_ids\":[\"sha256:18e4f44e6d1835bd968339b166057bd17ab7d4cbb56dc7262a5cafea7cf8d405\",\"sha256:13369c34f073f2b9c1fa6431e23d925f1a8eac65b1726c8cc8fcc2596c69b414\",\"sha256:4f92c507112d7880ca0f504ef8272b7fdee107263270125036a260a741565923\"]}}";
-      String generatedConfig = extractFromTarFileAsString(imageTar, "config.json");
+      string generatedConfig = extractFromTarFileAsString(imageTar, "config.json");
       Assert.assertEquals(exectedConfig, generatedConfig);
     }
   }
 
-  @Test
-  public void testImageLayout() throws IOException {
-    Set<String> paths = new HashSet<>();
+  [TestMethod]
+  public void testImageLayout() {
+    Set<string> paths = new HashSet<>();
     layerEntriesDo(
-        (layerName, layerEntry) -> {
+        (layerName, layerEntry) => {
           if (layerEntry.isFile()) {
             paths.add(layerEntry.getName());
           }
@@ -152,29 +149,29 @@ public class ReproducibleImageTest {
         paths);
   }
 
-  @Test
-  public void testAllFileAndDirectories() throws IOException {
+  [TestMethod]
+  public void testAllFileAndDirectories() {
     layerEntriesDo(
-        (layerName, layerEntry) ->
+        (layerName, layerEntry) =>
             Assert.assertTrue(layerEntry.isFile() || layerEntry.isDirectory()));
   }
 
-  @Test
-  public void testTimestampsEpochPlus1s() throws IOException {
+  [TestMethod]
+  public void testTimestampsEpochPlus1s() {
     layerEntriesDo(
-        (layerName, layerEntry) -> {
+        (layerName, layerEntry) => {
           Instant modificationTime = layerEntry.getLastModifiedDate().toInstant();
           Assert.assertEquals(
               layerName + ": " + layerEntry.getName(), Instant.ofEpochSecond(1), modificationTime);
         });
   }
 
-  @Test
-  public void testPermissions() throws IOException {
+  [TestMethod]
+  public void testPermissions() {
     Assert.assertEquals(0644, FilePermissions.DEFAULT_FILE_PERMISSIONS.getPermissionBits());
     Assert.assertEquals(0755, FilePermissions.DEFAULT_FOLDER_PERMISSIONS.getPermissionBits());
     layerEntriesDo(
-        (layerName, layerEntry) -> {
+        (layerName, layerEntry) => {
           if (layerEntry.isFile()) {
             Assert.assertEquals(
                 layerName + ": " + layerEntry.getName(), 0644, layerEntry.getMode() & 0777);
@@ -185,19 +182,19 @@ public class ReproducibleImageTest {
         });
   }
 
-  @Test
-  public void testNoImplicitParentDirectories() throws IOException {
-    Set<String> directories = new HashSet<>();
+  [TestMethod]
+  public void testNoImplicitParentDirectories() {
+    Set<string> directories = new HashSet<>();
     layerEntriesDo(
-        (layerName, layerEntry) -> {
-          String entryPath = layerEntry.getName();
+        (layerName, layerEntry) => {
+          string entryPath = layerEntry.getName();
           if (layerEntry.isDirectory()) {
             Assert.assertTrue("directories in tar end with /", entryPath.endsWith("/"));
             entryPath = entryPath.substring(0, entryPath.length() - 1);
           }
 
           int lastSlashPosition = entryPath.lastIndexOf('/');
-          String parent = entryPath.substring(0, Math.max(0, lastSlashPosition));
+          string parent = entryPath.substring(0, Math.max(0, lastSlashPosition));
           if (!parent.isEmpty()) {
             Assert.assertTrue(
                 "layer has implicit parent directory: " + parent, directories.contains(parent));
@@ -208,29 +205,28 @@ public class ReproducibleImageTest {
         });
   }
 
-  @Test
-  public void testFileOrdering() throws IOException {
-    Multimap<String, String> layerPaths = ArrayListMultimap.create();
-    layerEntriesDo((layerName, layerEntry) -> layerPaths.put(layerName, layerEntry.getName()));
-    for (Collection<String> paths : layerPaths.asMap().values()) {
-      List<String> sorted = new ArrayList<>(paths);
-      // ReproducibleLayerBuilder sorts by TarArchiveEntry::getName()
+  [TestMethod]
+  public void testFileOrdering() {
+    Multimap<string, string> layerPaths = ArrayListMultimap.create();
+    layerEntriesDo((layerName, layerEntry) => layerPaths.put(layerName, layerEntry.getName()));
+    foreach (Collection<string> paths in layerPaths.asMap().values())
+    {
+      List<string> sorted = new ArrayList<>(paths);
+      // ReproducibleLayerBuilder sorts by TarArchiveEntry.getName()
       Collections.sort(sorted);
-      Assert.assertEquals("layer files are not consistently sorted", sorted, (List<String>) paths);
+      Assert.assertEquals("layer files are not consistently sorted", sorted, (List<string>) paths);
     }
   }
 
-  private void layerEntriesDo(BiConsumer<String, TarArchiveEntry> layerConsumer)
-      throws IOException {
-
-    try (TarArchiveInputStream input =
+  private void layerEntriesDo(BiConsumer<string, TarArchiveEntry> layerConsumer)
+      {
+    using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(imageTar.toPath()))) {
       TarArchiveEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
-        String imageEntryName = imageEntry.getName();
+        string imageEntryName = imageEntry.getName();
         // assume all .tar.gz files are layers
         if (imageEntry.isFile() && imageEntryName.endsWith(".tar.gz")) {
-          @SuppressWarnings("resource") // must not close sub-streams
           TarArchiveInputStream layer = new TarArchiveInputStream(new GZIPInputStream(input));
           TarArchiveEntry layerEntry;
           while ((layerEntry = layer.getNextTarEntry()) != null) {
@@ -241,9 +237,9 @@ public class ReproducibleImageTest {
     }
   }
 
-  private static String extractFromTarFileAsString(File tarFile, String filename)
-      throws IOException {
-    try (TarArchiveInputStream input =
+  private static string extractFromTarFileAsString(File tarFile, string filename)
+      {
+    using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(tarFile.toPath()))) {
       TarArchiveEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
@@ -254,4 +250,5 @@ public class ReproducibleImageTest {
     }
     throw new AssertionError("file not found: " + filename);
   }
+}
 }

@@ -14,19 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.net.URL;
 
 /**
  * Throw when attempting to access an insecure registry when only secure connections are allowed.
  */
-public class InsecureRegistryException extends RegistryException {
+public class InsecureRegistryException : RegistryException {
 
-  public InsecureRegistryException(URL insecureUrl) {
-    super(
+  public InsecureRegistryException(Uri insecureUrl) : base(
         "Failed to verify the server at "
             + insecureUrl
-            + " because only secure connections are allowed.");
+            + " because only secure connections are allowed.") {
+    
   }
+}
 }

@@ -14,30 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.cache.Cache;
-import com.google.cloud.tools.jib.cache.CacheCorruptedException;
-import com.google.cloud.tools.jib.cache.CachedLayer;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.image.ReproducibleLayerBuilder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.Callable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Builds and caches application layers. */
-class BuildAndCacheApplicationLayerStep implements AsyncStep<CachedLayer>, Callable<CachedLayer> {
-
-  private static final String DESCRIPTION = "Building application layers";
+class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<CachedLayer>
+    {
+  private static readonly string DESCRIPTION = "Building application layers";
 
   /**
    * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
@@ -49,14 +48,19 @@ class BuildAndCacheApplicationLayerStep implements AsyncStep<CachedLayer>, Calla
       ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
     int layerCount = buildConfiguration.getLayerConfigurations().size();
 
-    try (ProgressEventDispatcher progressEventDispatcher =
+    using(ProgressEventDispatcher progressEventDispatcher =
             progressEventDispatcherFactory.create(
-                "setting up to build application layers", layerCount);
-        TimerEventDispatcher ignored =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)) {
+                "setting up to build application layers", layerCount))
+
+    using(TimerEventDispatcher ignored =
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)))
+
+    {
+
       ImmutableList.Builder<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
           ImmutableList.builderWithExpectedSize(layerCount);
-      for (LayerConfiguration layerConfiguration : buildConfiguration.getLayerConfigurations()) {
+      foreach (LayerConfiguration layerConfiguration in buildConfiguration.getLayerConfigurations())
+      {
         // Skips the layer if empty.
         if (layerConfiguration.getLayerEntries().isEmpty()) {
           continue;
@@ -76,19 +80,19 @@ class BuildAndCacheApplicationLayerStep implements AsyncStep<CachedLayer>, Calla
     }
   }
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final String layerType;
-  private final LayerConfiguration layerConfiguration;
+  private readonly string layerType;
+  private readonly LayerConfiguration layerConfiguration;
 
-  private final ListenableFuture<CachedLayer> listenableFuture;
+  private readonly ListenableFuture<CachedLayer> listenableFuture;
 
   private BuildAndCacheApplicationLayerStep(
       ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      String layerType,
+      string layerType,
       LayerConfiguration layerConfiguration) {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
@@ -98,21 +102,23 @@ class BuildAndCacheApplicationLayerStep implements AsyncStep<CachedLayer>, Calla
     listenableFuture = listeningExecutorService.submit(this);
   }
 
-  @Override
   public ListenableFuture<CachedLayer> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public CachedLayer call() throws IOException, CacheCorruptedException {
-    String description = "Building " + layerType + " layer";
+  public CachedLayer call() {
+    string description = "Building " + layerType + " layer";
 
     buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
 
-    try (ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("building " + layerType + " layer", 1);
-        TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)) {
+    using(ProgressEventDispatcher ignored =
+            progressEventDispatcherFactory.create("building " + layerType + " layer", 1))
+
+    using(TimerEventDispatcher ignored2 =
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)))
+
+    {
+
       Cache cache = buildConfiguration.getApplicationLayersCache();
 
       // Don't build the layer if it exists already.
@@ -134,7 +140,8 @@ class BuildAndCacheApplicationLayerStep implements AsyncStep<CachedLayer>, Calla
     }
   }
 
-  String getLayerType() {
+  string getLayerType() {
     return layerType;
   }
+}
 }

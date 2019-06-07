@@ -14,29 +14,28 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.ProjectInfo;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.global.JibSystemProperties;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Verify;
-import java.io.IOException;
-import java.net.URL;
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Interfaces with a registry. */
 public class RegistryClient {
@@ -44,12 +43,12 @@ public class RegistryClient {
   /** Factory for creating {@link RegistryClient}s. */
   public static class Factory {
 
-    private final EventHandlers eventHandlers;
-    private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
+    private readonly EventHandlers eventHandlers;
+    private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
-    private boolean allowInsecureRegistries = false;
-    @Nullable private String userAgentSuffix;
-    @Nullable private Authorization authorization;
+    private bool allowInsecureRegistries = false;
+    private string userAgentSuffix;
+    private Authorization authorization;
 
     private Factory(
         EventHandlers eventHandlers,
@@ -65,7 +64,7 @@ public class RegistryClient {
      * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
      * @return this
      */
-    public Factory setAllowInsecureRegistries(boolean allowInsecureRegistries) {
+    public Factory setAllowInsecureRegistries(bool allowInsecureRegistries) {
       this.allowInsecureRegistries = allowInsecureRegistries;
       return this;
     }
@@ -76,7 +75,7 @@ public class RegistryClient {
      * @param authorization the {@link Authorization} to access the registry/repository
      * @return this
      */
-    public Factory setAuthorization(@Nullable Authorization authorization) {
+    public Factory setAuthorization(Authorization authorization) {
       this.authorization = authorization;
       return this;
     }
@@ -87,7 +86,7 @@ public class RegistryClient {
      * @param userAgentSuffix the suffix to append
      * @return this
      */
-    public Factory setUserAgentSuffix(@Nullable String userAgentSuffix) {
+    public Factory setUserAgentSuffix(string userAgentSuffix) {
       this.userAgentSuffix = userAgentSuffix;
       return this;
     }
@@ -114,7 +113,7 @@ public class RegistryClient {
      *     setting the system property variable {@code _JIB_DISABLE_USER_AGENT} to any non-empty
      *     string.
      */
-    private String makeUserAgent() {
+    private string makeUserAgent() {
       if (!JibSystemProperties.isUserAgentEnabled()) {
         return "";
       }
@@ -133,19 +132,19 @@ public class RegistryClient {
    * Creates a new {@link Factory} for building a {@link RegistryClient}.
    *
    * @param eventHandlers the event handlers used for dispatching log events
-   * @param serverUrl the server URL for the registry (for example, {@code gcr.io})
+   * @param serverUrl the server Uri for the registry (for example, {@code gcr.io})
    * @param imageName the image/repository name (also known as, namespace)
    * @return the new {@link Factory}
    */
-  public static Factory factory(EventHandlers eventHandlers, String serverUrl, String imageName) {
+  public static Factory factory(EventHandlers eventHandlers, string serverUrl, string imageName) {
     return new Factory(eventHandlers, new RegistryEndpointRequestProperties(serverUrl, imageName));
   }
 
-  private final EventHandlers eventHandlers;
-  @Nullable private final Authorization authorization;
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final boolean allowInsecureRegistries;
-  private final String userAgent;
+  private readonly EventHandlers eventHandlers;
+  private readonly Authorization authorization;
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly bool allowInsecureRegistries;
+  private readonly string userAgent;
 
   /**
    * Instantiate with {@link #factory}.
@@ -157,10 +156,10 @@ public class RegistryClient {
    */
   private RegistryClient(
       EventHandlers eventHandlers,
-      @Nullable Authorization authorization,
+      Authorization authorization,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      boolean allowInsecureRegistries,
-      String userAgent) {
+      bool allowInsecureRegistries,
+      string userAgent) {
     this.eventHandlers = eventHandlers;
     this.authorization = authorization;
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
@@ -174,8 +173,7 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  @Nullable
-  public RegistryAuthenticator getRegistryAuthenticator() throws IOException, RegistryException {
+  public RegistryAuthenticator getRegistryAuthenticator() {
     // Gets the WWW-Authenticate header (eg. 'WWW-Authenticate: Bearer
     // realm="https://gcr.io/v2/token",service="gcr.io"')
     return callRegistryEndpoint(
@@ -193,8 +191,8 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  public <T extends ManifestTemplate> T pullManifest(
-      String imageTag, Class<T> manifestTemplateClass) throws IOException, RegistryException {
+  public T pullManifest<T>(
+      string imageTag, Class<T> manifestTemplateClass) where T : ManifestTemplate {
     ManifestPuller<T> manifestPuller =
         new ManifestPuller<>(registryEndpointRequestProperties, imageTag, manifestTemplateClass);
     T manifestTemplate = callRegistryEndpoint(manifestPuller);
@@ -204,8 +202,8 @@ public class RegistryClient {
     return manifestTemplate;
   }
 
-  public ManifestTemplate pullManifest(String imageTag) throws IOException, RegistryException {
-    return pullManifest(imageTag, ManifestTemplate.class);
+  public ManifestTemplate pullManifest(string imageTag) {
+    return pullManifest(imageTag, typeof(ManifestTemplate));
   }
 
   /**
@@ -217,8 +215,8 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  public DescriptorDigest pushManifest(BuildableManifestTemplate manifestTemplate, String imageTag)
-      throws IOException, RegistryException {
+  public DescriptorDigest pushManifest(BuildableManifestTemplate manifestTemplate, string imageTag)
+      {
     return Verify.verifyNotNull(
         callRegistryEndpoint(
             new ManifestPusher(
@@ -232,9 +230,8 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  @Nullable
   public BlobDescriptor checkBlob(DescriptorDigest blobDigest)
-      throws IOException, RegistryException {
+      {
     BlobChecker blobChecker = new BlobChecker(registryEndpointRequestProperties, blobDigest);
     return callRegistryEndpoint(blobChecker);
   }
@@ -254,7 +251,7 @@ public class RegistryClient {
       Consumer<Long> blobSizeListener,
       Consumer<Long> writtenByteCountListener) {
     return Blobs.from(
-        outputStream -> {
+        outputStream => {
           try {
             callRegistryEndpoint(
                 new BlobPuller(
@@ -284,23 +281,23 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  public boolean pushBlob(
+  public bool pushBlob(
       DescriptorDigest blobDigest,
       Blob blob,
-      @Nullable String sourceRepository,
+      string sourceRepository,
       Consumer<Long> writtenByteCountListener)
-      throws IOException, RegistryException {
+      {
     BlobPusher blobPusher =
         new BlobPusher(registryEndpointRequestProperties, blobDigest, blob, sourceRepository);
 
-    try (TimerEventDispatcher timerEventDispatcher =
+    using (TimerEventDispatcher timerEventDispatcher =
         new TimerEventDispatcher(eventHandlers, "pushBlob")) {
-      try (TimerEventDispatcher timerEventDispatcher2 =
+      using (TimerEventDispatcher timerEventDispatcher2 =
           timerEventDispatcher.subTimer("pushBlob POST " + blobDigest)) {
 
         // POST /v2/<name>/blobs/uploads/ OR
         // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
-        URL patchLocation = callRegistryEndpoint(blobPusher.initializer());
+        Uri patchLocation = callRegistryEndpoint(blobPusher.initializer());
         if (patchLocation == null) {
           // The BLOB exists already.
           return true;
@@ -309,7 +306,7 @@ public class RegistryClient {
         timerEventDispatcher2.lap("pushBlob PATCH " + blobDigest);
 
         // PATCH <Location> with BLOB
-        URL putLocation =
+        Uri putLocation =
             callRegistryEndpoint(blobPusher.writer(patchLocation, writtenByteCountListener));
         Preconditions.checkNotNull(putLocation);
 
@@ -324,13 +321,12 @@ public class RegistryClient {
   }
 
   /** @return the registry endpoint's API root, without the protocol */
-  @VisibleForTesting
-  String getApiRouteBase() {
+
+  string getApiRouteBase() {
     return registryEndpointRequestProperties.getServerUrl() + "/v2/";
   }
 
-  @VisibleForTesting
-  String getUserAgent() {
+  string getUserAgent() {
     return userAgent;
   }
 
@@ -341,9 +337,7 @@ public class RegistryClient {
    * @throws IOException if communicating with the endpoint fails
    * @throws RegistryException if communicating with the endpoint fails
    */
-  @Nullable
-  private <T> T callRegistryEndpoint(RegistryEndpointProvider<T> registryEndpointProvider)
-      throws IOException, RegistryException {
+  private T callRegistryEndpoint<T>(RegistryEndpointProvider<T> registryEndpointProvider) {
     return new RegistryEndpointCaller<>(
             eventHandlers,
             userAgent,
@@ -354,4 +348,5 @@ public class RegistryClient {
             allowInsecureRegistries)
         .call();
   }
+}
 }

@@ -14,28 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
 /** Properties of registry endpoint requests. */
 class RegistryEndpointRequestProperties {
 
-  private final String serverUrl;
-  private final String imageName;
+  private readonly string serverUrl;
+  private readonly string imageName;
 
   /**
-   * @param serverUrl the server URL for the registry (for example, {@code gcr.io})
+   * @param serverUrl the server Uri for the registry (for example, {@code gcr.io})
    * @param imageName the image/repository name (also known as, namespace)
    */
-  RegistryEndpointRequestProperties(String serverUrl, String imageName) {
+  RegistryEndpointRequestProperties(string serverUrl, string imageName) {
     this.serverUrl = serverUrl;
     this.imageName = imageName;
   }
 
-  String getServerUrl() {
+  string getServerUrl() {
     return serverUrl;
   }
 
-  String getImageName() {
+  string getImageName() {
     return imageName;
   }
+}
 }

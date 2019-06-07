@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.hash;
+namespace com.google.cloud.tools.jib.hash {
 
-import java.io.IOException;
-import java.io.OutputStream;
+
 
 /**
  * As a function, writes some contents to an output stream. As a class, represents contents that can
@@ -29,4 +28,5 @@ import java.io.OutputStream;
 public interface WritableContents {
 
   void writeTo(OutputStream outputStream) throws IOException;
+}
 }

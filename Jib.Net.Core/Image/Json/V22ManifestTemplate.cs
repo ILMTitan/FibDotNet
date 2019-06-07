@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
+
 
 /**
  * JSON Template for Docker Manifest Schema V2.2
@@ -54,57 +53,51 @@ import javax.annotation.Nullable;
  * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
  *     Schema 2</a>
  */
-public class V22ManifestTemplate implements BuildableManifestTemplate {
+public class V22ManifestTemplate : BuildableManifestTemplate {
 
   /** The Docker V2.2 manifest media type. */
-  public static final String MANIFEST_MEDIA_TYPE =
+  public static readonly string MANIFEST_MEDIA_TYPE =
       "application/vnd.docker.distribution.manifest.v2+json";
 
   /** The Docker V2.2 container configuration media type. */
-  private static final String CONTAINER_CONFIGURATION_MEDIA_TYPE =
+  private static readonly string CONTAINER_CONFIGURATION_MEDIA_TYPE =
       "application/vnd.docker.container.image.v1+json";
 
   /** The Docker V2.2 layer media type. */
-  private static final String LAYER_MEDIA_TYPE =
+  private static readonly string LAYER_MEDIA_TYPE =
       "application/vnd.docker.image.rootfs.diff.tar.gzip";
 
-  private final int schemaVersion = 2;
-  private final String mediaType = MANIFEST_MEDIA_TYPE;
+  private readonly int schemaVersion = 2;
+  private readonly string mediaType = MANIFEST_MEDIA_TYPE;
 
   /** The container configuration reference. */
-  @Nullable private ContentDescriptorTemplate config;
+  private ContentDescriptorTemplate config;
 
   /** The list of layer references. */
-  private final List<ContentDescriptorTemplate> layers = new ArrayList<>();
+  private readonly List<ContentDescriptorTemplate> layers = new ArrayList<>();
 
-  @Override
   public int getSchemaVersion() {
     return schemaVersion;
   }
 
-  @Override
-  public String getManifestMediaType() {
+  public string getManifestMediaType() {
     return MANIFEST_MEDIA_TYPE;
   }
 
-  @Override
-  @Nullable
   public ContentDescriptorTemplate getContainerConfiguration() {
     return config;
   }
 
-  @Override
   public List<ContentDescriptorTemplate> getLayers() {
     return Collections.unmodifiableList(layers);
   }
 
-  @Override
   public void setContainerConfiguration(long size, DescriptorDigest digest) {
     config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
   }
 
-  @Override
   public void addLayer(long size, DescriptorDigest digest) {
     layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
   }
+}
 }

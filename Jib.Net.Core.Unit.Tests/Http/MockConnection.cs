@@ -14,31 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import java.io.IOException;
-import java.util.function.BiFunction;
+
+
+
 
 /**
  * Mock {@link Connection} used for testing. Normally, you would use {@link
  * org.mockito.Mockito#mock}; this class is intended to examine the {@link Request) object by
  * calling its non-public package-protected methods.
  */
-public class MockConnection extends Connection {
+public class MockConnection : Connection {
 
-  private final BiFunction<String, Request, Response> responseSupplier;
+  private readonly BiFunction<string, Request, Response> responseSupplier;
   private Integer httpTimeout;
 
-  public MockConnection(BiFunction<String, Request, Response> responseSupplier) {
-    super(
-        new GenericUrl("ftp://non-exisiting.example.url.ever").toURL(), new ApacheHttpTransport());
+  public MockConnection(BiFunction<string, Request, Response> responseSupplier) : base(
+        new GenericUrl("ftp://non-exisiting.example.url.ever").toURL(), new ApacheHttpTransport()) {
+    
     this.responseSupplier = responseSupplier;
   }
 
-  @Override
-  public Response send(String httpMethod, Request request) throws IOException {
+  public Response send(string httpMethod, Request request) {
     httpTimeout = request.getHttpTimeout();
     return responseSupplier.apply(httpMethod, request);
   }
@@ -46,4 +44,5 @@ public class MockConnection extends Connection {
   public Integer getRequestedHttpTimeout() {
     return httpTimeout;
   }
+}
 }

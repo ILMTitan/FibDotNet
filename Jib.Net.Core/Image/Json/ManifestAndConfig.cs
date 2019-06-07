@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import java.util.Optional;
-import javax.annotation.Nullable;
+
 
 /** Stores a manifest and container config. */
 public class ManifestAndConfig {
 
-  private final ManifestTemplate manifest;
-  @Nullable private final ContainerConfigurationTemplate config;
+  private readonly ManifestTemplate manifest;
+  private final ContainerConfigurationTemplate config;
 
   public ManifestAndConfig(
-      ManifestTemplate manifest, @Nullable ContainerConfigurationTemplate config) {
+      ManifestTemplate manifest, ContainerConfigurationTemplate config) {
     this.manifest = manifest;
     this.config = config;
   }
@@ -48,4 +47,5 @@ public class ManifestAndConfig {
   public Optional<ContainerConfigurationTemplate> getConfig() {
     return Optional.ofNullable(config);
   }
+}
 }

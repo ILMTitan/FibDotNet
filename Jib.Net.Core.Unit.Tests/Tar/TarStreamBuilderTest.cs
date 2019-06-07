@@ -14,28 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.tar;
+namespace com.google.cloud.tools.jib.tar {
 
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Resources;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link TarStreamBuilder}. */
 public class TarStreamBuilderTest {
@@ -47,8 +46,8 @@ public class TarStreamBuilderTest {
   private byte[] fileBContents;
   private TarStreamBuilder testTarStreamBuilder = new TarStreamBuilder();
 
-  @Before
-  public void setup() throws URISyntaxException, IOException {
+  [TestInitialize]
+  public void setup() {
     // Gets the test resource files.
     fileA = Paths.get(Resources.getResource("core/fileA").toURI());
     fileB = Paths.get(Resources.getResource("core/fileB").toURI());
@@ -58,44 +57,44 @@ public class TarStreamBuilderTest {
     fileBContents = Files.readAllBytes(fileB);
   }
 
-  @Test
-  public void testToBlob_tarArchiveEntries() throws IOException {
+  [TestMethod]
+  public void testToBlob_tarArchiveEntries() {
     setUpWithTarEntries();
     verifyBlobWithoutCompression();
   }
 
-  @Test
-  public void testToBlob_strings() throws IOException {
+  [TestMethod]
+  public void testToBlob_strings() {
     setUpWithStrings();
     verifyBlobWithoutCompression();
   }
 
-  @Test
-  public void testToBlob_stringsAndTarArchiveEntries() throws IOException {
+  [TestMethod]
+  public void testToBlob_stringsAndTarArchiveEntries() {
     setUpWithStringsAndTarEntries();
     verifyBlobWithoutCompression();
   }
 
-  @Test
-  public void testToBlob_tarArchiveEntriesWithCompression() throws IOException {
+  [TestMethod]
+  public void testToBlob_tarArchiveEntriesWithCompression() {
     setUpWithTarEntries();
     verifyBlobWithCompression();
   }
 
-  @Test
-  public void testToBlob_stringsWithCompression() throws IOException {
+  [TestMethod]
+  public void testToBlob_stringsWithCompression() {
     setUpWithStrings();
     verifyBlobWithCompression();
   }
 
-  @Test
-  public void testToBlob_stringsAndTarArchiveEntriesWithCompression() throws IOException {
+  [TestMethod]
+  public void testToBlob_stringsAndTarArchiveEntriesWithCompression() {
     setUpWithStringsAndTarEntries();
     verifyBlobWithCompression();
   }
 
-  @Test
-  public void testToBlob_multiByte() throws IOException {
+  [TestMethod]
+  public void testToBlob_multiByte() {
     testTarStreamBuilder.addByteEntry("日本語".getBytes(StandardCharsets.UTF_8), "test");
     testTarStreamBuilder.addByteEntry("asdf".getBytes(StandardCharsets.UTF_8), "crepecake");
     testTarStreamBuilder.addBlobEntry(
@@ -116,17 +115,17 @@ public class TarStreamBuilderTest {
     TarArchiveEntry headerFile = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals("test", headerFile.getName());
     Assert.assertEquals(
-        "日本語", new String(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+        "日本語", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
 
     headerFile = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals("crepecake", headerFile.getName());
     Assert.assertEquals(
-        "asdf", new String(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+        "asdf", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
 
     headerFile = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals("jib", headerFile.getName());
     Assert.assertEquals(
-        "jib", new String(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+        "jib", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
 
     Assert.assertNull(tarArchiveInputStream.getNextTarEntry());
   }
@@ -170,7 +169,7 @@ public class TarStreamBuilderTest {
   }
 
   /** Creates a compressed blob from the TarStreamBuilder and verifies it. */
-  private void verifyBlobWithCompression() throws IOException {
+  private void verifyBlobWithCompression() {
     // Writes the BLOB and captures the output.
     ByteArrayOutputStream tarByteOutputStream = new ByteArrayOutputStream();
     OutputStream compressorStream = new GZIPOutputStream(tarByteOutputStream);
@@ -185,7 +184,7 @@ public class TarStreamBuilderTest {
   }
 
   /** Creates an uncompressed blob from the TarStreamBuilder and verifies it. */
-  private void verifyBlobWithoutCompression() throws IOException {
+  private void verifyBlobWithoutCompression() {
     // Writes the BLOB and captures the output.
     ByteArrayOutputStream tarByteOutputStream = new ByteArrayOutputStream();
     testTarStreamBuilder.writeAsTarArchiveTo(tarByteOutputStream);
@@ -201,7 +200,7 @@ public class TarStreamBuilderTest {
    * Helper method to verify that the files were archived correctly by reading {@code
    * tarArchiveInputStream}.
    */
-  private void verifyTarArchive(TarArchiveInputStream tarArchiveInputStream) throws IOException {
+  private void verifyTarArchive(TarArchiveInputStream tarArchiveInputStream) {
     // Verifies fileA was archived correctly.
     TarArchiveEntry headerFileA = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals("some/path/to/resourceFileA", headerFileA.getName());
@@ -228,4 +227,5 @@ public class TarStreamBuilderTest {
 
     Assert.assertNull(tarArchiveInputStream.getNextTarEntry());
   }
+}
 }

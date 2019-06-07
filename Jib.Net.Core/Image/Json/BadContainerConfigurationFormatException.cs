@@ -14,17 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
 /** Exception thrown when trying to parse a bad image configuration format. */
-public class BadContainerConfigurationFormatException extends Exception {
+public class BadContainerConfigurationFormatException : Exception {
 
   // TODO: Potentially provide Path or source object to problem configuration file
-  BadContainerConfigurationFormatException(String message) {
+  BadContainerConfigurationFormatException(string message) {
     super(message);
   }
 
-  BadContainerConfigurationFormatException(String message, Throwable cause) {
+  BadContainerConfigurationFormatException(string message, Throwable cause) {
     super(message, cause);
   }
+}
 }

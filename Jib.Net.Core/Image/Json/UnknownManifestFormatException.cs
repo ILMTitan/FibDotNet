@@ -14,14 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.RegistryException;
 
 /** Exception thrown when trying to parse an unknown image manifest format. */
-public class UnknownManifestFormatException extends RegistryException {
+public class UnknownManifestFormatException : RegistryException {
 
-  public UnknownManifestFormatException(String message) {
-    super(message);
+  public UnknownManifestFormatException(string message) : base(message) {
+    
   }
+}
 }

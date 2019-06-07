@@ -14,22 +14,21 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.common.base.Splitter;
-import java.nio.file.Path;
-import java.security.DigestException;
+
+
+
+
 
 /** Resolves the files used in the default cache storage engine. */
 class CacheStorageFiles {
 
-  private static final String LAYERS_DIRECTORY = "layers";
-  private static final String IMAGES_DIRECTORY = "images";
-  private static final String SELECTORS_DIRECTORY = "selectors";
-  private static final String TEMPORARY_DIRECTORY = "tmp";
-  private static final String TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
+  private static readonly string LAYERS_DIRECTORY = "layers";
+  private static readonly string IMAGES_DIRECTORY = "images";
+  private static readonly string SELECTORS_DIRECTORY = "selectors";
+  private static readonly string TEMPORARY_DIRECTORY = "tmp";
+  private static readonly string TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
 
   /**
    * Returns whether or not {@code file} is a layer contents file.
@@ -37,11 +36,11 @@ class CacheStorageFiles {
    * @param file the file to check
    * @return {@code true} if {@code file} is a layer contents file; {@code false} otherwise
    */
-  static boolean isLayerFile(Path file) {
+  static bool isLayerFile(Path file) {
     return file.getFileName().toString().length() == DescriptorDigest.HASH_LENGTH;
   }
 
-  private final Path cacheDirectory;
+  private readonly Path cacheDirectory;
 
   CacheStorageFiles(Path cacheDirectory) {
     this.cacheDirectory = cacheDirectory;
@@ -54,9 +53,9 @@ class CacheStorageFiles {
    * @return the diff ID portion of the layer file filename
    * @throws CacheCorruptedException if no valid diff ID could be parsed
    */
-  DescriptorDigest getDiffId(Path layerFile) throws CacheCorruptedException {
+  DescriptorDigest getDiffId(Path layerFile) {
     try {
-      String diffId = layerFile.getFileName().toString();
+      string diffId = layerFile.getFileName().toString();
       return DescriptorDigest.fromHash(diffId);
 
     } catch (DigestException | IndexOutOfBoundsException ex) {
@@ -92,7 +91,7 @@ class CacheStorageFiles {
    * @param layerDiffId the layer's diff ID
    * @return the layer filename
    */
-  String getLayerFilename(DescriptorDigest layerDiffId) {
+  string getLayerFilename(DescriptorDigest layerDiffId) {
     return layerDiffId.getHash();
   }
 
@@ -143,12 +142,13 @@ class CacheStorageFiles {
    */
   Path getImageDirectory(ImageReference imageReference) {
     // Replace ':' and '@' with '!' to avoid directory-naming restrictions
-    String replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
+    string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
 
     // Split image reference on '/' to build directory structure
-    Iterable<String> directories = Splitter.on('/').split(replacedReference);
+    Iterable<string> directories = Splitter.on('/').split(replacedReference);
     Path destination = getImagesDirectory();
-    for (String dir : directories) {
+    foreach (string dir in directories)
+    {
       destination = destination.resolve(dir);
     }
     return destination;
@@ -174,4 +174,5 @@ class CacheStorageFiles {
     temporaryLayerFile.toFile().deleteOnExit();
     return temporaryLayerFile;
   }
+}
 }

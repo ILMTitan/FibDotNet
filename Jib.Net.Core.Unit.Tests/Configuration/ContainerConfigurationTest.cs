@@ -14,25 +14,24 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ContainerConfiguration}. */
 public class ContainerConfigurationTest {
 
-  @Test
+  [TestMethod]
   public void testBuilder_nullValues() {
     // Java arguments element should not be null.
     try {
@@ -69,9 +68,9 @@ public class ContainerConfigurationTest {
       Assert.assertEquals("volumes list contains null elements", ex.getMessage());
     }
 
-    Map<String, String> nullKeyMap = new HashMap<>();
+    Map<string, string> nullKeyMap = new HashMap<>();
     nullKeyMap.put(null, "value");
-    Map<String, String> nullValueMap = new HashMap<>();
+    Map<string, string> nullValueMap = new HashMap<>();
     nullValueMap.put("key", null);
 
     // Label keys should not be null.
@@ -107,7 +106,7 @@ public class ContainerConfigurationTest {
     }
   }
 
-  @Test
+  [TestMethod]
   @SuppressWarnings("JdkObsolete") // for hashtable
   public void testBuilder_environmentMapTypes() {
     // Can accept empty environment.
@@ -118,16 +117,17 @@ public class ContainerConfigurationTest {
     ContainerConfiguration.builder().setEnvironment(new Hashtable<>());
   }
 
-  @Test
+  [TestMethod]
   public void testBuilder_user() {
     ContainerConfiguration configuration = ContainerConfiguration.builder().setUser("john").build();
     Assert.assertEquals("john", configuration.getUser());
   }
 
-  @Test
+  [TestMethod]
   public void testBuilder_workingDirectory() {
     ContainerConfiguration configuration =
         ContainerConfiguration.builder().setWorkingDirectory(AbsoluteUnixPath.get("/path")).build();
     Assert.assertEquals(AbsoluteUnixPath.get("/path"), configuration.getWorkingDirectory());
   }
+}
 }

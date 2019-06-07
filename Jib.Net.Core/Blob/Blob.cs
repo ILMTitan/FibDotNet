@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import java.io.IOException;
-import java.io.OutputStream;
+
 
 /** Holds a BLOB source for writing to an {@link OutputStream}. */
 public interface Blob {
@@ -30,4 +29,5 @@ public interface Blob {
    * @throws IOException if writing the BLOB fails
    */
   BlobDescriptor writeTo(OutputStream outputStream) throws IOException;
+}
 }

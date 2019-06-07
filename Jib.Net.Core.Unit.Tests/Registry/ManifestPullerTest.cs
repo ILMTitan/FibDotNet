@@ -14,83 +14,82 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.OCIManifestTemplate;
-import com.google.cloud.tools.jib.image.json.UnknownManifestFormatException;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.io.Resources;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ManifestPuller}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ManifestPullerTest {
 
-  private static InputStream stringToInputStreamUtf8(String string) {
+  private static InputStream stringToInputStreamUtf8(string string) {
     return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
   }
 
-  @Mock private Response mockResponse;
+  [Mock] private Response mockResponse;
 
-  private final RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
+  private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
-  private final ManifestPuller<ManifestTemplate> testManifestPuller =
+  private readonly ManifestPuller<ManifestTemplate> testManifestPuller =
       new ManifestPuller<>(
-          fakeRegistryEndpointRequestProperties, "test-image-tag", ManifestTemplate.class);
+          fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(ManifestTemplate));
 
-  @Test
+  [TestMethod]
   public void testHandleResponse_v21()
-      throws URISyntaxException, IOException, UnknownManifestFormatException {
+      {
     Path v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
     InputStream v21Manifest = new ByteArrayInputStream(Files.readAllBytes(v21ManifestFile));
 
     Mockito.when(mockResponse.getBody()).thenReturn(v21Manifest);
     ManifestTemplate manifestTemplate =
         new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", V21ManifestTemplate.class)
+                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V21ManifestTemplate))
             .handleResponse(mockResponse);
 
-    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(V21ManifestTemplate.class));
+    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(typeof(V21ManifestTemplate)));
   }
 
-  @Test
+  [TestMethod]
   public void testHandleResponse_v22()
-      throws URISyntaxException, IOException, UnknownManifestFormatException {
+      {
     Path v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
     InputStream v22Manifest = new ByteArrayInputStream(Files.readAllBytes(v22ManifestFile));
 
     Mockito.when(mockResponse.getBody()).thenReturn(v22Manifest);
     ManifestTemplate manifestTemplate =
         new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", V22ManifestTemplate.class)
+                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V22ManifestTemplate))
             .handleResponse(mockResponse);
 
-    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(V22ManifestTemplate.class));
+    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(typeof(V22ManifestTemplate)));
   }
 
-  @Test
-  public void testHandleResponse_noSchemaVersion() throws IOException {
+  [TestMethod]
+  public void testHandleResponse_noSchemaVersion() {
     Mockito.when(mockResponse.getBody()).thenReturn(stringToInputStreamUtf8("{}"));
     try {
       testManifestPuller.handleResponse(mockResponse);
@@ -101,8 +100,8 @@ public class ManifestPullerTest {
     }
   }
 
-  @Test
-  public void testHandleResponse_invalidSchemaVersion() throws IOException {
+  [TestMethod]
+  public void testHandleResponse_invalidSchemaVersion() {
     Mockito.when(mockResponse.getBody())
         .thenReturn(stringToInputStreamUtf8("{\"schemaVersion\":\"not valid\"}"));
     try {
@@ -114,8 +113,8 @@ public class ManifestPullerTest {
     }
   }
 
-  @Test
-  public void testHandleResponse_unknownSchemaVersion() throws IOException {
+  [TestMethod]
+  public void testHandleResponse_unknownSchemaVersion() {
     Mockito.when(mockResponse.getBody())
         .thenReturn(stringToInputStreamUtf8("{\"schemaVersion\":0}"));
     try {
@@ -127,31 +126,31 @@ public class ManifestPullerTest {
     }
   }
 
-  @Test
-  public void testGetApiRoute() throws MalformedURLException {
+  [TestMethod]
+  public void testGetApiRoute() {
     Assert.assertEquals(
-        new URL("http://someApiBase/someImageName/manifests/test-image-tag"),
+        new Uri("http://someApiBase/someImageName/manifests/test-image-tag"),
         testManifestPuller.getApiRoute("http://someApiBase/"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetHttpMethod() {
     Assert.assertEquals("GET", testManifestPuller.getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testGetActionDescription() {
     Assert.assertEquals(
         "pull image manifest for someServerUrl/someImageName:test-image-tag",
         testManifestPuller.getActionDescription());
   }
 
-  @Test
+  [TestMethod]
   public void testGetContent() {
     Assert.assertNull(testManifestPuller.getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testGetAccept() {
     Assert.assertEquals(
         Arrays.asList(
@@ -163,17 +162,18 @@ public class ManifestPullerTest {
     Assert.assertEquals(
         Collections.singletonList(OCIManifestTemplate.MANIFEST_MEDIA_TYPE),
         new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", OCIManifestTemplate.class)
+                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(OCIManifestTemplate))
             .getAccept());
     Assert.assertEquals(
         Collections.singletonList(V22ManifestTemplate.MANIFEST_MEDIA_TYPE),
         new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", V22ManifestTemplate.class)
+                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V22ManifestTemplate))
             .getAccept());
     Assert.assertEquals(
         Collections.singletonList(V21ManifestTemplate.MEDIA_TYPE),
         new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", V21ManifestTemplate.class)
+                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V21ManifestTemplate))
             .getAccept());
   }
+}
 }

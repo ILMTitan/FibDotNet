@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
 
 /** Contains properties describing a BLOB, including its digest and possibly its size (in bytes). */
 public class BlobDescriptor {
 
-  private final DescriptorDigest digest;
+  private readonly DescriptorDigest digest;
 
   /** The size of the BLOB (in bytes). Negative if unknown. */
-  private final long size;
+  private readonly long size;
 
   public BlobDescriptor(long size, DescriptorDigest digest) {
     this.size = size;
@@ -40,7 +39,7 @@ public class BlobDescriptor {
     this(-1, digest);
   }
 
-  public boolean hasSize() {
+  public bool hasSize() {
     return size >= 0;
   }
 
@@ -60,12 +59,12 @@ public class BlobDescriptor {
    *   <li>{@code size}s are non-negative and equal
    * </ol>
    */
-  @Override
-  public boolean equals(Object obj) {
+
+  public bool equals(object obj) {
     if (obj == this) {
       return true;
     }
-    if (size < 0 || !(obj instanceof BlobDescriptor)) {
+    if (size < 0 || !(obj is BlobDescriptor)) {
       return false;
     }
 
@@ -73,15 +72,14 @@ public class BlobDescriptor {
     return size == other.getSize() && digest.equals(other.getDigest());
   }
 
-  @Override
   public int hashCode() {
     int result = digest.hashCode();
     result = 31 * result + (int) (size ^ (size >>> 32));
     return result;
   }
 
-  @Override
-  public String toString() {
+  public string toString() {
     return "digest: " + digest + ", size: " + size;
   }
+}
 }

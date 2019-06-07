@@ -14,28 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.configuration.ImageConfiguration;
-import com.google.common.collect.ImmutableSet;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Containerizer}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ContainerizerTest {
 
-  @Mock private ExecutorService mockExecutorService;
+  [Mock] private ExecutorService mockExecutorService;
 
-  @Test
-  public void testTo() throws CacheDirectoryCreationException {
+  [TestMethod]
+  public void testTo() {
     RegistryImage registryImage = RegistryImage.named(ImageReference.of(null, "repository", null));
     DockerDaemonImage dockerDaemonImage =
         DockerDaemonImage.named(ImageReference.of(null, "repository", null));
@@ -47,7 +46,7 @@ public class ContainerizerTest {
     verifyTo(Containerizer.to(tarImage));
   }
 
-  private void verifyTo(Containerizer containerizer) throws CacheDirectoryCreationException {
+  private void verifyTo(Containerizer containerizer) {
     Assert.assertTrue(containerizer.getAdditionalTags().isEmpty());
     Assert.assertFalse(containerizer.getExecutorService().isPresent());
     Assert.assertEquals(
@@ -79,7 +78,7 @@ public class ContainerizerTest {
     Assert.assertEquals("tool", containerizer.getToolName());
   }
 
-  @Test
+  [TestMethod]
   public void testWithAdditionalTag() {
     DockerDaemonImage dockerDaemonImage =
         DockerDaemonImage.named(ImageReference.of(null, "repository", null));
@@ -94,9 +93,9 @@ public class ContainerizerTest {
     }
   }
 
-  @Test
-  public void testGetImageConfiguration_registryImage() throws InvalidImageReferenceException {
-    CredentialRetriever credentialRetriever = Mockito.mock(CredentialRetriever.class);
+  [TestMethod]
+  public void testGetImageConfiguration_registryImage() {
+    CredentialRetriever credentialRetriever = Mockito.mock(typeof(CredentialRetriever));
     Containerizer containerizer =
         Containerizer.to(
             RegistryImage.named("registry/image").addCredentialRetriever(credentialRetriever));
@@ -107,8 +106,8 @@ public class ContainerizerTest {
         Arrays.asList(credentialRetriever), imageConfiguration.getCredentialRetrievers());
   }
 
-  @Test
-  public void testGetImageConfiguration_dockerDaemonImage() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetImageConfiguration_dockerDaemonImage() {
     Containerizer containerizer = Containerizer.to(DockerDaemonImage.named("docker/deamon/image"));
 
     ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
@@ -116,8 +115,8 @@ public class ContainerizerTest {
     Assert.assertEquals(0, imageConfiguration.getCredentialRetrievers().size());
   }
 
-  @Test
-  public void testGetImageConfiguration_tarImage() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetImageConfiguration_tarImage() {
     Containerizer containerizer =
         Containerizer.to(TarImage.named("tar/image").saveTo(Paths.get("output/file")));
 
@@ -125,4 +124,5 @@ public class ContainerizerTest {
     Assert.assertEquals("tar/image", imageConfiguration.getImage().toString());
     Assert.assertEquals(0, imageConfiguration.getCredentialRetrievers().size());
   }
+}
 }

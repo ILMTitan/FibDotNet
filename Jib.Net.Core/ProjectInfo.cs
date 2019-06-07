@@ -14,22 +14,23 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib;
+namespace com.google.cloud.tools.jib
+{
 
-import javax.annotation.Nullable;
 
-/** Constants relating to the Jib project. */
-public class ProjectInfo {
+    /** Constants relating to the Jib project. */
+    public class ProjectInfo {
 
   /** Link to the GitHub repository. */
-  public static final String GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
+  public static readonly String GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
 
   /** Link to file an issue against the GitHub repository. */
-  public static final String GITHUB_NEW_ISSUE_URL = GITHUB_URL + "/issues/new";
+  public static readonly String GITHUB_NEW_ISSUE_URL = GITHUB_URL + "/issues/new";
 
   /** The project version. May be {@code null} if the version cannot be determined. */
-  @Nullable
-  public static final String VERSION = ProjectInfo.class.getPackage().getImplementationVersion();
+  public static readonly String VERSION = typeof(ProjectInfo).getPackage().getImplementationVersion();
 
   private ProjectInfo() {}
+}
+
 }

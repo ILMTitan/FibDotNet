@@ -14,11 +14,10 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.util.Base64;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+
+
 
 /**
  * Holds the credentials for an HTTP {@code Authorization} header.
@@ -33,7 +32,7 @@ public class Authorization {
    * @param token the token
    * @return an {@link Authorization} with a {@code Bearer} token
    */
-  public static Authorization fromBearerToken(String token) {
+  public static Authorization fromBearerToken(string token) {
     return new Authorization("Bearer", token);
   }
 
@@ -42,9 +41,9 @@ public class Authorization {
    * @param secret the secret
    * @return an {@link Authorization} with a {@code Basic} credentials
    */
-  public static Authorization fromBasicCredentials(String username, String secret) {
-    String credentials = username + ":" + secret;
-    String token = Base64.encodeBase64String(credentials.getBytes(StandardCharsets.UTF_8));
+  public static Authorization fromBasicCredentials(string username, string secret) {
+    string credentials = username + ":" + secret;
+    string token = Base64.encodeBase64String(credentials.getBytes(StandardCharsets.UTF_8));
     return new Authorization("Basic", token);
   }
 
@@ -52,46 +51,45 @@ public class Authorization {
    * @param token the token
    * @return an {@link Authorization} with a base64-encoded {@code username:password} string
    */
-  public static Authorization fromBasicToken(String token) {
+  public static Authorization fromBasicToken(string token) {
     return new Authorization("Basic", token);
   }
 
-  private final String scheme;
-  private final String token;
+  private readonly string scheme;
+  private readonly string token;
 
-  private Authorization(String scheme, String token) {
+  private Authorization(string scheme, string token) {
     this.scheme = scheme;
     this.token = token;
   }
 
-  public String getScheme() {
+  public string getScheme() {
     return scheme;
   }
 
-  public String getToken() {
+  public string getToken() {
     return token;
   }
 
   /** Return the HTTP {@link Authorization} header value. */
-  @Override
-  public String toString() {
+
+  public string toString() {
     return scheme + " " + token;
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof Authorization)) {
+    if (!(other is Authorization)) {
       return false;
     }
     Authorization otherAuthorization = (Authorization) other;
     return scheme.equals(otherAuthorization.scheme) && token.equals(otherAuthorization.token);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(scheme, token);
   }
+}
 }

@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
+
 
 /**
  * Parent class for image manifest JSON templates that can be built.
@@ -28,7 +27,7 @@ import javax.annotation.Nullable;
  * @see V22ManifestTemplate Docker V2.2 format
  * @see OCIManifestTemplate OCI format
  */
-public interface BuildableManifestTemplate extends ManifestTemplate {
+public interface BuildableManifestTemplate : ManifestTemplate {
 
   /**
    * Template for inner JSON object representing content descriptor for a layer or container
@@ -37,14 +36,14 @@ public interface BuildableManifestTemplate extends ManifestTemplate {
    * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md">OCI
    *     Content Descriptors</a>
    */
-  @VisibleForTesting
-  class ContentDescriptorTemplate implements JsonTemplate {
 
-    @Nullable private String mediaType;
-    @Nullable private DescriptorDigest digest;
+  class ContentDescriptorTemplate : JsonTemplate {
+
+    private string mediaType;
+    private DescriptorDigest digest;
     private long size;
 
-    ContentDescriptorTemplate(String mediaType, long size, DescriptorDigest digest) {
+    ContentDescriptorTemplate(string mediaType, long size, DescriptorDigest digest) {
       this.mediaType = mediaType;
       this.size = size;
       this.digest = digest;
@@ -53,7 +52,6 @@ public interface BuildableManifestTemplate extends ManifestTemplate {
     /** Necessary for Jackson to create from JSON. */
     private ContentDescriptorTemplate() {}
 
-    @VisibleForTesting
     public long getSize() {
       return size;
     }
@@ -62,8 +60,6 @@ public interface BuildableManifestTemplate extends ManifestTemplate {
       this.size = size;
     }
 
-    @VisibleForTesting
-    @Nullable
     public DescriptorDigest getDigest() {
       return digest;
     }
@@ -74,10 +70,9 @@ public interface BuildableManifestTemplate extends ManifestTemplate {
   }
 
   /** @return the media type for this manifest, specific to the image format */
-  String getManifestMediaType();
+  string getManifestMediaType();
 
   /** @return the content descriptor of the container configuration */
-  @Nullable
   ContentDescriptorTemplate getContainerConfiguration();
 
   /** @return an unmodifiable view of the layers */
@@ -98,4 +93,5 @@ public interface BuildableManifestTemplate extends ManifestTemplate {
    * @param digest the layer descriptor digest.
    */
   void addLayer(long size, DescriptorDigest digest);
+}
 }

@@ -14,44 +14,42 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.cache.Cache;
-import com.google.cloud.tools.jib.cache.CacheCorruptedException;
-import com.google.cloud.tools.jib.cache.CachedLayer;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pulls and caches a single base image layer. */
-class PullAndCacheBaseImageLayerStep implements AsyncStep<CachedLayer>, Callable<CachedLayer> {
+class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>, Callable<CachedLayer>  {
+  private static readonly string DESCRIPTION = "Pulling base image layer %s";
 
-  private static final String DESCRIPTION = "Pulling base image layer %s";
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly DescriptorDigest layerDigest;
+  private final Authorization pullAuthorization;
 
-  private final DescriptorDigest layerDigest;
-  private final @Nullable Authorization pullAuthorization;
-
-  private final ListenableFuture<CachedLayer> listenableFuture;
+  private readonly ListenableFuture<CachedLayer> listenableFuture;
 
   PullAndCacheBaseImageLayerStep(
       ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       DescriptorDigest layerDigest,
-      @Nullable Authorization pullAuthorization) {
+      Authorization pullAuthorization) {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.layerDigest = layerDigest;
@@ -60,18 +58,18 @@ class PullAndCacheBaseImageLayerStep implements AsyncStep<CachedLayer>, Callable
     listenableFuture = listeningExecutorService.submit(this);
   }
 
-  @Override
   public ListenableFuture<CachedLayer> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public CachedLayer call() throws IOException, CacheCorruptedException {
-    try (ProgressEventDispatcher progressEventDispatcher =
-            progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1);
-        TimerEventDispatcher ignored =
+  public CachedLayer call() {
+    using(ProgressEventDispatcher progressEventDispatcher =
+            progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
+    using(TimerEventDispatcher ignored =
             new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), String.format(DESCRIPTION, layerDigest))) {
+                buildConfiguration.getEventHandlers(), string.format(DESCRIPTION, layerDigest))))
+    {
+
       Cache cache = buildConfiguration.getBaseImageLayersCache();
 
       // Checks if the layer already exists in the cache.
@@ -91,7 +89,7 @@ class PullAndCacheBaseImageLayerStep implements AsyncStep<CachedLayer>, Callable
               .setAuthorization(pullAuthorization)
               .newRegistryClient();
 
-      try (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
+      using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
           new ThrottledProgressEventDispatcherWrapper(
               progressEventDispatcher.newChildProducer(),
               "pulling base image layer " + layerDigest)) {
@@ -99,8 +97,9 @@ class PullAndCacheBaseImageLayerStep implements AsyncStep<CachedLayer>, Callable
             registryClient.pullBlob(
                 layerDigest,
                 progressEventDispatcherWrapper::setProgressTarget,
-                progressEventDispatcherWrapper::dispatchProgress));
+                progressEventDispatcherWrapper.dispatchProgress));
       }
     }
   }
+}
 }

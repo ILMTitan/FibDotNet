@@ -14,22 +14,21 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.api.client.util.Base64;
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.RegistryAliasGroup;
-import com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.function.Consumer;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Retrieves registry credentials from the Docker config.
@@ -51,18 +50,17 @@ public class DockerConfigCredentialRetriever {
    * @see <a
    *     href="https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement">https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement</a>
    */
-  private static final Path DOCKER_CONFIG_FILE =
+  private static readonly Path DOCKER_CONFIG_FILE =
       Paths.get(System.getProperty("user.home"), ".docker", "config.json");
 
-  private final String registry;
-  private final Path dockerConfigFile;
+  private readonly string registry;
+  private readonly Path dockerConfigFile;
 
-  public DockerConfigCredentialRetriever(String registry) {
+  public DockerConfigCredentialRetriever(string registry) {
     this(registry, DOCKER_CONFIG_FILE);
   }
 
-  @VisibleForTesting
-  public DockerConfigCredentialRetriever(String registry, Path dockerConfigFile) {
+  public DockerConfigCredentialRetriever(string registry, Path dockerConfigFile) {
     this.registry = registry;
     this.dockerConfigFile = dockerConfigFile;
   }
@@ -74,13 +72,13 @@ public class DockerConfigCredentialRetriever {
    * @return {@link Credential} found for {@code registry}, or {@link Optional#empty} if not found
    * @throws IOException if failed to parse the config JSON
    */
-  public Optional<Credential> retrieve(Consumer<LogEvent> logger) throws IOException {
+  public Optional<Credential> retrieve(Consumer<LogEvent> logger) {
     if (!Files.exists(dockerConfigFile)) {
       return Optional.empty();
     }
     DockerConfig dockerConfig =
         new DockerConfig(
-            JsonTemplateMapper.readJsonFromFile(dockerConfigFile, DockerConfigTemplate.class));
+            JsonTemplateMapper.readJsonFromFile(dockerConfigFile, typeof(DockerConfigTemplate)));
     return retrieve(dockerConfig, logger);
   }
 
@@ -91,17 +89,18 @@ public class DockerConfigCredentialRetriever {
    * @param logger a consumer for handling log events
    * @return the retrieved credentials, or {@code Optional#empty} if none are found
    */
-  @VisibleForTesting
+
   Optional<Credential> retrieve(DockerConfig dockerConfig, Consumer<LogEvent> logger) {
-    for (String registryAlias : RegistryAliasGroup.getAliasesGroup(registry)) {
+    foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
+    {
       // First, tries to find defined auth.
-      String auth = dockerConfig.getAuthFor(registryAlias);
+      string auth = dockerConfig.getAuthFor(registryAlias);
       if (auth != null) {
         // 'auth' is a basic authentication token that should be parsed back into credentials
-        String usernameColonPassword =
-            new String(Base64.decodeBase64(auth), StandardCharsets.UTF_8);
-        String username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
-        String password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
+        string usernameColonPassword =
+            new string(Base64.decodeBase64(auth), StandardCharsets.UTF_8);
+        string username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
+        string password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
         return Optional.of(Credential.from(username, password));
       }
 
@@ -128,4 +127,5 @@ public class DockerConfigCredentialRetriever {
     }
     return Optional.empty();
   }
+}
 }

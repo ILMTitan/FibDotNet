@@ -14,40 +14,35 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.api.RegistryAuthenticationFailedException;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.Response;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
 
 /** Retrieves the {@code WWW-Authenticate} header from the registry API. */
-class AuthenticationMethodRetriever implements RegistryEndpointProvider<RegistryAuthenticator> {
-
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final String userAgent;
+class AuthenticationMethodRetriever : $2 {
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly string userAgent;
 
   AuthenticationMethodRetriever(
-      RegistryEndpointRequestProperties registryEndpointRequestProperties, String userAgent) {
+      RegistryEndpointRequestProperties registryEndpointRequestProperties, string userAgent) {
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
     this.userAgent = userAgent;
   }
 
-  @Nullable
-  @Override
   public BlobHttpContent getContent() {
     return null;
   }
 
-  @Override
-  public List<String> getAccept() {
+  public List<string> getAccept() {
     return Collections.emptyList();
   }
 
@@ -57,39 +52,33 @@ class AuthenticationMethodRetriever implements RegistryEndpointProvider<Registry
    * @param response ignored
    * @return {@code null}
    */
-  @Override
-  @Nullable
+
   public RegistryAuthenticator handleResponse(Response response) {
     return null;
   }
 
-  @Override
-  public URL getApiRoute(String apiRouteBase) throws MalformedURLException {
-    return new URL(apiRouteBase);
+  public Uri getApiRoute(string apiRouteBase) {
+    return new Uri(apiRouteBase);
   }
 
-  @Override
-  public String getHttpMethod() {
+  public string getHttpMethod() {
     return HttpMethods.GET;
   }
 
-  @Override
-  public String getActionDescription() {
+  public string getActionDescription() {
     return "retrieve authentication method for " + registryEndpointRequestProperties.getServerUrl();
   }
 
-  @Override
-  @Nullable
   public RegistryAuthenticator handleHttpResponseException(
       HttpResponseException httpResponseException)
-      throws HttpResponseException, RegistryErrorException {
+      {
     // Only valid for status code of '401 Unauthorized'.
     if (httpResponseException.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED) {
       throw httpResponseException;
     }
 
     // Checks if the 'WWW-Authenticate' header is present.
-    String authenticationMethod = httpResponseException.getHeaders().getAuthenticate();
+    string authenticationMethod = httpResponseException.getHeaders().getAuthenticate();
     if (authenticationMethod == null) {
       throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponseException)
           .addReason("'WWW-Authenticate' header not found")
@@ -107,4 +96,5 @@ class AuthenticationMethodRetriever implements RegistryEndpointProvider<Registry
           .build();
     }
   }
+}
 }

@@ -14,26 +14,25 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.util.function.Function;
-import javax.annotation.Nullable;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.DefaultHttpClient;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Sends an HTTP {@link Request} and stores the {@link Response}. Clients should not send more than
@@ -48,14 +47,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * }
  * }</pre>
  */
-public class Connection implements Closeable {
+public class Connection : Closeable {
 
   /**
    * Returns a factory for {@link Connection}.
    *
-   * @return {@link Connection} factory, a function that generates a {@link Connection} to a URL
+   * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
    */
-  public static Function<URL, Connection> getConnectionFactory() {
+  public static Function<Uri, Connection> getConnectionFactory() {
     /*
      * Do not use {@link NetHttpTransport}. It does not process response errors properly. A new
      * {@link ApacheHttpTransport} needs to be created for each connection because otherwise HTTP
@@ -66,22 +65,22 @@ public class Connection implements Closeable {
      */
     ApacheHttpTransport transport = new ApacheHttpTransport();
     addProxyCredentials(transport);
-    return url -> new Connection(url, transport);
+    return url => new Connection(url, transport);
   }
 
   /**
    * Returns a factory for {@link Connection} that does not verify TLS peer verification.
    *
    * @throws GeneralSecurityException if unable to turn off TLS peer verification
-   * @return {@link Connection} factory, a function that generates a {@link Connection} to a URL
+   * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
    */
-  public static Function<URL, Connection> getInsecureConnectionFactory()
-      throws GeneralSecurityException {
+  public static Function<Uri, Connection> getInsecureConnectionFactory()
+      {
     // Do not use {@link NetHttpTransport}. See {@link getConnectionFactory} for details.
     ApacheHttpTransport transport =
         new ApacheHttpTransport.Builder().doNotValidateCertificate().build();
     addProxyCredentials(transport);
-    return url -> new Connection(url, transport);
+    return url => new Connection(url, transport);
   }
 
   /**
@@ -90,23 +89,23 @@ public class Connection implements Closeable {
    *
    * @param transport Apache HTTP transport
    */
-  @VisibleForTesting
+
   static void addProxyCredentials(ApacheHttpTransport transport) {
     addProxyCredentials(transport, "https");
     addProxyCredentials(transport, "http");
   }
 
-  private static void addProxyCredentials(ApacheHttpTransport transport, String protocol) {
+  private static void addProxyCredentials(ApacheHttpTransport transport, string protocol) {
     Preconditions.checkArgument(protocol.equals("http") || protocol.equals("https"));
 
-    String proxyHost = System.getProperty(protocol + ".proxyHost");
-    String proxyUser = System.getProperty(protocol + ".proxyUser");
-    String proxyPassword = System.getProperty(protocol + ".proxyPassword");
+    string proxyHost = System.getProperty(protocol + ".proxyHost");
+    string proxyUser = System.getProperty(protocol + ".proxyUser");
+    string proxyPassword = System.getProperty(protocol + ".proxyPassword");
     if (proxyHost == null || proxyUser == null || proxyPassword == null) {
       return;
     }
 
-    String defaultProxyPort = protocol.equals("http") ? "80" : "443";
+    string defaultProxyPort = protocol.equals("http") ? "80" : "443";
     int proxyPort = Integer.parseInt(System.getProperty(protocol + ".proxyPort", defaultProxyPort));
 
     DefaultHttpClient httpClient = (DefaultHttpClient) transport.getHttpClient();
@@ -119,24 +118,23 @@ public class Connection implements Closeable {
 
   private HttpRequestFactory requestFactory;
 
-  @Nullable private HttpResponse httpResponse;
+  private HttpResponse httpResponse;
 
-  /** The URL to send the request to. */
-  private final GenericUrl url;
+  /** The Uri to send the request to. */
+  private readonly GenericUrl url;
 
   /**
    * Make sure to wrap with a try-with-resource to ensure that the connection is closed after usage.
    *
    * @param url the url to send the request to
    */
-  @VisibleForTesting
-  Connection(URL url, HttpTransport transport) {
+
+  Connection(Uri url, HttpTransport transport) {
     this.url = new GenericUrl(url);
     requestFactory = transport.createRequestFactory();
   }
 
-  @Override
-  public void close() throws IOException {
+  public void close() {
     if (httpResponse == null) {
       return;
     }
@@ -151,7 +149,7 @@ public class Connection implements Closeable {
    * @return the response to the sent request
    * @throws IOException if sending the request fails
    */
-  public Response get(Request request) throws IOException {
+  public Response get(Request request) {
     return send(HttpMethods.GET, request);
   }
 
@@ -162,7 +160,7 @@ public class Connection implements Closeable {
    * @return the response to the sent request
    * @throws IOException if sending the request fails
    */
-  public Response post(Request request) throws IOException {
+  public Response post(Request request) {
     return send(HttpMethods.POST, request);
   }
 
@@ -173,7 +171,7 @@ public class Connection implements Closeable {
    * @return the response to the sent request
    * @throws IOException if sending the request fails
    */
-  public Response put(Request request) throws IOException {
+  public Response put(Request request) {
     return send(HttpMethods.PUT, request);
   }
 
@@ -185,7 +183,7 @@ public class Connection implements Closeable {
    * @return the response to the sent request
    * @throws IOException if building the HTTP request fails.
    */
-  public Response send(String httpMethod, Request request) throws IOException {
+  public Response send(string httpMethod, Request request) {
     Preconditions.checkState(httpResponse == null, "Connection can send only one request");
 
     HttpRequest httpRequest =
@@ -200,4 +198,5 @@ public class Connection implements Closeable {
     httpResponse = httpRequest.execute();
     return new Response(httpResponse);
   }
+}
 }

@@ -14,24 +14,23 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.tar.TarStreamBuilder;
-import com.google.common.base.Verify;
-import com.google.common.collect.ImmutableList;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Builds a reproducible layer {@link Blob} from files. The reproducibility is implemented by strips
@@ -44,17 +43,17 @@ public class ReproducibleLayerBuilder {
    * Holds a list of {@link TarArchiveEntry}s with unique extraction paths. The list also includes
    * all parent directories for each extraction path.
    */
-  private static class UniqueTarArchiveEntries {
+  private class UniqueTarArchiveEntries {
 
     /**
      * Uses the current directory to act as the file input to TarArchiveEntry (since all directories
-     * are treated the same in {@link TarArchiveEntry#TarArchiveEntry(File, String)}, except for
+     * are treated the same in {@link TarArchiveEntry#TarArchiveEntry(File, string)}, except for
      * modification time, which is wiped away in {@link #build}).
      */
-    private static final File DIRECTORY_FILE = Paths.get(".").toFile();
+    private static readonly File DIRECTORY_FILE = Paths.get(".").toFile();
 
-    private final List<TarArchiveEntry> entries = new ArrayList<>();
-    private final Set<String> names = new HashSet<>();
+    private readonly List<TarArchiveEntry> entries = new ArrayList<>();
+    private readonly Set<string> names = new HashSet<>();
 
     /**
      * Adds a {@link TarArchiveEntry} if its extraction path does not exist yet. Also adds all of
@@ -83,12 +82,12 @@ public class ReproducibleLayerBuilder {
 
     private List<TarArchiveEntry> getSortedEntries() {
       List<TarArchiveEntry> sortedEntries = new ArrayList<>(entries);
-      sortedEntries.sort(Comparator.comparing(TarArchiveEntry::getName));
+      sortedEntries.sort(Comparator.comparing(TarArchiveEntry.getName));
       return sortedEntries;
     }
   }
 
-  private final ImmutableList<LayerEntry> layerEntries;
+  private readonly ImmutableList<LayerEntry> layerEntries;
 
   public ReproducibleLayerBuilder(ImmutableList<LayerEntry> layerEntries) {
     this.layerEntries = layerEntries;
@@ -103,7 +102,8 @@ public class ReproducibleLayerBuilder {
     UniqueTarArchiveEntries uniqueTarArchiveEntries = new UniqueTarArchiveEntries();
 
     // Adds all the layer entries as tar entries.
-    for (LayerEntry layerEntry : layerEntries) {
+    foreach (LayerEntry layerEntry in layerEntries)
+    {
       // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
       // adds parent directories for each extraction path.
       TarArchiveEntry entry =
@@ -121,11 +121,12 @@ public class ReproducibleLayerBuilder {
     // Gets the entries sorted by extraction path.
     List<TarArchiveEntry> sortedFilesystemEntries = uniqueTarArchiveEntries.getSortedEntries();
 
-    Set<String> names = new HashSet<>();
+    Set<string> names = new HashSet<>();
 
     // Adds all the files to a tar stream.
     TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
-    for (TarArchiveEntry entry : sortedFilesystemEntries) {
+    foreach (TarArchiveEntry entry in sortedFilesystemEntries)
+    {
       // Strips out all non-reproducible elements from tar archive entries.
       // Modified time is configured per entry
       entry.setGroupId(0);
@@ -139,6 +140,7 @@ public class ReproducibleLayerBuilder {
       tarStreamBuilder.addTarArchiveEntry(entry);
     }
 
-    return Blobs.from(tarStreamBuilder::writeAsTarArchiveTo);
+    return Blobs.from(tarStreamBuilder.writeAsTarArchiveTo);
   }
+}
 }

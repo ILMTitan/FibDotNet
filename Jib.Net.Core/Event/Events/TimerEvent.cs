@@ -14,11 +14,10 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.events;
+namespace com.google.cloud.tools.jib.event.events {
 
-import com.google.cloud.tools.jib.api.JibEvent;
-import java.time.Duration;
-import java.util.Optional;
+
+
 
 /**
  * Timer event for timing various part of Jib's execution.
@@ -29,7 +28,7 @@ import java.util.Optional;
  *
  * <p>Timers can also define a hierarchy.
  */
-public class TimerEvent implements JibEvent {
+public class TimerEvent : JibEvent {
 
   /** The state of the timing. */
   public enum State {
@@ -61,11 +60,11 @@ public class TimerEvent implements JibEvent {
     Optional<? extends Timer> getParent();
   }
 
-  private final State state;
-  private final Timer timer;
-  private final Duration duration;
-  private final Duration elapsed;
-  private final String description;
+  private readonly State state;
+  private readonly Timer timer;
+  private readonly Duration duration;
+  private readonly Duration elapsed;
+  private readonly string description;
 
   /**
    * Creates a new {@link TimerEvent}. For internal use only.
@@ -77,7 +76,7 @@ public class TimerEvent implements JibEvent {
    * @param description the description of this event
    */
   public TimerEvent(
-      State state, Timer timer, Duration duration, Duration elapsed, String description) {
+      State state, Timer timer, Duration duration, Duration elapsed, string description) {
     this.state = state;
     this.timer = timer;
     this.duration = duration;
@@ -127,7 +126,8 @@ public class TimerEvent implements JibEvent {
    *
    * @return the description
    */
-  public String getDescription() {
+  public string getDescription() {
     return description;
   }
+}
 }

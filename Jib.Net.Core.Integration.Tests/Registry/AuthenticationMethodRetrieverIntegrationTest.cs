@@ -14,20 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.http.Authorization;
-import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
 
 /** Integration tests for {@link AuthenticationMethodRetriever}. */
 public class AuthenticationMethodRetrieverIntegrationTest {
 
-  @Test
-  public void testGetRegistryAuthenticator() throws IOException, RegistryException {
+  [TestMethod]
+  public void testGetRegistryAuthenticator() {
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
             .newRegistryClient();
@@ -41,4 +40,5 @@ public class AuthenticationMethodRetrieverIntegrationTest {
             .newRegistryClient();
     authorizedRegistryClient.pullManifest("latest");
   }
+}
 }

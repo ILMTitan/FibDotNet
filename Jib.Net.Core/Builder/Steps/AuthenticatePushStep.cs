@@ -14,25 +14,24 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.InsecureRegistryException;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.registry.RegistryAuthenticator;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Authenticates push to a target registry using Docker Token Authentication.
@@ -40,16 +39,16 @@ import javax.annotation.Nullable;
  * @see <a
  *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
  */
-class AuthenticatePushStep implements AsyncStep<Authorization>, Callable<Authorization> {
+class AuthenticatePushStep : AsyncStep<Authorization>, Callable<Authorization>
+    {
+  private static readonly string DESCRIPTION = "Authenticating with push to %s";
 
-  private static final String DESCRIPTION = "Authenticating with push to %s";
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
 
-  private final RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
-
-  private final ListenableFuture<Authorization> listenableFuture;
+  private readonly ListenableFuture<Authorization> listenableFuture;
 
   AuthenticatePushStep(
       ListeningExecutorService listeningExecutorService,
@@ -61,27 +60,26 @@ class AuthenticatePushStep implements AsyncStep<Authorization>, Callable<Authori
     this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(retrieveTargetRegistryCredentialsStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<Authorization> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  @Nullable
-  public Authorization call() throws ExecutionException, IOException, RegistryException {
+  public Authorization call() {
     Credential registryCredential = NonBlockingSteps.get(retrieveTargetRegistryCredentialsStep);
 
-    String registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
-    try (ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("authenticating push to " + registry, 1);
-        TimerEventDispatcher ignored2 =
+    string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
+    using(ProgressEventDispatcher ignored =
+            progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
+    using(TimerEventDispatcher ignored2 =
             new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), String.format(DESCRIPTION, registry))) {
+                buildConfiguration.getEventHandlers(), string.format(DESCRIPTION, registry))))
+    {
+
       RegistryAuthenticator registryAuthenticator =
           buildConfiguration
               .newTargetImageRegistryClientFactory()
@@ -99,4 +97,5 @@ class AuthenticatePushStep implements AsyncStep<Authorization>, Callable<Authori
         : Authorization.fromBasicCredentials(
             registryCredential.getUsername(), registryCredential.getPassword());
   }
+}
 }

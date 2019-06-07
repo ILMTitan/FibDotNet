@@ -14,37 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.text.MessageFormat;
 
 /** Thrown because registry authentication failed. */
-public class RegistryAuthenticationFailedException extends RegistryException {
+public class RegistryAuthenticationFailedException : RegistryException {
 
-  private static final String REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
-  private final String serverUrl;
-  private final String imageName;
+  private static readonly string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
+  private readonly string serverUrl;
+  private readonly string imageName;
 
   public RegistryAuthenticationFailedException(
-      String serverUrl, String imageName, Throwable cause) {
-    super(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause);
+      string serverUrl, string imageName, Throwable cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause) {
+    
     this.serverUrl = serverUrl;
     this.imageName = imageName;
   }
 
-  public RegistryAuthenticationFailedException(String serverUrl, String imageName, String reason) {
-    super(MessageFormat.format(REASON, serverUrl, imageName, reason));
+  public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(MessageFormat.format(REASON, serverUrl, imageName, reason)) {
+    
     this.serverUrl = serverUrl;
     this.imageName = imageName;
   }
 
   /** @return the server being authenticated */
-  public String getServerUrl() {
+  public string getServerUrl() {
     return serverUrl;
   }
 
   /** @return the image being authenticated */
-  public String getImageName() {
+  public string getImageName() {
     return imageName;
   }
+}
 }

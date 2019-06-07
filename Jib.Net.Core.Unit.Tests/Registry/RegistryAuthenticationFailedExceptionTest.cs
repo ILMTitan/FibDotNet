@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryAuthenticationFailedException;
-import org.junit.Assert;
-import org.junit.Test;
+
+
 
 /** Tests for {@link RegistryAuthenticationFailedException}. */
 public class RegistryAuthenticationFailedExceptionTest {
 
-  @Test
+  [TestMethod]
   public void testRegistryAuthenticationFailedException_message() {
     RegistryAuthenticationFailedException exception =
         new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
@@ -34,7 +33,7 @@ public class RegistryAuthenticationFailedExceptionTest {
         exception.getMessage());
   }
 
-  @Test
+  [TestMethod]
   public void testRegistryAuthenticationFailedException_exception() {
     Throwable cause = new Throwable("message");
     RegistryAuthenticationFailedException exception =
@@ -46,4 +45,5 @@ public class RegistryAuthenticationFailedExceptionTest {
         "Failed to authenticate with registry serverUrl/imageName because: message",
         exception.getMessage());
   }
+}
 }

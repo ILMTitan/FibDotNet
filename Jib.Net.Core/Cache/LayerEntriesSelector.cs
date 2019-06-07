@@ -14,21 +14,20 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Generates a selector based on {@link LayerEntry}s for a layer. Selectors are secondary references
@@ -56,15 +55,14 @@ import java.util.Objects;
 class LayerEntriesSelector {
 
   /** Serialized form of a {@link LayerEntry}. */
-  @VisibleForTesting
+
   static class LayerEntryTemplate implements JsonTemplate, Comparable<LayerEntryTemplate> {
 
-    private final String sourceFile;
-    private final String extractionPath;
-    private final Instant lastModifiedTime;
-    private final String permissions;
+    private readonly string sourceFile;
+    private readonly string extractionPath;
+    private readonly Instant lastModifiedTime;
+    private readonly string permissions;
 
-    @VisibleForTesting
     LayerEntryTemplate(LayerEntry layerEntry) throws IOException {
       sourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
       extractionPath = layerEntry.getExtractionPath().toString();
@@ -72,7 +70,6 @@ class LayerEntriesSelector {
       permissions = layerEntry.getPermissions().toOctalString();
     }
 
-    @Override
     public int compareTo(LayerEntryTemplate otherLayerEntryTemplate) {
       int sourceFileComparison = sourceFile.compareTo(otherLayerEntryTemplate.sourceFile);
       if (sourceFileComparison != 0) {
@@ -91,12 +88,11 @@ class LayerEntriesSelector {
       return permissions.compareTo(otherLayerEntryTemplate.permissions);
     }
 
-    @Override
-    public boolean equals(Object other) {
+    public bool equals(object other) {
       if (this == other) {
         return true;
       }
-      if (!(other instanceof LayerEntryTemplate)) {
+      if (!(other is LayerEntryTemplate)) {
         return false;
       }
       LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate) other;
@@ -106,7 +102,6 @@ class LayerEntriesSelector {
           && permissions.equals(otherLayerEntryTemplate.permissions);
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(sourceFile, extractionPath, lastModifiedTime, permissions);
     }
@@ -120,11 +115,12 @@ class LayerEntriesSelector {
    * @return list of {@link LayerEntryTemplate} after sorting
    * @throws IOException if checking the file creation time of a layer entry fails
    */
-  @VisibleForTesting
+
   static List<LayerEntryTemplate> toSortedJsonTemplates(List<LayerEntry> layerEntries)
-      throws IOException {
+      {
     List<LayerEntryTemplate> jsonTemplates = new ArrayList<>();
-    for (LayerEntry entry : layerEntries) {
+    foreach (LayerEntry entry in layerEntries)
+    {
       jsonTemplates.add(new LayerEntryTemplate(entry));
     }
     Collections.sort(jsonTemplates);
@@ -140,9 +136,10 @@ class LayerEntriesSelector {
    * @throws IOException if an I/O exception occurs
    */
   static DescriptorDigest generateSelector(ImmutableList<LayerEntry> layerEntries)
-      throws IOException {
+      {
     return Digests.computeJsonDigest(toSortedJsonTemplates(layerEntries));
   }
 
   private LayerEntriesSelector() {}
+}
 }

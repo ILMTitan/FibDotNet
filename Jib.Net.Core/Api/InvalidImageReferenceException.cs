@@ -14,19 +14,20 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
 /** Thrown when attempting to parse an invalid image reference. */
-public class InvalidImageReferenceException extends Exception {
+public class InvalidImageReferenceException : Exception {
 
-  private final String reference;
+  private readonly string reference;
 
-  public InvalidImageReferenceException(String reference) {
-    super("Invalid image reference: " + reference);
+  public InvalidImageReferenceException(string reference) : base("Invalid image reference: " + reference) {
+    
     this.reference = reference;
   }
 
-  public String getInvalidReference() {
+  public string getInvalidReference() {
     return reference;
   }
+}
 }

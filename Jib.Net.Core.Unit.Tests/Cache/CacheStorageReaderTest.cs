@@ -14,38 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.image.json.ContainerConfigurationTemplate;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link CacheStorageReader}. */
 public class CacheStorageReaderTest {
 
   private static void setupCachedMetadataV21(Path cacheDirectory)
-      throws IOException, URISyntaxException {
+      {
     Path imageDirectory = cacheDirectory.resolve("images/test/image!tag");
     Files.createDirectories(imageDirectory);
     Files.copy(
@@ -54,7 +53,7 @@ public class CacheStorageReaderTest {
   }
 
   private static void setupCachedMetadataV22(Path cacheDirectory)
-      throws IOException, URISyntaxException {
+      {
     Path imageDirectory = cacheDirectory.resolve("images/test/image!tag");
     Files.createDirectories(imageDirectory);
     Files.copy(
@@ -65,13 +64,13 @@ public class CacheStorageReaderTest {
         imageDirectory.resolve("config.json"));
   }
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private DescriptorDigest layerDigest1;
   private DescriptorDigest layerDigest2;
 
-  @Before
-  public void setUp() throws DigestException {
+  [TestInitialize]
+  public void setUp() {
     layerDigest1 =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -80,8 +79,8 @@ public class CacheStorageReaderTest {
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
   }
 
-  @Test
-  public void testListDigests() throws IOException, CacheCorruptedException {
+  [TestMethod]
+  public void testListDigests() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
 
@@ -105,13 +104,13 @@ public class CacheStorageReaderTest {
     } catch (CacheCorruptedException ex) {
       Assert.assertThat(
           ex.getMessage(), CoreMatchers.startsWith("Found non-digest file in layers directory"));
-      Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(DigestException.class));
+      Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(typeof(DigestException)));
     }
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieveManifest_v21()
-      throws IOException, URISyntaxException, CacheCorruptedException {
+      {
     Path cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV21(cacheDirectory);
 
@@ -127,9 +126,9 @@ public class CacheStorageReaderTest {
     Assert.assertEquals(1, manifestTemplate.getSchemaVersion());
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieveManifest_v22()
-      throws IOException, URISyntaxException, CacheCorruptedException {
+      {
     Path cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV22(cacheDirectory);
 
@@ -145,9 +144,9 @@ public class CacheStorageReaderTest {
     Assert.assertEquals(2, manifestTemplate.getSchemaVersion());
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieveContainerConfiguration()
-      throws IOException, URISyntaxException, CacheCorruptedException {
+      {
     Path cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV22(cacheDirectory);
 
@@ -164,8 +163,8 @@ public class CacheStorageReaderTest {
     Assert.assertEquals("js", configurationTemplate.getOs());
   }
 
-  @Test
-  public void testRetrieve() throws IOException, CacheCorruptedException {
+  [TestMethod]
+  public void testRetrieve() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
 
@@ -175,7 +174,7 @@ public class CacheStorageReaderTest {
     DescriptorDigest layerDigest = layerDigest1;
     DescriptorDigest layerDiffId = layerDigest2;
     Files.createDirectories(cacheStorageFiles.getLayerDirectory(layerDigest));
-    try (OutputStream out =
+    using (OutputStream out =
         Files.newOutputStream(cacheStorageFiles.getLayerFile(layerDigest, layerDiffId))) {
       out.write("layerBlob".getBytes(StandardCharsets.UTF_8));
     }
@@ -205,8 +204,8 @@ public class CacheStorageReaderTest {
     }
   }
 
-  @Test
-  public void testSelect_invalidLayerDigest() throws IOException {
+  [TestMethod]
+  public void testSelect_invalidLayerDigest() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
 
@@ -231,8 +230,8 @@ public class CacheStorageReaderTest {
     }
   }
 
-  @Test
-  public void testSelect() throws IOException, CacheCorruptedException {
+  [TestMethod]
+  public void testSelect() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
 
@@ -247,4 +246,5 @@ public class CacheStorageReaderTest {
     Assert.assertTrue(selectedLayerDigest.isPresent());
     Assert.assertEquals(layerDigest2, selectedLayerDigest.get());
   }
+}
 }

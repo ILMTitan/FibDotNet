@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
-import org.junit.Test;
+
+
 
 /** Tests for {@link RelativeUnixPath}. */
 public class RelativeUnixPathTest {
 
-  @Test
+  [TestMethod]
   public void testGet_absolute() {
     try {
       RelativeUnixPath.get("/absolute");
@@ -34,10 +33,11 @@ public class RelativeUnixPathTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testGet() {
     Assert.assertEquals(
         ImmutableList.of("some", "relative", "path"),
         RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
   }
+}
 }

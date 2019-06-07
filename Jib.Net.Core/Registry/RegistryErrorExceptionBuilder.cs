@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.ProjectInfo;
-import com.google.cloud.tools.jib.registry.json.ErrorEntryTemplate;
-import javax.annotation.Nullable;
+
+
 
 /** Builds a {@link RegistryErrorException} with multiple causes. */
 class RegistryErrorExceptionBuilder {
 
-  @Nullable private final Throwable cause;
-  private final StringBuilder errorMessageBuilder = new StringBuilder();
+  private final Throwable cause;
+  private readonly StringBuilder errorMessageBuilder = new StringBuilder();
 
-  private boolean firstErrorReason = true;
+  private bool firstErrorReason = true;
 
   /**
    * Gets the reason for certain errors.
@@ -35,7 +34,7 @@ class RegistryErrorExceptionBuilder {
    * @param message the original received error message, which may or may not be used depending on
    *     the {@code errorCode}
    */
-  private static String getReason(@Nullable String errorCodeString, @Nullable String message) {
+  private static string getReason(string errorCodeString, string message) {
     if (message == null) {
       message = "no details";
     }
@@ -66,7 +65,7 @@ class RegistryErrorExceptionBuilder {
   }
 
   /** @param method the registry method that errored */
-  RegistryErrorExceptionBuilder(String method, @Nullable Throwable cause) {
+  RegistryErrorExceptionBuilder(string method, Throwable cause) {
     this.cause = cause;
 
     errorMessageBuilder.append("Tried to ");
@@ -75,7 +74,7 @@ class RegistryErrorExceptionBuilder {
   }
 
   /** @param method the registry method that errored */
-  RegistryErrorExceptionBuilder(String method) {
+  RegistryErrorExceptionBuilder(string method) {
     this(method, null);
   }
 
@@ -86,13 +85,13 @@ class RegistryErrorExceptionBuilder {
    * @param errorEntry the {@link ErrorEntryTemplate} to add
    */
   RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry) {
-    String reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
+    string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
     addReason(reason);
     return this;
   }
 
   /** Adds an entry to the error reasons. */
-  RegistryErrorExceptionBuilder addReason(String reason) {
+  RegistryErrorExceptionBuilder addReason(string reason) {
     if (!firstErrorReason) {
       errorMessageBuilder.append(", ");
     }
@@ -107,4 +106,5 @@ class RegistryErrorExceptionBuilder {
         " | If this is a bug, please file an issue at " + ProjectInfo.GITHUB_NEW_ISSUE_URL);
     return new RegistryErrorException(errorMessageBuilder.toString(), cause);
   }
+}
 }

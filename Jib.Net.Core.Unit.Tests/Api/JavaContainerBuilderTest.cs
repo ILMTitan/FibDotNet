@@ -14,52 +14,50 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.ContainerConfiguration;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Resources;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link JavaContainerBuilder}. */
 public class JavaContainerBuilderTest {
 
   /** Gets a resource file as a {@link Path}. */
-  private static Path getResource(String directory) throws URISyntaxException {
+  private static Path getResource(string directory) {
     return Paths.get(Resources.getResource(directory).toURI());
   }
 
   /** Gets the extraction paths in the specified layer of a give {@link BuildConfiguration}. */
   private static List<AbsoluteUnixPath> getExtractionPaths(
-      BuildConfiguration buildConfiguration, String layerName) {
+      BuildConfiguration buildConfiguration, string layerName) {
     return buildConfiguration
         .getLayerConfigurations()
         .stream()
-        .filter(layerConfiguration -> layerConfiguration.getName().equals(layerName))
+        .filter(layerConfiguration => layerConfiguration.getName().equals(layerName))
         .findFirst()
         .map(
-            layerConfiguration ->
+            layerConfiguration =>
                 layerConfiguration
                     .getLayerEntries()
                     .stream()
-                    .map(LayerEntry::getExtractionPath)
+                    .map(LayerEntry.getExtractionPath)
                     .collect(Collectors.toList()))
         .orElse(ImmutableList.of());
   }
 
-  @Test
+  [TestMethod]
   public void testToJibContainerBuilder_all()
-      throws InvalidImageReferenceException, URISyntaxException, IOException,
-          CacheDirectoryCreationException {
+      {
     BuildConfiguration buildConfiguration =
         JavaContainerBuilder.fromDistroless()
             .setAppRoot("/hello")
@@ -125,8 +123,8 @@ public class JavaContainerBuilderTest {
     // Check classes
     List<AbsoluteUnixPath> expectedClasses =
         ImmutableList.of(
-            AbsoluteUnixPath.get("/hello/different-classes/HelloWorld.class"),
-            AbsoluteUnixPath.get("/hello/different-classes/some.class"));
+            AbsoluteUnixPath.get("/hello/different-classes/typeof(HelloWorld)"),
+            AbsoluteUnixPath.get("/hello/different-classes/typeof(some)"));
     Assert.assertEquals(expectedClasses, getExtractionPaths(buildConfiguration, "classes"));
 
     // Check additional classpath files
@@ -137,10 +135,9 @@ public class JavaContainerBuilderTest {
     Assert.assertEquals(expectedOthers, getExtractionPaths(buildConfiguration, "extra files"));
   }
 
-  @Test
+  [TestMethod]
   public void testToJibContainerBuilder_missingAndMultipleAdds()
-      throws InvalidImageReferenceException, URISyntaxException, IOException,
-          CacheDirectoryCreationException {
+      {
     BuildConfiguration buildConfiguration =
         JavaContainerBuilder.fromDistroless()
             .addDependencies(getResource("core/application/dependencies/libraryA.jar"))
@@ -180,13 +177,13 @@ public class JavaContainerBuilderTest {
     // Check classes
     List<AbsoluteUnixPath> expectedClasses =
         ImmutableList.of(
-            AbsoluteUnixPath.get("/app/classes/HelloWorld.class"),
-            AbsoluteUnixPath.get("/app/classes/some.class"),
+            AbsoluteUnixPath.get("/app/classes/typeof(HelloWorld)"),
+            AbsoluteUnixPath.get("/app/classes/typeof(some)"),
             AbsoluteUnixPath.get("/app/classes/main/"),
-            AbsoluteUnixPath.get("/app/classes/main/MainClass.class"),
+            AbsoluteUnixPath.get("/app/classes/main/typeof(MainClass)"),
             AbsoluteUnixPath.get("/app/classes/pack/"),
-            AbsoluteUnixPath.get("/app/classes/pack/Apple.class"),
-            AbsoluteUnixPath.get("/app/classes/pack/Orange.class"));
+            AbsoluteUnixPath.get("/app/classes/pack/typeof(Apple)"),
+            AbsoluteUnixPath.get("/app/classes/pack/typeof(Orange)"));
     Assert.assertEquals(expectedClasses, getExtractionPaths(buildConfiguration, "classes"));
 
     // Check empty layers
@@ -194,10 +191,9 @@ public class JavaContainerBuilderTest {
     Assert.assertEquals(ImmutableList.of(), getExtractionPaths(buildConfiguration, "extra files"));
   }
 
-  @Test
+  [TestMethod]
   public void testToJibContainerBuilder_setAppRootLate()
-      throws URISyntaxException, IOException, InvalidImageReferenceException,
-          CacheDirectoryCreationException {
+      {
     BuildConfiguration buildConfiguration =
         JavaContainerBuilder.fromDistroless()
             .addClasses(getResource("core/application/classes"))
@@ -225,8 +221,8 @@ public class JavaContainerBuilderTest {
     // Check classes
     List<AbsoluteUnixPath> expectedClasses =
         ImmutableList.of(
-            AbsoluteUnixPath.get("/different/classes/HelloWorld.class"),
-            AbsoluteUnixPath.get("/different/classes/some.class"));
+            AbsoluteUnixPath.get("/different/classes/typeof(HelloWorld)"),
+            AbsoluteUnixPath.get("/different/classes/typeof(some)"));
     Assert.assertEquals(expectedClasses, getExtractionPaths(buildConfiguration, "classes"));
 
     // Check resources
@@ -251,10 +247,9 @@ public class JavaContainerBuilderTest {
     Assert.assertEquals(expectedOthers, getExtractionPaths(buildConfiguration, "extra files"));
   }
 
-  @Test
+  [TestMethod]
   public void testToJibContainerBuilder_mainClassNull()
-      throws IOException, InvalidImageReferenceException, CacheDirectoryCreationException,
-          URISyntaxException {
+      {
     BuildConfiguration buildConfiguration =
         JavaContainerBuilder.fromDistroless()
             .addClasses(getResource("core/application/classes/"))
@@ -273,14 +268,14 @@ public class JavaContainerBuilderTest {
       Assert.assertEquals(
           "Failed to construct entrypoint on JavaContainerBuilder; jvmFlags were set, but "
               + "mainClass is null. Specify the main class using "
-              + "JavaContainerBuilder#setMainClass(String), or consider using a "
+              + "JavaContainerBuilder#setMainClass(string), or consider using a "
               + "jib.frontend.MainClassFinder to infer the main class.",
           ex.getMessage());
     }
   }
 
-  @Test
-  public void testToJibContainerBuilder_classpathEmpty() throws IOException {
+  [TestMethod]
+  public void testToJibContainerBuilder_classpathEmpty() {
     try {
       JavaContainerBuilder.fromDistroless().setMainClass("Hello").toContainerBuilder();
       Assert.fail();
@@ -291,4 +286,5 @@ public class JavaContainerBuilderTest {
           ex.getMessage());
     }
   }
+}
 }

@@ -14,32 +14,31 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import java.io.IOException;
-import java.security.DigestException;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link ManifestPusher}. */
 public class ManifestPusherIntegrationTest {
 
-  @ClassRule public static LocalRegistry localRegistry = new LocalRegistry(5000);
-  private static final EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
+  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
+  private static readonly EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
 
-  @Test
-  public void testPush_missingBlobs() throws IOException, RegistryException, InterruptedException {
+  [TestMethod]
+  public void testPush_missingBlobs() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
 
     RegistryClient registryClient =
@@ -62,9 +61,9 @@ public class ManifestPusherIntegrationTest {
   }
 
   /** Tests manifest pushing. This test is a comprehensive test of push and pull. */
-  @Test
+  [TestMethod]
   public void testPush()
-      throws DigestException, IOException, RegistryException, InterruptedException {
+      {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     Blob testLayerBlob = Blobs.from("crepecake");
     // Known digest for 'crepecake'
@@ -87,20 +86,20 @@ public class ManifestPusherIntegrationTest {
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     Assert.assertFalse(
-        registryClient.pushBlob(testLayerBlobDigest, testLayerBlob, null, ignored -> {}));
+        registryClient.pushBlob(testLayerBlobDigest, testLayerBlob, null, ignored => {}));
     Assert.assertFalse(
         registryClient.pushBlob(
             testContainerConfigurationBlobDigest,
             testContainerConfigurationBlob,
             null,
-            ignored -> {}));
+            ignored => {}));
 
     // Pushes the manifest.
     DescriptorDigest imageDigest = registryClient.pushManifest(expectedManifestTemplate, "latest");
 
     // Pulls the manifest.
     V22ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", V22ManifestTemplate.class);
+        registryClient.pullManifest("latest", typeof(V22ManifestTemplate));
     Assert.assertEquals(1, manifestTemplate.getLayers().size());
     Assert.assertEquals(testLayerBlobDigest, manifestTemplate.getLayers().get(0).getDigest());
     Assert.assertNotNull(manifestTemplate.getContainerConfiguration());
@@ -110,9 +109,10 @@ public class ManifestPusherIntegrationTest {
 
     // Pulls the manifest by digest.
     V22ManifestTemplate manifestTemplateByDigest =
-        registryClient.pullManifest(imageDigest.toString(), V22ManifestTemplate.class);
+        registryClient.pullManifest(imageDigest.toString(), typeof(V22ManifestTemplate));
     Assert.assertEquals(
         Digests.computeJsonDigest(manifestTemplate),
         Digests.computeJsonDigest(manifestTemplateByDigest));
   }
+}
 }

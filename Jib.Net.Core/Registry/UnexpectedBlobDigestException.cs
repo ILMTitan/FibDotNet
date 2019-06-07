@@ -14,14 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
 
 /** Thrown when a pulled BLOB did not have the same digest as requested. */
 class UnexpectedBlobDigestException extends RegistryException {
 
-  UnexpectedBlobDigestException(String message) {
+  UnexpectedBlobDigestException(string message) {
     super(message);
   }
+}
 }

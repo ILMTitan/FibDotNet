@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ImageToJsonTranslator;
-import java.io.IOException;
-import java.util.Objects;
+
+
+
+
+
+
+
 
 /** Used to record the results of a build. */
 public class BuildResult {
@@ -36,8 +35,8 @@ public class BuildResult {
    * @return a new {@link BuildResult} with the image's digest and id
    * @throws IOException if writing the digest or container configuration fails
    */
-  static BuildResult fromImage(Image image, Class<? extends BuildableManifestTemplate> targetFormat)
-      throws IOException {
+  static BuildResult fromImage(Image image, Class<BuildableManifestTemplate> targetFormat)
+      {
     ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
     BlobDescriptor containerConfigurationBlobDescriptor =
         Digests.computeDigest(imageToJsonTranslator.getContainerConfiguration());
@@ -49,8 +48,8 @@ public class BuildResult {
     return new BuildResult(imageDigest, imageId);
   }
 
-  private final DescriptorDigest imageDigest;
-  private final DescriptorDigest imageId;
+  private readonly DescriptorDigest imageDigest;
+  private readonly DescriptorDigest imageId;
 
   BuildResult(DescriptorDigest imageDigest, DescriptorDigest imageId) {
     this.imageDigest = imageDigest;
@@ -65,21 +64,20 @@ public class BuildResult {
     return imageId;
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(imageDigest, imageId);
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof BuildResult)) {
+    if (!(other is BuildResult)) {
       return false;
     }
     BuildResult otherBuildResult = (BuildResult) other;
     return imageDigest.equals(otherBuildResult.imageDigest)
         && imageId.equals(otherBuildResult.imageId);
   }
+}
 }

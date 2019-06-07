@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import java.io.IOException;
-import java.security.DigestException;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link BlobPusher}. */
 public class BlobPusherIntegrationTest {
 
-  @ClassRule public static LocalRegistry localRegistry = new LocalRegistry(5000);
+  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  @Test
+  [TestMethod]
   public void testPush()
-      throws DigestException, IOException, RegistryException, InterruptedException {
+      {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     Blob testBlob = Blobs.from("crepecake");
     // Known digest for 'crepecake'
@@ -46,6 +45,7 @@ public class BlobPusherIntegrationTest {
         RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
-    Assert.assertFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored -> {}));
+    Assert.assertFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => {}));
   }
+}
 }

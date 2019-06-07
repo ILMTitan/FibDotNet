@@ -14,48 +14,47 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.Response;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.DigestException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.atomic.LongAdder;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BlobPusher}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class BlobPusherTest {
 
-  private static final String TEST_BLOB_CONTENT = "some BLOB content";
-  private static final Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
+  private static readonly string TEST_BLOB_CONTENT = "some BLOB content";
+  private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
-  @Mock private URL mockURL;
-  @Mock private Response mockResponse;
+  [Mock] private Uri mockURL;
+  [Mock] private Response mockResponse;
 
   private DescriptorDigest fakeDescriptorDigest;
   private BlobPusher testBlobPusher;
 
-  @Before
-  public void setUpFakes() throws DigestException {
+  [TestInitialize]
+  public void setUpFakes() {
     fakeDescriptorDigest =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -67,37 +66,37 @@ public class BlobPusherTest {
             null);
   }
 
-  @Test
+  [TestMethod]
   public void testInitializer_getContent() {
     Assert.assertNull(testBlobPusher.initializer().getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testGetAccept() {
     Assert.assertEquals(0, testBlobPusher.initializer().getAccept().size());
   }
 
-  @Test
-  public void testInitializer_handleResponse_created() throws IOException, RegistryException {
+  [TestMethod]
+  public void testInitializer_handleResponse_created() {
     Mockito.when(mockResponse.getStatusCode()).thenReturn(201); // Created
     Assert.assertNull(testBlobPusher.initializer().handleResponse(mockResponse));
   }
 
-  @Test
-  public void testInitializer_handleResponse_accepted() throws IOException, RegistryException {
+  [TestMethod]
+  public void testInitializer_handleResponse_accepted() {
     Mockito.when(mockResponse.getStatusCode()).thenReturn(202); // Accepted
     Mockito.when(mockResponse.getHeader("Location"))
         .thenReturn(Collections.singletonList("location"));
     GenericUrl requestUrl = new GenericUrl("https://someurl");
     Mockito.when(mockResponse.getRequestUrl()).thenReturn(requestUrl);
     Assert.assertEquals(
-        new URL("https://someurl/location"),
+        new Uri("https://someurl/location"),
         testBlobPusher.initializer().handleResponse(mockResponse));
   }
 
-  @Test
+  [TestMethod]
   public void testInitializer_handleResponse_accepted_multipleLocations()
-      throws IOException, RegistryException {
+      {
     Mockito.when(mockResponse.getStatusCode()).thenReturn(202); // Accepted
     Mockito.when(mockResponse.getHeader("Location"))
         .thenReturn(Arrays.asList("location1", "location2"));
@@ -112,8 +111,8 @@ public class BlobPusherTest {
     }
   }
 
-  @Test
-  public void testInitializer_handleResponse_unrecognized() throws IOException, RegistryException {
+  [TestMethod]
+  public void testInitializer_handleResponse_unrecognized() {
     Mockito.when(mockResponse.getStatusCode()).thenReturn(-1); // Unrecognized
     try {
       testBlobPusher.initializer().handleResponse(mockResponse);
@@ -125,15 +124,15 @@ public class BlobPusherTest {
     }
   }
 
-  @Test
-  public void testInitializer_getApiRoute_nullSource() throws MalformedURLException {
+  [TestMethod]
+  public void testInitializer_getApiRoute_nullSource() {
     Assert.assertEquals(
-        new URL("http://someApiBase/someImageName/blobs/uploads/"),
+        new Uri("http://someApiBase/someImageName/blobs/uploads/"),
         testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
   }
 
-  @Test
-  public void testInitializer_getApiRoute_sameSource() throws MalformedURLException {
+  [TestMethod]
+  public void testInitializer_getApiRoute_sameSource() {
     testBlobPusher =
         new BlobPusher(
             new RegistryEndpointRequestProperties("someServerUrl", "someImageName"),
@@ -142,29 +141,29 @@ public class BlobPusherTest {
             "sourceImageName");
 
     Assert.assertEquals(
-        new URL(
+        new Uri(
             "http://someApiBase/someImageName/blobs/uploads/?mount="
                 + fakeDescriptorDigest
                 + "&from=sourceImageName"),
         testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
   }
 
-  @Test
+  [TestMethod]
   public void testInitializer_getHttpMethod() {
     Assert.assertEquals("POST", testBlobPusher.initializer().getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testInitializer_getActionDescription() {
     Assert.assertEquals(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
         testBlobPusher.initializer().getActionDescription());
   }
 
-  @Test
-  public void testWriter_getContent() throws IOException {
+  [TestMethod]
+  public void testWriter_getContent() {
     LongAdder byteCount = new LongAdder();
-    BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount::add).getContent();
+    BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount.add).getContent();
 
     Assert.assertNotNull(body);
     Assert.assertEquals("application/octet-stream", body.getType());
@@ -173,76 +172,77 @@ public class BlobPusherTest {
     body.writeTo(byteArrayOutputStream);
 
     Assert.assertEquals(
-        TEST_BLOB_CONTENT, new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+        TEST_BLOB_CONTENT, new string(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
     Assert.assertEquals(TEST_BLOB_CONTENT.length(), byteCount.sum());
   }
 
-  @Test
+  [TestMethod]
   public void testWriter_GetAccept() {
-    Assert.assertEquals(0, testBlobPusher.writer(mockURL, ignored -> {}).getAccept().size());
+    Assert.assertEquals(0, testBlobPusher.writer(mockURL, ignored => {}).getAccept().size());
   }
 
-  @Test
-  public void testWriter_handleResponse() throws IOException, RegistryException {
+  [TestMethod]
+  public void testWriter_handleResponse() {
     Mockito.when(mockResponse.getHeader("Location"))
         .thenReturn(Collections.singletonList("https://somenewurl/location"));
     GenericUrl requestUrl = new GenericUrl("https://someurl");
     Mockito.when(mockResponse.getRequestUrl()).thenReturn(requestUrl);
     Assert.assertEquals(
-        new URL("https://somenewurl/location"),
-        testBlobPusher.writer(mockURL, ignored -> {}).handleResponse(mockResponse));
+        new Uri("https://somenewurl/location"),
+        testBlobPusher.writer(mockURL, ignored => {}).handleResponse(mockResponse));
   }
 
-  @Test
-  public void testWriter_getApiRoute() throws MalformedURLException {
-    URL fakeUrl = new URL("http://someurl");
-    Assert.assertEquals(fakeUrl, testBlobPusher.writer(fakeUrl, ignored -> {}).getApiRoute(""));
+  [TestMethod]
+  public void testWriter_getApiRoute() {
+    Uri fakeUrl = new Uri("http://someurl");
+    Assert.assertEquals(fakeUrl, testBlobPusher.writer(fakeUrl, ignored => {}).getApiRoute(""));
   }
 
-  @Test
+  [TestMethod]
   public void testWriter_getHttpMethod() {
-    Assert.assertEquals("PATCH", testBlobPusher.writer(mockURL, ignored -> {}).getHttpMethod());
+    Assert.assertEquals("PATCH", testBlobPusher.writer(mockURL, ignored => {}).getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testWriter_getActionDescription() {
     Assert.assertEquals(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
-        testBlobPusher.writer(mockURL, ignored -> {}).getActionDescription());
+        testBlobPusher.writer(mockURL, ignored => {}).getActionDescription());
   }
 
-  @Test
+  [TestMethod]
   public void testCommitter_getContent() {
     Assert.assertNull(testBlobPusher.committer(mockURL).getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testCommitter_GetAccept() {
     Assert.assertEquals(0, testBlobPusher.committer(mockURL).getAccept().size());
   }
 
-  @Test
-  public void testCommitter_handleResponse() throws IOException, RegistryException {
+  [TestMethod]
+  public void testCommitter_handleResponse() {
     Assert.assertNull(
-        testBlobPusher.committer(mockURL).handleResponse(Mockito.mock(Response.class)));
+        testBlobPusher.committer(mockURL).handleResponse(Mockito.mock(typeof(Response))));
   }
 
-  @Test
-  public void testCommitter_getApiRoute() throws MalformedURLException {
+  [TestMethod]
+  public void testCommitter_getApiRoute() {
     Assert.assertEquals(
-        new URL("https://someurl?somequery=somevalue&digest=" + fakeDescriptorDigest),
-        testBlobPusher.committer(new URL("https://someurl?somequery=somevalue")).getApiRoute(""));
+        new Uri("https://someurl?somequery=somevalue&digest=" + fakeDescriptorDigest),
+        testBlobPusher.committer(new Uri("https://someurl?somequery=somevalue")).getApiRoute(""));
   }
 
-  @Test
+  [TestMethod]
   public void testCommitter_getHttpMethod() {
     Assert.assertEquals("PUT", testBlobPusher.committer(mockURL).getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testCommitter_getActionDescription() {
     Assert.assertEquals(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
         testBlobPusher.committer(mockURL).getActionDescription());
   }
+}
 }

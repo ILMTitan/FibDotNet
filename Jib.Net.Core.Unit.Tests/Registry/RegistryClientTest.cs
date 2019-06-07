@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.http.Authorization;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
 
 /**
  * Tests for {@link RegistryClient}. More comprehensive tests can be found in the integration tests.
  */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class RegistryClientTest {
 
-  @Mock private EventHandlers eventHandlers;
-  @Mock private Authorization mockAuthorization;
+  [Mock] private EventHandlers eventHandlers;
+  [Mock] private Authorization mockAuthorization;
 
   private RegistryClient.Factory testRegistryClientFactory;
 
-  @Before
+  [TestInitialize]
   public void setUp() {
     testRegistryClientFactory =
         RegistryClient.factory(eventHandlers, "some.server.url", "some image name");
   }
 
-  @Test
+  [TestMethod]
   public void testGetUserAgent_null() {
     Assert.assertTrue(
         testRegistryClientFactory
@@ -60,7 +59,7 @@ public class RegistryClientTest {
             .startsWith("jib"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetUserAgent() {
     RegistryClient registryClient =
         testRegistryClientFactory
@@ -72,7 +71,7 @@ public class RegistryClientTest {
     Assert.assertTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetApiRouteBase() {
     Assert.assertEquals(
         "some.server.url/v2/",
@@ -81,4 +80,5 @@ public class RegistryClientTest {
             .newRegistryClient()
             .getApiRouteBase());
   }
+}
 }

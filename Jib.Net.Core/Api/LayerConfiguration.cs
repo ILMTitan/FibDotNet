@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+
+
+
+
+
+
 
 /** Configures how to build a layer in the container image. Instantiate with {@link #builder}. */
 public class LayerConfiguration {
@@ -31,8 +30,8 @@ public class LayerConfiguration {
   /** Builds a {@link LayerConfiguration}. */
   public static class Builder {
 
-    private final ImmutableList.Builder<LayerEntry> layerEntries = ImmutableList.builder();
-    private String name = "";
+    private readonly ImmutableList.Builder<LayerEntry> layerEntries = ImmutableList.builder();
+    private string name = "";
 
     private Builder() {}
 
@@ -42,7 +41,7 @@ public class LayerConfiguration {
      * @param name the name
      * @return this
      */
-    public Builder setName(String name) {
+    public Builder setName(string name) {
       this.name = name;
       return this;
     }
@@ -145,7 +144,7 @@ public class LayerConfiguration {
      * @throws IOException if an exception occurred when recursively listing the directory
      */
     public Builder addEntryRecursive(Path sourceFile, AbsoluteUnixPath pathInContainer)
-        throws IOException {
+        {
       return addEntryRecursive(sourceFile, pathInContainer, DEFAULT_FILE_PERMISSIONS_PROVIDER);
     }
 
@@ -165,7 +164,7 @@ public class LayerConfiguration {
         Path sourceFile,
         AbsoluteUnixPath pathInContainer,
         BiFunction<Path, AbsoluteUnixPath, FilePermissions> filePermissionProvider)
-        throws IOException {
+        {
       return addEntryRecursive(
           sourceFile, pathInContainer, filePermissionProvider, DEFAULT_MODIFIED_TIME_PROVIDER);
     }
@@ -189,15 +188,16 @@ public class LayerConfiguration {
         AbsoluteUnixPath pathInContainer,
         BiFunction<Path, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
         BiFunction<Path, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
-        throws IOException {
+        {
       FilePermissions permissions = filePermissionProvider.apply(sourceFile, pathInContainer);
       Instant modifiedTime = lastModifiedTimeProvider.apply(sourceFile, pathInContainer);
       addEntry(sourceFile, pathInContainer, permissions, modifiedTime);
       if (!Files.isDirectory(sourceFile)) {
         return this;
       }
-      try (Stream<Path> files = Files.list(sourceFile)) {
-        for (Path file : files.collect(Collectors.toList())) {
+      using (Stream<Path> files = Files.list(sourceFile)) {
+        foreach (Path file in files.collect(Collectors.toList()))
+        {
           addEntryRecursive(
               file,
               pathInContainer.resolve(file.getFileName()),
@@ -219,19 +219,19 @@ public class LayerConfiguration {
   }
 
   /** Provider that returns default file permissions (644 for files, 755 for directories). */
-  public static final BiFunction<Path, AbsoluteUnixPath, FilePermissions>
+  public static readonly BiFunction<Path, AbsoluteUnixPath, FilePermissions>
       DEFAULT_FILE_PERMISSIONS_PROVIDER =
-          (sourcePath, destinationPath) ->
+          (sourcePath, destinationPath) =>
               Files.isDirectory(sourcePath)
                   ? FilePermissions.DEFAULT_FOLDER_PERMISSIONS
                   : FilePermissions.DEFAULT_FILE_PERMISSIONS;
 
   /** Default file modification time (EPOCH + 1 second). */
-  public static final Instant DEFAULT_MODIFIED_TIME = Instant.ofEpochSecond(1);
+  public static readonly Instant DEFAULT_MODIFIED_TIME = Instant.ofEpochSecond(1);
 
   /** Provider that returns default file modification time (EPOCH + 1 second). */
-  public static final BiFunction<Path, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
-      (sourcePath, destinationPath) -> DEFAULT_MODIFIED_TIME;
+  public static readonly BiFunction<Path, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
+      (sourcePath, destinationPath) => DEFAULT_MODIFIED_TIME;
 
   /**
    * Gets a new {@link Builder} for {@link LayerConfiguration}.
@@ -242,8 +242,8 @@ public class LayerConfiguration {
     return new Builder();
   }
 
-  private final ImmutableList<LayerEntry> layerEntries;
-  private final String name;
+  private readonly ImmutableList<LayerEntry> layerEntries;
+  private readonly string name;
 
   /**
    * Use {@link #builder} to instantiate.
@@ -251,7 +251,7 @@ public class LayerConfiguration {
    * @param name an optional name for the layer
    * @param layerEntries the list of {@link LayerEntry}s
    */
-  private LayerConfiguration(String name, ImmutableList<LayerEntry> layerEntries) {
+  private LayerConfiguration(string name, ImmutableList<LayerEntry> layerEntries) {
     this.name = name;
     this.layerEntries = layerEntries;
   }
@@ -261,7 +261,7 @@ public class LayerConfiguration {
    *
    * @return the name
    */
-  public String getName() {
+  public string getName() {
     return name;
   }
 
@@ -273,4 +273,5 @@ public class LayerConfiguration {
   public ImmutableList<LayerEntry> getLayerEntries() {
     return layerEntries;
   }
+}
 }

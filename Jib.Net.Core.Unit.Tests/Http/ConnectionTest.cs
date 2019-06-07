@@ -14,79 +14,56 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.cloud.tools.jib.blob.Blobs;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.atomic.LongAdder;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Connection}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ConnectionTest {
 
   @FunctionalInterface
   private interface SendFunction {
 
-    Response send(Connection connection, Request request) throws IOException;
-  }
-
-  @Mock private HttpRequestFactory mockHttpRequestFactory;
-  @Mock private HttpRequest mockHttpRequest;
-
-  private final ArgumentCaptor<HttpHeaders> httpHeadersArgumentCaptor =
-      ArgumentCaptor.forClass(HttpHeaders.class);
-  private final ArgumentCaptor<BlobHttpContent> blobHttpContentArgumentCaptor =
-      ArgumentCaptor.forClass(BlobHttpContent.class);
-
-  private final GenericUrl fakeUrl = new GenericUrl("http://crepecake/fake/url");
-  private final LongAdder totalByteCount = new LongAdder();
-
-  private Request fakeRequest;
-  private HttpResponse mockHttpResponse;
-
-  @InjectMocks
-  private final Connection testConnection =
-      Connection.getConnectionFactory().apply(fakeUrl.toURL());
-
-  @Test
-  public void testGet() throws IOException {
+    Response send(Connection connection, Request request) {
     setUpMocksAndFakes(null);
     testSend(HttpMethods.GET, Connection::get);
   }
 
-  @Test
-  public void testPost() throws IOException {
+  [TestMethod]
+  public void testPost() {
     setUpMocksAndFakes(null);
     testSend(HttpMethods.POST, Connection::post);
   }
 
-  @Test
-  public void testPut() throws IOException {
+  [TestMethod]
+  public void testPut() {
     setUpMocksAndFakes(null);
-    testSend(HttpMethods.PUT, Connection::put);
+    testSend(HttpMethods.PUT, Connection.put);
   }
 
-  @Test
-  public void testHttpTimeout_doNotSetByDefault() throws IOException {
+  [TestMethod]
+  public void testHttpTimeout_doNotSetByDefault() {
     setUpMocksAndFakes(null);
-    try (Connection connection = testConnection) {
+    using (Connection connection = testConnection) {
       connection.send(HttpMethods.GET, fakeRequest);
     }
 
@@ -94,10 +71,10 @@ public class ConnectionTest {
     Mockito.verify(mockHttpRequest, Mockito.never()).setReadTimeout(Mockito.anyInt());
   }
 
-  @Test
-  public void testHttpTimeout() throws IOException {
+  [TestMethod]
+  public void testHttpTimeout() {
     setUpMocksAndFakes(5982);
-    try (Connection connection = testConnection) {
+    using (Connection connection = testConnection) {
       connection.send(HttpMethods.GET, fakeRequest);
     }
 
@@ -105,7 +82,7 @@ public class ConnectionTest {
     Mockito.verify(mockHttpRequest).setReadTimeout(5982);
   }
 
-  private void setUpMocksAndFakes(Integer httpTimeout) throws IOException {
+  private void setUpMocksAndFakes(Integer httpTimeout) {
     fakeRequest =
         Request.builder()
             .setAccept(Arrays.asList("fake.accept", "another.fake.accept"))
@@ -119,21 +96,21 @@ public class ConnectionTest {
 
     Mockito.when(
             mockHttpRequestFactory.buildRequest(
-                Mockito.any(String.class), Mockito.eq(fakeUrl), Mockito.any(BlobHttpContent.class)))
+                Mockito.any(typeof(string)), Mockito.eq(fakeUrl), Mockito.any(typeof(BlobHttpContent))))
         .thenReturn(mockHttpRequest);
 
-    Mockito.when(mockHttpRequest.setHeaders(Mockito.any(HttpHeaders.class)))
+    Mockito.when(mockHttpRequest.setHeaders(Mockito.any(typeof(HttpHeaders))))
         .thenReturn(mockHttpRequest);
     if (httpTimeout != null) {
       Mockito.when(mockHttpRequest.setConnectTimeout(Mockito.anyInt())).thenReturn(mockHttpRequest);
       Mockito.when(mockHttpRequest.setReadTimeout(Mockito.anyInt())).thenReturn(mockHttpRequest);
     }
-    mockHttpResponse = Mockito.mock(HttpResponse.class);
+    mockHttpResponse = Mockito.mock(typeof(HttpResponse));
     Mockito.when(mockHttpRequest.execute()).thenReturn(mockHttpResponse);
   }
 
-  private void testSend(String httpMethod, SendFunction sendFunction) throws IOException {
-    try (Connection connection = testConnection) {
+  private void testSend(string httpMethod, SendFunction sendFunction) {
+    using (Connection connection = testConnection) {
       sendFunction.send(connection, fakeRequest);
     }
 
@@ -157,7 +134,8 @@ public class ConnectionTest {
     blobHttpContentArgumentCaptor.getValue().writeTo(byteArrayOutputStream);
 
     Assert.assertEquals(
-        "crepecake", new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+        "crepecake", new string(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
     Assert.assertEquals("crepecake".length(), totalByteCount.longValue());
   }
+}
 }

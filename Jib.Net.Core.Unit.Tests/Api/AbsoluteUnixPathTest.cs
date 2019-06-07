@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+
+
+
 
 /** Test for {@link AbsoluteUnixPath}. */
 public class AbsoluteUnixPathTest {
 
-  @Test
+  [TestMethod]
   public void testGet_notAbsolute() {
     try {
       AbsoluteUnixPath.get("not/absolute");
@@ -36,13 +35,13 @@ public class AbsoluteUnixPathTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testFromPath() {
     Assert.assertEquals(
         "/absolute/path", AbsoluteUnixPath.fromPath(Paths.get("/absolute/path")).toString());
   }
 
-  @Test
+  [TestMethod]
   public void testFromPath_windows() {
     Assume.assumeTrue(System.getProperty("os.name").startsWith("Windows"));
 
@@ -50,7 +49,7 @@ public class AbsoluteUnixPathTest {
         "/absolute/path", AbsoluteUnixPath.fromPath(Paths.get("T:\\absolute\\path")).toString());
   }
 
-  @Test
+  [TestMethod]
   public void testEquals() {
     AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/absolute/path");
     AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.get("/absolute/path/");
@@ -59,7 +58,7 @@ public class AbsoluteUnixPathTest {
     Assert.assertNotEquals(absoluteUnixPath1, absoluteUnixPath3);
   }
 
-  @Test
+  [TestMethod]
   public void testResolve_relativeUnixPath() {
     AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/");
     Assert.assertEquals(absoluteUnixPath1, absoluteUnixPath1.resolve(""));
@@ -73,7 +72,7 @@ public class AbsoluteUnixPathTest {
         "/some/path/relative/path", absoluteUnixPath2.resolve("relative/path").toString());
   }
 
-  @Test
+  [TestMethod]
   public void testResolve_Path_notRelative() {
     try {
       AbsoluteUnixPath.get("/").resolve(Paths.get("/not/relative"));
@@ -85,7 +84,7 @@ public class AbsoluteUnixPathTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testResolve_Path() {
     AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/");
     Assert.assertEquals(absoluteUnixPath1, absoluteUnixPath1.resolve(Paths.get("")));
@@ -101,4 +100,5 @@ public class AbsoluteUnixPathTest {
         "/some/path/relative/path",
         absoluteUnixPath2.resolve(Paths.get("relative//path/")).toString());
   }
+}
 }

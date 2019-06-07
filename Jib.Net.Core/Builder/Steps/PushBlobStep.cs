@@ -14,39 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.event.progress.ThrottledAccumulatingConsumer;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pushes a BLOB to the target registry. */
-class PushBlobStep implements AsyncStep<BlobDescriptor>, Callable<BlobDescriptor> {
+class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
+  private static readonly string DESCRIPTION = "Pushing BLOB ";
 
-  private static final String DESCRIPTION = "Pushing BLOB ";
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDipatcherFactory;
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDipatcherFactory;
+  private readonly AuthenticatePushStep authenticatePushStep;
+  private readonly BlobDescriptor blobDescriptor;
+  private readonly Blob blob;
 
-  private final AuthenticatePushStep authenticatePushStep;
-  private final BlobDescriptor blobDescriptor;
-  private final Blob blob;
-
-  private final ListenableFuture<BlobDescriptor> listenableFuture;
+  private readonly ListenableFuture<BlobDescriptor> listenableFuture;
 
   PushBlobStep(
       ListeningExecutorService listeningExecutorService,
@@ -62,26 +60,26 @@ class PushBlobStep implements AsyncStep<BlobDescriptor>, Callable<BlobDescriptor
     this.blob = blob;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(authenticatePushStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<BlobDescriptor> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public BlobDescriptor call() throws IOException, RegistryException, ExecutionException {
-    try (ProgressEventDispatcher progressEventDispatcher =
+  public BlobDescriptor call() {
+    using(ProgressEventDispatcher progressEventDispatcher =
             progressEventDipatcherFactory.create(
-                "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize());
-        TimerEventDispatcher ignored =
+                "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
+    using(TimerEventDispatcher ignored =
             new TimerEventDispatcher(
                 buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor);
         ThrottledAccumulatingConsumer throttledProgressReporter =
-            new ThrottledAccumulatingConsumer(progressEventDispatcher::dispatchProgress)) {
+            new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress)))
+    {
+
       RegistryClient registryClient =
           buildConfiguration
               .newTargetImageRegistryClientFactory()
@@ -102,4 +100,5 @@ class PushBlobStep implements AsyncStep<BlobDescriptor>, Callable<BlobDescriptor
       return blobDescriptor;
     }
   }
+}
 }

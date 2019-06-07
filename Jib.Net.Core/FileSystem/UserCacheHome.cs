@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.annotations.VisibleForTesting;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Logger;
+
+
+
+
+
+
+
 
 /**
  * Obtains an OS-specific user cache directory based on the XDG Base Directory Specification.
@@ -41,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class UserCacheHome {
 
-  private static final Logger logger = Logger.getLogger(UserCacheHome.class.getName());
+  private static readonly Logger logger = Logger.getLogger(typeof(UserCacheHome).getName());
 
   public static Path getCacheHome() {
     return getCacheHome(System.getProperties(), System.getenv());
@@ -57,26 +56,26 @@ public class UserCacheHome {
    *
    * <p>For macOS, this is {@code $HOME/Library/Application Support/}.
    */
-  @VisibleForTesting
-  static Path getCacheHome(Properties properties, Map<String, String> environment) {
+
+  static Path getCacheHome(Properties properties, Map<string, string> environment) {
     // Use environment variable $XDG_CACHE_HOME if set and not empty.
-    String xdgCacheHome = environment.get("XDG_CACHE_HOME");
+    string xdgCacheHome = environment.get("XDG_CACHE_HOME");
     if (xdgCacheHome != null && !xdgCacheHome.trim().isEmpty()) {
       return Paths.get(xdgCacheHome);
     }
 
-    String userHome = properties.getProperty("user.home");
+    string userHome = properties.getProperty("user.home");
     Path xdgPath = Paths.get(userHome, ".cache");
 
-    String rawOsName = properties.getProperty("os.name");
-    String osName = rawOsName.toLowerCase(Locale.ENGLISH);
+    string rawOsName = properties.getProperty("os.name");
+    string osName = rawOsName.toLowerCase(Locale.ENGLISH);
 
     if (osName.contains("linux")) {
       return xdgPath;
 
     } else if (osName.contains("windows")) {
       // Use %LOCALAPPDATA% for Windows.
-      String localAppDataEnv = environment.get("LOCALAPPDATA");
+      string localAppDataEnv = environment.get("LOCALAPPDATA");
       if (localAppDataEnv == null || localAppDataEnv.trim().isEmpty()) {
         logger.warning("LOCALAPPDATA environment is invalid or missing");
         return xdgPath;
@@ -102,4 +101,5 @@ public class UserCacheHome {
   }
 
   private UserCacheHome() {}
+}
 }

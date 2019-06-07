@@ -14,34 +14,33 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestException;
-import java.time.Instant;
-import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ContainerConfigurationTemplate}. */
 public class ContainerConfigurationTemplateTest {
 
-  @Test
-  public void testToJson() throws IOException, URISyntaxException, DigestException {
+  [TestMethod]
+  public void testToJson() {
     // Loads the expected JSON string.
     Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
-    String expectedJson = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Creates the JSON object to serialize.
     ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate();
@@ -93,14 +92,14 @@ public class ContainerConfigurationTemplateTest {
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(containerConfigJson));
   }
 
-  @Test
-  public void testFromJson() throws IOException, URISyntaxException, DigestException {
+  [TestMethod]
+  public void testFromJson() {
     // Loads the JSON string.
     Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
 
     // Deserializes into a manifest JSON object.
     ContainerConfigurationTemplate containerConfigJson =
-        JsonTemplateMapper.readJsonFromFile(jsonFile, ContainerConfigurationTemplate.class);
+        JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(ContainerConfigurationTemplate));
 
     Assert.assertEquals("1970-01-01T00:00:20Z", containerConfigJson.getCreated());
     Assert.assertEquals("wasm", containerConfigJson.getArchitecture());
@@ -147,4 +146,5 @@ public class ContainerConfigurationTemplateTest {
                 .build()),
         containerConfigJson.getHistory());
   }
+}
 }

@@ -14,9 +14,8 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.cloud.tools.jib.http.Authorization;
 
 /**
  * Stores retrieved registry credentials and their source.
@@ -25,15 +24,15 @@ import com.google.cloud.tools.jib.http.Authorization;
  */
 public class RegistryCredentials {
 
-  private final Authorization authorization;
+  private readonly Authorization authorization;
 
   /**
    * A string representation of where the credentials were retrieved from. This is useful for
    * letting the user know which credentials were used.
    */
-  private final String credentialSource;
+  private readonly string credentialSource;
 
-  public RegistryCredentials(String credentialSource, Authorization authorization) {
+  public RegistryCredentials(string credentialSource, Authorization authorization) {
     this.authorization = authorization;
     this.credentialSource = credentialSource;
   }
@@ -42,7 +41,8 @@ public class RegistryCredentials {
     return authorization;
   }
 
-  public String getCredentialSource() {
+  public string getCredentialSource() {
     return credentialSource;
   }
+}
 }

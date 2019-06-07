@@ -14,65 +14,62 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.InsecureRegistryException;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.api.RegistryUnauthorizedException;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.builder.steps.PullBaseImageStep.BaseImageWithAuthorization;
-import com.google.cloud.tools.jib.cache.CacheCorruptedException;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.ImageConfiguration;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.LayerCountMismatchException;
-import com.google.cloud.tools.jib.image.LayerPropertyNotFoundException;
-import com.google.cloud.tools.jib.image.json.BadContainerConfigurationFormatException;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ContainerConfigurationTemplate;
-import com.google.cloud.tools.jib.image.json.JsonToImageTranslator;
-import com.google.cloud.tools.jib.image.json.ManifestAndConfig;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.UnknownManifestFormatException;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.RegistryAuthenticator;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pulls the base image manifest. */
-class PullBaseImageStep
-    implements AsyncStep<BaseImageWithAuthorization>, Callable<BaseImageWithAuthorization> {
+class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseImageWithAuthorization> {
 
-  private static final String DESCRIPTION = "Pulling base image manifest";
+  private static readonly string DESCRIPTION = "Pulling base image manifest";
 
   /** Structure for the result returned by this step. */
   static class BaseImageWithAuthorization {
 
-    private final Image baseImage;
-    private final @Nullable Authorization baseImageAuthorization;
+    private readonly Image baseImage;
+    private readonly Authorization baseImageAuthorization;
 
-    @VisibleForTesting
-    BaseImageWithAuthorization(Image baseImage, @Nullable Authorization baseImageAuthorization) {
+    BaseImageWithAuthorization(Image baseImage, Authorization baseImageAuthorization) {
       this.baseImage = baseImage;
       this.baseImageAuthorization = baseImageAuthorization;
     }
@@ -81,16 +78,15 @@ class PullBaseImageStep
       return baseImage;
     }
 
-    @Nullable
     Authorization getBaseImageAuthorization() {
       return baseImageAuthorization;
     }
   }
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final ListenableFuture<BaseImageWithAuthorization> listenableFuture;
+  private readonly ListenableFuture<BaseImageWithAuthorization> listenableFuture;
 
   PullBaseImageStep(
       ListeningExecutorService listeningExecutorService,
@@ -102,16 +98,12 @@ class PullBaseImageStep
     listenableFuture = listeningExecutorService.submit(this);
   }
 
-  @Override
   public ListenableFuture<BaseImageWithAuthorization> getFuture() {
     return listenableFuture;
   }
 
-  @Override
   public BaseImageWithAuthorization call()
-      throws IOException, RegistryException, LayerPropertyNotFoundException,
-          LayerCountMismatchException, ExecutionException, BadContainerConfigurationFormatException,
-          CacheCorruptedException {
+      {
     EventHandlers eventHandlers = buildConfiguration.getEventHandlers();
     // Skip this step if this is a scratch image
     ImageConfiguration baseImageConfiguration = buildConfiguration.getBaseImageConfiguration();
@@ -131,10 +123,14 @@ class PullBaseImageStep
       return new BaseImageWithAuthorization(pullBaseImageOffline(), null);
     }
 
-    try (ProgressEventDispatcher progressEventDispatcher =
-            progressEventDispatcherFactory.create("pulling base image manifest", 2);
-        TimerEventDispatcher ignored =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)) {
+    using(ProgressEventDispatcher progressEventDispatcher =
+            progressEventDispatcherFactory.create("pulling base image manifest", 2))
+
+    using(TimerEventDispatcher ignored =
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+
+    {
+
       // First, try with no credentials.
       try {
         return new BaseImageWithAuthorization(pullBaseImage(null, progressEventDispatcher), null);
@@ -212,10 +208,9 @@ class PullBaseImageStep
    *     format
    */
   private Image pullBaseImage(
-      @Nullable Authorization registryAuthorization,
+      Authorization registryAuthorization,
       ProgressEventDispatcher progressEventDispatcher)
-      throws IOException, RegistryException, LayerPropertyNotFoundException,
-          LayerCountMismatchException, BadContainerConfigurationFormatException {
+      {
     RegistryClient registryClient =
         buildConfiguration
             .newBaseImageRegistryClientFactory()
@@ -248,20 +243,20 @@ class PullBaseImageStep
         DescriptorDigest containerConfigurationDigest =
             buildableManifestTemplate.getContainerConfiguration().getDigest();
 
-        try (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
+        using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
             new ThrottledProgressEventDispatcherWrapper(
                 progressEventDispatcher.newChildProducer(),
                 "pull container configuration " + containerConfigurationDigest)) {
-          String containerConfigurationString =
+          string containerConfigurationString =
               Blobs.writeToString(
                   registryClient.pullBlob(
                       containerConfigurationDigest,
                       progressEventDispatcherWrapper::setProgressTarget,
-                      progressEventDispatcherWrapper::dispatchProgress));
+                      progressEventDispatcherWrapper.dispatchProgress));
 
           ContainerConfigurationTemplate containerConfigurationTemplate =
               JsonTemplateMapper.readJson(
-                  containerConfigurationString, ContainerConfigurationTemplate.class);
+                  containerConfigurationString, typeof(ContainerConfigurationTemplate));
           buildConfiguration
               .getBaseImageLayersCache()
               .writeMetadata(
@@ -287,8 +282,7 @@ class PullBaseImageStep
    *     format
    */
   private Image pullBaseImageOffline()
-      throws IOException, CacheCorruptedException, BadContainerConfigurationFormatException,
-          LayerCountMismatchException {
+      {
     ImageReference baseImage = buildConfiguration.getBaseImageConfiguration().getImage();
     Optional<ManifestAndConfig> metadata =
         buildConfiguration.getBaseImageLayersCache().retrieveMetadata(baseImage);
@@ -298,13 +292,14 @@ class PullBaseImageStep
     }
 
     ManifestTemplate manifestTemplate = metadata.get().getManifest();
-    if (manifestTemplate instanceof V21ManifestTemplate) {
+    if (manifestTemplate is V21ManifestTemplate) {
       return JsonToImageTranslator.toImage((V21ManifestTemplate) manifestTemplate);
     }
 
     ContainerConfigurationTemplate configurationTemplate =
-        metadata.get().getConfig().orElseThrow(IllegalStateException::new);
+        metadata.get().getConfig().orElseThrow(() => new IllegalStateException());
     return JsonToImageTranslator.toImage(
         (BuildableManifestTemplate) manifestTemplate, configurationTemplate);
   }
+}
 }

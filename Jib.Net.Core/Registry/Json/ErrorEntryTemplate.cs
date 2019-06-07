@@ -14,33 +14,31 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.json;
+namespace com.google.cloud.tools.jib.registry.json {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import javax.annotation.Nullable;
+
+
 
 // TODO: Should include detail field as well - need to have custom parser
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ErrorEntryTemplate implements JsonTemplate {
+[JsonIgnoreProperties(ignoreUnknown = true)]
+public class ErrorEntryTemplate : JsonTemplate {
 
-  @Nullable private String code;
-  @Nullable private String message;
+  private string code;
+  private string message;
 
-  public ErrorEntryTemplate(String code, String message) {
+  public ErrorEntryTemplate(string code, string message) {
     this.code = code;
     this.message = message;
   }
 
   private ErrorEntryTemplate() {}
 
-  @Nullable
-  public String getCode() {
+  public string getCode() {
     return code;
   }
 
-  @Nullable
-  public String getMessage() {
+  public string getMessage() {
     return message;
   }
+}
 }

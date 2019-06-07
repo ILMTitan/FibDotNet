@@ -14,47 +14,46 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.configuration.DockerHealthCheck;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.Layer;
-import com.google.cloud.tools.jib.image.LayerPropertyNotFoundException;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ImageToJsonTranslator}. */
 public class ImageToJsonTranslatorTest {
 
   private ImageToJsonTranslator imageToJsonTranslator;
 
-  private void setUp(Class<? extends BuildableManifestTemplate> imageFormat)
-      throws DigestException, LayerPropertyNotFoundException {
+        private void setUp<T>(Class<T> imageFormat)where T:BuildableManifestTemplate
+        {
     Image.Builder testImageBuilder =
         Image.builder(imageFormat)
             .setCreated(Instant.ofEpochSecond(20))
@@ -84,23 +83,7 @@ public class ImageToJsonTranslatorTest {
         DescriptorDigest.fromDigest(
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
     testImageBuilder.addLayer(
-        new Layer() {
-
-          @Override
-          public Blob getBlob() throws LayerPropertyNotFoundException {
-            return Blobs.from("ignored");
-          }
-
-          @Override
-          public BlobDescriptor getBlobDescriptor() throws LayerPropertyNotFoundException {
-            return new BlobDescriptor(1000, fakeDigest);
-          }
-
-          @Override
-          public DescriptorDigest getDiffId() throws LayerPropertyNotFoundException {
-            return fakeDigest;
-          }
-        });
+        new FakeLayer());
     testImageBuilder.addHistory(
         HistoryEntry.builder()
             .setCreationTimestamp(Instant.EPOCH)
@@ -117,14 +100,33 @@ public class ImageToJsonTranslatorTest {
     imageToJsonTranslator = new ImageToJsonTranslator(testImageBuilder.build());
   }
 
-  @Test
+        class FakeLayer
+        {
+
+            public Blob getBlob()
+            {
+                return Blobs.from("ignored");
+            }
+
+            public BlobDescriptor getBlobDescriptor()
+            {
+                return new BlobDescriptor(1000, fakeDigest);
+            }
+
+            public DescriptorDigest getDiffId()
+            {
+                return fakeDigest;
+            }
+        }
+
+        [TestMethod]
   public void testGetContainerConfiguration()
-      throws IOException, URISyntaxException, DigestException {
-    setUp(V22ManifestTemplate.class);
+      {
+    setUp(typeof(V22ManifestTemplate));
 
     // Loads the expected JSON string.
     Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
-    String expectedJson = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Translates the image to the container configuration and writes the JSON string.
     JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
@@ -132,52 +134,51 @@ public class ImageToJsonTranslatorTest {
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
   }
 
-  @Test
-  public void testGetManifest_v22() throws URISyntaxException, IOException, DigestException {
-    setUp(V22ManifestTemplate.class);
-    testGetManifest(V22ManifestTemplate.class, "core/json/translated_v22manifest.json");
+  [TestMethod]
+  public void testGetManifest_v22() {
+    setUp(typeof(V22ManifestTemplate));
+    testGetManifest(typeof(V22ManifestTemplate), "core/json/translated_v22manifest.json");
   }
 
-  @Test
-  public void testGetManifest_oci() throws URISyntaxException, IOException, DigestException {
-    setUp(OCIManifestTemplate.class);
-    testGetManifest(OCIManifestTemplate.class, "core/json/translated_ocimanifest.json");
+  [TestMethod]
+  public void testGetManifest_oci() {
+    setUp(typeof(OCIManifestTemplate));
+    testGetManifest(typeof(OCIManifestTemplate), "core/json/translated_ocimanifest.json");
   }
 
-  @Test
+  [TestMethod]
   public void testPortListToMap() {
     ImmutableSet<Port> input = ImmutableSet.of(Port.tcp(1000), Port.udp(2000));
-    ImmutableSortedMap<String, Map<?, ?>> expected =
+    ImmutableSortedMap<string, Map<object, object>> expected =
         ImmutableSortedMap.of("1000/tcp", ImmutableMap.of(), "2000/udp", ImmutableMap.of());
     Assert.assertEquals(expected, ImageToJsonTranslator.portSetToMap(input));
   }
 
-  @Test
+  [TestMethod]
   public void testVolumeListToMap() {
     ImmutableSet<AbsoluteUnixPath> input =
         ImmutableSet.of(
             AbsoluteUnixPath.get("/var/job-result-data"),
             AbsoluteUnixPath.get("/var/log/my-app-logs"));
-    ImmutableSortedMap<String, Map<?, ?>> expected =
+    ImmutableSortedMap<string, Map<object, object>> expected =
         ImmutableSortedMap.of(
             "/var/job-result-data", ImmutableMap.of(), "/var/log/my-app-logs", ImmutableMap.of());
     Assert.assertEquals(expected, ImageToJsonTranslator.volumesSetToMap(input));
   }
 
-  @Test
+  [TestMethod]
   public void testEnvironmentMapToList() {
-    ImmutableMap<String, String> input = ImmutableMap.of("NAME1", "VALUE1", "NAME2", "VALUE2");
-    ImmutableList<String> expected = ImmutableList.of("NAME1=VALUE1", "NAME2=VALUE2");
+    ImmutableMap<string, string> input = ImmutableMap.of("NAME1", "VALUE1", "NAME2", "VALUE2");
+    ImmutableList<string> expected = ImmutableList.of("NAME1=VALUE1", "NAME2=VALUE2");
     Assert.assertEquals(expected, ImageToJsonTranslator.environmentMapToList(input));
   }
 
   /** Tests translation of image to {@link BuildableManifestTemplate}. */
-  private <T extends BuildableManifestTemplate> void testGetManifest(
-      Class<T> manifestTemplateClass, String translatedJsonFilename)
-      throws URISyntaxException, IOException {
+  private void testGetManifest<T>(
+      Class<T> manifestTemplateClass, string translatedJsonFilename) where T : BuildableManifestTemplate {
     // Loads the expected JSON string.
     Path jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
-    String expectedJson = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Translates the image to the manifest and writes the JSON string.
     JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
@@ -187,4 +188,5 @@ public class ImageToJsonTranslatorTest {
 
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));
   }
+}
 }

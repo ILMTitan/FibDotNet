@@ -14,40 +14,39 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import java.io.IOException;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link ManifestPuller}. */
 public class ManifestPullerIntegrationTest {
 
-  @ClassRule public static LocalRegistry localRegistry = new LocalRegistry(5000);
+  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  @Test
-  public void testPull_v21() throws IOException, RegistryException, InterruptedException {
+  [TestMethod]
+  public void testPull_v21() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V21ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", V21ManifestTemplate.class);
+        registryClient.pullManifest("latest", typeof(V21ManifestTemplate));
 
     Assert.assertEquals(1, manifestTemplate.getSchemaVersion());
     Assert.assertTrue(manifestTemplate.getFsLayers().size() > 0);
   }
 
-  @Test
-  public void testPull_v22() throws IOException, RegistryException, InterruptedException {
+  [TestMethod]
+  public void testPull_v22() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
@@ -58,9 +57,9 @@ public class ManifestPullerIntegrationTest {
     Assert.assertTrue(v22ManifestTemplate.getLayers().size() > 0);
   }
 
-  @Test
+  [TestMethod]
   public void testPull_unknownManifest()
-      throws RegistryException, IOException, InterruptedException {
+      {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     try {
       RegistryClient registryClient =
@@ -77,4 +76,5 @@ public class ManifestPullerIntegrationTest {
               "pull image manifest for localhost:5000/busybox:nonexistent-tag"));
     }
   }
+}
 }

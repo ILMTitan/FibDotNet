@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.hash;
+namespace com.google.cloud.tools.jib.hash {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.DigestException;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link CountingDigestOutputStream}. */
 public class CountingDigestOutputStreamTest {
 
-  private final Map<String, String> KNOWN_SHA256_HASHES =
+  private readonly Map<string, string> KNOWN_SHA256_HASHES =
       ImmutableMap.of(
           "crepecake",
           "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c",
@@ -43,11 +42,11 @@ public class CountingDigestOutputStreamTest {
           "",
           "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 
-  @Test
-  public void test_smokeTest() throws IOException, DigestException {
-    for (Map.Entry<String, String> knownHash : KNOWN_SHA256_HASHES.entrySet()) {
-      String toHash = knownHash.getKey();
-      String expectedHash = knownHash.getValue();
+  [TestMethod]
+  public void test_smokeTest() {
+    for (Map.Entry<string, string> knownHash : KNOWN_SHA256_HASHES.entrySet()) {
+      string toHash = knownHash.getKey();
+      string expectedHash = knownHash.getValue();
 
       OutputStream underlyingOutputStream = new ByteArrayOutputStream();
       CountingDigestOutputStream countingDigestOutputStream =
@@ -62,4 +61,5 @@ public class CountingDigestOutputStreamTest {
       Assert.assertEquals(bytesToHash.length, blobDescriptor.getSize());
     }
   }
+}
 }

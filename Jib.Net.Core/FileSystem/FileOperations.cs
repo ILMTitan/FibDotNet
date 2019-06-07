@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
+
+
+
+
+
+
+
+
+
+
 
 /** Static methods for operating on the filesystem. */
 public class FileOperations {
@@ -38,10 +37,11 @@ public class FileOperations {
    * @param destDir the directory to copy the files to.
    * @throws IOException if the copy fails.
    */
-  public static void copy(ImmutableList<Path> sourceFiles, Path destDir) throws IOException {
-    for (Path sourceFile : sourceFiles) {
+  public static void copy(ImmutableList<Path> sourceFiles, Path destDir) {
+    foreach (Path sourceFile in sourceFiles)
+    {
       PathConsumer copyPathConsumer =
-          path -> {
+          path => {
             // Creates the same path in the destDir.
             Path destPath = destDir.resolve(sourceFile.getParent().relativize(path));
             if (Files.isDirectory(path)) {
@@ -72,7 +72,7 @@ public class FileOperations {
    * @return an {@link OutputStream} that writes to the file
    * @throws IOException if an I/O exception occurs
    */
-  public static OutputStream newLockingOutputStream(Path file) throws IOException {
+  public static OutputStream newLockingOutputStream(Path file) {
     EnumSet<StandardOpenOption> createOrTruncate =
         EnumSet.of(
             StandardOpenOption.CREATE,
@@ -81,9 +81,10 @@ public class FileOperations {
     // Channel is closed by outputStream.close().
     FileChannel channel = FileChannel.open(file, createOrTruncate);
     // Lock is released when channel is closed.
-    channel.lock();
+    channel.@lock();
     return Channels.newOutputStream(channel);
   }
 
   private FileOperations() {}
+}
 }

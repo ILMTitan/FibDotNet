@@ -14,28 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.HttpResponse;
-import com.google.common.io.ByteStreams;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Response}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ResponseTest {
 
-  @Mock private HttpResponse httpResponseMock;
+  [Mock] private HttpResponse httpResponseMock;
 
-  @Test
-  public void testGetContent() throws IOException {
+  [TestMethod]
+  public void testGetContent() {
     byte[] expectedResponse = "crepecake\nis\ngood!".getBytes(StandardCharsets.UTF_8);
     ByteArrayInputStream responseInputStream = new ByteArrayInputStream(expectedResponse);
 
@@ -45,4 +44,5 @@ public class ResponseTest {
 
     Assert.assertArrayEquals(expectedResponse, ByteStreams.toByteArray(response.getBody()));
   }
+}
 }

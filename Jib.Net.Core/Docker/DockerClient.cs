@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.docker;
+namespace com.google.cloud.tools.jib.docker {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.CharStreams;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Calls out to the {@code docker} CLI. */
 public class DockerClient {
@@ -39,7 +38,7 @@ public class DockerClient {
   public static class Builder {
 
     private Path dockerExecutable = DEFAULT_DOCKER_CLIENT;
-    private ImmutableMap<String, String> dockerEnvironment = ImmutableMap.of();
+    private ImmutableMap<string, string> dockerEnvironment = ImmutableMap.of();
 
     private Builder() {}
 
@@ -60,7 +59,7 @@ public class DockerClient {
      * @param dockerEnvironment environment variables for {@code docker}
      * @return this
      */
-    public Builder setDockerEnvironment(ImmutableMap<String, String> dockerEnvironment) {
+    public Builder setDockerEnvironment(ImmutableMap<string, string> dockerEnvironment) {
       this.dockerEnvironment = dockerEnvironment;
       return this;
     }
@@ -95,29 +94,28 @@ public class DockerClient {
    * @param dockerExecutable path to {@code docker}
    * @return the default {@link ProcessBuilder} factory for running a {@code docker} subcommand
    */
-  @VisibleForTesting
-  static Function<List<String>, ProcessBuilder> defaultProcessBuilderFactory(
-      String dockerExecutable, ImmutableMap<String, String> dockerEnvironment) {
-    return dockerSubCommand -> {
-      List<String> dockerCommand = new ArrayList<>(1 + dockerSubCommand.size());
+
+  static Function<List<string>, ProcessBuilder> defaultProcessBuilderFactory(
+      string dockerExecutable, ImmutableMap<string, string> dockerEnvironment) {
+    return dockerSubCommand => {
+      List<string> dockerCommand = new ArrayList<>(1 + dockerSubCommand.size());
       dockerCommand.add(dockerExecutable);
       dockerCommand.addAll(dockerSubCommand);
 
       ProcessBuilder processBuilder = new ProcessBuilder(dockerCommand);
-      Map<String, String> environment = processBuilder.environment();
+      Map<string, string> environment = processBuilder.environment();
       environment.putAll(dockerEnvironment);
 
       return processBuilder;
     };
   }
 
-  private static final Path DEFAULT_DOCKER_CLIENT = Paths.get("docker");
+  private static readonly Path DEFAULT_DOCKER_CLIENT = Paths.get("docker");
 
   /** Factory for generating the {@link ProcessBuilder} for running {@code docker} commands. */
-  private final Function<List<String>, ProcessBuilder> processBuilderFactory;
+  private readonly Function<List<string>, ProcessBuilder> processBuilderFactory;
 
-  @VisibleForTesting
-  DockerClient(Function<List<String>, ProcessBuilder> processBuilderFactory) {
+  DockerClient(Function<List<string>, ProcessBuilder> processBuilderFactory) {
     this.processBuilderFactory = processBuilderFactory;
   }
 
@@ -127,7 +125,7 @@ public class DockerClient {
    * @param dockerExecutable path to {@code docker}
    * @param dockerEnvironment environment variables for {@code docker}
    */
-  private DockerClient(Path dockerExecutable, ImmutableMap<String, String> dockerEnvironment) {
+  private DockerClient(Path dockerExecutable, ImmutableMap<string, string> dockerEnvironment) {
     this(defaultProcessBuilderFactory(dockerExecutable.toString(), dockerEnvironment));
   }
 
@@ -137,7 +135,7 @@ public class DockerClient {
    *
    * @return {@code true} if Docker is installed on the user's system and accessible
    */
-  public static boolean isDefaultDockerInstalled() {
+  public static bool isDefaultDockerInstalled() {
     return isDockerInstalled(DEFAULT_DOCKER_CLIENT);
   }
 
@@ -148,7 +146,7 @@ public class DockerClient {
    * @param dockerExecutable path to the executable to test running
    * @return {@code true} if Docker is installed on the user's system and accessible
    */
-  public static boolean isDockerInstalled(Path dockerExecutable) {
+  public static bool isDockerInstalled(Path dockerExecutable) {
     try {
       new ProcessBuilder(dockerExecutable.toString()).start();
       return true;
@@ -168,36 +166,46 @@ public class DockerClient {
    * @throws InterruptedException if the 'docker load' process is interrupted.
    * @throws IOException if streaming the blob to 'docker load' fails.
    */
-  public String load(ImageTarball imageTarball) throws InterruptedException, IOException {
+  public string load(ImageTarball imageTarball) {
     // Runs 'docker load'.
     Process dockerProcess = docker("load");
 
-    try (OutputStream stdin = dockerProcess.getOutputStream()) {
-      try {
-        imageTarball.writeTo(stdin);
+            using (OutputStream stdin = dockerProcess.getOutputStream())
+            {
+                try
+                {
+                    imageTarball.writeTo(stdin);
 
-      } catch (IOException ex) {
-        // Tries to read from stderr.
-        String error;
-        try (InputStreamReader stderr =
-            new InputStreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8)) {
-          error = CharStreams.toString(stderr);
+                }
+                catch (IOException ex)
+                {
+                    // Tries to read from stderr.
+                    string error;
+                    try
+                    {
+                        using (InputStreamReader stderr =
+                            new InputStreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8))
+                        {
+                            error = CharStreams.toString(stderr);
 
-        } catch (IOException ignored) {
-          // This ignores exceptions from reading stderr and throws the original exception from
-          // writing to stdin.
-          throw ex;
-        }
-        throw new IOException("'docker load' command failed with error: " + error, ex);
-      }
-    }
+                        }
+                    }
+                    catch (IOException ignored)
+                    {
+                        // This ignores exceptions from reading stderr and throws the original exception from
+                        // writing to stdin.
+                        throw ex;
+                    }
+                    throw new IOException("'docker load' command failed with error: " + error, ex);
+                }
+            }
 
-    try (InputStreamReader stdout =
+    using (InputStreamReader stdout =
         new InputStreamReader(dockerProcess.getInputStream(), StandardCharsets.UTF_8)) {
-      String output = CharStreams.toString(stdout);
+      string output = CharStreams.toString(stdout);
 
       if (dockerProcess.waitFor() != 0) {
-        try (InputStreamReader stderr =
+        using (InputStreamReader stderr =
             new InputStreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8)) {
           throw new IOException(
               "'docker load' command failed with output: " + CharStreams.toString(stderr));
@@ -220,13 +228,13 @@ public class DockerClient {
    * @throws IOException if an I/O exception occurs or {@code docker tag} failed
    */
   public void tag(ImageReference originalImageReference, ImageReference newImageReference)
-      throws IOException, InterruptedException {
+      {
     // Runs 'docker tag'.
     Process dockerProcess =
         docker("tag", originalImageReference.toString(), newImageReference.toString());
 
     if (dockerProcess.waitFor() != 0) {
-      try (InputStreamReader stderr =
+      using (InputStreamReader stderr =
           new InputStreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8)) {
         throw new IOException(
             "'docker tag' command failed with error: " + CharStreams.toString(stderr));
@@ -235,7 +243,8 @@ public class DockerClient {
   }
 
   /** Runs a {@code docker} command. */
-  private Process docker(String... subCommand) throws IOException {
+  private Process docker(params string[] subCommand) {
     return processBuilderFactory.apply(Arrays.asList(subCommand)).start();
   }
+}
 }

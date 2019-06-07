@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.async;
+namespace com.google.cloud.tools.jib.async {
 
-import com.google.common.util.concurrent.Futures;
-import java.util.concurrent.ExecutionException;
+
 
 /**
  * Static utility for checking at runtime that the caller attempts to get a result only from a
@@ -39,4 +38,5 @@ public class NonBlockingSteps {
   }
 
   private NonBlockingSteps() {}
+}
 }

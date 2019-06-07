@@ -14,37 +14,36 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.filesystem.LockFile;
-import com.google.cloud.tools.jib.image.json.ContainerConfigurationTemplate;
-import com.google.cloud.tools.jib.image.json.ManifestAndConfig;
-import com.google.cloud.tools.jib.image.json.ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.OCIManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.DigestException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Reads from the default cache storage engine. */
 class CacheStorageReader {
 
-  private final CacheStorageFiles cacheStorageFiles;
+  private readonly CacheStorageFiles cacheStorageFiles;
 
   CacheStorageReader(CacheStorageFiles cacheStorageFiles) {
     this.cacheStorageFiles = cacheStorageFiles;
@@ -57,11 +56,12 @@ class CacheStorageReader {
    * @throws CacheCorruptedException if the cache was found to be corrupted
    * @throws IOException if an I/O exception occurs
    */
-  Set<DescriptorDigest> fetchDigests() throws IOException, CacheCorruptedException {
-    try (Stream<Path> layerDirectories = Files.list(cacheStorageFiles.getLayersDirectory())) {
+  Set<DescriptorDigest> fetchDigests() {
+    using (Stream<Path> layerDirectories = Files.list(cacheStorageFiles.getLayersDirectory())) {
       List<Path> layerDirectoriesList = layerDirectories.collect(Collectors.toList());
       Set<DescriptorDigest> layerDigests = new HashSet<>(layerDirectoriesList.size());
-      for (Path layerDirectory : layerDirectoriesList) {
+      foreach (Path layerDirectory in layerDirectoriesList)
+      {
         try {
           layerDigests.add(DescriptorDigest.fromHash(layerDirectory.getFileName().toString()));
 
@@ -85,17 +85,17 @@ class CacheStorageReader {
    * @throws CacheCorruptedException if the cache is corrupted
    */
   Optional<ManifestAndConfig> retrieveMetadata(ImageReference imageReference)
-      throws IOException, CacheCorruptedException {
+      {
     Path imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
     Path manifestPath = imageDirectory.resolve("manifest.json");
     if (!Files.exists(manifestPath)) {
       return Optional.empty();
     }
 
-    try (LockFile ignored = LockFile.lock(imageDirectory.resolve("lock"))) {
+    using (LockFile ignored = LockFile.@lock(imageDirectory.resolve("lock"))) {
       // TODO: Consolidate with ManifestPuller
       ObjectNode node =
-          new ObjectMapper().readValue(Files.newInputStream(manifestPath), ObjectNode.class);
+          new ObjectMapper().readValue(Files.newInputStream(manifestPath), typeof(ObjectNode));
       if (!node.has("schemaVersion")) {
         throw new CacheCorruptedException(
             cacheStorageFiles.getCacheDirectory(), "Cannot find field 'schemaVersion' in manifest");
@@ -111,20 +111,20 @@ class CacheStorageReader {
       if (schemaVersion == 1) {
         return Optional.of(
             new ManifestAndConfig(
-                JsonTemplateMapper.readJsonFromFile(manifestPath, V21ManifestTemplate.class),
+                JsonTemplateMapper.readJsonFromFile(manifestPath, typeof(V21ManifestTemplate)),
                 null));
       }
       if (schemaVersion == 2) {
         // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
-        String mediaType = node.get("mediaType").asText();
+        string mediaType = node.get("mediaType").asText();
 
         ManifestTemplate manifestTemplate;
         if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.equals(mediaType)) {
           manifestTemplate =
-              JsonTemplateMapper.readJsonFromFile(manifestPath, V22ManifestTemplate.class);
+              JsonTemplateMapper.readJsonFromFile(manifestPath, typeof(V22ManifestTemplate));
         } else if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.equals(mediaType)) {
           manifestTemplate =
-              JsonTemplateMapper.readJsonFromFile(manifestPath, OCIManifestTemplate.class);
+              JsonTemplateMapper.readJsonFromFile(manifestPath, typeof(OCIManifestTemplate));
         } else {
           throw new CacheCorruptedException(
               cacheStorageFiles.getCacheDirectory(), "Unknown manifest mediaType: " + mediaType);
@@ -137,7 +137,7 @@ class CacheStorageReader {
               "Manifest found, but missing container configuration");
         }
         ContainerConfigurationTemplate config =
-            JsonTemplateMapper.readJsonFromFile(configPath, ContainerConfigurationTemplate.class);
+            JsonTemplateMapper.readJsonFromFile(configPath, typeof(ContainerConfigurationTemplate));
 
         return Optional.of(new ManifestAndConfig(manifestTemplate, config));
       }
@@ -156,7 +156,7 @@ class CacheStorageReader {
    * @throws IOException if an I/O exception occurs
    */
   Optional<CachedLayer> retrieve(DescriptorDigest layerDigest)
-      throws IOException, CacheCorruptedException {
+      {
     Path layerDirectory = cacheStorageFiles.getLayerDirectory(layerDigest);
     if (!Files.exists(layerDirectory)) {
       return Optional.empty();
@@ -164,8 +164,9 @@ class CacheStorageReader {
 
     CachedLayer.Builder cachedLayerBuilder = CachedLayer.builder().setLayerDigest(layerDigest);
 
-    try (Stream<Path> filesInLayerDirectory = Files.list(layerDirectory)) {
-      for (Path fileInLayerDirectory : filesInLayerDirectory.collect(Collectors.toList())) {
+    using (Stream<Path> filesInLayerDirectory = Files.list(layerDirectory)) {
+      foreach (Path fileInLayerDirectory in filesInLayerDirectory.collect(Collectors.toList()))
+      {
         if (CacheStorageFiles.isLayerFile(fileInLayerDirectory)) {
           if (cachedLayerBuilder.hasLayerBlob()) {
             throw new CacheCorruptedException(
@@ -195,14 +196,14 @@ class CacheStorageReader {
    * @throws IOException if an I/O exception occurs
    */
   Optional<DescriptorDigest> select(DescriptorDigest selector)
-      throws CacheCorruptedException, IOException {
+      {
     Path selectorFile = cacheStorageFiles.getSelectorFile(selector);
     if (!Files.exists(selectorFile)) {
       return Optional.empty();
     }
 
-    String selectorFileContents =
-        new String(Files.readAllBytes(selectorFile), StandardCharsets.UTF_8);
+    string selectorFileContents =
+        new string(Files.readAllBytes(selectorFile), StandardCharsets.UTF_8);
     try {
       return Optional.of(DescriptorDigest.fromHash(selectorFileContents));
 
@@ -217,4 +218,5 @@ class CacheStorageReader {
               + selectorFileContents);
     }
   }
+}
 }

@@ -14,11 +14,10 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
+
+
 
 /**
  * Represents a layer in an image. Implementations represent the various types of layers.
@@ -69,4 +68,5 @@ public interface Layer {
    * @throws LayerPropertyNotFoundException if not available
    */
   DescriptorDigest getDiffId() throws LayerPropertyNotFoundException;
+}
 }

@@ -14,19 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.nio.file.Paths;
-import org.junit.Assert;
-import org.junit.Test;
+
+
 
 /** Tests for {@link TarImage}. */
 public class TarImageTest {
 
-  @Test
-  public void testGetters() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetters() {
     TarImage tarImage = TarImage.named("tar/image").saveTo(Paths.get("output/file"));
     Assert.assertEquals("tar/image", tarImage.getImageReference().toString());
     Assert.assertEquals(Paths.get("output/file"), tarImage.getOutputFile());
   }
+}
 }

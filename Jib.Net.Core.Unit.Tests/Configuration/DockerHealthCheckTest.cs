@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.common.collect.ImmutableList;
-import java.time.Duration;
-import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link DockerHealthCheck}. */
 public class DockerHealthCheckTest {
 
-  @Test
+  [TestMethod]
   public void testBuild() {
     DockerHealthCheck healthCheck =
         DockerHealthCheck.fromCommand(ImmutableList.of("echo", "hi"))
@@ -45,7 +44,7 @@ public class DockerHealthCheckTest {
     Assert.assertEquals(10, (int) healthCheck.getRetries().get());
   }
 
-  @Test
+  [TestMethod]
   public void testBuild_invalidCommand() {
     try {
       DockerHealthCheck.fromCommand(ImmutableList.of());
@@ -61,4 +60,5 @@ public class DockerHealthCheckTest {
       Assert.assertEquals("command must not contain null elements", ex.getMessage());
     }
   }
+}
 }

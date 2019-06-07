@@ -14,28 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.CredentialRetriever;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Attempts to retrieve registry credentials. */
-class RetrieveRegistryCredentialsStep implements AsyncStep<Credential>, Callable<Credential> {
-
-  private static String makeDescription(String registry) {
+class RetrieveRegistryCredentialsStep : AsyncStep<Credential>, Callable<Credential>  {
+  private static string makeDescription(string registry) {
     return "Retrieving registry credentials for " + registry;
   }
 
@@ -65,20 +63,19 @@ class RetrieveRegistryCredentialsStep implements AsyncStep<Credential>, Callable
         buildConfiguration.getTargetImageConfiguration().getCredentialRetrievers());
   }
 
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final String registry;
-  private final ImmutableList<CredentialRetriever> credentialRetrievers;
+  private readonly string registry;
+  private readonly ImmutableList<CredentialRetriever> credentialRetrievers;
 
-  private final ListenableFuture<Credential> listenableFuture;
+  private readonly ListenableFuture<Credential> listenableFuture;
 
-  @VisibleForTesting
   RetrieveRegistryCredentialsStep(
       ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      String registry,
+      string registry,
       ImmutableList<CredentialRetriever> credentialRetrievers) {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
@@ -88,23 +85,25 @@ class RetrieveRegistryCredentialsStep implements AsyncStep<Credential>, Callable
     listenableFuture = listeningExecutorService.submit(this);
   }
 
-  @Override
   public ListenableFuture<Credential> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  @Nullable
-  public Credential call() throws CredentialRetrievalException {
-    String description = makeDescription(registry);
+  public Credential call() {
+    string description = makeDescription(registry);
 
     buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
 
-    try (ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1);
-        TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)) {
-      for (CredentialRetriever credentialRetriever : credentialRetrievers) {
+    using(ProgressEventDispatcher ignored =
+            progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
+
+    using(TimerEventDispatcher ignored2 =
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)))
+
+    {
+
+      foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
+      {
         Optional<Credential> optionalCredential = credentialRetriever.retrieve();
         if (optionalCredential.isPresent()) {
           return optionalCredential.get();
@@ -119,4 +118,5 @@ class RetrieveRegistryCredentialsStep implements AsyncStep<Credential>, Callable
       return null;
     }
   }
+}
 }

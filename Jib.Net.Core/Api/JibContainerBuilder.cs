@@ -14,32 +14,31 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.builder.steps.BuildResult;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.ContainerConfiguration;
-import com.google.cloud.tools.jib.configuration.ImageConfiguration;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
-import org.apache.http.conn.HttpHostConnectException;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Builds a container with Jib.
@@ -60,16 +59,16 @@ import org.apache.http.conn.HttpHostConnectException;
 // TODO: Add tests once containerize() is added.
 public class JibContainerBuilder {
 
-  private static String capitalizeFirstLetter(String string) {
-    if (string.length() == 0) {
-      return string;
+  private static string capitalizeFirstLetter(string s) {
+    if (s.length() == 0) {
+      return s;
     }
-    return Character.toUpperCase(string.charAt(0)) + string.substring(1);
+    return Character.toUpperCase(s.charAt(0)) + s.substring(1);
   }
 
-  private final ContainerConfiguration.Builder containerConfigurationBuilder =
+  private readonly ContainerConfiguration.Builder containerConfigurationBuilder =
       ContainerConfiguration.builder();
-  private final BuildConfiguration.Builder buildConfigurationBuilder;
+  private readonly BuildConfiguration.Builder buildConfigurationBuilder;
 
   private List<LayerConfiguration> layerConfigurations = new ArrayList<>();
 
@@ -78,7 +77,6 @@ public class JibContainerBuilder {
     this(baseImage, BuildConfiguration.builder());
   }
 
-  @VisibleForTesting
   JibContainerBuilder(
       RegistryImage baseImage, BuildConfiguration.Builder buildConfigurationBuilder) {
     this.buildConfigurationBuilder = buildConfigurationBuilder;
@@ -120,10 +118,12 @@ public class JibContainerBuilder {
    * @throws IOException if an exception occurred when recursively listing any directories
    */
   public JibContainerBuilder addLayer(List<Path> files, AbsoluteUnixPath pathInContainer)
-      throws IOException {
+      {
     LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
 
-    for (Path file : files) {
+    foreach (Path file in files)
+
+    {
       layerConfigurationBuilder.addEntryRecursive(
           file, pathInContainer.resolve(file.getFileName()));
     }
@@ -143,7 +143,7 @@ public class JibContainerBuilder {
    * @throws IllegalArgumentException if {@code pathInContainer} is not an absolute Unix-style path
    * @see #addLayer(List, AbsoluteUnixPath)
    */
-  public JibContainerBuilder addLayer(List<Path> files, String pathInContainer) throws IOException {
+  public JibContainerBuilder addLayer(List<Path> files, string pathInContainer) {
     return addLayer(files, AbsoluteUnixPath.get(pathInContainer));
   }
 
@@ -176,7 +176,7 @@ public class JibContainerBuilder {
    * @param layerConfigurations the {@link LayerConfiguration}s
    * @return this
    */
-  public JibContainerBuilder setLayers(LayerConfiguration... layerConfigurations) {
+  public JibContainerBuilder setLayers(params LayerConfiguration[] layerConfigurations) {
     return setLayers(Arrays.asList(layerConfigurations));
   }
 
@@ -193,7 +193,7 @@ public class JibContainerBuilder {
    * @param entrypoint a list of the entrypoint command
    * @return this
    */
-  public JibContainerBuilder setEntrypoint(@Nullable List<String> entrypoint) {
+  public JibContainerBuilder setEntrypoint(List<string> entrypoint) {
     containerConfigurationBuilder.setEntrypoint(entrypoint);
     return this;
   }
@@ -205,7 +205,7 @@ public class JibContainerBuilder {
    * @return this
    * @see #setEntrypoint(List)
    */
-  public JibContainerBuilder setEntrypoint(String... entrypoint) {
+  public JibContainerBuilder setEntrypoint(params string[] entrypoint) {
     return setEntrypoint(Arrays.asList(entrypoint));
   }
 
@@ -225,7 +225,7 @@ public class JibContainerBuilder {
    * @param programArguments a list of program argument tokens
    * @return this
    */
-  public JibContainerBuilder setProgramArguments(@Nullable List<String> programArguments) {
+  public JibContainerBuilder setProgramArguments(List<string> programArguments) {
     containerConfigurationBuilder.setProgramArguments(programArguments);
     return this;
   }
@@ -237,7 +237,7 @@ public class JibContainerBuilder {
    * @return this
    * @see #setProgramArguments(List)
    */
-  public JibContainerBuilder setProgramArguments(String... programArguments) {
+  public JibContainerBuilder setProgramArguments(params string[] programArguments) {
     return setProgramArguments(Arrays.asList(programArguments));
   }
 
@@ -254,7 +254,7 @@ public class JibContainerBuilder {
    * @param environmentMap a map of environment variable names to values
    * @return this
    */
-  public JibContainerBuilder setEnvironment(Map<String, String> environmentMap) {
+  public JibContainerBuilder setEnvironment(Map<string, string> environmentMap) {
     containerConfigurationBuilder.setEnvironment(environmentMap);
     return this;
   }
@@ -267,7 +267,7 @@ public class JibContainerBuilder {
    * @return this
    * @see #setEnvironment
    */
-  public JibContainerBuilder addEnvironmentVariable(String name, String value) {
+  public JibContainerBuilder addEnvironmentVariable(string name, string value) {
     containerConfigurationBuilder.addEnvironment(name, value);
     return this;
   }
@@ -293,7 +293,7 @@ public class JibContainerBuilder {
    * @return this
    * @see #setVolumes(Set)
    */
-  public JibContainerBuilder setVolumes(AbsoluteUnixPath... volumes) {
+  public JibContainerBuilder setVolumes(params AbsoluteUnixPath[] volumes) {
     return setVolumes(new HashSet<>(Arrays.asList(volumes)));
   }
 
@@ -335,7 +335,7 @@ public class JibContainerBuilder {
    * @return this
    * @see #setExposedPorts(Set)
    */
-  public JibContainerBuilder setExposedPorts(Port... ports) {
+  public JibContainerBuilder setExposedPorts(params Port[] ports) {
     return setExposedPorts(new HashSet<>(Arrays.asList(ports)));
   }
 
@@ -360,7 +360,7 @@ public class JibContainerBuilder {
    * @param labelMap a map of label keys to values
    * @return this
    */
-  public JibContainerBuilder setLabels(Map<String, String> labelMap) {
+  public JibContainerBuilder setLabels(Map<string, string> labelMap) {
     containerConfigurationBuilder.setLabels(labelMap);
     return this;
   }
@@ -372,7 +372,7 @@ public class JibContainerBuilder {
    * @param value the label value
    * @return this
    */
-  public JibContainerBuilder addLabel(String key, String value) {
+  public JibContainerBuilder addLabel(string key, string value) {
     containerConfigurationBuilder.addLabel(key, value);
     return this;
   }
@@ -418,7 +418,7 @@ public class JibContainerBuilder {
    * @param user the user to run the container as
    * @return this
    */
-  public JibContainerBuilder setUser(@Nullable String user) {
+  public JibContainerBuilder setUser(string user) {
     containerConfigurationBuilder.setUser(user);
     return this;
   }
@@ -429,7 +429,7 @@ public class JibContainerBuilder {
    * @param workingDirectory the working directory
    * @return this
    */
-  public JibContainerBuilder setWorkingDirectory(@Nullable AbsoluteUnixPath workingDirectory) {
+  public JibContainerBuilder setWorkingDirectory(AbsoluteUnixPath workingDirectory) {
     containerConfigurationBuilder.setWorkingDirectory(workingDirectory);
     return this;
   }
@@ -454,17 +454,14 @@ public class JibContainerBuilder {
    * @throws InterruptedException if the execution was interrupted
    */
   public JibContainer containerize(Containerizer containerizer)
-      throws InterruptedException, RegistryException, IOException, CacheDirectoryCreationException,
-          ExecutionException {
-    return containerize(containerizer, Executors::newCachedThreadPool);
+      {
+    return containerize(containerizer, Executors.newCachedThreadPool);
   }
 
-  @VisibleForTesting
   JibContainer containerize(
       Containerizer containerizer, Supplier<ExecutorService> defaultExecutorServiceFactory)
-      throws IOException, CacheDirectoryCreationException, InterruptedException, RegistryException,
-          ExecutionException {
-    boolean shutdownExecutorService = !containerizer.getExecutorService().isPresent();
+      {
+    bool shutdownExecutorService = !containerizer.getExecutorService().isPresent();
     ExecutorService executorService =
         containerizer.getExecutorService().orElseGet(defaultExecutorServiceFactory);
 
@@ -473,23 +470,25 @@ public class JibContainerBuilder {
     EventHandlers eventHandlers = buildConfiguration.getEventHandlers();
     logSources(eventHandlers);
 
-    try (TimerEventDispatcher ignored =
-        new TimerEventDispatcher(eventHandlers, containerizer.getDescription())) {
-      BuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
-      return new JibContainer(result.getImageDigest(), result.getImageId());
+            using (TimerEventDispatcher ignored =
+                new TimerEventDispatcher(eventHandlers, containerizer.getDescription())) {
+                try {
+                    BuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
+                    return new JibContainer(result.getImageDigest(), result.getImageId());
 
-    } catch (ExecutionException ex) {
-      // If an ExecutionException occurs, re-throw the cause to be more easily handled by the user
-      if (ex.getCause() instanceof RegistryException) {
-        throw (RegistryException) ex.getCause();
-      }
-      throw ex;
+                } catch (ExecutionException ex) {
+                    // If an ExecutionException occurs, re-throw the cause to be more easily handled by the user
+                    if (ex.getCause() is RegistryException) {
+                        throw (RegistryException)ex.getCause();
+                    }
+                    throw ex;
 
-    } finally {
-      if (shutdownExecutorService) {
-        executorService.shutdown();
-      }
-    }
+                } finally {
+                    if (shutdownExecutorService) {
+                        executorService.shutdown();
+                    }
+                }
+            }
   }
 
   /**
@@ -502,10 +501,10 @@ public class JibContainerBuilder {
    * @throws CacheDirectoryCreationException if a cache directory could not be created
    * @throws IOException if an I/O exception occurs
    */
-  @VisibleForTesting
+
   BuildConfiguration toBuildConfiguration(
       Containerizer containerizer, ExecutorService executorService)
-      throws CacheDirectoryCreationException, IOException {
+      {
     return buildConfigurationBuilder
         .setTargetImageConfiguration(containerizer.getImageConfiguration())
         .setAdditionalTargetImageTags(containerizer.getAdditionalTags())
@@ -525,7 +524,9 @@ public class JibContainerBuilder {
     // Logs the different source files used.
     eventHandlers.dispatch(LogEvent.info("Containerizing application with the following files:"));
 
-    for (LayerConfiguration layerConfiguration : layerConfigurations) {
+    foreach (LayerConfiguration layerConfiguration in layerConfigurations)
+
+    {
       if (layerConfiguration.getLayerEntries().isEmpty()) {
         continue;
       }
@@ -533,9 +534,11 @@ public class JibContainerBuilder {
       eventHandlers.dispatch(
           LogEvent.info("\t" + capitalizeFirstLetter(layerConfiguration.getName()) + ":"));
 
-      for (LayerEntry layerEntry : layerConfiguration.getLayerEntries()) {
+      foreach (LayerEntry layerEntry in layerConfiguration.getLayerEntries())
+      {
         eventHandlers.dispatch(LogEvent.info("\t\t" + layerEntry.getSourceFile()));
       }
     }
   }
+}
 }

@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.util.Objects;
 
 /** Represents a port number with a protocol (TCP or UDP). */
 public class Port {
 
-  private static final String TCP_PROTOCOL = "tcp";
-  private static final String UDP_PROTOCOL = "udp";
+  private static readonly string TCP_PROTOCOL = "tcp";
+  private static readonly string UDP_PROTOCOL = "udp";
 
   /**
    * Create a new {@link Port} with TCP protocol.
@@ -52,15 +51,15 @@ public class Port {
    * @param protocolString the case insensitive string (e.g. "tcp", "udp")
    * @return the {@link Port}
    */
-  public static Port parseProtocol(int port, String protocolString) {
-    String protocol = UDP_PROTOCOL.equalsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
+  public static Port parseProtocol(int port, string protocolString) {
+    string protocol = UDP_PROTOCOL.equalsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
     return new Port(port, protocol);
   }
 
-  private final int port;
-  private final String protocol;
+  private readonly int port;
+  private readonly string protocol;
 
-  private Port(int port, String protocol) {
+  private Port(int port, string protocol) {
     this.port = port;
     this.protocol = protocol;
   }
@@ -79,23 +78,21 @@ public class Port {
    *
    * @return the protocol
    */
-  public String getProtocol() {
+  public string getProtocol() {
     return protocol;
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (other == this) {
       return true;
     }
-    if (!(other instanceof Port)) {
+    if (!(other is Port)) {
       return false;
     }
     Port otherPort = (Port) other;
     return port == otherPort.port && protocol.equals(otherPort.protocol);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(port, protocol);
   }
@@ -106,8 +103,9 @@ public class Port {
    *
    * @return the string form of the port with protocol
    */
-  @Override
-  public String toString() {
+
+  public string toString() {
     return port + "/" + protocol;
   }
+}
 }

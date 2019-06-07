@@ -14,61 +14,60 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.cache.CachedLayer;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.ContainerConfiguration;
-import com.google.cloud.tools.jib.configuration.DockerHealthCheck;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.json.HistoryEntry;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.security.DigestException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BuildImageStep}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class BuildImageStepTest {
 
-  @Mock private EventHandlers mockEventHandlers;
-  @Mock private BuildConfiguration mockBuildConfiguration;
-  @Mock private ContainerConfiguration mockContainerConfiguration;
-  @Mock private PullBaseImageStep mockPullBaseImageStep;
-  @Mock private PullAndCacheBaseImageLayersStep mockPullAndCacheBaseImageLayersStep;
-  @Mock private PullAndCacheBaseImageLayerStep mockPullAndCacheBaseImageLayerStep;
-  @Mock private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepDependencies;
-  @Mock private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepResources;
-  @Mock private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepClasses;
-  @Mock private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepExtraFiles;
-  @Mock private CachedLayer mockCachedLayer;
+  [Mock] private EventHandlers mockEventHandlers;
+  [Mock] private BuildConfiguration mockBuildConfiguration;
+  [Mock] private ContainerConfiguration mockContainerConfiguration;
+  [Mock] private PullBaseImageStep mockPullBaseImageStep;
+  [Mock] private PullAndCacheBaseImageLayersStep mockPullAndCacheBaseImageLayersStep;
+  [Mock] private PullAndCacheBaseImageLayerStep mockPullAndCacheBaseImageLayerStep;
+  [Mock] private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepDependencies;
+  [Mock] private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepResources;
+  [Mock] private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepClasses;
+  [Mock] private BuildAndCacheApplicationLayerStep mockBuildAndCacheApplicationLayerStepExtraFiles;
+  [Mock] private CachedLayer mockCachedLayer;
   private DescriptorDigest testDescriptorDigest;
   private HistoryEntry nonEmptyLayerHistory;
   private HistoryEntry emptyLayerHistory;
 
-  @Before
-  public void setUp() throws DigestException {
+  [TestInitialize]
+  public void setUp() {
     testDescriptorDigest =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -101,7 +100,7 @@ public class BuildImageStepTest {
             .build();
 
     Image baseImage =
-        Image.builder(V22ManifestTemplate.class)
+        Image.builder(typeof(V22ManifestTemplate))
             .setArchitecture("wasm")
             .setOs("js")
             .addEnvironment(ImmutableMap.of("BASE_ENV", "BASE_ENV_VALUE", "BASE_ENV_2", "DEFAULT"))
@@ -145,7 +144,7 @@ public class BuildImageStepTest {
             mockBuildAndCacheApplicationLayerStepExtraFiles,
             mockBuildAndCacheApplicationLayerStepResources)
         .forEach(
-            layerStep ->
+            layerStep =>
                 Mockito.when(layerStep.getFuture())
                     .thenReturn(Futures.immediateFuture(mockCachedLayer)));
 
@@ -158,8 +157,8 @@ public class BuildImageStepTest {
         .thenReturn("resources");
   }
 
-  @Test
-  public void test_validateAsyncDependencies() throws ExecutionException, InterruptedException {
+  [TestMethod]
+  public void test_validateAsyncDependencies() {
     BuildImageStep buildImageStep =
         new BuildImageStep(
             MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()),
@@ -176,9 +175,9 @@ public class BuildImageStepTest {
         testDescriptorDigest, image.getLayers().asList().get(0).getBlobDescriptor().getDigest());
   }
 
-  @Test
+  [TestMethod]
   public void test_propagateBaseImageConfiguration()
-      throws ExecutionException, InterruptedException {
+      {
     Mockito.when(mockContainerConfiguration.getEnvironmentMap())
         .thenReturn(ImmutableMap.of("MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"));
     Mockito.when(mockContainerConfiguration.getLabels())
@@ -247,8 +246,8 @@ public class BuildImageStepTest {
     Assert.assertEquals(ImmutableList.of(), image.getProgramArguments());
   }
 
-  @Test
-  public void testOverrideWorkingDirectory() throws InterruptedException, ExecutionException {
+  [TestMethod]
+  public void testOverrideWorkingDirectory() {
     Mockito.when(mockContainerConfiguration.getWorkingDirectory())
         .thenReturn(AbsoluteUnixPath.get("/my/directory"));
 
@@ -268,8 +267,8 @@ public class BuildImageStepTest {
     Assert.assertEquals("/my/directory", image.getWorkingDirectory());
   }
 
-  @Test
-  public void test_inheritedEntrypoint() throws ExecutionException, InterruptedException {
+  [TestMethod]
+  public void test_inheritedEntrypoint() {
     Mockito.when(mockContainerConfiguration.getEntrypoint()).thenReturn(null);
     Mockito.when(mockContainerConfiguration.getProgramArguments())
         .thenReturn(ImmutableList.of("test"));
@@ -291,9 +290,9 @@ public class BuildImageStepTest {
     Assert.assertEquals(ImmutableList.of("test"), image.getProgramArguments());
   }
 
-  @Test
+  [TestMethod]
   public void test_inheritedEntrypointAndProgramArguments()
-      throws ExecutionException, InterruptedException {
+      {
     Mockito.when(mockContainerConfiguration.getEntrypoint()).thenReturn(null);
     Mockito.when(mockContainerConfiguration.getProgramArguments()).thenReturn(null);
 
@@ -314,8 +313,8 @@ public class BuildImageStepTest {
     Assert.assertEquals(ImmutableList.of("catalina.sh", "run"), image.getProgramArguments());
   }
 
-  @Test
-  public void test_notInheritedProgramArguments() throws ExecutionException, InterruptedException {
+  [TestMethod]
+  public void test_notInheritedProgramArguments() {
     Mockito.when(mockContainerConfiguration.getEntrypoint())
         .thenReturn(ImmutableList.of("myEntrypoint"));
     Mockito.when(mockContainerConfiguration.getProgramArguments()).thenReturn(null);
@@ -337,8 +336,8 @@ public class BuildImageStepTest {
     Assert.assertNull(image.getProgramArguments());
   }
 
-  @Test
-  public void test_generateHistoryObjects() throws ExecutionException, InterruptedException {
+  [TestMethod]
+  public void test_generateHistoryObjects() {
     BuildImageStep buildImageStep =
         new BuildImageStep(
             MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()),
@@ -408,4 +407,5 @@ public class BuildImageStepTest {
     // Should be exactly 9 total
     Assert.assertEquals(9, image.getHistory().size());
   }
+}
 }

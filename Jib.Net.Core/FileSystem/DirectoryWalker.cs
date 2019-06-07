@@ -14,22 +14,21 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+
+
+
+
+
+
 
 /** Recursively applies a function to each file in a directory. */
 public class DirectoryWalker {
 
-  private final Path rootDir;
+  private readonly Path rootDir;
 
-  private Predicate<Path> pathFilter = path -> true;
+  private Predicate<Path> pathFilter = path => true;
 
   /**
    * Initialize with a root directory to walk.
@@ -37,7 +36,7 @@ public class DirectoryWalker {
    * @param rootDir the root directory.
    * @throws NotDirectoryException if the root directory is not a directory.
    */
-  public DirectoryWalker(Path rootDir) throws NotDirectoryException {
+  public DirectoryWalker(Path rootDir) {
     if (!Files.isDirectory(rootDir)) {
       throw new NotDirectoryException(rootDir + " is not a directory");
     }
@@ -62,7 +61,7 @@ public class DirectoryWalker {
    * @return this
    */
   public DirectoryWalker filterRoot() {
-    filter(path -> !path.equals(rootDir));
+    filter(path => !path.equals(rootDir));
     return this;
   }
 
@@ -74,9 +73,10 @@ public class DirectoryWalker {
    * @return a list of Paths that were walked.
    * @throws IOException if the walk fails.
    */
-  public ImmutableList<Path> walk(PathConsumer pathConsumer) throws IOException {
+  public ImmutableList<Path> walk(PathConsumer pathConsumer) {
     ImmutableList<Path> files = walk();
-    for (Path path : files) {
+    foreach (Path path in files)
+    {
       pathConsumer.accept(path);
     }
     return files;
@@ -88,9 +88,10 @@ public class DirectoryWalker {
    * @return the walked files.
    * @throws IOException if walking the files fails.
    */
-  public ImmutableList<Path> walk() throws IOException {
-    try (Stream<Path> fileStream = Files.walk(rootDir)) {
+  public ImmutableList<Path> walk() {
+    using (Stream<Path> fileStream = Files.walk(rootDir)) {
       return fileStream.filter(pathFilter).sorted().collect(ImmutableList.toImmutableList());
     }
   }
+}
 }

@@ -14,26 +14,25 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
 
 /** Tests for {@link Layer}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class LayerTest {
 
-  @Mock private DescriptorDigest mockDescriptorDigest;
-  @Mock private BlobDescriptor mockBlobDescriptor;
-  @Mock private DescriptorDigest mockDiffId;
+  [Mock] private DescriptorDigest mockDescriptorDigest;
+  [Mock] private BlobDescriptor mockBlobDescriptor;
+  [Mock] private DescriptorDigest mockDiffId;
 
-  @Test
-  public void testNew_reference() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void testNew_reference() {
     Layer layer = new ReferenceLayer(mockBlobDescriptor, mockDiffId);
 
     try {
@@ -47,8 +46,8 @@ public class LayerTest {
     Assert.assertEquals(mockDiffId, layer.getDiffId());
   }
 
-  @Test
-  public void testNew_digestOnly() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void testNew_digestOnly() {
     Layer layer = new DigestOnlyLayer(mockDescriptorDigest);
 
     try {
@@ -68,4 +67,5 @@ public class LayerTest {
       Assert.assertEquals("Diff ID not available for digest-only layer", ex.getMessage());
     }
   }
+}
 }

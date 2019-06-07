@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.security.DigestException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
 
 /** Tests for {@link JibContainer}. */
 public class JibContainerTest {
 
-  @Rule public TemporaryFolder temporaryDirectory = new TemporaryFolder();
+  [Rule] public TemporaryFolder temporaryDirectory = new TemporaryFolder();
 
   private DescriptorDigest digest1;
   private DescriptorDigest digest2;
   private DescriptorDigest digest3;
 
-  @Before
-  public void setUp() throws DigestException {
+  [TestInitialize]
+  public void setUp() {
     digest1 =
         DescriptorDigest.fromDigest(
             "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
@@ -45,7 +44,7 @@ public class JibContainerTest {
             "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210");
   }
 
-  @Test
+  [TestMethod]
   public void testCreation() {
     JibContainer container = new JibContainer(digest1, digest2);
 
@@ -53,7 +52,7 @@ public class JibContainerTest {
     Assert.assertEquals(digest2, container.getImageId());
   }
 
-  @Test
+  [TestMethod]
   public void testEquality() {
     JibContainer container1 = new JibContainer(digest1, digest2);
     JibContainer container2 = new JibContainer(digest1, digest2);
@@ -63,4 +62,5 @@ public class JibContainerTest {
     Assert.assertEquals(container1.hashCode(), container2.hashCode());
     Assert.assertNotEquals(container1, container3);
   }
+}
 }

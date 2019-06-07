@@ -14,44 +14,45 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.common.collect.Sets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
 
 /** Tests for {@link RegistryAliasGroup}. */
 public class RegistryAliasGroupTest {
 
-  @Test
+  [TestMethod]
   public void testGetAliasesGroup_noKnownAliases() {
-    List<String> singleton = RegistryAliasGroup.getAliasesGroup("something.gcr.io");
+    List<string> singleton = RegistryAliasGroup.getAliasesGroup("something.gcr.io");
     Assert.assertEquals(1, singleton.size());
     Assert.assertEquals("something.gcr.io", singleton.get(0));
   }
 
-  @Test
+  [TestMethod]
   public void testGetAliasesGroup_dockerHub() {
-    Set<String> aliases =
+    Set<string> aliases =
         Sets.newHashSet(
             "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io");
-    for (String alias : aliases) {
+    foreach (string alias in aliases)
+    {
       Assert.assertEquals(aliases, new HashSet<>(RegistryAliasGroup.getAliasesGroup(alias)));
     }
   }
 
-  @Test
+  [TestMethod]
   public void testGetHost_noAlias() {
-    String host = RegistryAliasGroup.getHost("something.gcr.io");
+    string host = RegistryAliasGroup.getHost("something.gcr.io");
     Assert.assertEquals("something.gcr.io", host);
   }
 
-  @Test
+  [TestMethod]
   public void testGetHost_dockerIo() {
-    String host = RegistryAliasGroup.getHost("docker.io");
+    string host = RegistryAliasGroup.getHost("docker.io");
     Assert.assertEquals("registry-1.docker.io", host);
   }
+}
 }

@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.io.CharStreams;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Retrieves Docker credentials with a Docker credential helper.
@@ -40,31 +39,30 @@ import javax.annotation.Nullable;
  */
 public class DockerCredentialHelper {
 
-  public static final String CREDENTIAL_HELPER_PREFIX = "docker-credential-";
+  public static readonly string CREDENTIAL_HELPER_PREFIX = "docker-credential-";
 
-  private final String serverUrl;
-  private final Path credentialHelper;
+  private readonly string serverUrl;
+  private readonly Path credentialHelper;
 
   /** Template for a Docker credential helper output. */
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  private static class DockerCredentialsTemplate implements JsonTemplate {
-
-    @Nullable private String Username;
-    @Nullable private String Secret;
+  [JsonIgnoreProperties(ignoreUnknown = true)]
+  private class DockerCredentialsTemplate : JsonTemplate  {
+    private string Username;
+    private string Secret;
   }
 
   /**
    * Constructs a new {@link DockerCredentialHelper}.
    *
-   * @param serverUrl the server URL to pass into the credential helper
+   * @param serverUrl the server Uri to pass into the credential helper
    * @param credentialHelper the path to the credential helper executable
    */
-  public DockerCredentialHelper(String serverUrl, Path credentialHelper) {
+  public DockerCredentialHelper(string serverUrl, Path credentialHelper) {
     this.serverUrl = serverUrl;
     this.credentialHelper = credentialHelper;
   }
 
-  DockerCredentialHelper(String registry, String credentialHelperSuffix) {
+  DockerCredentialHelper(string registry, string credentialHelperSuffix) {
     this(registry, Paths.get(CREDENTIAL_HELPER_PREFIX + credentialHelperSuffix));
   }
 
@@ -72,7 +70,7 @@ public class DockerCredentialHelper {
    * Calls the credential helper CLI in the form:
    *
    * <pre>{@code
-   * echo -n <server URL> | docker-credential-<credential helper suffix> get
+   * echo -n <server Uri> | docker-credential-<credential helper suffix> get
    * }</pre>
    *
    * @return the Docker credentials by calling the corresponding CLI
@@ -82,19 +80,18 @@ public class DockerCredentialHelper {
    * @throws CredentialHelperNotFoundException if the credential helper CLI doesn't exist
    */
   public Credential retrieve()
-      throws IOException, CredentialHelperUnhandledServerUrlException,
-          CredentialHelperNotFoundException {
+      {
     try {
-      String[] credentialHelperCommand = {credentialHelper.toString(), "get"};
+      string[] credentialHelperCommand = {credentialHelper.toString(), "get"};
 
       Process process = new ProcessBuilder(credentialHelperCommand).start();
-      try (OutputStream processStdin = process.getOutputStream()) {
+      using (OutputStream processStdin = process.getOutputStream()) {
         processStdin.write(serverUrl.getBytes(StandardCharsets.UTF_8));
       }
 
-      try (InputStreamReader processStdoutReader =
+      using (InputStreamReader processStdoutReader =
           new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
-        String output = CharStreams.toString(processStdoutReader);
+        string output = CharStreams.toString(processStdoutReader);
 
         // Throws an exception if the credential store does not have credentials for serverUrl.
         if (output.contains("credentials not found in native keychain")) {
@@ -102,9 +99,9 @@ public class DockerCredentialHelper {
               credentialHelper, serverUrl, output);
         }
         if (output.isEmpty()) {
-          try (InputStreamReader processStderrReader =
+          using (InputStreamReader processStderrReader =
               new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)) {
-            String errorOutput = CharStreams.toString(processStderrReader);
+            string errorOutput = CharStreams.toString(processStderrReader);
             throw new CredentialHelperUnhandledServerUrlException(
                 credentialHelper, serverUrl, errorOutput);
           }
@@ -112,7 +109,7 @@ public class DockerCredentialHelper {
 
         try {
           DockerCredentialsTemplate dockerCredentials =
-              JsonTemplateMapper.readJson(output, DockerCredentialsTemplate.class);
+              JsonTemplateMapper.readJson(output, typeof(DockerCredentialsTemplate));
           if (Strings.isNullOrEmpty(dockerCredentials.Username)
               || Strings.isNullOrEmpty(dockerCredentials.Secret)) {
             throw new CredentialHelperUnhandledServerUrlException(
@@ -142,8 +139,8 @@ public class DockerCredentialHelper {
     }
   }
 
-  @VisibleForTesting
   Path getCredentialHelper() {
     return credentialHelper;
   }
+}
 }

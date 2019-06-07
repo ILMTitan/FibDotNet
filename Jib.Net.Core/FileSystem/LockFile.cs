@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.base.Preconditions;
-import java.io.Closeable;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.channels.FileLock;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
+
+
+
+
+
+
+
+
+
 
 /** Creates and deletes lock files. */
-public class LockFile implements Closeable {
+public class LockFile : Closeable {
 
-  private static final ConcurrentHashMap<Path, Lock> lockMap = new ConcurrentHashMap<>();
+  private static readonly ConcurrentHashMap<Path, Lock> lockMap = new ConcurrentHashMap<>();
 
-  private final Path lockFile;
-  private final FileLock fileLock;
-  private final OutputStream outputStream;
+  private readonly Path lockFile;
+  private readonly FileLock fileLock;
+  private readonly OutputStream outputStream;
 
   private LockFile(Path lockFile, FileLock fileLock, OutputStream outputStream) {
-    this.lockFile = lockFile;
+    this.@lockFile = lockFile;
     this.fileLock = fileLock;
     this.outputStream = outputStream;
   }
@@ -50,11 +49,11 @@ public class LockFile implements Closeable {
    * @return a new {@link LockFile} that can be released later
    * @throws IOException if creating the lock file fails
    */
-  public static LockFile lock(Path lockFile) throws IOException {
+  public static LockFile lock(Path lockFile) {
     try {
-      // This first lock is to prevent multiple threads from calling FileChannel.lock(), which would
+      // This first lock is to prevent multiple threads from calling FileChannel.@lock(), which would
       // otherwise throw OverlappingFileLockException
-      lockMap.computeIfAbsent(lockFile, key -> new ReentrantLock()).lockInterruptibly();
+      lockMap.computeIfAbsent(lockFile, key => new ReentrantLock()).@lockInterruptibly();
 
     } catch (InterruptedException ex) {
       throw new IOException("Interrupted while trying to acquire lock", ex);
@@ -64,7 +63,7 @@ public class LockFile implements Closeable {
     FileOutputStream outputStream = new FileOutputStream(lockFile.toFile());
     FileLock fileLock = null;
     try {
-      fileLock = outputStream.getChannel().lock();
+      fileLock = outputStream.getChannel().@lock();
       return new LockFile(lockFile, fileLock, outputStream);
 
     } finally {
@@ -75,7 +74,7 @@ public class LockFile implements Closeable {
   }
 
   /** Releases the lock file. */
-  @Override
+
   public void close() {
     try {
       fileLock.release();
@@ -88,4 +87,5 @@ public class LockFile implements Closeable {
       Preconditions.checkNotNull(lockMap.get(lockFile)).unlock();
     }
   }
+}
 }

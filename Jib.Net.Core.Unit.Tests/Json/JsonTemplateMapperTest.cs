@@ -14,47 +14,46 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.json;
+namespace com.google.cloud.tools.jib.json {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.DigestException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link JsonTemplateMapper}. */
 public class JsonTemplateMapperTest {
 
-  private static class TestJson implements JsonTemplate {
+  private class TestJson : JsonTemplate  {
     private int number;
-    private String text;
+    private string text;
     private DescriptorDigest digest;
     private InnerObject innerObject;
     private List<InnerObject> list;
 
-    private static class InnerObject implements JsonTemplate {
+    private class InnerObject : JsonTemplate  {
       // This field has the same name as a field in the outer class, but either NOT interfere with
       // the other.
       private int number;
-      private List<String> texts;
+      private List<string> texts;
       private List<DescriptorDigest> digests;
     }
   }
 
-  @Test
-  public void testWriteJson() throws DigestException, IOException, URISyntaxException {
+  [TestMethod]
+  public void testWriteJson() {
     Path jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
-    String expectedJson = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     TestJson testJson = new TestJson();
     testJson.number = 54;
@@ -87,12 +86,12 @@ public class JsonTemplateMapperTest {
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(testJson));
   }
 
-  @Test
-  public void testReadJsonWithLock() throws IOException, URISyntaxException, DigestException {
+  [TestMethod]
+  public void testReadJsonWithLock() {
     Path jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
 
     // Deserializes into a metadata JSON object.
-    TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock(jsonFile, TestJson.class);
+    TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock(jsonFile, typeof(TestJson));
 
     Assert.assertThat(testJson.number, CoreMatchers.is(54));
     Assert.assertThat(testJson.text, CoreMatchers.is("crepecake"));
@@ -101,7 +100,7 @@ public class JsonTemplateMapperTest {
         CoreMatchers.is(
             DescriptorDigest.fromDigest(
                 "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad")));
-    Assert.assertThat(testJson.innerObject, CoreMatchers.instanceOf(TestJson.InnerObject.class));
+    Assert.assertThat(testJson.innerObject, CoreMatchers.instanceOf(TestJson.typeof(InnerObject)));
     Assert.assertThat(testJson.innerObject.number, CoreMatchers.is(23));
     Assert.assertThat(
         testJson.innerObject.texts, CoreMatchers.is(Arrays.asList("first text", "second text")));
@@ -116,12 +115,12 @@ public class JsonTemplateMapperTest {
     // ignore testJson.list
   }
 
-  @Test
-  public void testReadListOfJson() throws IOException, URISyntaxException, DigestException {
+  [TestMethod]
+  public void testReadListOfJson() {
     Path jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
-    String jsonString = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    List<TestJson> listofJsons = JsonTemplateMapper.readListOfJson(jsonString, TestJson.class);
+    string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    List<TestJson> listofJsons = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
     TestJson json1 = listofJsons.get(0);
     TestJson json2 = listofJsons.get(1);
 
@@ -144,13 +143,14 @@ public class JsonTemplateMapperTest {
     Assert.assertTrue(json2.list.isEmpty());
   }
 
-  @Test
-  public void testToBlob_listOfJson() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testToBlob_listOfJson() {
     Path jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
-    String jsonString = new String(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson(jsonString, TestJson.class);
+    string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
 
     Assert.assertEquals(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));
   }
+}
 }

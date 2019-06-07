@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.json;
+namespace com.google.cloud.tools.jib.json {
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
+
 
 /**
  * All JSON templates to be used with {@link JsonTemplateMapper} must extend this class.
@@ -31,3 +30,4 @@ import com.fasterxml.jackson.annotation.JsonInclude;
     setterVisibility = JsonAutoDetect.Visibility.NONE,
     creatorVisibility = JsonAutoDetect.Visibility.NONE)
 public interface JsonTemplate {}
+}

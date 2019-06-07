@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
-import java.util.Optional;
+
 
 /** Retrieves credentials for a registry. */
 @FunctionalInterface
@@ -35,4 +34,5 @@ public interface CredentialRetriever {
    * @throws CredentialRetrievalException if the credential retrieval encountered an exception
    */
   Optional<Credential> retrieve() throws CredentialRetrievalException;
+}
 }

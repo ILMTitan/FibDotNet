@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.tar;
+namespace com.google.cloud.tools.jib.tar {
 
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+
+
+
+
+
+
+
+
 
 /** Builds a tarball archive. */
 public class TarStreamBuilder {
@@ -33,7 +32,7 @@ public class TarStreamBuilder {
    * Maps from {@link TarArchiveEntry} to a {@link Blob}. The order of the entries is the order they
    * belong in the tarball.
    */
-  private final LinkedHashMap<TarArchiveEntry, Blob> archiveMap = new LinkedHashMap<>();
+  private readonly LinkedHashMap<TarArchiveEntry, Blob> archiveMap = new LinkedHashMap<>();
 
   /**
    * Writes each entry in the filesystem to the tarball archive stream.
@@ -41,8 +40,8 @@ public class TarStreamBuilder {
    * @param out the stream to write to.
    * @throws IOException if building the tarball fails.
    */
-  public void writeAsTarArchiveTo(OutputStream out) throws IOException {
-    try (TarArchiveOutputStream tarArchiveOutputStream =
+  public void writeAsTarArchiveTo(OutputStream out) {
+    using (TarArchiveOutputStream tarArchiveOutputStream =
         new TarArchiveOutputStream(out, StandardCharsets.UTF_8.name())) {
       // Enables PAX extended headers to support long file names.
       tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
@@ -61,7 +60,7 @@ public class TarStreamBuilder {
    */
   public void addTarArchiveEntry(TarArchiveEntry entry) {
     archiveMap.put(
-        entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(ignored -> {}));
+        entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(ignored => {}));
   }
 
   /**
@@ -71,10 +70,10 @@ public class TarStreamBuilder {
    * @param contents the bytes to add to the tarball
    * @param name the name of the entry (i.e. filename)
    */
-  public void addByteEntry(byte[] contents, String name) {
+  public void addByteEntry(byte[] contents, string name) {
     TarArchiveEntry entry = new TarArchiveEntry(name);
     entry.setSize(contents.length);
-    archiveMap.put(entry, Blobs.from(outputStream -> outputStream.write(contents)));
+    archiveMap.put(entry, Blobs.from(outputStream => outputStream.write(contents)));
   }
 
   /**
@@ -85,9 +84,10 @@ public class TarStreamBuilder {
    * @param size the size (in bytes) of {@code blob}
    * @param name the name of the entry (i.e. filename)
    */
-  public void addBlobEntry(Blob blob, long size, String name) {
+  public void addBlobEntry(Blob blob, long size, string name) {
     TarArchiveEntry entry = new TarArchiveEntry(name);
     entry.setSize(size);
     archiveMap.put(entry, blob);
   }
+}
 }

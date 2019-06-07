@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.docker;
+namespace com.google.cloud.tools.jib.docker {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.docker.json.DockerLoadManifestEntryTemplate;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.Layer;
-import com.google.cloud.tools.jib.image.json.ImageToJsonTranslator;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.tar.TarStreamBuilder;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collections;
+
+
+
+
+
+
+
+
+
+
 
 /** Translates an {@link Image} to a tarball that can be loaded into Docker. */
 public class ImageTarball {
 
   /** File name for the container configuration in the tarball. */
-  private static final String CONTAINER_CONFIGURATION_JSON_FILE_NAME = "config.json";
+  private static readonly string CONTAINER_CONFIGURATION_JSON_FILE_NAME = "config.json";
 
   /** File name for the manifest in the tarball. */
-  private static final String MANIFEST_JSON_FILE_NAME = "manifest.json";
+  private static readonly string MANIFEST_JSON_FILE_NAME = "manifest.json";
 
   /** File name extension for the layer content files. */
-  private static final String LAYER_FILE_EXTENSION = ".tar.gz";
+  private static readonly string LAYER_FILE_EXTENSION = ".tar.gz";
 
-  private final Image image;
+  private readonly Image image;
 
-  private final ImageReference imageReference;
+  private readonly ImageReference imageReference;
 
   /**
    * Instantiate with an {@link Image}.
@@ -55,13 +54,14 @@ public class ImageTarball {
     this.imageReference = imageReference;
   }
 
-  public void writeTo(OutputStream out) throws IOException {
+  public void writeTo(OutputStream out) {
     TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
     DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
 
     // Adds all the layers to the tarball and manifest.
-    for (Layer layer : image.getLayers()) {
-      String layerName = layer.getBlobDescriptor().getDigest().getHash() + LAYER_FILE_EXTENSION;
+    foreach (Layer layer in image.getLayers())
+    {
+      string layerName = layer.getBlobDescriptor().getDigest().getHash() + LAYER_FILE_EXTENSION;
 
       tarStreamBuilder.addBlobEntry(
           layer.getBlob(), layer.getBlobDescriptor().getSize(), layerName);
@@ -83,4 +83,5 @@ public class ImageTarball {
 
     tarStreamBuilder.writeAsTarArchiveTo(out);
   }
+}
 }

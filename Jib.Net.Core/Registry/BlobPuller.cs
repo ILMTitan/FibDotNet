@@ -14,39 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpMethods;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.NotifyingOutputStream;
-import com.google.cloud.tools.jib.http.Response;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pulls an image's BLOB (layer or container configuration). */
-class BlobPuller implements RegistryEndpointProvider<Void> {
-
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
+class BlobPuller : $2 {
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
   /** The digest of the BLOB to pull. */
-  private final DescriptorDigest blobDigest;
+  private readonly DescriptorDigest blobDigest;
 
   /**
    * The {@link OutputStream} to write the BLOB to. Closes the {@link OutputStream} after writing.
    */
-  private final OutputStream destinationOutputStream;
+  private readonly OutputStream destinationOutputStream;
 
-  private final Consumer<Long> blobSizeListener;
-  private final Consumer<Long> writtenByteCountListener;
+  private readonly Consumer<Long> blobSizeListener;
+  private readonly Consumer<Long> writtenByteCountListener;
 
   BlobPuller(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
@@ -61,11 +59,10 @@ class BlobPuller implements RegistryEndpointProvider<Void> {
     this.writtenByteCountListener = writtenByteCountListener;
   }
 
-  @Override
-  public Void handleResponse(Response response) throws IOException, UnexpectedBlobDigestException {
+  public Void handleResponse(Response response) {
     blobSizeListener.accept(response.getContentLength());
 
-    try (OutputStream outputStream =
+    using (OutputStream outputStream =
         new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener)) {
       BlobDescriptor receivedBlobDescriptor =
           Digests.computeDigest(response.getBody(), outputStream);
@@ -83,30 +80,24 @@ class BlobPuller implements RegistryEndpointProvider<Void> {
     return null;
   }
 
-  @Override
-  @Nullable
   public BlobHttpContent getContent() {
     return null;
   }
 
-  @Override
-  public List<String> getAccept() {
+  public List<string> getAccept() {
     return Collections.emptyList();
   }
 
-  @Override
-  public URL getApiRoute(String apiRouteBase) throws MalformedURLException {
-    return new URL(
+  public Uri getApiRoute(string apiRouteBase) {
+    return new Uri(
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
   }
 
-  @Override
-  public String getHttpMethod() {
+  public string getHttpMethod() {
     return HttpMethods.GET;
   }
 
-  @Override
-  public String getActionDescription() {
+  public string getActionDescription() {
     return "pull BLOB for "
         + registryEndpointRequestProperties.getServerUrl()
         + "/"
@@ -114,4 +105,5 @@ class BlobPuller implements RegistryEndpointProvider<Void> {
         + " with digest "
         + blobDigest;
   }
+}
 }

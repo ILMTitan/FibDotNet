@@ -14,48 +14,47 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.filesystem.FileOperations;
-import com.google.cloud.tools.jib.filesystem.LockFile;
-import com.google.cloud.tools.jib.filesystem.TemporaryDirectory;
-import com.google.cloud.tools.jib.hash.CountingDigestOutputStream;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ContainerConfigurationTemplate;
-import com.google.cloud.tools.jib.image.json.V21ManifestTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.FileSystemException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Writes to the default cache storage engine. */
 class CacheStorageWriter {
 
   /** Holds information about a layer that was written. */
-  private static class WrittenLayer {
+  private class WrittenLayer {
 
-    private final DescriptorDigest layerDigest;
-    private final DescriptorDigest layerDiffId;
-    private final long layerSize;
+    private readonly DescriptorDigest layerDigest;
+    private readonly DescriptorDigest layerDiffId;
+    private readonly long layerSize;
 
     private WrittenLayer(
         DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize) {
@@ -74,7 +73,7 @@ class CacheStorageWriter {
    * @param destination the destination path
    * @throws IOException if an I/O exception occurs
    */
-  private static void moveIfDoesNotExist(Path source, Path destination) throws IOException {
+  private static void moveIfDoesNotExist(Path source, Path destination) {
     // If the file already exists, we skip renaming and use the existing file. This happens if a
     // new layer happens to have the same content as a previously-cached layer.
     if (Files.exists(destination)) {
@@ -100,12 +99,12 @@ class CacheStorageWriter {
    * @throws IOException if an I/O exception occurs
    */
   private static DescriptorDigest getDiffIdByDecompressingFile(Path compressedFile)
-      throws IOException {
-    try (CountingDigestOutputStream diffIdCaptureOutputStream =
+      {
+    using (CountingDigestOutputStream diffIdCaptureOutputStream =
         new CountingDigestOutputStream(ByteStreams.nullOutputStream())) {
-      try (InputStream fileInputStream =
-              new BufferedInputStream(Files.newInputStream(compressedFile));
-          GZIPInputStream decompressorStream = new GZIPInputStream(fileInputStream)) {
+                using (InputStream fileInputStream =
+                        new BufferedInputStream(Files.newInputStream(compressedFile)))
+                using (          GZIPInputStream decompressorStream = new GZIPInputStream(fileInputStream)) {
         ByteStreams.copy(decompressorStream, diffIdCaptureOutputStream);
       }
       return diffIdCaptureOutputStream.computeDigest().getDigest();
@@ -121,10 +120,10 @@ class CacheStorageWriter {
    * @throws IOException if an I/O exception occurs
    */
   private static void writeMetadata(JsonTemplate jsonTemplate, Path destination)
-      throws IOException {
+      {
     Path temporaryFile = Files.createTempFile(destination.getParent(), null, null);
     temporaryFile.toFile().deleteOnExit();
-    try (OutputStream outputStream = Files.newOutputStream(temporaryFile)) {
+    using (OutputStream outputStream = Files.newOutputStream(temporaryFile)) {
       JsonTemplateMapper.writeTo(jsonTemplate, outputStream);
     }
 
@@ -142,7 +141,7 @@ class CacheStorageWriter {
     }
   }
 
-  private final CacheStorageFiles cacheStorageFiles;
+  private readonly CacheStorageFiles cacheStorageFiles;
 
   CacheStorageWriter(CacheStorageFiles cacheStorageFiles) {
     this.cacheStorageFiles = cacheStorageFiles;
@@ -158,13 +157,13 @@ class CacheStorageWriter {
    * @return the {@link CachedLayer} representing the written entry
    * @throws IOException if an I/O exception occurs
    */
-  CachedLayer writeCompressed(Blob compressedLayerBlob) throws IOException {
+  CachedLayer writeCompressed(Blob compressedLayerBlob) {
     // Creates the layers directory if it doesn't exist.
     Files.createDirectories(cacheStorageFiles.getLayersDirectory());
 
     // Creates the temporary directory.
     Files.createDirectories(cacheStorageFiles.getTemporaryDirectory());
-    try (TemporaryDirectory temporaryDirectory =
+    using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(cacheStorageFiles.getTemporaryDirectory())) {
       Path temporaryLayerDirectory = temporaryDirectory.getDirectory();
 
@@ -205,15 +204,15 @@ class CacheStorageWriter {
    * @return the {@link CachedLayer} representing the written entry
    * @throws IOException if an I/O exception occurs
    */
-  CachedLayer writeUncompressed(Blob uncompressedLayerBlob, @Nullable DescriptorDigest selector)
-      throws IOException {
+  CachedLayer writeUncompressed(Blob uncompressedLayerBlob, DescriptorDigest selector)
+      {
     // Creates the layers directory if it doesn't exist.
     Files.createDirectories(cacheStorageFiles.getLayersDirectory());
 
     // Creates the temporary directory. The temporary directory must be in the same FileStore as the
     // final location for Files.move to work.
     Files.createDirectories(cacheStorageFiles.getTemporaryDirectory());
-    try (TemporaryDirectory temporaryDirectory =
+    using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(cacheStorageFiles.getTemporaryDirectory())) {
       Path temporaryLayerDirectory = temporaryDirectory.getDirectory();
 
@@ -255,14 +254,14 @@ class CacheStorageWriter {
       ImageReference imageReference,
       BuildableManifestTemplate manifestTemplate,
       ContainerConfigurationTemplate containerConfiguration)
-      throws IOException {
+      {
     Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration());
     Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration().getDigest());
 
     Path imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
     Files.createDirectories(imageDirectory);
 
-    try (LockFile ignored1 = LockFile.lock(imageDirectory.resolve("lock"))) {
+    using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock"))) {
       writeMetadata(manifestTemplate, imageDirectory.resolve("manifest.json"));
       writeMetadata(containerConfiguration, imageDirectory.resolve("config.json"));
     }
@@ -275,11 +274,11 @@ class CacheStorageWriter {
    * @param manifestTemplate the manifest
    */
   void writeMetadata(ImageReference imageReference, V21ManifestTemplate manifestTemplate)
-      throws IOException {
+      {
     Path imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
     Files.createDirectories(imageDirectory);
 
-    try (LockFile ignored1 = LockFile.lock(imageDirectory.resolve("lock"))) {
+    using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock"))) {
       writeMetadata(manifestTemplate, imageDirectory.resolve("manifest.json"));
     }
   }
@@ -293,12 +292,12 @@ class CacheStorageWriter {
    * @throws IOException if an I/O exception occurs
    */
   private WrittenLayer writeCompressedLayerBlobToDirectory(
-      Blob compressedLayerBlob, Path layerDirectory) throws IOException {
+      Blob compressedLayerBlob, Path layerDirectory) {
     // Writes the layer file to the temporary directory.
     Path temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory);
 
     BlobDescriptor layerBlobDescriptor;
-    try (OutputStream fileOutputStream =
+    using (OutputStream fileOutputStream =
         new BufferedOutputStream(Files.newOutputStream(temporaryLayerFile))) {
       layerBlobDescriptor = compressedLayerBlob.writeTo(fileOutputStream);
     }
@@ -323,10 +322,10 @@ class CacheStorageWriter {
    * @throws IOException if an I/O exception occurs
    */
   private WrittenLayer writeUncompressedLayerBlobToDirectory(
-      Blob uncompressedLayerBlob, Path layerDirectory) throws IOException {
+      Blob uncompressedLayerBlob, Path layerDirectory) {
     Path temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory);
 
-    try (CountingDigestOutputStream compressedDigestOutputStream =
+    using (CountingDigestOutputStream compressedDigestOutputStream =
         new CountingDigestOutputStream(
             new BufferedOutputStream(Files.newOutputStream(temporaryLayerFile)))) {
       // Writes the layer with GZIP compression. The original bytes are captured as the layer's
@@ -358,7 +357,7 @@ class CacheStorageWriter {
    * @throws IOException if an I/O exception occurs
    */
   private void writeSelector(DescriptorDigest selector, DescriptorDigest layerDigest)
-      throws IOException {
+      {
     Path selectorFile = cacheStorageFiles.getSelectorFile(selector);
 
     // Creates the selectors directory if it doesn't exist.
@@ -367,7 +366,7 @@ class CacheStorageWriter {
     // Writes the selector to a temporary file and then moves the file to the intended location.
     Path temporarySelectorFile = Files.createTempFile(null, null);
     temporarySelectorFile.toFile().deleteOnExit();
-    try (OutputStream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile)) {
+    using (OutputStream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile)) {
       fileOut.write(layerDigest.getHash().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -384,4 +383,5 @@ class CacheStorageWriter {
       Files.move(temporarySelectorFile, selectorFile, StandardCopyOption.REPLACE_EXISTING);
     }
   }
+}
 }

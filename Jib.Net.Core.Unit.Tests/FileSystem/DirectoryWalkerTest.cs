@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link DirectoryWalker}. */
 public class DirectoryWalkerTest {
 
-  private final Set<Path> walkedPaths = new HashSet<>();
-  private final PathConsumer addToWalkedPaths = walkedPaths::add;
+  private readonly Set<Path> walkedPaths = new HashSet<>();
+  private readonly PathConsumer addToWalkedPaths = walkedPaths.add;
 
   private Path testDir;
 
-  @Before
-  public void setUp() throws URISyntaxException {
+  [TestInitialize]
+  public void setUp() {
     testDir = Paths.get(Resources.getResource("core/layer").toURI());
   }
 
-  @Test
-  public void testWalk() throws IOException {
+  [TestMethod]
+  public void testWalk() {
     new DirectoryWalker(testDir).walk(addToWalkedPaths);
 
     Set<Path> expectedPaths =
@@ -58,12 +57,12 @@ public class DirectoryWalkerTest {
     Assert.assertEquals(expectedPaths, walkedPaths);
   }
 
-  @Test
-  public void testWalk_withFilter() throws IOException {
+  [TestMethod]
+  public void testWalk_withFilter() {
     // Filters to immediate subdirectories of testDir, and foo.
     new DirectoryWalker(testDir)
-        .filter(path -> path.getParent().equals(testDir))
-        .filter(path -> !path.endsWith("foo"))
+        .filter(path => path.getParent().equals(testDir))
+        .filter(path => !path.endsWith("foo"))
         .walk(addToWalkedPaths);
 
     Set<Path> expectedPaths =
@@ -71,8 +70,8 @@ public class DirectoryWalkerTest {
     Assert.assertEquals(expectedPaths, walkedPaths);
   }
 
-  @Test
-  public void testWalk_withFilterRoot() throws IOException {
+  [TestMethod]
+  public void testWalk_withFilterRoot() {
     new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
 
     Set<Path> expectedPaths =
@@ -86,4 +85,5 @@ public class DirectoryWalkerTest {
                 testDir.resolve("foo")));
     Assert.assertEquals(expectedPaths, walkedPaths);
   }
+}
 }

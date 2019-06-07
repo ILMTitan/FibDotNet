@@ -14,43 +14,42 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib;
+namespace com.google.cloud.tools.jib {
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Testing infrastructure for running code across multiple threads. */
-public class MultithreadedExecutor implements Closeable {
+public class MultithreadedExecutor : Closeable {
 
-  private static final Duration MULTITHREADED_TEST_TIMEOUT = Duration.ofSeconds(1);
-  private static final int THREAD_COUNT = 20;
+  private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.ofSeconds(1);
+  private static readonly int THREAD_COUNT = 20;
 
-  private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+  private readonly ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
 
-  public <E> E invoke(Callable<E> callable) throws ExecutionException, InterruptedException {
+  public E invoke<E>(Callable<E> callable) {
     List<E> returnValue = invokeAll(Collections.singletonList(callable));
     return returnValue.get(0);
   }
 
-  public <E> List<E> invokeAll(List<Callable<E>> callables)
-      throws InterruptedException, ExecutionException {
+  public List<E> invokeAll<E>(List<Callable<E>> callables) {
     List<Future<E>> futures =
         executorService.invokeAll(
             callables, MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
 
     List<E> returnValues = new ArrayList<>();
-    for (Future<E> future : futures) {
+    foreach (Future<E> future in futures)
+    {
       Assert.assertTrue(future.isDone());
       returnValues.add(future.get());
     }
@@ -58,8 +57,7 @@ public class MultithreadedExecutor implements Closeable {
     return returnValues;
   }
 
-  @Override
-  public void close() throws IOException {
+  public void close() {
     executorService.shutdown();
     try {
       executorService.awaitTermination(MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
@@ -68,4 +66,5 @@ public class MultithreadedExecutor implements Closeable {
       throw new IOException(ex);
     }
   }
+}
 }

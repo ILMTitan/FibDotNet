@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.http.Authorization;
-import java.io.IOException;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
 
 /** Integration tests for {@link RegistryAuthenticator}. */
 public class RegistryAuthenticatorIntegrationTest {
 
-  @Test
+  [TestMethod]
   public void testAuthenticate()
-      throws IOException, RegistryException, InvalidImageReferenceException {
+      {
     ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
     RegistryAuthenticator registryAuthenticator =
         RegistryClient.factory(
@@ -45,4 +44,5 @@ public class RegistryAuthenticatorIntegrationTest {
     // Checks that some token was received.
     Assert.assertTrue(0 < authorization.getToken().length());
   }
+}
 }

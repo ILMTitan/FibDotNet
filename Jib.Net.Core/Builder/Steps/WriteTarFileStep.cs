@@ -14,40 +14,39 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.docker.ImageTarball;
-import com.google.cloud.tools.jib.filesystem.FileOperations;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
-public class WriteTarFileStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
 
-  private final ListeningExecutorService listeningExecutorService;
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final Path outputPath;
-  private final PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private final ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-  private final BuildImageStep buildImageStep;
 
-  private final ListenableFuture<BuildResult> listenableFuture;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public class WriteTarFileStep : AsyncStep<BuildResult>, Callable<BuildResult> {
+
+  private readonly ListeningExecutorService listeningExecutorService;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+
+  private readonly Path outputPath;
+  private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+  private readonly ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+  private readonly BuildImageStep buildImageStep;
+
+  private readonly ListenableFuture<BuildResult> listenableFuture;
 
   WriteTarFileStep(
       ListeningExecutorService listeningExecutorService,
@@ -66,39 +65,37 @@ public class WriteTarFileStep implements AsyncStep<BuildResult>, Callable<BuildR
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(pullAndCacheBaseImageLayersStep)
             .addStep(buildImageStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<BuildResult> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public BuildResult call() throws ExecutionException, InterruptedException {
-    return AsyncDependencies.using(listeningExecutorService)
+  public BuildResult call() {
+    return AsyncDependencies.@using(listeningExecutorService)
         .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
         .addSteps(buildAndCacheApplicationLayerSteps)
         .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(this::writeTarFile)
+        .whenAllSucceed(this.writeTarFile)
         .get();
   }
 
-  private BuildResult writeTarFile() throws ExecutionException, IOException {
+  private BuildResult writeTarFile() {
     buildConfiguration
         .getEventHandlers()
         .dispatch(LogEvent.progress("Building image to tar file..."));
 
-    try (ProgressEventDispatcher ignored =
+    using (ProgressEventDispatcher ignored =
         progressEventDispatcherFactory.create("writing to tar file", 1)) {
       Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
 
       // Builds the image to a tarball.
       Files.createDirectories(outputPath.getParent());
-      try (OutputStream outputStream =
+      using (OutputStream outputStream =
           new BufferedOutputStream(FileOperations.newLockingOutputStream(outputPath))) {
         new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
             .writeTo(outputStream);
@@ -107,4 +104,5 @@ public class WriteTarFileStep implements AsyncStep<BuildResult>, Callable<BuildR
       return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
     }
   }
+}
 }

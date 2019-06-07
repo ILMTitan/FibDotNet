@@ -14,57 +14,56 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.CredentialRetriever;
-import com.google.cloud.tools.jib.api.ImageFormat;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.OCIManifestTemplate;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BuildConfiguration}. */
 public class BuildConfigurationTest {
 
-  @Test
-  public void testBuilder() throws Exception {
-    String expectedBaseImageServerUrl = "someserver";
-    String expectedBaseImageName = "baseimage";
-    String expectedBaseImageTag = "baseimagetag";
-    String expectedTargetServerUrl = "someotherserver";
-    String expectedTargetImageName = "targetimage";
-    String expectedTargetTag = "targettag";
-    Set<String> additionalTargetImageTags = ImmutableSet.of("tag1", "tag2", "tag3");
-    Set<String> expectedTargetImageTags = ImmutableSet.of("targettag", "tag1", "tag2", "tag3");
+  [TestMethod]
+  public void testBuilder() {
+    string expectedBaseImageServerUrl = "someserver";
+    string expectedBaseImageName = "baseimage";
+    string expectedBaseImageTag = "baseimagetag";
+    string expectedTargetServerUrl = "someotherserver";
+    string expectedTargetImageName = "targetimage";
+    string expectedTargetTag = "targettag";
+    Set<string> additionalTargetImageTags = ImmutableSet.of("tag1", "tag2", "tag3");
+    Set<string> expectedTargetImageTags = ImmutableSet.of("targettag", "tag1", "tag2", "tag3");
     List<CredentialRetriever> credentialRetrievers =
-        Collections.singletonList(() -> Optional.of(Credential.from("username", "password")));
+        Collections.singletonList(() => Optional.of(Credential.from("username", "password")));
     Instant expectedCreationTime = Instant.ofEpochSecond(10000);
-    List<String> expectedEntrypoint = Arrays.asList("some", "entrypoint");
-    List<String> expectedProgramArguments = Arrays.asList("arg1", "arg2");
-    Map<String, String> expectedEnvironment = ImmutableMap.of("key", "value");
+    List<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
+    List<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");
+    Map<string, string> expectedEnvironment = ImmutableMap.of("key", "value");
     ImmutableSet<Port> expectedExposedPorts = ImmutableSet.of(Port.tcp(1000), Port.tcp(2000));
-    Map<String, String> expectedLabels = ImmutableMap.of("key1", "value1", "key2", "value2");
-    Class<? extends BuildableManifestTemplate> expectedTargetFormat = OCIManifestTemplate.class;
+    Map<string, string> expectedLabels = ImmutableMap.of("key1", "value1", "key2", "value2");
+    Class<? extends BuildableManifestTemplate> expectedTargetFormat = typeof(OCIManifestTemplate);
     Path expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
     Path expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
     List<LayerConfiguration> expectedLayerConfigurations =
@@ -72,7 +71,7 @@ public class BuildConfigurationTest {
             LayerConfiguration.builder()
                 .addEntry(Paths.get("sourceFile"), AbsoluteUnixPath.get("/path/in/container"))
                 .build());
-    String expectedCreatedBy = "createdBy";
+    string expectedCreatedBy = "createdBy";
 
     ImageConfiguration baseImageConfiguration =
         ImageConfiguration.builder(
@@ -135,7 +134,7 @@ public class BuildConfigurationTest {
             .getCredentialRetrievers()
             .get(0)
             .retrieve()
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
     Assert.assertEquals(
         expectedProgramArguments,
         buildConfiguration.getContainerConfiguration().getProgramArguments());
@@ -159,15 +158,15 @@ public class BuildConfigurationTest {
     Assert.assertNotNull(buildConfiguration.getExecutorService());
   }
 
-  @Test
-  public void testBuilder_default() throws IOException {
+  [TestMethod]
+  public void testBuilder_default() {
     // These are required and don't have defaults.
-    String expectedBaseImageServerUrl = "someserver";
-    String expectedBaseImageName = "baseimage";
-    String expectedBaseImageTag = "baseimagetag";
-    String expectedTargetServerUrl = "someotherserver";
-    String expectedTargetImageName = "targetimage";
-    String expectedTargetTag = "targettag";
+    string expectedBaseImageServerUrl = "someserver";
+    string expectedBaseImageName = "baseimage";
+    string expectedBaseImageTag = "baseimagetag";
+    string expectedTargetServerUrl = "someotherserver";
+    string expectedTargetImageName = "targetimage";
+    string expectedTargetTag = "targettag";
 
     ImageConfiguration baseImageConfiguration =
         ImageConfiguration.builder(
@@ -189,7 +188,7 @@ public class BuildConfigurationTest {
     BuildConfiguration buildConfiguration = buildConfigurationBuilder.build();
 
     Assert.assertEquals(ImmutableSet.of("targettag"), buildConfiguration.getAllTargetImageTags());
-    Assert.assertEquals(V22ManifestTemplate.class, buildConfiguration.getTargetFormat());
+    Assert.assertEquals(typeof(V22ManifestTemplate), buildConfiguration.getTargetFormat());
     Assert.assertNotNull(buildConfigurationBuilder.getApplicationLayersCacheDirectory());
     Assert.assertEquals(
         Paths.get("ignored"), buildConfigurationBuilder.getApplicationLayersCacheDirectory());
@@ -202,13 +201,13 @@ public class BuildConfigurationTest {
     Assert.assertEquals("jib", buildConfiguration.getToolName());
   }
 
-  @Test
-  public void testBuilder_missingValues() throws IOException {
+  [TestMethod]
+  public void testBuilder_missingValues() {
     // Target image is missing
     try {
       BuildConfiguration.builder()
           .setBaseImageConfiguration(
-              ImageConfiguration.builder(Mockito.mock(ImageReference.class)).build())
+              ImageConfiguration.builder(Mockito.mock(typeof(ImageReference))).build())
           .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
           .setApplicationLayersCacheDirectory(Paths.get("ignored"))
           .setExecutorService(MoreExecutors.newDirectExecutorService())
@@ -246,4 +245,5 @@ public class BuildConfigurationTest {
           ex.getMessage());
     }
   }
+}
 }

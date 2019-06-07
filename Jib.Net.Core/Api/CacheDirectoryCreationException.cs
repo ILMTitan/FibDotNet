@@ -14,14 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+using System;
+using System.Text.RegularExpressions;
+
+namespace com.google.cloud.tools.jib.api {
 
 /** Thrown when a directory to be used as the cache could not be created. */
-public class CacheDirectoryCreationException extends Exception {
+public class CacheDirectoryCreationException : Exception {
 
-  private static final String MESSAGE = "Could not create cache directory";
+  private static readonly string MESSAGE = "Could not create cache directory";
 
-  public CacheDirectoryCreationException(Throwable cause) {
-    super(MESSAGE, cause);
+  public CacheDirectoryCreationException(Exception cause) : base(MESSAGE, cause) {
   }
+}
 }

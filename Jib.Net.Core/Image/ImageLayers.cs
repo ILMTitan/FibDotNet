@@ -14,28 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
+
 
 /** Holds the layers for an image. */
-public class ImageLayers implements Iterable<Layer> {
+public class ImageLayers : Iterable<Layer> {
 
   public static class Builder {
 
-    private final List<Layer> layers = new ArrayList<>();
-    private final ImmutableSet.Builder<DescriptorDigest> layerDigestsBuilder =
+    private readonly List<Layer> layers = new ArrayList<>();
+    private readonly ImmutableSet.Builder<DescriptorDigest> layerDigestsBuilder =
         ImmutableSet.builder();
-    private boolean removeDuplicates = false;
+    private bool removeDuplicates = false;
 
     /**
      * Adds a layer. Removes any prior occurrences of the same layer.
@@ -47,7 +46,7 @@ public class ImageLayers implements Iterable<Layer> {
      * @return this
      * @throws LayerPropertyNotFoundException if adding the layer fails
      */
-    public Builder add(Layer layer) throws LayerPropertyNotFoundException {
+    public Builder add(Layer layer) {
       layerDigestsBuilder.add(layer.getBlobDescriptor().getDigest());
       layers.add(layer);
       return this;
@@ -60,8 +59,9 @@ public class ImageLayers implements Iterable<Layer> {
      * @return this
      * @throws LayerPropertyNotFoundException if adding a layer fails
      */
-    public Builder addAll(ImageLayers layers) throws LayerPropertyNotFoundException {
-      for (Layer layer : layers) {
+    public Builder addAll(ImageLayers layers) {
+      foreach (Layer layer in layers)
+      {
         add(layer);
       }
       return this;
@@ -95,10 +95,10 @@ public class ImageLayers implements Iterable<Layer> {
   }
 
   /** The layers of the image, in the order in which they are applied. */
-  private final ImmutableList<Layer> layers;
+  private readonly ImmutableList<Layer> layers;
 
   /** Keeps track of the layers already added. */
-  private final ImmutableSet<DescriptorDigest> layerDigests;
+  private readonly ImmutableSet<DescriptorDigest> layerDigests;
 
   private ImageLayers(ImmutableList<Layer> layers, ImmutableSet<DescriptorDigest> layerDigests) {
     this.layers = layers;
@@ -115,7 +115,7 @@ public class ImageLayers implements Iterable<Layer> {
     return layers.size();
   }
 
-  public boolean isEmpty() {
+  public bool isEmpty() {
     return layers.isEmpty();
   }
 
@@ -132,12 +132,12 @@ public class ImageLayers implements Iterable<Layer> {
    * @return the layer found, or {@code null} if not found
    * @throws LayerPropertyNotFoundException if getting the layer's blob descriptor fails
    */
-  @Nullable
-  public Layer get(DescriptorDigest digest) throws LayerPropertyNotFoundException {
+  public Layer get(DescriptorDigest digest) {
     if (!has(digest)) {
       return null;
     }
-    for (Layer layer : layers) {
+    foreach (Layer layer in layers)
+    {
       if (layer.getBlobDescriptor().getDigest().equals(digest)) {
         return layer;
       }
@@ -149,12 +149,12 @@ public class ImageLayers implements Iterable<Layer> {
    * @param digest the digest to check for
    * @return true if the layer with the specified digest exists; false otherwise
    */
-  public boolean has(DescriptorDigest digest) {
+  public bool has(DescriptorDigest digest) {
     return layerDigests.contains(digest);
   }
 
-  @Override
   public Iterator<Layer> iterator() {
     return getLayers().iterator();
   }
+}
 }

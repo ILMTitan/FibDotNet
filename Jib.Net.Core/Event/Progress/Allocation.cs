@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import java.util.Optional;
-import javax.annotation.Nullable;
+
 
 /**
  * Represents a Decentralized Allocation Tree (DAT) node.
@@ -47,23 +46,23 @@ public class Allocation {
    * @param allocationUnits number of allocation units
    * @return a new {@link Allocation}
    */
-  public static Allocation newRoot(String description, long allocationUnits) {
+  public static Allocation newRoot(string description, long allocationUnits) {
     return new Allocation(description, allocationUnits, null);
   }
 
   /** The parent {@link Allocation}, or {@code null} to indicate a root node. */
-  @Nullable private final Allocation parent;
+  private final Allocation parent;
 
   /** User-facing description of what the allocation represents. */
-  private final String description;
+  private readonly string description;
 
   /** The number of allocation units this node holds. */
-  private final long allocationUnits;
+  private readonly long allocationUnits;
 
   /** How much of the root allocation (1.0) each allocation unit accounts for. */
-  private final double fractionOfRoot;
+  private readonly double fractionOfRoot;
 
-  private Allocation(String description, long allocationUnits, @Nullable Allocation parent) {
+  private Allocation(string description, long allocationUnits, Allocation parent) {
     this.description = description;
     this.allocationUnits = allocationUnits < 0 ? 0 : allocationUnits;
     this.parent = parent;
@@ -78,7 +77,7 @@ public class Allocation {
    * @param allocationUnits number of allocation units the child holds
    * @return a new {@link Allocation}
    */
-  public Allocation newChild(String description, long allocationUnits) {
+  public Allocation newChild(string description, long allocationUnits) {
     return new Allocation(description, allocationUnits, this);
   }
 
@@ -98,7 +97,7 @@ public class Allocation {
    *
    * @return the description
    */
-  public String getDescription() {
+  public string getDescription() {
     return description;
   }
 
@@ -121,4 +120,5 @@ public class Allocation {
   public double getFractionOfRoot() {
     return fractionOfRoot;
   }
+}
 }

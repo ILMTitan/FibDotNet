@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableMap;
-import java.nio.file.Paths;
-import java.util.Optional;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link DockerDaemonImage}. */
 public class DockerDaemonImageTest {
 
-  @Test
-  public void testGetters_default() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetters_default() {
     DockerDaemonImage dockerDaemonImage = DockerDaemonImage.named("docker/daemon/image");
 
     Assert.assertEquals("docker/daemon/image", dockerDaemonImage.getImageReference().toString());
@@ -34,8 +33,8 @@ public class DockerDaemonImageTest {
     Assert.assertEquals(0, dockerDaemonImage.getDockerEnvironment().size());
   }
 
-  @Test
-  public void testGetters() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetters() {
     DockerDaemonImage dockerDaemonImage =
         DockerDaemonImage.named("docker/daemon/image")
             .setDockerExecutable(Paths.get("docker/binary"))
@@ -44,4 +43,5 @@ public class DockerDaemonImageTest {
     Assert.assertEquals(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().get());
     Assert.assertEquals(ImmutableMap.of("key", "value"), dockerDaemonImage.getDockerEnvironment());
   }
+}
 }

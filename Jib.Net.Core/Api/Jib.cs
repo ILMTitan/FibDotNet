@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
 /** Build containers with Jib. */
@@ -30,8 +30,8 @@ public class Jib {
    * @throws InvalidImageReferenceException if the {@code baseImageReference} is not a valid image
    *     reference
    */
-  public static JibContainerBuilder from(String baseImageReference)
-      throws InvalidImageReferenceException {
+  public static JibContainerBuilder from(string baseImageReference)
+      {
     return from(RegistryImage.named(baseImageReference));
   }
 
@@ -67,4 +67,5 @@ public class Jib {
   }
 
   private Jib() {}
+}
 }

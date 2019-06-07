@@ -14,20 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.function.Consumer;
+
+
 
 /** Counts the number of bytes written and reports the count to a callback. */
-public class NotifyingOutputStream extends OutputStream {
+public class NotifyingOutputStream : OutputStream {
 
   /** The underlying {@link OutputStream} to wrap and forward bytes to. */
-  private final OutputStream underlyingOutputStream;
+  private readonly OutputStream underlyingOutputStream;
 
   /** Receives a count of bytes written since the last call. */
-  private final Consumer<Long> byteCountListener;
+  private readonly Consumer<Long> byteCountListener;
 
   /** Number of bytes to provide to {@link #byteCountListener}. */
   private long byteCount = 0;
@@ -44,32 +43,27 @@ public class NotifyingOutputStream extends OutputStream {
     this.byteCountListener = byteCountListener;
   }
 
-  @Override
-  public void write(int singleByte) throws IOException {
+  public void write(int singleByte) {
     underlyingOutputStream.write(singleByte);
     countAndCallListener(1);
   }
 
-  @Override
-  public void write(byte[] byteArray) throws IOException {
+  public void write(byte[] byteArray) {
     underlyingOutputStream.write(byteArray);
     countAndCallListener(byteArray.length);
   }
 
-  @Override
-  public void write(byte byteArray[], int offset, int length) throws IOException {
+  public void write(byte byteArray[], int offset, int length) {
     underlyingOutputStream.write(byteArray, offset, length);
     countAndCallListener(length);
   }
 
-  @Override
-  public void flush() throws IOException {
+  public void flush() {
     underlyingOutputStream.flush();
     countAndCallListener(0);
   }
 
-  @Override
-  public void close() throws IOException {
+  public void close() {
     underlyingOutputStream.close();
     countAndCallListener(0);
   }
@@ -83,4 +77,5 @@ public class NotifyingOutputStream extends OutputStream {
     byteCountListener.accept(byteCount);
     byteCount = 0;
   }
+}
 }

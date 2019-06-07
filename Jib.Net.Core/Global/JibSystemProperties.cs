@@ -14,23 +14,21 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.global;
+namespace com.google.cloud.tools.jib.global {
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.collect.Range;
+
+
 
 /** Names of system properties defined/used by Jib. */
 public class JibSystemProperties {
 
-  @VisibleForTesting public static final String HTTP_TIMEOUT = "jib.httpTimeout";
+  @VisibleForTesting public static final string HTTP_TIMEOUT = "jib.httpTimeout";
 
-  @VisibleForTesting
-  public static final String SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
+  public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
 
-  private static final String SERIALIZE = "jibSerialize";
+  private static readonly string SERIALIZE = "jibSerialize";
 
-  private static final String DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
+  private static readonly string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
 
   /**
    * Gets the HTTP connection/read timeouts for registry interactions in milliseconds. This is
@@ -52,8 +50,8 @@ public class JibSystemProperties {
    *
    * @return {@code true} if Jib's execution should be serialized, {@code false} if not
    */
-  public static boolean isSerializedExecutionEnabled() {
-    return Boolean.getBoolean(SERIALIZE);
+  public static bool isSerializedExecutionEnabled() {
+    return bool.getBoolean(SERIALIZE);
   }
 
   /**
@@ -63,8 +61,8 @@ public class JibSystemProperties {
    * @return {@code true} if authentication information is allowed to be sent over insecure
    *     connections, {@code false} if not
    */
-  public static boolean isSendCredentialsOverHttpEnabled() {
-    return Boolean.getBoolean(SEND_CREDENTIALS_OVER_HTTP);
+  public static bool isSendCredentialsOverHttpEnabled() {
+    return bool.getBoolean(SEND_CREDENTIALS_OVER_HTTP);
   }
 
   /**
@@ -73,7 +71,7 @@ public class JibSystemProperties {
    *
    * @return {@code true} if the User-Agent header is enabled, {@code false} if not
    */
-  public static boolean isUserAgentEnabled() {
+  public static bool isUserAgentEnabled() {
     return Strings.isNullOrEmpty(System.getProperty(DISABLE_USER_AGENT));
   }
 
@@ -83,7 +81,7 @@ public class JibSystemProperties {
    *
    * @throws NumberFormatException if invalid values
    */
-  public static void checkHttpTimeoutProperty() throws NumberFormatException {
+  public static void checkHttpTimeoutProperty() {
     checkNumericSystemProperty(HTTP_TIMEOUT, Range.atLeast(0));
   }
 
@@ -93,13 +91,13 @@ public class JibSystemProperties {
    *
    * @throws NumberFormatException if invalid values
    */
-  public static void checkProxyPortProperty() throws NumberFormatException {
+  public static void checkProxyPortProperty() {
     checkNumericSystemProperty("http.proxyPort", Range.closed(0, 65535));
     checkNumericSystemProperty("https.proxyPort", Range.closed(0, 65535));
   }
 
-  private static void checkNumericSystemProperty(String property, Range<Integer> validRange) {
-    String value = System.getProperty(property);
+  private static void checkNumericSystemProperty(string property, Range<Integer> validRange) {
+    string value = System.getProperty(property);
     if (value == null) {
       return;
     }
@@ -120,4 +118,5 @@ public class JibSystemProperties {
   }
 
   private JibSystemProperties() {}
+}
 }

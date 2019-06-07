@@ -14,45 +14,43 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.cache.CachedLayer;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
-class PushLayersStep
-    implements AsyncStep<ImmutableList<AsyncStep<PushBlobStep>>>,
+
+
+
+
+
+
+
+
+
+
+
+
+
+class PushLayersStep:AsyncStep<ImmutableList<AsyncStep<PushBlobStep>>>,
         Callable<ImmutableList<AsyncStep<PushBlobStep>>> {
 
-  private static final String DESCRIPTION = "Setting up to push layers";
+  private static readonly string DESCRIPTION = "Setting up to push layers";
 
-  private final BuildConfiguration buildConfiguration;
-  private final ListeningExecutorService listeningExecutorService;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ListeningExecutorService listeningExecutorService;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final AuthenticatePushStep authenticatePushStep;
-  private final AsyncStep<? extends ImmutableList<? extends AsyncStep<? extends CachedLayer>>>
+  private readonly AuthenticatePushStep authenticatePushStep;
+  private readonly AsyncStep<IImmutableList<AsyncStep<CachedLayer>>>
       cachedLayerStep;
 
-  private final ListenableFuture<ImmutableList<AsyncStep<PushBlobStep>>> listenableFuture;
+  private readonly ListenableFuture<ImmutableList<AsyncStep<PushBlobStep>>> listenableFuture;
 
   PushLayersStep(
       ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       AuthenticatePushStep authenticatePushStep,
-      AsyncStep<? extends ImmutableList<? extends AsyncStep<? extends CachedLayer>>>
+      AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
           cachedLayerStep) {
     this.listeningExecutorService = listeningExecutorService;
     this.buildConfiguration = buildConfiguration;
@@ -61,37 +59,36 @@ class PushLayersStep
     this.cachedLayerStep = cachedLayerStep;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(cachedLayerStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<ImmutableList<AsyncStep<PushBlobStep>>> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public ImmutableList<AsyncStep<PushBlobStep>> call() throws ExecutionException {
-    try (TimerEventDispatcher ignored =
+  public ImmutableList<AsyncStep<PushBlobStep>> call() {
+    using (TimerEventDispatcher ignored =
         new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)) {
-      ImmutableList<? extends AsyncStep<? extends CachedLayer>> cachedLayers =
+      IReadOnlyList<AsyncStep<CachedLayer>> cachedLayers =
           NonBlockingSteps.get(cachedLayerStep);
 
-      try (ProgressEventDispatcher progressEventDispatcher =
+      using (ProgressEventDispatcher progressEventDispatcher =
           progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size())) {
         // Constructs a PushBlobStep for each layer.
         ImmutableList.Builder<AsyncStep<PushBlobStep>> pushBlobStepsBuilder =
             ImmutableList.builder();
-        for (AsyncStep<? extends CachedLayer> cachedLayerStep : cachedLayers) {
+        foreach (AsyncStep<CachedLayer> cachedLayerStep in cachedLayers)
+        {
           ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
               progressEventDispatcher.newChildProducer();
           ListenableFuture<PushBlobStep> pushBlobStepFuture =
               Futures.whenAllSucceed(cachedLayerStep.getFuture())
                   .call(
-                      () -> makePushBlobStep(cachedLayerStep, childProgressEventDispatcherFactory),
+                      () => makePushBlobStep(cachedLayerStep, childProgressEventDispatcherFactory),
                       listeningExecutorService);
-          pushBlobStepsBuilder.add(() -> pushBlobStepFuture);
+          pushBlobStepsBuilder.add(() => pushBlobStepFuture);
         }
 
         return pushBlobStepsBuilder.build();
@@ -100,9 +97,9 @@ class PushLayersStep
   }
 
   private PushBlobStep makePushBlobStep(
-      AsyncStep<? extends CachedLayer> cachedLayerStep,
+      AsyncStep<CachedLayer> cachedLayerStep,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory)
-      throws ExecutionException {
+      {
     CachedLayer cachedLayer = NonBlockingSteps.get(cachedLayerStep);
 
     return new PushBlobStep(
@@ -113,4 +110,5 @@ class PushLayersStep
         new BlobDescriptor(cachedLayer.getSize(), cachedLayer.getDigest()),
         cachedLayer.getBlob());
   }
+}
 }

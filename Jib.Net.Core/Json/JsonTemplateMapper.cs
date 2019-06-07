@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.json;
+namespace com.google.cloud.tools.jib.json {
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // TODO: Add JsonFactory for HTTP response parsing.
 /**
@@ -55,7 +54,7 @@ import java.util.List;
  */
 public class JsonTemplateMapper {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static readonly ObjectMapper objectMapper = new ObjectMapper();
 
   /**
    * Deserializes a JSON file via a JSON object template.
@@ -66,8 +65,7 @@ public class JsonTemplateMapper {
    * @return the template filled with the values parsed from {@code jsonFile}
    * @throws IOException if an error occurred during reading the file or parsing the JSON
    */
-  public static <T extends JsonTemplate> T readJsonFromFile(Path jsonFile, Class<T> templateClass)
-      throws IOException {
+  public static T readJsonFromFile<T>(Path jsonFile, Class<T> templateClass) where T : JsonTemplate {
     return objectMapper.readValue(Files.newInputStream(jsonFile), templateClass);
   }
 
@@ -80,12 +78,12 @@ public class JsonTemplateMapper {
    * @return the template filled with the values parsed from {@code jsonFile}
    * @throws IOException if an error occurred during reading the file or parsing the JSON
    */
-  public static <T extends JsonTemplate> T readJsonFromFileWithLock(
-      Path jsonFile, Class<T> templateClass) throws IOException {
+  public static T readJsonFromFileWithLock<T>(
+      Path jsonFile, Class<T> templateClass) where T : JsonTemplate {
     // channel is closed by inputStream.close()
     FileChannel channel = FileChannel.open(jsonFile, StandardOpenOption.READ);
-    channel.lock(0, Long.MAX_VALUE, true); // shared lock, released by channel close
-    try (InputStream inputStream = Channels.newInputStream(channel)) {
+    channel.@lock(0, Long.MAX_VALUE, true); // shared lock, released by channel close
+    using (InputStream inputStream = Channels.newInputStream(channel)) {
       return objectMapper.readValue(inputStream, templateClass);
     }
   }
@@ -99,8 +97,7 @@ public class JsonTemplateMapper {
    * @return the template filled with the values parsed from {@code jsonString}
    * @throws IOException if an error occurred during parsing the JSON
    */
-  public static <T extends JsonTemplate> T readJson(String jsonString, Class<T> templateClass)
-      throws IOException {
+  public static T readJson<T>(string jsonString, Class<T> templateClass) where T : JsonTemplate {
     return objectMapper.readValue(jsonString, templateClass);
   }
 
@@ -113,59 +110,59 @@ public class JsonTemplateMapper {
    * @return the template filled with the values parsed from {@code jsonString}
    * @throws IOException if an error occurred during parsing the JSON
    */
-  public static <T extends JsonTemplate> List<T> readListOfJson(
-      String jsonString, Class<T> templateClass) throws IOException {
+  public static List<T> readListOfJson<T>() where T : JsonTemplate {
     CollectionType listType =
-        objectMapper.getTypeFactory().constructCollectionType(List.class, templateClass);
+        objectMapper.getTypeFactory().constructCollectionType(typeof(List), templateClass);
     return objectMapper.readValue(jsonString, listType);
   }
 
-  public static String toUtf8String(JsonTemplate template)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return toUtf8String((Object) template);
+  public static string toUtf8String(JsonTemplate template)
+      {
+    return toUtf8String((object) template);
   }
 
-  public static String toUtf8String(List<? extends JsonTemplate> templates)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return toUtf8String((Object) templates);
+  public static string toUtf8String(IReadOnlyList<JsonTemplate> templates)
+      {
+    return toUtf8String((object) templates);
   }
 
   public static byte[] toByteArray(JsonTemplate template)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return toByteArray((Object) template);
+      {
+    return toByteArray((object) template);
   }
 
-  public static byte[] toByteArray(List<? extends JsonTemplate> templates)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return toByteArray((Object) templates);
+  public static byte[] toByteArray(IReadOnlyList< JsonTemplate> templates)
+      {
+    return toByteArray((object) templates);
   }
 
-  public static void writeTo(JsonTemplate template, OutputStream out)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    writeTo((Object) template, out);
+  public static void writeTo(JsonTemplate template, OutputStream @out)
+      {
+    writeTo((object) template, @out);
   }
 
-  public static void writeTo(List<? extends JsonTemplate> templates, OutputStream out)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    writeTo((Object) templates, out);
+  public static void writeTo(IReadOnlyList< JsonTemplate> templates, OutputStream @out)
+      {
+    writeTo((object) templates, @out);
   }
 
-  private static String toUtf8String(Object template)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return new String(toByteArray(template), StandardCharsets.UTF_8);
+  private static string toUtf8String(object template)
+      {
+    return new string(toByteArray(template), StandardCharsets.UTF_8);
   }
 
-  private static byte[] toByteArray(Object template)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    writeTo(template, out);
-    return out.toByteArray();
+  private static byte[] toByteArray(object template)
+      {
+    ByteArrayOutputStream @out = new ByteArrayOutputStream();
+    writeTo(template, @out);
+    return @out.toByteArray();
   }
 
-  private static void writeTo(Object template, OutputStream out)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    objectMapper.writeValue(out, template);
+  private static void writeTo(object template, OutputStream @out)
+      {
+    objectMapper.writeValue(@out, template);
   }
 
   private JsonTemplateMapper() {}
+}
 }

@@ -14,12 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+
 
 /**
  * Defines an image on a container registry that can be used as either a source or target image.
@@ -52,12 +51,12 @@ public class RegistryImage {
    * @return a new {@link RegistryImage}
    * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
    */
-  public static RegistryImage named(String imageReference) throws InvalidImageReferenceException {
+  public static RegistryImage named(string imageReference) {
     return named(ImageReference.parse(imageReference));
   }
 
-  private final ImageReference imageReference;
-  private final List<CredentialRetriever> credentialRetrievers = new ArrayList<>();
+  private readonly ImageReference imageReference;
+  private readonly List<CredentialRetriever> credentialRetrievers = new ArrayList<>();
 
   /** Instantiate with {@link #named}. */
   private RegistryImage(ImageReference imageReference) {
@@ -66,14 +65,14 @@ public class RegistryImage {
 
   /**
    * Adds a username-password credential to use to push/pull the image. This is a shorthand for
-   * {@code addCredentialRetriever(() -> Optional.of(Credential.basic(username, password)))}.
+   * {@code addCredentialRetriever(() => Optional.of(Credential.basic(username, password)))}.
    *
    * @param username the username
    * @param password the password
    * @return this
    */
-  public RegistryImage addCredential(String username, String password) {
-    addCredentialRetriever(() -> Optional.of(Credential.from(username, password)));
+  public RegistryImage addCredential(string username, string password) {
+    addCredentialRetriever(() => Optional.of(Credential.from(username, password)));
     return this;
   }
 
@@ -85,12 +84,12 @@ public class RegistryImage {
    * <p>Example usage:
    *
    * <pre>{@code
-   * .addCredentialRetriever(() -> {
+   * .addCredentialRetriever(() => {
    *   if (!Files.exists("secret.txt") {
    *     return Optional.empty();
    *   }
    *   try {
-   *     String password = fetchPasswordFromFile("secret.txt");
+   *     string password = fetchPasswordFromFile("secret.txt");
    *     return Credential.basic("myaccount", password);
    *
    *   } catch (IOException ex) {
@@ -114,4 +113,5 @@ public class RegistryImage {
   List<CredentialRetriever> getCredentialRetrievers() {
     return credentialRetrievers;
   }
+}
 }

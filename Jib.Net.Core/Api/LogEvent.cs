@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Objects;
+
 
 /** Log message event. */
-public class LogEvent implements JibEvent {
+public class LogEvent : JibEvent {
 
   /** Log levels, in order of verbosity. */
   public enum Level {
@@ -48,34 +47,34 @@ public class LogEvent implements JibEvent {
     DEBUG
   }
 
-  public static LogEvent error(String message) {
+  public static LogEvent error(string message) {
     return new LogEvent(Level.ERROR, message);
   }
 
-  public static LogEvent lifecycle(String message) {
+  public static LogEvent lifecycle(string message) {
     return new LogEvent(Level.LIFECYCLE, message);
   }
 
-  public static LogEvent progress(String message) {
+  public static LogEvent progress(string message) {
     return new LogEvent(Level.PROGRESS, message);
   }
 
-  public static LogEvent warn(String message) {
+  public static LogEvent warn(string message) {
     return new LogEvent(Level.WARN, message);
   }
 
-  public static LogEvent info(String message) {
+  public static LogEvent info(string message) {
     return new LogEvent(Level.INFO, message);
   }
 
-  public static LogEvent debug(String message) {
+  public static LogEvent debug(string message) {
     return new LogEvent(Level.DEBUG, message);
   }
 
-  private final Level level;
-  private final String message;
+  private readonly Level level;
+  private readonly string message;
 
-  private LogEvent(Level level, String message) {
+  private LogEvent(Level level, string message) {
     this.level = level;
     this.message = message;
   }
@@ -94,17 +93,15 @@ public class LogEvent implements JibEvent {
    *
    * @return the log message
    */
-  public String getMessage() {
+  public string getMessage() {
     return message;
   }
 
-  @VisibleForTesting
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (other == this) {
       return true;
     }
-    if (!(other instanceof LogEvent)) {
+    if (!(other is LogEvent)) {
       return false;
     }
 
@@ -112,14 +109,12 @@ public class LogEvent implements JibEvent {
     return level == otherLogEvent.level && message.equals(otherLogEvent.message);
   }
 
-  @VisibleForTesting
-  @Override
   public int hashCode() {
     return Objects.hash(level, message);
   }
 
-  @Override
-  public String toString() {
+  public string toString() {
     return "LogEvent [level=" + level + ", message=" + message + "]";
   }
+}
 }

@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.frontend;
+namespace com.google.cloud.tools.jib.frontend {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.frontend.CredentialRetrieverFactory.DockerCredentialHelperFactory;
-import com.google.cloud.tools.jib.registry.credentials.CredentialHelperNotFoundException;
-import com.google.cloud.tools.jib.registry.credentials.CredentialHelperUnhandledServerUrlException;
-import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
-import com.google.cloud.tools.jib.registry.credentials.DockerConfigCredentialRetriever;
-import com.google.cloud.tools.jib.registry.credentials.DockerCredentialHelper;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.function.Consumer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link CredentialRetrieverFactory}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class CredentialRetrieverFactoryTest {
 
-  private static final Credential FAKE_CREDENTIALS = Credential.from("username", "password");
+  private static readonly Credential FAKE_CREDENTIALS = Credential.from("username", "password");
 
   /**
    * Returns a {@link DockerCredentialHelperFactory} that checks given parameters upon creating a
@@ -54,36 +53,35 @@ public class CredentialRetrieverFactoryTest {
    * @return a new {@link DockerCredentialHelperFactory}
    */
   private static DockerCredentialHelperFactory getTestFactory(
-      String expectedRegistry,
+      string expectedRegistry,
       Path expectedCredentialHelper,
       DockerCredentialHelper returnedCredentialHelper) {
-    return (registry, credentialHelper) -> {
+    return (registry, credentialHelper) => {
       Assert.assertEquals(expectedRegistry, registry);
       Assert.assertEquals(expectedCredentialHelper, credentialHelper);
       return returnedCredentialHelper;
     };
   }
 
-  @Mock private Consumer<LogEvent> mockLogger;
-  @Mock private DockerCredentialHelper mockDockerCredentialHelper;
-  @Mock private DockerConfigCredentialRetriever mockDockerConfigCredentialRetriever;
+  [Mock] private Consumer<LogEvent> mockLogger;
+  [Mock] private DockerCredentialHelper mockDockerCredentialHelper;
+  [Mock] private DockerConfigCredentialRetriever mockDockerConfigCredentialRetriever;
 
   /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
-  @Mock private DockerCredentialHelper mockNonexistentDockerCredentialHelper;
+  [Mock] private DockerCredentialHelper mockNonexistentDockerCredentialHelper;
 
-  @Mock private CredentialHelperNotFoundException mockCredentialHelperNotFoundException;
+  [Mock] private CredentialHelperNotFoundException mockCredentialHelperNotFoundException;
 
-  @Before
+  [TestInitialize]
   public void setUp()
-      throws CredentialHelperUnhandledServerUrlException, CredentialHelperNotFoundException,
-          IOException {
+      {
     Mockito.when(mockDockerCredentialHelper.retrieve()).thenReturn(FAKE_CREDENTIALS);
     Mockito.when(mockNonexistentDockerCredentialHelper.retrieve())
         .thenThrow(mockCredentialHelperNotFoundException);
   }
 
-  @Test
-  public void testDockerCredentialHelper() throws CredentialRetrievalException {
+  [TestMethod]
+  public void testDockerCredentialHelper() {
     CredentialRetrieverFactory credentialRetrieverFactory =
         new CredentialRetrieverFactory(
             ImageReference.of("registry", "repository", null),
@@ -96,12 +94,12 @@ public class CredentialRetrieverFactoryTest {
         credentialRetrieverFactory
             .dockerCredentialHelper(Paths.get("docker-credential-helper"))
             .retrieve()
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
     Mockito.verify(mockLogger).accept(LogEvent.info("Using docker-credential-helper for registry"));
   }
 
-  @Test
-  public void testInferCredentialHelper() throws CredentialRetrievalException {
+  [TestMethod]
+  public void testInferCredentialHelper() {
     CredentialRetrieverFactory credentialRetrieverFactory =
         new CredentialRetrieverFactory(
             ImageReference.of("something.gcr.io", "repository", null),
@@ -116,13 +114,13 @@ public class CredentialRetrieverFactoryTest {
         credentialRetrieverFactory
             .inferCredentialHelper()
             .retrieve()
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
     Mockito.verify(mockLogger)
         .accept(LogEvent.info("Using docker-credential-gcr for something.gcr.io"));
   }
 
-  @Test
-  public void testInferCredentialHelper_info() throws CredentialRetrievalException {
+  [TestMethod]
+  public void testInferCredentialHelper_info() {
     CredentialRetrieverFactory credentialRetrieverFactory =
         new CredentialRetrieverFactory(
             ImageReference.of("something.amazonaws.com", "repository", null),
@@ -140,8 +138,8 @@ public class CredentialRetrieverFactoryTest {
     Mockito.verify(mockLogger).accept(LogEvent.info("  Caused by: the root cause"));
   }
 
-  @Test
-  public void testDockerConfig() throws IOException, CredentialRetrievalException {
+  [TestMethod]
+  public void testDockerConfig() {
     CredentialRetrieverFactory credentialRetrieverFactory =
         CredentialRetrieverFactory.forImage(
             ImageReference.of("registry", "repository", null), mockLogger);
@@ -154,8 +152,9 @@ public class CredentialRetrieverFactoryTest {
         credentialRetrieverFactory
             .dockerConfig(mockDockerConfigCredentialRetriever)
             .retrieve()
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
     Mockito.verify(mockLogger)
         .accept(LogEvent.info("Using credentials from Docker config for registry"));
   }
+}
 }

@@ -14,12 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.docker.json;
+namespace com.google.cloud.tools.jib.docker.json {
 
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+
+
 
 /**
  * JSON Template for a loadable Docker Manifest entry. The repoTags property requires a tag; i.e. if
@@ -45,17 +44,18 @@ import java.util.List;
  * @see <a href="https://github.com/moby/moby/blob/master/image/tarexport/load.go">Docker load
  *     source</a>
  */
-public class DockerLoadManifestEntryTemplate implements JsonTemplate {
+public class DockerLoadManifestEntryTemplate : JsonTemplate {
 
-  private final String config = "config.json";
-  private List<String> repoTags = Collections.singletonList(null);
-  private final List<String> layers = new ArrayList<>();
+  private readonly string config = "config.json";
+  private List<string> repoTags = Collections.singletonList(null);
+  private readonly List<string> layers = new ArrayList<>();
 
-  public void setRepoTags(String repoTags) {
+  public void setRepoTags(string repoTags) {
     this.repoTags = Collections.singletonList(repoTags);
   }
 
-  public void addLayerFile(String layer) {
+  public void addLayerFile(string layer) {
     layers.add(layer);
   }
+}
 }

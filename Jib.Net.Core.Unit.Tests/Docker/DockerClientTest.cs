@@ -14,67 +14,66 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.docker;
+namespace com.google.cloud.tools.jib.docker {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.InvalidImageReferenceException;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.AdditionalAnswers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.VoidAnswer1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link DockerClient}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class DockerClientTest {
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Mock private ProcessBuilder mockProcessBuilder;
-  @Mock private Process mockProcess;
-  @Mock private ImageTarball imageTarball;
+  [Mock] private ProcessBuilder mockProcessBuilder;
+  [Mock] private Process mockProcess;
+  [Mock] private ImageTarball imageTarball;
 
-  @Before
-  public void setUp() throws IOException {
+  [TestInitialize]
+  public void setUp() {
     Mockito.when(mockProcessBuilder.start()).thenReturn(mockProcess);
 
     Mockito.doAnswer(
             AdditionalAnswers.answerVoid(
                 (VoidAnswer1<OutputStream>)
-                    out -> out.write("jib".getBytes(StandardCharsets.UTF_8))))
+                    out => out.write("jib".getBytes(StandardCharsets.UTF_8))))
         .when(imageTarball)
-        .writeTo(Mockito.any(OutputStream.class));
+        .writeTo(Mockito.any(typeof(OutputStream)));
   }
 
-  @Test
+  [TestMethod]
   public void testIsDockerInstalled_fail() {
     Assert.assertFalse(DockerClient.isDockerInstalled(Paths.get("path/to/nonexistent/file")));
   }
 
-  @Test
-  public void testLoad() throws IOException, InterruptedException {
+  [TestMethod]
+  public void testLoad() {
     DockerClient testDockerClient =
         new DockerClient(
-            subcommand -> {
+            subcommand => {
               Assert.assertEquals(Collections.singletonList("load"), subcommand);
               return mockProcessBuilder;
             });
@@ -88,23 +87,22 @@ public class DockerClientTest {
     Mockito.when(mockProcess.getInputStream())
         .thenReturn(new ByteArrayInputStream("output".getBytes(StandardCharsets.UTF_8)));
 
-    String output = testDockerClient.load(imageTarball);
+    string output = testDockerClient.load(imageTarball);
 
     Assert.assertEquals(
-        "jib", new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
+        "jib", new string(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
     Assert.assertEquals("output", output);
   }
 
-  @Test
-  public void testLoad_stdinFail() throws InterruptedException {
-    DockerClient testDockerClient = new DockerClient(ignored -> mockProcessBuilder);
+  [TestMethod]
+  public void testLoad_stdinFail() {
+    DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
 
     Mockito.when(mockProcess.getOutputStream())
         .thenReturn(
             new OutputStream() {
 
-              @Override
-              public void write(int b) throws IOException {
+              public void write(int b) {
                 throw new IOException();
               }
             });
@@ -120,17 +118,16 @@ public class DockerClientTest {
     }
   }
 
-  @Test
-  public void testLoad_stdinFail_stderrFail() throws InterruptedException {
-    DockerClient testDockerClient = new DockerClient(ignored -> mockProcessBuilder);
+  [TestMethod]
+  public void testLoad_stdinFail_stderrFail() {
+    DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
     IOException expectedIOException = new IOException();
 
     Mockito.when(mockProcess.getOutputStream())
         .thenReturn(
             new OutputStream() {
 
-              @Override
-              public void write(int b) throws IOException {
+              public void write(int b) {
                 throw expectedIOException;
               }
             });
@@ -138,8 +135,7 @@ public class DockerClientTest {
         .thenReturn(
             new InputStream() {
 
-              @Override
-              public int read() throws IOException {
+              public int read() {
                 throw new IOException();
               }
             });
@@ -153,9 +149,9 @@ public class DockerClientTest {
     }
   }
 
-  @Test
-  public void testLoad_stdoutFail() throws InterruptedException {
-    DockerClient testDockerClient = new DockerClient(ignored -> mockProcessBuilder);
+  [TestMethod]
+  public void testLoad_stdoutFail() {
+    DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
     Mockito.when(mockProcess.waitFor()).thenReturn(1);
 
     Mockito.when(mockProcess.getOutputStream()).thenReturn(ByteStreams.nullOutputStream());
@@ -173,11 +169,11 @@ public class DockerClientTest {
     }
   }
 
-  @Test
-  public void testTag() throws InterruptedException, IOException, InvalidImageReferenceException {
+  [TestMethod]
+  public void testTag() {
     DockerClient testDockerClient =
         new DockerClient(
-            subcommand -> {
+            subcommand => {
               Assert.assertEquals(Arrays.asList("tag", "original", "new"), subcommand);
               return mockProcessBuilder;
             });
@@ -186,7 +182,7 @@ public class DockerClientTest {
     testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));
   }
 
-  @Test
+  [TestMethod]
   public void testDefaultProcessorBuilderFactory_customExecutable() {
     ProcessBuilder processBuilder =
         DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableMap.of())
@@ -197,11 +193,11 @@ public class DockerClientTest {
     Assert.assertEquals(System.getenv(), processBuilder.environment());
   }
 
-  @Test
+  [TestMethod]
   public void testDefaultProcessorBuilderFactory_customEnvironment() {
-    ImmutableMap<String, String> environment = ImmutableMap.of("Key1", "Value1");
+    ImmutableMap<string, string> environment = ImmutableMap.of("Key1", "Value1");
 
-    Map<String, String> expectedEnvironment = new HashMap<>(System.getenv());
+    Map<string, string> expectedEnvironment = new HashMap<>(System.getenv());
     expectedEnvironment.putAll(environment);
 
     ProcessBuilder processBuilder =
@@ -211,11 +207,11 @@ public class DockerClientTest {
     Assert.assertEquals(expectedEnvironment, processBuilder.environment());
   }
 
-  @Test
-  public void testTag_fail() throws InterruptedException, InvalidImageReferenceException {
+  [TestMethod]
+  public void testTag_fail() {
     DockerClient testDockerClient =
         new DockerClient(
-            subcommand -> {
+            subcommand => {
               Assert.assertEquals(Arrays.asList("tag", "original", "new"), subcommand);
               return mockProcessBuilder;
             });
@@ -232,4 +228,5 @@ public class DockerClientTest {
       Assert.assertEquals("'docker tag' command failed with error: error", ex.getMessage());
     }
   }
+}
 }

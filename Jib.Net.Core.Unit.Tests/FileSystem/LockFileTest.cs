@@ -14,30 +14,29 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
 
 /** Tests for {@link LockFile}. */
 public class LockFileTest {
 
-  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Test
-  public void testLockAndRelease() throws InterruptedException {
+  [TestMethod]
+  public void testLockAndRelease() {
     AtomicInteger atomicInt = new AtomicInteger(0);
 
     // Runnable that would produce a race condition without a lock file
     Runnable procedure =
-        () -> {
-          try (LockFile ignored =
-              LockFile.lock(temporaryFolder.getRoot().toPath().resolve("testLock"))) {
+        () => {
+          using (LockFile ignored =
+              LockFile.@lock(temporaryFolder.getRoot().toPath().resolve("testLock"))) {
             Assert.assertTrue(Files.exists(temporaryFolder.getRoot().toPath().resolve("testLock")));
 
             int valueBeforeSleep = atomicInt.intValue();
@@ -58,4 +57,5 @@ public class LockFileTest {
     // Assert no overlap while lock was in place
     Assert.assertEquals(2, atomicInt.intValue());
   }
+}
 }

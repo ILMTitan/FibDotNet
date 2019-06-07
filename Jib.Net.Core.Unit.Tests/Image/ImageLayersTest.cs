@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import java.util.Arrays;
-import java.util.List;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ImageLayers}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ImageLayersTest {
 
-  @Mock private Layer mockLayer;
-  @Mock private ReferenceLayer mockReferenceLayer;
-  @Mock private DigestOnlyLayer mockDigestOnlyLayer;
-  @Mock private Layer mockLayer2;
+  [Mock] private Layer mockLayer;
+  [Mock] private ReferenceLayer mockReferenceLayer;
+  [Mock] private DigestOnlyLayer mockDigestOnlyLayer;
+  [Mock] private Layer mockLayer2;
 
-  @Before
-  public void setUpFakes() throws LayerPropertyNotFoundException {
-    DescriptorDigest mockDescriptorDigest1 = Mockito.mock(DescriptorDigest.class);
-    DescriptorDigest mockDescriptorDigest2 = Mockito.mock(DescriptorDigest.class);
-    DescriptorDigest mockDescriptorDigest3 = Mockito.mock(DescriptorDigest.class);
+  [TestInitialize]
+  public void setUpFakes() {
+    DescriptorDigest mockDescriptorDigest1 = Mockito.mock(typeof(DescriptorDigest));
+    DescriptorDigest mockDescriptorDigest2 = Mockito.mock(typeof(DescriptorDigest));
+    DescriptorDigest mockDescriptorDigest3 = Mockito.mock(typeof(DescriptorDigest));
 
     BlobDescriptor layerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
     BlobDescriptor referenceLayerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest2);
@@ -58,8 +57,8 @@ public class ImageLayersTest {
     Mockito.when(mockLayer2.getBlobDescriptor()).thenReturn(anotherBlobDescriptor);
   }
 
-  @Test
-  public void testAddLayer_success() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void testAddLayer_success() {
     List<Layer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
 
     ImageLayers imageLayers =
@@ -72,8 +71,8 @@ public class ImageLayersTest {
     Assert.assertThat(imageLayers.getLayers(), CoreMatchers.is(expectedLayers));
   }
 
-  @Test
-  public void testAddLayer_maintainDuplicates() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void testAddLayer_maintainDuplicates() {
     // must maintain duplicate
     List<Layer> expectedLayers =
         Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
@@ -90,8 +89,8 @@ public class ImageLayersTest {
     Assert.assertEquals(expectedLayers, imageLayers.getLayers());
   }
 
-  @Test
-  public void testAddLayer_removeDuplicates() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void testAddLayer_removeDuplicates() {
     // remove duplicates: last layer should be kept
     List<Layer> expectedLayers =
         Arrays.asList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
@@ -108,4 +107,5 @@ public class ImageLayersTest {
 
     Assert.assertEquals(expectedLayers, imageLayers.getLayers());
   }
+}
 }

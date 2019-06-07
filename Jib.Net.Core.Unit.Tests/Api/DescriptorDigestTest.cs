@@ -14,20 +14,19 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.security.DigestException;
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link DescriptorDigest}. */
 public class DescriptorDigestTest {
 
-  @Test
-  public void testCreateFromHash_pass() throws DigestException {
-    String goodHash = createGoodHash('a');
+  [TestMethod]
+  public void testCreateFromHash_pass() {
+    string goodHash = createGoodHash('a');
 
     DescriptorDigest descriptorDigest = DescriptorDigest.fromHash(goodHash);
 
@@ -35,9 +34,9 @@ public class DescriptorDigestTest {
     Assert.assertEquals("sha256:" + goodHash, descriptorDigest.toString());
   }
 
-  @Test
+  [TestMethod]
   public void testCreateFromHash_fail() {
-    String badHash = "not a valid hash";
+    string badHash = "not a valid hash";
 
     try {
       DescriptorDigest.fromHash(badHash);
@@ -47,9 +46,9 @@ public class DescriptorDigestTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testCreateFromHash_failIncorrectLength() {
-    String badHash = createGoodHash('a') + 'a';
+    string badHash = createGoodHash('a') + 'a';
 
     try {
       DescriptorDigest.fromHash(badHash);
@@ -59,10 +58,10 @@ public class DescriptorDigestTest {
     }
   }
 
-  @Test
-  public void testCreateFromDigest_pass() throws DigestException {
-    String goodHash = createGoodHash('a');
-    String goodDigest = "sha256:" + createGoodHash('a');
+  [TestMethod]
+  public void testCreateFromDigest_pass() {
+    string goodHash = createGoodHash('a');
+    string goodDigest = "sha256:" + createGoodHash('a');
 
     DescriptorDigest descriptorDigest = DescriptorDigest.fromDigest(goodDigest);
 
@@ -70,9 +69,9 @@ public class DescriptorDigestTest {
     Assert.assertEquals(goodDigest, descriptorDigest.toString());
   }
 
-  @Test
+  [TestMethod]
   public void testCreateFromDigest_fail() {
-    String badDigest = "sha256:not a valid digest";
+    string badDigest = "sha256:not a valid digest";
 
     try {
       DescriptorDigest.fromDigest(badDigest);
@@ -82,15 +81,15 @@ public class DescriptorDigestTest {
     }
   }
 
-  @Test
-  public void testUseAsMapKey() throws DigestException {
+  [TestMethod]
+  public void testUseAsMapKey() {
     DescriptorDigest descriptorDigestA1 = DescriptorDigest.fromHash(createGoodHash('a'));
     DescriptorDigest descriptorDigestA2 = DescriptorDigest.fromHash(createGoodHash('a'));
     DescriptorDigest descriptorDigestA3 =
         DescriptorDigest.fromDigest("sha256:" + createGoodHash('a'));
     DescriptorDigest descriptorDigestB = DescriptorDigest.fromHash(createGoodHash('b'));
 
-    Map<DescriptorDigest, String> digestMap = new HashMap<>();
+    Map<DescriptorDigest, string> digestMap = new HashMap<>();
 
     digestMap.put(descriptorDigestA1, "digest with a");
     Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));
@@ -118,11 +117,12 @@ public class DescriptorDigestTest {
   }
 
   /** Creates a 32 byte hexademical string to fit valid hash pattern. */
-  private static String createGoodHash(char character) {
+  private static string createGoodHash(char character) {
     StringBuilder goodHashBuffer = new StringBuilder(64);
     for (int i = 0; i < 64; i++) {
       goodHashBuffer.append(character);
     }
     return goodHashBuffer.toString();
   }
+}
 }

@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.util.Objects;
 
 /** The container built by Jib. */
 public class JibContainer {
 
-  private final DescriptorDigest imageDigest;
-  private final DescriptorDigest imageId;
+  private readonly DescriptorDigest imageDigest;
+  private readonly DescriptorDigest imageId;
 
   JibContainer(DescriptorDigest imageDigest, DescriptorDigest imageId) {
     this.imageDigest = imageDigest;
@@ -48,20 +47,19 @@ public class JibContainer {
     return imageId;
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(imageDigest, imageId);
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof JibContainer)) {
+    if (!(other is JibContainer)) {
       return false;
     }
     JibContainer otherContainer = (JibContainer) other;
     return imageDigest.equals(otherContainer.imageDigest) && imageId.equals(otherContainer.imageId);
   }
+}
 }

@@ -14,36 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.hash.Digests;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+
+
 
 /** A {@link Blob} that holds an {@link InputStream}. */
-class InputStreamBlob implements Blob {
-
-  private final InputStream inputStream;
+class InputStreamBlob : $2 {
+  private readonly InputStream inputStream;
 
   /** Indicates if the {@link Blob} has already been written or not. */
-  private boolean isWritten = false;
+  private bool isWritten = false;
 
   InputStreamBlob(InputStream inputStream) {
     this.inputStream = inputStream;
   }
 
-  @Override
-  public BlobDescriptor writeTo(OutputStream outputStream) throws IOException {
+  public BlobDescriptor writeTo(OutputStream outputStream) {
     // Cannot rewrite.
     if (isWritten) {
       throw new IllegalStateException("Cannot rewrite Blob backed by an InputStream");
     }
-    try (InputStream inputStream = this.inputStream) {
+    using (InputStream inputStream = this.inputStream) {
       return Digests.computeDigest(inputStream, outputStream);
 
     } finally {
       isWritten = true;
     }
   }
+}
 }

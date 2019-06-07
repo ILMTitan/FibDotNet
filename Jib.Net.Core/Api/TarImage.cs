@@ -14,10 +14,9 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import java.nio.file.Path;
 
 /**
  * Builds to a tarball archive.
@@ -34,7 +33,7 @@ public class TarImage {
   /** Finishes constructing a {@link TarImage}. */
   public static class Builder {
 
-    private final ImageReference imageReference;
+    private readonly ImageReference imageReference;
 
     private Builder(ImageReference imageReference) {
       this.imageReference = imageReference;
@@ -69,12 +68,12 @@ public class TarImage {
    * @return a {@link Builder} to finish constructing a new {@link TarImage}
    * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
    */
-  public static Builder named(String imageReference) throws InvalidImageReferenceException {
+  public static Builder named(string imageReference) {
     return named(ImageReference.parse(imageReference));
   }
 
-  private final ImageReference imageReference;
-  private final Path outputFile;
+  private readonly ImageReference imageReference;
+  private readonly Path outputFile;
 
   /** Instantiate with {@link #named}. */
   private TarImage(ImageReference imageReference, Path outputFile) {
@@ -94,4 +93,5 @@ public class TarImage {
   ImageReference getImageReference() {
     return imageReference;
   }
+}
 }

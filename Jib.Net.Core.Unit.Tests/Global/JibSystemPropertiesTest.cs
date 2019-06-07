@@ -14,21 +14,20 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.global;
+namespace com.google.cloud.tools.jib.global {
 
-import javax.annotation.Nullable;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+
+
+
 
 /** Tests for {@link JibSystemProperties}. */
 public class JibSystemPropertiesTest {
 
-  @Nullable private String httpProxyPortSaved;
-  @Nullable private String httpsProxyPortSaved;
+  private string httpProxyPortSaved;
+  private string httpsProxyPortSaved;
 
-  @Before
+  [TestInitialize]
   public void setUp() {
     httpProxyPortSaved = System.getProperty("http.proxyPort");
     httpsProxyPortSaved = System.getProperty("https.proxyPort");
@@ -47,13 +46,13 @@ public class JibSystemPropertiesTest {
     }
   }
 
-  @Test
-  public void testCheckHttpTimeoutProperty_ok() throws NumberFormatException {
+  [TestMethod]
+  public void testCheckHttpTimeoutProperty_ok() {
     Assert.assertNull(System.getProperty(JibSystemProperties.HTTP_TIMEOUT));
     JibSystemProperties.checkHttpTimeoutProperty();
   }
 
-  @Test
+  [TestMethod]
   public void testCheckHttpTimeoutProperty_stringValue() {
     System.setProperty(JibSystemProperties.HTTP_TIMEOUT, "random string");
     try {
@@ -64,15 +63,15 @@ public class JibSystemPropertiesTest {
     }
   }
 
-  @Test
-  public void testCheckHttpProxyPortProperty_undefined() throws NumberFormatException {
+  [TestMethod]
+  public void testCheckHttpProxyPortProperty_undefined() {
     System.clearProperty("http.proxyPort");
     System.clearProperty("https.proxyPort");
     JibSystemProperties.checkProxyPortProperty();
   }
 
-  @Test
-  public void testCheckHttpProxyPortProperty() throws NumberFormatException {
+  [TestMethod]
+  public void testCheckHttpProxyPortProperty() {
     System.setProperty("http.proxyPort", "0");
     System.setProperty("https.proxyPort", "0");
     JibSystemProperties.checkProxyPortProperty();
@@ -90,7 +89,7 @@ public class JibSystemPropertiesTest {
     JibSystemProperties.checkProxyPortProperty();
   }
 
-  @Test
+  [TestMethod]
   public void testCheckHttpProxyPortProperty_negativeValue() {
     System.setProperty("http.proxyPort", "-1");
     System.clearProperty("https.proxyPort");
@@ -111,7 +110,7 @@ public class JibSystemPropertiesTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testCheckHttpProxyPortProperty_over65535() {
     System.setProperty("http.proxyPort", "65536");
     System.clearProperty("https.proxyPort");
@@ -132,7 +131,7 @@ public class JibSystemPropertiesTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testCheckHttpProxyPortProperty_stringValue() {
     System.setProperty("http.proxyPort", "some string");
     System.clearProperty("https.proxyPort");
@@ -152,4 +151,5 @@ public class JibSystemPropertiesTest {
       Assert.assertEquals("https.proxyPort must be an integer: some string", ex.getMessage());
     }
   }
+}
 }

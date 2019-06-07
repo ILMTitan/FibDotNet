@@ -14,25 +14,24 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.common.collect.ImmutableList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Connection} with setting proxy credentials. */
 public class ConnectionWithProxyCredentialsTest {
 
-  private static final ImmutableList<String> proxyProperties =
+  private static readonly ImmutableList<string> proxyProperties =
       ImmutableList.of(
           "http.proxyHost",
           "http.proxyPort",
@@ -44,20 +43,20 @@ public class ConnectionWithProxyCredentialsTest {
           "https.proxyPassword");
 
   // HashMap to allow saving null values.
-  private final HashMap<String, String> savedProperties = new HashMap<>();
+  private readonly HashMap<string, string> savedProperties = new HashMap<>();
 
-  private final ApacheHttpTransport transport = new ApacheHttpTransport();
+  private readonly ApacheHttpTransport transport = new ApacheHttpTransport();
 
-  @Before
+  [TestInitialize]
   public void setUp() {
-    proxyProperties.stream().forEach(key -> savedProperties.put(key, System.getProperty(key)));
-    proxyProperties.stream().forEach(key -> System.clearProperty(key));
+    proxyProperties.stream().forEach(key => savedProperties.put(key, System.getProperty(key)));
+    proxyProperties.stream().forEach(key => System.clearProperty(key));
   }
 
   @After
   public void tearDown() {
-    Consumer<Map.Entry<String, String>> restoreProperty =
-        entry -> {
+    Consumer<Map.Entry<string, string>> restoreProperty =
+        entry => {
           if (entry.getValue() == null) {
             System.clearProperty(entry.getKey());
           } else {
@@ -67,7 +66,7 @@ public class ConnectionWithProxyCredentialsTest {
     savedProperties.entrySet().stream().forEach(restoreProperty);
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials_undefined() {
     Connection.addProxyCredentials(transport);
     DefaultHttpClient httpClient = (DefaultHttpClient) transport.getHttpClient();
@@ -75,7 +74,7 @@ public class ConnectionWithProxyCredentialsTest {
     Assert.assertNull(credentials);
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials() {
     System.setProperty("http.proxyHost", "http://localhost");
     System.setProperty("http.proxyPort", "1080");
@@ -100,7 +99,7 @@ public class ConnectionWithProxyCredentialsTest {
     Assert.assertEquals("s-pass", httpsCredentials.getPassword());
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials_defaultPorts() {
     System.setProperty("http.proxyHost", "http://localhost");
     System.setProperty("http.proxyUser", "user");
@@ -123,7 +122,7 @@ public class ConnectionWithProxyCredentialsTest {
     Assert.assertEquals("s-pass", httpsCredentials.getPassword());
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials_hostUndefined() {
     System.setProperty("http.proxyUser", "user");
     System.setProperty("http.proxyPassword", "pass");
@@ -137,7 +136,7 @@ public class ConnectionWithProxyCredentialsTest {
     Assert.assertNull(credentials);
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials_userUndefined() {
     System.setProperty("http.proxyHost", "http://localhost");
     System.setProperty("http.proxyPassword", "pass");
@@ -151,7 +150,7 @@ public class ConnectionWithProxyCredentialsTest {
     Assert.assertNull(credentials);
   }
 
-  @Test
+  [TestMethod]
   public void testAddProxyCredentials_passwordUndefined() {
     System.setProperty("http.proxyHost", "http://localhost");
     System.setProperty("http.proxyUser", "user");
@@ -164,4 +163,5 @@ public class ConnectionWithProxyCredentialsTest {
     Credentials credentials = httpClient.getCredentialsProvider().getCredentials(AuthScope.ANY);
     Assert.assertNull(credentials);
   }
+}
 }

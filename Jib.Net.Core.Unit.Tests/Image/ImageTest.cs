@@ -14,43 +14,42 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.Port;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Image}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ImageTest {
 
-  @Mock private Layer mockLayer;
-  @Mock private DescriptorDigest mockDescriptorDigest;
+  [Mock] private Layer mockLayer;
+  [Mock] private DescriptorDigest mockDescriptorDigest;
 
-  @Before
-  public void setUp() throws LayerPropertyNotFoundException {
+  [TestInitialize]
+  public void setUp() {
     Mockito.when(mockLayer.getBlobDescriptor())
         .thenReturn(new BlobDescriptor(mockDescriptorDigest));
   }
 
-  @Test
-  public void test_smokeTest() throws LayerPropertyNotFoundException {
+  [TestMethod]
+  public void test_smokeTest() {
     Image image =
-        Image.builder(V22ManifestTemplate.class)
+        Image.builder(typeof(V22ManifestTemplate))
             .setCreated(Instant.ofEpochSecond(10000))
             .addEnvironmentVariable("crepecake", "is great")
             .addEnvironmentVariable("VARIABLE", "VALUE")
@@ -64,7 +63,7 @@ public class ImageTest {
             .addLayer(mockLayer)
             .build();
 
-    Assert.assertEquals(V22ManifestTemplate.class, image.getImageFormat());
+    Assert.assertEquals(typeof(V22ManifestTemplate), image.getImageFormat());
     Assert.assertEquals(
         mockDescriptorDigest, image.getLayers().get(0).getBlobDescriptor().getDigest());
     Assert.assertEquals(Instant.ofEpochSecond(10000), image.getCreated());
@@ -79,20 +78,21 @@ public class ImageTest {
     Assert.assertEquals("john", image.getUser());
   }
 
-  @Test
+  [TestMethod]
   public void testDefaults() {
-    Image image = Image.builder(V22ManifestTemplate.class).build();
+    Image image = Image.builder(typeof(V22ManifestTemplate)).build();
     Assert.assertEquals("amd64", image.getArchitecture());
     Assert.assertEquals("linux", image.getOs());
     Assert.assertEquals(Collections.emptyList(), image.getLayers());
     Assert.assertEquals(Collections.emptyList(), image.getHistory());
   }
 
-  @Test
+  [TestMethod]
   public void testOsArch() {
     Image image =
-        Image.builder(V22ManifestTemplate.class).setArchitecture("wasm").setOs("js").build();
+        Image.builder(typeof(V22ManifestTemplate)).setArchitecture("wasm").setOs("js").build();
     Assert.assertEquals("wasm", image.getArchitecture());
     Assert.assertEquals("js", image.getOs());
   }
+}
 }

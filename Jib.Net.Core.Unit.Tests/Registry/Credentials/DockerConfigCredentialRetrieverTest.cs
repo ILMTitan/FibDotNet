@@ -14,55 +14,53 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.cloud.tools.jib.api.Credential;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.function.Consumer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link DockerConfigCredentialRetriever}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class DockerConfigCredentialRetrieverTest {
 
-  private static final Credential FAKE_CREDENTIAL = Credential.from("username", "password");
+  private static readonly Credential FAKE_CREDENTIAL = Credential.from("username", "password");
 
-  @Mock private DockerCredentialHelper mockDockerCredentialHelper;
-  @Mock private DockerConfig mockDockerConfig;
-  @Mock private Consumer<LogEvent> mockLogger;
+  [Mock] private DockerCredentialHelper mockDockerCredentialHelper;
+  [Mock] private DockerConfig mockDockerConfig;
+  [Mock] private Consumer<LogEvent> mockLogger;
 
   private Path dockerConfigFile;
 
-  @Before
+  [TestInitialize]
   public void setUp()
-      throws URISyntaxException, CredentialHelperUnhandledServerUrlException,
-          CredentialHelperNotFoundException, IOException {
+      {
     dockerConfigFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
     Mockito.when(mockDockerCredentialHelper.retrieve()).thenReturn(FAKE_CREDENTIAL);
   }
 
-  @Test
-  public void testRetrieve_nonexistentDockerConfigFile() throws IOException {
+  [TestMethod]
+  public void testRetrieve_nonexistentDockerConfigFile() {
     DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
         new DockerConfigCredentialRetriever("some registry", Paths.get("fake/path"));
 
     Assert.assertFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
   }
 
-  @Test
-  public void testRetrieve_hasAuth() throws IOException {
+  [TestMethod]
+  public void testRetrieve_hasAuth() {
     DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
         new DockerConfigCredentialRetriever("some registry", dockerConfigFile);
 
@@ -72,7 +70,7 @@ public class DockerConfigCredentialRetrieverTest {
     Assert.assertEquals("auth", credentials.get().getPassword());
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieve_useCredsStore() {
     Mockito.when(mockDockerConfig.getCredentialHelperFor("just registry"))
         .thenReturn(mockDockerCredentialHelper);
@@ -83,10 +81,10 @@ public class DockerConfigCredentialRetrieverTest {
         FAKE_CREDENTIAL,
         dockerConfigCredentialRetriever
             .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieve_useCredsStore_withProtocol() {
     Mockito.when(mockDockerConfig.getCredentialHelperFor("with.protocol"))
         .thenReturn(mockDockerCredentialHelper);
@@ -97,10 +95,10 @@ public class DockerConfigCredentialRetrieverTest {
         FAKE_CREDENTIAL,
         dockerConfigCredentialRetriever
             .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieve_useCredHelper() {
     Mockito.when(mockDockerConfig.getCredentialHelperFor("another registry"))
         .thenReturn(mockDockerCredentialHelper);
@@ -111,13 +109,12 @@ public class DockerConfigCredentialRetrieverTest {
         FAKE_CREDENTIAL,
         dockerConfigCredentialRetriever
             .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieve_useCredHelper_warn()
-      throws CredentialHelperUnhandledServerUrlException, CredentialHelperNotFoundException,
-          IOException {
+      {
     Mockito.when(mockDockerConfig.getCredentialHelperFor("another registry"))
         .thenReturn(mockDockerCredentialHelper);
     Mockito.when(mockDockerCredentialHelper.retrieve())
@@ -133,15 +130,15 @@ public class DockerConfigCredentialRetrieverTest {
     Mockito.verify(mockLogger).accept(LogEvent.warn("  Caused by: cause"));
   }
 
-  @Test
-  public void testRetrieve_none() throws IOException {
+  [TestMethod]
+  public void testRetrieve_none() {
     DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
         new DockerConfigCredentialRetriever("unknown registry", dockerConfigFile);
 
     Assert.assertFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
   }
 
-  @Test
+  [TestMethod]
   public void testRetrieve_credentialFromAlias() {
     Mockito.when(mockDockerConfig.getCredentialHelperFor("registry.hub.docker.com"))
         .thenReturn(mockDockerCredentialHelper);
@@ -152,11 +149,11 @@ public class DockerConfigCredentialRetrieverTest {
         FAKE_CREDENTIAL,
         dockerConfigCredentialRetriever
             .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(AssertionError::new));
+            .orElseThrow(AssertionError.new));
   }
 
-  @Test
-  public void testRetrieve_suffixMatching() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testRetrieve_suffixMatching() {
     Path dockerConfigFile =
         Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
@@ -169,8 +166,8 @@ public class DockerConfigCredentialRetrieverTest {
     Assert.assertEquals(" index.docker.io/v1/", credentials.get().getPassword());
   }
 
-  @Test
-  public void testRetrieve_suffixMatchingFromAlias() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testRetrieve_suffixMatchingFromAlias() {
     Path dockerConfigFile =
         Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
@@ -182,4 +179,5 @@ public class DockerConfigCredentialRetrieverTest {
     Assert.assertEquals("token for", credentials.get().getUsername());
     Assert.assertEquals(" index.docker.io/v1/", credentials.get().getPassword());
   }
+}
 }

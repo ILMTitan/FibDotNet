@@ -14,27 +14,28 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.common.io.ByteStreams;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import javax.net.ssl.SSLException;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Connection} using an actual local server. */
 public class WithServerConnectionTest {
 
-  @Test
+  [TestMethod]
   public void testGet()
-      throws IOException, InterruptedException, GeneralSecurityException, URISyntaxException {
-    try (TestWebServer server = new TestWebServer(false);
-        Connection connection =
-            Connection.getConnectionFactory().apply(new URL(server.getEndpoint()))) {
+      {
+    using(TestWebServer server = new TestWebServer(false))
+    using(Connection connection =
+            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+    {
+
       Response response = connection.send("GET", new Request.Builder().build());
 
       Assert.assertEquals(200, response.getStatusCode());
@@ -44,12 +45,14 @@ public class WithServerConnectionTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testErrorOnSecondSend()
-      throws IOException, InterruptedException, GeneralSecurityException, URISyntaxException {
-    try (TestWebServer server = new TestWebServer(false);
-        Connection connection =
-            Connection.getConnectionFactory().apply(new URL(server.getEndpoint()))) {
+      {
+    using(TestWebServer server = new TestWebServer(false))
+    using(Connection connection =
+            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint()))))
+    {
+
       connection.send("GET", new Request.Builder().build());
       try {
         connection.send("GET", new Request.Builder().build());
@@ -60,12 +63,14 @@ public class WithServerConnectionTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testSecureConnectionOnInsecureHttpsServer()
-      throws IOException, InterruptedException, GeneralSecurityException, URISyntaxException {
-    try (TestWebServer server = new TestWebServer(true);
-        Connection connection =
-            Connection.getConnectionFactory().apply(new URL(server.getEndpoint()))) {
+      {
+    using(TestWebServer server = new TestWebServer(true))
+    using(Connection connection =
+            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint()))))
+    {
+
       try {
         connection.send("GET", new Request.Builder().build());
         Assert.fail("Should fail if cannot verify peer");
@@ -75,12 +80,14 @@ public class WithServerConnectionTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testInsecureConnection()
-      throws IOException, InterruptedException, GeneralSecurityException, URISyntaxException {
-    try (TestWebServer server = new TestWebServer(true);
-        Connection connection =
-            Connection.getInsecureConnectionFactory().apply(new URL(server.getEndpoint()))) {
+      {
+    using(TestWebServer server = new TestWebServer(true))
+    using(Connection connection =
+            Connection.getInsecureConnectionFactory().apply(new Uri(server.getEndpoint()))))
+    {
+
       Response response = connection.send("GET", new Request.Builder().build());
 
       Assert.assertEquals(200, response.getStatusCode());
@@ -89,4 +96,5 @@ public class WithServerConnectionTest {
           ByteStreams.toByteArray(response.getBody()));
     }
   }
+}
 }

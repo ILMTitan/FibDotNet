@@ -14,48 +14,46 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.builder.TimerEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import com.google.cloud.tools.jib.image.json.ImageToJsonTranslator;
-import com.google.cloud.tools.jib.registry.RegistryClient;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pushes the final image. Outputs the pushed image digest. */
-class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
+class PushImageStep : $2 {
+  private static readonly string DESCRIPTION = "Pushing new image";
 
-  private static final String DESCRIPTION = "Pushing new image";
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ListeningExecutorService listeningExecutorService;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final BuildConfiguration buildConfiguration;
-  private final ListeningExecutorService listeningExecutorService;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly AuthenticatePushStep authenticatePushStep;
 
-  private final AuthenticatePushStep authenticatePushStep;
+  private readonly PushLayersStep pushBaseImageLayersStep;
+  private readonly PushLayersStep pushApplicationLayersStep;
+  private readonly PushContainerConfigurationStep pushContainerConfigurationStep;
+  private readonly BuildImageStep buildImageStep;
 
-  private final PushLayersStep pushBaseImageLayersStep;
-  private final PushLayersStep pushApplicationLayersStep;
-  private final PushContainerConfigurationStep pushContainerConfigurationStep;
-  private final BuildImageStep buildImageStep;
-
-  private final ListenableFuture<BuildResult> listenableFuture;
+  private readonly ListenableFuture<BuildResult> listenableFuture;
 
   PushImageStep(
       ListeningExecutorService listeningExecutorService,
@@ -76,21 +74,19 @@ class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(pushBaseImageLayersStep)
             .addStep(pushApplicationLayersStep)
             .addStep(pushContainerConfigurationStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<BuildResult> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public BuildResult call() throws ExecutionException, InterruptedException {
-    return AsyncDependencies.using(listeningExecutorService)
+  public BuildResult call() {
+    return AsyncDependencies.@using(listeningExecutorService)
         .addStep(authenticatePushStep)
         .addSteps(NonBlockingSteps.get(pushBaseImageLayersStep))
         .addSteps(NonBlockingSteps.get(pushApplicationLayersStep))
@@ -100,29 +96,29 @@ class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
         .get();
   }
 
-  private BuildResult afterPushSteps() throws ExecutionException, InterruptedException {
-    AsyncDependencies dependencies = AsyncDependencies.using(listeningExecutorService);
-    for (AsyncStep<PushBlobStep> pushBaseImageLayerStep :
-        NonBlockingSteps.get(pushBaseImageLayersStep)) {
+  private BuildResult afterPushSteps() {
+    AsyncDependencies dependencies = AsyncDependencies.@using(listeningExecutorService);
+    foreach (AsyncStep<PushBlobStep> pushBaseImageLayerStep in NonBlockingSteps.get(pushBaseImageLayersStep))
+    {
       dependencies.addStep(NonBlockingSteps.get(pushBaseImageLayerStep));
     }
-    for (AsyncStep<PushBlobStep> pushApplicationLayerStep :
-        NonBlockingSteps.get(pushApplicationLayersStep)) {
+    foreach (AsyncStep<PushBlobStep> pushApplicationLayerStep in NonBlockingSteps.get(pushApplicationLayersStep))
+    {
       dependencies.addStep(NonBlockingSteps.get(pushApplicationLayerStep));
     }
     return dependencies
         .addStep(NonBlockingSteps.get(NonBlockingSteps.get(pushContainerConfigurationStep)))
-        .whenAllSucceed(this::afterAllPushed)
+        .whenAllSucceed(this.afterAllPushed)
         .get();
   }
 
   private BuildResult afterAllPushed()
-      throws ExecutionException, IOException, InterruptedException {
-    ImmutableSet<String> targetImageTags = buildConfiguration.getAllTargetImageTags();
+      {
+    ImmutableSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
     ProgressEventDispatcher progressEventDispatcher =
         progressEventDispatcherFactory.create("pushing image manifest", targetImageTags.size());
 
-    try (TimerEventDispatcher ignored =
+    using (TimerEventDispatcher ignored =
         new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)) {
       RegistryClient registryClient =
           buildConfiguration
@@ -144,13 +140,14 @@ class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
 
       // Pushes to all target image tags.
       List<ListenableFuture<Void>> pushAllTagsFutures = new ArrayList<>();
-      for (String tag : targetImageTags) {
+      foreach (string tag in targetImageTags)
+      {
         ProgressEventDispatcher.Factory progressEventDispatcherFactory =
             progressEventDispatcher.newChildProducer();
         pushAllTagsFutures.add(
             listeningExecutorService.submit(
-                () -> {
-                  try (ProgressEventDispatcher ignored2 =
+                () => {
+                  using (ProgressEventDispatcher ignored2 =
                       progressEventDispatcherFactory.create("tagging with " + tag, 1)) {
                     buildConfiguration
                         .getEventHandlers()
@@ -167,7 +164,7 @@ class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
 
       return Futures.whenAllSucceed(pushAllTagsFutures)
           .call(
-              () -> {
+              () => {
                 progressEventDispatcher.close();
                 return result;
               },
@@ -175,4 +172,5 @@ class PushImageStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
           .get();
     }
   }
+}
 }

@@ -14,11 +14,10 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.Objects;
+
+
 
 /**
  * Represents an entry in the layer. A layer consists of many entries that can be converted into tar
@@ -26,18 +25,18 @@ import java.util.Objects;
  */
 public class LayerEntry {
 
-  private final Path sourceFile;
-  private final AbsoluteUnixPath extractionPath;
-  private final FilePermissions permissions;
-  private final Instant lastModifiedTime;
+  private readonly Path sourceFile;
+  private readonly AbsoluteUnixPath extractionPath;
+  private readonly FilePermissions permissions;
+  private readonly Instant lastModifiedTime;
 
   /**
    * Instantiates with a source file and the path to place the source file in the container file
    * system.
    *
-   * <p>For example, {@code new LayerEntry(Paths.get("HelloWorld.class"),
-   * AbsoluteUnixPath.get("/app/classes/HelloWorld.class"))} adds a file {@code HelloWorld.class} to
-   * the container file system at {@code /app/classes/HelloWorld.class}.
+   * <p>For example, {@code new LayerEntry(Paths.get("typeof(HelloWorld)"),
+   * AbsoluteUnixPath.get("/app/classes/typeof(HelloWorld)"))} adds a file {@code typeof(HelloWorld)} to
+   * the container file system at {@code /app/classes/typeof(HelloWorld)}.
    *
    * <p>For example, {@code new LayerEntry(Paths.get("com"),
    * AbsoluteUnixPath.get("/app/classes/com"))} adds a directory to the container file system at
@@ -107,12 +106,11 @@ public class LayerEntry {
     return permissions;
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof LayerEntry)) {
+    if (!(other is LayerEntry)) {
       return false;
     }
     LayerEntry otherLayerEntry = (LayerEntry) other;
@@ -122,8 +120,8 @@ public class LayerEntry {
         && Objects.equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
   }
+}
 }

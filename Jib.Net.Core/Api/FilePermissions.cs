@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.Set;
+
+
+
+
 
 /** Represents read/write/execute file permissions for owner, group, and others. */
 public class FilePermissions {
 
   /** Default permissions for files added to the container. */
-  public static final FilePermissions DEFAULT_FILE_PERMISSIONS = new FilePermissions(0644);
+  public static readonly FilePermissions DEFAULT_FILE_PERMISSIONS = new FilePermissions(0644);
 
   /** Default permissions for folders added to the container. */
-  public static final FilePermissions DEFAULT_FOLDER_PERMISSIONS = new FilePermissions(0755);
+  public static readonly FilePermissions DEFAULT_FOLDER_PERMISSIONS = new FilePermissions(0755);
 
   /**
    * Matches an octal string representation of file permissions. From left to right, each digit
    * represents permissions for owner, group, and other.
    */
-  private static final String OCTAL_PATTERN = "[0-7][0-7][0-7]";
+  private static readonly string OCTAL_PATTERN = "[0-7][0-7][0-7]";
 
   /** Maps from a {@link PosixFilePermission} to its corresponding file permission bit. */
-  private static final ImmutableMap<PosixFilePermission, Integer> PERMISSION_MAP =
+  private static readonly ImmutableMap<PosixFilePermission, Integer> PERMISSION_MAP =
       ImmutableMap.<PosixFilePermission, Integer>builder()
           .put(PosixFilePermission.OWNER_READ, 0400)
           .put(PosixFilePermission.OWNER_WRITE, 0200)
@@ -58,7 +57,7 @@ public class FilePermissions {
    * @param octalPermissions the octal string representation of the permissions
    * @return a new {@link FilePermissions} with the given permissions
    */
-  public static FilePermissions fromOctalString(String octalPermissions) {
+  public static FilePermissions fromOctalString(string octalPermissions) {
     Preconditions.checkArgument(
         octalPermissions.matches(OCTAL_PATTERN),
         "octalPermissions must be a 3-digit octal number (000-777)");
@@ -74,15 +73,15 @@ public class FilePermissions {
   public static FilePermissions fromPosixFilePermissions(
       Set<PosixFilePermission> posixFilePermissions) {
     int permissionBits = 0;
-    for (PosixFilePermission permission : posixFilePermissions) {
+    foreach (PosixFilePermission permission in posixFilePermissions)
+    {
       permissionBits |= Preconditions.checkNotNull(PERMISSION_MAP.get(permission));
     }
     return new FilePermissions(permissionBits);
   }
 
-  private final int permissionBits;
+  private readonly int permissionBits;
 
-  @VisibleForTesting
   FilePermissions(int permissionBits) {
     this.permissionBits = permissionBits;
   }
@@ -101,24 +100,23 @@ public class FilePermissions {
    *
    * @return the octal string representation of the permissions
    */
-  public String toOctalString() {
+  public string toOctalString() {
     return Integer.toString(permissionBits, 8);
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof FilePermissions)) {
+    if (!(other is FilePermissions)) {
       return false;
     }
     FilePermissions otherFilePermissions = (FilePermissions) other;
     return permissionBits == otherFilePermissions.permissionBits;
   }
 
-  @Override
   public int hashCode() {
     return permissionBits;
   }
+}
 }

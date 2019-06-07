@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.json;
+namespace com.google.cloud.tools.jib.registry.json {
 
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+
+
+
 
 /**
  * Template for the registry response body JSON when a request errored.
@@ -39,17 +38,17 @@ import java.util.List;
  * }
  * }</pre>
  */
-public class ErrorResponseTemplate implements JsonTemplate {
+public class ErrorResponseTemplate : JsonTemplate {
 
-  private final List<ErrorEntryTemplate> errors = new ArrayList<>();
+  private readonly List<ErrorEntryTemplate> errors = new ArrayList<>();
 
   public List<ErrorEntryTemplate> getErrors() {
     return Collections.unmodifiableList(errors);
   }
 
-  @VisibleForTesting
   public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate) {
     errors.add(errorEntryTemplate);
     return this;
   }
+}
 }

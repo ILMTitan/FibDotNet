@@ -14,39 +14,37 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.async.AsyncDependencies;
-import com.google.cloud.tools.jib.async.AsyncStep;
-import com.google.cloud.tools.jib.async.NonBlockingSteps;
-import com.google.cloud.tools.jib.builder.ProgressEventDispatcher;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.docker.DockerClient;
-import com.google.cloud.tools.jib.docker.ImageTarball;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Adds image layers to a tarball and loads into Docker daemon. */
-class LoadDockerStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
+class LoadDockerStep : $2 {
+  private readonly ListeningExecutorService listeningExecutorService;
+  private readonly BuildConfiguration buildConfiguration;
+  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private final ListeningExecutorService listeningExecutorService;
-  private final BuildConfiguration buildConfiguration;
-  private final ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+  private readonly DockerClient dockerClient;
 
-  private final DockerClient dockerClient;
+  private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+  private readonly ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+  private readonly BuildImageStep buildImageStep;
 
-  private final PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private final ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-  private final BuildImageStep buildImageStep;
-
-  private final ListenableFuture<BuildResult> listenableFuture;
+  private readonly ListenableFuture<BuildResult> listenableFuture;
 
   LoadDockerStep(
       ListeningExecutorService listeningExecutorService,
@@ -65,34 +63,32 @@ class LoadDockerStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.using(listeningExecutorService)
+        AsyncDependencies.@using(listeningExecutorService)
             .addStep(pullAndCacheBaseImageLayersStep)
             .addStep(buildImageStep)
             .whenAllSucceed(this);
   }
 
-  @Override
   public ListenableFuture<BuildResult> getFuture() {
     return listenableFuture;
   }
 
-  @Override
-  public BuildResult call() throws ExecutionException, InterruptedException {
-    return AsyncDependencies.using(listeningExecutorService)
+  public BuildResult call() {
+    return AsyncDependencies.@using(listeningExecutorService)
         .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
         .addSteps(buildAndCacheApplicationLayerSteps)
         .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(this::afterPushBaseImageLayerFuturesFuture)
+        .whenAllSucceed(this.afterPushBaseImageLayerFuturesFuture)
         .get();
   }
 
   private BuildResult afterPushBaseImageLayerFuturesFuture()
-      throws ExecutionException, InterruptedException, IOException {
+      {
     buildConfiguration
         .getEventHandlers()
         .dispatch(LogEvent.progress("Loading to Docker daemon..."));
 
-    try (ProgressEventDispatcher ignored =
+    using (ProgressEventDispatcher ignored =
         progressEventDispatcherFactory.create("loading to Docker daemon", 1)) {
       Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
       ImageReference targetImageReference =
@@ -105,7 +101,8 @@ class LoadDockerStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
               LogEvent.debug(dockerClient.load(new ImageTarball(image, targetImageReference))));
 
       // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
-      for (String tag : buildConfiguration.getAllTargetImageTags()) {
+      foreach (string tag in buildConfiguration.getAllTargetImageTags())
+      {
         if (tag.equals(targetImageReference.getTag())) {
           continue;
         }
@@ -116,4 +113,5 @@ class LoadDockerStep implements AsyncStep<BuildResult>, Callable<BuildResult> {
       return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
     }
   }
+}
 }

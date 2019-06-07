@@ -14,51 +14,50 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.json.ErrorEntryTemplate;
-import com.google.cloud.tools.jib.registry.json.ErrorResponseTemplate;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.DigestException;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BlobChecker}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class BlobCheckerTest {
 
-  @Mock private Response mockResponse;
+  [Mock] private Response mockResponse;
 
-  private final RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
+  private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
 
   private BlobChecker testBlobChecker;
   private DescriptorDigest fakeDigest;
 
-  @Before
-  public void setUpFakes() throws DigestException {
+  [TestInitialize]
+  public void setUpFakes() {
     fakeDigest =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     testBlobChecker = new BlobChecker(fakeRegistryEndpointRequestProperties, fakeDigest);
   }
 
-  @Test
-  public void testHandleResponse() throws RegistryErrorException {
+  [TestMethod]
+  public void testHandleResponse() {
     Mockito.when(mockResponse.getContentLength()).thenReturn(0L);
     BlobDescriptor expectedBlobDescriptor = new BlobDescriptor(0, fakeDigest);
 
@@ -67,7 +66,7 @@ public class BlobCheckerTest {
     Assert.assertEquals(expectedBlobDescriptor, blobDescriptor);
   }
 
-  @Test
+  [TestMethod]
   public void testHandleResponse_noContentLength() {
     Mockito.when(mockResponse.getContentLength()).thenReturn(-1L);
 
@@ -81,9 +80,9 @@ public class BlobCheckerTest {
     }
   }
 
-  @Test
-  public void testHandleHttpResponseException() throws IOException, RegistryErrorException {
-    HttpResponseException mockHttpResponseException = Mockito.mock(HttpResponseException.class);
+  [TestMethod]
+  public void testHandleHttpResponseException() {
+    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
         .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
 
@@ -99,10 +98,10 @@ public class BlobCheckerTest {
     Assert.assertNull(blobDescriptor);
   }
 
-  @Test
+  [TestMethod]
   public void testHandleHttpResponseException_hasOtherErrors()
-      throws IOException, RegistryErrorException {
-    HttpResponseException mockHttpResponseException = Mockito.mock(HttpResponseException.class);
+      {
+    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
         .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
 
@@ -122,10 +121,10 @@ public class BlobCheckerTest {
     }
   }
 
-  @Test
+  [TestMethod]
   public void testHandleHttpResponseException_notBlobUnknown()
-      throws IOException, RegistryErrorException {
-    HttpResponseException mockHttpResponseException = Mockito.mock(HttpResponseException.class);
+      {
+    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
         .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
 
@@ -142,9 +141,9 @@ public class BlobCheckerTest {
     }
   }
 
-  @Test
-  public void testHandleHttpResponseException_invalidStatusCode() throws RegistryErrorException {
-    HttpResponseException mockHttpResponseException = Mockito.mock(HttpResponseException.class);
+  [TestMethod]
+  public void testHandleHttpResponseException_invalidStatusCode() {
+    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode()).thenReturn(-1);
 
     try {
@@ -156,32 +155,33 @@ public class BlobCheckerTest {
     }
   }
 
-  @Test
-  public void testGetApiRoute() throws MalformedURLException {
+  [TestMethod]
+  public void testGetApiRoute() {
     Assert.assertEquals(
-        new URL("http://someApiBase/someImageName/blobs/" + fakeDigest),
+        new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
         testBlobChecker.getApiRoute("http://someApiBase/"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetContent() {
     Assert.assertNull(testBlobChecker.getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testGetAccept() {
     Assert.assertEquals(0, testBlobChecker.getAccept().size());
   }
 
-  @Test
+  [TestMethod]
   public void testGetActionDescription() {
     Assert.assertEquals(
         "check BLOB exists for someServerUrl/someImageName with digest " + fakeDigest,
         testBlobChecker.getActionDescription());
   }
 
-  @Test
+  [TestMethod]
   public void testGetHttpMethod() {
     Assert.assertEquals("HEAD", testBlobChecker.getHttpMethod());
   }
+}
 }

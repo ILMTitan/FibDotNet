@@ -14,40 +14,39 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import java.io.IOException;
-import java.security.DigestException;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link BlobChecker}. */
 public class BlobCheckerIntegrationTest {
 
-  @ClassRule public static LocalRegistry localRegistry = new LocalRegistry(5000);
+  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  @Test
-  public void testCheck_exists() throws IOException, RegistryException, InterruptedException {
+  [TestMethod]
+  public void testCheck_exists() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V22ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", V22ManifestTemplate.class);
+        registryClient.pullManifest("latest", typeof(V22ManifestTemplate));
     DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
 
     Assert.assertEquals(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
   }
 
-  @Test
+  [TestMethod]
   public void testCheck_doesNotExist()
-      throws IOException, RegistryException, DigestException, InterruptedException {
+      {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
@@ -59,4 +58,5 @@ public class BlobCheckerIntegrationTest {
 
     Assert.assertNull(registryClient.checkBlob(fakeBlobDigest));
   }
+}
 }

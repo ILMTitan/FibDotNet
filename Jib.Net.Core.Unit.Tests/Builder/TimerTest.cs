@@ -14,25 +14,24 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
 
 /** Tests for {@link Timer}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class TimerTest {
 
-  @Mock private Clock mockClock;
+  [Mock] private Clock mockClock;
 
-  @Test
+  [TestMethod]
   public void testLap() {
     Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH);
     Timer parentTimer = new Timer(mockClock, null);
@@ -53,4 +52,5 @@ public class TimerTest {
     Assert.assertTrue(parentDuration1.compareTo(parentDuration3) > 0);
     Assert.assertTrue(parentDuration3.compareTo(childDuration) > 0);
   }
+}
 }

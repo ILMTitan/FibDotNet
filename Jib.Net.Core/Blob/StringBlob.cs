@@ -14,29 +14,27 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.hash.Digests;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
-/** A {@link Blob} that holds a {@link String}. Encodes in UTF-8 when writing in bytes. */
-class StringBlob implements Blob {
 
-  private final String content;
 
-  StringBlob(String content) {
+
+
+
+/** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
+class StringBlob : $2 {
+  private readonly string content;
+
+  StringBlob(string content) {
     this.content = content;
   }
 
-  @Override
-  public BlobDescriptor writeTo(OutputStream outputStream) throws IOException {
-    try (InputStream stringIn =
+  public BlobDescriptor writeTo(OutputStream outputStream) {
+    using (InputStream stringIn =
         new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
       return Digests.computeDigest(stringIn, outputStream);
     }
   }
+}
 }

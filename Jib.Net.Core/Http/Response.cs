@@ -14,19 +14,18 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpResponse;
-import com.google.common.net.HttpHeaders;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+
+
+
+
+
 
 /** Holds an HTTP response. */
 public class Response {
 
-  private final HttpResponse httpResponse;
+  private readonly HttpResponse httpResponse;
 
   Response(HttpResponse httpResponse) {
     this.httpResponse = httpResponse;
@@ -41,7 +40,7 @@ public class Response {
    * @param headerName the header name
    * @return a list of headers in the response
    */
-  public List<String> getHeader(String headerName) {
+  public List<string> getHeader(string headerName) {
     return httpResponse.getHeaders().getHeaderStringValues(headerName);
   }
 
@@ -49,8 +48,8 @@ public class Response {
    * @return the first {@code Content-Length} header, or {@code -1} if not found
    * @throws NumberFormatException if parsing the content length header fails
    */
-  public long getContentLength() throws NumberFormatException {
-    String contentLengthHeader =
+  public long getContentLength() {
+    string contentLengthHeader =
         httpResponse.getHeaders().getFirstHeaderStringValue(HttpHeaders.CONTENT_LENGTH);
     if (contentLengthHeader == null) {
       return -1;
@@ -67,12 +66,13 @@ public class Response {
    * @return the HTTP response body as an {@link InputStream}.
    * @throws IOException if getting the HTTP response content fails.
    */
-  public InputStream getBody() throws IOException {
+  public InputStream getBody() {
     return httpResponse.getContent();
   }
 
-  /** @return the original request URL */
+  /** @return the original request Uri */
   public GenericUrl getRequestUrl() {
     return httpResponse.getRequest().getUrl();
   }
+}
 }

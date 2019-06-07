@@ -14,65 +14,63 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.common.io.Resources;
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Simple local web server for testing. */
-public class TestWebServer implements Closeable {
+public class TestWebServer : Closeable {
 
-  private final boolean https;
-  private final ServerSocket serverSocket;
-  private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private final Semaphore threadStarted = new Semaphore(0);
-  private final StringBuilder inputRead = new StringBuilder();
+  private readonly bool https;
+  private readonly ServerSocket serverSocket;
+  private readonly ExecutorService executorService = Executors.newSingleThreadExecutor();
+  private readonly Semaphore threadStarted = new Semaphore(0);
+  private readonly StringBuilder inputRead = new StringBuilder();
 
-  public TestWebServer(boolean https)
-      throws IOException, InterruptedException, GeneralSecurityException, URISyntaxException {
+  public TestWebServer(bool https)
+      {
     this.https = https;
     serverSocket = createServerSocket(https);
-    ignoreReturn(executorService.submit(this::serve200));
+    ignoreReturn(executorService.submit(this.serve200));
     threadStarted.acquire();
   }
 
-  public String getEndpoint() {
-    String host = serverSocket.getInetAddress().getHostAddress();
+  public string getEndpoint() {
+    string host = serverSocket.getInetAddress().getHostAddress();
     return (https ? "https" : "http") + "://" + host + ":" + serverSocket.getLocalPort();
   }
 
-  @Override
-  public void close() throws IOException {
+  public void close() {
     serverSocket.close();
     executorService.shutdown();
   }
 
-  private ServerSocket createServerSocket(boolean https)
-      throws IOException, GeneralSecurityException, URISyntaxException {
+  private ServerSocket createServerSocket(bool https)
+      {
     if (https) {
       KeyStore keyStore = KeyStore.getInstance("JKS");
       // generated with: keytool -genkey -keyalg RSA -keystore ./TestWebServer-keystore
       Path keyStoreFile = Paths.get(Resources.getResource("core/TestWebServer-keystore").toURI());
-      try (InputStream in = Files.newInputStream(keyStoreFile)) {
+      using (InputStream in = Files.newInputStream(keyStoreFile)) {
         keyStore.load(in, "password".toCharArray());
       }
 
@@ -88,19 +86,19 @@ public class TestWebServer implements Closeable {
     }
   }
 
-  private Void serve200() throws IOException {
+  private Void serve200() {
     threadStarted.release();
-    try (Socket socket = serverSocket.accept()) {
+    using (Socket socket = serverSocket.accept()) {
 
       InputStream in = socket.getInputStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-      for (String line = reader.readLine();
+      for (string line = reader.readLine();
           line != null && !line.isEmpty(); // An empty line marks the end of an HTTP request.
           line = reader.readLine()) {
         inputRead.append(line + "\n");
       }
 
-      String response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
+      string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
       socket.getOutputStream().write(response.getBytes(StandardCharsets.UTF_8));
       socket.getOutputStream().flush();
     }
@@ -111,7 +109,8 @@ public class TestWebServer implements Closeable {
     // do nothing; to make Error Prone happy
   }
 
-  public String getInputRead() {
+  public string getInputRead() {
     return inputRead.toString();
   }
+}
 }

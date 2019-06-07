@@ -14,33 +14,32 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import java.io.Closeable;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /**
  * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
  * period of time are merged into a single later call with the value accumulated up to that point.
  */
-public class ThrottledAccumulatingConsumer implements Consumer<Long>, Closeable {
+public class ThrottledAccumulatingConsumer : Consumer<Long>, Closeable {
 
-  private final Consumer<Long> consumer;
+  private readonly Consumer<Long> consumer;
 
   /** Delay between each call to the underlying {@link #accept}. */
-  private final Duration delayBetweenCallbacks;
+  private readonly Duration delayBetweenCallbacks;
 
   /** Last time the underlying {@link #accept} was called. */
   private Instant previousCallback;
 
   /** "Clock" that returns the current {@link Instant}. */
-  private final Supplier<Instant> getNow;
+  private readonly Supplier<Instant> getNow;
 
-  @Nullable private Long valueSoFar;
+  private Long valueSoFar;
 
   /**
    * Wraps a consumer with the delay of 100 ms.
@@ -48,7 +47,7 @@ public class ThrottledAccumulatingConsumer implements Consumer<Long>, Closeable 
    * @param callback {@link Consumer} callback to wrap
    */
   public ThrottledAccumulatingConsumer(Consumer<Long> callback) {
-    this(callback, Duration.ofMillis(100), Instant::now);
+    this(callback, Duration.ofMillis(100), Instant.now);
   }
 
   public ThrottledAccumulatingConsumer(
@@ -60,7 +59,6 @@ public class ThrottledAccumulatingConsumer implements Consumer<Long>, Closeable 
     previousCallback = getNow.get();
   }
 
-  @Override
   public void accept(Long value) {
     valueSoFar = valueSoFar == null ? value : valueSoFar + value;
 
@@ -73,10 +71,10 @@ public class ThrottledAccumulatingConsumer implements Consumer<Long>, Closeable 
     }
   }
 
-  @Override
   public void close() {
     if (valueSoFar != null) {
       consumer.accept(valueSoFar);
     }
   }
+}
 }

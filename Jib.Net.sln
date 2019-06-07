@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jib.Net.Core.Unit.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jib.Net.Core.Integration.Tests", "Jib.Net.Core.Integration.Tests\Jib.Net.Core.Integration.Tests.csproj", "{F13B7B33-15C4-4B80-9658-0144A06D037F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D0728E95-9B51-49B6-BC19-0AF1B8FAE478}"
+	ProjectSection(SolutionItems) = preProject
+		Regexes.txt = Regexes.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

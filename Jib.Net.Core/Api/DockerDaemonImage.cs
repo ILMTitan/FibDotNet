@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import javax.annotation.Nullable;
+
+
+
+
 
 /** Builds to the Docker daemon. */
 public class DockerDaemonImage {
@@ -45,14 +44,14 @@ public class DockerDaemonImage {
    * @return a new {@link DockerDaemonImage}
    * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
    */
-  public static DockerDaemonImage named(String imageReference)
-      throws InvalidImageReferenceException {
+  public static DockerDaemonImage named(string imageReference)
+      {
     return named(ImageReference.parse(imageReference));
   }
 
-  private final ImageReference imageReference;
-  @Nullable private Path dockerExecutable;
-  private Map<String, String> dockerEnvironment = Collections.emptyMap();
+  private readonly ImageReference imageReference;
+  private Path dockerExecutable;
+  private Map<string, string> dockerEnvironment = Collections.emptyMap();
 
   /** Instantiate with {@link #named}. */
   private DockerDaemonImage(ImageReference imageReference) {
@@ -76,7 +75,7 @@ public class DockerDaemonImage {
    * @param dockerEnvironment additional environment variables
    * @return this
    */
-  public DockerDaemonImage setDockerEnvironment(Map<String, String> dockerEnvironment) {
+  public DockerDaemonImage setDockerEnvironment(Map<string, string> dockerEnvironment) {
     this.dockerEnvironment = dockerEnvironment;
     return this;
   }
@@ -89,7 +88,8 @@ public class DockerDaemonImage {
     return Optional.ofNullable(dockerExecutable);
   }
 
-  Map<String, String> getDockerEnvironment() {
+  Map<string, string> getDockerEnvironment() {
     return dockerEnvironment;
   }
+}
 }

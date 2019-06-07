@@ -14,21 +14,21 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import java.nio.file.Path;
 
-/** Thrown because the credential helper does not have credentials for the specified server URL. */
-public class CredentialHelperUnhandledServerUrlException extends CredentialRetrievalException {
+/** Thrown because the credential helper does not have credentials for the specified server Uri. */
+public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalException {
 
   CredentialHelperUnhandledServerUrlException(
-      Path credentialHelper, String serverUrl, String credentialHelperOutput) {
+      Path credentialHelper, string serverUrl, string credentialHelperOutput) {
     super(
         "The credential helper ("
             + credentialHelper
-            + ") has nothing for server URL: "
+            + ") has nothing for server Uri: "
             + serverUrl
             + "\n\nGot output:\n\n"
             + credentialHelperOutput);
   }
+}
 }

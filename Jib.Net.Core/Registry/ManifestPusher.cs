@@ -14,32 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpResponseException;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.http.BlobHttpContent;
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.image.json.BuildableManifestTemplate;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.DigestException;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringJoiner;
-import org.apache.http.HttpStatus;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Pushes an image's manifest. */
-class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
-
+class ManifestPusher : $2 {
   /** Response header containing digest of pushed image. */
-  private static final String RESPONSE_DIGEST_HEADER = "Docker-Content-Digest";
+  private static readonly string RESPONSE_DIGEST_HEADER = "Docker-Content-Digest";
 
   /**
    * Makes the warning for when the registry responds with an image digest that is not the expected
@@ -49,29 +47,30 @@ class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
    * @param receivedDigests the received image digests
    * @return the warning message
    */
-  private static String makeUnexpectedImageDigestWarning(
-      DescriptorDigest expectedDigest, List<String> receivedDigests) {
+  private static string makeUnexpectedImageDigestWarning(
+      DescriptorDigest expectedDigest, List<string> receivedDigests) {
     if (receivedDigests.isEmpty()) {
       return "Expected image digest " + expectedDigest + ", but received none";
     }
 
     StringJoiner message =
         new StringJoiner(", ", "Expected image digest " + expectedDigest + ", but received: ", "");
-    for (String receivedDigest : receivedDigests) {
+    foreach (string receivedDigest in receivedDigests)
+    {
       message.add(receivedDigest);
     }
     return message.toString();
   }
 
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final BuildableManifestTemplate manifestTemplate;
-  private final String imageTag;
-  private final EventHandlers eventHandlers;
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly BuildableManifestTemplate manifestTemplate;
+  private readonly string imageTag;
+  private readonly EventHandlers eventHandlers;
 
   ManifestPusher(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       BuildableManifestTemplate manifestTemplate,
-      String imageTag,
+      string imageTag,
       EventHandlers eventHandlers) {
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
     this.manifestTemplate = manifestTemplate;
@@ -79,21 +78,18 @@ class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
     this.eventHandlers = eventHandlers;
   }
 
-  @Override
   public BlobHttpContent getContent() {
     // TODO: Consider giving progress on manifest push as well?
     return new BlobHttpContent(
         Blobs.from(manifestTemplate), manifestTemplate.getManifestMediaType());
   }
 
-  @Override
-  public List<String> getAccept() {
+  public List<string> getAccept() {
     return Collections.emptyList();
   }
 
-  @Override
   public DescriptorDigest handleHttpResponseException(HttpResponseException httpResponseException)
-      throws HttpResponseException, RegistryErrorException {
+      {
     // docker registry 2.0 and 2.1 returns:
     //   400 Bad Request
     //   {"errors":[{"code":"TAG_INVALID","message":"manifest tag did not match URI"}]}
@@ -122,12 +118,11 @@ class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
     throw httpResponseException;
   }
 
-  @Override
-  public DescriptorDigest handleResponse(Response response) throws IOException {
+  public DescriptorDigest handleResponse(Response response) {
     // Checks if the image digest is as expected.
     DescriptorDigest expectedDigest = Digests.computeJsonDigest(manifestTemplate);
 
-    List<String> receivedDigests = response.getHeader(RESPONSE_DIGEST_HEADER);
+    List<string> receivedDigests = response.getHeader(RESPONSE_DIGEST_HEADER);
     if (receivedDigests.size() == 1) {
       try {
         DescriptorDigest receivedDigest = DescriptorDigest.fromDigest(receivedDigests.get(0));
@@ -146,19 +141,16 @@ class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
     return expectedDigest;
   }
 
-  @Override
-  public URL getApiRoute(String apiRouteBase) throws MalformedURLException {
-    return new URL(
+  public Uri getApiRoute(string apiRouteBase) {
+    return new Uri(
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/manifests/" + imageTag);
   }
 
-  @Override
-  public String getHttpMethod() {
+  public string getHttpMethod() {
     return HttpMethods.PUT;
   }
 
-  @Override
-  public String getActionDescription() {
+  public string getActionDescription() {
     return "push image manifest for "
         + registryEndpointRequestProperties.getServerUrl()
         + "/"
@@ -166,4 +158,5 @@ class ManifestPusher implements RegistryEndpointProvider<DescriptorDigest> {
         + ":"
         + imageTag;
   }
+}
 }

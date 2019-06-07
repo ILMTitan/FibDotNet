@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.Command;
-import com.google.cloud.tools.jib.registry.LocalRegistry;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Integration tests for {@link Jib}. */
 public class JibIntegrationTest {
 
-  @ClassRule
-  public static final LocalRegistry localRegistry = new LocalRegistry(5000, "username", "password");
+  [ClassRule]
+  public static readonly LocalRegistry localRegistry = new LocalRegistry(5000, "username", "password");
 
-  @Rule public final TemporaryFolder cacheFolder = new TemporaryFolder();
+  [Rule] public final TemporaryFolder cacheFolder = new TemporaryFolder();
 
   /**
    * Pulls a built image and attempts to run it.
@@ -48,13 +47,13 @@ public class JibIntegrationTest {
    * @throws IOException if an I/O exception occurs
    * @throws InterruptedException if the process was interrupted
    */
-  private static String pullAndRunBuiltImage(String imageReference)
-      throws IOException, InterruptedException {
+  private static string pullAndRunBuiltImage(string imageReference)
+      {
     localRegistry.pull(imageReference);
     return new Command("docker", "run", "--rm", imageReference).run();
   }
 
-  @Before
+  [TestInitialize]
   public void setUp() {
     System.setProperty("sendCredentialsOverHttp", "true");
   }
@@ -64,10 +63,9 @@ public class JibIntegrationTest {
     System.clearProperty("sendCredentialsOverHttp");
   }
 
-  @Test
+  [TestMethod]
   public void testBasic_helloWorld()
-      throws InvalidImageReferenceException, InterruptedException, CacheDirectoryCreationException,
-          IOException, RegistryException, ExecutionException {
+      {
     ImageReference targetImageReference =
         ImageReference.of("localhost:5000", "jib-core", "basic-helloworld");
     JibContainer jibContainer =
@@ -77,7 +75,7 @@ public class JibIntegrationTest {
                 Containerizer.to(
                         RegistryImage.named(targetImageReference)
                             .addCredentialRetriever(
-                                () -> Optional.of(Credential.from("username", "password"))))
+                                () => Optional.of(Credential.from("username", "password"))))
                     .setAllowInsecureRegistries(true));
 
     Assert.assertEquals("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
@@ -87,10 +85,9 @@ public class JibIntegrationTest {
             targetImageReference.withTag(jibContainer.getDigest().toString()).toString()));
   }
 
-  @Test
+  [TestMethod]
   public void testScratch()
-      throws IOException, InterruptedException, ExecutionException, RegistryException,
-          CacheDirectoryCreationException {
+      {
     ImageReference targetImageReference =
         ImageReference.of("localhost:5000", "jib-core", "basic-scratch");
     Jib.fromScratch()
@@ -98,21 +95,20 @@ public class JibIntegrationTest {
             Containerizer.to(
                     RegistryImage.named(targetImageReference)
                         .addCredentialRetriever(
-                            () -> Optional.of(Credential.from("username", "password"))))
+                            () => Optional.of(Credential.from("username", "password"))))
                 .setAllowInsecureRegistries(true));
 
     // Check that resulting image has no layers
     localRegistry.pull(targetImageReference.toString());
-    String inspectOutput = new Command("docker", "inspect", targetImageReference.toString()).run();
+    string inspectOutput = new Command("docker", "inspect", targetImageReference.toString()).run();
     Assert.assertFalse(
         "docker inspect output contained layers: " + inspectOutput,
         inspectOutput.contains("\"Layers\": ["));
   }
 
-  @Test
+  [TestMethod]
   public void testOffline()
-      throws IOException, InterruptedException, InvalidImageReferenceException, ExecutionException,
-          RegistryException, CacheDirectoryCreationException {
+      {
     LocalRegistry tempRegistry = new LocalRegistry(5001);
     tempRegistry.start();
     tempRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -168,17 +164,16 @@ public class JibIntegrationTest {
   }
 
   /** Ensure that a provided executor is not disposed. */
-  @Test
+  [TestMethod]
   public void testProvidedExecutorNotDisposed()
-      throws InvalidImageReferenceException, InterruptedException, CacheDirectoryCreationException,
-          IOException, RegistryException, ExecutionException {
+      {
     ImageReference targetImageReference =
         ImageReference.of("localhost:5000", "jib-core", "basic-helloworld");
     Containerizer containerizer =
         Containerizer.to(
                 RegistryImage.named(targetImageReference)
                     .addCredentialRetriever(
-                        () -> Optional.of(Credential.from("username", "password"))))
+                        () => Optional.of(Credential.from("username", "password"))))
             .setAllowInsecureRegistries(true);
 
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -188,4 +183,5 @@ public class JibIntegrationTest {
 
     executorService.shutdown();
   }
+}
 }

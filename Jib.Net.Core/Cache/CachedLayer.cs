@@ -14,25 +14,24 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.image.Layer;
-import com.google.common.base.Preconditions;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /** Default implementation of {@link CachedLayer}. */
-public class CachedLayer implements Layer {
+public class CachedLayer : Layer {
 
   /** Builds a {@link CachedLayer}. */
   static class Builder {
 
-    @Nullable private DescriptorDigest layerDigest;
-    @Nullable private DescriptorDigest layerDiffId;
+    private DescriptorDigest layerDigest;
+    private DescriptorDigest layerDiffId;
     private long layerSize = -1;
-    @Nullable private Blob layerBlob;
+    private Blob layerBlob;
 
     private Builder() {}
 
@@ -56,7 +55,7 @@ public class CachedLayer implements Layer {
       return this;
     }
 
-    boolean hasLayerBlob() {
+    bool hasLayerBlob() {
       return layerBlob != null;
     }
 
@@ -78,9 +77,9 @@ public class CachedLayer implements Layer {
     return new Builder();
   }
 
-  private final DescriptorDigest layerDiffId;
-  private final BlobDescriptor blobDescriptor;
-  private final Blob layerBlob;
+  private readonly DescriptorDigest layerDiffId;
+  private readonly BlobDescriptor blobDescriptor;
+  private readonly Blob layerBlob;
 
   private CachedLayer(
       DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, Blob layerBlob) {
@@ -97,18 +96,16 @@ public class CachedLayer implements Layer {
     return blobDescriptor.getSize();
   }
 
-  @Override
   public DescriptorDigest getDiffId() {
     return layerDiffId;
   }
 
-  @Override
   public Blob getBlob() {
     return layerBlob;
   }
 
-  @Override
   public BlobDescriptor getBlobDescriptor() {
     return blobDescriptor;
   }
+}
 }

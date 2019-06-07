@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import java.util.Objects;
 
 /** Holds credentials (username and password). */
 public class Credential {
   // If the username is set to <token>, the secret would be a refresh token.
   // https://github.com/docker/cli/blob/master/docs/reference/commandline/login.md#credential-helper-protocol
-  private static final String OAUTH2_TOKEN_USER_NAME = "<token>";
+  private static readonly string OAUTH2_TOKEN_USER_NAME = "<token>";
 
   /**
    * Gets a {@link Credential} configured with a username and password.
@@ -31,14 +30,14 @@ public class Credential {
    * @param password the password
    * @return a new {@link Credential}
    */
-  public static Credential from(String username, String password) {
+  public static Credential from(string username, string password) {
     return new Credential(username, password);
   }
 
-  private final String username;
-  private final String password;
+  private readonly string username;
+  private readonly string password;
 
-  private Credential(String username, String password) {
+  private Credential(string username, string password) {
     this.username = username;
     this.password = password;
   }
@@ -48,7 +47,7 @@ public class Credential {
    *
    * @return the username
    */
-  public String getUsername() {
+  public string getUsername() {
     return username;
   }
 
@@ -57,7 +56,7 @@ public class Credential {
    *
    * @return the password
    */
-  public String getPassword() {
+  public string getPassword() {
     return password;
   }
 
@@ -66,29 +65,27 @@ public class Credential {
    *
    * @return true if this credential is an OAuth 2.0 refresh token.
    */
-  public boolean isOAuth2RefreshToken() {
+  public bool isOAuth2RefreshToken() {
     return OAUTH2_TOKEN_USER_NAME.equals(this.username);
   }
 
-  @Override
-  public boolean equals(Object other) {
+  public bool equals(object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof Credential)) {
+    if (!(other is Credential)) {
       return false;
     }
     Credential otherCredential = (Credential) other;
     return username.equals(otherCredential.username) && password.equals(otherCredential.password);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(username, password);
   }
 
-  @Override
-  public String toString() {
+  public string toString() {
     return username + ":" + password;
   }
+}
 }

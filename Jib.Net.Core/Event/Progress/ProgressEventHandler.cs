@@ -14,12 +14,11 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event.progress;
+namespace com.google.cloud.tools.jib.event.progress {
 
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import com.google.common.collect.ImmutableList;
-import java.util.concurrent.atomic.DoubleAdder;
-import java.util.function.Consumer;
+
+
+
 
 /**
  * Handles {@link ProgressEvent}s by accumulating an overall progress and keeping track of which
@@ -27,7 +26,7 @@ import java.util.function.Consumer;
  *
  * <p>This implementation is thread-safe.
  */
-public class ProgressEventHandler implements Consumer<ProgressEvent> {
+public class ProgressEventHandler : Consumer<ProgressEvent> {
 
   /**
    * Contains the accumulated progress and which "leaf" tasks are not yet complete. Leaf tasks are
@@ -35,10 +34,10 @@ public class ProgressEventHandler implements Consumer<ProgressEvent> {
    */
   public static class Update {
 
-    private final double progress;
-    private final ImmutableList<String> unfinishedLeafTasks;
+    private readonly double progress;
+    private readonly ImmutableList<string> unfinishedLeafTasks;
 
-    private Update(double progress, ImmutableList<String> unfinishedLeafTasks) {
+    private Update(double progress, ImmutableList<string> unfinishedLeafTasks) {
       this.progress = progress;
       this.unfinishedLeafTasks = unfinishedLeafTasks;
     }
@@ -58,29 +57,28 @@ public class ProgressEventHandler implements Consumer<ProgressEvent> {
      *
      * @return a list of unfinished "leaf" tasks
      */
-    public ImmutableList<String> getUnfinishedLeafTasks() {
+    public ImmutableList<string> getUnfinishedLeafTasks() {
       return unfinishedLeafTasks;
     }
   }
 
   /** Keeps track of the progress for each {@link Allocation} encountered. */
-  private final AllocationCompletionTracker completionTracker = new AllocationCompletionTracker();
+  private readonly AllocationCompletionTracker completionTracker = new AllocationCompletionTracker();
 
   /** Accumulates an overall progress, with {@code 1.0} indicating full completion. */
-  private final DoubleAdder progress = new DoubleAdder();
+  private readonly DoubleAdder progress = new DoubleAdder();
 
   /**
    * A callback to notify that {@link #progress} or {@link #completionTracker} could have changed.
    * Note that every change will be reported (though multiple could be reported together), and there
    * could be false positives.
    */
-  private final Consumer<Update> updateNotifier;
+  private readonly Consumer<Update> updateNotifier;
 
   public ProgressEventHandler(Consumer<Update> updateNotifier) {
     this.updateNotifier = updateNotifier;
   }
 
-  @Override
   public void accept(ProgressEvent progressEvent) {
     Allocation allocation = progressEvent.getAllocation();
     long progressUnits = progressEvent.getUnits();
@@ -95,4 +93,5 @@ public class ProgressEventHandler implements Consumer<ProgressEvent> {
       updateNotifier.accept(new Update(progress.sum(), completionTracker.getUnfinishedLeafTasks()));
     }
   }
+}
 }

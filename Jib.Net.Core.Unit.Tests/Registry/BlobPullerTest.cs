@@ -14,44 +14,43 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.hash.CountingDigestOutputStream;
-import com.google.cloud.tools.jib.hash.Digests;
-import com.google.cloud.tools.jib.http.Response;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.DigestException;
-import java.util.concurrent.atomic.LongAdder;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link BlobPuller}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class BlobPullerTest {
 
-  private final RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
+  private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
   private DescriptorDigest fakeDigest;
 
-  private final ByteArrayOutputStream layerContentOutputStream = new ByteArrayOutputStream();
-  private final CountingDigestOutputStream layerOutputStream =
+  private readonly ByteArrayOutputStream layerContentOutputStream = new ByteArrayOutputStream();
+  private readonly CountingDigestOutputStream layerOutputStream =
       new CountingDigestOutputStream(layerContentOutputStream);
 
   private BlobPuller testBlobPuller;
 
-  @Before
-  public void setUpFakes() throws DigestException {
+  [TestInitialize]
+  public void setUpFakes() {
     fakeDigest =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -61,18 +60,18 @@ public class BlobPullerTest {
             fakeRegistryEndpointRequestProperties,
             fakeDigest,
             layerOutputStream,
-            ignored -> {},
-            ignored -> {});
+            ignored => {},
+            ignored => {});
   }
 
-  @Test
-  public void testHandleResponse() throws IOException, UnexpectedBlobDigestException {
+  [TestMethod]
+  public void testHandleResponse() {
     InputStream blobContent =
         new ByteArrayInputStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
     blobContent.reset();
 
-    Response mockResponse = Mockito.mock(Response.class);
+    Response mockResponse = Mockito.mock(typeof(Response));
     Mockito.when(mockResponse.getContentLength()).thenReturn((long) "some BLOB content".length());
     Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
 
@@ -82,24 +81,24 @@ public class BlobPullerTest {
             fakeRegistryEndpointRequestProperties,
             testBlobDigest,
             layerOutputStream,
-            size -> Assert.assertEquals("some BLOB content".length(), size.longValue()),
-            byteCount::add);
+            size => Assert.assertEquals("some BLOB content".length(), size.longValue()),
+            byteCount.add);
     blobPuller.handleResponse(mockResponse);
     Assert.assertEquals(
         "some BLOB content",
-        new String(layerContentOutputStream.toByteArray(), StandardCharsets.UTF_8));
+        new string(layerContentOutputStream.toByteArray(), StandardCharsets.UTF_8));
     Assert.assertEquals(testBlobDigest, layerOutputStream.computeDigest().getDigest());
     Assert.assertEquals("some BLOB content".length(), byteCount.sum());
   }
 
-  @Test
-  public void testHandleResponse_unexpectedDigest() throws IOException {
+  [TestMethod]
+  public void testHandleResponse_unexpectedDigest() {
     InputStream blobContent =
         new ByteArrayInputStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
     blobContent.reset();
 
-    Response mockResponse = Mockito.mock(Response.class);
+    Response mockResponse = Mockito.mock(typeof(Response));
     Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
 
     try {
@@ -117,32 +116,33 @@ public class BlobPullerTest {
     }
   }
 
-  @Test
-  public void testGetApiRoute() throws MalformedURLException {
+  [TestMethod]
+  public void testGetApiRoute() {
     Assert.assertEquals(
-        new URL("http://someApiBase/someImageName/blobs/" + fakeDigest),
+        new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
         testBlobPuller.getApiRoute("http://someApiBase/"));
   }
 
-  @Test
+  [TestMethod]
   public void testGetActionDescription() {
     Assert.assertEquals(
         "pull BLOB for someServerUrl/someImageName with digest " + fakeDigest,
         testBlobPuller.getActionDescription());
   }
 
-  @Test
+  [TestMethod]
   public void testGetHttpMethod() {
     Assert.assertEquals("GET", testBlobPuller.getHttpMethod());
   }
 
-  @Test
+  [TestMethod]
   public void testGetContent() {
     Assert.assertNull(testBlobPuller.getContent());
   }
 
-  @Test
+  [TestMethod]
   public void testGetAccept() {
     Assert.assertEquals(0, testBlobPuller.getAccept().size());
   }
+}
 }

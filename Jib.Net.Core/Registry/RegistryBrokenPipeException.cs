@@ -14,9 +14,8 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.cloud.tools.jib.api.RegistryException;
 
 /** Thrown when the registry shut down the connection. */
 class RegistryBrokenPipeException extends RegistryException {
@@ -28,4 +27,5 @@ class RegistryBrokenPipeException extends RegistryException {
             + "a proxy may prevent sending packets that are too large.",
         cause);
   }
+}
 }

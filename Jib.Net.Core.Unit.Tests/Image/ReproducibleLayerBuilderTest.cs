@@ -14,42 +14,41 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image;
+namespace com.google.cloud.tools.jib.image {
 
-import com.google.cloud.tools.jib.api.AbsoluteUnixPath;
-import com.google.cloud.tools.jib.api.FilePermissions;
-import com.google.cloud.tools.jib.api.LayerConfiguration;
-import com.google.cloud.tools.jib.api.LayerEntry;
-import com.google.cloud.tools.jib.blob.Blob;
-import com.google.cloud.tools.jib.blob.Blobs;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Resources;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
-import java.util.Date;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link ReproducibleLayerBuilder}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class ReproducibleLayerBuilderTest {
 
   /**
@@ -62,14 +61,14 @@ public class ReproducibleLayerBuilderTest {
    * @throws IOException if an I/O exception occurs
    */
   private static void verifyNextTarArchiveEntry(
-      TarArchiveInputStream tarArchiveInputStream, String expectedExtractionPath, Path expectedFile)
-      throws IOException {
+      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath, Path expectedFile)
+      {
     TarArchiveEntry header = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals(expectedExtractionPath, header.getName());
 
-    String expectedString = new String(Files.readAllBytes(expectedFile), StandardCharsets.UTF_8);
+    string expectedString = new string(Files.readAllBytes(expectedFile), StandardCharsets.UTF_8);
 
-    String extractedString =
+    string extractedString =
         CharStreams.toString(new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
 
     Assert.assertEquals(expectedString, extractedString);
@@ -84,8 +83,8 @@ public class ReproducibleLayerBuilderTest {
    * @throws IOException if an I/O exception occurs
    */
   private static void verifyNextTarArchiveEntryIsDirectory(
-      TarArchiveInputStream tarArchiveInputStream, String expectedExtractionPath)
-      throws IOException {
+      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath)
+      {
     TarArchiveEntry extractionPathEntry = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals(expectedExtractionPath, extractionPathEntry.getName());
     Assert.assertTrue(extractionPathEntry.isDirectory());
@@ -100,10 +99,10 @@ public class ReproducibleLayerBuilderTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Test
-  public void testBuild() throws URISyntaxException, IOException {
+  [TestMethod]
+  public void testBuild() {
     Path layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
     Path blobA = Paths.get(Resources.getResource("core/blobA").toURI());
 
@@ -120,13 +119,13 @@ public class ReproducibleLayerBuilderTest {
     // Writes the layer tar to a temporary file.
     Blob unwrittenBlob = layerBuilder.build();
     Path temporaryFile = temporaryFolder.newFile().toPath();
-    try (OutputStream temporaryFileOutputStream =
+    using (OutputStream temporaryFileOutputStream =
         new BufferedOutputStream(Files.newOutputStream(temporaryFile))) {
       unwrittenBlob.writeTo(temporaryFileOutputStream);
     }
 
     // Reads the file back.
-    try (TarArchiveInputStream tarArchiveInputStream =
+    using (TarArchiveInputStream tarArchiveInputStream =
         new TarArchiveInputStream(Files.newInputStream(temporaryFile))) {
       verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/");
       verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/");
@@ -153,18 +152,18 @@ public class ReproducibleLayerBuilderTest {
     }
   }
 
-  @Test
-  public void testToBlob_reproducibility() throws IOException {
+  [TestMethod]
+  public void testToBlob_reproducibility() {
     Path testRoot = temporaryFolder.getRoot().toPath();
     Path root1 = Files.createDirectories(testRoot.resolve("files1"));
     Path root2 = Files.createDirectories(testRoot.resolve("files2"));
 
     // TODO: Currently this test only covers variation in order and modified time, even though
     // TODO: the code is designed to clean up userid/groupid, this test does not check that yet.
-    String contentA = "abcabc";
+    string contentA = "abcabc";
     Path fileA1 = createFile(root1, "fileA", contentA, 10000);
     Path fileA2 = createFile(root2, "fileA", contentA, 20000);
-    String contentB = "yumyum";
+    string contentB = "yumyum";
     Path fileB1 = createFile(root1, "fileB", contentB, 10000);
     Path fileB2 = createFile(root2, "fileB", contentB, 20000);
 
@@ -192,8 +191,8 @@ public class ReproducibleLayerBuilderTest {
     Assert.assertThat(layerContent, CoreMatchers.is(reproducedLayerContent));
   }
 
-  @Test
-  public void testBuild_parentDirBehavior() throws IOException {
+  [TestMethod]
+  public void testBuild_parentDirBehavior() {
     Path testRoot = temporaryFolder.getRoot().toPath();
 
     // the path doesn't really matter on source files, but these are structured
@@ -235,11 +234,11 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     Path tarFile = temporaryFolder.newFile().toPath();
-    try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
       layer.writeTo(out);
     }
 
-    try (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
       // root (default folder permissions)
       TarArchiveEntry root = in.getNextTarEntry();
       Assert.assertEquals(040755, root.getMode());
@@ -272,8 +271,8 @@ public class ReproducibleLayerBuilderTest {
     }
   }
 
-  @Test
-  public void testBuild_timestampDefault() throws IOException {
+  [TestMethod]
+  public void testBuild_timestampDefault() {
     Path file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
     Blob blob =
@@ -282,19 +281,19 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     Path tarFile = temporaryFolder.newFile().toPath();
-    try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
     // Reads the file back.
-    try (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
       Assert.assertEquals(
           Date.from(Instant.EPOCH.plusSeconds(1)), in.getNextEntry().getLastModifiedDate());
     }
   }
 
-  @Test
-  public void testBuild_timestampNonDefault() throws IOException {
+  [TestMethod]
+  public void testBuild_timestampNonDefault() {
     Path file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
     Blob blob =
@@ -308,19 +307,19 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     Path tarFile = temporaryFolder.newFile().toPath();
-    try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
     // Reads the file back.
-    try (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
       Assert.assertEquals(
           Date.from(Instant.EPOCH.plusSeconds(123)), in.getNextEntry().getLastModifiedDate());
     }
   }
 
-  @Test
-  public void testBuild_permissions() throws IOException {
+  [TestMethod]
+  public void testBuild_permissions() {
     Path testRoot = temporaryFolder.getRoot().toPath();
     Path folder = Files.createDirectories(testRoot.resolve("files1"));
     Path fileA = createFile(testRoot, "fileA", "abc", 54321);
@@ -343,11 +342,11 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     Path tarFile = temporaryFolder.newFile().toPath();
-    try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
-    try (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
       // Root folder (default folder permissions)
       Assert.assertEquals(040755, in.getNextTarEntry().getMode());
       // fileA (default file permissions)
@@ -359,9 +358,8 @@ public class ReproducibleLayerBuilderTest {
     }
   }
 
-  private Path createFile(Path root, String filename, String content, long lastModifiedTime)
-      throws IOException {
-
+  private Path createFile(Path root, string filename, string content, long lastModifiedTime)
+      {
     Path newFile =
         Files.write(
             root.resolve(filename),
@@ -370,4 +368,5 @@ public class ReproducibleLayerBuilderTest {
     Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModifiedTime));
     return newFile;
   }
+}
 }

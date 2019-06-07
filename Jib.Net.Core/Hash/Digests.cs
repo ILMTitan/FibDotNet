@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.hash;
+namespace com.google.cloud.tools.jib.hash {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.blob.BlobDescriptor;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.common.io.ByteStreams;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
+
+
+
+
+
+
+
+
 
 /**
  * Utility class for computing a digest for various inputs while optionally writing to an output
@@ -35,27 +34,27 @@ import java.util.List;
 // more general.
 public class Digests {
 
-  public static DescriptorDigest computeJsonDigest(JsonTemplate template) throws IOException {
+  public static DescriptorDigest computeJsonDigest(JsonTemplate template) {
     return computeDigest(template, ByteStreams.nullOutputStream()).getDigest();
   }
 
-  public static DescriptorDigest computeJsonDigest(List<? extends JsonTemplate> templates)
-      throws IOException {
-    WritableContents contents = contentsOut -> JsonTemplateMapper.writeTo(templates, contentsOut);
+  public static DescriptorDigest computeJsonDigest(IReadOnlyList<JsonTemplate> templates)
+      {
+    WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(templates, contentsOut);
     return computeDigest(contents, ByteStreams.nullOutputStream()).getDigest();
   }
 
-  public static BlobDescriptor computeDigest(JsonTemplate template) throws IOException {
+  public static BlobDescriptor computeDigest(JsonTemplate template) {
     return computeDigest(template, ByteStreams.nullOutputStream());
   }
 
   public static BlobDescriptor computeDigest(JsonTemplate template, OutputStream outStream)
-      throws IOException {
-    WritableContents contents = contentsOut -> JsonTemplateMapper.writeTo(template, contentsOut);
+      {
+    WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(template, contentsOut);
     return computeDigest(contents, outStream);
   }
 
-  public static BlobDescriptor computeDigest(InputStream inStream) throws IOException {
+  public static BlobDescriptor computeDigest(InputStream inStream) {
     return computeDigest(inStream, ByteStreams.nullOutputStream());
   }
 
@@ -66,7 +65,7 @@ public class Digests {
    * @return computed digest and bytes consumed
    * @throws IOException if reading fails
    */
-  public static BlobDescriptor computeDigest(WritableContents contents) throws IOException {
+  public static BlobDescriptor computeDigest(WritableContents contents) {
     return computeDigest(contents, ByteStreams.nullOutputStream());
   }
 
@@ -81,8 +80,8 @@ public class Digests {
    * @throws IOException if reading from or writing fails
    */
   public static BlobDescriptor computeDigest(InputStream inStream, OutputStream outStream)
-      throws IOException {
-    WritableContents contents = contentsOut -> ByteStreams.copy(inStream, contentsOut);
+      {
+    WritableContents contents = contentsOut => ByteStreams.copy(inStream, contentsOut);
     return computeDigest(contents, outStream);
   }
 
@@ -97,10 +96,11 @@ public class Digests {
    * @throws IOException if reading from or writing fails
    */
   public static BlobDescriptor computeDigest(WritableContents contents, OutputStream outStream)
-      throws IOException {
+      {
     CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream);
     contents.writeTo(digestOutStream);
     digestOutStream.flush();
     return digestOutStream.computeDigest();
   }
+}
 }

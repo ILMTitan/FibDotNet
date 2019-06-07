@@ -14,25 +14,25 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import org.junit.Assert;
-import org.junit.Test;
+
 
 /** Tests for {@link Request}. */
 public class RequestTest {
 
-  @Test
+  [TestMethod]
   public void testGetHttpTimeout() {
     Request request = Request.builder().build();
 
     Assert.assertNull(request.getHttpTimeout());
   }
 
-  @Test
+  [TestMethod]
   public void testSetHttpTimeout() {
     Request request = Request.builder().setHttpTimeout(3000).build();
 
     Assert.assertEquals(Integer.valueOf(3000), request.getHttpTimeout());
   }
+}
 }

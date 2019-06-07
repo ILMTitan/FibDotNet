@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.configuration;
+namespace com.google.cloud.tools.jib.configuration {
 
-import com.google.cloud.tools.jib.api.CredentialRetriever;
-import com.google.cloud.tools.jib.api.ImageReference;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+
+
+
+
 
 /** Immutable configuration options for an image reference with credentials. */
 public class ImageConfiguration {
@@ -69,8 +68,8 @@ public class ImageConfiguration {
     return new Builder(imageReference);
   }
 
-  private final ImageReference image;
-  private final ImmutableList<CredentialRetriever> credentialRetrievers;
+  private readonly ImageReference image;
+  private readonly ImmutableList<CredentialRetriever> credentialRetrievers;
 
   private ImageConfiguration(
       ImageReference image, ImmutableList<CredentialRetriever> credentialRetrievers) {
@@ -82,19 +81,20 @@ public class ImageConfiguration {
     return image;
   }
 
-  public String getImageRegistry() {
+  public string getImageRegistry() {
     return image.getRegistry();
   }
 
-  public String getImageRepository() {
+  public string getImageRepository() {
     return image.getRepository();
   }
 
-  public String getImageTag() {
+  public string getImageTag() {
     return image.getTag();
   }
 
   public ImmutableList<CredentialRetriever> getCredentialRetrievers() {
     return credentialRetrievers;
   }
+}
 }

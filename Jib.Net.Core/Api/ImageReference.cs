@@ -14,14 +14,13 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.registry.RegistryAliasGroup;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
+
+
+
+
+
 
 /**
  * Represents an image reference.
@@ -33,48 +32,48 @@ import javax.annotation.Nullable;
  */
 public class ImageReference {
 
-  private static final String DOCKER_HUB_REGISTRY = "registry-1.docker.io";
-  private static final String DEFAULT_TAG = "latest";
-  private static final String LIBRARY_REPOSITORY_PREFIX = "library/";
+  private static readonly string DOCKER_HUB_REGISTRY = "registry-1.docker.io";
+  private static readonly string DEFAULT_TAG = "latest";
+  private static readonly string LIBRARY_REPOSITORY_PREFIX = "library/";
 
   /**
    * Matches all sequences of alphanumeric characters possibly separated by any number of dashes in
    * the middle.
    */
-  private static final String REGISTRY_COMPONENT_REGEX =
+  private static readonly string REGISTRY_COMPONENT_REGEX =
       "(?:[a-zA-Z\\d]|(?:[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]))";
 
   /**
    * Matches sequences of {@code REGISTRY_COMPONENT_REGEX} separated by a dot, with an optional
    * {@code :port} at the end.
    */
-  private static final String REGISTRY_REGEX =
-      String.format("%s(?:\\.%s)*(?::\\d+)?", REGISTRY_COMPONENT_REGEX, REGISTRY_COMPONENT_REGEX);
+  private static readonly string REGISTRY_REGEX =
+      string.format("%s(?:\\.%s)*(?::\\d+)?", REGISTRY_COMPONENT_REGEX, REGISTRY_COMPONENT_REGEX);
 
   /**
    * Matches all sequences of alphanumeric characters separated by a separator.
    *
    * <p>A separator is either an underscore, a dot, two underscores, or any number of dashes.
    */
-  private static final String REPOSITORY_COMPONENT_REGEX = "[a-z\\d]+(?:(?:[_.]|__|-+)[a-z\\d]+)*";
+  private static readonly string REPOSITORY_COMPONENT_REGEX = "[a-z\\d]+(?:(?:[_.]|__|-+)[a-z\\d]+)*";
 
   /** Matches all repetitions of {@code REPOSITORY_COMPONENT_REGEX} separated by a backslash. */
-  private static final String REPOSITORY_REGEX =
-      String.format("(?:%s/)*%s", REPOSITORY_COMPONENT_REGEX, REPOSITORY_COMPONENT_REGEX);
+  private static readonly string REPOSITORY_REGEX =
+      string.format("(?:%s/)*%s", REPOSITORY_COMPONENT_REGEX, REPOSITORY_COMPONENT_REGEX);
 
   /** Matches a tag of max length 128. */
-  private static final String TAG_REGEX = "[\\w][\\w.-]{0,127}";
+  private static readonly string TAG_REGEX = "[\\w][\\w.-]{0,127}";
 
   /**
    * Matches a full image reference, which is the registry, repository, and tag/digest separated by
    * backslashes. The repository is required, but the registry and tag/digest are optional.
    */
-  private static final String REFERENCE_REGEX =
-      String.format(
+  private static readonly string REFERENCE_REGEX =
+      string.format(
           "^(?:(%s)/)?(%s)(?:(?::(%s))|(?:@(%s)))?$",
           REGISTRY_REGEX, REPOSITORY_REGEX, TAG_REGEX, DescriptorDigest.DIGEST_REGEX);
 
-  private static final Pattern REFERENCE_PATTERN = Pattern.compile(REFERENCE_REGEX);
+  private static readonly Pattern REFERENCE_PATTERN = Pattern.compile(REFERENCE_REGEX);
 
   /**
    * Parses a string {@code reference} into an {@link ImageReference}.
@@ -91,17 +90,17 @@ public class ImageReference {
    * @return an {@link ImageReference} parsed from the string
    * @throws InvalidImageReferenceException if {@code reference} is formatted incorrectly
    */
-  public static ImageReference parse(String reference) throws InvalidImageReferenceException {
+  public static ImageReference parse(string reference) {
     Matcher matcher = REFERENCE_PATTERN.matcher(reference);
 
     if (!matcher.find() || matcher.groupCount() < 4) {
       throw new InvalidImageReferenceException(reference);
     }
 
-    String registry = matcher.group(1);
-    String repository = matcher.group(2);
-    String tag = matcher.group(3);
-    String digest = matcher.group(4);
+    string registry = matcher.group(1);
+    string repository = matcher.group(2);
+    string tag = matcher.group(3);
+    string digest = matcher.group(4);
 
     // If no registry was matched, use Docker Hub by default.
     if (Strings.isNullOrEmpty(registry)) {
@@ -156,7 +155,7 @@ public class ImageReference {
    * @return an {@link ImageReference} built from the given registry, repository, and tag
    */
   public static ImageReference of(
-      @Nullable String registry, String repository, @Nullable String tag) {
+      string registry, string repository, string tag) {
     Preconditions.checkArgument(Strings.isNullOrEmpty(registry) || isValidRegistry(registry));
     Preconditions.checkArgument(isValidRepository(repository));
     Preconditions.checkArgument(Strings.isNullOrEmpty(tag) || isValidTag(tag));
@@ -188,7 +187,7 @@ public class ImageReference {
    * @param registry the registry to check
    * @return {@code true} if is a valid registry; {@code false} otherwise
    */
-  public static boolean isValidRegistry(String registry) {
+  public static bool isValidRegistry(string registry) {
     return registry.matches(REGISTRY_REGEX);
   }
 
@@ -199,7 +198,7 @@ public class ImageReference {
    * @param repository the repository to check
    * @return {@code true} if is a valid repository; {@code false} otherwise
    */
-  public static boolean isValidRepository(String repository) {
+  public static bool isValidRepository(string repository) {
     return repository.matches(REPOSITORY_REGEX);
   }
 
@@ -210,7 +209,7 @@ public class ImageReference {
    * @param tag the tag to check
    * @return {@code true} if is a valid tag; {@code false} otherwise
    */
-  public static boolean isValidTag(String tag) {
+  public static bool isValidTag(string tag) {
     return tag.matches(TAG_REGEX) || tag.matches(DescriptorDigest.DIGEST_REGEX);
   }
 
@@ -222,16 +221,16 @@ public class ImageReference {
    * @return {@code true} if {@code tag} is the default tag ((@code latest} or empty); {@code false}
    *     if not
    */
-  public static boolean isDefaultTag(String tag) {
+  public static bool isDefaultTag(string tag) {
     return tag.isEmpty() || DEFAULT_TAG.equals(tag);
   }
 
-  private final String registry;
-  private final String repository;
-  private final String tag;
+  private readonly string registry;
+  private readonly string repository;
+  private readonly string tag;
 
   /** Construct with {@link #parse}. */
-  private ImageReference(String registry, String repository, String tag) {
+  private ImageReference(string registry, string repository, string tag) {
     this.registry = RegistryAliasGroup.getHost(registry);
     this.repository = repository;
     this.tag = tag;
@@ -242,7 +241,7 @@ public class ImageReference {
    *
    * @return the registry host
    */
-  public String getRegistry() {
+  public string getRegistry() {
     return registry;
   }
 
@@ -251,7 +250,7 @@ public class ImageReference {
    *
    * @return the repository
    */
-  public String getRepository() {
+  public string getRepository() {
     return repository;
   }
 
@@ -260,7 +259,7 @@ public class ImageReference {
    *
    * @return the tag
    */
-  public String getTag() {
+  public string getTag() {
     return tag;
   }
 
@@ -270,7 +269,7 @@ public class ImageReference {
    *
    * @return {@code true} if uses the default tag; {@code false} if not
    */
-  public boolean usesDefaultTag() {
+  public bool usesDefaultTag() {
     return isDefaultTag(tag);
   }
 
@@ -280,7 +279,7 @@ public class ImageReference {
    *
    * @return {@code true} if tag is a SHA-256 digest; {@code false} if not
    */
-  public boolean isTagDigest() {
+  public bool isTagDigest() {
     return tag.matches(DescriptorDigest.DIGEST_REGEX);
   }
 
@@ -289,7 +288,7 @@ public class ImageReference {
    *
    * @return {@code true} if the {@link ImageReference} is a scratch image; {@code false} if not
    */
-  public boolean isScratch() {
+  public bool isScratch() {
     return "".equals(registry) && "scratch".equals(repository) && "".equals(tag);
   }
 
@@ -299,7 +298,7 @@ public class ImageReference {
    * @param newTag the new tag
    * @return an {@link ImageReference} with the same registry/repository and the new tag
    */
-  public ImageReference withTag(String newTag) {
+  public ImageReference withTag(string newTag) {
     return ImageReference.of(registry, repository, newTag);
   }
 
@@ -309,8 +308,8 @@ public class ImageReference {
    *
    * @return the image reference in Docker-readable format (inverse of {@link #parse})
    */
-  @Override
-  public String toString() {
+
+  public string toString() {
     StringBuilder referenceString = new StringBuilder();
 
     if (!DOCKER_HUB_REGISTRY.equals(registry)) {
@@ -340,7 +339,8 @@ public class ImageReference {
    *
    * @return the image reference in Docker-readable format, without hiding the tag
    */
-  public String toStringWithTag() {
+  public string toStringWithTag() {
     return toString() + (usesDefaultTag() ? ":" + DEFAULT_TAG : "");
   }
+}
 }

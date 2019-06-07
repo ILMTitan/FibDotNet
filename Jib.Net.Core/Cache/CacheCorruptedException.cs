@@ -14,15 +14,14 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.cache;
+namespace com.google.cloud.tools.jib.cache {
 
-import com.google.cloud.tools.jib.ProjectInfo;
-import java.nio.file.Path;
+
 
 /** Thrown if the the cache was found to be corrupted. */
-public class CacheCorruptedException extends Exception {
+public class CacheCorruptedException : Exception {
 
-  CacheCorruptedException(Path cacheDirectory, String message, Throwable cause) {
+  CacheCorruptedException(Path cacheDirectory, string message, Throwable cause) {
     super(
         message
             + ". You may need to clear the cache by deleting the '"
@@ -33,7 +32,7 @@ public class CacheCorruptedException extends Exception {
         cause);
   }
 
-  CacheCorruptedException(Path cacheDirectory, String message) {
+  CacheCorruptedException(Path cacheDirectory, string message) {
     super(
         message
             + ". You may need to clear the cache by deleting the '"
@@ -42,4 +41,5 @@ public class CacheCorruptedException extends Exception {
             + ProjectInfo.GITHUB_NEW_ISSUE_URL
             + ")");
   }
+}
 }

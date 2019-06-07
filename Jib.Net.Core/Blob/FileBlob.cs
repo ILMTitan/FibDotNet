@@ -14,29 +14,28 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.blob;
+namespace com.google.cloud.tools.jib.blob {
 
-import com.google.cloud.tools.jib.hash.Digests;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
+
+
+
+
+
 
 /** A {@link Blob} that holds a {@link Path}. */
-class FileBlob implements Blob {
+class FileBlob : Blob {
 
-  private final Path file;
+  private readonly Path file;
 
   FileBlob(Path file) {
     this.file = file;
   }
 
-  @Override
-  public BlobDescriptor writeTo(OutputStream outputStream) throws IOException {
-    try (InputStream fileIn = new BufferedInputStream(Files.newInputStream(file))) {
+  public BlobDescriptor writeTo(OutputStream outputStream) {
+    using (InputStream fileIn = new BufferedInputStream(Files.newInputStream(file))) {
       return Digests.computeDigest(fileIn, outputStream);
     }
   }
+}
 }

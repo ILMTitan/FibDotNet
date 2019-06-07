@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.cloud.tools.jib.builder.steps;
+namespace com.google.cloud.tools.jib.builder.steps {
 
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.image.Image;
-import com.google.cloud.tools.jib.image.json.V22ManifestTemplate;
-import java.io.IOException;
-import java.security.DigestException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+
+
+
+
+
+
 
 /** Tests for {@link BuildResult}. */
 public class BuildResultTest {
@@ -32,8 +31,8 @@ public class BuildResultTest {
   private DescriptorDigest digest2;
   private DescriptorDigest id;
 
-  @Before
-  public void setUp() throws DigestException {
+  [TestInitialize]
+  public void setUp() {
     digest1 =
         DescriptorDigest.fromDigest(
             "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
@@ -45,14 +44,14 @@ public class BuildResultTest {
             "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
   }
 
-  @Test
+  [TestMethod]
   public void testCreated() {
     BuildResult container = new BuildResult(digest1, id);
     Assert.assertEquals(digest1, container.getImageDigest());
     Assert.assertEquals(id, container.getImageId());
   }
 
-  @Test
+  [TestMethod]
   public void testEquality() {
     BuildResult container1 = new BuildResult(digest1, id);
     BuildResult container2 = new BuildResult(digest1, id);
@@ -63,16 +62,17 @@ public class BuildResultTest {
     Assert.assertNotEquals(container1, container3);
   }
 
-  @Test
-  public void testFromImage() throws IOException {
-    Image image1 = Image.builder(V22ManifestTemplate.class).setUser("user").build();
-    Image image2 = Image.builder(V22ManifestTemplate.class).setUser("user").build();
-    Image image3 = Image.builder(V22ManifestTemplate.class).setUser("anotherUser").build();
+  [TestMethod]
+  public void testFromImage() {
+    Image image1 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
+    Image image2 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
+    Image image3 = Image.builder(typeof(V22ManifestTemplate)).setUser("anotherUser").build();
     Assert.assertEquals(
-        BuildResult.fromImage(image1, V22ManifestTemplate.class),
-        BuildResult.fromImage(image2, V22ManifestTemplate.class));
+        BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
+        BuildResult.fromImage(image2, typeof(V22ManifestTemplate)));
     Assert.assertNotEquals(
-        BuildResult.fromImage(image1, V22ManifestTemplate.class),
-        BuildResult.fromImage(image3, V22ManifestTemplate.class));
+        BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
+        BuildResult.fromImage(image3, typeof(V22ManifestTemplate)));
   }
+}
 }

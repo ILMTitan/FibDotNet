@@ -14,17 +14,16 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.image.json;
+namespace com.google.cloud.tools.jib.image.json {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.cloud.tools.jib.api.DescriptorDigest;
-import com.google.cloud.tools.jib.json.JsonTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
+
 
 /**
  * JSON Template for Docker Container Configuration referenced in Docker Manifest Schema V2.2
@@ -78,97 +77,94 @@ import javax.annotation.Nullable;
  * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
  *     Schema 2</a>
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ContainerConfigurationTemplate implements JsonTemplate {
+[JsonIgnoreProperties(ignoreUnknown = true)]
+public class ContainerConfigurationTemplate : JsonTemplate {
 
   /** ISO-8601 formatted combined date and time at which the image was created. */
-  @Nullable private String created;
+  private string created;
 
   /** The CPU architecture to run the binaries in this container. */
-  private String architecture = "amd64";
+  private string architecture = "amd64";
 
   /** The operating system to run the container on. */
-  private String os = "linux";
+  private string os = "linux";
 
   /** Execution parameters that should be used as a base when running the container. */
-  private final ConfigurationObjectTemplate config = new ConfigurationObjectTemplate();
+  private readonly ConfigurationObjectTemplate config = new ConfigurationObjectTemplate();
 
   /** Describes the history of each layer. */
-  private final List<HistoryEntry> history = new ArrayList<>();
+  private readonly List<HistoryEntry> history = new ArrayList<>();
 
   /** Layer content digests that are used to build the container filesystem. */
-  private final RootFilesystemObjectTemplate rootfs = new RootFilesystemObjectTemplate();
+  private readonly RootFilesystemObjectTemplate rootfs = new RootFilesystemObjectTemplate();
 
   /** Template for inner JSON object representing the configuration for running the container. */
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  private static class ConfigurationObjectTemplate implements JsonTemplate {
-
+  [JsonIgnoreProperties(ignoreUnknown = true)]
+  private class ConfigurationObjectTemplate : JsonTemplate  {
     /** Environment variables in the format {@code VARNAME=VARVALUE}. */
-    @Nullable private List<String> Env;
+    private List<string> Env;
 
     /** Command to run when container starts. */
-    @Nullable private List<String> Entrypoint;
+    private List<string> Entrypoint;
 
     /** Arguments to pass into main. */
-    @Nullable private List<String> Cmd;
+    private List<string> Cmd;
 
     /** Healthcheck. */
-    @Nullable private HealthCheckObjectTemplate Healthcheck;
+    private HealthCheckObjectTemplate Healthcheck;
 
     /** Network ports the container exposes. */
-    @Nullable private Map<String, Map<?, ?>> ExposedPorts;
+    private Map<string, Map<object, object>> ExposedPorts;
 
     /** Labels. */
-    @Nullable private Map<String, String> Labels;
+    private Map<string, string> Labels;
 
     /** Working directory. */
-    @Nullable private String WorkingDir;
+    private string WorkingDir;
 
     /** User. */
-    @Nullable private String User;
+    private string User;
 
     /** Volumes */
-    @Nullable private Map<String, Map<?, ?>> Volumes;
+    private Map<string, Map<object, object>> Volumes;
   }
 
   /** Template for inner JSON object representing the healthcheck configuration. */
-  private static class HealthCheckObjectTemplate implements JsonTemplate {
-
+  private class HealthCheckObjectTemplate : JsonTemplate  {
     /** The test to perform to check that the container is healthy. */
-    @Nullable private List<String> Test;
+    private List<string> Test;
 
     /** Number of nanoseconds to wait between probe attempts. */
-    @Nullable private Long Interval;
+    private Long Interval;
 
     /** Number of nanoseconds to wait before considering the check to have hung. */
-    @Nullable private Long Timeout;
+    private Long Timeout;
 
     /**
      * Number of nanoseconds to wait for the container to initialize before starting health-retries.
      */
-    @Nullable private Long StartPeriod;
+    private Long StartPeriod;
 
     /** The number of consecutive failures needed to consider the container as unhealthy. */
-    @Nullable private Integer Retries;
+    private Integer Retries;
   }
 
   /**
    * Template for inner JSON object representing the filesystem changesets used to build the
    * container filesystem.
    */
-  private static class RootFilesystemObjectTemplate implements JsonTemplate {
-
+  private class RootFilesystemObjectTemplate : JsonTemplate  {
     /** The type must always be {@code "layers"}. */
-    private final String type = "layers";
+    private readonly string type = "layers";
 
     /**
      * The in-order list of layer content digests (hashes of the uncompressed partial filesystem
      * changeset).
      */
-    private final List<DescriptorDigest> diff_ids = new ArrayList<>();
+    private readonly List<DescriptorDigest> diff_ids = new ArrayList<>();
   }
 
-  public void setCreated(@Nullable String created) {
+  public void setCreated(string created) {
     this.created = created;
   }
 
@@ -179,7 +175,7 @@ public class ContainerConfigurationTemplate implements JsonTemplate {
    *
    * @param architecture value for the {@code architecture} field
    */
-  public void setArchitecture(String architecture) {
+  public void setArchitecture(string architecture) {
     this.architecture = architecture;
   }
 
@@ -190,74 +186,74 @@ public class ContainerConfigurationTemplate implements JsonTemplate {
    *
    * @param os value for the {@code os} field
    */
-  public void setOs(String os) {
+  public void setOs(string os) {
     this.os = os;
   }
 
-  public void setContainerEnvironment(@Nullable List<String> environment) {
+  public void setContainerEnvironment(List<string> environment) {
     config.Env = environment;
   }
 
-  public void setContainerEntrypoint(@Nullable List<String> command) {
+  public void setContainerEntrypoint(List<string> command) {
     config.Entrypoint = command;
   }
 
-  public void setContainerCmd(@Nullable List<String> cmd) {
+  public void setContainerCmd(List<string> cmd) {
     config.Cmd = cmd;
   }
 
-  public void setContainerHealthCheckTest(List<String> test) {
+  public void setContainerHealthCheckTest(List<string> test) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Test = test;
   }
 
-  public void setContainerHealthCheckInterval(@Nullable Long interval) {
+  public void setContainerHealthCheckInterval(Long interval) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Interval = interval;
   }
 
-  public void setContainerHealthCheckTimeout(@Nullable Long timeout) {
+  public void setContainerHealthCheckTimeout(Long timeout) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Timeout = timeout;
   }
 
-  public void setContainerHealthCheckStartPeriod(@Nullable Long startPeriod) {
+  public void setContainerHealthCheckStartPeriod(Long startPeriod) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).StartPeriod = startPeriod;
   }
 
-  public void setContainerHealthCheckRetries(@Nullable Integer retries) {
+  public void setContainerHealthCheckRetries(Integer retries) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Retries = retries;
   }
 
-  public void setContainerExposedPorts(@Nullable Map<String, Map<?, ?>> exposedPorts) {
+  public void setContainerExposedPorts(Map<string, Map<object, object>> exposedPorts) {
     config.ExposedPorts = exposedPorts;
   }
 
-  public void setContainerLabels(@Nullable Map<String, String> labels) {
+  public void setContainerLabels(Map<string, string> labels) {
     config.Labels = labels;
   }
 
-  public void setContainerWorkingDir(@Nullable String workingDirectory) {
+  public void setContainerWorkingDir(string workingDirectory) {
     config.WorkingDir = workingDirectory;
   }
 
-  public void setContainerUser(@Nullable String user) {
+  public void setContainerUser(string user) {
     config.User = user;
   }
 
-  public void setContainerVolumes(@Nullable Map<String, Map<?, ?>> volumes) {
+  public void setContainerVolumes(Map<string, Map<object, object>> volumes) {
     config.Volumes = volumes;
   }
 
@@ -277,8 +273,7 @@ public class ContainerConfigurationTemplate implements JsonTemplate {
     return history;
   }
 
-  @Nullable
-  String getCreated() {
+  string getCreated() {
     return created;
   }
 
@@ -289,7 +284,7 @@ public class ContainerConfigurationTemplate implements JsonTemplate {
    *
    * @return the {@code architecture} field
    */
-  public String getArchitecture() {
+  public string getArchitecture() {
     return architecture;
   }
 
@@ -300,77 +295,64 @@ public class ContainerConfigurationTemplate implements JsonTemplate {
    *
    * @return the {@code os} field
    */
-  public String getOs() {
+  public string getOs() {
     return os;
   }
 
-  @Nullable
-  List<String> getContainerEnvironment() {
+  List<string> getContainerEnvironment() {
     return config.Env;
   }
 
-  @Nullable
-  List<String> getContainerEntrypoint() {
+  List<string> getContainerEntrypoint() {
     return config.Entrypoint;
   }
 
-  @Nullable
-  List<String> getContainerCmd() {
+  List<string> getContainerCmd() {
     return config.Cmd;
   }
 
-  @Nullable
-  List<String> getContainerHealthTest() {
+  List<string> getContainerHealthTest() {
     return config.Healthcheck == null ? null : config.Healthcheck.Test;
   }
 
-  @Nullable
   Long getContainerHealthInterval() {
     return config.Healthcheck == null ? null : config.Healthcheck.Interval;
   }
 
-  @Nullable
   Long getContainerHealthTimeout() {
     return config.Healthcheck == null ? null : config.Healthcheck.Timeout;
   }
 
-  @Nullable
   Long getContainerHealthStartPeriod() {
     return config.Healthcheck == null ? null : config.Healthcheck.StartPeriod;
   }
 
-  @Nullable
   Integer getContainerHealthRetries() {
     return config.Healthcheck == null ? null : config.Healthcheck.Retries;
   }
 
-  @Nullable
-  Map<String, Map<?, ?>> getContainerExposedPorts() {
+  Map<string, Map<object, object>> getContainerExposedPorts() {
     return config.ExposedPorts;
   }
 
-  @Nullable
-  Map<String, String> getContainerLabels() {
+  Map<string, string> getContainerLabels() {
     return config.Labels;
   }
 
-  @Nullable
-  String getContainerWorkingDir() {
+  string getContainerWorkingDir() {
     return config.WorkingDir;
   }
 
-  @Nullable
-  String getContainerUser() {
+  string getContainerUser() {
     return config.User;
   }
 
-  @Nullable
-  Map<String, Map<?, ?>> getContainerVolumes() {
+  Map<string, Map<object, object>> getContainerVolumes() {
     return config.Volumes;
   }
 
-  @VisibleForTesting
   DescriptorDigest getLayerDiffId(int index) {
     return rootfs.diff_ids.get(index);
   }
+}
 }

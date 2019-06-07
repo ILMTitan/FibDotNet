@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
 /** Indicates the format of the image. */
 public enum ImageFormat {
@@ -24,4 +24,5 @@ public enum ImageFormat {
 
   /** @see <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">OCI</a> */
   OCI
+}
 }

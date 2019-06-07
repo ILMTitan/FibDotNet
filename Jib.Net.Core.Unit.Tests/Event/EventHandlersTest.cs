@@ -14,16 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.event;
+namespace com.google.cloud.tools.jib.event {
 
-import com.google.cloud.tools.jib.api.JibEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.Nullable;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
+
+
+
+
+
+
+
 
 /** Tests for {@link EventHandlers}. */
 public class EventHandlersTest {
@@ -31,54 +30,53 @@ public class EventHandlersTest {
   /** Test {@link JibEvent}. */
   private interface TestJibEvent1 extends JibEvent {
 
-    String getPayload();
+    string getPayload();
   }
 
   /** Test implementation of {@link JibEvent}. */
-  private static class TestJibEvent2 implements JibEvent {
+  private class TestJibEvent2 : JibEvent  {
+    private string message;
 
-    @Nullable private String message;
-
-    private void assertMessageCorrect(String name) {
+    private void assertMessageCorrect(string name) {
       Assert.assertEquals("Hello " + name, message);
     }
 
-    private void sayHello(String name) {
+    private void sayHello(string name) {
       Assert.assertNull(message);
       message = "Hello " + name;
     }
   }
 
   /** Test {@link JibEvent}. */
-  private static class TestJibEvent3 implements JibEvent {}
+  private class TestJibEvent3 implements JibEvent {}
 
-  @Test
+  [TestMethod]
   public void testAdd() {
     int[] counter = new int[1];
     EventHandlers eventHandlers =
         EventHandlers.builder()
             .add(
-                TestJibEvent1.class,
-                testJibEvent1 -> Assert.assertEquals("payload", testJibEvent1.getPayload()))
-            .add(TestJibEvent2.class, testJibEvent2 -> testJibEvent2.sayHello("Jib"))
-            .add(JibEvent.class, jibEvent -> counter[0]++)
+                typeof(TestJibEvent1),
+                testJibEvent1 => Assert.assertEquals("payload", testJibEvent1.getPayload()))
+            .add(typeof(TestJibEvent2), testJibEvent2 => testJibEvent2.sayHello("Jib"))
+            .add(typeof(JibEvent), jibEvent => counter[0]++)
             .build();
-    Assert.assertTrue(eventHandlers.getHandlers().containsKey(JibEvent.class));
-    Assert.assertTrue(eventHandlers.getHandlers().containsKey(TestJibEvent1.class));
-    Assert.assertTrue(eventHandlers.getHandlers().containsKey(TestJibEvent2.class));
-    Assert.assertEquals(1, eventHandlers.getHandlers().get(JibEvent.class).size());
-    Assert.assertEquals(1, eventHandlers.getHandlers().get(TestJibEvent1.class).size());
-    Assert.assertEquals(1, eventHandlers.getHandlers().get(TestJibEvent2.class).size());
+    Assert.assertTrue(eventHandlers.getHandlers().containsKey(typeof(JibEvent)));
+    Assert.assertTrue(eventHandlers.getHandlers().containsKey(typeof(TestJibEvent1)));
+    Assert.assertTrue(eventHandlers.getHandlers().containsKey(typeof(TestJibEvent2)));
+    Assert.assertEquals(1, eventHandlers.getHandlers().get(typeof(JibEvent)).size());
+    Assert.assertEquals(1, eventHandlers.getHandlers().get(typeof(TestJibEvent1)).size());
+    Assert.assertEquals(1, eventHandlers.getHandlers().get(typeof(TestJibEvent2)).size());
 
-    TestJibEvent1 mockTestJibEvent1 = Mockito.mock(TestJibEvent1.class);
+    TestJibEvent1 mockTestJibEvent1 = Mockito.mock(typeof(TestJibEvent1));
     Mockito.when(mockTestJibEvent1.getPayload()).thenReturn("payload");
     TestJibEvent2 testJibEvent2 = new TestJibEvent2();
 
     // Checks that the handlers handled their respective event types.
-    eventHandlers.getHandlers().get(JibEvent.class).asList().get(0).handle(mockTestJibEvent1);
-    eventHandlers.getHandlers().get(JibEvent.class).asList().get(0).handle(testJibEvent2);
-    eventHandlers.getHandlers().get(TestJibEvent1.class).asList().get(0).handle(mockTestJibEvent1);
-    eventHandlers.getHandlers().get(TestJibEvent2.class).asList().get(0).handle(testJibEvent2);
+    eventHandlers.getHandlers().get(typeof(JibEvent)).asList().get(0).handle(mockTestJibEvent1);
+    eventHandlers.getHandlers().get(typeof(JibEvent)).asList().get(0).handle(testJibEvent2);
+    eventHandlers.getHandlers().get(typeof(TestJibEvent1)).asList().get(0).handle(mockTestJibEvent1);
+    eventHandlers.getHandlers().get(typeof(TestJibEvent2)).asList().get(0).handle(testJibEvent2);
 
     Assert.assertEquals(2, counter[0]);
     Mockito.verify(mockTestJibEvent1).getPayload();
@@ -86,16 +84,16 @@ public class EventHandlersTest {
     testJibEvent2.assertMessageCorrect("Jib");
   }
 
-  @Test
+  [TestMethod]
   public void testDispatch() {
-    List<String> emissions = new ArrayList<>();
+    List<string> emissions = new ArrayList<>();
 
     EventHandlers eventHandlers =
         EventHandlers.builder()
-            .add(TestJibEvent2.class, testJibEvent2 -> emissions.add("handled 2 first"))
-            .add(TestJibEvent2.class, testJibEvent2 -> emissions.add("handled 2 second"))
-            .add(TestJibEvent3.class, testJibEvent3 -> emissions.add("handled 3"))
-            .add(JibEvent.class, jibEvent -> emissions.add("handled generic"))
+            .add(typeof(TestJibEvent2), testJibEvent2 => emissions.add("handled 2 first"))
+            .add(typeof(TestJibEvent2), testJibEvent2 => emissions.add("handled 2 second"))
+            .add(typeof(TestJibEvent3), testJibEvent3 => emissions.add("handled 3"))
+            .add(typeof(JibEvent), jibEvent => emissions.add("handled generic"))
             .build();
 
     TestJibEvent2 testJibEvent2 = new TestJibEvent2();
@@ -113,4 +111,5 @@ public class EventHandlersTest {
             "handled 3"),
         emissions);
   }
+}
 }

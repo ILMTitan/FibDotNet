@@ -14,31 +14,30 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.http;
+namespace com.google.cloud.tools.jib.http {
 
-import com.google.cloud.tools.jib.event.progress.ThrottledAccumulatingConsumer;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link NotifyingOutputStream}. */
 public class NotifyingOutputStreamTest {
 
-  @Test
-  public void testCallback_correctSequence() throws IOException {
+  [TestMethod]
+  public void testCallback_correctSequence() {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
     List<Long> byteCounts = new ArrayList<>();
 
-    try (NotifyingOutputStream notifyingOutputStream =
+    using (NotifyingOutputStream notifyingOutputStream =
         new NotifyingOutputStream(byteArrayOutputStream, byteCounts::add)) {
       notifyingOutputStream.write(0);
       notifyingOutputStream.write(new byte[] {1, 2, 3});
@@ -49,8 +48,8 @@ public class NotifyingOutputStreamTest {
     Assert.assertArrayEquals(new byte[] {0, 1, 2, 3, 4, 5}, byteArrayOutputStream.toByteArray());
   }
 
-  @Test
-  public void testDelay() throws IOException {
+  [TestMethod]
+  public void testDelay() {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
     List<Long> byteCounts = new ArrayList<>();
@@ -58,11 +57,15 @@ public class NotifyingOutputStreamTest {
     Queue<Instant> instantQueue = new ArrayDeque<>();
     instantQueue.add(Instant.EPOCH);
 
-    try (ThrottledAccumulatingConsumer byteCounter =
+    using(ThrottledAccumulatingConsumer byteCounter =
             new ThrottledAccumulatingConsumer(
-                byteCounts::add, Duration.ofSeconds(3), instantQueue::remove);
-        NotifyingOutputStream notifyingOutputStream =
-            new NotifyingOutputStream(byteArrayOutputStream, byteCounter)) {
+                byteCounts::add, Duration.ofSeconds(3), instantQueue.remove))
+
+    using(NotifyingOutputStream notifyingOutputStream =
+            new NotifyingOutputStream(byteArrayOutputStream, byteCounter))
+
+    {
+
       instantQueue.add(Instant.EPOCH);
       notifyingOutputStream.write(100);
       instantQueue.add(Instant.EPOCH);
@@ -84,4 +87,5 @@ public class NotifyingOutputStreamTest {
         new byte[] {100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110},
         byteArrayOutputStream.toByteArray());
   }
+}
 }

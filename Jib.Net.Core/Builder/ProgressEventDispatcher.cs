@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.ProgressEvent;
-import com.google.cloud.tools.jib.event.progress.Allocation;
-import com.google.common.base.Preconditions;
-import java.io.Closeable;
+
+
+
+
 
 /**
  * Dispatches {@link ProgressEvent}s associated with a managed {@link Allocation}. Keeps track of
@@ -30,7 +29,7 @@ import java.io.Closeable;
  * <p>This class is <em>not</em> thread-safe. Only use a single instance per thread and create child
  * instances with {@link #newChildProducer}.
  */
-public class ProgressEventDispatcher implements Closeable {
+public class ProgressEventDispatcher : Closeable {
 
   /**
    * Creates a new {@link ProgressEventDispatcher} based off an existing {@link
@@ -46,7 +45,7 @@ public class ProgressEventDispatcher implements Closeable {
      * @param allocationUnits number of allocation units
      * @return the new {@link ProgressEventDispatcher}
      */
-    ProgressEventDispatcher create(String description, long allocationUnits);
+    ProgressEventDispatcher create(string description, long allocationUnits);
   }
 
   /**
@@ -58,7 +57,7 @@ public class ProgressEventDispatcher implements Closeable {
    * @return a new {@link ProgressEventDispatcher}
    */
   public static ProgressEventDispatcher newRoot(
-      EventHandlers eventHandlers, String description, long allocationUnits) {
+      EventHandlers eventHandlers, string description, long allocationUnits) {
     return newProgressEventDispatcher(
         eventHandlers, Allocation.newRoot(description, allocationUnits));
   }
@@ -79,11 +78,11 @@ public class ProgressEventDispatcher implements Closeable {
     return progressEventDispatcher;
   }
 
-  private final EventHandlers eventHandlers;
-  private final Allocation allocation;
+  private readonly EventHandlers eventHandlers;
+  private readonly Allocation allocation;
 
   private long remainingAllocationUnits;
-  private boolean closed = false;
+  private bool closed = false;
 
   private ProgressEventDispatcher(EventHandlers eventHandlers, Allocation allocation) {
     this.eventHandlers = eventHandlers;
@@ -104,10 +103,9 @@ public class ProgressEventDispatcher implements Closeable {
 
     return new Factory() {
 
-      private boolean used = false;
+      private bool used = false;
 
-      @Override
-      public ProgressEventDispatcher create(String description, long allocationUnits) {
+      public ProgressEventDispatcher create(string description, long allocationUnits) {
         Preconditions.checkState(!used);
         used = true;
         return newProgressEventDispatcher(
@@ -117,7 +115,7 @@ public class ProgressEventDispatcher implements Closeable {
   }
 
   /** Emits the remaining allocation units as progress units in a {@link ProgressEvent}. */
-  @Override
+
   public void close() {
     if (remainingAllocationUnits > 0) {
       dispatchProgress(remainingAllocationUnits);
@@ -156,4 +154,5 @@ public class ProgressEventDispatcher implements Closeable {
     remainingAllocationUnits = 0;
     return actualDecrement;
   }
+}
 }

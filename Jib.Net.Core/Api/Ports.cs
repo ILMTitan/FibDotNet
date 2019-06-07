@@ -14,13 +14,12 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+
+
+
 
 /** Utility for parsing Docker/OCI ports from text representations. */
 public class Ports {
@@ -30,7 +29,7 @@ public class Ports {
    *
    * <p>Example matches: 100, 200-210, 1000/tcp, 2000/udp, 500-600/tcp
    */
-  private static final Pattern portPattern = Pattern.compile("(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?");
+  private static readonly Pattern portPattern = Pattern.compile("(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?");
 
   /**
    * Converts/validates a list of strings representing port ranges to an expanded list of {@link
@@ -44,10 +43,12 @@ public class Ports {
    * @return the ports as a list of {@link Port}
    * @throws NumberFormatException if any of the ports are in an invalid format or out of range
    */
-  public static ImmutableSet<Port> parse(List<String> ports) throws NumberFormatException {
+  public static ImmutableSet<Port> parse(List<string> ports) {
     ImmutableSet.Builder<Port> result = new ImmutableSet.Builder<>();
 
-    for (String port : ports) {
+    foreach (string port in ports)
+
+    {
       Matcher matcher = portPattern.matcher(port);
 
       if (!matcher.matches()) {
@@ -65,7 +66,7 @@ public class Ports {
       if (!Strings.isNullOrEmpty(matcher.group(2))) {
         max = Integer.parseInt(matcher.group(2));
       }
-      String protocol = matcher.group(3);
+      string protocol = matcher.group(3);
 
       // Error if configured as 'max-min' instead of 'min-max'
       if (min > max) {
@@ -88,4 +89,5 @@ public class Ports {
   }
 
   private Ports() {}
+}
 }

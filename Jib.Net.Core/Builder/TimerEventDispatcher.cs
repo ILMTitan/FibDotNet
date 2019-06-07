@@ -14,27 +14,26 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.builder;
+namespace com.google.cloud.tools.jib.builder {
 
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.event.events.TimerEvent;
-import com.google.cloud.tools.jib.event.events.TimerEvent.State;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.Closeable;
-import java.time.Clock;
-import java.time.Duration;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
 
 /** Handles {@link Timer}s to dispatch {@link TimerEvent}s. */
-public class TimerEventDispatcher implements Closeable {
+public class TimerEventDispatcher : Closeable {
 
-  private static final Clock DEFAULT_CLOCK = Clock.systemUTC();
+  private static readonly Clock DEFAULT_CLOCK = Clock.systemUTC();
 
-  private final EventHandlers eventHandlers;
-  private final String description;
+  private readonly EventHandlers eventHandlers;
+  private readonly string description;
 
-  private final Clock clock;
-  private final Timer timer;
+  private readonly Clock clock;
+  private readonly Timer timer;
 
   /**
    * Creates a new {@link TimerEventDispatcher}.
@@ -42,13 +41,12 @@ public class TimerEventDispatcher implements Closeable {
    * @param eventHandlers the {@link EventHandlers} used to dispatch the {@link TimerEvent}s
    * @param description the default description for the {@link TimerEvent}s
    */
-  public TimerEventDispatcher(EventHandlers eventHandlers, String description) {
+  public TimerEventDispatcher(EventHandlers eventHandlers, string description) {
     this(eventHandlers, description, DEFAULT_CLOCK, null);
   }
 
-  @VisibleForTesting
   TimerEventDispatcher(
-      EventHandlers eventHandlers, String description, Clock clock, @Nullable Timer parentTimer) {
+      EventHandlers eventHandlers, string description, Clock clock, Timer parentTimer) {
     this.eventHandlers = eventHandlers;
     this.description = description;
     this.clock = clock;
@@ -63,7 +61,7 @@ public class TimerEventDispatcher implements Closeable {
    * @param description a new description
    * @return the new {@link TimerEventDispatcher}
    */
-  public TimerEventDispatcher subTimer(String description) {
+  public TimerEventDispatcher subTimer(string description) {
     return new TimerEventDispatcher(eventHandlers, description, clock, timer);
   }
 
@@ -71,7 +69,7 @@ public class TimerEventDispatcher implements Closeable {
    * Captures the time since last lap or creation and dispatches an {@link State#LAP} {@link
    * TimerEvent}.
    *
-   * @see #lap(String)
+   * @see #lap(string)
    */
   public void lap() {
     dispatchTimerEvent(State.LAP, timer.lap(), description);
@@ -84,18 +82,19 @@ public class TimerEventDispatcher implements Closeable {
    * @param newDescription the description to use instead of the {@link TimerEventDispatcher}'s
    *     description
    */
-  public void lap(String newDescription) {
+  public void lap(string newDescription) {
     dispatchTimerEvent(State.LAP, timer.lap(), newDescription);
   }
 
   /** Laps and dispatches a {@link State#FINISHED} {@link TimerEvent} upon close. */
-  @Override
+
   public void close() {
     dispatchTimerEvent(State.FINISHED, timer.lap(), description);
   }
 
-  private void dispatchTimerEvent(State state, Duration duration, String eventDescription) {
+  private void dispatchTimerEvent(State state, Duration duration, string eventDescription) {
     eventHandlers.dispatch(
         new TimerEvent(state, timer, duration, timer.getElapsedTime(), eventDescription));
   }
+}
 }

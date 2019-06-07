@@ -14,18 +14,17 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.function.BiFunction;
-import org.junit.Assert;
-import org.junit.Test;
+
+
+
+
+
+
+
+
+
 
 /** Tests for {@link LayerConfiguration}. */
 public class LayerConfigurationTest {
@@ -38,8 +37,8 @@ public class LayerConfigurationTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  @Test
-  public void testAddEntryRecursive_defaults() throws IOException, URISyntaxException {
+  [TestMethod]
+  public void testAddEntryRecursive_defaults() {
     Path testDirectory = Paths.get(Resources.getResource("core/layer").toURI()).toAbsolutePath();
     Path testFile = Paths.get(Resources.getResource("core/fileA").toURI());
 
@@ -67,9 +66,9 @@ public class LayerConfigurationTest {
         expectedLayerEntries, ImmutableSet.copyOf(layerConfiguration.getLayerEntries()));
   }
 
-  @Test
+  [TestMethod]
   public void testAddEntryRecursive_permissionsAndTimestamps()
-      throws IOException, URISyntaxException {
+      {
     Path testDirectory = Paths.get(Resources.getResource("core/layer").toURI()).toAbsolutePath();
     Path testFile = Paths.get(Resources.getResource("core/fileA").toURI());
 
@@ -79,10 +78,10 @@ public class LayerConfigurationTest {
     Instant timestamp2 = Instant.ofEpochSecond(987);
 
     BiFunction<Path, AbsoluteUnixPath, FilePermissions> permissionsProvider =
-        (source, destination) ->
+        (source, destination) =>
             destination.toString().startsWith("/app/layer/a") ? permissions1 : permissions2;
     BiFunction<Path, AbsoluteUnixPath, Instant> timestampProvider =
-        (source, destination) ->
+        (source, destination) =>
             destination.toString().startsWith("/app/layer/a") ? timestamp1 : timestamp2;
 
     LayerConfiguration layerConfiguration =
@@ -138,4 +137,5 @@ public class LayerConfigurationTest {
     Assert.assertEquals(
         expectedLayerEntries, ImmutableSet.copyOf(layerConfiguration.getLayerEntries()));
   }
+}
 }

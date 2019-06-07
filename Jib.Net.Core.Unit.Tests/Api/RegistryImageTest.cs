@@ -14,32 +14,31 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 
-import com.google.cloud.tools.jib.registry.credentials.CredentialRetrievalException;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
 
 /** Tests for {@link RegistryImage}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class RegistryImageTest {
 
-  @Mock private CredentialRetriever mockCredentialRetriever;
+  [Mock] private CredentialRetriever mockCredentialRetriever;
 
-  @Test
-  public void testGetters_default() throws InvalidImageReferenceException {
+  [TestMethod]
+  public void testGetters_default() {
     RegistryImage image = RegistryImage.named("registry/image");
 
     Assert.assertEquals("registry/image", image.getImageReference().toString());
     Assert.assertEquals(0, image.getCredentialRetrievers().size());
   }
 
-  @Test
+  [TestMethod]
   public void testGetters()
-      throws InvalidImageReferenceException, AssertionError, CredentialRetrievalException {
+      {
     RegistryImage image =
         RegistryImage.named("registry/image")
             .addCredentialRetriever(mockCredentialRetriever)
@@ -51,4 +50,5 @@ public class RegistryImageTest {
         Credential.from("username", "password"),
         image.getCredentialRetrievers().get(1).retrieve().get());
   }
+}
 }

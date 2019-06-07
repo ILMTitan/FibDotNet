@@ -14,35 +14,34 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpStatusCodes;
-import com.google.cloud.tools.jib.api.InsecureRegistryException;
-import com.google.cloud.tools.jib.api.LogEvent;
-import com.google.cloud.tools.jib.api.RegistryException;
-import com.google.cloud.tools.jib.api.RegistryUnauthorizedException;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.global.JibSystemProperties;
-import com.google.cloud.tools.jib.http.Authorization;
-import com.google.cloud.tools.jib.http.Connection;
-import com.google.cloud.tools.jib.http.Request;
-import com.google.cloud.tools.jib.http.Response;
-import com.google.cloud.tools.jib.json.JsonTemplateMapper;
-import com.google.cloud.tools.jib.registry.json.ErrorEntryTemplate;
-import com.google.cloud.tools.jib.registry.json.ErrorResponseTemplate;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.util.Locale;
-import java.util.function.Function;
-import javax.annotation.Nullable;
-import javax.net.ssl.SSLException;
-import org.apache.http.NoHttpResponseException;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Makes requests to a registry endpoint.
@@ -57,18 +56,18 @@ class RegistryEndpointCaller<T> {
    */
   @VisibleForTesting static final int STATUS_CODE_PERMANENT_REDIRECT = 308;
 
-  private static final String DEFAULT_PROTOCOL = "https";
+  private static readonly string DEFAULT_PROTOCOL = "https";
 
-  private static boolean isHttpsProtocol(URL url) {
+  private static bool isHttpsProtocol(Uri url) {
     return "https".equals(url.getProtocol());
   }
 
   // https://github.com/GoogleContainerTools/jib/issues/1316
-  @VisibleForTesting
-  static boolean isBrokenPipe(IOException original) {
+
+  static bool isBrokenPipe(IOException original) {
     Throwable exception = original;
     while (exception != null) {
-      String message = exception.getMessage();
+      string message = exception.getMessage();
       if (message != null && message.toLowerCase(Locale.US).contains("broken pipe")) {
         return true;
       }
@@ -81,19 +80,19 @@ class RegistryEndpointCaller<T> {
     return false;
   }
 
-  private final EventHandlers eventHandlers;
-  private final URL initialRequestUrl;
-  private final String userAgent;
-  private final RegistryEndpointProvider<T> registryEndpointProvider;
-  @Nullable private final Authorization authorization;
-  private final RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private final boolean allowInsecureRegistries;
+  private readonly EventHandlers eventHandlers;
+  private readonly Uri initialRequestUrl;
+  private readonly string userAgent;
+  private readonly RegistryEndpointProvider<T> registryEndpointProvider;
+  private final Authorization authorization;
+  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+  private readonly bool allowInsecureRegistries;
 
-  /** Makes a {@link Connection} to the specified {@link URL}. */
-  private final Function<URL, Connection> connectionFactory;
+  /** Makes a {@link Connection} to the specified {@link Uri}. */
+  private readonly Function<Uri, Connection> connectionFactory;
 
-  /** Makes an insecure {@link Connection} to the specified {@link URL}. */
-  @Nullable private Function<URL, Connection> insecureConnectionFactory;
+  /** Makes an insecure {@link Connection} to the specified {@link Uri}. */
+  private Function<Uri, Connection> insecureConnectionFactory;
 
   /**
    * Constructs with parameters for making the request.
@@ -105,16 +104,16 @@ class RegistryEndpointCaller<T> {
    * @param authorization optional authentication credentials to use
    * @param registryEndpointRequestProperties properties of the registry endpoint request
    * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
-   * @throws MalformedURLException if the URL generated for the endpoint is malformed
+   * @throws MalformedURLException if the Uri generated for the endpoint is malformed
    */
   RegistryEndpointCaller(
       EventHandlers eventHandlers,
-      String userAgent,
-      String apiRouteBase,
+      string userAgent,
+      string apiRouteBase,
       RegistryEndpointProvider<T> registryEndpointProvider,
-      @Nullable Authorization authorization,
+      Authorization authorization,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      boolean allowInsecureRegistries)
+      bool allowInsecureRegistries)
       throws MalformedURLException {
     this(
         eventHandlers,
@@ -128,17 +127,16 @@ class RegistryEndpointCaller<T> {
         null /* might never be used, so create lazily to delay throwing potential GeneralSecurityException */);
   }
 
-  @VisibleForTesting
   RegistryEndpointCaller(
       EventHandlers eventHandlers,
-      String userAgent,
-      String apiRouteBase,
+      string userAgent,
+      string apiRouteBase,
       RegistryEndpointProvider<T> registryEndpointProvider,
-      @Nullable Authorization authorization,
+      Authorization authorization,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      boolean allowInsecureRegistries,
-      Function<URL, Connection> connectionFactory,
-      @Nullable Function<URL, Connection> insecureConnectionFactory)
+      bool allowInsecureRegistries,
+      Function<Uri, Connection> connectionFactory,
+      Function<Uri, Connection> insecureConnectionFactory)
       throws MalformedURLException {
     this.eventHandlers = eventHandlers;
     this.initialRequestUrl =
@@ -159,13 +157,11 @@ class RegistryEndpointCaller<T> {
    * @throws IOException for most I/O exceptions when making the request
    * @throws RegistryException for known exceptions when interacting with the registry
    */
-  @Nullable
-  T call() throws IOException, RegistryException {
+  T call() {
     return callWithAllowInsecureRegistryHandling(initialRequestUrl);
   }
 
-  @Nullable
-  private T callWithAllowInsecureRegistryHandling(URL url) throws IOException, RegistryException {
+  private T callWithAllowInsecureRegistryHandling(Uri url) {
     if (!isHttpsProtocol(url) && !allowInsecureRegistries) {
       throw new InsecureRegistryException(url);
     }
@@ -186,8 +182,7 @@ class RegistryEndpointCaller<T> {
     }
   }
 
-  @Nullable
-  private T handleUnverifiableServerException(URL url) throws IOException, RegistryException {
+  private T handleUnverifiableServerException(Uri url) {
     if (!allowInsecureRegistries) {
       throw new InsecureRegistryException(url);
     }
@@ -203,8 +198,7 @@ class RegistryEndpointCaller<T> {
     }
   }
 
-  @Nullable
-  private T fallBackToHttp(URL url) throws IOException, RegistryException {
+  private T fallBackToHttp(Uri url) {
     GenericUrl httpUrl = new GenericUrl(url);
     httpUrl.setScheme("http");
     eventHandlers.dispatch(
@@ -213,7 +207,7 @@ class RegistryEndpointCaller<T> {
     return call(httpUrl.toURL(), connectionFactory);
   }
 
-  private Function<URL, Connection> getInsecureConnectionFactory() throws RegistryException {
+  private Function<Uri, Connection> getInsecureConnectionFactory() {
     try {
       if (insecureConnectionFactory == null) {
         insecureConnectionFactory = Connection.getInsecureConnectionFactory();
@@ -226,21 +220,20 @@ class RegistryEndpointCaller<T> {
   }
 
   /**
-   * Calls the registry endpoint with a certain {@link URL}.
+   * Calls the registry endpoint with a certain {@link Uri}.
    *
-   * @param url the endpoint URL to call
+   * @param url the endpoint Uri to call
    * @return an object representing the response, or {@code null}
    * @throws IOException for most I/O exceptions when making the request
    * @throws RegistryException for known exceptions when interacting with the registry
    */
-  @Nullable
-  private T call(URL url, Function<URL, Connection> connectionFactory)
-      throws IOException, RegistryException {
+  private T call(Uri url, Function<Uri, Connection> connectionFactory)
+      {
     // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
-    boolean sendCredentials =
+    bool sendCredentials =
         isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
 
-    try (Connection connection = connectionFactory.apply(url)) {
+    using (Connection connection = connectionFactory.apply(url)) {
       Request.Builder requestBuilder =
           Request.builder()
               .setUserAgent(userAgent)
@@ -294,7 +287,7 @@ class RegistryEndpointCaller<T> {
                 == HttpStatusCodes.STATUS_CODE_MOVED_PERMANENTLY
             || httpResponseException.getStatusCode() == STATUS_CODE_PERMANENT_REDIRECT) {
           // 'Location' header can be relative or absolute.
-          URL redirectLocation = new URL(url, httpResponseException.getHeaders().getLocation());
+          Uri redirectLocation = new Uri(url, httpResponseException.getHeaders().getLocation());
           return callWithAllowInsecureRegistryHandling(redirectLocation);
 
         } else {
@@ -313,7 +306,6 @@ class RegistryEndpointCaller<T> {
     }
   }
 
-  @VisibleForTesting
   RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException) {
     RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
         new RegistryErrorExceptionBuilder(
@@ -322,8 +314,9 @@ class RegistryEndpointCaller<T> {
     try {
       ErrorResponseTemplate errorResponse =
           JsonTemplateMapper.readJson(
-              httpResponseException.getContent(), ErrorResponseTemplate.class);
-      for (ErrorEntryTemplate errorEntry : errorResponse.getErrors()) {
+              httpResponseException.getContent(), typeof(ErrorResponseTemplate));
+      foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
+      {
         registryErrorExceptionBuilder.addReason(errorEntry);
       }
     } catch (IOException ex) {
@@ -337,4 +330,5 @@ class RegistryEndpointCaller<T> {
 
     return registryErrorExceptionBuilder.build();
   }
+}
 }

@@ -14,28 +14,15 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.api;
+namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
-import com.google.cloud.tools.jib.builder.steps.StepsRunner;
-import com.google.cloud.tools.jib.configuration.BuildConfiguration;
-import com.google.cloud.tools.jib.configuration.ImageConfiguration;
-import com.google.cloud.tools.jib.docker.DockerClient;
-import com.google.cloud.tools.jib.event.EventHandlers;
-import com.google.cloud.tools.jib.filesystem.UserCacheHome;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.annotation.Nullable;
+
+
+
+
+
+
 
 /** Configures how to containerize. */
 public class Containerizer {
@@ -44,14 +31,14 @@ public class Containerizer {
    * The default directory for caching the base image layers, in {@code [user cache
    * home]/google-cloud-tools-java/jib}.
    */
-  public static final Path DEFAULT_BASE_CACHE_DIRECTORY =
+  public static readonly Path DEFAULT_BASE_CACHE_DIRECTORY =
       UserCacheHome.getCacheHome().resolve("google-cloud-tools-java").resolve("jib");
 
-  private static final String DEFAULT_TOOL_NAME = "jib-core";
+  private static readonly string DEFAULT_TOOL_NAME = "jib-core";
 
-  private static final String DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
-  private static final String DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
-  private static final String DESCRIPTION_FOR_TARBALL = "Building image tarball";
+  private static readonly string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
+  private static readonly string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
+  private static readonly string DESCRIPTION_FOR_TARBALL = "Building image tarball";
 
   /**
    * Gets a new {@link Containerizer} that containerizes to a container registry.
@@ -67,7 +54,7 @@ public class Containerizer {
             .build();
 
     Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration ->
+        buildConfiguration =>
             StepsRunner.begin(buildConfiguration)
                 .retrieveTargetRegistryCredentials()
                 .authenticatePush()
@@ -95,12 +82,12 @@ public class Containerizer {
         ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
 
     DockerClient.Builder dockerClientBuilder = DockerClient.builder();
-    dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder::setDockerExecutable);
+    dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder.setDockerExecutable);
     dockerClientBuilder.setDockerEnvironment(
         ImmutableMap.copyOf(dockerDaemonImage.getDockerEnvironment()));
 
     Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration ->
+        buildConfiguration =>
             StepsRunner.begin(buildConfiguration)
                 .pullBaseImage()
                 .pullAndCacheBaseImageLayers()
@@ -123,7 +110,7 @@ public class Containerizer {
         ImageConfiguration.builder(tarImage.getImageReference()).build();
 
     Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration ->
+        buildConfiguration =>
             StepsRunner.begin(buildConfiguration)
                 .pullBaseImage()
                 .pullAndCacheBaseImageLayers()
@@ -135,26 +122,26 @@ public class Containerizer {
         DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
   }
 
-  private final String description;
-  private final ImageConfiguration imageConfiguration;
-  private final Function<BuildConfiguration, StepsRunner> stepsRunnerFactory;
-  private final boolean mustBeOnline;
-  private final Set<String> additionalTags = new HashSet<>();
-  private final EventHandlers.Builder eventHandlersBuilder = EventHandlers.builder();
+  private readonly string description;
+  private readonly ImageConfiguration imageConfiguration;
+  private readonly Function<BuildConfiguration, StepsRunner> stepsRunnerFactory;
+  private readonly bool mustBeOnline;
+  private readonly Set<string> additionalTags = new HashSet<>();
+  private readonly EventHandlers.Builder eventHandlersBuilder = EventHandlers.builder();
 
-  @Nullable private ExecutorService executorService;
+  private ExecutorService executorService;
   private Path baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
-  @Nullable private Path applicationLayersCacheDirectory;
-  private boolean allowInsecureRegistries = false;
-  private boolean offline = false;
-  private String toolName = DEFAULT_TOOL_NAME;
+  private Path applicationLayersCacheDirectory;
+  private bool allowInsecureRegistries = false;
+  private bool offline = false;
+  private string toolName = DEFAULT_TOOL_NAME;
 
   /** Instantiate with {@link #to}. */
   private Containerizer(
-      String description,
+      string description,
       ImageConfiguration imageConfiguration,
       Function<BuildConfiguration, StepsRunner> stepsRunnerFactory,
-      boolean mustBeOnline) {
+      bool mustBeOnline) {
     this.description = description;
     this.imageConfiguration = imageConfiguration;
     this.stepsRunnerFactory = stepsRunnerFactory;
@@ -173,7 +160,7 @@ public class Containerizer {
    * @param tag the additional tag to push to
    * @return this
    */
-  public Containerizer withAdditionalTag(String tag) {
+  public Containerizer withAdditionalTag(string tag) {
     Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '%s'", tag);
     additionalTags.add(tag);
     return this;
@@ -186,7 +173,7 @@ public class Containerizer {
    * @param executorService the {@link ExecutorService}
    * @return this
    */
-  public Containerizer setExecutorService(@Nullable ExecutorService executorService) {
+  public Containerizer setExecutorService(ExecutorService executorService) {
     this.executorService = executorService;
     return this;
   }
@@ -229,8 +216,8 @@ public class Containerizer {
    * @param <E> the type of {@code eventType}
    * @return this
    */
-  public <E extends JibEvent> Containerizer addEventHandler(
-      Class<E> eventType, Consumer<? super E> eventConsumer) {
+  public Containerizer addEventHandler<E>(
+      Class<E> eventType, Consumer<E> eventConsumer) where E : JibEvent {
     eventHandlersBuilder.add(eventType, eventConsumer);
     return this;
   }
@@ -243,7 +230,7 @@ public class Containerizer {
    * @return this
    */
   public Containerizer addEventHandler(Consumer<JibEvent> eventConsumer) {
-    eventHandlersBuilder.add(JibEvent.class, eventConsumer);
+    eventHandlersBuilder.add(typeof(JibEvent), eventConsumer);
     return this;
   }
 
@@ -253,7 +240,7 @@ public class Containerizer {
    * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
    * @return this
    */
-  public Containerizer setAllowInsecureRegistries(boolean allowInsecureRegistries) {
+  public Containerizer setAllowInsecureRegistries(bool allowInsecureRegistries) {
     this.allowInsecureRegistries = allowInsecureRegistries;
     return this;
   }
@@ -266,7 +253,7 @@ public class Containerizer {
    * @param offline if {@code true}, the build will run in offline mode
    * @return this
    */
-  public Containerizer setOfflineMode(boolean offline) {
+  public Containerizer setOfflineMode(bool offline) {
     if (mustBeOnline && offline) {
       throw new IllegalStateException("Cannot build to a container registry in offline mode");
     }
@@ -282,12 +269,12 @@ public class Containerizer {
    * @param toolName the name of the tool using this library
    * @return this
    */
-  public Containerizer setToolName(String toolName) {
+  public Containerizer setToolName(string toolName) {
     this.toolName = toolName;
     return this;
   }
 
-  Set<String> getAdditionalTags() {
+  Set<string> getAdditionalTags() {
     return additionalTags;
   }
 
@@ -299,7 +286,7 @@ public class Containerizer {
     return baseImageLayersCacheDirectory;
   }
 
-  Path getApplicationLayersCacheDirectory() throws CacheDirectoryCreationException {
+  Path getApplicationLayersCacheDirectory() {
     if (applicationLayersCacheDirectory == null) {
       // Uses a temporary directory if application layers cache directory is not set.
       try {
@@ -318,19 +305,19 @@ public class Containerizer {
     return eventHandlersBuilder.build();
   }
 
-  boolean getAllowInsecureRegistries() {
+  bool getAllowInsecureRegistries() {
     return allowInsecureRegistries;
   }
 
-  boolean isOfflineMode() {
+  bool isOfflineMode() {
     return offline;
   }
 
-  String getToolName() {
+  string getToolName() {
     return toolName;
   }
 
-  String getDescription() {
+  string getDescription() {
     return description;
   }
 
@@ -341,4 +328,5 @@ public class Containerizer {
   StepsRunner createStepsRunner(BuildConfiguration buildConfiguration) {
     return stepsRunnerFactory.apply(buildConfiguration);
   }
+}
 }

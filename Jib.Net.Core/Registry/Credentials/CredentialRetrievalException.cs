@@ -14,22 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry.credentials;
+namespace com.google.cloud.tools.jib.registry.credentials {
 
-import com.google.cloud.tools.jib.api.CredentialRetriever;
 
 /** Thrown if something went wrong during {@link CredentialRetriever#retrieve}. */
-public class CredentialRetrievalException extends Exception {
+public class CredentialRetrievalException : Exception {
 
-  CredentialRetrievalException(String message, Throwable cause) {
+  CredentialRetrievalException(string message, Throwable cause) {
     super(message, cause);
   }
 
-  CredentialRetrievalException(String message) {
+  CredentialRetrievalException(string message) {
     super(message);
   }
 
-  public CredentialRetrievalException(Throwable cause) {
-    super(cause);
+  public CredentialRetrievalException(Throwable cause) : base(cause) {
+    
   }
+}
 }

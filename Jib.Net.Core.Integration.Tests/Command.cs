@@ -14,61 +14,61 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib;
+namespace com.google.cloud.tools.jib {
 
-import com.google.common.io.CharStreams;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import javax.annotation.Nullable;
+
+
+
+
+
+
+
 
 /** Test utility to run shell commands for integration tests. */
 public class Command {
 
-  private final List<String> command;
+  private readonly List<string> command;
 
   /** Instantiate with a command. */
-  public Command(String... command) {
+  public Command(params string command) {
     this.command = Arrays.asList(command);
   }
 
   /** Instantiate with a command. */
-  public Command(List<String> command) {
+  public Command(List<string> command) {
     this.command = command;
   }
 
   /** Runs the command. */
-  public String run() throws IOException, InterruptedException {
+  public string run() {
     return run(null);
   }
 
   /** Runs the command and pipes in {@code stdin}. */
-  public String run(@Nullable byte[] stdin) throws IOException, InterruptedException {
+  public string run(byte[] stdin) {
     Process process = new ProcessBuilder(command).start();
 
     if (stdin != null) {
       // Write out stdin.
-      try (OutputStream outputStream = process.getOutputStream()) {
+      using (OutputStream outputStream = process.getOutputStream()) {
         outputStream.write(stdin);
       }
     }
 
     // Read in stdout.
-    try (InputStreamReader inputStreamReader =
+    using (InputStreamReader inputStreamReader =
         new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
-      String output = CharStreams.toString(inputStreamReader);
+      string output = CharStreams.toString(inputStreamReader);
 
       if (process.waitFor() != 0) {
-        String stderr =
+        string stderr =
             CharStreams.toString(
                 new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-        throw new RuntimeException("Command '" + String.join(" ", command) + "' failed: " + stderr);
+        throw new RuntimeException("Command '" + string.join(" ", command) + "' failed: " + stderr);
       }
 
       return output;
     }
   }
+}
 }

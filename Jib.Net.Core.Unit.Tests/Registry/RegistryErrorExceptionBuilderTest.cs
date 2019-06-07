@@ -14,23 +14,22 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.registry;
+namespace com.google.cloud.tools.jib.registry {
 
-import com.google.api.client.http.HttpResponseException;
-import com.google.cloud.tools.jib.registry.json.ErrorEntryTemplate;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+
+
+
+
+
+
 
 /** Tests for {@link RegistryErrorExceptionBuilder}. */
-@RunWith(MockitoJUnitRunner.class)
+[RunWith(typeof(MockitoJUnitRunner))]
 public class RegistryErrorExceptionBuilderTest {
 
-  @Mock private HttpResponseException mockHttpResponseException;
+  [Mock] private HttpResponseException mockHttpResponseException;
 
-  @Test
+  [TestMethod]
   public void testAddErrorEntry() {
     RegistryErrorExceptionBuilder builder =
         new RegistryErrorExceptionBuilder("do something", mockHttpResponseException);
@@ -56,4 +55,5 @@ public class RegistryErrorExceptionBuilderTest {
           ex.getMessage());
     }
   }
+}
 }

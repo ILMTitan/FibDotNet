@@ -14,24 +14,23 @@
  * the License.
  */
 
-package com.google.cloud.tools.jib.filesystem;
+namespace com.google.cloud.tools.jib.filesystem {
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
-import java.io.Closeable;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.FileSystemException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
+
+
+
+
+
+
 
 /**
  * A temporary directory that tries to delete itself upon close. Note that deletion is <b>NOT</b>
  * guaranteed.
  */
-public class TemporaryDirectory implements Closeable {
+public class TemporaryDirectory : Closeable {
 
-  private final Path temporaryDirectory;
+  private readonly Path temporaryDirectory;
 
   /**
    * Creates a new temporary directory under an existing {@code parentDirectory}.
@@ -39,7 +38,7 @@ public class TemporaryDirectory implements Closeable {
    * @param parentDirectory the directory to create the temporary directory within
    * @throws IOException if an I/O exception occurs
    */
-  public TemporaryDirectory(Path parentDirectory) throws IOException {
+  public TemporaryDirectory(Path parentDirectory) {
     temporaryDirectory = Files.createTempDirectory(parentDirectory, null);
   }
 
@@ -52,8 +51,7 @@ public class TemporaryDirectory implements Closeable {
     return temporaryDirectory;
   }
 
-  @Override
-  public void close() throws IOException {
+  public void close() {
     if (Files.exists(temporaryDirectory)) {
       try {
         MoreFiles.deleteRecursively(temporaryDirectory, RecursiveDeleteOption.ALLOW_INSECURE);
@@ -62,4 +60,5 @@ public class TemporaryDirectory implements Closeable {
       }
     }
   }
+}
 }
