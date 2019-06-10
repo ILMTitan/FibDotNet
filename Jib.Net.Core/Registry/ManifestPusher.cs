@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -35,7 +48,7 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 /** Pushes an image's manifest. */
-class ManifestPusher : $2 {
+class ManifestPusher : RegistryEndpointProvider<DescriptorDigest> {
   /** Response header containing digest of pushed image. */
   private static readonly string RESPONSE_DIGEST_HEADER = "Docker-Content-Digest";
 
@@ -48,7 +61,7 @@ class ManifestPusher : $2 {
    * @return the warning message
    */
   private static string makeUnexpectedImageDigestWarning(
-      DescriptorDigest expectedDigest, List<string> receivedDigests) {
+      DescriptorDigest expectedDigest, IList<string> receivedDigests) {
     if (receivedDigests.isEmpty()) {
       return "Expected image digest " + expectedDigest + ", but received none";
     }
@@ -67,7 +80,7 @@ class ManifestPusher : $2 {
   private readonly string imageTag;
   private readonly EventHandlers eventHandlers;
 
-  ManifestPusher(
+  public ManifestPusher(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       BuildableManifestTemplate manifestTemplate,
       string imageTag,
@@ -84,11 +97,11 @@ class ManifestPusher : $2 {
         Blobs.from(manifestTemplate), manifestTemplate.getManifestMediaType());
   }
 
-  public List<string> getAccept() {
-    return Collections.emptyList();
+  public IList<string> getAccept() {
+    return Collections.emptyList<string>();
   }
 
-  public DescriptorDigest handleHttpResponseException(HttpResponseException httpResponseException)
+  public DescriptorDigest handleHttpResponseException(HttpResponseMessage httpResponse)
       {
     // docker registry 2.0 and 2.1 returns:
     //   400 Bad Request
@@ -101,36 +114,36 @@ class ManifestPusher : $2 {
     //   {"errors":[{"code":"MANIFEST_INVALID","detail":
     //   {"message":"manifest schema version not supported"},"message":"manifest invalid"}]}
 
-    if (httpResponseException.getStatusCode() != HttpStatus.SC_BAD_REQUEST
-        && httpResponseException.getStatusCode() != HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE) {
-      throw httpResponseException;
+    if (httpResponse.getStatusCode() != HttpStatusCode.BadRequest
+        && httpResponse.getStatusCode() != HttpStatusCode.UnsupportedMediaType) {
+      throw new HttpResponseException(httpResponse);
     }
 
-    ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponseException);
+    ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponse);
     if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.TAG_INVALID) {
-      throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponseException)
+      throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
           .addReason(
               "Registry may not support pushing OCI Manifest or "
                   + "Docker Image Manifest Version 2, Schema 2")
           .build();
     }
     // rethrow: unhandled error response code.
-    throw httpResponseException;
+    throw new HttpResponseException(httpResponse);
   }
 
-  public DescriptorDigest handleResponse(Response response) {
+  public DescriptorDigest handleResponse(HttpResponseMessage response) {
     // Checks if the image digest is as expected.
     DescriptorDigest expectedDigest = Digests.computeJsonDigest(manifestTemplate);
 
-    List<string> receivedDigests = response.getHeader(RESPONSE_DIGEST_HEADER);
+    IList<string> receivedDigests = response.getHeader(RESPONSE_DIGEST_HEADER);
     if (receivedDigests.size() == 1) {
       try {
         DescriptorDigest receivedDigest = DescriptorDigest.fromDigest(receivedDigests.get(0));
-        if (expectedDigest.equals(receivedDigest)) {
+        if (expectedDigest.Equals(receivedDigest)) {
           return expectedDigest;
         }
 
-      } catch (DigestException ex) {
+      } catch (DigestException) {
         // Invalid digest.
       }
     }
@@ -146,8 +159,8 @@ class ManifestPusher : $2 {
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/manifests/" + imageTag);
   }
 
-  public string getHttpMethod() {
-    return HttpMethods.PUT;
+  public HttpMethod getHttpMethod() {
+    return HttpMethod.Put;
   }
 
   public string getActionDescription() {

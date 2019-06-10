@@ -14,7 +14,17 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+namespace com.google.cloud.tools.jib.api
+{
 
 
 
@@ -24,16 +34,16 @@ namespace com.google.cloud.tools.jib.api {
 
 
 
-/** Configures how to build a layer in the container image. Instantiate with {@link #builder}. */
-public class LayerConfiguration {
+    /** Configures how to build a layer in the container image. Instantiate with {@link #builder}. */
+    public class LayerConfiguration {
 
   /** Builds a {@link LayerConfiguration}. */
-  public static class Builder {
+  public class Builder {
 
-    private readonly ImmutableList.Builder<LayerEntry> layerEntries = ImmutableList.builder();
+    private readonly ImmutableArray<LayerEntry>.Builder layerEntries = ImmutableArray.CreateBuilder<LayerEntry>();
     private string name = "";
 
-    private Builder() {}
+    public Builder() {}
 
     /**
      * Sets a name for this layer. This name does not affect the contents of the layer.
@@ -75,7 +85,7 @@ public class LayerConfiguration {
      *     sourceFile}
      * @return this
      */
-    public Builder addEntry(Path sourceFile, AbsoluteUnixPath pathInContainer) {
+    public Builder addEntry(SystemPath sourceFile, AbsoluteUnixPath pathInContainer) {
       return addEntry(
           sourceFile,
           pathInContainer,
@@ -97,7 +107,7 @@ public class LayerConfiguration {
      * @see FilePermissions#DEFAULT_FOLDER_PERMISSIONS
      */
     public Builder addEntry(
-        Path sourceFile, AbsoluteUnixPath pathInContainer, FilePermissions permissions) {
+        SystemPath sourceFile, AbsoluteUnixPath pathInContainer, FilePermissions permissions) {
       return addEntry(
           sourceFile,
           pathInContainer,
@@ -121,7 +131,7 @@ public class LayerConfiguration {
      * @see FilePermissions#DEFAULT_FOLDER_PERMISSIONS
      */
     public Builder addEntry(
-        Path sourceFile,
+        SystemPath sourceFile,
         AbsoluteUnixPath pathInContainer,
         FilePermissions permissions,
         Instant lastModifiedTime) {
@@ -143,7 +153,7 @@ public class LayerConfiguration {
      * @return this
      * @throws IOException if an exception occurred when recursively listing the directory
      */
-    public Builder addEntryRecursive(Path sourceFile, AbsoluteUnixPath pathInContainer)
+    public Builder addEntryRecursive(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
         {
       return addEntryRecursive(sourceFile, pathInContainer, DEFAULT_FILE_PERMISSIONS_PROVIDER);
     }
@@ -161,9 +171,9 @@ public class LayerConfiguration {
      * @throws IOException if an exception occurred when recursively listing the directory
      */
     public Builder addEntryRecursive(
-        Path sourceFile,
+        SystemPath sourceFile,
         AbsoluteUnixPath pathInContainer,
-        BiFunction<Path, AbsoluteUnixPath, FilePermissions> filePermissionProvider)
+        Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider)
         {
       return addEntryRecursive(
           sourceFile, pathInContainer, filePermissionProvider, DEFAULT_MODIFIED_TIME_PROVIDER);
@@ -184,10 +194,10 @@ public class LayerConfiguration {
      * @throws IOException if an exception occurred when recursively listing the directory
      */
     public Builder addEntryRecursive(
-        Path sourceFile,
+        SystemPath sourceFile,
         AbsoluteUnixPath pathInContainer,
-        BiFunction<Path, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
-        BiFunction<Path, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
+        Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
+        Func<SystemPath, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
         {
       FilePermissions permissions = filePermissionProvider.apply(sourceFile, pathInContainer);
       Instant modifiedTime = lastModifiedTimeProvider.apply(sourceFile, pathInContainer);
@@ -195,8 +205,9 @@ public class LayerConfiguration {
       if (!Files.isDirectory(sourceFile)) {
         return this;
       }
-      using (Stream<Path> files = Files.list(sourceFile)) {
-        foreach (Path file in files.collect(Collectors.toList()))
+       IEnumerable<SystemPath> files = Files.list(sourceFile);
+                {
+        foreach (SystemPath file in files.ToList())
         {
           addEntryRecursive(
               file,
@@ -219,7 +230,7 @@ public class LayerConfiguration {
   }
 
   /** Provider that returns default file permissions (644 for files, 755 for directories). */
-  public static readonly BiFunction<Path, AbsoluteUnixPath, FilePermissions>
+  public static readonly Func<SystemPath, AbsoluteUnixPath, FilePermissions>
       DEFAULT_FILE_PERMISSIONS_PROVIDER =
           (sourcePath, destinationPath) =>
               Files.isDirectory(sourcePath)
@@ -227,10 +238,10 @@ public class LayerConfiguration {
                   : FilePermissions.DEFAULT_FILE_PERMISSIONS;
 
   /** Default file modification time (EPOCH + 1 second). */
-  public static readonly Instant DEFAULT_MODIFIED_TIME = Instant.ofEpochSecond(1);
+  public static readonly Instant DEFAULT_MODIFIED_TIME = Instant.FromUnixTimeSeconds(1);
 
   /** Provider that returns default file modification time (EPOCH + 1 second). */
-  public static readonly BiFunction<Path, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
+  public static readonly Func<SystemPath, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
       (sourcePath, destinationPath) => DEFAULT_MODIFIED_TIME;
 
   /**
@@ -242,7 +253,7 @@ public class LayerConfiguration {
     return new Builder();
   }
 
-  private readonly ImmutableList<LayerEntry> layerEntries;
+  private readonly ImmutableArray<LayerEntry> layerEntries;
   private readonly string name;
 
   /**
@@ -251,7 +262,7 @@ public class LayerConfiguration {
    * @param name an optional name for the layer
    * @param layerEntries the list of {@link LayerEntry}s
    */
-  private LayerConfiguration(string name, ImmutableList<LayerEntry> layerEntries) {
+  private LayerConfiguration(string name, ImmutableArray<LayerEntry> layerEntries) {
     this.name = name;
     this.layerEntries = layerEntries;
   }
@@ -270,7 +281,7 @@ public class LayerConfiguration {
    *
    * @return the list of layer entries
    */
-  public ImmutableList<LayerEntry> getLayerEntries() {
+  public ImmutableArray<LayerEntry> getLayerEntries() {
     return layerEntries;
   }
 }

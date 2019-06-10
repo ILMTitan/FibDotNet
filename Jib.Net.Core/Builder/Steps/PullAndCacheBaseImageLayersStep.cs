@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image;
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -31,42 +42,39 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pulls and caches the base image layers. */
-class PullAndCacheBaseImageLayersStep : AsyncStep<ImmutableList<PullAndCacheBaseImageLayerStep>>,
-        Callable<ImmutableList<PullAndCacheBaseImageLayerStep>>  {
+public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>> {
   private static readonly string DESCRIPTION = "Setting up base image caching";
 
   private readonly BuildConfiguration buildConfiguration;
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly PullBaseImageStep pullBaseImageStep;
 
-  private readonly ListenableFuture<ImmutableList<PullAndCacheBaseImageLayerStep>> listenableFuture;
+  private readonly Task<IReadOnlyList<AsyncStep<CachedLayer>>> listenableFuture;
 
-  PullAndCacheBaseImageLayersStep(
-      ListeningExecutorService listeningExecutorService,
+  public PullAndCacheBaseImageLayersStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      PullBaseImageStep pullBaseImageStep) {
-    this.listeningExecutorService = listeningExecutorService;
+      PullBaseImageStep pullBaseImageStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.pullBaseImageStep = pullBaseImageStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(pullBaseImageStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<ImmutableList<PullAndCacheBaseImageLayerStep>> getFuture() {
+  public Task<IReadOnlyList<AsyncStep<CachedLayer>>> getFuture() {
     return listenableFuture;
   }
 
-  public ImmutableList<PullAndCacheBaseImageLayerStep> call()
+  public ImmutableArray<PullAndCacheBaseImageLayerStep> call()
       {
-    BaseImageWithAuthorization pullBaseImageStepResult = NonBlockingSteps.get(pullBaseImageStep);
-    ImmutableList<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
+            BaseImageWithAuthorization pullBaseImageStepResult = NonBlockingSteps.get(pullBaseImageStep);
+    ImmutableArray<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
 
     using(ProgressEventDispatcher progressEventDispatcher =
             progressEventDispatcherFactory.create(
@@ -77,13 +85,12 @@ class PullAndCacheBaseImageLayersStep : AsyncStep<ImmutableList<PullAndCacheBase
 
     {
 
-      ImmutableList.Builder<PullAndCacheBaseImageLayerStep> pullAndCacheBaseImageLayerStepsBuilder =
-          ImmutableList.builderWithExpectedSize(baseImageLayers.size());
+      ImmutableArray<PullAndCacheBaseImageLayerStep>.Builder pullAndCacheBaseImageLayerStepsBuilder =
+          ImmutableArray.CreateBuilder<PullAndCacheBaseImageLayerStep>();
       foreach (Layer layer in baseImageLayers)
       {
         pullAndCacheBaseImageLayerStepsBuilder.add(
             new PullAndCacheBaseImageLayerStep(
-                listeningExecutorService,
                 buildConfiguration,
                 progressEventDispatcher.newChildProducer(),
                 layer.getBlobDescriptor().getDigest(),

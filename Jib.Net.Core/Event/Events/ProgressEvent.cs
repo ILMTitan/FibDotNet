@@ -14,7 +14,10 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.events {
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.@event.progress;
+
+namespace com.google.cloud.tools.jib.@event.events {
 
 
 

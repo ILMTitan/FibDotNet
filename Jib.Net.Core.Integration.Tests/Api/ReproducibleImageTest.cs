@@ -58,12 +58,12 @@ public class ReproducibleImageTest {
   [ClassInitialize]
   public static void createImage()
       {
-    Path root = imageLocation.getRoot().toPath();
-    Path fileA = Files.createFile(root.resolve("fileA.txt"));
-    Path fileB = Files.createFile(root.resolve("fileB.txt"));
-    Path fileC = Files.createFile(root.resolve("fileC.txt"));
-    Path subdir = Files.createDirectory(root.resolve("dir"));
-    Path subsubdir = Files.createDirectory(subdir.resolve("subdir"));
+    SystemPath root = imageLocation.getRoot().toPath();
+    SystemPath fileA = Files.createFile(root.resolve("fileA.txt"));
+    SystemPath fileB = Files.createFile(root.resolve("fileB.txt"));
+    SystemPath fileC = Files.createFile(root.resolve("fileC.txt"));
+    SystemPath subdir = Files.createDirectory(root.resolve("dir"));
+    SystemPath subsubdir = Files.createDirectory(subdir.resolve("subdir"));
     Files.createFile(subdir.resolve("fileD.txt"));
     Files.createFile(subsubdir.resolve("fileE.txt"));
 
@@ -73,9 +73,9 @@ public class ReproducibleImageTest {
 
     Jib.fromScratch()
         .setEntrypoint("echo", "Hello World")
-        .addLayer(ImmutableList.of(fileA), AbsoluteUnixPath.get("/app"))
+        .addLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.get("/app"))
         // layer with out-of-order files
-        .addLayer(ImmutableList.of(fileC, fileB), "/app")
+        .addLayer(ImmutableArray.Create(fileC, fileB), "/app")
         .addLayer(
             LayerConfiguration.builder()
                 .addEntryRecursive(subdir, AbsoluteUnixPath.get("/app"))
@@ -86,18 +86,18 @@ public class ReproducibleImageTest {
   [TestMethod]
   public void testTarballStructure() {
     // known content should produce known results
-    List<string> expected =
-        ImmutableList.of(
+    IList<string> expected =
+        ImmutableArray.Create(
             "c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz",
             "6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz",
             "530c1954a2b087d0b989895ea56435c9dc739a973f2d2b6cb9bb98e55bbea7ac.tar.gz",
             "config.json",
             "manifest.json");
 
-    List<string> actual = new ArrayList<>();
+    IList<string> actual = new List<>();
     using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(imageTar.toPath()))) {
-      TarArchiveEntry imageEntry;
+      TarEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
         actual.add(imageEntry.getName());
       }
@@ -108,7 +108,7 @@ public class ReproducibleImageTest {
 
   [TestMethod]
   public void testManifest() {
-    using (InputStream input = Files.newInputStream(imageTar.toPath())) {
+    using (Stream input = Files.newInputStream(imageTar.toPath())) {
       string exectedManifest =
           "[{\"config\":\"config.json\",\"repoTags\":[\"jib-core/reproducible:latest\"],"
               + "\"layers\":[\"c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz\",\"6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz\",\"530c1954a2b087d0b989895ea56435c9dc739a973f2d2b6cb9bb98e55bbea7ac.tar.gz\"]}]";
@@ -119,7 +119,7 @@ public class ReproducibleImageTest {
 
   [TestMethod]
   public void testConfiguration() {
-    using (InputStream input = Files.newInputStream(imageTar.toPath())) {
+    using (Stream input = Files.newInputStream(imageTar.toPath())) {
       string exectedConfig =
           "{\"created\":\"1970-01-01T00:00:00Z\",\"architecture\":\"amd64\",\"os\":\"linux\","
               + "\"config\":{\"Env\":[],\"Entrypoint\":[\"echo\",\"Hello World\"],\"ExposedPorts\":{},\"Labels\":{},\"Volumes\":{}},"
@@ -132,7 +132,7 @@ public class ReproducibleImageTest {
 
   [TestMethod]
   public void testImageLayout() {
-    Set<string> paths = new HashSet<>();
+    ISet<string> paths = new HashSet<>();
     layerEntriesDo(
         (layerName, layerEntry) => {
           if (layerEntry.isFile()) {
@@ -140,7 +140,7 @@ public class ReproducibleImageTest {
           }
         });
     Assert.assertEquals(
-        ImmutableSet.of(
+        ImmutableHashSet.of(
             "app/fileA.txt",
             "app/fileB.txt",
             "app/fileC.txt",
@@ -184,7 +184,7 @@ public class ReproducibleImageTest {
 
   [TestMethod]
   public void testNoImplicitParentDirectories() {
-    Set<string> directories = new HashSet<>();
+    ISet<string> directories = new HashSet<>();
     layerEntriesDo(
         (layerName, layerEntry) => {
           string entryPath = layerEntry.getName();
@@ -211,24 +211,24 @@ public class ReproducibleImageTest {
     layerEntriesDo((layerName, layerEntry) => layerPaths.put(layerName, layerEntry.getName()));
     foreach (Collection<string> paths in layerPaths.asMap().values())
     {
-      List<string> sorted = new ArrayList<>(paths);
+      IList<string> sorted = new List<>(paths);
       // ReproducibleLayerBuilder sorts by TarArchiveEntry.getName()
       Collections.sort(sorted);
       Assert.assertEquals("layer files are not consistently sorted", sorted, (List<string>) paths);
     }
   }
 
-  private void layerEntriesDo(BiConsumer<string, TarArchiveEntry> layerConsumer)
+  private void layerEntriesDo(BiConsumer<string, TarEntry> layerConsumer)
       {
     using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(imageTar.toPath()))) {
-      TarArchiveEntry imageEntry;
+      TarEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
         string imageEntryName = imageEntry.getName();
         // assume all .tar.gz files are layers
         if (imageEntry.isFile() && imageEntryName.endsWith(".tar.gz")) {
           TarArchiveInputStream layer = new TarArchiveInputStream(new GZIPInputStream(input));
-          TarArchiveEntry layerEntry;
+          TarEntry layerEntry;
           while ((layerEntry = layer.getNextTarEntry()) != null) {
             layerConsumer.accept(imageEntryName, layerEntry);
           }
@@ -241,10 +241,10 @@ public class ReproducibleImageTest {
       {
     using (TarArchiveInputStream input =
         new TarArchiveInputStream(Files.newInputStream(tarFile.toPath()))) {
-      TarArchiveEntry imageEntry;
+      TarEntry imageEntry;
       while ((imageEntry = input.getNextTarEntry()) != null) {
-        if (filename.equals(imageEntry.getName())) {
-          return CharStreams.toString(new InputStreamReader(input, StandardCharsets.UTF_8));
+        if (filename.Equals(imageEntry.getName())) {
+          return CharStreams.toString(new StreamReader(input, StandardCharsets.UTF_8));
         }
       }
     }

@@ -58,8 +58,8 @@ public class ImageTarballTest {
   [TestMethod]
   public void testWriteTo()
       {
-    Path fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-    Path fileB = Paths.get(Resources.getResource("core/fileB").toURI());
+    SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
+    SystemPath fileB = Paths.get(Resources.getResource("core/fileB").toURI());
     long fileASize = Files.size(fileA);
     long fileBSize = Files.size(fileB);
 
@@ -83,41 +83,41 @@ public class ImageTarballTest {
 
     ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    MemoryStream out = new MemoryStream();
     imageToTarball.writeTo(out);
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    ByteArrayInputStream in = new MemoryStream(out.toByteArray());
     using (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(in)) {
 
       // Verifies layer with fileA was added.
-      TarArchiveEntry headerFileALayer = tarArchiveInputStream.getNextTarEntry();
+      TarEntry headerFileALayer = tarArchiveInputStream.getNextTarEntry();
       Assert.assertEquals(fakeDigestA.getHash() + ".tar.gz", headerFileALayer.getName());
       string fileAString =
           CharStreams.toString(
-              new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+              new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
       Assert.assertEquals(Blobs.writeToString(Blobs.from(fileA)), fileAString);
 
       // Verifies layer with fileB was added.
-      TarArchiveEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
+      TarEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
       Assert.assertEquals(fakeDigestB.getHash() + ".tar.gz", headerFileBLayer.getName());
       string fileBString =
           CharStreams.toString(
-              new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+              new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
       Assert.assertEquals(Blobs.writeToString(Blobs.from(fileB)), fileBString);
 
       // Verifies container configuration was added.
-      TarArchiveEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();
+      TarEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();
       Assert.assertEquals("config.json", headerContainerConfiguration.getName());
       string containerConfigJson =
           CharStreams.toString(
-              new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+              new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
       JsonTemplateMapper.readJson(containerConfigJson, typeof(ContainerConfigurationTemplate));
 
       // Verifies manifest was added.
-      TarArchiveEntry headerManifest = tarArchiveInputStream.getNextTarEntry();
+      TarEntry headerManifest = tarArchiveInputStream.getNextTarEntry();
       Assert.assertEquals("manifest.json", headerManifest.getName());
       string manifestJson =
           CharStreams.toString(
-              new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+              new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
       JsonTemplateMapper.readListOfJson(manifestJson, typeof(DockerLoadManifestEntryTemplate));
     }
   }

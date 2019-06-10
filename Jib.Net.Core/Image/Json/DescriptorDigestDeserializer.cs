@@ -14,6 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -27,11 +31,7 @@ public class DescriptorDigestDeserializer : JsonDeserializer<DescriptorDigest> {
 
   public DescriptorDigest deserialize(JsonParser jsonParser, DeserializationContext ignored)
       {
-    try {
       return DescriptorDigest.fromDigest(jsonParser.getValueAsString());
-    } catch (DigestException ex) {
-      throw new IOException(ex);
-    }
   }
 }
 }

@@ -49,7 +49,7 @@ public class ProgressEventTest {
 
   private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  private readonly Map<Allocation, Long> allocationCompletionMap = new HashMap<>();
+  private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<>();
 
   private double progress = 0.0;
 

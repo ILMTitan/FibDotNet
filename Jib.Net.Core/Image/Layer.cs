@@ -14,6 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -54,19 +58,17 @@ public interface Layer {
    * @return the layer's content BLOB
    * @throws LayerPropertyNotFoundException if not available
    */
-  Blob getBlob() throws LayerPropertyNotFoundException;
-
+  Blob getBlob();
   // TODO: Remove this
   /**
    * @return the layer's content {@link BlobDescriptor}
    * @throws LayerPropertyNotFoundException if not available
    */
-  BlobDescriptor getBlobDescriptor() throws LayerPropertyNotFoundException;
-
+  BlobDescriptor getBlobDescriptor();
   /**
    * @return the layer's diff ID
    * @throws LayerPropertyNotFoundException if not available
    */
-  DescriptorDigest getDiffId() throws LayerPropertyNotFoundException;
+  DescriptorDigest getDiffId();
 }
 }

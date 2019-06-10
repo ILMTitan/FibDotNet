@@ -48,7 +48,7 @@ public class BlobPusherTest {
   private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
   [Mock] private Uri mockURL;
-  [Mock] private Response mockResponse;
+  [Mock] private HttpResponseMessage mockResponse;
 
   private DescriptorDigest fakeDescriptorDigest;
   private BlobPusher testBlobPusher;
@@ -168,7 +168,7 @@ public class BlobPusherTest {
     Assert.assertNotNull(body);
     Assert.assertEquals("application/octet-stream", body.getType());
 
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
     body.writeTo(byteArrayOutputStream);
 
     Assert.assertEquals(
@@ -223,7 +223,7 @@ public class BlobPusherTest {
   [TestMethod]
   public void testCommitter_handleResponse() {
     Assert.assertNull(
-        testBlobPusher.committer(mockURL).handleResponse(Mockito.mock(typeof(Response))));
+        testBlobPusher.committer(mockURL).handleResponse(Mockito.mock(typeof(HttpResponseMessage))));
   }
 
   [TestMethod]

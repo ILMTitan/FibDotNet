@@ -14,6 +14,8 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -22,7 +24,7 @@ namespace com.google.cloud.tools.jib.image.json {
 public class ManifestAndConfig {
 
   private readonly ManifestTemplate manifest;
-  private final ContainerConfigurationTemplate config;
+  private readonly ContainerConfigurationTemplate config;
 
   public ManifestAndConfig(
       ManifestTemplate manifest, ContainerConfigurationTemplate config) {

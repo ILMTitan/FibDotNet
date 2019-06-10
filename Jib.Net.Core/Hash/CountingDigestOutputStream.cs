@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System;
+using System.IO;
+using System.Text;
+
 namespace com.google.cloud.tools.jib.hash {
 
 
@@ -36,13 +44,13 @@ public class CountingDigestOutputStream : DigestOutputStream {
    *
    * @param outputStream the {@link OutputStream} to wrap.
    */
-  public CountingDigestOutputStream(OutputStream outputStream) : base(outputStream, null) {
+  public CountingDigestOutputStream(Stream outputStream) : base(outputStream, null) {
     
     try {
       setMessageDigest(MessageDigest.getInstance(SHA_256_ALGORITHM));
     } catch (NoSuchAlgorithmException ex) {
-      throw new RuntimeException(
-          "SHA-256 algorithm implementation not found - might be a broken JVM");
+      throw new Exception(
+          "SHA-256 algorithm implementation not found - might be a broken JVM", ex);
     }
   }
 
@@ -58,10 +66,10 @@ public class CountingDigestOutputStream : DigestOutputStream {
       byte[] hashedBytes = digest.digest();
 
       // Encodes each hashed byte into 2-character hexadecimal representation.
-      StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.length);
+      StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.Length);
       foreach (byte b in hashedBytes)
       {
-        stringBuilder.append(string.format("%02x", b));
+        stringBuilder.append($"{b:02x}");
       }
       string hash = stringBuilder.toString();
 
@@ -71,18 +79,13 @@ public class CountingDigestOutputStream : DigestOutputStream {
       return blobDescriptor;
 
     } catch (DigestException ex) {
-      throw new RuntimeException("SHA-256 algorithm produced invalid hash: " + ex.getMessage(), ex);
+      throw new Exception("SHA-256 algorithm produced invalid hash: " + ex.getMessage(), ex);
     }
   }
 
-  public void write(byte[] data, int offset, int length) {
-    super.write(data, offset, length);
+  public override void Write(byte[] data, int offset, int length) {
+    base.Write(data, offset, length);
     bytesSoFar += length;
-  }
-
-  public void write(int singleByte) {
-    super.write(singleByte);
-    bytesSoFar++;
   }
 }
 }

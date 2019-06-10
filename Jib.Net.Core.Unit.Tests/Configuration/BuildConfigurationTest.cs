@@ -53,20 +53,20 @@ public class BuildConfigurationTest {
     string expectedTargetServerUrl = "someotherserver";
     string expectedTargetImageName = "targetimage";
     string expectedTargetTag = "targettag";
-    Set<string> additionalTargetImageTags = ImmutableSet.of("tag1", "tag2", "tag3");
-    Set<string> expectedTargetImageTags = ImmutableSet.of("targettag", "tag1", "tag2", "tag3");
-    List<CredentialRetriever> credentialRetrievers =
+    ISet<string> additionalTargetImageTags = ImmutableHashSet.of("tag1", "tag2", "tag3");
+    ISet<string> expectedTargetImageTags = ImmutableHashSet.of("targettag", "tag1", "tag2", "tag3");
+    IList<CredentialRetriever> credentialRetrievers =
         Collections.singletonList(() => Optional.of(Credential.from("username", "password")));
-    Instant expectedCreationTime = Instant.ofEpochSecond(10000);
-    List<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
-    List<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");
-    Map<string, string> expectedEnvironment = ImmutableMap.of("key", "value");
-    ImmutableSet<Port> expectedExposedPorts = ImmutableSet.of(Port.tcp(1000), Port.tcp(2000));
-    Map<string, string> expectedLabels = ImmutableMap.of("key1", "value1", "key2", "value2");
+    Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
+    IList<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
+    IList<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");
+    IDictionary<string, string> expectedEnvironment = ImmutableDictionary.of("key", "value");
+    ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000));
+    IDictionary<string, string> expectedLabels = ImmutableDictionary.of("key1", "value1", "key2", "value2");
     Class<? extends BuildableManifestTemplate> expectedTargetFormat = typeof(OCIManifestTemplate);
-    Path expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
-    Path expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
-    List<LayerConfiguration> expectedLayerConfigurations =
+    SystemPath expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
+    SystemPath expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
+    IList<LayerConfiguration> expectedLayerConfigurations =
         Collections.singletonList(
             LayerConfiguration.builder()
                 .addEntry(Paths.get("sourceFile"), AbsoluteUnixPath.get("/path/in/container"))
@@ -187,7 +187,7 @@ public class BuildConfigurationTest {
             .setExecutorService(MoreExecutors.newDirectExecutorService());
     BuildConfiguration buildConfiguration = buildConfigurationBuilder.build();
 
-    Assert.assertEquals(ImmutableSet.of("targettag"), buildConfiguration.getAllTargetImageTags());
+    Assert.assertEquals(ImmutableHashSet.of("targettag"), buildConfiguration.getAllTargetImageTags());
     Assert.assertEquals(typeof(V22ManifestTemplate), buildConfiguration.getTargetFormat());
     Assert.assertNotNull(buildConfigurationBuilder.getApplicationLayersCacheDirectory());
     Assert.assertEquals(
@@ -214,7 +214,7 @@ public class BuildConfigurationTest {
           .build();
       Assert.fail("Build configuration should not be built with missing values");
 
-    } catch (IllegalStateException ex) {
+    } catch (InvalidOperationException ex) {
       Assert.assertEquals("target image configuration is required but not set", ex.getMessage());
     }
 
@@ -227,7 +227,7 @@ public class BuildConfigurationTest {
           .build();
       Assert.fail("Build configuration should not be built with missing values");
 
-    } catch (IllegalStateException ex) {
+    } catch (InvalidOperationException ex) {
       Assert.assertEquals(
           "base image configuration and target image configuration are required but not set",
           ex.getMessage());
@@ -238,7 +238,7 @@ public class BuildConfigurationTest {
       BuildConfiguration.builder().build();
       Assert.fail("Build configuration should not be built with missing values");
 
-    } catch (IllegalStateException ex) {
+    } catch (InvalidOperationException ex) {
       Assert.assertEquals(
           "base image configuration, target image configuration, base image layers cache directory, "
               + "application layers cache directory, and executor service are required but not set",

@@ -14,6 +14,9 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using System;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -25,7 +28,7 @@ public class RegistryAuthenticationFailedException : RegistryException {
   private readonly string imageName;
 
   public RegistryAuthenticationFailedException(
-      string serverUrl, string imageName, Throwable cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause) {
+      string serverUrl, string imageName, Exception cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause) {
     
     this.serverUrl = serverUrl;
     this.imageName = imageName;

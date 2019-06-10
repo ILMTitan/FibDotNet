@@ -27,15 +27,15 @@ namespace com.google.cloud.tools.jib {
 /** Test utility to run shell commands for integration tests. */
 public class Command {
 
-  private readonly List<string> command;
+  private readonly IList<string> command;
 
   /** Instantiate with a command. */
-  public Command(params string command) {
+  public Command(params string[] command) {
     this.command = Arrays.asList(command);
   }
 
   /** Instantiate with a command. */
-  public Command(List<string> command) {
+  public Command(IList<string> command) {
     this.command = command;
   }
 
@@ -50,20 +50,20 @@ public class Command {
 
     if (stdin != null) {
       // Write out stdin.
-      using (OutputStream outputStream = process.getOutputStream()) {
+      using (Stream outputStream = process.getOutputStream()) {
         outputStream.write(stdin);
       }
     }
 
     // Read in stdout.
     using (InputStreamReader inputStreamReader =
-        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
+        new StreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
       string output = CharStreams.toString(inputStreamReader);
 
       if (process.waitFor() != 0) {
         string stderr =
             CharStreams.toString(
-                new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+                new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
         throw new RuntimeException("Command '" + string.join(" ", command) + "' failed: " + stderr);
       }
 

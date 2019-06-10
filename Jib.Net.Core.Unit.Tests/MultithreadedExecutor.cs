@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib {
 
 
 /** Testing infrastructure for running code across multiple threads. */
-public class MultithreadedExecutor : Closeable {
+public class MultithreadedExecutor : IDisposable {
 
   private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.ofSeconds(1);
   private static readonly int THREAD_COUNT = 20;
@@ -47,7 +47,7 @@ public class MultithreadedExecutor : Closeable {
         executorService.invokeAll(
             callables, MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
 
-    List<E> returnValues = new ArrayList<>();
+    IList<E> returnValues = new List<>();
     foreach (Future<E> future in futures)
     {
       Assert.assertTrue(future.isDone());
@@ -57,12 +57,12 @@ public class MultithreadedExecutor : Closeable {
     return returnValues;
   }
 
-  public void close() {
+  public void Dispose() {
     executorService.shutdown();
     try {
       executorService.awaitTermination(MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
 
-    } catch (InterruptedException ex) {
+    } catch (OperationCanceledException ex) {
       throw new IOException(ex);
     }
   }

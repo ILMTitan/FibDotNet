@@ -14,25 +14,34 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using System;
+using Jib.Net.Core;
+using Jib.Net.Core.FileSystem;
+
+namespace com.google.cloud.tools.jib.api
+{
 
 
+    /** Retrieves credentials for a registry. */
+    public delegate Optional<Credential> CredentialRetriever();
 
-/** Retrieves credentials for a registry. */
-@FunctionalInterface
-public interface CredentialRetriever {
+    public static class CredentialRetrieverExtensions
+    {
 
-  /**
-   * Fetches the credentials. <b>Implementations must be thread-safe.</b>
-   *
-   * <p>Implementations should return {@link Optional#empty} if no credentials could be fetched with
-   * this {@link CredentialRetriever} (and so other credential retrieval methods may be tried), or
-   * throw an exception something went wrong when fetching the credentials.
-   *
-   * @return the fetched credentials or {@link Optional#empty} if no credentials could be fetched
-   *     with this provider
-   * @throws CredentialRetrievalException if the credential retrieval encountered an exception
-   */
-  Optional<Credential> retrieve() throws CredentialRetrievalException;
-}
+        /**
+         * Fetches the credentials. <b>Implementations must be thread-safe.</b>
+         *
+         * <p>Implementations should return {@link Optional#empty} if no credentials could be fetched with
+         * this {@link CredentialRetriever} (and so other credential retrieval methods may be tried), or
+         * throw an exception something went wrong when fetching the credentials.
+         *
+         * @return the fetched credentials or {@link Optional#empty} if no credentials could be fetched
+         *     with this provider
+         * @throws CredentialRetrievalException if the credential retrieval encountered an exception
+         */
+        public static Optional<Credential> retrieve(this CredentialRetriever c)
+        {
+            return c();
+        }
+    }
 }

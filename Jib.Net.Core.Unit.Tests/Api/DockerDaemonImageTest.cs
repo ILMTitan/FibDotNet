@@ -38,10 +38,10 @@ public class DockerDaemonImageTest {
     DockerDaemonImage dockerDaemonImage =
         DockerDaemonImage.named("docker/daemon/image")
             .setDockerExecutable(Paths.get("docker/binary"))
-            .setDockerEnvironment(ImmutableMap.of("key", "value"));
+            .setDockerEnvironment(ImmutableDictionary.of("key", "value"));
 
     Assert.assertEquals(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().get());
-    Assert.assertEquals(ImmutableMap.of("key", "value"), dockerDaemonImage.getDockerEnvironment());
+    Assert.assertEquals(ImmutableDictionary.of("key", "value"), dockerDaemonImage.getDockerEnvironment());
   }
 }
 }

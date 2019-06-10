@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.cache {
 /** Tests for {@link LayerEntriesSelector}. */
 public class LayerEntriesSelectorTest {
 
-  private static LayerEntry defaultLayerEntry(Path source, AbsoluteUnixPath destination) {
+  private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination) {
     return new LayerEntry(
         source,
         destination,
@@ -46,13 +46,13 @@ public class LayerEntriesSelectorTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-  private ImmutableList<LayerEntry> outOfOrderLayerEntries;
-  private ImmutableList<LayerEntry> inOrderLayerEntries;
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private ImmutableArray<LayerEntry> outOfOrderLayerEntries;
+  private ImmutableArray<LayerEntry> inOrderLayerEntries;
 
-  private static ImmutableList<LayerEntryTemplate> toLayerEntryTemplates(
-      ImmutableList<LayerEntry> layerEntries) {
-    ImmutableList.Builder<LayerEntryTemplate> builder = ImmutableList.builder();
+  private static ImmutableArray<LayerEntryTemplate> toLayerEntryTemplates(
+      ImmutableArray<LayerEntry> layerEntries) {
+    ImmutableArray.Builder<LayerEntryTemplate> builder = ImmutableArray.builder();
     foreach (LayerEntry layerEntry in layerEntries)
     {
       builder.add(new LayerEntryTemplate(layerEntry));
@@ -62,10 +62,10 @@ public class LayerEntriesSelectorTest {
 
   [TestInitialize]
   public void setUp() {
-    Path folder = temporaryFolder.newFolder().toPath();
-    Path file1 = Files.createDirectory(folder.resolve("files"));
-    Path file2 = Files.createFile(folder.resolve("files").resolve("two"));
-    Path file3 = Files.createFile(folder.resolve("gile"));
+    SystemPath folder = temporaryFolder.newFolder().toPath();
+    SystemPath file1 = Files.createDirectory(folder.resolve("files"));
+    SystemPath file2 = Files.createFile(folder.resolve("files").resolve("two"));
+    SystemPath file3 = Files.createFile(folder.resolve("gile"));
 
     LayerEntry testLayerEntry1 = defaultLayerEntry(file1, AbsoluteUnixPath.get("/extraction/path"));
     LayerEntry testLayerEntry2 = defaultLayerEntry(file2, AbsoluteUnixPath.get("/extraction/path"));
@@ -86,7 +86,7 @@ public class LayerEntriesSelectorTest {
             LayerConfiguration.DEFAULT_MODIFIED_TIME);
 
     outOfOrderLayerEntries =
-        ImmutableList.of(
+        ImmutableArray.Create(
             testLayerEntry4,
             testLayerEntry2,
             testLayerEntry6,
@@ -94,7 +94,7 @@ public class LayerEntriesSelectorTest {
             testLayerEntry1,
             testLayerEntry5);
     inOrderLayerEntries =
-        ImmutableList.of(
+        ImmutableArray.Create(
             testLayerEntry1,
             testLayerEntry2,
             testLayerEntry3,
@@ -107,7 +107,7 @@ public class LayerEntriesSelectorTest {
   public void testLayerEntryTemplate_compareTo() {
     Assert.assertEquals(
         toLayerEntryTemplates(inOrderLayerEntries),
-        ImmutableList.sortedCopyOf(toLayerEntryTemplates(outOfOrderLayerEntries)));
+        ImmutableArray.sortedCopyOf(toLayerEntryTemplates(outOfOrderLayerEntries)));
   }
 
   [TestMethod]
@@ -119,9 +119,9 @@ public class LayerEntriesSelectorTest {
 
   [TestMethod]
   public void testGenerateSelector_empty() {
-    DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableList.of());
+    DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create());
     Assert.assertEquals(
-        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableList.of()));
+        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create()));
   }
 
   [TestMethod]
@@ -134,27 +134,27 @@ public class LayerEntriesSelectorTest {
 
   [TestMethod]
   public void testGenerateSelector_fileModified() {
-    Path layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
+    SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
     Files.setLastModifiedTime(layerFile, FileTime.from(Instant.EPOCH));
     LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
     DescriptorDigest expectedSelector =
-        LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry));
+        LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry));
 
     // Verify that changing modified time generates a different selector
-    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.ofEpochSecond(1)));
+    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(1)));
     Assert.assertNotEquals(
-        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry)));
+        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
 
     // Verify that changing modified time back generates same selector
     Files.setLastModifiedTime(layerFile, FileTime.from(Instant.EPOCH));
     Assert.assertEquals(
-        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry)));
+        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
   }
 
   [TestMethod]
   public void testGenerateSelector_permissionsModified() {
-    Path layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
+    SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
     LayerEntry layerEntry111 =
         new LayerEntry(
@@ -171,8 +171,8 @@ public class LayerEntriesSelectorTest {
 
     // Verify that changing permissions generates a different selector
     Assert.assertNotEquals(
-        LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry111)),
-        LayerEntriesSelector.generateSelector(ImmutableList.of(layerEntry222)));
+        LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry111)),
+        LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry222)));
   }
 }
 }

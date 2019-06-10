@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core.Api;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -26,13 +33,13 @@ public class BlobHttpContent : HttpContent {
 
   private readonly Blob blob;
   private readonly string contentType;
-  private readonly Consumer<Long> writtenByteCountListener;
+  private readonly Consumer<long> writtenByteCountListener;
 
-  public BlobHttpContent(Blob blob, string contentType) {
-    this(blob, contentType, ignored => {});
+  public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, ignored => {}) {
+    
   }
 
-  public BlobHttpContent(Blob blob, string contentType, Consumer<Long> writtenByteCountListener) {
+  public BlobHttpContent(Blob blob, string contentType, Consumer<long> writtenByteCountListener) {
     this.blob = blob;
     this.contentType = contentType;
     this.writtenByteCountListener = writtenByteCountListener;
@@ -51,9 +58,16 @@ public class BlobHttpContent : HttpContent {
     return false;
   }
 
-  public void writeTo(OutputStream outputStream) {
-    blob.writeTo(new NotifyingOutputStream(outputStream, writtenByteCountListener));
-    outputStream.flush();
-  }
-}
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
+            blob.writeTo(new NotifyingOutputStream(stream, writtenByteCountListener));
+            await stream.FlushAsync();
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = getLength();
+            return length >= 0;
+        }
+    }
 }

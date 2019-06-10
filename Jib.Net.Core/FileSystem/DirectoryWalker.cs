@@ -14,6 +14,13 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -26,9 +33,9 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Recursively applies a function to each file in a directory. */
 public class DirectoryWalker {
 
-  private readonly Path rootDir;
+  private readonly SystemPath rootDir;
 
-  private Predicate<Path> pathFilter = path => true;
+  private Func<SystemPath, bool> pathFilter = path => true;
 
   /**
    * Initialize with a root directory to walk.
@@ -36,9 +43,9 @@ public class DirectoryWalker {
    * @param rootDir the root directory.
    * @throws NotDirectoryException if the root directory is not a directory.
    */
-  public DirectoryWalker(Path rootDir) {
+  public DirectoryWalker(SystemPath rootDir) {
     if (!Files.isDirectory(rootDir)) {
-      throw new NotDirectoryException(rootDir + " is not a directory");
+      throw new ArgumentException(rootDir + " is not a directory", nameof(rootDir));
     }
     this.rootDir = rootDir;
   }
@@ -50,7 +57,7 @@ public class DirectoryWalker {
    *     accepted and {@code false} otherwise.
    * @return this
    */
-  public DirectoryWalker filter(Predicate<Path> pathFilter) {
+  public DirectoryWalker filter(Func<SystemPath, bool> pathFilter) {
     this.pathFilter = this.pathFilter.and(pathFilter);
     return this;
   }
@@ -61,7 +68,7 @@ public class DirectoryWalker {
    * @return this
    */
   public DirectoryWalker filterRoot() {
-    filter(path => !path.equals(rootDir));
+    filter(path => !path.Equals(rootDir));
     return this;
   }
 
@@ -73,9 +80,9 @@ public class DirectoryWalker {
    * @return a list of Paths that were walked.
    * @throws IOException if the walk fails.
    */
-  public ImmutableList<Path> walk(PathConsumer pathConsumer) {
-    ImmutableList<Path> files = walk();
-    foreach (Path path in files)
+  public ImmutableArray<SystemPath> walk(PathConsumer pathConsumer) {
+    ImmutableArray<SystemPath> files = walk();
+    foreach (SystemPath path in files)
     {
       pathConsumer.accept(path);
     }
@@ -88,9 +95,10 @@ public class DirectoryWalker {
    * @return the walked files.
    * @throws IOException if walking the files fails.
    */
-  public ImmutableList<Path> walk() {
-    using (Stream<Path> fileStream = Files.walk(rootDir)) {
-      return fileStream.filter(pathFilter).sorted().collect(ImmutableList.toImmutableList());
+  public ImmutableArray<SystemPath> walk() {
+            IEnumerable<SystemPath> fileStream = Files.walk(rootDir);
+            {
+                return fileStream.filter(pathFilter).sorted().ToImmutableArray();
     }
   }
 }

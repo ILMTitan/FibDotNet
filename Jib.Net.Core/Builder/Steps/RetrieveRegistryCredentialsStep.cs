@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -32,18 +39,17 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Attempts to retrieve registry credentials. */
-class RetrieveRegistryCredentialsStep : AsyncStep<Credential>, Callable<Credential>  {
+class RetrieveRegistryCredentialsStep : AsyncStep<Credential> {
   private static string makeDescription(string registry) {
     return "Retrieving registry credentials for " + registry;
   }
 
   /** Retrieves credentials for the base image. */
-  static RetrieveRegistryCredentialsStep forBaseImage(
-      ListeningExecutorService listeningExecutorService,
+  public static RetrieveRegistryCredentialsStep forBaseImage(
       BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
+      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
     return new RetrieveRegistryCredentialsStep(
-        listeningExecutorService,
         buildConfiguration,
         progressEventDispatcherFactory,
         buildConfiguration.getBaseImageConfiguration().getImageRegistry(),
@@ -51,12 +57,11 @@ class RetrieveRegistryCredentialsStep : AsyncStep<Credential>, Callable<Credenti
   }
 
   /** Retrieves credentials for the target image. */
-  static RetrieveRegistryCredentialsStep forTargetImage(
-      ListeningExecutorService listeningExecutorService,
+  public static RetrieveRegistryCredentialsStep forTargetImage(
       BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
+      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
     return new RetrieveRegistryCredentialsStep(
-        listeningExecutorService,
         buildConfiguration,
         progressEventDispatcherFactory,
         buildConfiguration.getTargetImageConfiguration().getImageRegistry(),
@@ -67,25 +72,24 @@ class RetrieveRegistryCredentialsStep : AsyncStep<Credential>, Callable<Credenti
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly string registry;
-  private readonly ImmutableList<CredentialRetriever> credentialRetrievers;
+  private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
 
-  private readonly ListenableFuture<Credential> listenableFuture;
+  private readonly Task<Credential> listenableFuture;
 
   RetrieveRegistryCredentialsStep(
-      ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       string registry,
-      ImmutableList<CredentialRetriever> credentialRetrievers) {
+      ImmutableArray<CredentialRetriever> credentialRetrievers)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.registry = registry;
     this.credentialRetrievers = credentialRetrievers;
-
-    listenableFuture = listeningExecutorService.submit(this);
+            listenableFuture = Task.Run(call);
   }
 
-  public ListenableFuture<Credential> getFuture() {
+  public Task<Credential> getFuture() {
     return listenableFuture;
   }
 
@@ -98,7 +102,7 @@ class RetrieveRegistryCredentialsStep : AsyncStep<Credential>, Callable<Credenti
             progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
 
     using(TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)))
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
 
     {
 

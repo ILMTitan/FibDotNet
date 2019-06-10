@@ -40,15 +40,15 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Tests for {@link FileOperations}. */
 public class FileOperationsTest {
 
-  private static void verifyWriteWithLock(Path file) {
-    OutputStream fileOutputStream = FileOperations.newLockingOutputStream(file);
+  private static void verifyWriteWithLock(SystemPath file) {
+    Stream fileOutputStream = FileOperations.newLockingOutputStream(file);
 
             try {
                 // Checks that the file was locked.
                 using (FileChannel channel = FileChannel.open(file, StandardOpenOption.READ))
                 {
                     // locking should either fail and return null or throw an OverlappingFileLockException
-                    FileLock @lock = channel.tryLock(0, Long.MAX_VALUE, true);
+                    FileLock @lock = channel.tryLock(0, long.MAX_VALUE, true);
                     Assert.assertNull("Lock attempt should have failed", @lock);
                 }
     } catch (OverlappingFileLockException ex) {
@@ -59,10 +59,10 @@ public class FileOperationsTest {
     fileOutputStream.close();
 
     FileChannel channel = FileChannel.open(file, StandardOpenOption.READ);
-    channel.@lock(0, Long.MAX_VALUE, true);
-    using(InputStream inputStream = Channels.newInputStream(channel))
-    using(InputStreamReader inputStreamReader =
-            new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+    channel.@lock(0, long.MAX_VALUE, true);
+    using(Stream inputStream = Channels.newInputStream(channel))
+    using(StreamReader inputStreamReader =
+            new StreamReader(inputStream, StandardCharsets.UTF_8))
     {
 
       Assert.assertEquals("jib", CharStreams.toString(inputStreamReader));
@@ -73,14 +73,14 @@ public class FileOperationsTest {
 
   [TestMethod]
   public void testCopy() {
-    Path destDir = temporaryFolder.newFolder().toPath();
-    Path libraryA =
+    SystemPath destDir = temporaryFolder.newFolder().toPath();
+    SystemPath libraryA =
         Paths.get(Resources.getResource("core/application/dependencies/libraryA.jar").toURI());
-    Path libraryB =
+    SystemPath libraryB =
         Paths.get(Resources.getResource("core/application/dependencies/libraryB.jar").toURI());
-    Path dirLayer = Paths.get(Resources.getResource("core/layer").toURI());
+    SystemPath dirLayer = Paths.get(Resources.getResource("core/layer").toURI());
 
-    FileOperations.copy(ImmutableList.of(libraryA, libraryB, dirLayer), destDir);
+    FileOperations.copy(ImmutableArray.Create(libraryA, libraryB, dirLayer), destDir);
 
     assertFilesEqual(libraryA, destDir.resolve("libraryA.jar"));
     assertFilesEqual(libraryB, destDir.resolve("libraryB.jar"));
@@ -96,7 +96,7 @@ public class FileOperationsTest {
 
   [TestMethod]
   public void testNewLockingOutputStream_newFile() {
-    Path file = Files.createTempFile("", "");
+    SystemPath file = Files.createTempFile("", "");
     // Ensures file doesn't exist.
     Assert.assertTrue(Files.deleteIfExists(file));
 
@@ -105,7 +105,7 @@ public class FileOperationsTest {
 
   [TestMethod]
   public void testNewLockingOutputStream_existingFile() {
-    Path file = Files.createTempFile("", "");
+    SystemPath file = Files.createTempFile("", "");
     // Writes out more bytes to ensure proper truncated.
     byte[] dataBytes = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     Files.write(file, dataBytes, StandardOpenOption.WRITE);
@@ -115,7 +115,7 @@ public class FileOperationsTest {
     verifyWriteWithLock(file);
   }
 
-  private void assertFilesEqual(Path file1, Path file2) {
+  private void assertFilesEqual(SystemPath file1, SystemPath file2) {
     Assert.assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
   }
 }

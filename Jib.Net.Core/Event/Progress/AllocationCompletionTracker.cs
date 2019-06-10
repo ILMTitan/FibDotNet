@@ -14,7 +14,16 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using com.google.cloud.tools.jib.api;
+using Iesi.Collections.Generic;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -39,7 +48,7 @@ class AllocationCompletionTracker {
    * Holds the progress units remaining along with a creation order (index starting from 0). This is
    * used as the value of the {@link #completionMap}.
    */
-  private class IndexedRemainingUnits : Comparable<IndexedRemainingUnits>  {
+  private class IndexedRemainingUnits : IComparable<IndexedRemainingUnits>  {
     /** Monotonically-increasing source for {@link #index}. */
     private static readonly AtomicInteger currentIndex = new AtomicInteger();
 
@@ -50,11 +59,11 @@ class AllocationCompletionTracker {
      * Remaining progress units until completion. This can be shared across multiple threads and
      * should be updated atomically.
      */
-    private readonly AtomicLong remainingUnits;
+    public readonly AtomicLong remainingUnits;
 
     public readonly Allocation allocation;
 
-    private IndexedRemainingUnits(Allocation allocation) {
+    public IndexedRemainingUnits(Allocation allocation) {
       this.allocation = allocation;
       remainingUnits = new AtomicLong(allocation.getAllocationUnits());
     }
@@ -63,7 +72,7 @@ class AllocationCompletionTracker {
       return remainingUnits.get() != 0;
     }
 
-    public int compareTo(IndexedRemainingUnits otherIndexedRemainingUnits) {
+    public int CompareTo(IndexedRemainingUnits otherIndexedRemainingUnits) {
       return index - otherIndexedRemainingUnits.index;
     }
   }
@@ -72,8 +81,8 @@ class AllocationCompletionTracker {
    * Maps from {@link Allocation} to 1) the number of progress units remaining in that {@link
    * Allocation}; as well as 2) the insertion order of the key.
    */
-  private readonly ConcurrentHashMap<Allocation, IndexedRemainingUnits> completionMap =
-      new ConcurrentHashMap<>();
+  private readonly ConcurrentDictionary<Allocation, IndexedRemainingUnits> completionMap =
+      new ConcurrentDictionary<Allocation, IndexedRemainingUnits>();
 
   /**
    * Updates the progress for {@link Allocation} atomically relative to the {@code allocation}.
@@ -85,23 +94,19 @@ class AllocationCompletionTracker {
    * @param units the units of progress
    * @return {@code true} if the map was updated
    */
-  bool updateProgress(Allocation allocation, long units) {
-    AtomicBoolean mapUpdated = new AtomicBoolean(units != 0);
+  public bool updateProgress(Allocation allocation, long units) {
 
-    completionMap.compute(
-        allocation,
-        (ignored, indexedRemainingUnits) => {
-          if (indexedRemainingUnits == null) {
-            indexedRemainingUnits = new IndexedRemainingUnits(allocation);
-            mapUpdated.set(true);
-          }
+            IndexedRemainingUnits newValue = new IndexedRemainingUnits(allocation);
+            var finalValue = completionMap.AddOrUpdate(
+        allocation, newValue,
+            (_, indexedRemainingUnits) => {
 
           if (units != 0) {
-            updateIndexedRemainingUnits(indexedRemainingUnits, units);
+                    updateIndexedRemainingUnits(indexedRemainingUnits, units);
           }
           return indexedRemainingUnits;
         });
-    return mapUpdated.get();
+            return newValue == finalValue;
   }
 
   /**
@@ -113,14 +118,14 @@ class AllocationCompletionTracker {
    * @return a list of unfinished {@link Allocation}s
    */
 
-  List<Allocation> getUnfinishedAllocations() {
+  IList<Allocation> getUnfinishedAllocations() {
     return completionMap
         .values()
         .stream()
-        .filter(IndexedRemainingUnits.isUnfinished)
+        .filter(u => u.isUnfinished())
         .sorted()
         .map(remainingUnits => remainingUnits.allocation)
-        .collect(Collectors.toList());
+        .ToList();
   }
 
   /**
@@ -139,7 +144,7 @@ class AllocationCompletionTracker {
 
     long newUnits = indexedRemainingUnits.remainingUnits.addAndGet(-units);
     if (newUnits < 0L) {
-      throw new IllegalStateException(
+      throw new InvalidOperationException(
           "Progress exceeds max for '"
               + allocation.getDescription()
               + "': "
@@ -159,9 +164,9 @@ class AllocationCompletionTracker {
     }
   }
 
-  ImmutableList<string> getUnfinishedLeafTasks() {
-    List<Allocation> allUnfinished = getUnfinishedAllocations();
-    Set<Allocation> unfinishedLeaves = new LinkedHashSet<>(allUnfinished); // preserves order
+  public ImmutableArray<string> getUnfinishedLeafTasks() {
+    IList<Allocation> allUnfinished = getUnfinishedAllocations();
+    ISet<Allocation> unfinishedLeaves = new LinkedHashSet<Allocation>(allUnfinished); // preserves order
 
     foreach (Allocation allocation in allUnfinished)
 
@@ -174,8 +179,8 @@ class AllocationCompletionTracker {
       }
     }
 
-    return ImmutableList.copyOf(
-        unfinishedLeaves.stream().map(Allocation.getDescription).collect(Collectors.toList()));
+    return ImmutableArray.CreateRange(
+        unfinishedLeaves.stream().map(a => a.getDescription()).ToList());
   }
 }
 }

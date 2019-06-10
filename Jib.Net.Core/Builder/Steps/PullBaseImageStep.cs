@@ -14,6 +14,22 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -59,26 +75,26 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pulls the base image manifest. */
-class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseImageWithAuthorization> {
+public class PullBaseImageStep : AsyncStep<BaseImageWithAuthorization> {
 
   private static readonly string DESCRIPTION = "Pulling base image manifest";
 
   /** Structure for the result returned by this step. */
-  static class BaseImageWithAuthorization {
+  public class BaseImageWithAuthorization {
 
     private readonly Image baseImage;
     private readonly Authorization baseImageAuthorization;
 
-    BaseImageWithAuthorization(Image baseImage, Authorization baseImageAuthorization) {
+    public BaseImageWithAuthorization(Image baseImage, Authorization baseImageAuthorization) {
       this.baseImage = baseImage;
       this.baseImageAuthorization = baseImageAuthorization;
     }
 
-    Image getBaseImage() {
+    public Image getBaseImage() {
       return baseImage;
     }
 
-    Authorization getBaseImageAuthorization() {
+    public Authorization getBaseImageAuthorization() {
       return baseImageAuthorization;
     }
   }
@@ -86,19 +102,18 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private readonly ListenableFuture<BaseImageWithAuthorization> listenableFuture;
+  private readonly Task<BaseImageWithAuthorization> listenableFuture;
 
-  PullBaseImageStep(
-      ListeningExecutorService listeningExecutorService,
+  public PullBaseImageStep(
       BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
+      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            listenableFuture = Task.Run(call);
+            }
 
-    listenableFuture = listeningExecutorService.submit(this);
-  }
-
-  public ListenableFuture<BaseImageWithAuthorization> getFuture() {
+  public Task<BaseImageWithAuthorization> getFuture() {
     return listenableFuture;
   }
 
@@ -135,7 +150,7 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
       try {
         return new BaseImageWithAuthorization(pullBaseImage(null, progressEventDispatcher), null);
 
-      } catch (RegistryUnauthorizedException ex) {
+      } catch (RegistryUnauthorizedException) {
         eventHandlers.dispatch(
             LogEvent.lifecycle(
                 "The base image requires auth. Trying again for "
@@ -145,10 +160,8 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
         // If failed, then, retrieve base registry credentials and try with retrieved credentials.
         // TODO: Refactor the logic in RetrieveRegistryCredentialsStep out to
         // registry.credentials.RegistryCredentialsRetriever to avoid this direct executor hack.
-        ListeningExecutorService directExecutorService = MoreExecutors.newDirectExecutorService();
         RetrieveRegistryCredentialsStep retrieveBaseRegistryCredentialsStep =
             RetrieveRegistryCredentialsStep.forBaseImage(
-                directExecutorService,
                 buildConfiguration,
                 progressEventDispatcher.newChildProducer());
 
@@ -163,7 +176,7 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
           return new BaseImageWithAuthorization(
               pullBaseImage(registryAuthorization, progressEventDispatcher), registryAuthorization);
 
-        } catch (RegistryUnauthorizedException registryUnauthorizedException) {
+        } catch (RegistryUnauthorizedException) {
           // The registry requires us to authenticate using the Docker Token Authentication.
           // See https://docs.docker.com/registry/spec/auth/token
           try {
@@ -180,13 +193,13 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
                   pullBaseImage(pullAuthorization, progressEventDispatcher), pullAuthorization);
             }
 
-          } catch (InsecureRegistryException insecureRegistryException) {
+          } catch (InsecureRegistryException) {
             // Cannot skip certificate validation or use HTTP; fall through.
           }
           eventHandlers.dispatch(
               LogEvent.error(
                   "Failed to retrieve authentication challenge for registry that required token authentication"));
-          throw registryUnauthorizedException;
+          throw;
         }
       }
     }
@@ -251,12 +264,12 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
               Blobs.writeToString(
                   registryClient.pullBlob(
                       containerConfigurationDigest,
-                      progressEventDispatcherWrapper::setProgressTarget,
+                      progressEventDispatcherWrapper.setProgressTarget,
                       progressEventDispatcherWrapper.dispatchProgress));
 
           ContainerConfigurationTemplate containerConfigurationTemplate =
-              JsonTemplateMapper.readJson(
-                  containerConfigurationString, typeof(ContainerConfigurationTemplate));
+              JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(
+                  containerConfigurationString);
           buildConfiguration
               .getBaseImageLayersCache()
               .writeMetadata(
@@ -268,7 +281,7 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
         }
     }
 
-    throw new IllegalStateException("Unknown manifest schema version");
+    throw new InvalidOperationException("Unknown manifest schema version");
   }
 
   /**
@@ -297,7 +310,7 @@ class PullBaseImageStep :AsyncStep<BaseImageWithAuthorization>, Callable<BaseIma
     }
 
     ContainerConfigurationTemplate configurationTemplate =
-        metadata.get().getConfig().orElseThrow(() => new IllegalStateException());
+        metadata.get().getConfig().orElseThrow(() => new InvalidOperationException());
     return JsonToImageTranslator.toImage(
         (BuildableManifestTemplate) manifestTemplate, configurationTemplate);
   }

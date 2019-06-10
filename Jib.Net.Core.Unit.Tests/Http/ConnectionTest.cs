@@ -43,28 +43,28 @@ public class ConnectionTest {
   @FunctionalInterface
   private interface SendFunction {
 
-    Response send(Connection connection, Request request) {
+    HttpResponseMessage send(Connection connection, Request request) {
     setUpMocksAndFakes(null);
-    testSend(HttpMethods.GET, Connection::get);
+    testSend(HttpMethod.Get, Connection::get);
   }
 
   [TestMethod]
   public void testPost() {
     setUpMocksAndFakes(null);
-    testSend(HttpMethods.POST, Connection::post);
+    testSend(HttpMethod.Post, Connection::post);
   }
 
   [TestMethod]
   public void testPut() {
     setUpMocksAndFakes(null);
-    testSend(HttpMethods.PUT, Connection.put);
+    testSend(HttpMethod.Put, Connection.put);
   }
 
   [TestMethod]
   public void testHttpTimeout_doNotSetByDefault() {
     setUpMocksAndFakes(null);
     using (Connection connection = testConnection) {
-      connection.send(HttpMethods.GET, fakeRequest);
+      connection.send(HttpMethod.Get, fakeRequest);
     }
 
     Mockito.verify(mockHttpRequest, Mockito.never()).setConnectTimeout(Mockito.anyInt());
@@ -75,14 +75,14 @@ public class ConnectionTest {
   public void testHttpTimeout() {
     setUpMocksAndFakes(5982);
     using (Connection connection = testConnection) {
-      connection.send(HttpMethods.GET, fakeRequest);
+      connection.send(HttpMethod.Get, fakeRequest);
     }
 
     Mockito.verify(mockHttpRequest).setConnectTimeout(5982);
     Mockito.verify(mockHttpRequest).setReadTimeout(5982);
   }
 
-  private void setUpMocksAndFakes(Integer httpTimeout) {
+  private void setUpMocksAndFakes(int httpTimeout) {
     fakeRequest =
         Request.builder()
             .setAccept(Arrays.asList("fake.accept", "another.fake.accept"))
@@ -130,7 +130,7 @@ public class ConnectionTest {
             Mockito.eq(httpMethod), Mockito.eq(fakeUrl), blobHttpContentArgumentCaptor.capture());
     Assert.assertEquals("fake.content.type", blobHttpContentArgumentCaptor.getValue().getType());
 
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
     blobHttpContentArgumentCaptor.getValue().writeTo(byteArrayOutputStream);
 
     Assert.assertEquals(

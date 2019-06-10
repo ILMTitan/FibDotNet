@@ -38,13 +38,13 @@ public class BlobTest {
   [TestMethod]
   public void testFromInputStream() {
     string expected = "crepecake";
-    InputStream inputStream = new ByteArrayInputStream(expected.getBytes(StandardCharsets.UTF_8));
+    Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
     verifyBlobWriteTo(expected, Blobs.from(inputStream));
   }
 
   [TestMethod]
   public void testFromFile() {
-    Path fileA = Paths.get(Resources.getResource("core/fileA").toURI());
+    SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
     string expected = new string(Files.readAllBytes(fileA), StandardCharsets.UTF_8);
     verifyBlobWriteTo(expected, Blobs.from(fileA));
   }
@@ -67,7 +67,7 @@ public class BlobTest {
 
   /** Checks that the {@link Blob} streams the expected string. */
   private void verifyBlobWriteTo(string expected, Blob blob) {
-    OutputStream outputStream = new ByteArrayOutputStream();
+    Stream outputStream = new MemoryStream();
     BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
 
     string output = outputStream.toString();
@@ -77,7 +77,7 @@ public class BlobTest {
     Assert.assertEquals(expectedBytes.length, blobDescriptor.getSize());
 
     DescriptorDigest expectedDigest =
-        Digests.computeDigest(new ByteArrayInputStream(expectedBytes)).getDigest();
+        Digests.computeDigest(new MemoryStream(expectedBytes)).getDigest();
     Assert.assertEquals(expectedDigest, blobDescriptor.getDigest());
   }
 }

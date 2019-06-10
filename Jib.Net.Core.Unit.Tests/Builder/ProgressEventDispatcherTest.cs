@@ -47,7 +47,7 @@ public class ProgressEventDispatcherTest {
         ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(4))
         .dispatch(progressEventArgumentCaptor.capture());
-    List<ProgressEvent> progressEvents = progressEventArgumentCaptor.getAllValues();
+    IList<ProgressEvent> progressEvents = progressEventArgumentCaptor.getAllValues();
 
     Assert.assertSame(progressEvents.get(0).getAllocation(), progressEvents.get(3).getAllocation());
     Assert.assertSame(progressEvents.get(1).getAllocation(), progressEvents.get(2).getAllocation());
@@ -69,7 +69,7 @@ public class ProgressEventDispatcherTest {
 
     ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(4)).dispatch(eventsCaptor.capture());
-    List<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
+    IList<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
 
     Assert.assertSame(progressEvents.get(0).getAllocation(), progressEvents.get(1).getAllocation());
     Assert.assertSame(progressEvents.get(1).getAllocation(), progressEvents.get(2).getAllocation());
@@ -98,7 +98,7 @@ public class ProgressEventDispatcherTest {
 
     ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass(typeof(ProgressEvent));
     Mockito.verify(mockEventHandlers, Mockito.times(5)).dispatch(eventsCaptor.capture());
-    List<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
+    IList<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
 
     Assert.assertEquals(1, progressEvents.get(0).getAllocation().getAllocationUnits());
     Assert.assertEquals(5, progressEvents.get(1).getAllocation().getAllocationUnits());

@@ -67,7 +67,7 @@ public class ContainerizerTest {
         .setAllowInsecureRegistries(true)
         .setToolName("tool");
 
-    Assert.assertEquals(ImmutableSet.of("tag1", "tag2"), containerizer.getAdditionalTags());
+    Assert.assertEquals(ImmutableHashSet.of("tag1", "tag2"), containerizer.getAdditionalTags());
     Assert.assertTrue(containerizer.getExecutorService().isPresent());
     Assert.assertEquals(mockExecutorService, containerizer.getExecutorService().get());
     Assert.assertEquals(
@@ -88,7 +88,7 @@ public class ContainerizerTest {
     try {
       containerizer.withAdditionalTag("+invalid+");
       Assert.fail();
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("invalid tag '+invalid+'", ex.getMessage());
     }
   }

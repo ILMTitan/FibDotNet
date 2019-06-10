@@ -27,14 +27,14 @@ public class RegistryAliasGroupTest {
 
   [TestMethod]
   public void testGetAliasesGroup_noKnownAliases() {
-    List<string> singleton = RegistryAliasGroup.getAliasesGroup("something.gcr.io");
+    IList<string> singleton = RegistryAliasGroup.getAliasesGroup("something.gcr.io");
     Assert.assertEquals(1, singleton.size());
     Assert.assertEquals("something.gcr.io", singleton.get(0));
   }
 
   [TestMethod]
   public void testGetAliasesGroup_dockerHub() {
-    Set<string> aliases =
+    ISet<string> aliases =
         Sets.newHashSet(
             "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io");
     foreach (string alias in aliases)

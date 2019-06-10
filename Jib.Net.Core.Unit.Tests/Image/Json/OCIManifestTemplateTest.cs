@@ -34,7 +34,7 @@ public class OCIManifestTemplateTest {
   [TestMethod]
   public void testToJson() {
     // Loads the expected JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/ocimanifest.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/ocimanifest.json").toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Creates the JSON object to serialize.
@@ -57,7 +57,7 @@ public class OCIManifestTemplateTest {
   [TestMethod]
   public void testFromJson() {
     // Loads the JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/ocimanifest.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/ocimanifest.json").toURI());
 
     // Deserializes into a manifest JSON object.
     OCIManifestTemplate manifestJson =

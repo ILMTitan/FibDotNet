@@ -14,6 +14,12 @@
  * the License.
  */
 
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -37,8 +43,8 @@ public class FilePermissions {
   private static readonly string OCTAL_PATTERN = "[0-7][0-7][0-7]";
 
   /** Maps from a {@link PosixFilePermission} to its corresponding file permission bit. */
-  private static readonly ImmutableMap<PosixFilePermission, Integer> PERMISSION_MAP =
-      ImmutableMap.<PosixFilePermission, Integer>builder()
+  private static readonly ImmutableDictionary<PosixFilePermission, int> PERMISSION_MAP =
+      ImmutableDictionary.CreateBuilder<PosixFilePermission, int>()
           .put(PosixFilePermission.OWNER_READ, 0400)
           .put(PosixFilePermission.OWNER_WRITE, 0200)
           .put(PosixFilePermission.OWNER_EXECUTE, 0100)
@@ -50,19 +56,21 @@ public class FilePermissions {
           .put(PosixFilePermission.OTHERS_EXECUTE, 01)
           .build();
 
-  /**
-   * Creates a new {@link FilePermissions} from an octal string representation (e.g. "123", "644",
-   * "755", etc).
-   *
-   * @param octalPermissions the octal string representation of the permissions
-   * @return a new {@link FilePermissions} with the given permissions
-   */
-  public static FilePermissions fromOctalString(string octalPermissions) {
-    Preconditions.checkArgument(
-        octalPermissions.matches(OCTAL_PATTERN),
-        "octalPermissions must be a 3-digit octal number (000-777)");
-    return new FilePermissions(Integer.parseInt(octalPermissions, 8));
-  }
+        /**
+         * Creates a new {@link FilePermissions} from an octal string representation (e.g. "123", "644",
+         * "755", etc).
+         *
+         * @param octalPermissions the octal string representation of the permissions
+         * @return a new {@link FilePermissions} with the given permissions
+         */
+        public static FilePermissions fromOctalString(string octalPermissions)
+        {
+            Preconditions.checkArgument(
+                octalPermissions.matches(OCTAL_PATTERN),
+                "octalPermissions must be a 3-digit octal number (000-777)");
+
+            return new FilePermissions(Convert.ToInt32(octalPermissions, 8));
+        }
 
   /**
    * Creates a new {@link FilePermissions} from a set of {@link PosixFilePermission}.
@@ -71,7 +79,7 @@ public class FilePermissions {
    * @return a new {@link FilePermissions} with the given permissions
    */
   public static FilePermissions fromPosixFilePermissions(
-      Set<PosixFilePermission> posixFilePermissions) {
+      ISet<PosixFilePermission> posixFilePermissions) {
     int permissionBits = 0;
     foreach (PosixFilePermission permission in posixFilePermissions)
     {
@@ -101,10 +109,10 @@ public class FilePermissions {
    * @return the octal string representation of the permissions
    */
   public string toOctalString() {
-    return Integer.toString(permissionBits, 8);
+    return permissionBits.ToString("D8");
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -115,7 +123,7 @@ public class FilePermissions {
     return permissionBits == otherFilePermissions.permissionBits;
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return permissionBits;
   }
 }

@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -34,34 +42,35 @@ public class ErrorResponseUtil {
    * @throws HttpResponseException rethrows the original exception if an error object could not be
    *     parsed, if there were multiple error objects, or if the error code is unknown.
    */
-  public static ErrorCodes getErrorCode(HttpResponseException httpResponseException)
+  public static ErrorCodes getErrorCode(HttpResponseMessage httpResponse)
       {
     // Obtain the error response code.
-    string errorContent = httpResponseException.getContent();
+    string errorContent = httpResponse.getContent();
     if (errorContent == null) {
-      throw httpResponseException;
+      throw new HttpResponseException(httpResponse);
     }
 
     try {
       ErrorResponseTemplate errorResponse =
-          JsonTemplateMapper.readJson(errorContent, typeof(ErrorResponseTemplate));
-      List<ErrorEntryTemplate> errors = errorResponse.getErrors();
+          JsonTemplateMapper.readJson< ErrorResponseTemplate>(errorContent);
+      IReadOnlyList<ErrorEntryTemplate> errors = errorResponse.getErrors();
       // There may be multiple error objects
       if (errors.size() == 1) {
         string errorCodeString = errors.get(0).getCode();
         // May not get an error code back.
-        if (errorCodeString != null) {
-          // throws IllegalArgumentException if unknown error code
-          return ErrorCodes.valueOf(errorCodeString);
+        if (Enum.TryParse(errorCodeString, out ErrorCodes result))
+                    {
+                        return result;
+                    }
         }
-      }
+      
 
-    } catch (IOException | IllegalArgumentException ex) {
+    } catch (Exception e) when (e is IOException || e is ArgumentException) {
       // Parse exception: either isn't an error object or unknown error code
     }
 
     // rethrow the original exception
-    throw httpResponseException;
+    throw new HttpResponseException(httpResponse);
   }
 
   // not intended to be instantiated

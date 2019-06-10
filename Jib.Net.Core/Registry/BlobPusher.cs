@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.http;
+using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -47,34 +59,40 @@ class BlobPusher {
   private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
   private readonly DescriptorDigest blobDigest;
   private readonly Blob blob;
-  private final string sourceRepository;
+  private readonly string sourceRepository;
 
   /** Initializes the BLOB upload. */
   private class Initializer : RegistryEndpointProvider<Uri> {
+            private readonly BlobPusher parent;
 
-    public BlobHttpContent getContent() {
+            public Initializer(BlobPusher parent)
+            {
+                this.parent = parent;
+            }
+
+            public BlobHttpContent getContent() {
       return null;
     }
 
-    public List<string> getAccept() {
-      return Collections.emptyList();
+    public IList<string> getAccept() {
+      return Collections.emptyList<string>();
     }
 
     /**
      * @return a Uri to continue pushing the BLOB to, or {@code null} if the BLOB already exists on
      *     the registry
      */
-    public Uri handleResponse(Response response) {
+    public Uri handleResponse(HttpResponseMessage response) {
       switch (response.getStatusCode()) {
-        case HttpURLConnection.HTTP_CREATED:
+                    case HttpStatusCode.Created:
           // The BLOB exists in the registry.
           return null;
 
-        case HttpURLConnection.HTTP_ACCEPTED:
+        case HttpStatusCode.Accepted:
           return getRedirectLocation(response);
 
         default:
-          throw buildRegistryErrorException(
+          throw parent.buildRegistryErrorException(
               "Received unrecognized status code " + response.getStatusCode());
       }
     }
@@ -82,41 +100,42 @@ class BlobPusher {
     public Uri getApiRoute(string apiRouteBase) {
       StringBuilder url =
           new StringBuilder(apiRouteBase)
-              .append(registryEndpointRequestProperties.getImageName())
+              .append(parent.registryEndpointRequestProperties.getImageName())
               .append("/blobs/uploads/");
-      if (sourceRepository != null) {
-        url.append("?mount=").append(blobDigest).append("&from=").append(sourceRepository);
+      if (parent.sourceRepository != null) {
+        url.append("?mount=").append(parent.blobDigest).append("&from=").append(parent.sourceRepository);
       }
 
       return new Uri(url.toString());
     }
 
-    public string getHttpMethod() {
-      return HttpMethods.POST;
+    public HttpMethod getHttpMethod() {
+      return HttpMethod.Post;
     }
 
-    public string getActionDescription() {
-      return BlobPusher.this.getActionDescription();
-    }
-  }
+            public string getActionDescription()
+            {
+                throw new NotImplementedException();
+            }
+        }
 
   /** Writes the BLOB content to the upload location. */
   private class Writer : RegistryEndpointProvider<Uri> {
-
+            private readonly BlobPusher parent;
     private readonly Uri location;
-    private readonly Consumer<Long> writtenByteCountListener;
+    private readonly Consumer<long> writtenByteCountListener;
 
     public BlobHttpContent getContent() {
-      return new BlobHttpContent(blob, MediaType.OCTET_STREAM.toString(), writtenByteCountListener);
+      return new BlobHttpContent(parent.blob, MediaType.OCTET_STREAM.toString(), writtenByteCountListener);
     }
 
-    public List<string> getAccept() {
-      return Collections.emptyList();
+    public IList<string> getAccept() {
+      return Collections.emptyList<string>();
     }
 
     /** @return a Uri to continue pushing the BLOB to */
 
-    public Uri handleResponse(Response response) {
+    public Uri handleResponse(HttpResponseMessage response) {
       // TODO: Handle 204 No Content
       return getRedirectLocation(response);
     }
@@ -125,57 +144,66 @@ class BlobPusher {
       return location;
     }
 
-    public string getHttpMethod() {
-      return HttpMethods.PATCH;
+    public HttpMethod getHttpMethod() {
+                return new HttpMethod("patch");
     }
 
-    public string getActionDescription() {
-      return BlobPusher.this.getActionDescription();
-    }
+            public string getActionDescription()
+            {
+                throw new NotImplementedException();
+            }
 
-    private Writer(Uri location, Consumer<Long> writtenByteCountListener) {
+            public Writer(Uri location, Consumer<long> writtenByteCountListener, BlobPusher parent)
+            {
       this.location = location;
       this.writtenByteCountListener = writtenByteCountListener;
-    }
+                this.parent = parent;
+            }
   }
 
   /** Commits the written BLOB. */
-  private class Committer : RegistryEndpointProvider<Void> {
+  private class Committer : RegistryEndpointProvider<object> {
 
     private readonly Uri location;
+            private BlobPusher parent;
 
-    public BlobHttpContent getContent() {
+            public BlobHttpContent getContent() {
       return null;
     }
 
-    public List<string> getAccept() {
-      return Collections.emptyList();
+    public IList<string> getAccept() {
+      return Collections.emptyList<string>();
     }
 
-    public Void handleResponse(Response response) {
+    public object handleResponse(HttpResponseMessage response) {
       return null;
     }
 
     /** @return {@code location} with query parameter 'digest' set to the BLOB's digest */
 
     public Uri getApiRoute(string apiRouteBase) {
-      return new GenericUrl(location).set("digest", blobDigest).toURL();
+                UriBuilder builder = new UriBuilder(location);
+                builder.Query = "?digest="+ parent.blobDigest;
+                return builder.Uri;
     }
 
-    public string getHttpMethod() {
-      return HttpMethods.PUT;
+    public HttpMethod getHttpMethod() {
+      return HttpMethod.Put;
     }
 
-    public string getActionDescription() {
-      return BlobPusher.this.getActionDescription();
-    }
+            public string getActionDescription()
+            {
+                throw new NotImplementedException();
+            }
 
-    private Committer(Uri location) {
+            public Committer(Uri location, BlobPusher parent)
+            {
       this.location = location;
-    }
+                this.parent = parent;
+            }
   }
 
-  BlobPusher(
+  public BlobPusher(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       DescriptorDigest blobDigest,
       Blob blob,
@@ -190,8 +218,8 @@ class BlobPusher {
    * @return a {@link RegistryEndpointProvider} for initializing the BLOB upload with an existence
    *     check
    */
-  RegistryEndpointProvider<Uri> initializer() {
-    return new Initializer();
+  public RegistryEndpointProvider<Uri> initializer() {
+    return new Initializer(this);
   }
 
   /**
@@ -199,16 +227,16 @@ class BlobPusher {
    * @param blobProgressListener the listener for {@link Blob} push progress
    * @return a {@link RegistryEndpointProvider} for writing the BLOB to an upload location
    */
-  RegistryEndpointProvider<Uri> writer(Uri location, Consumer<Long> writtenByteCountListener) {
-    return new Writer(location, writtenByteCountListener);
+  public RegistryEndpointProvider<Uri> writer(Uri location, Consumer<long> writtenByteCountListener) {
+    return new Writer(location, writtenByteCountListener, this);
   }
 
   /**
    * @param location the upload Uri
    * @return a {@link RegistryEndpointProvider} for committing the written BLOB with its digest
    */
-  RegistryEndpointProvider<Void> committer(Uri location) {
-    return new Committer(location);
+  public RegistryEndpointProvider<object> committer(Uri location) {
+    return new Committer(location, this);
   }
 
   private RegistryErrorException buildRegistryErrorException(string reason) {
@@ -243,16 +271,17 @@ class BlobPusher {
    * @return the new location for the next request
    * @throws RegistryErrorException if there was not a single 'Location' header
    */
-  private Uri getRedirectLocation(Response response) {
-    // Extracts and returns the 'Location' header.
-    List<string> locationHeaders = response.getHeader("Location");
-    if (locationHeaders.size() != 1) {
-      throw buildRegistryErrorException(
-          "Expected 1 'Location' header, but found " + locationHeaders.size());
-    }
-
-    string locationHeader = locationHeaders.get(0);
-    return response.getRequestUrl().toURL(locationHeader);
+  public static Uri getRedirectLocation(HttpResponseMessage response) {
+            return response.getRequestUrl().MakeRelativeUri(response.Headers.Location);
   }
 }
+}
+
+namespace Jib.Net.Core
+{
+    enum HttpURLConnection
+    {
+        HTTP_CREATED,
+        HTTP_ACCEPTED
+    }
 }

@@ -55,17 +55,17 @@ public class ContainerizerIntegrationTest {
    */
   private class ProgressChecker {
 
-    private readonly ProgressEventHandler progressEventHandler =
+    public readonly ProgressEventHandler progressEventHandler =
         new ProgressEventHandler(
             update => {
               lastProgress = update.getProgress();
               areTasksFinished = update.getUnfinishedLeafTasks().isEmpty();
             });
 
-    private volatile double lastProgress = 0.0;
+    private double lastProgress = 0.0;
     private volatile bool areTasksFinished = false;
 
-    private void checkCompletion() {
+    public void checkCompletion() {
       Assert.assertEquals(1.0, lastProgress, DOUBLE_ERROR_MARGIN);
       Assert.assertTrue(areTasksFinished);
     }
@@ -79,12 +79,12 @@ public class ContainerizerIntegrationTest {
       "sha256:f488c213f278bc5f9ffe3ddf30c5dbb2303a15a74146b738d12453088e662880";
   private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  public static ImmutableList<LayerConfiguration> fakeLayerConfigurations;
+  public static ImmutableArray<LayerConfiguration> fakeLayerConfigurations;
 
   [ClassInitialize]
   public static void setUp() {
     fakeLayerConfigurations =
-        ImmutableList.of(
+        ImmutableArray.Create(
             makeLayerConfiguration("core/application/dependencies", "/app/libs/"),
             makeLayerConfiguration("core/application/resources", "/app/resources/"),
             makeLayerConfiguration("core/application/classes", "/app/classes/"));
@@ -101,7 +101,7 @@ public class ContainerizerIntegrationTest {
    */
   private static LayerConfiguration makeLayerConfiguration(
       string resourcePath, string pathInContainer) {
-    using (Stream<Path> fileStream =
+    using (Stream<SystemPath> fileStream =
         Files.list(Paths.get(Resources.getResource(resourcePath).toURI()))) {
       LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
       fileStream.forEach(
@@ -276,7 +276,7 @@ public class ContainerizerIntegrationTest {
   [TestMethod]
   public void testBuildTarball()
       {
-    Path outputPath = temporaryFolder.newFolder().toPath().resolve("test.tar");
+    SystemPath outputPath = temporaryFolder.newFolder().toPath().resolve("test.tar");
     buildTarImage(
         ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
         ImageReference.of(null, "testtar", null),
@@ -308,7 +308,7 @@ public class ContainerizerIntegrationTest {
   private JibContainer buildTarImage(
       ImageReference baseImage,
       ImageReference targetImage,
-      Path outputPath,
+      SystemPath outputPath,
       List<string> additionalTags)
       {
     return buildImage(
@@ -318,7 +318,7 @@ public class ContainerizerIntegrationTest {
   }
 
   private JibContainer buildImage(
-      ImageReference baseImage, Containerizer containerizer, List<string> additionalTags)
+      ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
       {
     JibContainerBuilder containerBuilder =
         Jib.from(baseImage)
@@ -326,12 +326,12 @@ public class ContainerizerIntegrationTest {
                 Arrays.asList(
                     "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
             .setProgramArguments(Collections.singletonList("An argument."))
-            .setEnvironment(ImmutableMap.of("env1", "envvalue1", "env2", "envvalue2"))
+            .setEnvironment(ImmutableDictionary.of("env1", "envvalue1", "env2", "envvalue2"))
             .setExposedPorts(Ports.parse(Arrays.asList("1000", "2000-2002/tcp", "3000/udp")))
-            .setLabels(ImmutableMap.of("key1", "value1", "key2", "value2"))
+            .setLabels(ImmutableDictionary.of("key1", "value1", "key2", "value2"))
             .setLayers(fakeLayerConfigurations);
 
-    Path cacheDirectory = temporaryFolder.newFolder().toPath();
+    SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
     containerizer
         .setBaseImageLayersCache(cacheDirectory)
         .setApplicationLayersCache(cacheDirectory)

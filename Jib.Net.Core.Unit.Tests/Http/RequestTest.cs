@@ -32,7 +32,7 @@ public class RequestTest {
   public void testSetHttpTimeout() {
     Request request = Request.builder().setHttpTimeout(3000).build();
 
-    Assert.assertEquals(Integer.valueOf(3000), request.getHttpTimeout());
+    Assert.assertEquals(int.valueOf(3000), request.getHttpTimeout());
   }
 }
 }

@@ -77,10 +77,10 @@ public class BuildImageStepTest {
         .thenReturn(mockContainerConfiguration);
     Mockito.when(mockBuildConfiguration.getToolName()).thenReturn("jib");
     Mockito.when(mockContainerConfiguration.getCreationTime()).thenReturn(Instant.EPOCH);
-    Mockito.when(mockContainerConfiguration.getEnvironmentMap()).thenReturn(ImmutableMap.of());
-    Mockito.when(mockContainerConfiguration.getProgramArguments()).thenReturn(ImmutableList.of());
-    Mockito.when(mockContainerConfiguration.getExposedPorts()).thenReturn(ImmutableSet.of());
-    Mockito.when(mockContainerConfiguration.getEntrypoint()).thenReturn(ImmutableList.of());
+    Mockito.when(mockContainerConfiguration.getEnvironmentMap()).thenReturn(ImmutableDictionary.of());
+    Mockito.when(mockContainerConfiguration.getProgramArguments()).thenReturn(ImmutableArray.Create());
+    Mockito.when(mockContainerConfiguration.getExposedPorts()).thenReturn(ImmutableHashSet.of());
+    Mockito.when(mockContainerConfiguration.getEntrypoint()).thenReturn(ImmutableArray.Create());
     Mockito.when(mockContainerConfiguration.getUser()).thenReturn("root");
     Mockito.when(mockCachedLayer.getBlobDescriptor())
         .thenReturn(new BlobDescriptor(0, testDescriptorDigest));
@@ -103,22 +103,22 @@ public class BuildImageStepTest {
         Image.builder(typeof(V22ManifestTemplate))
             .setArchitecture("wasm")
             .setOs("js")
-            .addEnvironment(ImmutableMap.of("BASE_ENV", "BASE_ENV_VALUE", "BASE_ENV_2", "DEFAULT"))
+            .addEnvironment(ImmutableDictionary.of("BASE_ENV", "BASE_ENV_VALUE", "BASE_ENV_2", "DEFAULT"))
             .addLabel("base.label", "base.label.value")
             .addLabel("base.label.2", "default")
             .setWorkingDirectory("/base/working/directory")
-            .setEntrypoint(ImmutableList.of("baseImageEntrypoint"))
-            .setProgramArguments(ImmutableList.of("catalina.sh", "run"))
+            .setEntrypoint(ImmutableArray.Create("baseImageEntrypoint"))
+            .setProgramArguments(ImmutableArray.Create("catalina.sh", "run"))
             .setHealthCheck(
-                DockerHealthCheck.fromCommand(ImmutableList.of("CMD-SHELL", "echo hi"))
+                DockerHealthCheck.fromCommand(ImmutableArray.Create("CMD-SHELL", "echo hi"))
                     .setInterval(Duration.ofSeconds(3))
                     .setTimeout(Duration.ofSeconds(2))
                     .setStartPeriod(Duration.ofSeconds(1))
                     .setRetries(20)
                     .build())
-            .addExposedPorts(ImmutableSet.of(Port.tcp(1000), Port.udp(2000)))
+            .addExposedPorts(ImmutableHashSet.of(Port.tcp(1000), Port.udp(2000)))
             .addVolumes(
-                ImmutableSet.of(
+                ImmutableHashSet.of(
                     AbsoluteUnixPath.get("/base/path1"), AbsoluteUnixPath.get("/base/path2")))
             .addHistory(nonEmptyLayerHistory)
             .addHistory(emptyLayerHistory)
@@ -129,7 +129,7 @@ public class BuildImageStepTest {
     Mockito.when(mockPullAndCacheBaseImageLayersStep.getFuture())
         .thenReturn(
             Futures.immediateFuture(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     mockPullAndCacheBaseImageLayerStep,
                     mockPullAndCacheBaseImageLayerStep,
                     mockPullAndCacheBaseImageLayerStep)));
@@ -166,7 +166,7 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
@@ -179,14 +179,14 @@ public class BuildImageStepTest {
   public void test_propagateBaseImageConfiguration()
       {
     Mockito.when(mockContainerConfiguration.getEnvironmentMap())
-        .thenReturn(ImmutableMap.of("MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"));
+        .thenReturn(ImmutableDictionary.of("MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"));
     Mockito.when(mockContainerConfiguration.getLabels())
-        .thenReturn(ImmutableMap.of("my.label", "my.label.value", "base.label.2", "new.value"));
+        .thenReturn(ImmutableDictionary.of("my.label", "my.label.value", "base.label.2", "new.value"));
     Mockito.when(mockContainerConfiguration.getExposedPorts())
-        .thenReturn(ImmutableSet.of(Port.tcp(3000), Port.udp(4000)));
+        .thenReturn(ImmutableHashSet.of(Port.tcp(3000), Port.udp(4000)));
     Mockito.when(mockContainerConfiguration.getVolumes())
         .thenReturn(
-            ImmutableSet.of(
+            ImmutableHashSet.of(
                 AbsoluteUnixPath.get("/new/path1"), AbsoluteUnixPath.get("/new/path2")));
     BuildImageStep buildImageStep =
         new BuildImageStep(
@@ -195,7 +195,7 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
@@ -203,11 +203,11 @@ public class BuildImageStepTest {
     Assert.assertEquals("wasm", image.getArchitecture());
     Assert.assertEquals("js", image.getOs());
     Assert.assertEquals(
-        ImmutableMap.of(
+        ImmutableDictionary.of(
             "BASE_ENV", "BASE_ENV_VALUE", "MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"),
         image.getEnvironment());
     Assert.assertEquals(
-        ImmutableMap.of(
+        ImmutableDictionary.of(
             "base.label",
             "base.label.value",
             "my.label",
@@ -217,7 +217,7 @@ public class BuildImageStepTest {
         image.getLabels());
     Assert.assertNotNull(image.getHealthCheck());
     Assert.assertEquals(
-        ImmutableList.of("CMD-SHELL", "echo hi"), image.getHealthCheck().getCommand());
+        ImmutableArray.Create("CMD-SHELL", "echo hi"), image.getHealthCheck().getCommand());
     Assert.assertTrue(image.getHealthCheck().getInterval().isPresent());
     Assert.assertEquals(Duration.ofSeconds(3), image.getHealthCheck().getInterval().get());
     Assert.assertTrue(image.getHealthCheck().getTimeout().isPresent());
@@ -227,10 +227,10 @@ public class BuildImageStepTest {
     Assert.assertTrue(image.getHealthCheck().getRetries().isPresent());
     Assert.assertEquals(20, (int) image.getHealthCheck().getRetries().get());
     Assert.assertEquals(
-        ImmutableSet.of(Port.tcp(1000), Port.udp(2000), Port.tcp(3000), Port.udp(4000)),
+        ImmutableHashSet.of(Port.tcp(1000), Port.udp(2000), Port.tcp(3000), Port.udp(4000)),
         image.getExposedPorts());
     Assert.assertEquals(
-        ImmutableSet.of(
+        ImmutableHashSet.of(
             AbsoluteUnixPath.get("/base/path1"),
             AbsoluteUnixPath.get("/base/path2"),
             AbsoluteUnixPath.get("/new/path1"),
@@ -242,8 +242,8 @@ public class BuildImageStepTest {
     Assert.assertEquals(image.getHistory().get(0), nonEmptyLayerHistory);
     Assert.assertEquals(image.getHistory().get(1), emptyLayerHistory);
     Assert.assertEquals(image.getHistory().get(2), emptyLayerHistory);
-    Assert.assertEquals(ImmutableList.of(), image.getEntrypoint());
-    Assert.assertEquals(ImmutableList.of(), image.getProgramArguments());
+    Assert.assertEquals(ImmutableArray.Create(), image.getEntrypoint());
+    Assert.assertEquals(ImmutableArray.Create(), image.getProgramArguments());
   }
 
   [TestMethod]
@@ -258,7 +258,7 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
@@ -271,7 +271,7 @@ public class BuildImageStepTest {
   public void test_inheritedEntrypoint() {
     Mockito.when(mockContainerConfiguration.getEntrypoint()).thenReturn(null);
     Mockito.when(mockContainerConfiguration.getProgramArguments())
-        .thenReturn(ImmutableList.of("test"));
+        .thenReturn(ImmutableArray.Create("test"));
 
     BuildImageStep buildImageStep =
         new BuildImageStep(
@@ -280,14 +280,14 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
     Image image = buildImageStep.getFuture().get().getFuture().get();
 
-    Assert.assertEquals(ImmutableList.of("baseImageEntrypoint"), image.getEntrypoint());
-    Assert.assertEquals(ImmutableList.of("test"), image.getProgramArguments());
+    Assert.assertEquals(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
+    Assert.assertEquals(ImmutableArray.Create("test"), image.getProgramArguments());
   }
 
   [TestMethod]
@@ -303,20 +303,20 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
     Image image = buildImageStep.getFuture().get().getFuture().get();
 
-    Assert.assertEquals(ImmutableList.of("baseImageEntrypoint"), image.getEntrypoint());
-    Assert.assertEquals(ImmutableList.of("catalina.sh", "run"), image.getProgramArguments());
+    Assert.assertEquals(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
+    Assert.assertEquals(ImmutableArray.Create("catalina.sh", "run"), image.getProgramArguments());
   }
 
   [TestMethod]
   public void test_notInheritedProgramArguments() {
     Mockito.when(mockContainerConfiguration.getEntrypoint())
-        .thenReturn(ImmutableList.of("myEntrypoint"));
+        .thenReturn(ImmutableArray.Create("myEntrypoint"));
     Mockito.when(mockContainerConfiguration.getProgramArguments()).thenReturn(null);
 
     BuildImageStep buildImageStep =
@@ -326,13 +326,13 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses));
     Image image = buildImageStep.getFuture().get().getFuture().get();
 
-    Assert.assertEquals(ImmutableList.of("myEntrypoint"), image.getEntrypoint());
+    Assert.assertEquals(ImmutableArray.Create("myEntrypoint"), image.getEntrypoint());
     Assert.assertNull(image.getProgramArguments());
   }
 
@@ -345,7 +345,7 @@ public class BuildImageStepTest {
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
             mockPullBaseImageStep,
             mockPullAndCacheBaseImageLayersStep,
-            ImmutableList.of(
+            ImmutableArray.Create(
                 mockBuildAndCacheApplicationLayerStepDependencies,
                 mockBuildAndCacheApplicationLayerStepResources,
                 mockBuildAndCacheApplicationLayerStepClasses,

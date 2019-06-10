@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.registry.json {
 
 
@@ -40,9 +45,9 @@ namespace com.google.cloud.tools.jib.registry.json {
  */
 public class ErrorResponseTemplate : JsonTemplate {
 
-  private readonly List<ErrorEntryTemplate> errors = new ArrayList<>();
+  private readonly List<ErrorEntryTemplate> errors = new List<ErrorEntryTemplate>();
 
-  public List<ErrorEntryTemplate> getErrors() {
+  public IReadOnlyList<ErrorEntryTemplate> getErrors() {
     return Collections.unmodifiableList(errors);
   }
 

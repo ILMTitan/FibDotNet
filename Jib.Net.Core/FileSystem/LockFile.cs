@@ -14,6 +14,13 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -28,17 +35,10 @@ namespace com.google.cloud.tools.jib.filesystem {
 
 
 /** Creates and deletes lock files. */
-public class LockFile : Closeable {
+public class LockFile : IDisposable {
+  private readonly Stream outputStream;
 
-  private static readonly ConcurrentHashMap<Path, Lock> lockMap = new ConcurrentHashMap<>();
-
-  private readonly Path lockFile;
-  private readonly FileLock fileLock;
-  private readonly OutputStream outputStream;
-
-  private LockFile(Path lockFile, FileLock fileLock, OutputStream outputStream) {
-    this.@lockFile = lockFile;
-    this.fileLock = fileLock;
+  private LockFile(Stream outputStream) {
     this.outputStream = outputStream;
   }
 
@@ -49,43 +49,15 @@ public class LockFile : Closeable {
    * @return a new {@link LockFile} that can be released later
    * @throws IOException if creating the lock file fails
    */
-  public static LockFile lock(Path lockFile) {
-    try {
-      // This first lock is to prevent multiple threads from calling FileChannel.@lock(), which would
-      // otherwise throw OverlappingFileLockException
-      lockMap.computeIfAbsent(lockFile, key => new ReentrantLock()).@lockInterruptibly();
-
-    } catch (InterruptedException ex) {
-      throw new IOException("Interrupted while trying to acquire lock", ex);
-    }
-
+  public static LockFile @lock(SystemPath lockFile) {
     Files.createDirectories(lockFile.getParent());
-    FileOutputStream outputStream = new FileOutputStream(lockFile.toFile());
-    FileLock fileLock = null;
-    try {
-      fileLock = outputStream.getChannel().@lock();
-      return new LockFile(lockFile, fileLock, outputStream);
-
-    } finally {
-      if (fileLock == null) {
-        outputStream.close();
-      }
-    }
+            return new LockFile(lockFile.toFile().Create());
   }
 
   /** Releases the lock file. */
 
-  public void close() {
-    try {
-      fileLock.release();
-      outputStream.close();
-
-    } catch (IOException ex) {
-      throw new IllegalStateException("Unable to release lock", ex);
-
-    } finally {
-      Preconditions.checkNotNull(lockMap.get(lockFile)).unlock();
-    }
+  public void Dispose() {
+      outputStream.Dispose();
   }
 }
 }

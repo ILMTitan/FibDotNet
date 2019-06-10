@@ -37,7 +37,7 @@ public class DockerConfigTest {
   [TestMethod]
   public void test_fromJson() {
     // Loads the JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     // Deserializes into a docker config JSON object.
     DockerConfig dockerConfig =
@@ -70,7 +70,7 @@ public class DockerConfigTest {
 
   [TestMethod]
   public void testGetAuthFor_orderOfMatchPreference() {
-    Path json =
+    SystemPath json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
@@ -87,7 +87,7 @@ public class DockerConfigTest {
 
   [TestMethod]
   public void testGetAuthFor_correctSuffixMatching() {
-    Path json =
+    SystemPath json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
@@ -98,7 +98,7 @@ public class DockerConfigTest {
 
   [TestMethod]
   public void testGetCredentialHelperFor() {
-    Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
         new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
@@ -110,7 +110,7 @@ public class DockerConfigTest {
 
   [TestMethod]
   public void testGetCredentialHelperFor_withHttps() {
-    Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
         new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
@@ -122,7 +122,7 @@ public class DockerConfigTest {
 
   [TestMethod]
   public void testGetCredentialHelperFor_withSuffix() {
-    Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
         new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
@@ -135,7 +135,7 @@ public class DockerConfigTest {
   [TestMethod]
   public void testGetCredentialHelperFor_withProtocolAndSuffix()
       {
-    Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
         new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
@@ -148,7 +148,7 @@ public class DockerConfigTest {
   [TestMethod]
   public void testGetCredentialHelperFor_correctSuffixMatching()
       {
-    Path json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+    SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
         new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));

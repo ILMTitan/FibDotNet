@@ -51,7 +51,7 @@ public class CacheTest {
   private static Blob compress(Blob blob) {
     return Blobs.from(
         outputStream => {
-          using (GZIPOutputStream compressorStream = new GZIPOutputStream(outputStream)) {
+          using (GZipOutputStream compressorStream = new GZipOutputStream(outputStream)) {
             blob.writeTo(compressorStream);
           }
         });
@@ -65,7 +65,7 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private static Blob decompress(Blob blob) {
-    return Blobs.from(new GZIPInputStream(new ByteArrayInputStream(Blobs.writeToByteArray(blob))));
+    return Blobs.from(new GZIPInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
   }
 
   /**
@@ -76,7 +76,7 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private static DescriptorDigest digestOf(Blob blob) {
-    return blob.writeTo(ByteStreams.nullOutputStream()).getDigest();
+    return blob.writeTo(Stream.Null).getDigest();
   }
 
   /**
@@ -88,12 +88,12 @@ public class CacheTest {
    */
   private static long sizeOf(Blob blob) {
     CountingOutputStream countingOutputStream =
-        new CountingOutputStream(ByteStreams.nullOutputStream());
+        new CountingOutputStream(Stream.Null);
     blob.writeTo(countingOutputStream);
     return countingOutputStream.getCount();
   }
 
-  private static LayerEntry defaultLayerEntry(Path source, AbsoluteUnixPath destination) {
+  private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination) {
     return new LayerEntry(
         source,
         destination,
@@ -101,23 +101,23 @@ public class CacheTest {
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private Blob layerBlob1;
   private DescriptorDigest layerDigest1;
   private DescriptorDigest layerDiffId1;
   private long layerSize1;
-  private ImmutableList<LayerEntry> layerEntries1;
+  private ImmutableArray<LayerEntry> layerEntries1;
 
   private Blob layerBlob2;
   private DescriptorDigest layerDigest2;
   private DescriptorDigest layerDiffId2;
   private long layerSize2;
-  private ImmutableList<LayerEntry> layerEntries2;
+  private ImmutableArray<LayerEntry> layerEntries2;
 
   [TestInitialize]
   public void setUp() {
-    Path directory = temporaryFolder.newFolder().toPath();
+    SystemPath directory = temporaryFolder.newFolder().toPath();
     Files.createDirectory(directory.resolve("source"));
     Files.createFile(directory.resolve("source/file"));
     Files.createDirectories(directory.resolve("another/source"));
@@ -128,7 +128,7 @@ public class CacheTest {
     layerDiffId1 = digestOf(layerBlob1);
     layerSize1 = sizeOf(compress(layerBlob1));
     layerEntries1 =
-        ImmutableList.of(
+        ImmutableArray.Create(
             defaultLayerEntry(
                 directory.resolve("source/file"), AbsoluteUnixPath.get("/extraction/path")),
             defaultLayerEntry(
@@ -139,12 +139,12 @@ public class CacheTest {
     layerDigest2 = digestOf(compress(layerBlob2));
     layerDiffId2 = digestOf(layerBlob2);
     layerSize2 = sizeOf(compress(layerBlob2));
-    layerEntries2 = ImmutableList.of();
+    layerEntries2 = ImmutableArray.Create();
   }
 
   [TestMethod]
   public void testWithDirectory_existsButNotDirectory() {
-    Path file = temporaryFolder.newFile().toPath();
+    SystemPath file = temporaryFolder.newFile().toPath();
 
     try {
       Cache.withDirectory(file);
@@ -186,7 +186,7 @@ public class CacheTest {
 
     // A source file modification results in the cached layer to be out-of-date and not retrieved.
     Files.setLastModifiedTime(
-        layerEntries1.get(0).getSourceFile(), FileTime.from(Instant.now().plusSeconds(1)));
+        layerEntries1.get(0).getSourceFile(), FileTime.from(SystemClock.Instance.GetCurrentInstant().plusSeconds(1)));
     Assert.assertFalse(cache.retrieve(layerEntries1).isPresent());
   }
 

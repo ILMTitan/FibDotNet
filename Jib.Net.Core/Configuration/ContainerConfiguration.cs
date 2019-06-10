@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.configuration {
 
 
@@ -36,18 +43,18 @@ namespace com.google.cloud.tools.jib.configuration {
 public class ContainerConfiguration {
 
   /** The default creation time of the container (constant to ensure reproducibility by default). */
-  public static readonly Instant DEFAULT_CREATION_TIME = Instant.EPOCH;
+  public static readonly Instant DEFAULT_CREATION_TIME = Instant.FromUnixTimeMilliseconds(0);
 
   /** Builder for instantiating a {@link ContainerConfiguration}. */
-  public static class Builder {
+  public class Builder {
 
     private Instant creationTime = DEFAULT_CREATION_TIME;
-    private ImmutableList<string> entrypoint;
-    private ImmutableList<string> programArguments;
-    private Map<string, string> environmentMap;
-    private Set<Port> exposedPorts;
-    private Set<AbsoluteUnixPath> volumes;
-    private Map<string, string> labels;
+    private ImmutableArray<string>? entrypoint;
+    private ImmutableArray<string>? programArguments;
+    private IDictionary<string, string> environmentMap;
+    private ISet<Port> exposedPorts;
+    private ISet<AbsoluteUnixPath> volumes;
+    private IDictionary<string, string> labels;
     private string user;
     private AbsoluteUnixPath workingDirectory;
 
@@ -68,13 +75,13 @@ public class ContainerConfiguration {
      * @param programArguments the list of arguments
      * @return this
      */
-    public Builder setProgramArguments(List<string> programArguments) {
+    public Builder setProgramArguments(IList<string> programArguments) {
       if (programArguments == null) {
-        this.programArguments = null;
+        this.programArguments = ImmutableArray<string>.Empty;
       } else {
         Preconditions.checkArgument(
             !programArguments.contains(null), "program arguments list contains null elements");
-        this.programArguments = ImmutableList.copyOf(programArguments);
+        this.programArguments = ImmutableArray.CreateRange(programArguments);
       }
       return this;
     }
@@ -85,7 +92,7 @@ public class ContainerConfiguration {
      * @param environmentMap the map
      * @return this
      */
-    public Builder setEnvironment(Map<string, string> environmentMap) {
+    public Builder setEnvironment(IDictionary<string, string> environmentMap) {
       if (environmentMap == null) {
         this.environmentMap = null;
       } else {
@@ -95,14 +102,14 @@ public class ContainerConfiguration {
         Preconditions.checkArgument(
             !Iterables.any(environmentMap.values(), Objects.isNull),
             "environment map contains null values");
-        this.environmentMap = new HashMap<>(environmentMap);
+        this.environmentMap = new Dictionary<string, string>(environmentMap);
       }
       return this;
     }
 
     public void addEnvironment(string name, string value) {
       if (environmentMap == null) {
-        environmentMap = new HashMap<>();
+        environmentMap = new Dictionary<string, string>();
       }
       environmentMap.put(name, value);
     }
@@ -113,20 +120,20 @@ public class ContainerConfiguration {
      * @param exposedPorts the set of ports
      * @return this
      */
-    public Builder setExposedPorts(Set<Port> exposedPorts) {
+    public Builder setExposedPorts(ISet<Port> exposedPorts) {
       if (exposedPorts == null) {
         this.exposedPorts = null;
       } else {
         Preconditions.checkArgument(
             !exposedPorts.contains(null), "ports list contains null elements");
-        this.exposedPorts = new HashSet<>(exposedPorts);
+        this.exposedPorts = new HashSet<Port>(exposedPorts);
       }
       return this;
     }
 
     public void addExposedPort(Port port) {
       if (exposedPorts == null) {
-        exposedPorts = new HashSet<>();
+        exposedPorts = new HashSet<Port>();
       }
       exposedPorts.add(port);
     }
@@ -137,19 +144,19 @@ public class ContainerConfiguration {
      * @param volumes the set of volumes
      * @return this
      */
-    public Builder setVolumes(Set<AbsoluteUnixPath> volumes) {
+    public Builder setVolumes(ISet<AbsoluteUnixPath> volumes) {
       if (volumes == null) {
         this.volumes = null;
       } else {
         Preconditions.checkArgument(!volumes.contains(null), "volumes list contains null elements");
-        this.volumes = new HashSet<>(volumes);
+        this.volumes = new HashSet<AbsoluteUnixPath>(volumes);
       }
       return this;
     }
 
     public void addVolume(AbsoluteUnixPath volume) {
       if (volumes == null) {
-        volumes = new HashSet<>();
+        volumes = new HashSet<AbsoluteUnixPath>();
       }
       volumes.add(volume);
     }
@@ -160,7 +167,7 @@ public class ContainerConfiguration {
      * @param labels the map of labels
      * @return this
      */
-    public Builder setLabels(Map<string, string> labels) {
+    public Builder setLabels(IDictionary<string, string> labels) {
       if (labels == null) {
         this.labels = null;
       } else {
@@ -168,14 +175,14 @@ public class ContainerConfiguration {
             !Iterables.any(labels.keySet(), Objects.isNull), "labels map contains null keys");
         Preconditions.checkArgument(
             !Iterables.any(labels.values(), Objects.isNull), "labels map contains null values");
-        this.labels = new HashMap<>(labels);
+        this.labels = new Dictionary<string, string>(labels);
       }
       return this;
     }
 
     public void addLabel(string key, string value) {
       if (labels == null) {
-        labels = new HashMap<>();
+        labels = new Dictionary<string, string>();
       }
       labels.put(key, value);
     }
@@ -186,13 +193,13 @@ public class ContainerConfiguration {
      * @param entrypoint the tokenized command to run when the container starts
      * @return this
      */
-    public Builder setEntrypoint(List<string> entrypoint) {
+    public Builder setEntrypoint(IList<string> entrypoint) {
       if (entrypoint == null) {
         this.entrypoint = null;
       } else {
         Preconditions.checkArgument(
             !entrypoint.contains(null), "entrypoint contains null elements");
-        this.entrypoint = ImmutableList.copyOf(entrypoint);
+        this.entrypoint = ImmutableArray.CreateRange(entrypoint);
       }
       return this;
     }
@@ -231,15 +238,15 @@ public class ContainerConfiguration {
           creationTime,
           entrypoint,
           programArguments,
-          environmentMap == null ? null : ImmutableMap.copyOf(environmentMap),
-          exposedPorts == null ? null : ImmutableSet.copyOf(exposedPorts),
-          volumes == null ? null : ImmutableSet.copyOf(volumes),
-          labels == null ? null : ImmutableMap.copyOf(labels),
+          environmentMap == null ? null : ImmutableDictionary.CreateRange(environmentMap),
+          exposedPorts == null ? null : ImmutableHashSet.CreateRange(exposedPorts),
+          volumes == null ? null : ImmutableHashSet.CreateRange(volumes),
+          labels == null ? null : ImmutableDictionary.CreateRange(labels),
           user,
           workingDirectory);
     }
 
-    private Builder() {}
+    public Builder() {}
   }
 
   /**
@@ -252,23 +259,23 @@ public class ContainerConfiguration {
   }
 
   private readonly Instant creationTime;
-  private final ImmutableList<string> entrypoint;
-  private final ImmutableList<string> programArguments;
-  private final ImmutableMap<string, string> environmentMap;
-  private final ImmutableSet<Port> exposedPorts;
-  private final ImmutableSet<AbsoluteUnixPath> volumes;
-  private final ImmutableMap<string, string> labels;
-  private final string user;
-  private final AbsoluteUnixPath workingDirectory;
+  private readonly ImmutableArray<string>? entrypoint;
+  private readonly ImmutableArray<string>? programArguments;
+  private readonly ImmutableDictionary<string, string> environmentMap;
+  private readonly ImmutableHashSet<Port> exposedPorts;
+  private readonly ImmutableHashSet<AbsoluteUnixPath> volumes;
+  private readonly ImmutableDictionary<string, string> labels;
+  private readonly string user;
+  private readonly AbsoluteUnixPath workingDirectory;
 
   private ContainerConfiguration(
       Instant creationTime,
-      ImmutableList<string> entrypoint,
-      ImmutableList<string> programArguments,
-      ImmutableMap<string, string> environmentMap,
-      ImmutableSet<Port> exposedPorts,
-      ImmutableSet<AbsoluteUnixPath> volumes,
-      ImmutableMap<string, string> labels,
+      ImmutableArray<string>? entrypoint,
+      ImmutableArray<string>? programArguments,
+      ImmutableDictionary<string, string> environmentMap,
+      ImmutableHashSet<Port> exposedPorts,
+      ImmutableHashSet<AbsoluteUnixPath> volumes,
+      ImmutableDictionary<string, string> labels,
       string user,
       AbsoluteUnixPath workingDirectory) {
     this.creationTime = creationTime;
@@ -286,23 +293,23 @@ public class ContainerConfiguration {
     return creationTime;
   }
 
-  public ImmutableList<string> getEntrypoint() {
+  public ImmutableArray<string>? getEntrypoint() {
     return entrypoint;
   }
 
-  public ImmutableList<string> getProgramArguments() {
+  public ImmutableArray<string>? getProgramArguments() {
     return programArguments;
   }
 
-  public ImmutableMap<string, string> getEnvironmentMap() {
+  public ImmutableDictionary<string, string> getEnvironmentMap() {
     return environmentMap;
   }
 
-  public ImmutableSet<Port> getExposedPorts() {
+  public ImmutableHashSet<Port> getExposedPorts() {
     return exposedPorts;
   }
 
-  public ImmutableSet<AbsoluteUnixPath> getVolumes() {
+  public ImmutableHashSet<AbsoluteUnixPath> getVolumes() {
     return volumes;
   }
 
@@ -310,7 +317,7 @@ public class ContainerConfiguration {
     return user;
   }
 
-  public ImmutableMap<string, string> getLabels() {
+  public ImmutableDictionary<string, string> getLabels() {
     return labels;
   }
 
@@ -318,7 +325,7 @@ public class ContainerConfiguration {
     return workingDirectory;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -326,17 +333,17 @@ public class ContainerConfiguration {
       return false;
     }
     ContainerConfiguration otherContainerConfiguration = (ContainerConfiguration) other;
-    return creationTime.equals(otherContainerConfiguration.creationTime)
-        && Objects.equals(entrypoint, otherContainerConfiguration.entrypoint)
-        && Objects.equals(programArguments, otherContainerConfiguration.programArguments)
-        && Objects.equals(environmentMap, otherContainerConfiguration.environmentMap)
-        && Objects.equals(exposedPorts, otherContainerConfiguration.exposedPorts)
-        && Objects.equals(labels, otherContainerConfiguration.labels)
-        && Objects.equals(user, otherContainerConfiguration.user)
-        && Objects.equals(workingDirectory, otherContainerConfiguration.workingDirectory);
+    return creationTime.Equals(otherContainerConfiguration.creationTime)
+        && Objects.Equals(entrypoint, otherContainerConfiguration.entrypoint)
+        && Objects.Equals(programArguments, otherContainerConfiguration.programArguments)
+        && Objects.Equals(environmentMap, otherContainerConfiguration.environmentMap)
+        && Objects.Equals(exposedPorts, otherContainerConfiguration.exposedPorts)
+        && Objects.Equals(labels, otherContainerConfiguration.labels)
+        && Objects.Equals(user, otherContainerConfiguration.user)
+        && Objects.Equals(workingDirectory, otherContainerConfiguration.workingDirectory);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(
         creationTime, entrypoint, programArguments, environmentMap, exposedPorts, labels, user);
   }

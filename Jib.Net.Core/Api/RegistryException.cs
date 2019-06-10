@@ -14,13 +14,17 @@
  * the License.
  */
 
+using System;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.api {
 
 
 /** Thrown when interacting with a registry. */
 public class RegistryException : Exception {
+        private HttpResponseMessage cause;
 
-  public RegistryException(string message, Throwable cause) : base(message, cause) {
+        public RegistryException(string message, Exception cause) : base(message, cause) {
     
   }
 
@@ -28,8 +32,13 @@ public class RegistryException : Exception {
     
   }
 
-  public RegistryException(Throwable cause) : base(cause) {
-    
-  }
-}
+        public RegistryException(string message, HttpResponseMessage cause) : this(message)
+        {
+            this.cause = cause;
+        }
+
+        public RegistryException() : base()
+        {
+        }
+    }
 }

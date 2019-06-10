@@ -14,7 +14,13 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -26,9 +32,9 @@ namespace com.google.cloud.tools.jib.event.progress {
  * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
  * period of time are merged into a single later call with the value accumulated up to that point.
  */
-public class ThrottledAccumulatingConsumer : Consumer<Long>, Closeable {
+public class ThrottledAccumulatingConsumer : IDisposable {
 
-  private readonly Consumer<Long> consumer;
+  private readonly Consumer<long> consumer;
 
   /** Delay between each call to the underlying {@link #accept}. */
   private readonly Duration delayBetweenCallbacks;
@@ -39,19 +45,19 @@ public class ThrottledAccumulatingConsumer : Consumer<Long>, Closeable {
   /** "Clock" that returns the current {@link Instant}. */
   private readonly Supplier<Instant> getNow;
 
-  private Long valueSoFar;
+  private long valueSoFar;
 
   /**
    * Wraps a consumer with the delay of 100 ms.
    *
    * @param callback {@link Consumer} callback to wrap
    */
-  public ThrottledAccumulatingConsumer(Consumer<Long> callback) {
-    this(callback, Duration.ofMillis(100), Instant.now);
+  public ThrottledAccumulatingConsumer(Consumer<long> callback) : this(callback, Duration.FromMilliseconds(100), SystemClock.Instance.GetCurrentInstant) {
+    
   }
 
   public ThrottledAccumulatingConsumer(
-      Consumer<Long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow) {
+      Consumer<long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow) {
     this.consumer = consumer;
     this.delayBetweenCallbacks = delayBetweenCallbacks;
     this.getNow = getNow;
@@ -59,22 +65,20 @@ public class ThrottledAccumulatingConsumer : Consumer<Long>, Closeable {
     previousCallback = getNow.get();
   }
 
-  public void accept(Long value) {
-    valueSoFar = valueSoFar == null ? value : valueSoFar + value;
+  public void accept(long value) {
+            valueSoFar += value;
 
     Instant now = getNow.get();
     Instant nextFireTime = previousCallback.plus(delayBetweenCallbacks);
     if (now.isAfter(nextFireTime)) {
       consumer.accept(valueSoFar);
       previousCallback = now;
-      valueSoFar = null;
+      valueSoFar = 0;
     }
   }
 
-  public void close() {
-    if (valueSoFar != null) {
+  public void Dispose() {
       consumer.accept(valueSoFar);
-    }
   }
 }
 }

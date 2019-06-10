@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -30,45 +39,42 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-class PushLayersStep:AsyncStep<ImmutableList<AsyncStep<PushBlobStep>>>,
-        Callable<ImmutableList<AsyncStep<PushBlobStep>>> {
+class PushLayersStep:AsyncStep<ImmutableArray<AsyncStep<PushBlobStep>>> {
 
   private static readonly string DESCRIPTION = "Setting up to push layers";
 
   private readonly BuildConfiguration buildConfiguration;
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly AuthenticatePushStep authenticatePushStep;
-  private readonly AsyncStep<IImmutableList<AsyncStep<CachedLayer>>>
+  private readonly AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
       cachedLayerStep;
 
-  private readonly ListenableFuture<ImmutableList<AsyncStep<PushBlobStep>>> listenableFuture;
+  private readonly Task<ImmutableArray<AsyncStep<PushBlobStep>>> listenableFuture;
 
-  PushLayersStep(
-      ListeningExecutorService listeningExecutorService,
+  public PushLayersStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       AuthenticatePushStep authenticatePushStep,
       AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
-          cachedLayerStep) {
-    this.listeningExecutorService = listeningExecutorService;
+          cachedLayerStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.authenticatePushStep = authenticatePushStep;
     this.cachedLayerStep = cachedLayerStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(cachedLayerStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<ImmutableList<AsyncStep<PushBlobStep>>> getFuture() {
+  public Task<ImmutableArray<AsyncStep<PushBlobStep>>> getFuture() {
     return listenableFuture;
   }
 
-  public ImmutableList<AsyncStep<PushBlobStep>> call() {
+  public ImmutableArray<AsyncStep<PushBlobStep>> call() {
     using (TimerEventDispatcher ignored =
         new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)) {
       IReadOnlyList<AsyncStep<CachedLayer>> cachedLayers =
@@ -77,18 +83,16 @@ class PushLayersStep:AsyncStep<ImmutableList<AsyncStep<PushBlobStep>>>,
       using (ProgressEventDispatcher progressEventDispatcher =
           progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size())) {
         // Constructs a PushBlobStep for each layer.
-        ImmutableList.Builder<AsyncStep<PushBlobStep>> pushBlobStepsBuilder =
-            ImmutableList.builder();
+        ImmutableArray<AsyncStep<PushBlobStep>>.Builder pushBlobStepsBuilder =
+            ImmutableArray.CreateBuilder<AsyncStep<PushBlobStep>>();
         foreach (AsyncStep<CachedLayer> cachedLayerStep in cachedLayers)
         {
           ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
               progressEventDispatcher.newChildProducer();
-          ListenableFuture<PushBlobStep> pushBlobStepFuture =
+          Task<PushBlobStep> pushBlobStepFuture =
               Futures.whenAllSucceed(cachedLayerStep.getFuture())
-                  .call(
-                      () => makePushBlobStep(cachedLayerStep, childProgressEventDispatcherFactory),
-                      listeningExecutorService);
-          pushBlobStepsBuilder.add(() => pushBlobStepFuture);
+                  .call(() => makePushBlobStep(cachedLayerStep, childProgressEventDispatcherFactory));
+          pushBlobStepsBuilder.add(AsyncStep.Of(() => pushBlobStepFuture));
         }
 
         return pushBlobStepsBuilder.build();
@@ -103,7 +107,6 @@ class PushLayersStep:AsyncStep<ImmutableList<AsyncStep<PushBlobStep>>>,
     CachedLayer cachedLayer = NonBlockingSteps.get(cachedLayerStep);
 
     return new PushBlobStep(
-        listeningExecutorService,
         buildConfiguration,
         progressEventDispatcherFactory,
         authenticatePushStep,

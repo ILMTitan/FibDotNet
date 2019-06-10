@@ -37,7 +37,7 @@ public class ContainerConfigurationTest {
     try {
       ContainerConfiguration.builder().setProgramArguments(Arrays.asList("first", null));
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("program arguments list contains null elements", ex.getMessage());
     }
 
@@ -45,39 +45,39 @@ public class ContainerConfigurationTest {
     try {
       ContainerConfiguration.builder().setEntrypoint(Arrays.asList("first", null));
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("entrypoint contains null elements", ex.getMessage());
     }
 
     // Exposed ports element should not be null.
-    Set<Port> badPorts = new HashSet<>(Arrays.asList(Port.tcp(1000), null));
+    ISet<Port> badPorts = new HashSet<>(Arrays.asList(Port.tcp(1000), null));
     try {
       ContainerConfiguration.builder().setExposedPorts(badPorts);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("ports list contains null elements", ex.getMessage());
     }
 
     // Volume element should not be null.
-    Set<AbsoluteUnixPath> badVolumes =
+    ISet<AbsoluteUnixPath> badVolumes =
         new HashSet<>(Arrays.asList(AbsoluteUnixPath.get("/"), null));
     try {
       ContainerConfiguration.builder().setVolumes(badVolumes);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("volumes list contains null elements", ex.getMessage());
     }
 
-    Map<string, string> nullKeyMap = new HashMap<>();
+    IDictionary<string, string> nullKeyMap = new Dictionary<>();
     nullKeyMap.put(null, "value");
-    Map<string, string> nullValueMap = new HashMap<>();
+    IDictionary<string, string> nullValueMap = new Dictionary<>();
     nullValueMap.put("key", null);
 
     // Label keys should not be null.
     try {
       ContainerConfiguration.builder().setLabels(nullKeyMap);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("labels map contains null keys", ex.getMessage());
     }
 
@@ -85,7 +85,7 @@ public class ContainerConfigurationTest {
     try {
       ContainerConfiguration.builder().setLabels(nullValueMap);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("labels map contains null values", ex.getMessage());
     }
 
@@ -93,7 +93,7 @@ public class ContainerConfigurationTest {
     try {
       ContainerConfiguration.builder().setEnvironment(nullKeyMap);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("environment map contains null keys", ex.getMessage());
     }
 
@@ -101,7 +101,7 @@ public class ContainerConfigurationTest {
     try {
       ContainerConfiguration.builder().setEnvironment(nullValueMap);
       Assert.fail("The IllegalArgumentException should be thrown.");
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("environment map contains null values", ex.getMessage());
     }
   }
@@ -110,7 +110,7 @@ public class ContainerConfigurationTest {
   @SuppressWarnings("JdkObsolete") // for hashtable
   public void testBuilder_environmentMapTypes() {
     // Can accept empty environment.
-    ContainerConfiguration.builder().setEnvironment(ImmutableMap.of()).build();
+    ContainerConfiguration.builder().setEnvironment(ImmutableDictionary.of()).build();
 
     // Can handle other map types (https://github.com/GoogleContainerTools/jib/issues/632)
     ContainerConfiguration.builder().setEnvironment(new TreeMap<>());

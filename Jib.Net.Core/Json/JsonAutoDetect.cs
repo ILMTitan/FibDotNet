@@ -1,5 +1,5 @@
-/*
- * Copyright 2018 Google LLC.
+﻿/*
+ * Copyright 2017 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,18 +14,20 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.async {
+using System;
 
+namespace com.google.cloud.tools.jib.json
+{
+    internal class JsonAutoDetect : Attribute
+    {
+        public Visibility fieldVisibility;
+        public Visibility getterVisibility;
+        public Visibility setterVisibility;
+        public Visibility creatorVisibility;
 
-
-/** Static methods for {@link AsyncStep}. */
-public class AsyncSteps {
-
-  public static <T> AsyncStep<T> immediate(T returnValue) {
-    ListenableFuture<T> future = Futures.immediateFuture(returnValue);
-    return () => future;
-  }
-
-  private AsyncSteps() {}
-}
+        public enum Visibility {
+            ANY,
+            NONE
+        }
+    }
 }

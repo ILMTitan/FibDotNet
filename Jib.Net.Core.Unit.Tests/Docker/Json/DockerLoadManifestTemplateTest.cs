@@ -35,7 +35,7 @@ public class DockerLoadManifestTemplateTest {
   [TestMethod]
   public void testToJson() {
     // Loads the expected JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
@@ -45,7 +45,7 @@ public class DockerLoadManifestTemplateTest {
     template.addLayerFile("layer2.tar.gz");
     template.addLayerFile("layer3.tar.gz");
 
-    List<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
+    IList<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
     Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
   }
 }

@@ -27,19 +27,19 @@ public class DockerHealthCheckTest {
   [TestMethod]
   public void testBuild() {
     DockerHealthCheck healthCheck =
-        DockerHealthCheck.fromCommand(ImmutableList.of("echo", "hi"))
-            .setInterval(Duration.ofNanos(123))
-            .setTimeout(Duration.ofNanos(456))
-            .setStartPeriod(Duration.ofNanos(789))
+        DockerHealthCheck.fromCommand(ImmutableArray.Create("echo", "hi"))
+            .setInterval(Duration.FromNanoseconds(123))
+            .setTimeout(Duration.FromNanoseconds(456))
+            .setStartPeriod(Duration.FromNanoseconds(789))
             .setRetries(10)
             .build();
 
     Assert.assertTrue(healthCheck.getInterval().isPresent());
-    Assert.assertEquals(Duration.ofNanos(123), healthCheck.getInterval().get());
+    Assert.assertEquals(Duration.FromNanoseconds(123), healthCheck.getInterval().get());
     Assert.assertTrue(healthCheck.getTimeout().isPresent());
-    Assert.assertEquals(Duration.ofNanos(456), healthCheck.getTimeout().get());
+    Assert.assertEquals(Duration.FromNanoseconds(456), healthCheck.getTimeout().get());
     Assert.assertTrue(healthCheck.getStartPeriod().isPresent());
-    Assert.assertEquals(Duration.ofNanos(789), healthCheck.getStartPeriod().get());
+    Assert.assertEquals(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().get());
     Assert.assertTrue(healthCheck.getRetries().isPresent());
     Assert.assertEquals(10, (int) healthCheck.getRetries().get());
   }
@@ -47,16 +47,16 @@ public class DockerHealthCheckTest {
   [TestMethod]
   public void testBuild_invalidCommand() {
     try {
-      DockerHealthCheck.fromCommand(ImmutableList.of());
+      DockerHealthCheck.fromCommand(ImmutableArray.Create());
       Assert.fail();
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("command must not be empty", ex.getMessage());
     }
 
     try {
       DockerHealthCheck.fromCommand(Arrays.asList("CMD", null));
       Assert.fail();
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("command must not contain null elements", ex.getMessage());
     }
   }

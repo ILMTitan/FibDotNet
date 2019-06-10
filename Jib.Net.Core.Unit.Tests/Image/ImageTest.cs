@@ -50,14 +50,14 @@ public class ImageTest {
   public void test_smokeTest() {
     Image image =
         Image.builder(typeof(V22ManifestTemplate))
-            .setCreated(Instant.ofEpochSecond(10000))
+            .setCreated(Instant.FromUnixTimeSeconds(10000))
             .addEnvironmentVariable("crepecake", "is great")
             .addEnvironmentVariable("VARIABLE", "VALUE")
             .setEntrypoint(Arrays.asList("some", "command"))
             .setProgramArguments(Arrays.asList("arg1", "arg2"))
-            .addExposedPorts(ImmutableSet.of(Port.tcp(1000), Port.tcp(2000)))
+            .addExposedPorts(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000)))
             .addVolumes(
-                ImmutableSet.of(
+                ImmutableHashSet.of(
                     AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")))
             .setUser("john")
             .addLayer(mockLayer)
@@ -66,14 +66,14 @@ public class ImageTest {
     Assert.assertEquals(typeof(V22ManifestTemplate), image.getImageFormat());
     Assert.assertEquals(
         mockDescriptorDigest, image.getLayers().get(0).getBlobDescriptor().getDigest());
-    Assert.assertEquals(Instant.ofEpochSecond(10000), image.getCreated());
+    Assert.assertEquals(Instant.FromUnixTimeSeconds(10000), image.getCreated());
     Assert.assertEquals(
-        ImmutableMap.of("crepecake", "is great", "VARIABLE", "VALUE"), image.getEnvironment());
+        ImmutableDictionary.of("crepecake", "is great", "VARIABLE", "VALUE"), image.getEnvironment());
     Assert.assertEquals(Arrays.asList("some", "command"), image.getEntrypoint());
     Assert.assertEquals(Arrays.asList("arg1", "arg2"), image.getProgramArguments());
-    Assert.assertEquals(ImmutableSet.of(Port.tcp(1000), Port.tcp(2000)), image.getExposedPorts());
+    Assert.assertEquals(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000)), image.getExposedPorts());
     Assert.assertEquals(
-        ImmutableSet.of(AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")),
+        ImmutableHashSet.of(AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")),
         image.getVolumes());
     Assert.assertEquals("john", image.getUser());
   }

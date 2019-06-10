@@ -14,6 +14,8 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.json;
+
 namespace com.google.cloud.tools.jib.registry.json {
 
 

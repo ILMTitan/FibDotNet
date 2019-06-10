@@ -56,7 +56,7 @@ public class ManifestPusherIntegrationTest {
     } catch (RegistryErrorException ex) {
       HttpResponseException httpResponseException = (HttpResponseException) ex.getCause();
       Assert.assertEquals(
-          HttpStatusCodes.STATUS_CODE_BAD_REQUEST, httpResponseException.getStatusCode());
+          HttpStatusCode.BadRequest, httpResponseException.getStatusCode());
     }
   }
 

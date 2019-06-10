@@ -14,6 +14,12 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -37,13 +43,13 @@ public class FileOperations {
    * @param destDir the directory to copy the files to.
    * @throws IOException if the copy fails.
    */
-  public static void copy(ImmutableList<Path> sourceFiles, Path destDir) {
-    foreach (Path sourceFile in sourceFiles)
+  public static void copy(ImmutableArray<SystemPath> sourceFiles, SystemPath destDir) {
+    foreach (SystemPath sourceFile in sourceFiles)
     {
       PathConsumer copyPathConsumer =
           path => {
             // Creates the same path in the destDir.
-            Path destPath = destDir.resolve(sourceFile.getParent().relativize(path));
+            SystemPath destPath = destDir.resolve(sourceFile.getParent().relativize(path));
             if (Files.isDirectory(path)) {
               Files.createDirectories(destPath);
             } else {
@@ -72,17 +78,8 @@ public class FileOperations {
    * @return an {@link OutputStream} that writes to the file
    * @throws IOException if an I/O exception occurs
    */
-  public static OutputStream newLockingOutputStream(Path file) {
-    EnumSet<StandardOpenOption> createOrTruncate =
-        EnumSet.of(
-            StandardOpenOption.CREATE,
-            StandardOpenOption.WRITE,
-            StandardOpenOption.TRUNCATE_EXISTING);
-    // Channel is closed by outputStream.close().
-    FileChannel channel = FileChannel.open(file, createOrTruncate);
-    // Lock is released when channel is closed.
-    channel.@lock();
-    return Channels.newOutputStream(channel);
+  public static Stream newLockingOutputStream(SystemPath file) {
+    return file.toFile().Create();
   }
 
   private FileOperations() {}

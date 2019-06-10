@@ -14,16 +14,19 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+
+namespace com.google.cloud.tools.jib.api
+{
 
 
-/** The container built by Jib. */
-public class JibContainer {
+    /** The container built by Jib. */
+    public class JibContainer {
 
   private readonly DescriptorDigest imageDigest;
   private readonly DescriptorDigest imageId;
 
-  JibContainer(DescriptorDigest imageDigest, DescriptorDigest imageId) {
+  public JibContainer(DescriptorDigest imageDigest, DescriptorDigest imageId) {
     this.imageDigest = imageDigest;
     this.imageId = imageId;
   }
@@ -47,11 +50,11 @@ public class JibContainer {
     return imageId;
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(imageDigest, imageId);
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -59,7 +62,7 @@ public class JibContainer {
       return false;
     }
     JibContainer otherContainer = (JibContainer) other;
-    return imageDigest.equals(otherContainer.imageDigest) && imageId.equals(otherContainer.imageId);
+    return imageDigest.Equals(otherContainer.imageDigest) && imageId.Equals(otherContainer.imageId);
   }
 }
 }

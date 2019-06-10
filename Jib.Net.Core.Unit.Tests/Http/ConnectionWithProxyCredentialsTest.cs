@@ -31,8 +31,8 @@ namespace com.google.cloud.tools.jib.http {
 /** Tests for {@link Connection} with setting proxy credentials. */
 public class ConnectionWithProxyCredentialsTest {
 
-  private static readonly ImmutableList<string> proxyProperties =
-      ImmutableList.of(
+  private static readonly ImmutableArray<string> proxyProperties =
+      ImmutableArray.Create(
           "http.proxyHost",
           "http.proxyPort",
           "http.proxyUser",
@@ -43,7 +43,7 @@ public class ConnectionWithProxyCredentialsTest {
           "https.proxyPassword");
 
   // HashMap to allow saving null values.
-  private readonly HashMap<string, string> savedProperties = new HashMap<>();
+  private readonly Dictionary<string, string> savedProperties = new Dictionary<>();
 
   private readonly ApacheHttpTransport transport = new ApacheHttpTransport();
 
@@ -55,7 +55,7 @@ public class ConnectionWithProxyCredentialsTest {
 
   @After
   public void tearDown() {
-    Consumer<Map.Entry<string, string>> restoreProperty =
+    Consumer<KeyValuePair<string, string>> restoreProperty =
         entry => {
           if (entry.getValue() == null) {
             System.clearProperty(entry.getKey());

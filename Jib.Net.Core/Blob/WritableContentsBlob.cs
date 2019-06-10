@@ -14,21 +14,26 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Blob;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
 
 
-/** A {@link Blob} that holds {@link WritableContents}. */
-class WritableContentsBlob : $2 {
+    /** A {@link Blob} that holds {@link WritableContents}. */
+    class WritableContentsBlob : Blob {
   private readonly WritableContents writableContents;
 
-  WritableContentsBlob(WritableContents writableContents) {
+  public WritableContentsBlob(WritableContents writableContents) {
     this.writableContents = writableContents;
   }
 
-  public BlobDescriptor writeTo(OutputStream outputStream) {
+  public BlobDescriptor writeTo(Stream outputStream) {
     return Digests.computeDigest(writableContents, outputStream);
   }
 }

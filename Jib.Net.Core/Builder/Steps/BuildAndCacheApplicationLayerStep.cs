@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image;
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -34,7 +44,7 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Builds and caches application layers. */
-class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<CachedLayer>
+public class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>
     {
   private static readonly string DESCRIPTION = "Building application layers";
 
@@ -42,10 +52,10 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
    * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
    * classes layers. Optionally adds an extra layer if configured to do so.
    */
-  static ImmutableList<BuildAndCacheApplicationLayerStep> makeList(
-      ListeningExecutorService listeningExecutorService,
+  public static ImmutableArray<BuildAndCacheApplicationLayerStep> makeList(
       BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory) {
+      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
     int layerCount = buildConfiguration.getLayerConfigurations().size();
 
     using(ProgressEventDispatcher progressEventDispatcher =
@@ -53,12 +63,12 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
                 "setting up to build application layers", layerCount))
 
     using(TimerEventDispatcher ignored =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)))
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
 
     {
 
-      ImmutableList.Builder<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
-          ImmutableList.builderWithExpectedSize(layerCount);
+                ImmutableArray<BuildAndCacheApplicationLayerStep>.Builder buildAndCacheApplicationLayerSteps =
+          ImmutableArray.CreateBuilder<BuildAndCacheApplicationLayerStep>(layerCount);
       foreach (LayerConfiguration layerConfiguration in buildConfiguration.getLayerConfigurations())
       {
         // Skips the layer if empty.
@@ -68,13 +78,12 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
 
         buildAndCacheApplicationLayerSteps.add(
             new BuildAndCacheApplicationLayerStep(
-                listeningExecutorService,
                 buildConfiguration,
                 progressEventDispatcher.newChildProducer(),
                 layerConfiguration.getName(),
                 layerConfiguration));
       }
-      ImmutableList<BuildAndCacheApplicationLayerStep> steps =
+      ImmutableArray<BuildAndCacheApplicationLayerStep> steps =
           buildAndCacheApplicationLayerSteps.build();
       return steps;
     }
@@ -86,23 +95,23 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
   private readonly string layerType;
   private readonly LayerConfiguration layerConfiguration;
 
-  private readonly ListenableFuture<CachedLayer> listenableFuture;
+  private readonly Task<CachedLayer> listenableFuture;
 
   private BuildAndCacheApplicationLayerStep(
-      ListeningExecutorService listeningExecutorService,
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       string layerType,
-      LayerConfiguration layerConfiguration) {
+      LayerConfiguration layerConfiguration)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.layerType = layerType;
     this.layerConfiguration = layerConfiguration;
 
-    listenableFuture = listeningExecutorService.submit(this);
-  }
+            listenableFuture = Task.Run(call);
+    }
 
-  public ListenableFuture<CachedLayer> getFuture() {
+  public Task<CachedLayer> getFuture() {
     return listenableFuture;
   }
 
@@ -115,7 +124,7 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
             progressEventDispatcherFactory.create("building " + layerType + " layer", 1))
 
     using(TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description)))
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
 
     {
 
@@ -140,7 +149,7 @@ class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>, Callable<Cache
     }
   }
 
-  string getLayerType() {
+  public string getLayerType() {
     return layerType;
   }
 }

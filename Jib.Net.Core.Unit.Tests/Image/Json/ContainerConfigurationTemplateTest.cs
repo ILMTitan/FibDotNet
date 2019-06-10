@@ -39,7 +39,7 @@ public class ContainerConfigurationTemplateTest {
   [TestMethod]
   public void testToJson() {
     // Loads the expected JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Creates the JSON object to serialize.
@@ -57,17 +57,17 @@ public class ContainerConfigurationTemplateTest {
     containerConfigJson.setContainerHealthCheckStartPeriod(2000000000L);
     containerConfigJson.setContainerHealthCheckRetries(3);
     containerConfigJson.setContainerExposedPorts(
-        ImmutableSortedMap.of(
+        ImmutableSortedDictionary.of(
             "1000/tcp",
-            ImmutableMap.of(),
+            ImmutableDictionary.of(),
             "2000/tcp",
-            ImmutableMap.of(),
+            ImmutableDictionary.of(),
             "3000/udp",
-            ImmutableMap.of()));
-    containerConfigJson.setContainerLabels(ImmutableMap.of("key1", "value1", "key2", "value2"));
+            ImmutableDictionary.of()));
+    containerConfigJson.setContainerLabels(ImmutableDictionary.of("key1", "value1", "key2", "value2"));
     containerConfigJson.setContainerVolumes(
-        ImmutableMap.of(
-            "/var/job-result-data", ImmutableMap.of(), "/var/log/my-app-logs", ImmutableMap.of()));
+        ImmutableDictionary.of(
+            "/var/job-result-data", ImmutableDictionary.of(), "/var/log/my-app-logs", ImmutableDictionary.of()));
     containerConfigJson.setContainerWorkingDir("/some/workspace");
     containerConfigJson.setContainerUser("tomcat");
 
@@ -83,7 +83,7 @@ public class ContainerConfigurationTemplateTest {
             .build());
     containerConfigJson.addHistoryEntry(
         HistoryEntry.builder()
-            .setCreationTimestamp(Instant.ofEpochSecond(20))
+            .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
             .setAuthor("Jib")
             .setCreatedBy("jib")
             .build());
@@ -95,7 +95,7 @@ public class ContainerConfigurationTemplateTest {
   [TestMethod]
   public void testFromJson() {
     // Loads the JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
 
     // Deserializes into a manifest JSON object.
     ContainerConfigurationTemplate containerConfigJson =
@@ -124,7 +124,7 @@ public class ContainerConfigurationTemplateTest {
     Assert.assertEquals(3, containerConfigJson.getContainerHealthRetries().intValue());
 
     Assert.assertEquals(
-        ImmutableMap.of("key1", "value1", "key2", "value2"),
+        ImmutableDictionary.of("key1", "value1", "key2", "value2"),
         containerConfigJson.getContainerLabels());
     Assert.assertEquals("/some/workspace", containerConfigJson.getContainerWorkingDir());
     Assert.assertEquals(
@@ -132,7 +132,7 @@ public class ContainerConfigurationTemplateTest {
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
         containerConfigJson.getLayerDiffId(0));
     Assert.assertEquals(
-        ImmutableList.of(
+        ImmutableArray.Create(
             HistoryEntry.builder()
                 .setCreationTimestamp(Instant.EPOCH)
                 .setAuthor("Bazel")
@@ -140,7 +140,7 @@ public class ContainerConfigurationTemplateTest {
                 .setEmptyLayer(true)
                 .build(),
             HistoryEntry.builder()
-                .setCreationTimestamp(Instant.ofEpochSecond(20))
+                .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
                 .setAuthor("Jib")
                 .setCreatedBy("jib")
                 .build()),

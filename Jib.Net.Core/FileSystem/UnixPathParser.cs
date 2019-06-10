@@ -14,6 +14,9 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -27,8 +30,8 @@ public class UnixPathParser {
    * @param unixPath the Unix-style path
    * @return a list of path components
    */
-  public static ImmutableList<string> parse(string unixPath) {
-    ImmutableList.Builder<string> pathComponents = ImmutableList.builder();
+  public static ImmutableArray<string> parse(string unixPath) {
+    ImmutableArray<string>.Builder pathComponents = ImmutableArray.CreateBuilder<string>();
     foreach (string pathComponent in Splitter.on('/').split(unixPath))
     {
       if (pathComponent.isEmpty()) {

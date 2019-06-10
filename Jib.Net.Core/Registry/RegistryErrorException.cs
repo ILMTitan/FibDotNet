@@ -14,6 +14,9 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -22,10 +25,22 @@ namespace com.google.cloud.tools.jib.registry {
  * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link
  * ErrorCodes}.
  */
-class RegistryErrorException extends RegistryException {
+public class RegistryErrorException :RegistryException {
 
-  RegistryErrorException(string message, Throwable cause) {
-    super(message, cause);
+  public RegistryErrorException(string message, HttpResponseMessage cause) : base(message, cause) {
+    
   }
-}
+
+        public RegistryErrorException(string message, System.Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryErrorException(string message) : base(message)
+        {
+        }
+
+        public RegistryErrorException() : base()
+        {
+        }
+    }
 }

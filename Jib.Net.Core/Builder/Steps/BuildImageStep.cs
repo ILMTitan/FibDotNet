@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -37,27 +50,25 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Builds a model {@link Image}. */
-class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
+public class BuildImageStep : AsyncStep<AsyncStep<Image>> {
 
   private static readonly string DESCRIPTION = "Building container configuration";
 
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
   private readonly PullBaseImageStep pullBaseImageStep;
   private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
 
-  private readonly ListenableFuture<AsyncStep<Image>> listenableFuture;
+  private readonly Task<AsyncStep<Image>> listenableFuture;
 
-  BuildImageStep(
-      ListeningExecutorService listeningExecutorService,
+  public BuildImageStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       PullBaseImageStep pullBaseImageStep,
       PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps) {
-    this.listeningExecutorService = listeningExecutorService;
+      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.pullBaseImageStep = pullBaseImageStep;
@@ -65,23 +76,23 @@ class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
     this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(pullBaseImageStep)
             .addStep(pullAndCacheBaseImageLayersStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<AsyncStep<Image>> getFuture() {
+  public Task<AsyncStep<Image>> getFuture() {
     return listenableFuture;
   }
 
   public AsyncStep<Image> call() {
-    ListenableFuture<Image> future =
-        AsyncDependencies.@using(listeningExecutorService)
+    Task<Image> future =
+        AsyncDependencies.@using()
             .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
             .addSteps(buildAndCacheApplicationLayerSteps)
             .whenAllSucceed(this.afterCachedLayerSteps);
-    return () => future;
+    return AsyncStep.Of(() => future);
   }
 
   private Image afterCachedLayerSteps() {
@@ -98,9 +109,9 @@ class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
           buildConfiguration.getContainerConfiguration();
 
       // Base image layers
-      List<PullAndCacheBaseImageLayerStep> baseImageLayers =
+      IReadOnlyList<AsyncStep<CachedLayer>> baseImageLayers =
           NonBlockingSteps.get(pullAndCacheBaseImageLayersStep);
-      foreach (PullAndCacheBaseImageLayerStep pullAndCacheBaseImageLayerStep in baseImageLayers)
+      foreach (AsyncStep<CachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
       {
         imageBuilder.addLayer(NonBlockingSteps.get(pullAndCacheBaseImageLayerStep));
       }
@@ -179,12 +190,12 @@ class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
    * @param containerConfiguration the container configuration
    * @return the container entrypoint
    */
-  private ImmutableList<string> computeEntrypoint(
+  private ImmutableArray<string>? computeEntrypoint(
       Image baseImage, ContainerConfiguration containerConfiguration) {
     bool shouldInherit =
         baseImage.getEntrypoint() != null && containerConfiguration.getEntrypoint() == null;
 
-    ImmutableList<string> entrypointToUse =
+    ImmutableArray<string>? entrypointToUse =
         shouldInherit ? baseImage.getEntrypoint() : containerConfiguration.getEntrypoint();
 
     if (entrypointToUse != null) {
@@ -207,7 +218,7 @@ class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
    * @param containerConfiguration the container configuration
    * @return the container program arguments
    */
-  private ImmutableList<string> computeProgramArguments(
+  private ImmutableArray<string>? computeProgramArguments(
       Image baseImage, ContainerConfiguration containerConfiguration) {
     bool shouldInherit =
         baseImage.getProgramArguments() != null
@@ -215,7 +226,7 @@ class BuildImageStep : AsyncStep<AsyncStep<Image>>, Callable<AsyncStep<Image>> {
             && containerConfiguration.getEntrypoint() == null
             && containerConfiguration.getProgramArguments() == null;
 
-    ImmutableList<string> programArgumentsToUse =
+    ImmutableArray<string>? programArgumentsToUse =
         shouldInherit
             ? baseImage.getProgramArguments()
             : containerConfiguration.getProgramArguments();

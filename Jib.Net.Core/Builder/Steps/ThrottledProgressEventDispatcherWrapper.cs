@@ -14,47 +14,52 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.builder.steps {
+using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core.Global;
+using System;
+
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
 
 
 
-/**
- * Contains a {@link ProgressEventDispatcher} and throttles dispatching progress events with the
- * default delay used by {@link ThrottledConsumer}. This class is mutable and should only be used
- * within a local context.
- *
- * <p>This class is necessary because the total BLOb size (allocation units) is not known until the
- * response headers are received, only after which can the {@link ProgressEventDispatcher} be
- * created.
- */
-class ThrottledProgressEventDispatcherWrapper : $2 {
+    /**
+     * Contains a {@link ProgressEventDispatcher} and throttles dispatching progress events with the
+     * default delay used by {@link ThrottledConsumer}. This class is mutable and should only be used
+     * within a local context.
+     *
+     * <p>This class is necessary because the total BLOb size (allocation units) is not known until the
+     * response headers are received, only after which can the {@link ProgressEventDispatcher} be
+     * created.
+     */
+    class ThrottledProgressEventDispatcherWrapper : IDisposable {
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
   private readonly string description;
   private ProgressEventDispatcher progressEventDispatcher;
   private ThrottledAccumulatingConsumer throttledDispatcher;
 
-  ThrottledProgressEventDispatcherWrapper(
+  public ThrottledProgressEventDispatcherWrapper(
       ProgressEventDispatcher.Factory progressEventDispatcherFactory, string description) {
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.description = description;
   }
 
-  public void dispatchProgress(Long progressUnits) {
+  public void dispatchProgress(long progressUnits) {
     Preconditions.checkNotNull(throttledDispatcher);
     throttledDispatcher.accept(progressUnits);
   }
 
-  public void close() {
+  public void Dispose() {
     Preconditions.checkNotNull(progressEventDispatcher);
     Preconditions.checkNotNull(throttledDispatcher);
     throttledDispatcher.close();
     progressEventDispatcher.close();
   }
 
-  void setProgressTarget(long allocationUnits) {
+  public void setProgressTarget(long allocationUnits) {
     Preconditions.checkState(progressEventDispatcher == null);
     progressEventDispatcher = progressEventDispatcherFactory.create(description, allocationUnits);
     throttledDispatcher =

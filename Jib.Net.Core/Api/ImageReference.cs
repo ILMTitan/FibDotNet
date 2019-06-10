@@ -14,7 +14,14 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace com.google.cloud.tools.jib.api
+{
 
 
 
@@ -22,15 +29,15 @@ namespace com.google.cloud.tools.jib.api {
 
 
 
-/**
- * Represents an image reference.
- *
- * @see <a
- *     href="https://github.com/docker/distribution/blob/master/reference/reference.go">https://github.com/docker/distribution/blob/master/reference/reference.go</a>
- * @see <a
- *     href="https://docs.docker.com/engine/reference/commandline/tag/#extended-description">https://docs.docker.com/engine/reference/commandline/tag/#extended-description</a>
- */
-public class ImageReference {
+    /**
+     * Represents an image reference.
+     *
+     * @see <a
+     *     href="https://github.com/docker/distribution/blob/master/reference/reference.go">https://github.com/docker/distribution/blob/master/reference/reference.go</a>
+     * @see <a
+     *     href="https://docs.docker.com/engine/reference/commandline/tag/#extended-description">https://docs.docker.com/engine/reference/commandline/tag/#extended-description</a>
+     */
+    public class ImageReference {
 
   private static readonly string DOCKER_HUB_REGISTRY = "registry-1.docker.io";
   private static readonly string DEFAULT_TAG = "latest";
@@ -48,7 +55,7 @@ public class ImageReference {
    * {@code :port} at the end.
    */
   private static readonly string REGISTRY_REGEX =
-      string.format("%s(?:\\.%s)*(?::\\d+)?", REGISTRY_COMPONENT_REGEX, REGISTRY_COMPONENT_REGEX);
+      $"{REGISTRY_COMPONENT_REGEX}(?:\\.{REGISTRY_COMPONENT_REGEX})*(?::\\d+)?";
 
   /**
    * Matches all sequences of alphanumeric characters separated by a separator.
@@ -59,21 +66,19 @@ public class ImageReference {
 
   /** Matches all repetitions of {@code REPOSITORY_COMPONENT_REGEX} separated by a backslash. */
   private static readonly string REPOSITORY_REGEX =
-      string.format("(?:%s/)*%s", REPOSITORY_COMPONENT_REGEX, REPOSITORY_COMPONENT_REGEX);
+      $"(?:{REPOSITORY_COMPONENT_REGEX}/)*{REPOSITORY_COMPONENT_REGEX}";
 
   /** Matches a tag of max length 128. */
   private static readonly string TAG_REGEX = "[\\w][\\w.-]{0,127}";
 
-  /**
-   * Matches a full image reference, which is the registry, repository, and tag/digest separated by
-   * backslashes. The repository is required, but the registry and tag/digest are optional.
-   */
-  private static readonly string REFERENCE_REGEX =
-      string.format(
-          "^(?:(%s)/)?(%s)(?:(?::(%s))|(?:@(%s)))?$",
-          REGISTRY_REGEX, REPOSITORY_REGEX, TAG_REGEX, DescriptorDigest.DIGEST_REGEX);
+        /**
+         * Matches a full image reference, which is the registry, repository, and tag/digest separated by
+         * backslashes. The repository is required, but the registry and tag/digest are optional.
+         */
+        private static readonly string REFERENCE_REGEX =
+            $"^(?:({REGISTRY_REGEX})/)?({REPOSITORY_REGEX})(?:(?::({TAG_REGEX}))|(?:@({DescriptorDigest.DIGEST_REGEX})))?$";
 
-  private static readonly Pattern REFERENCE_PATTERN = Pattern.compile(REFERENCE_REGEX);
+  private static readonly Regex REFERENCE_PATTERN = new Regex(REFERENCE_REGEX);
 
   /**
    * Parses a string {@code reference} into an {@link ImageReference}.
@@ -91,7 +96,7 @@ public class ImageReference {
    * @throws InvalidImageReferenceException if {@code reference} is formatted incorrectly
    */
   public static ImageReference parse(string reference) {
-    Matcher matcher = REFERENCE_PATTERN.matcher(reference);
+    Match matcher = REFERENCE_PATTERN.matcher(reference);
 
     if (!matcher.find() || matcher.groupCount() < 4) {
       throw new InvalidImageReferenceException(reference);
@@ -116,7 +121,7 @@ public class ImageReference {
      *
      * See https://github.com/docker/distribution/blob/245ca4659e09e9745f3cc1217bf56e946509220c/reference/normalize.go#L62
      */
-    if (!registry.contains(".") && !registry.contains(":") && !"localhost".equals(registry)) {
+    if (!registry.contains(".") && !registry.contains(":") && !"localhost".Equals(registry)) {
       repository = registry + "/" + repository;
       registry = DOCKER_HUB_REGISTRY;
     }
@@ -127,7 +132,7 @@ public class ImageReference {
      *
      * See https://docs.docker.com/engine/reference/commandline/pull/#pull-an-image-from-docker-hub
      */
-    if (DOCKER_HUB_REGISTRY.equals(registry) && repository.indexOf('/') < 0) {
+    if (DOCKER_HUB_REGISTRY.Equals(registry) && repository.indexOf('/') < 0) {
       repository = LIBRARY_REPOSITORY_PREFIX + repository;
     }
 
@@ -222,7 +227,7 @@ public class ImageReference {
    *     if not
    */
   public static bool isDefaultTag(string tag) {
-    return tag.isEmpty() || DEFAULT_TAG.equals(tag);
+    return tag.isEmpty() || DEFAULT_TAG.Equals(tag);
   }
 
   private readonly string registry;
@@ -289,7 +294,7 @@ public class ImageReference {
    * @return {@code true} if the {@link ImageReference} is a scratch image; {@code false} if not
    */
   public bool isScratch() {
-    return "".equals(registry) && "scratch".equals(repository) && "".equals(tag);
+    return "".Equals(registry) && "scratch".Equals(repository) && "".Equals(tag);
   }
 
   /**
@@ -309,10 +314,10 @@ public class ImageReference {
    * @return the image reference in Docker-readable format (inverse of {@link #parse})
    */
 
-  public string toString() {
+  public override string ToString() {
     StringBuilder referenceString = new StringBuilder();
 
-    if (!DOCKER_HUB_REGISTRY.equals(registry)) {
+    if (!DOCKER_HUB_REGISTRY.Equals(registry)) {
       // Use registry and repository if not Docker Hub.
       referenceString.append(registry).append('/').append(repository);
 
@@ -326,7 +331,7 @@ public class ImageReference {
     }
 
     // Use tag if not the default tag.
-    if (!DEFAULT_TAG.equals(tag)) {
+    if (!DEFAULT_TAG.Equals(tag)) {
       // Append with "@tag" instead of ":tag" if tag is a digest
       referenceString.append(isTagDigest() ? '@' : ':').append(tag);
     }
@@ -340,7 +345,7 @@ public class ImageReference {
    * @return the image reference in Docker-readable format, without hiding the tag
    */
   public string toStringWithTag() {
-    return toString() + (usesDefaultTag() ? ":" + DEFAULT_TAG : "");
+    return ToString() + (usesDefaultTag() ? ":" + DEFAULT_TAG : "");
   }
 }
 }

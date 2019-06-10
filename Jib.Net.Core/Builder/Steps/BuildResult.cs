@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -35,7 +42,7 @@ public class BuildResult {
    * @return a new {@link BuildResult} with the image's digest and id
    * @throws IOException if writing the digest or container configuration fails
    */
-  static BuildResult fromImage(Image image, Class<BuildableManifestTemplate> targetFormat)
+  public static BuildResult fromImage(Image image, IClass<BuildableManifestTemplate> targetFormat)
       {
     ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
     BlobDescriptor containerConfigurationBlobDescriptor =
@@ -51,7 +58,7 @@ public class BuildResult {
   private readonly DescriptorDigest imageDigest;
   private readonly DescriptorDigest imageId;
 
-  BuildResult(DescriptorDigest imageDigest, DescriptorDigest imageId) {
+  public BuildResult(DescriptorDigest imageDigest, DescriptorDigest imageId) {
     this.imageDigest = imageDigest;
     this.imageId = imageId;
   }
@@ -64,11 +71,11 @@ public class BuildResult {
     return imageId;
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(imageDigest, imageId);
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -76,8 +83,8 @@ public class BuildResult {
       return false;
     }
     BuildResult otherBuildResult = (BuildResult) other;
-    return imageDigest.equals(otherBuildResult.imageDigest)
-        && imageId.equals(otherBuildResult.imageId);
+    return imageDigest.Equals(otherBuildResult.imageDigest)
+        && imageId.Equals(otherBuildResult.imageId);
   }
 }
 }

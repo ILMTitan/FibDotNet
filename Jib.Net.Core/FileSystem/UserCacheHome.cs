@@ -14,6 +14,13 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -38,14 +45,8 @@ namespace com.google.cloud.tools.jib.filesystem {
  * @see <a
  *     href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html</a>
  */
-public class UserCacheHome {
-
-  private static readonly Logger logger = Logger.getLogger(typeof(UserCacheHome).getName());
-
-  public static Path getCacheHome() {
-    return getCacheHome(System.getProperties(), System.getenv());
-  }
-
+public static class UserCacheHome
+    {
   /**
    * Returns {@code $XDG_CACHE_HOME}, if available, or resolves the OS-specific user cache home
    * based.
@@ -57,49 +58,34 @@ public class UserCacheHome {
    * <p>For macOS, this is {@code $HOME/Library/Application Support/}.
    */
 
-  static Path getCacheHome(Properties properties, Map<string, string> environment) {
-    // Use environment variable $XDG_CACHE_HOME if set and not empty.
-    string xdgCacheHome = environment.get("XDG_CACHE_HOME");
-    if (xdgCacheHome != null && !xdgCacheHome.trim().isEmpty()) {
-      return Paths.get(xdgCacheHome);
-    }
+  public static SystemPath getCacheHome() {
 
-    string userHome = properties.getProperty("user.home");
-    Path xdgPath = Paths.get(userHome, ".cache");
+                // Use environment variable $XDG_CACHE_HOME if set and not empty.
+                string xdgCacheHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
+                if (!string.IsNullOrWhiteSpace(xdgCacheHome)) {
+                    return Paths.get(xdgCacheHome);
+                }
 
-    string rawOsName = properties.getProperty("os.name");
-    string osName = rawOsName.toLowerCase(Locale.ENGLISH);
-
-    if (osName.contains("linux")) {
-      return xdgPath;
-
-    } else if (osName.contains("windows")) {
-      // Use %LOCALAPPDATA% for Windows.
-      string localAppDataEnv = environment.get("LOCALAPPDATA");
-      if (localAppDataEnv == null || localAppDataEnv.trim().isEmpty()) {
-        logger.warning("LOCALAPPDATA environment is invalid or missing");
-        return xdgPath;
-      }
-      Path localAppData = Paths.get(localAppDataEnv);
-      if (!Files.exists(localAppData)) {
-        logger.warning(localAppData + " does not exist");
-        return xdgPath;
-      }
-      return localAppData;
-
-    } else if (osName.contains("mac") || osName.contains("darwin")) {
+                // Next, try using localAppData.
+    string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!string.IsNullOrWhiteSpace(localAppData))
+            {
+                return Paths.get(localAppData);
+            }
+            string userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ){
       // Use '~/Library/Application Support/' for macOS.
-      Path applicationSupport = Paths.get(userHome, "Library", "Application Support");
-      if (!Files.exists(applicationSupport)) {
-        logger.warning(applicationSupport + " does not exist");
-        return xdgPath;
-      }
+      SystemPath applicationSupport = Paths.get(userHome, "Library", "Application Support");
+      if (Files.exists(applicationSupport)) {
       return applicationSupport;
+      }
     }
+            if (!string.IsNullOrWhiteSpace(userHome)) {
+                SystemPath xdgPath = Paths.get(userHome, ".cache");
+                return xdgPath;
+            }
 
-    throw new IllegalStateException("Unknown OS: " + rawOsName);
+            throw new InvalidOperationException("Unknown OS: " + RuntimeInformation.OSDescription);
   }
-
-  private UserCacheHome() {}
 }
 }

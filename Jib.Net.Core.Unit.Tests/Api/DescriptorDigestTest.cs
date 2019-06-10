@@ -89,7 +89,7 @@ public class DescriptorDigestTest {
         DescriptorDigest.fromDigest("sha256:" + createGoodHash('a'));
     DescriptorDigest descriptorDigestB = DescriptorDigest.fromHash(createGoodHash('b'));
 
-    Map<DescriptorDigest, string> digestMap = new HashMap<>();
+    IDictionary<DescriptorDigest, string> digestMap = new Dictionary<>();
 
     digestMap.put(descriptorDigestA1, "digest with a");
     Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));

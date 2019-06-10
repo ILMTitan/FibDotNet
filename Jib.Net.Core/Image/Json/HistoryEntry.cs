@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using NodaTime;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -32,7 +39,7 @@ namespace com.google.cloud.tools.jib.image.json {
 [JsonIgnoreProperties(ignoreUnknown = true)]
 public class HistoryEntry : JsonTemplate {
 
-  public static class Builder {
+  public class Builder {
 
     private Instant creationTimestamp;
     private string author;
@@ -74,7 +81,7 @@ public class HistoryEntry : JsonTemplate {
           emptyLayer);
     }
 
-    private Builder() {}
+    public Builder() {}
   }
 
   /**
@@ -87,26 +94,26 @@ public class HistoryEntry : JsonTemplate {
   }
 
   /** The ISO-8601 formatted timestamp at which the image was created. */
-  @JsonProperty("created")
+  [JsonProperty("created")]
   private string creationTimestamp;
 
   /** The name of the author specified when committing the image. */
-  @JsonProperty("author")
+  [JsonProperty("author")]
   private string author;
 
   /** The command used to build the layer. */
-  @JsonProperty("created_by")
+  [JsonProperty("created_by")]
   private string createdBy;
 
   /** A custom message set when creating the layer. */
-  @JsonProperty("comment")
+  [JsonProperty("comment")]
   private string comment;
 
   /**
    * Whether or not the entry corresponds to a layer in the container ({@code bool} to
    * make field optional).
    */
-  @JsonProperty("empty_layer")
+  [JsonProperty("empty_layer")]
   private bool emptyLayer;
 
   public HistoryEntry() {}
@@ -129,31 +136,30 @@ public class HistoryEntry : JsonTemplate {
    *
    * @return {@code true} if the history object corresponds to a layer in the container
    */
-  @JsonIgnore
   public bool hasCorrespondingLayer() {
-    return emptyLayer == null ? false : emptyLayer;
+    return emptyLayer;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
     if (other is HistoryEntry) {
       HistoryEntry otherHistory = (HistoryEntry) other;
-      return Objects.equals(otherHistory.creationTimestamp, creationTimestamp)
-          && Objects.equals(otherHistory.author, author)
-          && Objects.equals(otherHistory.createdBy, createdBy)
-          && Objects.equals(otherHistory.comment, comment)
-          && Objects.equals(otherHistory.emptyLayer, emptyLayer);
+      return Objects.Equals(otherHistory.creationTimestamp, creationTimestamp)
+          && Objects.Equals(otherHistory.author, author)
+          && Objects.Equals(otherHistory.createdBy, createdBy)
+          && Objects.Equals(otherHistory.comment, comment)
+          && Objects.Equals(otherHistory.emptyLayer, emptyLayer);
     }
     return false;
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(author, creationTimestamp, createdBy, comment, emptyLayer);
   }
 
-  public string toString() {
+  public override string ToString() {
     return createdBy == null ? "" : createdBy;
   }
 }

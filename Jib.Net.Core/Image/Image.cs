@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -35,29 +44,29 @@ namespace com.google.cloud.tools.jib.image {
 public class Image {
 
   /** Builds the immutable {@link Image}. */
-  public static class Builder {
+  public class Builder {
 
-    private readonly Class<? extends ManifestTemplate> imageFormat;
+    private readonly IClass<ManifestTemplate> imageFormat;
     private readonly ImageLayers.Builder imageLayersBuilder = ImageLayers.builder();
-    private readonly ImmutableList.Builder<HistoryEntry> historyBuilder = ImmutableList.builder();
+    private readonly ImmutableArray<HistoryEntry>.Builder historyBuilder = ImmutableArray.CreateBuilder<HistoryEntry>();
 
-    // Don't use ImmutableMap.Builder because it does not allow for replacing existing keys with new
+    // Don't use ImmutableDictionary.Builder because it does not allow for replacing existing keys with new
     // values.
-    private readonly Map<string, string> environmentBuilder = new HashMap<>();
-    private readonly Map<string, string> labelsBuilder = new HashMap<>();
-    private readonly Set<Port> exposedPortsBuilder = new HashSet<>();
-    private readonly Set<AbsoluteUnixPath> volumesBuilder = new HashSet<>();
+    private readonly IDictionary<string, string> environmentBuilder = new Dictionary<string,string>();
+    private readonly IDictionary<string, string> labelsBuilder = new Dictionary<string, string>();
+    private readonly ISet<Port> exposedPortsBuilder = new HashSet<Port>();
+    private readonly ISet<AbsoluteUnixPath> volumesBuilder = new HashSet<AbsoluteUnixPath>();
 
     private Instant created;
     private string architecture = "amd64";
     private string os = "linux";
-    private ImmutableList<string> entrypoint;
-    private ImmutableList<string> programArguments;
+    private ImmutableArray<string> entrypoint;
+    private ImmutableArray<string> programArguments;
     private DockerHealthCheck healthCheck;
     private string workingDirectory;
     private string user;
 
-    private Builder(Class<? extends ManifestTemplate> imageFormat) {
+    public Builder(IClass<ManifestTemplate> imageFormat) {
       this.imageFormat = imageFormat;
     }
 
@@ -100,7 +109,7 @@ public class Image {
      * @param environment the map of environment variables
      * @return this
      */
-    public Builder addEnvironment(Map<string, string> environment) {
+    public Builder addEnvironment(IDictionary<string, string> environment) {
       if (environment != null) {
         this.environmentBuilder.putAll(environment);
       }
@@ -125,8 +134,8 @@ public class Image {
      * @param entrypoint the list of entrypoint tokens
      * @return this
      */
-    public Builder setEntrypoint(List<string> entrypoint) {
-      this.entrypoint = (entrypoint == null) ? null : ImmutableList.copyOf(entrypoint);
+    public Builder setEntrypoint(IList<string> entrypoint) {
+                this.entrypoint = (entrypoint == null) ? ImmutableArray<string>.Empty : ImmutableArray.CreateRange(entrypoint);
       return this;
     }
 
@@ -147,9 +156,9 @@ public class Image {
      * @param programArguments the list of arguments to append to the image entrypoint
      * @return this
      */
-    public Builder setProgramArguments(List<string> programArguments) {
+    public Builder setProgramArguments(IList<string> programArguments) {
       this.programArguments =
-          (programArguments == null) ? null : ImmutableList.copyOf(programArguments);
+          (programArguments == null) ? ImmutableArray<string>.Empty : ImmutableArray.CreateRange(programArguments);
       return this;
     }
 
@@ -170,7 +179,7 @@ public class Image {
      * @param exposedPorts the exposed ports to add
      * @return this
      */
-    public Builder addExposedPorts(Set<Port> exposedPorts) {
+    public Builder addExposedPorts(ISet<Port> exposedPorts) {
       if (exposedPorts != null) {
         exposedPortsBuilder.addAll(exposedPorts);
       }
@@ -183,9 +192,9 @@ public class Image {
      * @param volumes the directories to create volumes
      * @return this
      */
-    public Builder addVolumes(Set<AbsoluteUnixPath> volumes) {
+    public Builder addVolumes(ISet<AbsoluteUnixPath> volumes) {
       if (volumes != null) {
-        volumesBuilder.addAll(ImmutableSet.copyOf(volumes));
+        volumesBuilder.addAll(ImmutableHashSet.CreateRange(volumes));
       }
       return this;
     }
@@ -196,7 +205,7 @@ public class Image {
      * @param labels the map of labels to add
      * @return this
      */
-    public Builder addLabels(Map<string, string> labels) {
+    public Builder addLabels(IDictionary<string, string> labels) {
       if (labels != null) {
         labelsBuilder.putAll(labels);
       }
@@ -257,27 +266,27 @@ public class Image {
           os,
           imageLayersBuilder.build(),
           historyBuilder.build(),
-          ImmutableMap.copyOf(environmentBuilder),
+          ImmutableDictionary.CreateRange(environmentBuilder),
           entrypoint,
           programArguments,
           healthCheck,
-          ImmutableSet.copyOf(exposedPortsBuilder),
-          ImmutableSet.copyOf(volumesBuilder),
-          ImmutableMap.copyOf(labelsBuilder),
+          ImmutableHashSet.CreateRange(exposedPortsBuilder),
+          ImmutableHashSet.CreateRange(volumesBuilder),
+          ImmutableDictionary.CreateRange(labelsBuilder),
           workingDirectory,
           user);
     }
   }
 
-  public static Builder builder(Class<? extends ManifestTemplate> imageFormat) {
+  public static Builder builder(IClass<ManifestTemplate> imageFormat) {
     return new Builder(imageFormat);
   }
 
   /** The image format. */
-  private readonly Class<? extends ManifestTemplate> imageFormat;
+  private readonly IClass<ManifestTemplate> imageFormat;
 
   /** The image creation time. */
-  private final Instant created;
+  private readonly Instant created;
 
   /** The image architecture. */
   private readonly string architecture;
@@ -289,49 +298,49 @@ public class Image {
   private readonly ImageLayers layers;
 
   /** The commands used to build each layer of the image */
-  private readonly ImmutableList<HistoryEntry> history;
+  private readonly ImmutableArray<HistoryEntry> history;
 
   /** Environment variable definitions for running the image, in the format {@code NAME=VALUE}. */
-  private final ImmutableMap<string, string> environment;
+  private readonly ImmutableDictionary<string, string> environment;
 
   /** Initial command to run when running the image. */
-  private final ImmutableList<string> entrypoint;
+  private readonly ImmutableArray<string> entrypoint;
 
   /** Arguments to append to the image entrypoint when running the image. */
-  private final ImmutableList<string> programArguments;
+  private readonly ImmutableArray<string> programArguments;
 
   /** Healthcheck configuration. */
-  private final DockerHealthCheck healthCheck;
+  private readonly DockerHealthCheck healthCheck;
 
   /** Ports that the container listens on. */
-  private final ImmutableSet<Port> exposedPorts;
+  private readonly ImmutableHashSet<Port> exposedPorts;
 
   /** Directories to mount as volumes. */
-  private final ImmutableSet<AbsoluteUnixPath> volumes;
+  private readonly ImmutableHashSet<AbsoluteUnixPath> volumes;
 
   /** Labels on the container configuration */
-  private final ImmutableMap<string, string> labels;
+  private readonly ImmutableDictionary<string, string> labels;
 
   /** Working directory on the container configuration */
-  private final string workingDirectory;
+  private readonly string workingDirectory;
 
   /** User on the container configuration */
-  private final string user;
+  private readonly string user;
 
   private Image(
-      Class<? extends ManifestTemplate> imageFormat,
+      IClass<ManifestTemplate> imageFormat,
       Instant created,
       string architecture,
       string os,
       ImageLayers layers,
-      ImmutableList<HistoryEntry> history,
-      ImmutableMap<string, string> environment,
-      ImmutableList<string> entrypoint,
-      ImmutableList<string> programArguments,
+      ImmutableArray<HistoryEntry> history,
+      ImmutableDictionary<string, string> environment,
+      ImmutableArray<string> entrypoint,
+      ImmutableArray<string> programArguments,
       DockerHealthCheck healthCheck,
-      ImmutableSet<Port> exposedPorts,
-      ImmutableSet<AbsoluteUnixPath> volumes,
-      ImmutableMap<string, string> labels,
+      ImmutableHashSet<Port> exposedPorts,
+      ImmutableHashSet<AbsoluteUnixPath> volumes,
+      ImmutableDictionary<string, string> labels,
       string workingDirectory,
       string user) {
     this.imageFormat = imageFormat;
@@ -351,7 +360,7 @@ public class Image {
     this.user = user;
   }
 
-  public Class<? extends ManifestTemplate> getImageFormat() {
+  public IClass<ManifestTemplate> getImageFormat() {
     return this.imageFormat;
   }
 
@@ -367,15 +376,15 @@ public class Image {
     return os;
   }
 
-  public ImmutableMap<string, string> getEnvironment() {
+  public ImmutableDictionary<string, string> getEnvironment() {
     return environment;
   }
 
-  public ImmutableList<string> getEntrypoint() {
+  public ImmutableArray<string> getEntrypoint() {
     return entrypoint;
   }
 
-  public ImmutableList<string> getProgramArguments() {
+  public ImmutableArray<string> getProgramArguments() {
     return programArguments;
   }
 
@@ -383,15 +392,15 @@ public class Image {
     return healthCheck;
   }
 
-  public ImmutableSet<Port> getExposedPorts() {
+  public ImmutableHashSet<Port> getExposedPorts() {
     return exposedPorts;
   }
 
-  public ImmutableSet<AbsoluteUnixPath> getVolumes() {
+  public ImmutableHashSet<AbsoluteUnixPath> getVolumes() {
     return volumes;
   }
 
-  public ImmutableMap<string, string> getLabels() {
+  public ImmutableDictionary<string, string> getLabels() {
     return labels;
   }
 
@@ -403,11 +412,11 @@ public class Image {
     return user;
   }
 
-  public ImmutableList<Layer> getLayers() {
+  public ImmutableArray<Layer> getLayers() {
     return layers.getLayers();
   }
 
-  public ImmutableList<HistoryEntry> getHistory() {
+  public ImmutableArray<HistoryEntry> getHistory() {
     return history;
   }
 }

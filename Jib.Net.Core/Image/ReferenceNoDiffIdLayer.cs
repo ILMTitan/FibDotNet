@@ -14,6 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+
 namespace com.google.cloud.tools.jib.image {
 
 

@@ -14,21 +14,27 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Blob;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
 
 
-/** A {@link Blob} that holds {@link JsonTemplate}. */
-class JsonBlob : $2 {
+    /** A {@link Blob} that holds {@link JsonTemplate}. */
+    class JsonBlob : Blob {
   private readonly JsonTemplate template;
 
-  JsonBlob(JsonTemplate template) {
+  public JsonBlob(JsonTemplate template) {
     this.template = template;
   }
 
-  public BlobDescriptor writeTo(OutputStream outputStream) {
+  public BlobDescriptor writeTo(Stream outputStream) {
     return Digests.computeDigest(template, outputStream);
   }
 }

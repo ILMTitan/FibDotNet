@@ -14,14 +14,33 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using System;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
 /** Thrown when a registry did not respond. */
-class RegistryNoResponseException extends RegistryException {
+public class RegistryNoResponseException : RegistryException {
 
-  RegistryNoResponseException(Throwable cause) {
-    super(cause);
+  RegistryNoResponseException(Exception cause) : base("", cause) {
+    
   }
-}
+
+        public RegistryNoResponseException(string message, Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryNoResponseException(string message) : base(message)
+        {
+        }
+
+        public RegistryNoResponseException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public RegistryNoResponseException() : base()
+        {
+        }
+    }
 }

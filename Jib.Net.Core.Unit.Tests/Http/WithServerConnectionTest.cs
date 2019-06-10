@@ -36,7 +36,7 @@ public class WithServerConnectionTest {
             Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
     {
 
-      Response response = connection.send("GET", new Request.Builder().build());
+      HttpResponseMessage response = connection.send("GET", new Request.Builder().build());
 
       Assert.assertEquals(200, response.getStatusCode());
       Assert.assertArrayEquals(
@@ -57,7 +57,7 @@ public class WithServerConnectionTest {
       try {
         connection.send("GET", new Request.Builder().build());
         Assert.fail("Should fail on the second send");
-      } catch (IllegalStateException ex) {
+      } catch (InvalidOperationException ex) {
         Assert.assertEquals("Connection can send only one request", ex.getMessage());
       }
     }
@@ -88,7 +88,7 @@ public class WithServerConnectionTest {
             Connection.getInsecureConnectionFactory().apply(new Uri(server.getEndpoint()))))
     {
 
-      Response response = connection.send("GET", new Request.Builder().build());
+      HttpResponseMessage response = connection.send("GET", new Request.Builder().build());
 
       Assert.assertEquals(200, response.getStatusCode());
       Assert.assertArrayEquals(

@@ -17,7 +17,7 @@
 namespace com.google.cloud.tools.jib.registry {
 
 /** Properties of registry endpoint requests. */
-class RegistryEndpointRequestProperties {
+public class RegistryEndpointRequestProperties {
 
   private readonly string serverUrl;
   private readonly string imageName;
@@ -26,16 +26,16 @@ class RegistryEndpointRequestProperties {
    * @param serverUrl the server Uri for the registry (for example, {@code gcr.io})
    * @param imageName the image/repository name (also known as, namespace)
    */
-  RegistryEndpointRequestProperties(string serverUrl, string imageName) {
+  public RegistryEndpointRequestProperties(string serverUrl, string imageName) {
     this.serverUrl = serverUrl;
     this.imageName = imageName;
   }
 
-  string getServerUrl() {
+  public string getServerUrl() {
     return serverUrl;
   }
 
-  string getImageName() {
+  public string getImageName() {
     return imageName;
   }
 }

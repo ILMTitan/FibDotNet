@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -74,7 +79,7 @@ public class V22ManifestTemplate : BuildableManifestTemplate {
   private ContentDescriptorTemplate config;
 
   /** The list of layer references. */
-  private readonly List<ContentDescriptorTemplate> layers = new ArrayList<>();
+  private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
 
   public int getSchemaVersion() {
     return schemaVersion;
@@ -88,7 +93,7 @@ public class V22ManifestTemplate : BuildableManifestTemplate {
     return config;
   }
 
-  public List<ContentDescriptorTemplate> getLayers() {
+  public IReadOnlyList<ContentDescriptorTemplate> getLayers() {
     return Collections.unmodifiableList(layers);
   }
 

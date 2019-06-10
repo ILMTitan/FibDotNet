@@ -14,6 +14,8 @@
  * the License.
  */
 
+using System;
+
 namespace com.google.cloud.tools.jib.api {
 
 /** Thrown when attempting to parse an invalid image reference. */

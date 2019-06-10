@@ -26,7 +26,7 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Tests for {@link LockFile}. */
 public class LockFileTest {
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   [TestMethod]
   public void testLockAndRelease() {
@@ -43,7 +43,7 @@ public class LockFileTest {
             Thread.sleep(100);
             atomicInt.set(valueBeforeSleep + 1);
 
-          } catch (InterruptedException | IOException ex) {
+          } catch (OperationCanceledException | IOException ex) {
             throw new AssertionError(ex);
           }
         };

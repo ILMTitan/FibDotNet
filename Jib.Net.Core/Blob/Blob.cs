@@ -14,12 +14,16 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using Jib.Net.Core.Blob;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
-/** Holds a BLOB source for writing to an {@link OutputStream}. */
-public interface Blob {
+    /** Holds a BLOB source for writing to an {@link OutputStream}. */
+    public interface Blob {
 
   /**
    * Writes the BLOB to an {@link OutputStream}. Does not close the {@code outputStream}.
@@ -28,6 +32,6 @@ public interface Blob {
    * @return the {@link BlobDescriptor} of the written BLOB
    * @throws IOException if writing the BLOB fails
    */
-  BlobDescriptor writeTo(OutputStream outputStream) throws IOException;
+  BlobDescriptor writeTo(Stream outputStream);
 }
 }

@@ -97,7 +97,7 @@ public class LogEvent : JibEvent {
     return message;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (other == this) {
       return true;
     }
@@ -106,14 +106,14 @@ public class LogEvent : JibEvent {
     }
 
     LogEvent otherLogEvent = (LogEvent) other;
-    return level == otherLogEvent.level && message.equals(otherLogEvent.message);
+    return level == otherLogEvent.level && message.Equals(otherLogEvent.message);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(level, message);
   }
 
-  public string toString() {
+  public override string ToString() {
     return "LogEvent [level=" + level + ", message=" + message + "]";
   }
 }

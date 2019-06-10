@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.configuration {
 
 
@@ -42,31 +53,30 @@ namespace com.google.cloud.tools.jib.configuration {
 public class BuildConfiguration {
 
   /** The default target format of the container manifest. */
-  private static readonly Class<? extends BuildableManifestTemplate> DEFAULT_TARGET_FORMAT =
+  private static readonly Class<BuildableManifestTemplate> DEFAULT_TARGET_FORMAT =
       typeof(V22ManifestTemplate);
 
   /** The default tool identifier. */
   private static readonly string DEFAULT_TOOL_NAME = "jib";
 
   /** Builds an immutable {@link BuildConfiguration}. Instantiate with {@link #builder}. */
-  public static class Builder {
+  public class Builder {
 
     // All the parameters below are set to their default values.
     private ImageConfiguration baseImageConfiguration;
     private ImageConfiguration targetImageConfiguration;
-    private ImmutableSet<string> additionalTargetImageTags = ImmutableSet.of();
+    private ImmutableHashSet<string> additionalTargetImageTags = ImmutableHashSet.Create<string>();
     private ContainerConfiguration containerConfiguration;
-    private Path applicationLayersCacheDirectory;
-    private Path baseImageLayersCacheDirectory;
+    private SystemPath applicationLayersCacheDirectory;
+    private SystemPath baseImageLayersCacheDirectory;
     private bool allowInsecureRegistries = false;
     private bool offline = false;
-    private ImmutableList<LayerConfiguration> layerConfigurations = ImmutableList.of();
-    private Class<? extends BuildableManifestTemplate> targetFormat = DEFAULT_TARGET_FORMAT;
+    private ImmutableArray<LayerConfiguration> layerConfigurations = ImmutableArray.Create<LayerConfiguration>();
+    private Class<BuildableManifestTemplate> targetFormat = DEFAULT_TARGET_FORMAT;
     private string toolName = DEFAULT_TOOL_NAME;
     private EventHandlers eventHandlers = EventHandlers.NONE;
-    private ExecutorService executorService;
 
-    private Builder() {}
+    public Builder() {}
 
     /**
      * Sets the base image configuration.
@@ -97,8 +107,8 @@ public class BuildConfiguration {
      * @param tags a set of tags
      * @return this
      */
-    public Builder setAdditionalTargetImageTags(Set<string> tags) {
-      additionalTargetImageTags = ImmutableSet.copyOf(tags);
+    public Builder setAdditionalTargetImageTags(ISet<string> tags) {
+      additionalTargetImageTags = ImmutableHashSet.CreateRange(tags);
       return this;
     }
 
@@ -119,7 +129,7 @@ public class BuildConfiguration {
      * @param applicationLayersCacheDirectory the application layers cache directory
      * @return this
      */
-    public Builder setApplicationLayersCacheDirectory(Path applicationLayersCacheDirectory) {
+    public Builder setApplicationLayersCacheDirectory(SystemPath applicationLayersCacheDirectory) {
       this.applicationLayersCacheDirectory = applicationLayersCacheDirectory;
       return this;
     }
@@ -130,7 +140,7 @@ public class BuildConfiguration {
      * @param baseImageLayersCacheDirectory the base image layers cache directory
      * @return this
      */
-    public Builder setBaseImageLayersCacheDirectory(Path baseImageLayersCacheDirectory) {
+    public Builder setBaseImageLayersCacheDirectory(SystemPath baseImageLayersCacheDirectory) {
       this.baseImageLayersCacheDirectory = baseImageLayersCacheDirectory;
       return this;
     }
@@ -177,8 +187,8 @@ public class BuildConfiguration {
      * @param layerConfigurations the configurations for the layers
      * @return this
      */
-    public Builder setLayerConfigurations(List<LayerConfiguration> layerConfigurations) {
-      this.layerConfigurations = ImmutableList.copyOf(layerConfigurations);
+    public Builder setLayerConfigurations(IList<LayerConfiguration> layerConfigurations) {
+      this.layerConfigurations = ImmutableArray.CreateRange(layerConfigurations);
       return this;
     }
 
@@ -205,18 +215,6 @@ public class BuildConfiguration {
     }
 
     /**
-     * Sets the {@link ExecutorService} Jib executes on. By default, Jib uses {@link
-     * Executors#newCachedThreadPool}.
-     *
-     * @param executorService the {@link ExecutorService}
-     * @return this
-     */
-    public Builder setExecutorService(ExecutorService executorService) {
-      this.executorService = executorService;
-      return this;
-    }
-
-    /**
      * Builds a new {@link BuildConfiguration} using the parameters passed into the builder.
      *
      * @return the corresponding build configuration
@@ -224,7 +222,7 @@ public class BuildConfiguration {
      */
     public BuildConfiguration build() {
       // Validates the parameters.
-      List<string> missingFields = new ArrayList<>();
+      IList<string> missingFields = new List<string>();
       if (baseImageConfiguration == null) {
         missingFields.add("base image configuration");
       }
@@ -236,9 +234,6 @@ public class BuildConfiguration {
       }
       if (applicationLayersCacheDirectory == null) {
         missingFields.add("application layers cache directory");
-      }
-      if (executorService == null) {
-        missingFields.add("executor service");
       }
 
       switch (missingFields.size()) {
@@ -263,14 +258,13 @@ public class BuildConfiguration {
               offline,
               layerConfigurations,
               toolName,
-              eventHandlers,
-              Preconditions.checkNotNull(executorService));
+              eventHandlers);
 
         case 1:
-          throw new IllegalStateException(missingFields.get(0) + " is required but not set");
+          throw new InvalidOperationException(missingFields.get(0) + " is required but not set");
 
         case 2:
-          throw new IllegalStateException(
+          throw new InvalidOperationException(
               missingFields.get(0) + " and " + missingFields.get(1) + " are required but not set");
 
         default:
@@ -280,15 +274,15 @@ public class BuildConfiguration {
           {
             errorMessage.add(missingField);
           }
-          throw new IllegalStateException(errorMessage.toString());
+          throw new InvalidOperationException(errorMessage.toString());
       }
     }
 
-    Path getBaseImageLayersCacheDirectory() {
+    SystemPath getBaseImageLayersCacheDirectory() {
       return baseImageLayersCacheDirectory;
     }
 
-    Path getApplicationLayersCacheDirectory() {
+    SystemPath getApplicationLayersCacheDirectory() {
       return applicationLayersCacheDirectory;
     }
   }
@@ -304,33 +298,33 @@ public class BuildConfiguration {
 
   private readonly ImageConfiguration baseImageConfiguration;
   private readonly ImageConfiguration targetImageConfiguration;
-  private readonly ImmutableSet<string> additionalTargetImageTags;
-  private final ContainerConfiguration containerConfiguration;
+  private readonly ImmutableHashSet<string> additionalTargetImageTags;
+  private readonly ContainerConfiguration containerConfiguration;
   private readonly Cache baseImageLayersCache;
   private readonly Cache applicationLayersCache;
-  private Class<? extends BuildableManifestTemplate> targetFormat;
+  private Class<BuildableManifestTemplate> targetFormat;
   private readonly bool allowInsecureRegistries;
   private readonly bool offline;
-  private readonly ImmutableList<LayerConfiguration> layerConfigurations;
+  private readonly ImmutableArray<LayerConfiguration> layerConfigurations;
   private readonly string toolName;
-  private readonly EventHandlers eventHandlers;
-  private readonly ExecutorService executorService;
+        private readonly EventHandlers eventHandlers;
+        public Consumer<JibEvent> JibEvents;
 
   /** Instantiate with {@link #builder}. */
   private BuildConfiguration(
       ImageConfiguration baseImageConfiguration,
       ImageConfiguration targetImageConfiguration,
-      ImmutableSet<string> additionalTargetImageTags,
+      ImmutableHashSet<string> additionalTargetImageTags,
       ContainerConfiguration containerConfiguration,
       Cache baseImageLayersCache,
       Cache applicationLayersCache,
-      Class<? extends BuildableManifestTemplate> targetFormat,
+      Class<BuildableManifestTemplate> targetFormat,
       bool allowInsecureRegistries,
       bool offline,
-      ImmutableList<LayerConfiguration> layerConfigurations,
+      ImmutableArray<LayerConfiguration> layerConfigurations,
       string toolName,
-      EventHandlers eventHandlers,
-      ExecutorService executorService) {
+      EventHandlers eventHandlers)
+        {
     this.baseImageConfiguration = baseImageConfiguration;
     this.targetImageConfiguration = targetImageConfiguration;
     this.additionalTargetImageTags = additionalTargetImageTags;
@@ -343,7 +337,6 @@ public class BuildConfiguration {
     this.layerConfigurations = layerConfigurations;
     this.toolName = toolName;
     this.eventHandlers = eventHandlers;
-    this.executorService = executorService;
   }
 
   public ImageConfiguration getBaseImageConfiguration() {
@@ -354,9 +347,8 @@ public class BuildConfiguration {
     return targetImageConfiguration;
   }
 
-  public ImmutableSet<string> getAllTargetImageTags() {
-    ImmutableSet.Builder<string> allTargetImageTags =
-        ImmutableSet.builderWithExpectedSize(1 + additionalTargetImageTags.size());
+  public ImmutableHashSet<string> getAllTargetImageTags() {
+            ImmutableHashSet<string>.Builder allTargetImageTags = ImmutableHashSet.CreateBuilder<string>();
     allTargetImageTags.add(targetImageConfiguration.getImageTag());
     allTargetImageTags.addAll(additionalTargetImageTags);
     return allTargetImageTags.build();
@@ -366,7 +358,7 @@ public class BuildConfiguration {
     return containerConfiguration;
   }
 
-  public Class<? extends BuildableManifestTemplate> getTargetFormat() {
+  public IClass<BuildableManifestTemplate> getTargetFormat() {
     return targetFormat;
   }
 
@@ -376,10 +368,6 @@ public class BuildConfiguration {
 
   public EventHandlers getEventHandlers() {
     return eventHandlers;
-  }
-
-  public ExecutorService getExecutorService() {
-    return executorService;
   }
 
   /**
@@ -423,7 +411,7 @@ public class BuildConfiguration {
    *
    * @return the list of layer configurations
    */
-  public ImmutableList<LayerConfiguration> getLayerConfigurations() {
+  public ImmutableArray<LayerConfiguration> getLayerConfigurations() {
     return layerConfigurations;
   }
 

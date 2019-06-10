@@ -54,7 +54,7 @@ public class CredentialRetrieverFactoryTest {
    */
   private static DockerCredentialHelperFactory getTestFactory(
       string expectedRegistry,
-      Path expectedCredentialHelper,
+      SystemPath expectedCredentialHelper,
       DockerCredentialHelper returnedCredentialHelper) {
     return (registry, credentialHelper) => {
       Assert.assertEquals(expectedRegistry, registry);

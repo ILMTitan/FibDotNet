@@ -14,8 +14,19 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
-// TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
+using com.google.cloud.tools.jib.builder;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System;
+using System.Collections.Generic;
+
+namespace com.google.cloud.tools.jib.api
+{
+    // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
 
 
@@ -40,24 +51,24 @@ namespace com.google.cloud.tools.jib.api {
 
 
 
-/**
- * Builds a container with Jib.
- *
- * <p>Example usage:
- *
- * <pre>{@code
- * Jib.from(baseImage)
- *    .addLayer(sourceFiles, extractionPath)
- *    .setEntrypoint("myprogram", "--flag", "subcommand")
- *    .setProgramArguments("hello", "world")
- *    .addEnvironmentVariable("HOME", "/app")
- *    .addExposedPort(Port.tcp(8080))
- *    .addLabel("containerizer", "jib")
- *    .containerize(...);
- * }</pre>
- */
-// TODO: Add tests once containerize() is added.
-public class JibContainerBuilder {
+    /**
+     * Builds a container with Jib.
+     *
+     * <p>Example usage:
+     *
+     * <pre>{@code
+     * Jib.from(baseImage)
+     *    .addLayer(sourceFiles, extractionPath)
+     *    .setEntrypoint("myprogram", "--flag", "subcommand")
+     *    .setProgramArguments("hello", "world")
+     *    .addEnvironmentVariable("HOME", "/app")
+     *    .addExposedPort(Port.tcp(8080))
+     *    .addLabel("containerizer", "jib")
+     *    .containerize(...);
+     * }</pre>
+     */
+    // TODO: Add tests once containerize() is added.
+    public class JibContainerBuilder {
 
   private static string capitalizeFirstLetter(string s) {
     if (s.length() == 0) {
@@ -70,12 +81,13 @@ public class JibContainerBuilder {
       ContainerConfiguration.builder();
   private readonly BuildConfiguration.Builder buildConfigurationBuilder;
 
-  private List<LayerConfiguration> layerConfigurations = new ArrayList<>();
+  private IList<LayerConfiguration> layerConfigurations = new List<LayerConfiguration>();
 
-  /** Instantiate with {@link Jib#from}. */
-  JibContainerBuilder(RegistryImage baseImage) {
-    this(baseImage, BuildConfiguration.builder());
-  }
+        /** Instantiate with {@link Jib#from}. */
+        public JibContainerBuilder(RegistryImage baseImage) :
+          this(baseImage, BuildConfiguration.builder())
+        {
+        }
 
   JibContainerBuilder(
       RegistryImage baseImage, BuildConfiguration.Builder buildConfigurationBuilder) {
@@ -117,11 +129,11 @@ public class JibContainerBuilder {
    * @return this
    * @throws IOException if an exception occurred when recursively listing any directories
    */
-  public JibContainerBuilder addLayer(List<Path> files, AbsoluteUnixPath pathInContainer)
+  public JibContainerBuilder addLayer(IList<SystemPath> files, AbsoluteUnixPath pathInContainer)
       {
     LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
 
-    foreach (Path file in files)
+    foreach (SystemPath file in files)
 
     {
       layerConfigurationBuilder.addEntryRecursive(
@@ -143,7 +155,7 @@ public class JibContainerBuilder {
    * @throws IllegalArgumentException if {@code pathInContainer} is not an absolute Unix-style path
    * @see #addLayer(List, AbsoluteUnixPath)
    */
-  public JibContainerBuilder addLayer(List<Path> files, string pathInContainer) {
+  public JibContainerBuilder addLayer(IList<SystemPath> files, string pathInContainer) {
     return addLayer(files, AbsoluteUnixPath.get(pathInContainer));
   }
 
@@ -165,8 +177,8 @@ public class JibContainerBuilder {
    * @param layerConfigurations the list of {@link LayerConfiguration}s
    * @return this
    */
-  public JibContainerBuilder setLayers(List<LayerConfiguration> layerConfigurations) {
-    this.layerConfigurations = new ArrayList<>(layerConfigurations);
+  public JibContainerBuilder setLayers(IList<LayerConfiguration> layerConfigurations) {
+    this.layerConfigurations = new List<LayerConfiguration>(layerConfigurations);
     return this;
   }
 
@@ -193,7 +205,7 @@ public class JibContainerBuilder {
    * @param entrypoint a list of the entrypoint command
    * @return this
    */
-  public JibContainerBuilder setEntrypoint(List<string> entrypoint) {
+  public JibContainerBuilder setEntrypoint(IList<string> entrypoint) {
     containerConfigurationBuilder.setEntrypoint(entrypoint);
     return this;
   }
@@ -225,7 +237,7 @@ public class JibContainerBuilder {
    * @param programArguments a list of program argument tokens
    * @return this
    */
-  public JibContainerBuilder setProgramArguments(List<string> programArguments) {
+  public JibContainerBuilder setProgramArguments(IList<string> programArguments) {
     containerConfigurationBuilder.setProgramArguments(programArguments);
     return this;
   }
@@ -254,7 +266,7 @@ public class JibContainerBuilder {
    * @param environmentMap a map of environment variable names to values
    * @return this
    */
-  public JibContainerBuilder setEnvironment(Map<string, string> environmentMap) {
+  public JibContainerBuilder setEnvironment(IDictionary<string, string> environmentMap) {
     containerConfigurationBuilder.setEnvironment(environmentMap);
     return this;
   }
@@ -281,7 +293,7 @@ public class JibContainerBuilder {
    * @param volumes the directory paths on the container filesystem to set as volumes
    * @return this
    */
-  public JibContainerBuilder setVolumes(Set<AbsoluteUnixPath> volumes) {
+  public JibContainerBuilder setVolumes(ISet<AbsoluteUnixPath> volumes) {
     containerConfigurationBuilder.setVolumes(volumes);
     return this;
   }
@@ -291,10 +303,10 @@ public class JibContainerBuilder {
    *
    * @param volumes the directory paths on the container filesystem to set as volumes
    * @return this
-   * @see #setVolumes(Set)
+   * @see #setVolumes(ISet)
    */
   public JibContainerBuilder setVolumes(params AbsoluteUnixPath[] volumes) {
-    return setVolumes(new HashSet<>(Arrays.asList(volumes)));
+    return setVolumes(new HashSet<AbsoluteUnixPath>(Arrays.asList(volumes)));
   }
 
   /**
@@ -302,7 +314,7 @@ public class JibContainerBuilder {
    *
    * @param volume a directory path on the container filesystem to represent a volume
    * @return this
-   * @see #setVolumes(Set)
+   * @see #setVolumes(ISet)
    */
   public JibContainerBuilder addVolume(AbsoluteUnixPath volume) {
     containerConfigurationBuilder.addVolume(volume);
@@ -323,7 +335,7 @@ public class JibContainerBuilder {
    * @param ports the ports to expose
    * @return this
    */
-  public JibContainerBuilder setExposedPorts(Set<Port> ports) {
+  public JibContainerBuilder setExposedPorts(ISet<Port> ports) {
     containerConfigurationBuilder.setExposedPorts(ports);
     return this;
   }
@@ -333,10 +345,10 @@ public class JibContainerBuilder {
    *
    * @param ports the ports to expose
    * @return this
-   * @see #setExposedPorts(Set)
+   * @see #setExposedPorts(ISet)
    */
   public JibContainerBuilder setExposedPorts(params Port[] ports) {
-    return setExposedPorts(new HashSet<>(Arrays.asList(ports)));
+    return setExposedPorts(new HashSet<Port>(Arrays.asList(ports)));
   }
 
   /**
@@ -344,7 +356,7 @@ public class JibContainerBuilder {
    *
    * @param port the port to expose
    * @return this
-   * @see #setExposedPorts(Set)
+   * @see #setExposedPorts(ISet)
    */
   public JibContainerBuilder addExposedPort(Port port) {
     containerConfigurationBuilder.addExposedPort(port);
@@ -360,7 +372,7 @@ public class JibContainerBuilder {
    * @param labelMap a map of label keys to values
    * @return this
    */
-  public JibContainerBuilder setLabels(Map<string, string> labelMap) {
+  public JibContainerBuilder setLabels(IDictionary<string, string> labelMap) {
     containerConfigurationBuilder.setLabels(labelMap);
     return this;
   }
@@ -455,38 +467,24 @@ public class JibContainerBuilder {
    */
   public JibContainer containerize(Containerizer containerizer)
       {
-    return containerize(containerizer, Executors.newCachedThreadPool);
-  }
 
-  JibContainer containerize(
-      Containerizer containerizer, Supplier<ExecutorService> defaultExecutorServiceFactory)
-      {
-    bool shutdownExecutorService = !containerizer.getExecutorService().isPresent();
-    ExecutorService executorService =
-        containerizer.getExecutorService().orElseGet(defaultExecutorServiceFactory);
-
-    BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer, executorService);
+    BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer);
 
     EventHandlers eventHandlers = buildConfiguration.getEventHandlers();
     logSources(eventHandlers);
 
-            using (TimerEventDispatcher ignored =
-                new TimerEventDispatcher(eventHandlers, containerizer.getDescription())) {
+            using (new TimerEventDispatcher(eventHandlers, containerizer.getDescription())) {
                 try {
                     BuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
                     return new JibContainer(result.getImageDigest(), result.getImageId());
 
-                } catch (ExecutionException ex) {
+                } catch (Exception ex) {
                     // If an ExecutionException occurs, re-throw the cause to be more easily handled by the user
                     if (ex.getCause() is RegistryException) {
                         throw (RegistryException)ex.getCause();
                     }
-                    throw ex;
+                    throw;
 
-                } finally {
-                    if (shutdownExecutorService) {
-                        executorService.shutdown();
-                    }
                 }
             }
   }
@@ -503,7 +501,7 @@ public class JibContainerBuilder {
    */
 
   BuildConfiguration toBuildConfiguration(
-      Containerizer containerizer, ExecutorService executorService)
+      Containerizer containerizer)
       {
     return buildConfigurationBuilder
         .setTargetImageConfiguration(containerizer.getImageConfiguration())
@@ -515,7 +513,6 @@ public class JibContainerBuilder {
         .setAllowInsecureRegistries(containerizer.getAllowInsecureRegistries())
         .setOffline(containerizer.isOfflineMode())
         .setToolName(containerizer.getToolName())
-        .setExecutorService(executorService)
         .setEventHandlers(containerizer.buildEventHandlers())
         .build();
   }

@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class BlobCheckerTest {
 
-  [Mock] private Response mockResponse;
+  [Mock] private HttpResponseMessage mockResponse;
 
   private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
@@ -84,7 +84,7 @@ public class BlobCheckerTest {
   public void testHandleHttpResponseException() {
     HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
+        .thenReturn(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate =
         new ErrorResponseTemplate()
@@ -103,7 +103,7 @@ public class BlobCheckerTest {
       {
     HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
+        .thenReturn(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate =
         new ErrorResponseTemplate()
@@ -126,7 +126,7 @@ public class BlobCheckerTest {
       {
     HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
+        .thenReturn(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate = new ErrorResponseTemplate();
     Mockito.when(mockHttpResponseException.getContent())

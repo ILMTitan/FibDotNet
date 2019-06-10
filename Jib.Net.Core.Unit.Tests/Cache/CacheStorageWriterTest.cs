@@ -45,26 +45,26 @@ namespace com.google.cloud.tools.jib.cache {
 public class CacheStorageWriterTest {
 
   private static BlobDescriptor getDigest(Blob blob) {
-    return blob.writeTo(ByteStreams.nullOutputStream());
+    return blob.writeTo(Stream.Null);
   }
 
   private static Blob compress(Blob blob) {
     return Blobs.from(
         outputStream => {
-          using (GZIPOutputStream compressorStream = new GZIPOutputStream(outputStream)) {
+          using (GZipOutputStream compressorStream = new GZipOutputStream(outputStream)) {
             blob.writeTo(compressorStream);
           }
         });
   }
 
   private static Blob decompress(Blob blob) {
-    return Blobs.from(new GZIPInputStream(new ByteArrayInputStream(Blobs.writeToByteArray(blob))));
+    return Blobs.from(new GZIPInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
   }
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private CacheStorageFiles cacheStorageFiles;
-  private Path cacheRoot;
+  private SystemPath cacheRoot;
 
   [TestInitialize]
   public void setUp() {
@@ -95,7 +95,7 @@ public class CacheStorageWriterTest {
     verifyCachedLayer(cachedLayer, uncompressedLayerBlob);
 
     // Verifies that the files are present.
-    Path selectorFile = cacheStorageFiles.getSelectorFile(selector);
+    SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
     Assert.assertTrue(Files.exists(selectorFile));
     Assert.assertEquals(layerDigest.getHash(), Blobs.writeToString(Blobs.from(selectorFile)));
   }
@@ -103,7 +103,7 @@ public class CacheStorageWriterTest {
   [TestMethod]
   public void testWriteMetadata_v21()
       {
-    Path manifestJsonFile =
+    SystemPath manifestJsonFile =
         Paths.get(getClass().getClassLoader().getResource("core/json/v21manifest.json").toURI());
     V21ManifestTemplate manifestTemplate =
         JsonTemplateMapper.readJsonFromFile(manifestJsonFile, typeof(V21ManifestTemplate));
@@ -111,7 +111,7 @@ public class CacheStorageWriterTest {
 
     new CacheStorageWriter(cacheStorageFiles).writeMetadata(imageReference, manifestTemplate);
 
-    Path savedManifestPath =
+    SystemPath savedManifestPath =
         cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");
     Assert.assertTrue(Files.exists(savedManifestPath));
 
@@ -123,13 +123,13 @@ public class CacheStorageWriterTest {
   [TestMethod]
   public void testWriteMetadata_v22()
       {
-    Path containerConfigurationJsonFile =
+    SystemPath containerConfigurationJsonFile =
         Paths.get(
             getClass().getClassLoader().getResource("core/json/containerconfig.json").toURI());
     ContainerConfigurationTemplate containerConfigurationTemplate =
         JsonTemplateMapper.readJsonFromFile(
             containerConfigurationJsonFile, typeof(ContainerConfigurationTemplate));
-    Path manifestJsonFile =
+    SystemPath manifestJsonFile =
         Paths.get(getClass().getClassLoader().getResource("core/json/v22manifest.json").toURI());
     BuildableManifestTemplate manifestTemplate =
         JsonTemplateMapper.readJsonFromFile(manifestJsonFile, typeof(V22ManifestTemplate));
@@ -138,9 +138,9 @@ public class CacheStorageWriterTest {
     new CacheStorageWriter(cacheStorageFiles)
         .writeMetadata(imageReference, manifestTemplate, containerConfigurationTemplate);
 
-    Path savedManifestPath =
+    SystemPath savedManifestPath =
         cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");
-    Path savedConfigPath =
+    SystemPath savedConfigPath =
         cacheRoot.resolve("images/image.reference/project/thing!tag/config.json");
     Assert.assertTrue(Files.exists(savedManifestPath));
     Assert.assertTrue(Files.exists(savedConfigPath));

@@ -42,7 +42,7 @@ public class DockerConfigCredentialRetrieverTest {
   [Mock] private DockerConfig mockDockerConfig;
   [Mock] private Consumer<LogEvent> mockLogger;
 
-  private Path dockerConfigFile;
+  private SystemPath dockerConfigFile;
 
   [TestInitialize]
   public void setUp()
@@ -154,7 +154,7 @@ public class DockerConfigCredentialRetrieverTest {
 
   [TestMethod]
   public void testRetrieve_suffixMatching() {
-    Path dockerConfigFile =
+    SystemPath dockerConfigFile =
         Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
     DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
@@ -168,7 +168,7 @@ public class DockerConfigCredentialRetrieverTest {
 
   [TestMethod]
   public void testRetrieve_suffixMatchingFromAlias() {
-    Path dockerConfigFile =
+    SystemPath dockerConfigFile =
         Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
     DockerConfigCredentialRetriever dockerConfigCredentialRetriever =

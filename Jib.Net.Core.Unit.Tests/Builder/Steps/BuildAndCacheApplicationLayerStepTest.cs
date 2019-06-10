@@ -66,7 +66,7 @@ public class BuildAndCacheApplicationLayerStepTest {
    */
   private static LayerConfiguration makeLayerConfiguration(
       string resourcePath, AbsoluteUnixPath extractionPath) {
-    using (Stream<Path> fileStream =
+    using (IEnumerable<SystemPath> fileStream =
         Files.list(Paths.get(Resources.getResource(resourcePath).toURI()))) {
       LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
       fileStream.forEach(
@@ -128,7 +128,7 @@ public class BuildAndCacheApplicationLayerStepTest {
   private ImageLayers buildFakeLayersToCache() {
     ImageLayers.Builder applicationLayersBuilder = ImageLayers.builder();
 
-    ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
+    ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
         BuildAndCacheApplicationLayerStep.makeList(
             MoreExecutors.newDirectExecutorService(),
             mockBuildConfiguration,
@@ -146,8 +146,8 @@ public class BuildAndCacheApplicationLayerStepTest {
   [TestMethod]
   public void testRun()
       {
-    ImmutableList<LayerConfiguration> fakeLayerConfigurations =
-        ImmutableList.of(
+    ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
+        ImmutableArray.Create(
             fakeDependenciesLayerConfiguration,
             fakeSnapshotDependenciesLayerConfiguration,
             fakeResourcesLayerConfiguration,
@@ -160,15 +160,15 @@ public class BuildAndCacheApplicationLayerStepTest {
     ImageLayers applicationLayers = buildFakeLayersToCache();
     Assert.assertEquals(5, applicationLayers.size());
 
-    ImmutableList<LayerEntry> dependenciesLayerEntries =
+    ImmutableArray<LayerEntry> dependenciesLayerEntries =
         fakeLayerConfigurations.get(0).getLayerEntries();
-    ImmutableList<LayerEntry> snapshotDependenciesLayerEntries =
+    ImmutableArray<LayerEntry> snapshotDependenciesLayerEntries =
         fakeLayerConfigurations.get(1).getLayerEntries();
-    ImmutableList<LayerEntry> resourcesLayerEntries =
+    ImmutableArray<LayerEntry> resourcesLayerEntries =
         fakeLayerConfigurations.get(2).getLayerEntries();
-    ImmutableList<LayerEntry> classesLayerEntries =
+    ImmutableArray<LayerEntry> classesLayerEntries =
         fakeLayerConfigurations.get(3).getLayerEntries();
-    ImmutableList<LayerEntry> extraFilesLayerEntries =
+    ImmutableArray<LayerEntry> extraFilesLayerEntries =
         fakeLayerConfigurations.get(4).getLayerEntries();
 
     CachedLayer dependenciesCachedLayer =
@@ -208,8 +208,8 @@ public class BuildAndCacheApplicationLayerStepTest {
   [TestMethod]
   public void testRun_emptyLayersIgnored()
       {
-    ImmutableList<LayerConfiguration> fakeLayerConfigurations =
-        ImmutableList.of(
+    ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
+        ImmutableArray.Create(
             fakeDependenciesLayerConfiguration,
             emptyLayerConfiguration,
             fakeResourcesLayerConfiguration,
@@ -222,11 +222,11 @@ public class BuildAndCacheApplicationLayerStepTest {
     ImageLayers applicationLayers = buildFakeLayersToCache();
     Assert.assertEquals(3, applicationLayers.size());
 
-    ImmutableList<LayerEntry> dependenciesLayerEntries =
+    ImmutableArray<LayerEntry> dependenciesLayerEntries =
         fakeLayerConfigurations.get(0).getLayerEntries();
-    ImmutableList<LayerEntry> resourcesLayerEntries =
+    ImmutableArray<LayerEntry> resourcesLayerEntries =
         fakeLayerConfigurations.get(2).getLayerEntries();
-    ImmutableList<LayerEntry> classesLayerEntries =
+    ImmutableArray<LayerEntry> classesLayerEntries =
         fakeLayerConfigurations.get(3).getLayerEntries();
 
     CachedLayer dependenciesCachedLayer =

@@ -14,6 +14,20 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -39,11 +53,10 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pushes the final image. Outputs the pushed image digest. */
-class PushImageStep : $2 {
+class PushImageStep : AsyncStep<BuildResult>{
   private static readonly string DESCRIPTION = "Pushing new image";
 
   private readonly BuildConfiguration buildConfiguration;
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly AuthenticatePushStep authenticatePushStep;
@@ -53,18 +66,17 @@ class PushImageStep : $2 {
   private readonly PushContainerConfigurationStep pushContainerConfigurationStep;
   private readonly BuildImageStep buildImageStep;
 
-  private readonly ListenableFuture<BuildResult> listenableFuture;
+  private readonly Task<BuildResult> listenableFuture;
 
-  PushImageStep(
-      ListeningExecutorService listeningExecutorService,
+  public PushImageStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       AuthenticatePushStep authenticatePushStep,
       PushLayersStep pushBaseImageLayersStep,
       PushLayersStep pushApplicationLayersStep,
       PushContainerConfigurationStep pushContainerConfigurationStep,
-      BuildImageStep buildImageStep) {
-    this.listeningExecutorService = listeningExecutorService;
+      BuildImageStep buildImageStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.authenticatePushStep = authenticatePushStep;
@@ -74,30 +86,30 @@ class PushImageStep : $2 {
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(pushBaseImageLayersStep)
             .addStep(pushApplicationLayersStep)
             .addStep(pushContainerConfigurationStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<BuildResult> getFuture() {
+  public Task<BuildResult> getFuture() {
     return listenableFuture;
   }
 
   public BuildResult call() {
-    return AsyncDependencies.@using(listeningExecutorService)
+    return AsyncDependencies.@using()
         .addStep(authenticatePushStep)
         .addSteps(NonBlockingSteps.get(pushBaseImageLayersStep))
         .addSteps(NonBlockingSteps.get(pushApplicationLayersStep))
         .addStep(NonBlockingSteps.get(pushContainerConfigurationStep))
         .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(this::afterPushSteps)
+        .whenAllSucceed(this.afterPushSteps)
         .get();
   }
 
   private BuildResult afterPushSteps() {
-    AsyncDependencies dependencies = AsyncDependencies.@using(listeningExecutorService);
+    AsyncDependencies dependencies = AsyncDependencies.@using();
     foreach (AsyncStep<PushBlobStep> pushBaseImageLayerStep in NonBlockingSteps.get(pushBaseImageLayersStep))
     {
       dependencies.addStep(NonBlockingSteps.get(pushBaseImageLayerStep));
@@ -114,7 +126,7 @@ class PushImageStep : $2 {
 
   private BuildResult afterAllPushed()
       {
-    ImmutableSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
+    ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
     ProgressEventDispatcher progressEventDispatcher =
         progressEventDispatcherFactory.create("pushing image manifest", targetImageTags.size());
 
@@ -139,13 +151,13 @@ class PushImageStep : $2 {
               buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
 
       // Pushes to all target image tags.
-      List<ListenableFuture<Void>> pushAllTagsFutures = new ArrayList<>();
+      IList<Task<object>> pushAllTagsFutures = new List<Task<object>>();
       foreach (string tag in targetImageTags)
       {
         ProgressEventDispatcher.Factory progressEventDispatcherFactory =
             progressEventDispatcher.newChildProducer();
         pushAllTagsFutures.add(
-            listeningExecutorService.submit(
+            Task.Run<object>(
                 () => {
                   using (ProgressEventDispatcher ignored2 =
                       progressEventDispatcherFactory.create("tagging with " + tag, 1)) {
@@ -154,7 +166,7 @@ class PushImageStep : $2 {
                         .dispatch(LogEvent.info("Tagging with " + tag + "..."));
                     registryClient.pushManifest(manifestTemplate, tag);
                   }
-                  return null;
+                  return Task.FromResult(default(object));
                 }));
       }
 
@@ -167,8 +179,7 @@ class PushImageStep : $2 {
               () => {
                 progressEventDispatcher.close();
                 return result;
-              },
-              listeningExecutorService)
+              })
           .get();
     }
   }

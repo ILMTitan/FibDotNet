@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.credentials.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.registry.credentials {
 
 
@@ -46,21 +56,21 @@ namespace com.google.cloud.tools.jib.registry.credentials {
  */
 public class DockerConfigCredentialRetriever {
 
-  /**
-   * @see <a
-   *     href="https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement">https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement</a>
-   */
-  private static readonly Path DOCKER_CONFIG_FILE =
-      Paths.get(System.getProperty("user.home"), ".docker", "config.json");
+        /**
+         * @see <a
+         *     href="https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement">https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement</a>
+         */
+        private static readonly SystemPath DOCKER_CONFIG_FILE =
+            Paths.get(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".docker", "config.json");
 
   private readonly string registry;
-  private readonly Path dockerConfigFile;
+  private readonly SystemPath dockerConfigFile;
 
-  public DockerConfigCredentialRetriever(string registry) {
-    this(registry, DOCKER_CONFIG_FILE);
+  public DockerConfigCredentialRetriever(string registry) : this(registry, DOCKER_CONFIG_FILE) {
+    
   }
 
-  public DockerConfigCredentialRetriever(string registry, Path dockerConfigFile) {
+  public DockerConfigCredentialRetriever(string registry, SystemPath dockerConfigFile) {
     this.registry = registry;
     this.dockerConfigFile = dockerConfigFile;
   }
@@ -76,9 +86,9 @@ public class DockerConfigCredentialRetriever {
     if (!Files.exists(dockerConfigFile)) {
       return Optional.empty();
     }
-    DockerConfig dockerConfig =
-        new DockerConfig(
-            JsonTemplateMapper.readJsonFromFile(dockerConfigFile, typeof(DockerConfigTemplate)));
+            DockerConfig dockerConfig =
+                new DockerConfig(
+                    JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(dockerConfigFile));
     return retrieve(dockerConfig, logger);
   }
 
@@ -96,9 +106,8 @@ public class DockerConfigCredentialRetriever {
       // First, tries to find defined auth.
       string auth = dockerConfig.getAuthFor(registryAlias);
       if (auth != null) {
-        // 'auth' is a basic authentication token that should be parsed back into credentials
-        string usernameColonPassword =
-            new string(Base64.decodeBase64(auth), StandardCharsets.UTF_8);
+                    // 'auth' is a basic authentication token that should be parsed back into credentials
+                    string usernameColonPassword = StandardCharsets.UTF_8.GetString(Convert.FromBase64String(auth));
         string username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
         string password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
         return Optional.of(Credential.from(username, password));
@@ -112,9 +121,7 @@ public class DockerConfigCredentialRetriever {
           // Tries with the given registry alias (may be the original registry).
           return Optional.of(dockerCredentialHelper.retrieve());
 
-        } catch (IOException
-            | CredentialHelperUnhandledServerUrlException
-            | CredentialHelperNotFoundException ex) {
+        } catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException) {
           // Warns the user that the specified credential helper cannot be used.
           if (ex.getMessage() != null) {
             logger.accept(LogEvent.warn(ex.getMessage()));

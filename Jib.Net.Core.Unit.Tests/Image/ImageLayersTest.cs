@@ -59,7 +59,7 @@ public class ImageLayersTest {
 
   [TestMethod]
   public void testAddLayer_success() {
-    List<Layer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
+    IList<Layer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
 
     ImageLayers imageLayers =
         ImageLayers.builder()
@@ -74,7 +74,7 @@ public class ImageLayersTest {
   [TestMethod]
   public void testAddLayer_maintainDuplicates() {
     // must maintain duplicate
-    List<Layer> expectedLayers =
+    IList<Layer> expectedLayers =
         Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
     ImageLayers imageLayers =
@@ -92,7 +92,7 @@ public class ImageLayersTest {
   [TestMethod]
   public void testAddLayer_removeDuplicates() {
     // remove duplicates: last layer should be kept
-    List<Layer> expectedLayers =
+    IList<Layer> expectedLayers =
         Arrays.asList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
     ImageLayers imageLayers =

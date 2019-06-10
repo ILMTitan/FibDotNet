@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -23,20 +29,21 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-/** Provides known aliases and alternative hosts for a given registry. */
-public class RegistryAliasGroup {
+    /** Provides known aliases and alternative hosts for a given registry. */
+    public static class RegistryAliasGroup {
 
-  private static readonly ImmutableList<ImmutableSet<string>> REGISTRY_ALIAS_GROUPS =
-      ImmutableList.of(
-          // Docker Hub alias group (https://github.com/moby/moby/pull/28100)
-          ImmutableSet.of(
-              "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io"));
+        private static readonly ImmutableArray<ImmutableHashSet<string>> REGISTRY_ALIAS_GROUPS =
+            ImmutableArray.Create(
+                // Docker Hub alias group (https://github.com/moby/moby/pull/28100)
+                ImmutableHashSet.Create("registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io"));
 
-  /** Some registry names are symbolic. */
-  private static readonly ImmutableMap<string, string> REGISTRY_HOST_MAP =
-      ImmutableMap.of(
-          // https://github.com/docker/hub-feedback/issues/1767
-          "docker.io", "registry-1.docker.io");
+        /** Some registry names are symbolic. */
+        private static readonly ImmutableDictionary<string, string> REGISTRY_HOST_MAP =
+            // https://github.com/docker/hub-feedback/issues/1767
+            ImmutableDictionary.CreateRange<string, string>(new Dictionary<string, string>
+            {
+                ["docker.io"] = "registry-1.docker.io"
+            });
 
   /**
    * Returns the list of registry aliases for the given {@code registry}, including {@code registry}
@@ -45,14 +52,14 @@ public class RegistryAliasGroup {
    * @param registry the registry for which the alias group is requested
    * @return non-empty list of registries where {@code registry} is the first element
    */
-  public static List<string> getAliasesGroup(string registry) {
-    foreach (ImmutableSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
+  public static IList<string> getAliasesGroup(string registry) {
+    foreach (ImmutableHashSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
     {
       if (aliasGroup.contains(registry)) {
         // Found a group. Move the requested "registry" to the front before returning it.
-        Stream<string> self = Stream.of(registry);
-        Stream<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.equals(alias));
-        return Stream.concat(self, withoutSelf).collect(Collectors.toList());
+        IEnumerable<string> self = new[] { registry };
+        IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.Equals(alias));
+        return self.Concat(withoutSelf).ToList();
       }
     }
 

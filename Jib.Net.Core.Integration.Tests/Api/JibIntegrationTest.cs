@@ -37,7 +37,7 @@ public class JibIntegrationTest {
   [ClassRule]
   public static readonly LocalRegistry localRegistry = new LocalRegistry(5000, "username", "password");
 
-  [Rule] public final TemporaryFolder cacheFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder cacheFolder = new TemporaryFolder();
 
   /**
    * Pulls a built image and attempts to run it.
@@ -112,7 +112,7 @@ public class JibIntegrationTest {
     LocalRegistry tempRegistry = new LocalRegistry(5001);
     tempRegistry.start();
     tempRegistry.pullAndPushToLocal("busybox", "busybox");
-    Path cacheDirectory = cacheFolder.getRoot().toPath();
+    SystemPath cacheDirectory = cacheFolder.getRoot().toPath();
 
     ImageReference targetImageReferenceOnline =
         ImageReference.of("localhost:5001", "jib-core", "basic-online");
@@ -127,7 +127,7 @@ public class JibIntegrationTest {
       jibContainerBuilder.containerize(
           Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true));
       Assert.fail();
-    } catch (IllegalStateException ex) {
+    } catch (InvalidOperationException ex) {
       Assert.assertEquals("Cannot build to a container registry in offline mode", ex.getMessage());
     }
 

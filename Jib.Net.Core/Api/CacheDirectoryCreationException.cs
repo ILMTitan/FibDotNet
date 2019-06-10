@@ -17,14 +17,16 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.api {
+namespace Jib.Net.Core.Api
+{
 
-/** Thrown when a directory to be used as the cache could not be created. */
-public class CacheDirectoryCreationException : Exception {
+    /** Thrown when a directory to be used as the cache could not be created. */
+    public class CacheDirectoryCreationException : Exception
+    {
+        private static readonly string MESSAGE = "Could not create cache directory";
 
-  private static readonly string MESSAGE = "Could not create cache directory";
-
-  public CacheDirectoryCreationException(Exception cause) : base(MESSAGE, cause) {
-  }
-}
+        public CacheDirectoryCreationException(Exception cause) : base(MESSAGE, cause)
+        {
+        }
+    }
 }

@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.http {
 
 
 /** Simple local web server for testing. */
-public class TestWebServer : Closeable {
+public class TestWebServer : IDisposable {
 
   private readonly bool https;
   private readonly ServerSocket serverSocket;
@@ -59,7 +59,7 @@ public class TestWebServer : Closeable {
     return (https ? "https" : "http") + "://" + host + ":" + serverSocket.getLocalPort();
   }
 
-  public void close() {
+  public void Dispose() {
     serverSocket.close();
     executorService.shutdown();
   }
@@ -69,8 +69,8 @@ public class TestWebServer : Closeable {
     if (https) {
       KeyStore keyStore = KeyStore.getInstance("JKS");
       // generated with: keytool -genkey -keyalg RSA -keystore ./TestWebServer-keystore
-      Path keyStoreFile = Paths.get(Resources.getResource("core/TestWebServer-keystore").toURI());
-      using (InputStream in = Files.newInputStream(keyStoreFile)) {
+      SystemPath keyStoreFile = Paths.get(Resources.getResource("core/TestWebServer-keystore").toURI());
+      using (Stream in = Files.newInputStream(keyStoreFile)) {
         keyStore.load(in, "password".toCharArray());
       }
 
@@ -90,8 +90,8 @@ public class TestWebServer : Closeable {
     threadStarted.release();
     using (Socket socket = serverSocket.accept()) {
 
-      InputStream in = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+      Stream in = socket.getInputStream();
+      BufferedReader reader = new BufferedReader(new StreamReader(in, StandardCharsets.UTF_8));
       for (string line = reader.readLine();
           line != null && !line.isEmpty(); // An empty line marks the end of an HTTP request.
           line = reader.readLine()) {

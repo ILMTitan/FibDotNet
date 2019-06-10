@@ -7,7 +7,7 @@ $1$4<$2>$5 where $2 : $3
 (^\s*(?:public|private)\s+class\s+\w+\s+)extends(\s+\w+)
 $1:$2
 
-(^\s*(?:public|private)\s+\w+\([^)]*\))(\s*{\s*)super\(((?:[^()]|(?<-open>\))|(?<open>\())*)\);\s*$
+(^\s*(?:(?:public|private)\s+)?\w+\([^)]*\))(\s*{\s*)super\(((?:[^()]|(?<-open>\))|(?<open>\())*)\);\s*$
 $1 : base($3)$2
 
 (^\s*(?:public|private)\s+class\s+\w+)\s+implements\s+([^{]*){\s*$
@@ -33,3 +33,9 @@ $1$3<$2>$4 {
 
 \b(\w+)\.class\b
 typeof($1)
+
+(^\s*(?:(?:public|private)\s+)?(?:static\s+)?\w+(?:<(?:[^<>]|(?<o><)|(?<-o>>))*>)?(?:\[\])?\s+\w+\([^)]*\))\s*throws[^{]*;\s*$
+$1;
+
+(^\s*(?:(?:public|private)\s+)?\w+\([^)]*\))(\s*{\s*)this\(((?:[^()]|(?<-open>\))|(?<open>\())*)\);\s*$
+$1 : this($3)$2

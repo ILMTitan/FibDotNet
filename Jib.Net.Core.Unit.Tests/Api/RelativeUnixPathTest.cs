@@ -28,7 +28,7 @@ public class RelativeUnixPathTest {
       RelativeUnixPath.get("/absolute");
       Assert.fail();
 
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals("Path starts with forward slash (/): /absolute", ex.getMessage());
     }
   }
@@ -36,7 +36,7 @@ public class RelativeUnixPathTest {
   [TestMethod]
   public void testGet() {
     Assert.assertEquals(
-        ImmutableList.of("some", "relative", "path"),
+        ImmutableArray.Create("some", "relative", "path"),
         RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
   }
 }

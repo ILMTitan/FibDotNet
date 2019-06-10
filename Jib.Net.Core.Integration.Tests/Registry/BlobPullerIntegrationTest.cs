@@ -62,7 +62,7 @@ public class BlobPullerIntegrationTest {
               expectedSize.add(size);
             },
             totalByteCount.add);
-    Assert.assertEquals(realDigest, pulledBlob.writeTo(ByteStreams.nullOutputStream()).getDigest());
+    Assert.assertEquals(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
     Assert.assertTrue(expectedSize.sum() > 0);
     Assert.assertEquals(expectedSize.sum(), totalByteCount.sum());
   }
@@ -82,7 +82,7 @@ public class BlobPullerIntegrationTest {
     try {
       registryClient
           .pullBlob(nonexistentDigest, ignored => {}, ignored => {})
-          .writeTo(ByteStreams.nullOutputStream());
+          .writeTo(Stream.Null);
       Assert.fail("Trying to pull nonexistent blob should have errored");
 
     } catch (IOException ex) {

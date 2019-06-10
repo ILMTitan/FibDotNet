@@ -61,15 +61,15 @@ public class ReproducibleLayerBuilderTest {
    * @throws IOException if an I/O exception occurs
    */
   private static void verifyNextTarArchiveEntry(
-      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath, Path expectedFile)
+      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
       {
-    TarArchiveEntry header = tarArchiveInputStream.getNextTarEntry();
+    TarEntry header = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals(expectedExtractionPath, header.getName());
 
     string expectedString = new string(Files.readAllBytes(expectedFile), StandardCharsets.UTF_8);
 
     string extractedString =
-        CharStreams.toString(new InputStreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+        CharStreams.toString(new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
 
     Assert.assertEquals(expectedString, extractedString);
   }
@@ -85,13 +85,13 @@ public class ReproducibleLayerBuilderTest {
   private static void verifyNextTarArchiveEntryIsDirectory(
       TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath)
       {
-    TarArchiveEntry extractionPathEntry = tarArchiveInputStream.getNextTarEntry();
+    TarEntry extractionPathEntry = tarArchiveInputStream.getNextTarEntry();
     Assert.assertEquals(expectedExtractionPath, extractionPathEntry.getName());
     Assert.assertTrue(extractionPathEntry.isDirectory());
-    Assert.assertEquals(TarArchiveEntry.DEFAULT_DIR_MODE, extractionPathEntry.getMode());
+    Assert.assertEquals(TarEntry.DEFAULT_DIR_MODE, extractionPathEntry.getMode());
   }
 
-  private static LayerEntry defaultLayerEntry(Path source, AbsoluteUnixPath destination) {
+  private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination) {
     return new LayerEntry(
         source,
         destination,
@@ -103,8 +103,8 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testBuild() {
-    Path layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
-    Path blobA = Paths.get(Resources.getResource("core/blobA").toURI());
+    SystemPath layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
+    SystemPath blobA = Paths.get(Resources.getResource("core/blobA").toURI());
 
     ReproducibleLayerBuilder layerBuilder =
         new ReproducibleLayerBuilder(
@@ -118,9 +118,9 @@ public class ReproducibleLayerBuilderTest {
 
     // Writes the layer tar to a temporary file.
     Blob unwrittenBlob = layerBuilder.build();
-    Path temporaryFile = temporaryFolder.newFile().toPath();
-    using (OutputStream temporaryFileOutputStream =
-        new BufferedOutputStream(Files.newOutputStream(temporaryFile))) {
+    SystemPath temporaryFile = temporaryFolder.newFile().toPath();
+    using (Stream temporaryFileOutputStream =
+        new BufferedStream(Files.newOutputStream(temporaryFile))) {
       unwrittenBlob.writeTo(temporaryFileOutputStream);
     }
 
@@ -154,18 +154,18 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testToBlob_reproducibility() {
-    Path testRoot = temporaryFolder.getRoot().toPath();
-    Path root1 = Files.createDirectories(testRoot.resolve("files1"));
-    Path root2 = Files.createDirectories(testRoot.resolve("files2"));
+    SystemPath testRoot = temporaryFolder.getRoot().toPath();
+    SystemPath root1 = Files.createDirectories(testRoot.resolve("files1"));
+    SystemPath root2 = Files.createDirectories(testRoot.resolve("files2"));
 
     // TODO: Currently this test only covers variation in order and modified time, even though
     // TODO: the code is designed to clean up userid/groupid, this test does not check that yet.
     string contentA = "abcabc";
-    Path fileA1 = createFile(root1, "fileA", contentA, 10000);
-    Path fileA2 = createFile(root2, "fileA", contentA, 20000);
+    SystemPath fileA1 = createFile(root1, "fileA", contentA, 10000);
+    SystemPath fileA2 = createFile(root2, "fileA", contentA, 20000);
     string contentB = "yumyum";
-    Path fileB1 = createFile(root1, "fileB", contentB, 10000);
-    Path fileB2 = createFile(root2, "fileB", contentB, 20000);
+    SystemPath fileB1 = createFile(root1, "fileB", contentB, 10000);
+    SystemPath fileB2 = createFile(root2, "fileB", contentB, 20000);
 
     // check if modified times are off
     Assert.assertNotEquals(Files.getLastModifiedTime(fileA1), Files.getLastModifiedTime(fileA2));
@@ -174,13 +174,13 @@ public class ReproducibleLayerBuilderTest {
     // create layers of exact same content but ordered differently and with different timestamps
     Blob layer =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     defaultLayerEntry(fileA1, AbsoluteUnixPath.get("/somewhere/fileA")),
                     defaultLayerEntry(fileB1, AbsoluteUnixPath.get("/somewhere/fileB"))))
             .build();
     Blob reproduced =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     defaultLayerEntry(fileB2, AbsoluteUnixPath.get("/somewhere/fileB")),
                     defaultLayerEntry(fileA2, AbsoluteUnixPath.get("/somewhere/fileA"))))
             .build();
@@ -193,79 +193,79 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testBuild_parentDirBehavior() {
-    Path testRoot = temporaryFolder.getRoot().toPath();
+    SystemPath testRoot = temporaryFolder.getRoot().toPath();
 
     // the path doesn't really matter on source files, but these are structured
-    Path parent = Files.createDirectories(testRoot.resolve("aaa"));
-    Path fileA = Files.createFile(parent.resolve("fileA"));
-    Path ignoredParent = Files.createDirectories(testRoot.resolve("bbb-ignored"));
-    Path fileB = Files.createFile(ignoredParent.resolve("fileB"));
-    Path fileC =
+    SystemPath parent = Files.createDirectories(testRoot.resolve("aaa"));
+    SystemPath fileA = Files.createFile(parent.resolve("fileA"));
+    SystemPath ignoredParent = Files.createDirectories(testRoot.resolve("bbb-ignored"));
+    SystemPath fileB = Files.createFile(ignoredParent.resolve("fileB"));
+    SystemPath fileC =
         Files.createFile(Files.createDirectories(testRoot.resolve("ccc-absent")).resolve("fileC"));
 
     Blob layer =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     new LayerEntry(
                         parent,
                         AbsoluteUnixPath.get("/root/aaa"),
                         FilePermissions.fromOctalString("111"),
-                        Instant.ofEpochSecond(10)),
+                        Instant.FromUnixTimeSeconds(10)),
                     new LayerEntry(
                         fileA,
                         AbsoluteUnixPath.get("/root/aaa/fileA"),
                         FilePermissions.fromOctalString("222"),
-                        Instant.ofEpochSecond(20)),
+                        Instant.FromUnixTimeSeconds(20)),
                     new LayerEntry(
                         fileB,
                         AbsoluteUnixPath.get("/root/bbb-ignored/fileB"),
                         FilePermissions.fromOctalString("333"),
-                        Instant.ofEpochSecond(30)),
+                        Instant.FromUnixTimeSeconds(30)),
                     new LayerEntry(
                         ignoredParent,
                         AbsoluteUnixPath.get("/root/bbb-ignored"),
                         FilePermissions.fromOctalString("444"),
-                        Instant.ofEpochSecond(40)),
+                        Instant.FromUnixTimeSeconds(40)),
                     new LayerEntry(
                         fileC,
                         AbsoluteUnixPath.get("/root/ccc-absent/file3"),
                         FilePermissions.fromOctalString("555"),
-                        Instant.ofEpochSecond(50))))
+                        Instant.FromUnixTimeSeconds(50))))
             .build();
 
-    Path tarFile = temporaryFolder.newFile().toPath();
-    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    SystemPath tarFile = temporaryFolder.newFile().toPath();
+    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
       layer.writeTo(out);
     }
 
     using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
       // root (default folder permissions)
-      TarArchiveEntry root = in.getNextTarEntry();
+      TarEntry root = in.getNextTarEntry();
       Assert.assertEquals(040755, root.getMode());
-      Assert.assertEquals(Instant.ofEpochSecond(1), root.getModTime().toInstant());
+      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // parentAAA (custom permissions, custom timestamp)
-      TarArchiveEntry rootParentAAA = in.getNextTarEntry();
+      TarEntry rootParentAAA = in.getNextTarEntry();
       Assert.assertEquals(040111, rootParentAAA.getMode());
-      Assert.assertEquals(Instant.ofEpochSecond(10), rootParentAAA.getModTime().toInstant());
+      Assert.assertEquals(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
 
       // skip over fileA
       in.getNextTarEntry();
 
       // parentBBB (default permissions - ignored custom permissions, since fileB added first)
-      TarArchiveEntry rootParentBBB = in.getNextTarEntry();
+      TarEntry rootParentBBB = in.getNextTarEntry();
       // TODO (#1650): we want 040444 here.
       Assert.assertEquals(040755, rootParentBBB.getMode());
       // TODO (#1650): we want Instant.ofEpochSecond(40) here.
-      Assert.assertEquals(Instant.ofEpochSecond(1), root.getModTime().toInstant());
+      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // skip over fileB
       in.getNextTarEntry();
 
       // parentCCC (default permissions - no entry provided)
-      TarArchiveEntry rootParentCCC = in.getNextTarEntry();
+      TarEntry rootParentCCC = in.getNextTarEntry();
       Assert.assertEquals(040755, rootParentCCC.getMode());
-      Assert.assertEquals(Instant.ofEpochSecond(1), root.getModTime().toInstant());
+      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // we don't care about fileC
     }
@@ -273,15 +273,15 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testBuild_timestampDefault() {
-    Path file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
+    SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
     Blob blob =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(defaultLayerEntry(file, AbsoluteUnixPath.get("/fileA"))))
+                ImmutableArray.Create(defaultLayerEntry(file, AbsoluteUnixPath.get("/fileA"))))
             .build();
 
-    Path tarFile = temporaryFolder.newFile().toPath();
-    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    SystemPath tarFile = temporaryFolder.newFile().toPath();
+    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
@@ -294,20 +294,20 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testBuild_timestampNonDefault() {
-    Path file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
+    SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
     Blob blob =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     new LayerEntry(
                         file,
                         AbsoluteUnixPath.get("/fileA"),
                         FilePermissions.DEFAULT_FILE_PERMISSIONS,
-                        Instant.ofEpochSecond(123))))
+                        Instant.FromUnixTimeSeconds(123))))
             .build();
 
-    Path tarFile = temporaryFolder.newFile().toPath();
-    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    SystemPath tarFile = temporaryFolder.newFile().toPath();
+    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
@@ -320,14 +320,14 @@ public class ReproducibleLayerBuilderTest {
 
   [TestMethod]
   public void testBuild_permissions() {
-    Path testRoot = temporaryFolder.getRoot().toPath();
-    Path folder = Files.createDirectories(testRoot.resolve("files1"));
-    Path fileA = createFile(testRoot, "fileA", "abc", 54321);
-    Path fileB = createFile(testRoot, "fileB", "def", 54321);
+    SystemPath testRoot = temporaryFolder.getRoot().toPath();
+    SystemPath folder = Files.createDirectories(testRoot.resolve("files1"));
+    SystemPath fileA = createFile(testRoot, "fileA", "abc", 54321);
+    SystemPath fileB = createFile(testRoot, "fileB", "def", 54321);
 
     Blob blob =
         new ReproducibleLayerBuilder(
-                ImmutableList.of(
+                ImmutableArray.Create(
                     defaultLayerEntry(fileA, AbsoluteUnixPath.get("/somewhere/fileA")),
                     new LayerEntry(
                         fileB,
@@ -341,8 +341,8 @@ public class ReproducibleLayerBuilderTest {
                         LayerConfiguration.DEFAULT_MODIFIED_TIME)))
             .build();
 
-    Path tarFile = temporaryFolder.newFile().toPath();
-    using (OutputStream out = new BufferedOutputStream(Files.newOutputStream(tarFile))) {
+    SystemPath tarFile = temporaryFolder.newFile().toPath();
+    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
       blob.writeTo(out);
     }
 
@@ -358,9 +358,9 @@ public class ReproducibleLayerBuilderTest {
     }
   }
 
-  private Path createFile(Path root, string filename, string content, long lastModifiedTime)
+  private SystemPath createFile(SystemPath root, string filename, string content, long lastModifiedTime)
       {
-    Path newFile =
+    SystemPath newFile =
         Files.write(
             root.resolve(filename),
             content.getBytes(StandardCharsets.UTF_8),

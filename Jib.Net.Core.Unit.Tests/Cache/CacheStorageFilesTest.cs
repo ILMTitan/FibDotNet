@@ -168,7 +168,7 @@ public class CacheStorageFilesTest {
 
   [TestMethod]
   public void testGetImageDirectory() {
-    Path imagesDirectory = Paths.get("cache", "directory", "images");
+    SystemPath imagesDirectory = Paths.get("cache", "directory", "images");
     Assert.assertEquals(imagesDirectory, TEST_CACHE_STORAGE_FILES.getImagesDirectory());
 
     Assert.assertEquals(

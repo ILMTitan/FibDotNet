@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Global;
+using NodaTime;
+
 namespace com.google.cloud.tools.jib.builder {
 
 
@@ -23,14 +28,15 @@ namespace com.google.cloud.tools.jib.builder {
 
 
 /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
-class Timer : $2 {
-  private readonly Clock clock;
-  private final Timer parentTimer;
+class Timer : TimerEvent.Timer
+    {
+  private readonly IClock clock;
+  private readonly Timer parentTimer;
 
   private readonly Instant startTime;
   private Instant lapStartTime;
 
-  Timer(Clock clock, Timer parentTimer) {
+  public Timer(IClock clock, Timer parentTimer) {
     this.clock = clock;
     this.parentTimer = parentTimer;
 
@@ -38,8 +44,8 @@ class Timer : $2 {
     lapStartTime = startTime;
   }
 
-  public Optional<? extends Timer> getParent() {
-    return Optional.ofNullable(parentTimer);
+  public Optional<TimerEvent.Timer> getParent() {
+    return Optional.ofNullable<TimerEvent.Timer>(parentTimer);
   }
 
   /**
@@ -47,9 +53,9 @@ class Timer : $2 {
    *
    * @return the duration of the last lap, or since creation
    */
-  Duration lap() {
+  public Duration lap() {
     Instant now = clock.instant();
-    Duration duration = Duration.between(lapStartTime, now);
+            Duration duration = lapStartTime - now;
     lapStartTime = now;
     return duration;
   }
@@ -59,8 +65,8 @@ class Timer : $2 {
    *
    * @return the total elapsed time
    */
-  Duration getElapsedTime() {
-    return Duration.between(startTime, clock.instant());
+  public Duration getElapsedTime() {
+    return startTime - clock.instant();
   }
 }
 }

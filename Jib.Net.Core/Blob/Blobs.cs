@@ -14,7 +14,15 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
@@ -23,14 +31,14 @@ namespace com.google.cloud.tools.jib.blob {
 
 
 
-/** Static methods for {@link Blob}. */
-public class Blobs {
+    /** Static methods for {@link Blob}. */
+    public class Blobs {
 
-  public static Blob from(InputStream inputStream) {
+  public static Blob from(Stream inputStream) {
     return new InputStreamBlob(inputStream);
   }
 
-  public static Blob from(Path file) {
+  public static Blob from(SystemPath file) {
     return new FileBlob(file);
   }
 
@@ -60,7 +68,7 @@ public class Blobs {
    * @throws IOException if writing out the BLOB contents fails
    */
   public static string writeToString(Blob blob) {
-    return new string(writeToByteArray(blob), StandardCharsets.UTF_8);
+    return StandardCharsets.UTF_8.GetString(writeToByteArray(blob));
   }
 
   /**
@@ -71,7 +79,7 @@ public class Blobs {
    * @throws IOException if writing out the BLOB contents fails
    */
   public static byte[] writeToByteArray(Blob blob) {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
     blob.writeTo(byteArrayOutputStream);
     return byteArrayOutputStream.toByteArray();
   }

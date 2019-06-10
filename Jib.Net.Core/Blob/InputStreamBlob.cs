@@ -14,34 +14,47 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Blob;
+using System;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
 
 
-/** A {@link Blob} that holds an {@link InputStream}. */
-class InputStreamBlob : $2 {
-  private readonly InputStream inputStream;
+    /** A {@link Blob} that holds an {@link InputStream}. */
+    class InputStreamBlob : Blob
+    {
+  private readonly Stream inputStream;
 
   /** Indicates if the {@link Blob} has already been written or not. */
   private bool isWritten = false;
 
-  InputStreamBlob(InputStream inputStream) {
+  public InputStreamBlob(Stream inputStream) {
     this.inputStream = inputStream;
   }
 
-  public BlobDescriptor writeTo(OutputStream outputStream) {
+  public BlobDescriptor writeTo(Stream outputStream) {
     // Cannot rewrite.
     if (isWritten) {
-      throw new IllegalStateException("Cannot rewrite Blob backed by an InputStream");
+      throw new InvalidOperationException("Cannot rewrite Blob backed by an InputStream");
     }
-    using (InputStream inputStream = this.inputStream) {
-      return Digests.computeDigest(inputStream, outputStream);
+            try
+            {
+                using (Stream inputStream = this.inputStream)
+                {
+                    return Digests.computeDigest(inputStream, outputStream);
 
-    } finally {
-      isWritten = true;
-    }
+                }
+            }
+            finally
+            {
+                isWritten = true;
+            }
   }
 }
 }

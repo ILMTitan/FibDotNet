@@ -27,10 +27,10 @@ public class PortsTest {
 
   [TestMethod]
   public void testParse() {
-    List<string> goodInputs =
+    IList<string> goodInputs =
         Arrays.asList("1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp");
-    ImmutableSet<Port> expected =
-        new ImmutableSet.Builder<Port>()
+    ImmutableHashSet<Port> expected =
+        new ImmutableHashSet.Builder<Port>()
             .add(
                 Port.tcp(1000),
                 Port.tcp(2000),
@@ -44,16 +44,16 @@ public class PortsTest {
                 Port.udp(6001),
                 Port.udp(6002))
             .build();
-    ImmutableSet<Port> result = Ports.parse(goodInputs);
+    ImmutableHashSet<Port> result = Ports.parse(goodInputs);
     Assert.assertEquals(expected, result);
 
-    List<string> badInputs = Arrays.asList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
+    IList<string> badInputs = Arrays.asList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
     foreach (string input in badInputs)
     {
       try {
         Ports.parse(Collections.singletonList(input));
         Assert.fail();
-      } catch (NumberFormatException ex) {
+      } catch (FormatException ex) {
         Assert.assertEquals(
             "Invalid port configuration: '"
                 + input
@@ -67,7 +67,7 @@ public class PortsTest {
     try {
       Ports.parse(Collections.singletonList("4002-4000"));
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals(
           "Invalid port range '4002-4000'; smaller number must come first.", ex.getMessage());
     }
@@ -78,7 +78,7 @@ public class PortsTest {
       try {
         Ports.parse(Collections.singletonList(input));
         Assert.fail();
-      } catch (NumberFormatException ex) {
+      } catch (FormatException ex) {
         Assert.assertEquals(
             "Port number '" + input + "' is out of usual range (1-65535).", ex.getMessage());
       }

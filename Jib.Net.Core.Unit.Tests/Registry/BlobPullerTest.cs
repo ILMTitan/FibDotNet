@@ -43,7 +43,7 @@ public class BlobPullerTest {
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
   private DescriptorDigest fakeDigest;
 
-  private readonly ByteArrayOutputStream layerContentOutputStream = new ByteArrayOutputStream();
+  private readonly MemoryStream layerContentOutputStream = new MemoryStream();
   private readonly CountingDigestOutputStream layerOutputStream =
       new CountingDigestOutputStream(layerContentOutputStream);
 
@@ -66,12 +66,12 @@ public class BlobPullerTest {
 
   [TestMethod]
   public void testHandleResponse() {
-    InputStream blobContent =
-        new ByteArrayInputStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+    Stream blobContent =
+        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
     blobContent.reset();
 
-    Response mockResponse = Mockito.mock(typeof(Response));
+    HttpResponseMessage mockResponse = Mockito.mock(typeof(HttpResponseMessage));
     Mockito.when(mockResponse.getContentLength()).thenReturn((long) "some BLOB content".length());
     Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
 
@@ -93,12 +93,12 @@ public class BlobPullerTest {
 
   [TestMethod]
   public void testHandleResponse_unexpectedDigest() {
-    InputStream blobContent =
-        new ByteArrayInputStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+    Stream blobContent =
+        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
     blobContent.reset();
 
-    Response mockResponse = Mockito.mock(typeof(Response));
+    HttpResponseMessage mockResponse = Mockito.mock(typeof(HttpResponseMessage));
     Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
 
     try {

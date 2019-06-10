@@ -33,8 +33,8 @@ namespace com.google.cloud.tools.jib.hash {
 /** Tests for {@link CountingDigestOutputStream}. */
 public class CountingDigestOutputStreamTest {
 
-  private readonly Map<string, string> KNOWN_SHA256_HASHES =
-      ImmutableMap.of(
+  private readonly IDictionary<string, string> KNOWN_SHA256_HASHES =
+      ImmutableDictionary.of(
           "crepecake",
           "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c",
           "12345",
@@ -44,16 +44,16 @@ public class CountingDigestOutputStreamTest {
 
   [TestMethod]
   public void test_smokeTest() {
-    for (Map.Entry<string, string> knownHash : KNOWN_SHA256_HASHES.entrySet()) {
+    for (KeyValuePair<string, string> knownHash : KNOWN_SHA256_HASHES.entrySet()) {
       string toHash = knownHash.getKey();
       string expectedHash = knownHash.getValue();
 
-      OutputStream underlyingOutputStream = new ByteArrayOutputStream();
+      Stream underlyingOutputStream = new MemoryStream();
       CountingDigestOutputStream countingDigestOutputStream =
           new CountingDigestOutputStream(underlyingOutputStream);
 
       byte[] bytesToHash = toHash.getBytes(StandardCharsets.UTF_8);
-      InputStream toHashInputStream = new ByteArrayInputStream(bytesToHash);
+      Stream toHashInputStream = new MemoryStream(bytesToHash);
       ByteStreams.copy(toHashInputStream, countingDigestOutputStream);
 
       BlobDescriptor blobDescriptor = countingDigestOutputStream.computeDigest();

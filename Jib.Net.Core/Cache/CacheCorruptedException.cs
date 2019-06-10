@@ -14,32 +14,46 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.cache {
+using Jib.Net.Core.FileSystem;
+using System;
+
+namespace com.google.cloud.tools.jib.cache
+{
 
 
 
-/** Thrown if the the cache was found to be corrupted. */
-public class CacheCorruptedException : Exception {
+    /** Thrown if the the cache was found to be corrupted. */
+    public class CacheCorruptedException : Exception {
 
-  CacheCorruptedException(Path cacheDirectory, string message, Throwable cause) {
-    super(
+  public CacheCorruptedException(SystemPath cacheDirectory, string message, Exception cause) 
+            : base(
+                  $"{message}. " +
+                  $"You may need to clear the cache by deleting the '{cacheDirectory}' directory " +
+                  $"(if this is a bug, please file an issue at {ProjectInfo.GITHUB_NEW_ISSUE_URL})",
+                  cause) {
+    
+  }
+
+  public CacheCorruptedException(SystemPath cacheDirectory, string message) : base(
         message
             + ". You may need to clear the cache by deleting the '"
             + cacheDirectory
             + "' directory (if this is a bug, please file an issue at "
             + ProjectInfo.GITHUB_NEW_ISSUE_URL
-            + ")",
-        cause);
+            + ")") {
+    
   }
 
-  CacheCorruptedException(Path cacheDirectory, string message) {
-    super(
-        message
-            + ". You may need to clear the cache by deleting the '"
-            + cacheDirectory
-            + "' directory (if this is a bug, please file an issue at "
-            + ProjectInfo.GITHUB_NEW_ISSUE_URL
-            + ")");
-  }
-}
+        public CacheCorruptedException() : base()
+        {
+        }
+
+        public CacheCorruptedException(string message) : base(message)
+        {
+        }
+
+        public CacheCorruptedException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 }

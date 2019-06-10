@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Global;
+using System;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -43,7 +48,7 @@ public class Authorization {
    */
   public static Authorization fromBasicCredentials(string username, string secret) {
     string credentials = username + ":" + secret;
-    string token = Base64.encodeBase64String(credentials.getBytes(StandardCharsets.UTF_8));
+    string token = Convert.ToBase64String(credentials.getBytes(StandardCharsets.UTF_8));
     return new Authorization("Basic", token);
   }
 
@@ -73,11 +78,11 @@ public class Authorization {
 
   /** Return the HTTP {@link Authorization} header value. */
 
-  public string toString() {
+  public override string ToString() {
     return scheme + " " + token;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -85,10 +90,10 @@ public class Authorization {
       return false;
     }
     Authorization otherAuthorization = (Authorization) other;
-    return scheme.equals(otherAuthorization.scheme) && token.equals(otherAuthorization.token);
+    return scheme.Equals(otherAuthorization.scheme) && token.Equals(otherAuthorization.token);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(scheme, token);
   }
 }

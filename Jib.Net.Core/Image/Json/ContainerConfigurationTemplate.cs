@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -93,7 +100,7 @@ public class ContainerConfigurationTemplate : JsonTemplate {
   private readonly ConfigurationObjectTemplate config = new ConfigurationObjectTemplate();
 
   /** Describes the history of each layer. */
-  private readonly List<HistoryEntry> history = new ArrayList<>();
+  private readonly IList<HistoryEntry> history = new List<HistoryEntry>();
 
   /** Layer content digests that are used to build the container filesystem. */
   private readonly RootFilesystemObjectTemplate rootfs = new RootFilesystemObjectTemplate();
@@ -102,51 +109,51 @@ public class ContainerConfigurationTemplate : JsonTemplate {
   [JsonIgnoreProperties(ignoreUnknown = true)]
   private class ConfigurationObjectTemplate : JsonTemplate  {
     /** Environment variables in the format {@code VARNAME=VARVALUE}. */
-    private List<string> Env;
+    public IList<string> Env;
 
     /** Command to run when container starts. */
-    private List<string> Entrypoint;
+    public IList<string> Entrypoint;
 
     /** Arguments to pass into main. */
-    private List<string> Cmd;
+    public IList<string> Cmd;
 
     /** Healthcheck. */
-    private HealthCheckObjectTemplate Healthcheck;
+    public HealthCheckObjectTemplate Healthcheck;
 
     /** Network ports the container exposes. */
-    private Map<string, Map<object, object>> ExposedPorts;
+    public IDictionary<string, IDictionary<object, object>> ExposedPorts;
 
     /** Labels. */
-    private Map<string, string> Labels;
+    public IDictionary<string, string> Labels;
 
     /** Working directory. */
-    private string WorkingDir;
+    public string WorkingDir;
 
     /** User. */
-    private string User;
+    public string User;
 
     /** Volumes */
-    private Map<string, Map<object, object>> Volumes;
+    public IDictionary<string, IDictionary<object, object>> Volumes;
   }
 
   /** Template for inner JSON object representing the healthcheck configuration. */
   private class HealthCheckObjectTemplate : JsonTemplate  {
     /** The test to perform to check that the container is healthy. */
-    private List<string> Test;
+    public IList<string> Test;
 
     /** Number of nanoseconds to wait between probe attempts. */
-    private Long Interval;
+    public long Interval;
 
     /** Number of nanoseconds to wait before considering the check to have hung. */
-    private Long Timeout;
+    public long Timeout;
 
     /**
      * Number of nanoseconds to wait for the container to initialize before starting health-retries.
      */
-    private Long StartPeriod;
+    public long StartPeriod;
 
     /** The number of consecutive failures needed to consider the container as unhealthy. */
-    private Integer Retries;
+    public int? Retries;
   }
 
   /**
@@ -155,13 +162,14 @@ public class ContainerConfigurationTemplate : JsonTemplate {
    */
   private class RootFilesystemObjectTemplate : JsonTemplate  {
     /** The type must always be {@code "layers"}. */
-    private readonly string type = "layers";
+    [JsonProperty]
+    public string type => "layers";
 
     /**
      * The in-order list of layer content digests (hashes of the uncompressed partial filesystem
      * changeset).
      */
-    private readonly List<DescriptorDigest> diff_ids = new ArrayList<>();
+    public readonly IList<DescriptorDigest> diff_ids = new List<DescriptorDigest>();
   }
 
   public void setCreated(string created) {
@@ -190,58 +198,58 @@ public class ContainerConfigurationTemplate : JsonTemplate {
     this.os = os;
   }
 
-  public void setContainerEnvironment(List<string> environment) {
+  public void setContainerEnvironment(IList<string> environment) {
     config.Env = environment;
   }
 
-  public void setContainerEntrypoint(List<string> command) {
+  public void setContainerEntrypoint(IList<string> command) {
     config.Entrypoint = command;
   }
 
-  public void setContainerCmd(List<string> cmd) {
+  public void setContainerCmd(IList<string> cmd) {
     config.Cmd = cmd;
   }
 
-  public void setContainerHealthCheckTest(List<string> test) {
+  public void setContainerHealthCheckTest(IList<string> test) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Test = test;
   }
 
-  public void setContainerHealthCheckInterval(Long interval) {
+  public void setContainerHealthCheckInterval(long interval) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Interval = interval;
   }
 
-  public void setContainerHealthCheckTimeout(Long timeout) {
+  public void setContainerHealthCheckTimeout(long timeout) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Timeout = timeout;
   }
 
-  public void setContainerHealthCheckStartPeriod(Long startPeriod) {
+  public void setContainerHealthCheckStartPeriod(long startPeriod) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).StartPeriod = startPeriod;
   }
 
-  public void setContainerHealthCheckRetries(Integer retries) {
+  public void setContainerHealthCheckRetries(int? retries) {
     if (config.Healthcheck == null) {
       config.Healthcheck = new HealthCheckObjectTemplate();
     }
     Preconditions.checkNotNull(config.Healthcheck).Retries = retries;
   }
 
-  public void setContainerExposedPorts(Map<string, Map<object, object>> exposedPorts) {
+  public void setContainerExposedPorts(IDictionary<string, IDictionary<object, object>> exposedPorts) {
     config.ExposedPorts = exposedPorts;
   }
 
-  public void setContainerLabels(Map<string, string> labels) {
+  public void setContainerLabels(IDictionary<string, string> labels) {
     config.Labels = labels;
   }
 
@@ -253,7 +261,7 @@ public class ContainerConfigurationTemplate : JsonTemplate {
     config.User = user;
   }
 
-  public void setContainerVolumes(Map<string, Map<object, object>> volumes) {
+  public void setContainerVolumes(IDictionary<string, IDictionary<object, object>> volumes) {
     config.Volumes = volumes;
   }
 
@@ -265,15 +273,15 @@ public class ContainerConfigurationTemplate : JsonTemplate {
     history.add(historyEntry);
   }
 
-  List<DescriptorDigest> getDiffIds() {
+  public IList<DescriptorDigest> getDiffIds() {
     return rootfs.diff_ids;
   }
 
-  List<HistoryEntry> getHistory() {
+  public IList<HistoryEntry> getHistory() {
     return history;
   }
 
-  string getCreated() {
+  public string getCreated() {
     return created;
   }
 
@@ -299,55 +307,55 @@ public class ContainerConfigurationTemplate : JsonTemplate {
     return os;
   }
 
-  List<string> getContainerEnvironment() {
+  public IList<string> getContainerEnvironment() {
     return config.Env;
   }
 
-  List<string> getContainerEntrypoint() {
+  public IList<string> getContainerEntrypoint() {
     return config.Entrypoint;
   }
 
-  List<string> getContainerCmd() {
+  public IList<string> getContainerCmd() {
     return config.Cmd;
   }
 
-  List<string> getContainerHealthTest() {
-    return config.Healthcheck == null ? null : config.Healthcheck.Test;
+  public IList<string> getContainerHealthTest() {
+    return config.Healthcheck?.Test;
   }
 
-  Long getContainerHealthInterval() {
-    return config.Healthcheck == null ? null : config.Healthcheck.Interval;
+  public long? getContainerHealthInterval() {
+    return config.Healthcheck?.Interval;
   }
 
-  Long getContainerHealthTimeout() {
-    return config.Healthcheck == null ? null : config.Healthcheck.Timeout;
+  public long? getContainerHealthTimeout() {
+    return config.Healthcheck?.Timeout;
   }
 
-  Long getContainerHealthStartPeriod() {
-    return config.Healthcheck == null ? null : config.Healthcheck.StartPeriod;
+  public long? getContainerHealthStartPeriod() {
+    return config.Healthcheck?.StartPeriod;
   }
 
-  Integer getContainerHealthRetries() {
-    return config.Healthcheck == null ? null : config.Healthcheck.Retries;
+  public int? getContainerHealthRetries() {
+    return config.Healthcheck?.Retries;
   }
 
-  Map<string, Map<object, object>> getContainerExposedPorts() {
+  public IDictionary<string, IDictionary<object, object>> getContainerExposedPorts() {
     return config.ExposedPorts;
   }
 
-  Map<string, string> getContainerLabels() {
+  public IDictionary<string, string> getContainerLabels() {
     return config.Labels;
   }
 
-  string getContainerWorkingDir() {
+  public string getContainerWorkingDir() {
     return config.WorkingDir;
   }
 
-  string getContainerUser() {
+  public string getContainerUser() {
     return config.User;
   }
 
-  Map<string, Map<object, object>> getContainerVolumes() {
+  public IDictionary<string, IDictionary<object, object>> getContainerVolumes() {
     return config.Volumes;
   }
 

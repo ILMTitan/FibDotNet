@@ -14,6 +14,8 @@
  * the License.
  */
 
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.async {
 
 
@@ -37,6 +39,6 @@ public interface AsyncStep<T> {
 
   /** @return the submitted future */
   // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.
-  ListenableFuture<T> getFuture();
+  Task<T> getFuture();
 }
 }

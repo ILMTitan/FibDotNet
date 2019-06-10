@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.registry.credentials;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.frontend {
 
 
@@ -33,23 +43,26 @@ namespace com.google.cloud.tools.jib.frontend {
 
 
 
+    /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
 
-/** Static factories for various {@link CredentialRetriever}s. */
-public class CredentialRetrieverFactory {
+    public delegate DockerCredentialHelper DockerCredentialHelperFactory(string registry, SystemPath credentialHelper);
+    public static class DchfExtensions {
+        public static DockerCredentialHelper create(this DockerCredentialHelperFactory f, string registry, SystemPath credentialHelper)
+        {
+            return f(registry, credentialHelper);
+        }
+    }
 
-  /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
+    /** Static factories for various {@link CredentialRetriever}s. */
+    public class CredentialRetrieverFactory {
 
-  @FunctionalInterface
-  interface DockerCredentialHelperFactory {
-    DockerCredentialHelper create(string registry, Path credentialHelper);
-  }
 
-  /**
-   * Defines common credential helpers to use as defaults. Maps from registry suffix to credential
-   * helper suffix.
-   */
-  private static readonly ImmutableMap<string, string> COMMON_CREDENTIAL_HELPERS =
-      ImmutableMap.of("gcr.io", "gcr", "amazonaws.com", "ecr-login");
+    /**
+     * Defines common credential helpers to use as defaults. Maps from registry suffix to credential
+     * helper suffix.
+     */
+    private static readonly ImmutableDictionary<string, string> COMMON_CREDENTIAL_HELPERS =
+        ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["gcr.io"] = "gcr", ["amazonaws.com"] = "ecr-login" });
 
   /**
    * Creates a new {@link CredentialRetrieverFactory} for an image.
@@ -60,7 +73,7 @@ public class CredentialRetrieverFactory {
    */
   public static CredentialRetrieverFactory forImage(
       ImageReference imageReference, Consumer<LogEvent> logger) {
-    return new CredentialRetrieverFactory(imageReference, logger, DockerCredentialHelper::new);
+            return new CredentialRetrieverFactory(imageReference, logger, DockerCredentialHelper.Create);
   }
 
   /**
@@ -71,7 +84,7 @@ public class CredentialRetrieverFactory {
    */
   public static CredentialRetrieverFactory forImage(ImageReference imageReference) {
     return new CredentialRetrieverFactory(
-        imageReference, logEvent => {}, DockerCredentialHelper.new);
+        imageReference, logEvent => {}, DockerCredentialHelper.Create);
   }
 
   private readonly ImageReference imageReference;
@@ -121,14 +134,14 @@ public class CredentialRetrieverFactory {
    * @see <a
    *     href="https://github.com/docker/docker-credential-helpers#development">https://github.com/docker/docker-credential-helpers#development</a>
    */
-  public CredentialRetriever dockerCredentialHelper(Path credentialHelper) {
+  public CredentialRetriever dockerCredentialHelper(SystemPath credentialHelper) {
     return () => {
       logger.accept(LogEvent.info("Checking credentials from " + credentialHelper));
 
       try {
         return Optional.of(retrieveFromDockerCredentialHelper(credentialHelper));
 
-      } catch (CredentialHelperUnhandledServerUrlException ex) {
+      } catch (CredentialHelperUnhandledServerUrlException) {
         logger.accept(
             LogEvent.info(
                 "No credentials for " + imageReference.getRegistry() + " in " + credentialHelper));
@@ -148,7 +161,7 @@ public class CredentialRetrieverFactory {
    * @return a new {@link CredentialRetriever}
    */
   public CredentialRetriever inferCredentialHelper() {
-    List<string> inferredCredentialHelperSuffixes = new ArrayList<>();
+    IList<string> inferredCredentialHelperSuffixes = new List<string>();
     foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.keySet())
     {
       if (!imageReference.getRegistry().endsWith(registrySuffix)) {
@@ -156,7 +169,7 @@ public class CredentialRetrieverFactory {
       }
       string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.get(registrySuffix);
       if (inferredCredentialHelperSuffix == null) {
-        throw new IllegalStateException("No COMMON_CREDENTIAL_HELPERS should be null");
+        throw new InvalidOperationException("No COMMON_CREDENTIAL_HELPERS should be null");
       }
       inferredCredentialHelperSuffixes.add(inferredCredentialHelperSuffix);
     }
@@ -171,8 +184,7 @@ public class CredentialRetrieverFactory {
                       DockerCredentialHelper.CREDENTIAL_HELPER_PREFIX
                           + inferredCredentialHelperSuffix)));
 
-        } catch (CredentialHelperNotFoundException
-            | CredentialHelperUnhandledServerUrlException ex) {
+        } catch (Exception ex) when (ex is CredentialHelperNotFoundException || ex is CredentialHelperUnhandledServerUrlException ) {
           if (ex.getMessage() != null) {
             // Warns the user that the specified (or inferred) credential helper cannot be used.
             logger.accept(LogEvent.info(ex.getMessage()));
@@ -208,7 +220,7 @@ public class CredentialRetrieverFactory {
    * @return a new {@link CredentialRetriever}
    * @see DockerConfigCredentialRetriever
    */
-  public CredentialRetriever dockerConfig(Path dockerConfigFile) {
+  public CredentialRetriever dockerConfig(SystemPath dockerConfigFile) {
     return dockerConfig(
         new DockerConfigCredentialRetriever(imageReference.getRegistry(), dockerConfigFile));
   }
@@ -226,14 +238,14 @@ public class CredentialRetrieverFactory {
           return dockerConfigCredentials;
         }
 
-      } catch (IOException ex) {
+      } catch (IOException) {
         logger.accept(LogEvent.info("Unable to parse Docker config"));
       }
       return Optional.empty();
     };
   }
 
-  private Credential retrieveFromDockerCredentialHelper(Path credentialHelper)
+  private Credential retrieveFromDockerCredentialHelper(SystemPath credentialHelper)
       {
     Credential credentials =
         dockerCredentialHelperFactory

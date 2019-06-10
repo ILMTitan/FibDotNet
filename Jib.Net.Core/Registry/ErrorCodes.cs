@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.registry {
  * @see <a
  *     href="https://docs.docker.com/registry/spec/api/#errors-2">https://docs.docker.com/registry/spec/api/#errors-2</a>
  */
-enum ErrorCodes {
+public enum ErrorCodes {
 
   /**
    * This error may be returned when a blob is unknown to the registry in a specified repository.

@@ -32,13 +32,13 @@ public class FilePermissionsTest {
     Assert.assertEquals(new FilePermissions(0755), FilePermissions.fromOctalString("755"));
     Assert.assertEquals(new FilePermissions(0644), FilePermissions.fromOctalString("644"));
 
-    ImmutableList<string> badStrings = ImmutableList.of("abc", "-123", "777444333", "987", "3");
+    ImmutableArray<string> badStrings = ImmutableArray.Create("abc", "-123", "777444333", "987", "3");
     foreach (string badString in badStrings)
     {
       try {
         FilePermissions.fromOctalString(badString);
         Assert.fail();
-      } catch (IllegalArgumentException ex) {
+      } catch (ArgumentException ex) {
         Assert.assertEquals(
             "octalPermissions must be a 3-digit octal number (000-777)", ex.getMessage());
       }
@@ -48,23 +48,23 @@ public class FilePermissionsTest {
   [TestMethod]
   public void testFromPosixFilePermissions() {
     Assert.assertEquals(
-        new FilePermissions(0000), FilePermissions.fromPosixFilePermissions(ImmutableSet.of()));
+        new FilePermissions(0000), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.of()));
     Assert.assertEquals(
         new FilePermissions(0110),
         FilePermissions.fromPosixFilePermissions(
-            ImmutableSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE)));
+            ImmutableHashSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE)));
     Assert.assertEquals(
         new FilePermissions(0202),
         FilePermissions.fromPosixFilePermissions(
-            ImmutableSet.of(PosixFilePermission.OWNER_WRITE, PosixFilePermission.OTHERS_WRITE)));
+            ImmutableHashSet.of(PosixFilePermission.OWNER_WRITE, PosixFilePermission.OTHERS_WRITE)));
     Assert.assertEquals(
         new FilePermissions(0044),
         FilePermissions.fromPosixFilePermissions(
-            ImmutableSet.of(PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ)));
+            ImmutableHashSet.of(PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ)));
     Assert.assertEquals(
         new FilePermissions(0777),
         FilePermissions.fromPosixFilePermissions(
-            ImmutableSet.copyOf(PosixFilePermission.values())));
+            ImmutableHashSet.CreateRange(PosixFilePermission.values())));
   }
 }
 }

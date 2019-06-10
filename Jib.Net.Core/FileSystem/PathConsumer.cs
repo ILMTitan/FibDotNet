@@ -14,13 +14,18 @@
  * the License.
  */
 
+using Jib.Net.Core.FileSystem;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
 
-@FunctionalInterface
-public interface PathConsumer {
-
-  void accept(Path path) throws IOException;
-}
+public delegate void PathConsumer(SystemPath path);
+    public static class PathConsumerExtensions
+    {
+        public static void accept(this PathConsumer c, SystemPath path)
+        {
+            c(path);
+        }
+    }
 }

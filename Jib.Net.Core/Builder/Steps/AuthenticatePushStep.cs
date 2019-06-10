@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -39,33 +47,33 @@ namespace com.google.cloud.tools.jib.builder.steps {
  * @see <a
  *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
  */
-class AuthenticatePushStep : AsyncStep<Authorization>, Callable<Authorization>
+class AuthenticatePushStep : AsyncStep<Authorization>
     {
-  private static readonly string DESCRIPTION = "Authenticating with push to %s";
+  private static readonly string DESCRIPTION = "Authenticating with push to {0}";
 
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
 
-  private readonly ListenableFuture<Authorization> listenableFuture;
+  private readonly Task<Authorization> listenableFuture;
 
-  AuthenticatePushStep(
-      ListeningExecutorService listeningExecutorService,
+  public AuthenticatePushStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep) {
+      RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(retrieveTargetRegistryCredentialsStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<Authorization> getFuture() {
+  public Task<Authorization> getFuture() {
     return listenableFuture;
   }
 
@@ -73,22 +81,25 @@ class AuthenticatePushStep : AsyncStep<Authorization>, Callable<Authorization>
     Credential registryCredential = NonBlockingSteps.get(retrieveTargetRegistryCredentialsStep);
 
     string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
-    using(ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
-    using(TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), string.format(DESCRIPTION, registry))))
-    {
+            try {
+                using (ProgressEventDispatcher ignored =
+                        progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
+                using (TimerEventDispatcher ignored2 =
+                        new TimerEventDispatcher(
+                            buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, registry)))
+                {
 
-      RegistryAuthenticator registryAuthenticator =
-          buildConfiguration
-              .newTargetImageRegistryClientFactory()
-              .newRegistryClient()
-              .getRegistryAuthenticator();
-      if (registryAuthenticator != null) {
-        return registryAuthenticator.authenticatePush(registryCredential);
-      }
-    } catch (InsecureRegistryException ex) {
+                    RegistryAuthenticator registryAuthenticator =
+                        buildConfiguration
+                            .newTargetImageRegistryClientFactory()
+                            .newRegistryClient()
+                            .getRegistryAuthenticator();
+                    if (registryAuthenticator != null)
+                    {
+                        return registryAuthenticator.authenticatePush(registryCredential);
+                    }
+                }
+    } catch (InsecureRegistryException) {
       // Cannot skip certificate validation or use HTTP; fall through.
     }
 

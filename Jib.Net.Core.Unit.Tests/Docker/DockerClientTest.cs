@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.docker {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class DockerClientTest {
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   [Mock] private ProcessBuilder mockProcessBuilder;
   [Mock] private Process mockProcess;
@@ -58,10 +58,10 @@ public class DockerClientTest {
 
     Mockito.doAnswer(
             AdditionalAnswers.answerVoid(
-                (VoidAnswer1<OutputStream>)
+                (VoidAnswer1<Stream>)
                     out => out.write("jib".getBytes(StandardCharsets.UTF_8))))
         .when(imageTarball)
-        .writeTo(Mockito.any(typeof(OutputStream)));
+        .writeTo(Mockito.any(typeof(Stream)));
   }
 
   [TestMethod]
@@ -80,12 +80,12 @@ public class DockerClientTest {
     Mockito.when(mockProcess.waitFor()).thenReturn(0);
 
     // Captures stdin.
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
     Mockito.when(mockProcess.getOutputStream()).thenReturn(byteArrayOutputStream);
 
     // Simulates stdout.
     Mockito.when(mockProcess.getInputStream())
-        .thenReturn(new ByteArrayInputStream("output".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("output".getBytes(StandardCharsets.UTF_8)));
 
     string output = testDockerClient.load(imageTarball);
 
@@ -100,14 +100,14 @@ public class DockerClientTest {
 
     Mockito.when(mockProcess.getOutputStream())
         .thenReturn(
-            new OutputStream() {
+            new Stream() {
 
               public void write(int b) {
                 throw new IOException();
               }
             });
     Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new ByteArrayInputStream("error".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.load(imageTarball);
@@ -125,7 +125,7 @@ public class DockerClientTest {
 
     Mockito.when(mockProcess.getOutputStream())
         .thenReturn(
-            new OutputStream() {
+            new Stream() {
 
               public void write(int b) {
                 throw expectedIOException;
@@ -133,7 +133,7 @@ public class DockerClientTest {
             });
     Mockito.when(mockProcess.getErrorStream())
         .thenReturn(
-            new InputStream() {
+            new Stream() {
 
               public int read() {
                 throw new IOException();
@@ -154,11 +154,11 @@ public class DockerClientTest {
     DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
     Mockito.when(mockProcess.waitFor()).thenReturn(1);
 
-    Mockito.when(mockProcess.getOutputStream()).thenReturn(ByteStreams.nullOutputStream());
+    Mockito.when(mockProcess.getOutputStream()).thenReturn(Stream.Null);
     Mockito.when(mockProcess.getInputStream())
-        .thenReturn(new ByteArrayInputStream("ignored".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("ignored".getBytes(StandardCharsets.UTF_8)));
     Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new ByteArrayInputStream("error".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.load(imageTarball);
@@ -185,7 +185,7 @@ public class DockerClientTest {
   [TestMethod]
   public void testDefaultProcessorBuilderFactory_customExecutable() {
     ProcessBuilder processBuilder =
-        DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableMap.of())
+        DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableDictionary.of())
             .apply(Arrays.asList("sub", "command"));
 
     Assert.assertEquals(
@@ -195,9 +195,9 @@ public class DockerClientTest {
 
   [TestMethod]
   public void testDefaultProcessorBuilderFactory_customEnvironment() {
-    ImmutableMap<string, string> environment = ImmutableMap.of("Key1", "Value1");
+    ImmutableDictionary<string, string> environment = ImmutableDictionary.of("Key1", "Value1");
 
-    Map<string, string> expectedEnvironment = new HashMap<>(System.getenv());
+    IDictionary<string, string> expectedEnvironment = new Dictionary<>(System.getenv());
     expectedEnvironment.putAll(environment);
 
     ProcessBuilder processBuilder =
@@ -218,7 +218,7 @@ public class DockerClientTest {
     Mockito.when(mockProcess.waitFor()).thenReturn(1);
 
     Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new ByteArrayInputStream("error".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));

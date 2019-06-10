@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.progress;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
+using Jib.Net.Core.Blob;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -34,7 +44,7 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pushes a BLOB to the target registry. */
-class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
+class PushBlobStep : AsyncStep<BlobDescriptor> {
   private static readonly string DESCRIPTION = "Pushing BLOB ";
 
   private readonly BuildConfiguration buildConfiguration;
@@ -44,15 +54,15 @@ class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
   private readonly BlobDescriptor blobDescriptor;
   private readonly Blob blob;
 
-  private readonly ListenableFuture<BlobDescriptor> listenableFuture;
+  private readonly Task<BlobDescriptor> listenableFuture;
 
-  PushBlobStep(
-      ListeningExecutorService listeningExecutorService,
+  public PushBlobStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDipatcherFactory,
       AuthenticatePushStep authenticatePushStep,
       BlobDescriptor blobDescriptor,
-      Blob blob) {
+      Blob blob)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDipatcherFactory = progressEventDipatcherFactory;
     this.authenticatePushStep = authenticatePushStep;
@@ -60,12 +70,12 @@ class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
     this.blob = blob;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(authenticatePushStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<BlobDescriptor> getFuture() {
+  public Task<BlobDescriptor> getFuture() {
     return listenableFuture;
   }
 
@@ -73,11 +83,12 @@ class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
     using(ProgressEventDispatcher progressEventDispatcher =
             progressEventDipatcherFactory.create(
                 "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
-    using(TimerEventDispatcher ignored =
-            new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor);
+            using (TimerEventDispatcher ignored =
+                    new TimerEventDispatcher(
+                        buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor))
+                using(
         ThrottledAccumulatingConsumer throttledProgressReporter =
-            new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress)))
+            new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress))
     {
 
       RegistryClient registryClient =
@@ -95,7 +106,7 @@ class PushBlobStep : AsyncStep<BlobDescriptor>, Callable<BlobDescriptor>  {
       }
 
       // todo: leverage cross-repository mounts
-      registryClient.pushBlob(blobDescriptor.getDigest(), blob, null, throttledProgressReporter);
+      registryClient.pushBlob(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept);
 
       return blobDescriptor;
     }

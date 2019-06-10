@@ -14,7 +14,10 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.events {
+using com.google.cloud.tools.jib.api;
+using NodaTime;
+
+namespace com.google.cloud.tools.jib.@event.events {
 
 
 
@@ -57,7 +60,7 @@ public class TimerEvent : JibEvent {
      *
      * @return the parent of this {@link Timer}
      */
-    Optional<? extends Timer> getParent();
+    Optional<Timer> getParent();
   }
 
   private readonly State state;

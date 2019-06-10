@@ -14,6 +14,8 @@
  * the License.
  */
 
+using Jib.Net.Core.FileSystem;
+
 namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
@@ -31,11 +33,11 @@ namespace com.google.cloud.tools.jib.api {
 public class TarImage {
 
   /** Finishes constructing a {@link TarImage}. */
-  public static class Builder {
+  public class Builder {
 
     private readonly ImageReference imageReference;
 
-    private Builder(ImageReference imageReference) {
+    public Builder(ImageReference imageReference) {
       this.imageReference = imageReference;
     }
 
@@ -45,7 +47,7 @@ public class TarImage {
      * @param outputFile the output file
      * @return a new {@link TarImage}
      */
-    public TarImage saveTo(Path outputFile) {
+    public TarImage saveTo(SystemPath outputFile) {
       return new TarImage(imageReference, outputFile);
     }
   }
@@ -73,10 +75,10 @@ public class TarImage {
   }
 
   private readonly ImageReference imageReference;
-  private readonly Path outputFile;
+  private readonly SystemPath outputFile;
 
   /** Instantiate with {@link #named}. */
-  private TarImage(ImageReference imageReference, Path outputFile) {
+  private TarImage(ImageReference imageReference, SystemPath outputFile) {
     this.imageReference = imageReference;
     this.outputFile = outputFile;
   }
@@ -86,11 +88,11 @@ public class TarImage {
    *
    * @return the output file
    */
-  Path getOutputFile() {
+  public SystemPath getOutputFile() {
     return outputFile;
   }
 
-  ImageReference getImageReference() {
+  public ImageReference getImageReference() {
     return imageReference;
   }
 }

@@ -14,7 +14,13 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.registry {
+using com.google.cloud.tools.jib.http;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
@@ -25,48 +31,30 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-/**
- * Provides implementations for a registry endpoint. Implementations should be immutable.
- *
- * @param <T> the type returned from handling the endpoint response
- */
-interface RegistryEndpointProvider<T> {
+    /**
+     * Provides implementations for a registry endpoint. Implementations should be immutable.
+     *
+     * @param <T> the type returned from handling the endpoint response
+     */
+    interface RegistryEndpointProvider<T>
+    {
 
-  /** @return the HTTP method to send the request with */
-  string getHttpMethod();
+        /** @return the HTTP method to send the request with */
+        HttpMethod getHttpMethod();
 
-  /**
-   * @param apiRouteBase the registry's base Uri (for example, {@code https://gcr.io/v2/})
-   * @return the registry endpoint Uri
-   */
-  Uri getApiRoute(string apiRouteBase) throws MalformedURLException;
+        /**
+         * @param apiRouteBase the registry's base Uri (for example, {@code https://gcr.io/v2/})
+         * @return the registry endpoint Uri
+         */
+        Uri getApiRoute(string apiRouteBase);
+        /** @return the {@link BlobHttpContent} to send as the request body */
+        BlobHttpContent getContent();
 
-  /** @return the {@link BlobHttpContent} to send as the request body */
-  BlobHttpContent getContent();
+        /** @return a list of MIME types to pass as an HTTP {@code Accept} header */
+        IList<string> getAccept();
 
-  /** @return a list of MIME types to pass as an HTTP {@code Accept} header */
-  List<string> getAccept();
-
-  /** Handles the response specific to the registry action. */
-  T handleResponse(Response response) throws IOException, RegistryException;
-
-  /**
-   * Handles an {@link HttpResponseException} that occurs.
-   *
-   * @param httpResponseException the {@link HttpResponseException} to handle
-   * @throws HttpResponseException {@code httpResponseException} if {@code httpResponseException}
-   *     could not be handled
-   * @throws RegistryErrorException if there is an error with a remote registry
-   */
-  default T handleHttpResponseException(HttpResponseException httpResponseException)
-      throws HttpResponseException, RegistryErrorException {
-    throw httpResponseException;
-  }
-
-  /**
-   * @return a description of the registry action performed, used in error messages to describe the
-   *     action that failed
-   */
-  string getActionDescription();
-}
+        /** Handles the response specific to the registry action. */
+        T handleResponse(HttpResponseMessage response);
+        string getActionDescription();
+    }
 }

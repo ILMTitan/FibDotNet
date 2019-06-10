@@ -14,6 +14,8 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -82,7 +84,7 @@ public class Port {
     return protocol;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (other == this) {
       return true;
     }
@@ -90,10 +92,10 @@ public class Port {
       return false;
     }
     Port otherPort = (Port) other;
-    return port == otherPort.port && protocol.equals(otherPort.protocol);
+    return port == otherPort.port && protocol.Equals(otherPort.protocol);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(port, protocol);
   }
 
@@ -104,7 +106,7 @@ public class Port {
    * @return the string form of the port with protocol
    */
 
-  public string toString() {
+  public override string ToString() {
     return port + "/" + protocol;
   }
 }

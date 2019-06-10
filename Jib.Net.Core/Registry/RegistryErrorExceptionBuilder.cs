@@ -14,15 +14,21 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using System;
+using System.Net.Http;
+using System.Text;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
 
 
 /** Builds a {@link RegistryErrorException} with multiple causes. */
-class RegistryErrorExceptionBuilder {
+public class RegistryErrorExceptionBuilder {
 
-  private final Throwable cause;
+  private readonly HttpResponseMessage cause;
   private readonly StringBuilder errorMessageBuilder = new StringBuilder();
 
   private bool firstErrorReason = true;
@@ -39,12 +45,13 @@ class RegistryErrorExceptionBuilder {
       message = "no details";
     }
 
-    try {
-      if (errorCodeString == null) {
-        throw new IllegalArgumentException();
-      }
+      if (!Enum.TryParse<ErrorCodes>(errorCodeString, true, out var errorCode))
+                {
+                    // Unknown errorCodeString
+                    return "unknown: " + message;
+                }
 
-      ErrorCodes errorCode = ErrorCodes.valueOf(errorCodeString);
+                
 
       if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.BLOB_UNKNOWN) {
         return message + " (something went wrong)";
@@ -57,15 +64,10 @@ class RegistryErrorExceptionBuilder {
       } else {
         return "other: " + message;
       }
-
-    } catch (IllegalArgumentException ex) {
-      // Unknown errorCodeString
-      return "unknown: " + message;
-    }
   }
 
   /** @param method the registry method that errored */
-  RegistryErrorExceptionBuilder(string method, Throwable cause) {
+  public RegistryErrorExceptionBuilder(string method, HttpResponseMessage cause) {
     this.cause = cause;
 
     errorMessageBuilder.append("Tried to ");
@@ -74,8 +76,8 @@ class RegistryErrorExceptionBuilder {
   }
 
   /** @param method the registry method that errored */
-  RegistryErrorExceptionBuilder(string method) {
-    this(method, null);
+  public RegistryErrorExceptionBuilder(string method) : this(method, null) {
+    
   }
 
   // TODO: Don't use a JsonTemplate as a data object to pass around.
@@ -84,14 +86,14 @@ class RegistryErrorExceptionBuilder {
    *
    * @param errorEntry the {@link ErrorEntryTemplate} to add
    */
-  RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry) {
+  public RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry) {
     string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
     addReason(reason);
     return this;
   }
 
   /** Adds an entry to the error reasons. */
-  RegistryErrorExceptionBuilder addReason(string reason) {
+  public RegistryErrorExceptionBuilder addReason(string reason) {
     if (!firstErrorReason) {
       errorMessageBuilder.append(", ");
     }
@@ -100,7 +102,7 @@ class RegistryErrorExceptionBuilder {
     return this;
   }
 
-  RegistryErrorException build() {
+  public RegistryErrorException build() {
     // Provides a feedback channel.
     errorMessageBuilder.append(
         " | If this is a bug, please file an issue at " + ProjectInfo.GITHUB_NEW_ISSUE_URL);

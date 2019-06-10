@@ -79,7 +79,7 @@ public class ProgressEventHandlerTest {
       Assert.assertEquals(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
       // Adds 50 to child1Child and 100 to child2.
-      List<Callable<Void>> callables = new ArrayList<>(150);
+      IList<Callable<Void>> callables = new List<>(150);
       callables.addAll(
           Collections.nCopies(
               50,

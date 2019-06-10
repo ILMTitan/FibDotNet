@@ -14,6 +14,8 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -26,13 +28,29 @@ public class RegistryCredentialsNotSentException : RegistryException {
    * @param registry the image registry
    * @param repository the image repository
    */
-  RegistryCredentialsNotSentException(string registry, string repository) {
-    super(
+  public RegistryCredentialsNotSentException(string registry, string repository) : base(
         "Required credentials for "
             + registry
             + "/"
             + repository
-            + " were not sent because the connection was over HTTP");
+            + " were not sent because the connection was over HTTP") {
+    
   }
-}
+
+        public RegistryCredentialsNotSentException(string message, System.Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryCredentialsNotSentException(string message) : base(message)
+        {
+        }
+
+        public RegistryCredentialsNotSentException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public RegistryCredentialsNotSentException() : base()
+        {
+        }
+    }
 }

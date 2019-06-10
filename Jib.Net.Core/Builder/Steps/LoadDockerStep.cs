@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.image;
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -33,28 +42,26 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Adds image layers to a tarball and loads into Docker daemon. */
-class LoadDockerStep : $2 {
-  private readonly ListeningExecutorService listeningExecutorService;
+class LoadDockerStep : AsyncStep<BuildResult> {
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly DockerClient dockerClient;
 
   private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
   private readonly BuildImageStep buildImageStep;
 
-  private readonly ListenableFuture<BuildResult> listenableFuture;
+  private readonly Task<BuildResult> listenableFuture;
 
-  LoadDockerStep(
-      ListeningExecutorService listeningExecutorService,
+  public LoadDockerStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       DockerClient dockerClient,
       PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
-      BuildImageStep buildImageStep) {
-    this.listeningExecutorService = listeningExecutorService;
+      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+      BuildImageStep buildImageStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.dockerClient = dockerClient;
@@ -63,18 +70,18 @@ class LoadDockerStep : $2 {
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(pullAndCacheBaseImageLayersStep)
             .addStep(buildImageStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<BuildResult> getFuture() {
+  public Task<BuildResult> getFuture() {
     return listenableFuture;
   }
 
   public BuildResult call() {
-    return AsyncDependencies.@using(listeningExecutorService)
+    return AsyncDependencies.@using()
         .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
         .addSteps(buildAndCacheApplicationLayerSteps)
         .addStep(NonBlockingSteps.get(buildImageStep))
@@ -103,7 +110,7 @@ class LoadDockerStep : $2 {
       // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
       foreach (string tag in buildConfiguration.getAllTargetImageTags())
       {
-        if (tag.equals(targetImageReference.getTag())) {
+        if (tag.Equals(targetImageReference.getTag())) {
           continue;
         }
 

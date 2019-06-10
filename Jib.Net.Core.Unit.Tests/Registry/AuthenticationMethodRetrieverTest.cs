@@ -55,7 +55,7 @@ public class AuthenticationMethodRetrieverTest {
   [TestMethod]
   public void testHandleResponse() {
     Assert.assertNull(
-        testAuthenticationMethodRetriever.handleResponse(Mockito.mock(typeof(Response))));
+        testAuthenticationMethodRetriever.handleResponse(Mockito.mock(typeof(HttpResponseMessage))));
   }
 
   [TestMethod]
@@ -67,7 +67,7 @@ public class AuthenticationMethodRetrieverTest {
 
   [TestMethod]
   public void testGetHttpMethod() {
-    Assert.assertEquals(HttpMethods.GET, testAuthenticationMethodRetriever.getHttpMethod());
+    Assert.assertEquals(HttpMethod.Get, testAuthenticationMethodRetriever.getHttpMethod());
   }
 
   [TestMethod]
@@ -94,7 +94,7 @@ public class AuthenticationMethodRetrieverTest {
   [TestMethod]
   public void tsetHandleHttpResponseException_noHeader() {
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
+        .thenReturn(HttpStatusCode.Unauthorized);
     Mockito.when(mockHttpResponseException.getHeaders()).thenReturn(mockHeaders);
     Mockito.when(mockHeaders.getAuthenticate()).thenReturn(null);
 
@@ -115,7 +115,7 @@ public class AuthenticationMethodRetrieverTest {
     string authenticationMethod = "bad authentication method";
 
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
+        .thenReturn(HttpStatusCode.Unauthorized);
     Mockito.when(mockHttpResponseException.getHeaders()).thenReturn(mockHeaders);
     Mockito.when(mockHeaders.getAuthenticate()).thenReturn(authenticationMethod);
 
@@ -139,7 +139,7 @@ public class AuthenticationMethodRetrieverTest {
         "Bearer realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"";
 
     Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
+        .thenReturn(HttpStatusCode.Unauthorized);
     Mockito.when(mockHttpResponseException.getHeaders()).thenReturn(mockHeaders);
     Mockito.when(mockHeaders.getAuthenticate()).thenReturn(authenticationMethod);
 

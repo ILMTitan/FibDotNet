@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.registry;
+using com.google.cloud.tools.jib.tar;
+using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -50,10 +62,10 @@ public class ReproducibleLayerBuilder {
      * are treated the same in {@link TarArchiveEntry#TarArchiveEntry(File, string)}, except for
      * modification time, which is wiped away in {@link #build}).
      */
-    private static readonly File DIRECTORY_FILE = Paths.get(".").toFile();
+    private static readonly FileInfo DIRECTORY_FILE = Paths.get(".").toFile();
 
-    private readonly List<TarArchiveEntry> entries = new ArrayList<>();
-    private readonly Set<string> names = new HashSet<>();
+    private readonly IList<TarEntry> entries = new List<TarEntry>();
+    private readonly ISet<string> names = new HashSet<string>();
 
     /**
      * Adds a {@link TarArchiveEntry} if its extraction path does not exist yet. Also adds all of
@@ -62,16 +74,16 @@ public class ReproducibleLayerBuilder {
      *
      * @param tarArchiveEntry the {@link TarArchiveEntry}
      */
-    private void add(TarArchiveEntry tarArchiveEntry) {
+    public void add(TarEntry tarArchiveEntry) {
       if (names.contains(tarArchiveEntry.getName())) {
         return;
       }
 
       // Adds all directories along extraction paths to explicitly set permissions for those
       // directories.
-      Path namePath = Paths.get(tarArchiveEntry.getName());
+      SystemPath namePath = Paths.get(tarArchiveEntry.getName());
       if (namePath.getParent() != namePath.getRoot()) {
-        TarArchiveEntry dir = new TarArchiveEntry(DIRECTORY_FILE, namePath.getParent().toString());
+                    TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString());
         dir.setModTime(LayerConfiguration.DEFAULT_MODIFIED_TIME.toEpochMilli());
         add(dir);
       }
@@ -80,16 +92,16 @@ public class ReproducibleLayerBuilder {
       names.add(tarArchiveEntry.getName());
     }
 
-    private List<TarArchiveEntry> getSortedEntries() {
-      List<TarArchiveEntry> sortedEntries = new ArrayList<>(entries);
-      sortedEntries.sort(Comparator.comparing(TarArchiveEntry.getName));
+    public List<TarEntry> getSortedEntries() {
+      List<TarEntry> sortedEntries = new List<TarEntry>(entries);
+                sortedEntries.sort(Comparator.comparing((TarEntry e) => e.getName()));
       return sortedEntries;
     }
   }
 
-  private readonly ImmutableList<LayerEntry> layerEntries;
+  private readonly ImmutableArray<LayerEntry> layerEntries;
 
-  public ReproducibleLayerBuilder(ImmutableList<LayerEntry> layerEntries) {
+  public ReproducibleLayerBuilder(ImmutableArray<LayerEntry> layerEntries) {
     this.layerEntries = layerEntries;
   }
 
@@ -104,11 +116,11 @@ public class ReproducibleLayerBuilder {
     // Adds all the layer entries as tar entries.
     foreach (LayerEntry layerEntry in layerEntries)
     {
-      // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
-      // adds parent directories for each extraction path.
-      TarArchiveEntry entry =
-          new TarArchiveEntry(
-              layerEntry.getSourceFile().toFile(), layerEntry.getExtractionPath().toString());
+                // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
+                // adds parent directories for each extraction path.
+                TarEntry entry =
+                              TarEntry.CreateEntryFromFile(layerEntry.getSourceFile().toString());
+                entry.Name = layerEntry.getExtractionPath().toString();
 
       // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
       // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
@@ -119,13 +131,13 @@ public class ReproducibleLayerBuilder {
     }
 
     // Gets the entries sorted by extraction path.
-    List<TarArchiveEntry> sortedFilesystemEntries = uniqueTarArchiveEntries.getSortedEntries();
+    IList<TarEntry> sortedFilesystemEntries = uniqueTarArchiveEntries.getSortedEntries();
 
-    Set<string> names = new HashSet<>();
+    ISet<string> names = new HashSet<string>();
 
     // Adds all the files to a tar stream.
     TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
-    foreach (TarArchiveEntry entry in sortedFilesystemEntries)
+    foreach (TarEntry entry in sortedFilesystemEntries)
     {
       // Strips out all non-reproducible elements from tar archive entries.
       // Modified time is configured per entry
@@ -140,7 +152,8 @@ public class ReproducibleLayerBuilder {
       tarStreamBuilder.addTarArchiveEntry(entry);
     }
 
-    return Blobs.from(tarStreamBuilder.writeAsTarArchiveTo);
+    return Blobs.from(
+        tarStreamBuilder.writeAsTarArchiveTo);
   }
 }
 }

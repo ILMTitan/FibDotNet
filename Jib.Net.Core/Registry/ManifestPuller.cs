@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -38,36 +50,24 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 /** Pulls an image's manifest. */
-class ManifestPuller<T extends ManifestTemplate> implements RegistryEndpointProvider<T> {
+class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
+    {
 
   private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
   private readonly string imageTag;
-  private readonly Class<T> manifestTemplateClass;
 
-  ManifestPuller(
+  public ManifestPuller(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      string imageTag,
-      Class<T> manifestTemplateClass) {
+      string imageTag) {
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
     this.imageTag = imageTag;
-    this.manifestTemplateClass = manifestTemplateClass;
   }
 
   public BlobHttpContent getContent() {
     return null;
   }
 
-  public List<string> getAccept() {
-    if (manifestTemplateClass.equals(typeof(V21ManifestTemplate))) {
-      return Collections.singletonList(V21ManifestTemplate.MEDIA_TYPE);
-    }
-    if (manifestTemplateClass.equals(typeof(V22ManifestTemplate))) {
-      return Collections.singletonList(V22ManifestTemplate.MANIFEST_MEDIA_TYPE);
-    }
-    if (manifestTemplateClass.equals(typeof(OCIManifestTemplate))) {
-      return Collections.singletonList(OCIManifestTemplate.MANIFEST_MEDIA_TYPE);
-    }
-
+  public IList<string> getAccept() {
     return Arrays.asList(
         OCIManifestTemplate.MANIFEST_MEDIA_TYPE,
         V22ManifestTemplate.MANIFEST_MEDIA_TYPE,
@@ -76,9 +76,9 @@ class ManifestPuller<T extends ManifestTemplate> implements RegistryEndpointProv
 
   /** Parses the response body into a {@link ManifestTemplate}. */
 
-  public T handleResponse(Response response) {
+  public T handleResponse(HttpResponseMessage response) {
     string jsonString =
-        CharStreams.toString(new InputStreamReader(response.getBody(), StandardCharsets.UTF_8));
+        CharStreams.toString(new StreamReader(response.getBody(), StandardCharsets.UTF_8));
     return getManifestTemplateFromJson(jsonString);
   }
 
@@ -87,8 +87,8 @@ class ManifestPuller<T extends ManifestTemplate> implements RegistryEndpointProv
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/manifests/" + imageTag);
   }
 
-  public string getHttpMethod() {
-    return HttpMethods.GET;
+  public HttpMethod getHttpMethod() {
+    return HttpMethod.Get;
   }
 
   public string getActionDescription() {
@@ -106,13 +106,13 @@ class ManifestPuller<T extends ManifestTemplate> implements RegistryEndpointProv
    */
   private T getManifestTemplateFromJson(string jsonString)
       {
-    ObjectNode node = new ObjectMapper().readValue(jsonString, typeof(ObjectNode));
+    ObjectNode node = new ObjectMapper().readValue<ObjectNode>(jsonString);
     if (!node.has("schemaVersion")) {
       throw new UnknownManifestFormatException("Cannot find field 'schemaVersion' in manifest");
     }
 
-    if (!manifestTemplateClass.equals(typeof(ManifestTemplate))) {
-      return JsonTemplateMapper.readJson(jsonString, manifestTemplateClass);
+    if (!typeof(ManifestTemplate).IsAssignableFrom(typeof(T))) {
+      return (T)JsonTemplateMapper.readJson<ManifestTemplate>(jsonString);
     }
 
     int schemaVersion = node.get("schemaVersion").asInt(-1);
@@ -121,19 +121,16 @@ class ManifestPuller<T extends ManifestTemplate> implements RegistryEndpointProv
     }
 
     if (schemaVersion == 1) {
-      return manifestTemplateClass.cast(
-          JsonTemplateMapper.readJson(jsonString, typeof(V21ManifestTemplate)));
+      return JsonTemplateMapper.readJson<T>(jsonString);
     }
     if (schemaVersion == 2) {
       // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
       string mediaType = node.get("mediaType").asText();
-      if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.equals(mediaType)) {
-        return manifestTemplateClass.cast(
-            JsonTemplateMapper.readJson(jsonString, typeof(V22ManifestTemplate)));
+      if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType)) {
+        return (T)JsonTemplateMapper.readJson<T>(jsonString);
       }
-      if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.equals(mediaType)) {
-        return manifestTemplateClass.cast(
-            JsonTemplateMapper.readJson(jsonString, typeof(OCIManifestTemplate)));
+      if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType)) {
+        return (T)JsonTemplateMapper.readJson<T>(jsonString);
       }
       throw new UnknownManifestFormatException("Unknown mediaType: " + mediaType);
     }

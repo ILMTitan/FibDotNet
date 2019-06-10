@@ -14,84 +14,49 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.image.json {
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using System.Collections.Generic;
+
+namespace com.google.cloud.tools.jib.image.json
+{
 
 
 
 
 
 
-/**
- * Parent class for image manifest JSON templates that can be built.
- *
- * @see V22ManifestTemplate Docker V2.2 format
- * @see OCIManifestTemplate OCI format
- */
-public interface BuildableManifestTemplate : ManifestTemplate {
+    /**
+     * Parent class for image manifest JSON templates that can be built.
+     *
+     * @see V22ManifestTemplate Docker V2.2 format
+     * @see OCIManifestTemplate OCI format
+     */
+    public interface BuildableManifestTemplate : ManifestTemplate
+    {
+        /** @return the media type for this manifest, specific to the image format */
+        string getManifestMediaType();
 
-  /**
-   * Template for inner JSON object representing content descriptor for a layer or container
-   * configuration.
-   *
-   * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md">OCI
-   *     Content Descriptors</a>
-   */
+        /** @return the content descriptor of the container configuration */
+        ContentDescriptorTemplate getContainerConfiguration();
 
-  class ContentDescriptorTemplate : JsonTemplate {
+        /** @return an unmodifiable view of the layers */
+        IReadOnlyList<ContentDescriptorTemplate> getLayers();
 
-    private string mediaType;
-    private DescriptorDigest digest;
-    private long size;
+        /**
+         * Sets the content descriptor of the container configuration.
+         *
+         * @param size the size of the container configuration.
+         * @param digest the container configuration content descriptor digest.
+         */
+        void setContainerConfiguration(long size, DescriptorDigest digest);
 
-    ContentDescriptorTemplate(string mediaType, long size, DescriptorDigest digest) {
-      this.mediaType = mediaType;
-      this.size = size;
-      this.digest = digest;
+        /**
+         * Adds a layer to the manifest.
+         *
+         * @param size the size of the layer.
+         * @param digest the layer descriptor digest.
+         */
+        void addLayer(long size, DescriptorDigest digest);
     }
-
-    /** Necessary for Jackson to create from JSON. */
-    private ContentDescriptorTemplate() {}
-
-    public long getSize() {
-      return size;
-    }
-
-    void setSize(long size) {
-      this.size = size;
-    }
-
-    public DescriptorDigest getDigest() {
-      return digest;
-    }
-
-    void setDigest(DescriptorDigest digest) {
-      this.digest = digest;
-    }
-  }
-
-  /** @return the media type for this manifest, specific to the image format */
-  string getManifestMediaType();
-
-  /** @return the content descriptor of the container configuration */
-  ContentDescriptorTemplate getContainerConfiguration();
-
-  /** @return an unmodifiable view of the layers */
-  List<ContentDescriptorTemplate> getLayers();
-
-  /**
-   * Sets the content descriptor of the container configuration.
-   *
-   * @param size the size of the container configuration.
-   * @param digest the container configuration content descriptor digest.
-   */
-  void setContainerConfiguration(long size, DescriptorDigest digest);
-
-  /**
-   * Adds a layer to the manifest.
-   *
-   * @param size the size of the layer.
-   * @param digest the layer descriptor digest.
-   */
-  void addLayer(long size, DescriptorDigest digest);
-}
 }

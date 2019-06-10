@@ -14,6 +14,21 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.global;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -60,7 +75,7 @@ public class RegistryAuthenticator {
    * @see <a
    *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
    */
-  static RegistryAuthenticator fromAuthenticationMethod(
+  public static RegistryAuthenticator fromAuthenticationMethod(
       string authenticationMethod,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       string userAgent)
@@ -80,8 +95,8 @@ public class RegistryAuthenticator {
           "Bearer");
     }
 
-    Pattern realmPattern = Pattern.compile("realm=\"(.*?)\"");
-    Matcher realmMatcher = realmPattern.matcher(authenticationMethod);
+    Regex realmPattern = new Regex("realm=\"(.*?)\"");
+    Match realmMatcher = realmPattern.matcher(authenticationMethod);
     if (!realmMatcher.find()) {
       throw newRegistryAuthenticationFailedException(
           registryEndpointRequestProperties.getServerUrl(),
@@ -91,8 +106,8 @@ public class RegistryAuthenticator {
     }
     string realm = realmMatcher.group(1);
 
-    Pattern servicePattern = Pattern.compile("service=\"(.*?)\"");
-    Matcher serviceMatcher = servicePattern.matcher(authenticationMethod);
+    Regex servicePattern = new Regex("service=\"(.*?)\"");
+    Match serviceMatcher = servicePattern.matcher(authenticationMethod);
     // use the provided registry location when missing service (e.g., for OpenShift)
     string service =
         serviceMatcher.find()
@@ -116,7 +131,8 @@ public class RegistryAuthenticator {
   /** Template for the authentication response JSON. */
   [JsonIgnoreProperties(ignoreUnknown = true)]
   private class AuthenticationResponseTemplate : JsonTemplate  {
-    private string token;
+            [JsonProperty]
+    public string token { get; }
 
     /**
      * {@code access_token} is accepted as an alias for {@code token}.
@@ -124,10 +140,11 @@ public class RegistryAuthenticator {
      * @see <a
      *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
      */
-    private string access_token;
+     [JsonProperty]
+    public string access_token { get; }
 
     /** @return {@link #token} if not null, or {@link #access_token} */
-    private string getToken() {
+    public string getToken() {
       if (token != null) {
         return token;
       }
@@ -219,42 +236,48 @@ public class RegistryAuthenticator {
    */
   private Authorization authenticate(Credential credential, string scope)
       {
-    using (Connection connection =
-        Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope))) {
-      Request.Builder requestBuilder =
-          Request.builder()
-              .setHttpTimeout(JibSystemProperties.getHttpTimeout())
-              .setUserAgent(userAgent);
+            try {
+                using (Connection connection =
+                    Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope)))
+                {
+                    var request = new HttpRequestMessage();
+                    request.Headers.UserAgent.ParseAdd(userAgent);
 
-      if (isOAuth2Auth(credential)) {
-        string parameters = getAuthRequestParameters(credential, scope);
-        requestBuilder.setBody(
-            new BlobHttpContent(Blobs.from(parameters), MediaType.FORM_DATA.toString()));
-      } else if (credential != null) {
-        requestBuilder.setAuthorization(
-            Authorization.fromBasicCredentials(credential.getUsername(), credential.getPassword()));
-      }
+                    if (isOAuth2Auth(credential))
+                    {
+                        string parameters = getAuthRequestParameters(credential, scope);
+                        request.Content = new BlobHttpContent(Blobs.from(parameters), MediaType.FORM_DATA.toString());
+                    }
+                    else if (credential != null)
+                    {
+                        Authorization authorization = Authorization.fromBasicCredentials(credential.getUsername(), credential.getPassword());
+                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
+                    }
+                    if (isOAuth2Auth(credential)) {
+                        request.Method = HttpMethod.Post;
+                    } else {
+                        request.Method = HttpMethod.Get;
+                    }
 
-      Request request = requestBuilder.build();
-      Response response =
-          isOAuth2Auth(credential) ? connection.post(request) : connection.get(request);
-      string responseString =
-          CharStreams.toString(new InputStreamReader(response.getBody(), StandardCharsets.UTF_8));
+                    HttpResponseMessage response = connection.send(request);
+                    string responseString =
+                        CharStreams.toString(new StreamReader(response.getBody(), StandardCharsets.UTF_8));
 
-      AuthenticationResponseTemplate responseJson =
-          JsonTemplateMapper.readJson(responseString, typeof(AuthenticationResponseTemplate));
+                    AuthenticationResponseTemplate responseJson =
+                        JsonTemplateMapper.readJson<AuthenticationResponseTemplate>(responseString);
 
-      if (responseJson.getToken() == null) {
-        throw new RegistryAuthenticationFailedException(
-            registryEndpointRequestProperties.getServerUrl(),
-            registryEndpointRequestProperties.getImageName(),
-            "Did not get token in authentication response from "
-                + getAuthenticationUrl(credential, scope)
-                + "; parameters: "
-                + getAuthRequestParameters(credential, scope));
-      }
-      return Authorization.fromBearerToken(responseJson.getToken());
-
+                    if (responseJson.getToken() == null)
+                    {
+                        throw new RegistryAuthenticationFailedException(
+                            registryEndpointRequestProperties.getServerUrl(),
+                            registryEndpointRequestProperties.getImageName(),
+                            "Did not get token in authentication response from "
+                                + getAuthenticationUrl(credential, scope)
+                                + "; parameters: "
+                                + getAuthRequestParameters(credential, scope));
+                    }
+                    return Authorization.fromBearerToken(responseJson.getToken());
+                }
     } catch (IOException ex) {
       throw new RegistryAuthenticationFailedException(
           registryEndpointRequestProperties.getServerUrl(),

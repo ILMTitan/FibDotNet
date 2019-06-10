@@ -14,6 +14,9 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
@@ -56,7 +59,7 @@ public class RegistryImage {
   }
 
   private readonly ImageReference imageReference;
-  private readonly List<CredentialRetriever> credentialRetrievers = new ArrayList<>();
+  private readonly IList<CredentialRetriever> credentialRetrievers = new List<CredentialRetriever>();
 
   /** Instantiate with {@link #named}. */
   private RegistryImage(ImageReference imageReference) {
@@ -106,11 +109,11 @@ public class RegistryImage {
     return this;
   }
 
-  ImageReference getImageReference() {
+  public ImageReference getImageReference() {
     return imageReference;
   }
 
-  List<CredentialRetriever> getCredentialRetrievers() {
+  public IList<CredentialRetriever> getCredentialRetrievers() {
     return credentialRetrievers;
   }
 }

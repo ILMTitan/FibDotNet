@@ -14,6 +14,9 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.registry;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -23,21 +26,56 @@ public class RegistryUnauthorizedException : RegistryException {
   private readonly string registry;
   private readonly string repository;
 
-  /**
-   * Identifies the image registry and repository that denied access.
-   *
-   * @param registry the image registry
-   * @param repository the image repository
-   * @param cause the cause
-   */
-  public RegistryUnauthorizedException(
-      string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository, cause) {
+        public HttpResponseMessage Cause { get; }
+
+        /**
+         * Identifies the image registry and repository that denied access.
+         *
+         * @param registry the image registry
+         * @param repository the image repository
+         * @param cause the cause
+         */
+        public RegistryUnauthorizedException(
+      string registry, string repository, HttpResponseMessage cause) : base("Unauthorized for " + registry + "/" + repository) {
     
     this.registry = registry;
     this.repository = repository;
-  }
+            Cause = cause;
+        }
 
-  public string getRegistry() {
+        /**
+         * Identifies the image registry and repository that denied access.
+         *
+         * @param registry the image registry
+         * @param repository the image repository
+         * @param cause the cause
+         */
+        public RegistryUnauthorizedException(
+      string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository)
+        {
+
+            this.registry = registry;
+            this.repository = repository;
+            Cause = cause.Cause;
+        }
+
+        public RegistryUnauthorizedException(string message, System.Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryUnauthorizedException(string message) : base(message)
+        {
+        }
+
+        public RegistryUnauthorizedException(string message, HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public RegistryUnauthorizedException() : base()
+        {
+        }
+
+        public string getRegistry() {
     return registry;
   }
 
@@ -49,8 +87,8 @@ public class RegistryUnauthorizedException : RegistryException {
     return registry + "/" + repository;
   }
 
-  public HttpResponseException getHttpResponseException() {
-    return (HttpResponseException) getCause();
+  public HttpResponseMessage getHttpResponse() {
+            return Cause;
   }
 }
 }

@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -58,7 +68,7 @@ public class ImageToJsonTranslator {
    *     values, or {@code null} if {@code exposedPorts} is {@code null}
    */
 
-  static Map<string, Map<object, object>> portSetToMap(Set<Port> exposedPorts) {
+  static IDictionary<string, IDictionary<object, object>> portSetToMap(ISet<Port> exposedPorts) {
     return setToMap(exposedPorts, port => port.getPort() + "/" + port.getProtocol());
   }
 
@@ -72,8 +82,8 @@ public class ImageToJsonTranslator {
    *     values, or {@code null} if {@code exposedPorts} is {@code null}
    */
 
-  static Map<string, Map<object, object>> volumesSetToMap(Set<AbsoluteUnixPath> volumes) {
-    return setToMap(volumes, AbsoluteUnixPath.toString);
+  static ImmutableSortedDictionary<string, IDictionary<object, object>> volumesSetToMap(ISet<AbsoluteUnixPath> volumes) {
+    return setToMap(volumes, p => p.toString());
   }
 
   /**
@@ -82,9 +92,9 @@ public class ImageToJsonTranslator {
    * @return the list
    */
 
-  static ImmutableList<string> environmentMapToList(Map<string, string> environment) {
+  static ImmutableArray<string> environmentMapToList(IDictionary<string, string> environment) {
     if (environment == null) {
-      return null;
+      return ImmutableArray<string>.Empty;
     }
     Preconditions.checkArgument(
         environment.keySet().stream().noneMatch(key => key.contains("=")),
@@ -93,12 +103,12 @@ public class ImageToJsonTranslator {
         .entrySet()
         .stream()
         .map(entry => entry.getKey() + "=" + entry.getValue())
-        .collect(ImmutableList.toImmutableList());
+        .collect(ImmutableArray.ToImmutableArray);
   }
 
   /**
    * Turns a set into a sorted map where each element of the set is mapped to an entry composed by
-   * the key generated with {@code Function<E, string> elementMapper} and an empty map as value.
+   * the key generated with {@code Func<E, string> elementMapper} and an empty map as value.
    *
    * <p>This method is needed because the volume object is a direct JSON serialization of the Go
    * type map[string]struct{} and is represented in JSON as an object mapping its keys to an empty
@@ -112,16 +122,14 @@ public class ImageToJsonTranslator {
    * @param <E> the type of the elements from the set
    * @return an map
    */
-  private static Map<string, Map<object, object>> setToMap<E>(
-      Set<E> set, Function<E, string> keyMapper) {
+  private static ImmutableSortedDictionary<string, IDictionary<object, object>> setToMap<E>(
+      ISet<E> set, Func<E, string> keyMapper) {
     if (set == null) {
       return null;
     }
 
-    return set.stream()
-        .collect(
-            ImmutableSortedMap.toImmutableSortedMap(
-                string.compareTo, keyMapper, ignored => Collections.emptyMap()));
+            return set.stream()
+                .collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => Collections.emptyMap<object, object>(), StringComparer.Ordinal));
   }
 
   private readonly Image image;
@@ -141,7 +149,7 @@ public class ImageToJsonTranslator {
    * @return the container configuration {@link Blob}
    */
   public JsonTemplate getContainerConfiguration() {
-    // Set up the JSON template.
+    // ISet up the JSON template.
     ContainerConfigurationTemplate template = new ContainerConfigurationTemplate();
 
     // Adds the layer diff IDs.
@@ -170,7 +178,7 @@ public class ImageToJsonTranslator {
 
     // Ignore healthcheck if not Docker/command is empty
     DockerHealthCheck healthCheck = image.getHealthCheck();
-    if (image.getImageFormat() == typeof(V22ManifestTemplate) && healthCheck != null) {
+    if (image.getImageFormat().Type == typeof(V22ManifestTemplate) && healthCheck != null) {
       template.setContainerHealthCheckTest(healthCheck.getCommand());
       healthCheck
           .getInterval()
@@ -199,21 +207,22 @@ public class ImageToJsonTranslator {
    * @return the image contents serialized as JSON.
    */
   public T getManifestTemplate<T>(
-      Class<T> manifestTemplateClass, BlobDescriptor containerConfigurationBlobDescriptor) where T : BuildableManifestTemplate {
+      IClass<T> manifestTemplateClass, BlobDescriptor containerConfigurationBlobDescriptor) {
     try {
-      // Set up the JSON template.
+      // ISet up the JSON template.
       T template = manifestTemplateClass.getDeclaredConstructor().newInstance();
+                BuildableManifestTemplate buildableTemplate = (BuildableManifestTemplate)template;
 
       // Adds the container configuration reference.
       DescriptorDigest containerConfigurationDigest =
           containerConfigurationBlobDescriptor.getDigest();
       long containerConfigurationSize = containerConfigurationBlobDescriptor.getSize();
-      template.setContainerConfiguration(containerConfigurationSize, containerConfigurationDigest);
+                buildableTemplate.setContainerConfiguration(containerConfigurationSize, containerConfigurationDigest);
 
       // Adds the layers.
       foreach (Layer layer in image.getLayers())
       {
-        template.addLayer(
+                    buildableTemplate.addLayer(
             layer.getBlobDescriptor().getSize(), layer.getBlobDescriptor().getDigest());
       }
 
@@ -224,7 +233,7 @@ public class ImageToJsonTranslator {
         || ex is IllegalAccessException
         || ex is NoSuchMethodException
         || ex is InvocationTargetException) {
-      throw new IllegalArgumentException(manifestTemplateClass + " cannot be instantiated", ex);
+      throw new ArgumentException(manifestTemplateClass + " cannot be instantiated", ex);
     }
   }
 }

@@ -14,7 +14,16 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.builder.steps {
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+using Runnable = System.Action;
+
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -30,31 +39,31 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-/**
- * Runs steps for building an image.
- *
- * <p>Use by first calling {@link #begin} and then calling the individual step running methods. Note
- * that order matters, so make sure that steps are run before other steps that depend on them. Wait
- * on the last step by calling the respective {@code wait...} methods.
- */
-public class StepsRunner {
+    /**
+     * Runs steps for building an image.
+     *
+     * <p>Use by first calling {@link #begin} and then calling the individual step running methods. Note
+     * that order matters, so make sure that steps are run before other steps that depend on them. Wait
+     * on the last step by calling the respective {@code wait...} methods.
+     */
+    public class StepsRunner {
 
   /** Holds the individual steps. */
   private class Steps {
 
-    private RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
-    private AuthenticatePushStep authenticatePushStep;
-    private PullBaseImageStep pullBaseImageStep;
-    private PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+    public RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
+    public AuthenticatePushStep authenticatePushStep;
+    public PullBaseImageStep pullBaseImageStep;
+    public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
 
-    private ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+    public ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
 
-    private PushLayersStep pushBaseImageLayersStep;
-    private PushLayersStep pushApplicationLayersStep;
-    private BuildImageStep buildImageStep;
-    private PushContainerConfigurationStep pushContainerConfigurationStep;
+    public PushLayersStep pushBaseImageLayersStep;
+    public PushLayersStep pushApplicationLayersStep;
+            public BuildImageStep buildImageStep;
+            public PushContainerConfigurationStep pushContainerConfigurationStep;
 
-    private AsyncStep<BuildResult> finalStep;
+    public AsyncStep<BuildResult> finalStep;
   }
 
   /**
@@ -64,17 +73,11 @@ public class StepsRunner {
    * @return a new {@link StepsRunner}
    */
   public static StepsRunner begin(BuildConfiguration buildConfiguration) {
-    ExecutorService executorService =
-        JibSystemProperties.isSerializedExecutionEnabled()
-            ? MoreExecutors.newDirectExecutorService()
-            : buildConfiguration.getExecutorService();
-
-    return new StepsRunner(MoreExecutors.listeningDecorator(executorService), buildConfiguration);
+    return new StepsRunner(buildConfiguration);
   }
 
   private readonly Steps steps = new Steps();
 
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly BuildConfiguration buildConfiguration;
 
   /** Runnable to run all the steps. */
@@ -87,8 +90,8 @@ public class StepsRunner {
   private ProgressEventDispatcher rootProgressEventDispatcher;
 
   private StepsRunner(
-      ListeningExecutorService listeningExecutorService, BuildConfiguration buildConfiguration) {
-    this.listeningExecutorService = listeningExecutorService;
+      BuildConfiguration buildConfiguration)
+        {
     this.buildConfiguration = buildConfiguration;
   }
 
@@ -97,7 +100,6 @@ public class StepsRunner {
         () =>
             steps.retrieveTargetRegistryCredentialsStep =
                 RetrieveRegistryCredentialsStep.forTargetImage(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
   }
@@ -107,7 +109,6 @@ public class StepsRunner {
         () =>
             steps.authenticatePushStep =
                 new AuthenticatePushStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.retrieveTargetRegistryCredentialsStep)));
@@ -118,7 +119,6 @@ public class StepsRunner {
         () =>
             steps.pullBaseImageStep =
                 new PullBaseImageStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
   }
@@ -128,7 +128,6 @@ public class StepsRunner {
         () =>
             steps.pullAndCacheBaseImageLayersStep =
                 new PullAndCacheBaseImageLayersStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.pullBaseImageStep)));
@@ -139,7 +138,6 @@ public class StepsRunner {
         () =>
             steps.pushBaseImageLayersStep =
                 new PushLayersStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.authenticatePushStep),
@@ -151,7 +149,6 @@ public class StepsRunner {
         () =>
             steps.buildAndCacheApplicationLayerSteps =
                 BuildAndCacheApplicationLayerStep.makeList(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
   }
@@ -161,7 +158,6 @@ public class StepsRunner {
         () =>
             steps.buildImageStep =
                 new BuildImageStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.pullBaseImageStep),
@@ -174,7 +170,6 @@ public class StepsRunner {
         () =>
             steps.pushContainerConfigurationStep =
                 new PushContainerConfigurationStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.authenticatePushStep),
@@ -186,7 +181,6 @@ public class StepsRunner {
         () =>
             steps.pushApplicationLayersStep =
                 new PushLayersStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.authenticatePushStep),
@@ -201,7 +195,6 @@ public class StepsRunner {
         () =>
             steps.finalStep =
                 new PushImageStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     Preconditions.checkNotNull(steps.authenticatePushStep),
@@ -218,7 +211,6 @@ public class StepsRunner {
         () =>
             steps.finalStep =
                 new LoadDockerStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     dockerClient,
@@ -227,14 +219,13 @@ public class StepsRunner {
                     Preconditions.checkNotNull(steps.buildImageStep)));
   }
 
-  public StepsRunner writeTarFile(Path outputPath) {
+  public StepsRunner writeTarFile(SystemPath outputPath) {
     rootProgressAllocationDescription = "building image to tar file";
 
     return enqueueStep(
         () =>
             steps.finalStep =
                 new WriteTarFileStep(
-                    listeningExecutorService,
                     buildConfiguration,
                     Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                     outputPath,

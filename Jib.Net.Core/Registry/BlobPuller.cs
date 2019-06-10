@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -32,7 +43,7 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 /** Pulls an image's BLOB (layer or container configuration). */
-class BlobPuller : $2 {
+class BlobPuller : RegistryEndpointProvider<object>{
   private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
   /** The digest of the BLOB to pull. */
@@ -41,17 +52,17 @@ class BlobPuller : $2 {
   /**
    * The {@link OutputStream} to write the BLOB to. Closes the {@link OutputStream} after writing.
    */
-  private readonly OutputStream destinationOutputStream;
+  private readonly Stream destinationOutputStream;
 
-  private readonly Consumer<Long> blobSizeListener;
-  private readonly Consumer<Long> writtenByteCountListener;
+  private readonly Consumer<long> blobSizeListener;
+  private readonly Consumer<long> writtenByteCountListener;
 
-  BlobPuller(
+  public BlobPuller(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       DescriptorDigest blobDigest,
-      OutputStream destinationOutputStream,
-      Consumer<Long> blobSizeListener,
-      Consumer<Long> writtenByteCountListener) {
+      Stream destinationOutputStream,
+      Consumer<long> blobSizeListener,
+      Consumer<long> writtenByteCountListener) {
     this.registryEndpointRequestProperties = registryEndpointRequestProperties;
     this.blobDigest = blobDigest;
     this.destinationOutputStream = destinationOutputStream;
@@ -59,15 +70,15 @@ class BlobPuller : $2 {
     this.writtenByteCountListener = writtenByteCountListener;
   }
 
-  public Void handleResponse(Response response) {
-    blobSizeListener.accept(response.getContentLength());
+  public object handleResponse(HttpResponseMessage response) {
+    blobSizeListener.accept(response.getContentLength() ?? 0);
 
-    using (OutputStream outputStream =
+    using (Stream outputStream =
         new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener)) {
       BlobDescriptor receivedBlobDescriptor =
           Digests.computeDigest(response.getBody(), outputStream);
 
-      if (!blobDigest.equals(receivedBlobDescriptor.getDigest())) {
+      if (!blobDigest.Equals(receivedBlobDescriptor.getDigest())) {
         throw new UnexpectedBlobDigestException(
             "The pulled BLOB has digest '"
                 + receivedBlobDescriptor.getDigest()
@@ -84,8 +95,8 @@ class BlobPuller : $2 {
     return null;
   }
 
-  public List<string> getAccept() {
-    return Collections.emptyList();
+  public IList<string> getAccept() {
+    return Collections.emptyList<string>();
   }
 
   public Uri getApiRoute(string apiRouteBase) {
@@ -93,8 +104,8 @@ class BlobPuller : $2 {
         apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
   }
 
-  public string getHttpMethod() {
-    return HttpMethods.GET;
+  public HttpMethod getHttpMethod() {
+    return HttpMethod.Get;
   }
 
   public string getActionDescription() {

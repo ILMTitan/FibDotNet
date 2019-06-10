@@ -14,7 +14,14 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.FileSystem;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
@@ -23,17 +30,17 @@ namespace com.google.cloud.tools.jib.blob {
 
 
 
-/** A {@link Blob} that holds a {@link Path}. */
-class FileBlob : Blob {
+    /** A {@link Blob} that holds a {@link Path}. */
+    class FileBlob : Blob {
 
-  private readonly Path file;
+  private readonly SystemPath file;
 
-  FileBlob(Path file) {
+  public FileBlob(SystemPath file) {
     this.file = file;
   }
 
-  public BlobDescriptor writeTo(OutputStream outputStream) {
-    using (InputStream fileIn = new BufferedInputStream(Files.newInputStream(file))) {
+  public BlobDescriptor writeTo(Stream outputStream) {
+    using (Stream fileIn = new BufferedStream(Files.newInputStream(file))) {
       return Digests.computeDigest(fileIn, outputStream);
     }
   }

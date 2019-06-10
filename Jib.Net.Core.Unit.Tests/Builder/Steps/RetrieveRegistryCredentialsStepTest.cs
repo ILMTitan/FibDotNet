@@ -128,7 +128,7 @@ public class RetrieveRegistryCredentialsStepTest {
 
   private BuildConfiguration makeFakeBuildConfiguration(
       List<CredentialRetriever> baseCredentialRetrievers,
-      List<CredentialRetriever> targetCredentialRetrievers)
+      IList<CredentialRetriever> targetCredentialRetrievers)
       {
     ImageReference baseImage = ImageReference.of("baseregistry", "ignored", null);
     ImageReference targetImage = ImageReference.of("targetregistry", "ignored", null);

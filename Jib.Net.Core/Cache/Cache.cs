@@ -14,7 +14,15 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.cache {
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using System.Collections.Immutable;
+
+namespace com.google.cloud.tools.jib.cache
+{
 
 
 
@@ -30,13 +38,13 @@ namespace com.google.cloud.tools.jib.cache {
 
 
 
-/**
- * Cache for storing data to be shared between Jib executions.
- *
- * <p>This class is immutable and safe to use across threads.
- */
+    /**
+     * Cache for storing data to be shared between Jib executions.
+     *
+     * <p>This class is immutable and safe to use across threads.
+     */
 
-public class Cache {
+    public class Cache {
 
   /**
    * Initializes the cache using {@code cacheDirectory} for storage.
@@ -45,7 +53,7 @@ public class Cache {
    * @return a new {@link Cache}
    * @throws IOException if an I/O exception occurs
    */
-  public static Cache withDirectory(Path cacheDirectory) {
+  public static Cache withDirectory(SystemPath cacheDirectory) {
     Files.createDirectories(cacheDirectory);
     return new Cache(new CacheStorageFiles(cacheDirectory));
   }
@@ -110,7 +118,7 @@ public class Cache {
    * @throws IOException if an I/O exception occurs
    */
   public CachedLayer writeUncompressedLayer(
-      Blob uncompressedLayerBlob, ImmutableList<LayerEntry> layerEntries) {
+      Blob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries) {
     return cacheStorageWriter.writeUncompressed(
         uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries));
   }
@@ -136,12 +144,12 @@ public class Cache {
    * @throws IOException if an I/O exception occurs
    * @throws CacheCorruptedException if the cache is corrupted
    */
-  public Optional<CachedLayer> retrieve(ImmutableList<LayerEntry> layerEntries)
+  public Optional<CachedLayer> retrieve(ImmutableArray<LayerEntry> layerEntries)
       {
     Optional<DescriptorDigest> optionalSelectedLayerDigest =
         cacheStorageReader.select(LayerEntriesSelector.generateSelector(layerEntries));
     if (!optionalSelectedLayerDigest.isPresent()) {
-      return Optional.empty();
+      return Optional.empty<CachedLayer>();
     }
 
     return cacheStorageReader.retrieve(optionalSelectedLayerDigest.get());

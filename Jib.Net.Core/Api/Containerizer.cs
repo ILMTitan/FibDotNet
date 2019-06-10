@@ -14,319 +14,314 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
-// TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 
+namespace Jib.Net.Core.Api
+{
+    /** Configures how to containerize. */
+    public class Containerizer
+    {
 
+        /**
+         * The default directory for caching the base image layers, in {@code [user cache
+         * home]/google-cloud-tools-java/jib}.
+         */
+        public static readonly SystemPath DEFAULT_BASE_CACHE_DIRECTORY =
+            UserCacheHome.getCacheHome().resolve("google-cloud-tools-java").resolve("jib");
 
+        private static readonly string DEFAULT_TOOL_NAME = "jib-core";
 
+        private static readonly string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
+        private static readonly string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
+        private static readonly string DESCRIPTION_FOR_TARBALL = "Building image tarball";
 
+        /**
+         * Gets a new {@link Containerizer} that containerizes to a container registry.
+         *
+         * @param registryImage the {@link RegistryImage} that defines target container registry and
+         *     credentials
+         * @return a new {@link Containerizer}
+         */
+        public static Containerizer to(RegistryImage registryImage)
+        {
+            ImageConfiguration imageConfiguration =
+                ImageConfiguration.builder(registryImage.getImageReference())
+                    .setCredentialRetrievers(registryImage.getCredentialRetrievers())
+                    .build();
 
+            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
+                buildConfiguration =>
+                    StepsRunner.begin(buildConfiguration)
+                        .retrieveTargetRegistryCredentials()
+                        .authenticatePush()
+                        .pullBaseImage()
+                        .pullAndCacheBaseImageLayers()
+                        .pushBaseImageLayers()
+                        .buildAndCacheApplicationLayers()
+                        .buildImage()
+                        .pushContainerConfiguration()
+                        .pushApplicationLayers()
+                        .pushImage();
 
+            return new Containerizer(
+                DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
+        }
 
-/** Configures how to containerize. */
-public class Containerizer {
+        /**
+         * Gets a new {@link Containerizer} that containerizes to a Docker daemon.
+         *
+         * @param dockerDaemonImage the {@link DockerDaemonImage} that defines target Docker daemon
+         * @return a new {@link Containerizer}
+         */
+        public static Containerizer to(DockerDaemonImage dockerDaemonImage)
+        {
+            ImageConfiguration imageConfiguration =
+                ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
 
-  /**
-   * The default directory for caching the base image layers, in {@code [user cache
-   * home]/google-cloud-tools-java/jib}.
-   */
-  public static readonly Path DEFAULT_BASE_CACHE_DIRECTORY =
-      UserCacheHome.getCacheHome().resolve("google-cloud-tools-java").resolve("jib");
+            DockerClient.Builder dockerClientBuilder = DockerClient.builder();
+            dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder.setDockerExecutable);
+            dockerClientBuilder.setDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.getDockerEnvironment()));
 
-  private static readonly string DEFAULT_TOOL_NAME = "jib-core";
+            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
+                buildConfiguration =>
+                    StepsRunner.begin(buildConfiguration)
+                        .pullBaseImage()
+                        .pullAndCacheBaseImageLayers()
+                        .buildAndCacheApplicationLayers()
+                        .buildImage()
+                        .loadDocker(dockerClientBuilder.build());
 
-  private static readonly string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
-  private static readonly string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
-  private static readonly string DESCRIPTION_FOR_TARBALL = "Building image tarball";
+            return new Containerizer(
+                DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
+        }
 
-  /**
-   * Gets a new {@link Containerizer} that containerizes to a container registry.
-   *
-   * @param registryImage the {@link RegistryImage} that defines target container registry and
-   *     credentials
-   * @return a new {@link Containerizer}
-   */
-  public static Containerizer to(RegistryImage registryImage) {
-    ImageConfiguration imageConfiguration =
-        ImageConfiguration.builder(registryImage.getImageReference())
-            .setCredentialRetrievers(registryImage.getCredentialRetrievers())
-            .build();
+        /**
+         * Gets a new {@link Containerizer} that containerizes to a tarball archive.
+         *
+         * @param tarImage the {@link TarImage} that defines target output file
+         * @return a new {@link Containerizer}
+         */
+        public static Containerizer to(TarImage tarImage)
+        {
+            ImageConfiguration imageConfiguration =
+                ImageConfiguration.builder(tarImage.getImageReference()).build();
 
-    Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration =>
-            StepsRunner.begin(buildConfiguration)
-                .retrieveTargetRegistryCredentials()
-                .authenticatePush()
-                .pullBaseImage()
-                .pullAndCacheBaseImageLayers()
-                .pushBaseImageLayers()
-                .buildAndCacheApplicationLayers()
-                .buildImage()
-                .pushContainerConfiguration()
-                .pushApplicationLayers()
-                .pushImage();
+            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
+                buildConfiguration =>
+                    StepsRunner.begin(buildConfiguration)
+                        .pullBaseImage()
+                        .pullAndCacheBaseImageLayers()
+                        .buildAndCacheApplicationLayers()
+                        .buildImage()
+                        .writeTarFile(tarImage.getOutputFile());
 
-    return new Containerizer(
-        DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
-  }
+            return new Containerizer(
+                DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
+        }
 
-  /**
-   * Gets a new {@link Containerizer} that containerizes to a Docker daemon.
-   *
-   * @param dockerDaemonImage the {@link DockerDaemonImage} that defines target Docker daemon
-   * @return a new {@link Containerizer}
-   */
-  public static Containerizer to(DockerDaemonImage dockerDaemonImage) {
-    ImageConfiguration imageConfiguration =
-        ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
+        private readonly string description;
+        private readonly ImageConfiguration imageConfiguration;
+        private readonly Func<BuildConfiguration, StepsRunner> stepsRunnerFactory;
+        private readonly bool mustBeOnline;
+        private readonly ISet<string> additionalTags = new HashSet<string>();
+        public event Consumer<JibEvent> JibEvents = _ => { };
 
-    DockerClient.Builder dockerClientBuilder = DockerClient.builder();
-    dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder.setDockerExecutable);
-    dockerClientBuilder.setDockerEnvironment(
-        ImmutableMap.copyOf(dockerDaemonImage.getDockerEnvironment()));
+        private SystemPath baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
+        private SystemPath applicationLayersCacheDirectory;
+        private bool allowInsecureRegistries = false;
+        private bool offline = false;
+        private string toolName = DEFAULT_TOOL_NAME;
 
-    Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration =>
-            StepsRunner.begin(buildConfiguration)
-                .pullBaseImage()
-                .pullAndCacheBaseImageLayers()
-                .buildAndCacheApplicationLayers()
-                .buildImage()
-                .loadDocker(dockerClientBuilder.build());
+        /** Instantiate with {@link #to}. */
+        private Containerizer(
+            string description,
+            ImageConfiguration imageConfiguration,
+            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory,
+            bool mustBeOnline)
+        {
+            this.description = description;
+            this.imageConfiguration = imageConfiguration;
+            this.stepsRunnerFactory = stepsRunnerFactory;
+            this.mustBeOnline = mustBeOnline;
+        }
 
-    return new Containerizer(
-        DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
-  }
+        /**
+         * Adds an additional tag to tag the target image with. For example, the following would
+         * containerize to both {@code gcr.io/my-project/my-image:tag} and {@code
+         * gcr.io/my-project/my-image:tag2}:
+         *
+         * <pre>{@code
+         * Containerizer.to(RegistryImage.named("gcr.io/my-project/my-image:tag")).withAdditionalTag("tag2");
+         * }</pre>
+         *
+         * @param tag the additional tag to push to
+         * @return this
+         */
+        public Containerizer withAdditionalTag(string tag)
+        {
+            Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '%s'", tag);
+            additionalTags.add(tag);
+            return this;
+        }
 
-  /**
-   * Gets a new {@link Containerizer} that containerizes to a tarball archive.
-   *
-   * @param tarImage the {@link TarImage} that defines target output file
-   * @return a new {@link Containerizer}
-   */
-  public static Containerizer to(TarImage tarImage) {
-    ImageConfiguration imageConfiguration =
-        ImageConfiguration.builder(tarImage.getImageReference()).build();
+        /**
+         * Sets the directory to use for caching base image layers. This cache can (and should) be shared
+         * between multiple images. The default base image layers cache directory is {@code [user cache
+         * home]/google-cloud-tools-java/jib} ({@link #DEFAULT_BASE_CACHE_DIRECTORY}. This directory can
+         * be the same directory used for {@link #setApplicationLayersCache}.
+         *
+         * @param cacheDirectory the cache directory
+         * @return this
+         */
+        public Containerizer setBaseImageLayersCache(SystemPath cacheDirectory)
+        {
+            baseImageLayersCacheDirectory = cacheDirectory;
+            return this;
+        }
+        /**
+         * Sets the directory to use for caching application layers. This cache can be shared between
+         * multiple images. If not set, a temporary directory will be used as the application layers
+         * cache. This directory can be the same directory used for {@link #setBaseImageLayersCache}.
+         *
+         * @param cacheDirectory the cache directory
+         * @return this
+         */
+        public Containerizer setApplicationLayersCache(SystemPath cacheDirectory)
+        {
+            applicationLayersCacheDirectory = cacheDirectory;
+            return this;
+        }
 
-    Function<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-        buildConfiguration =>
-            StepsRunner.begin(buildConfiguration)
-                .pullBaseImage()
-                .pullAndCacheBaseImageLayers()
-                .buildAndCacheApplicationLayers()
-                .buildImage()
-                .writeTarFile(tarImage.getOutputFile());
+        /**
+         * Adds the {@code eventConsumer} to handle all {@link JibEvent} types. See {@link
+         * #addEventHandler(Class, Consumer)} for more details.
+         *
+         * @param eventConsumer the event handler
+         * @return this
+         */
+        public Containerizer addEventHandler(Consumer<JibEvent> eventConsumer)
+        {
+            JibEvents += eventConsumer;
+            return this;
+        }
 
-    return new Containerizer(
-        DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
-  }
+        /**
+         * Sets whether or not to allow communication over HTTP/insecure HTTPS.
+         *
+         * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
+         * @return this
+         */
+        public Containerizer setAllowInsecureRegistries(bool allowInsecureRegistries)
+        {
+            this.allowInsecureRegistries = allowInsecureRegistries;
+            return this;
+        }
 
-  private readonly string description;
-  private readonly ImageConfiguration imageConfiguration;
-  private readonly Function<BuildConfiguration, StepsRunner> stepsRunnerFactory;
-  private readonly bool mustBeOnline;
-  private readonly Set<string> additionalTags = new HashSet<>();
-  private readonly EventHandlers.Builder eventHandlersBuilder = EventHandlers.builder();
+        /**
+         * Sets whether or not to run the build in offline mode. In offline mode, the base image is
+         * retrieved from the cache instead of pulled from a registry, and the build will fail if the base
+         * image is not in the cache or if the target is an image registry.
+         *
+         * @param offline if {@code true}, the build will run in offline mode
+         * @return this
+         */
+        public Containerizer setOfflineMode(bool offline)
+        {
+            if (mustBeOnline && offline)
+            {
+                throw new InvalidOperationException("Cannot build to a container registry in offline mode");
+            }
+            this.offline = offline;
+            return this;
+        }
 
-  private ExecutorService executorService;
-  private Path baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
-  private Path applicationLayersCacheDirectory;
-  private bool allowInsecureRegistries = false;
-  private bool offline = false;
-  private string toolName = DEFAULT_TOOL_NAME;
+        /**
+         * Sets the name of the tool that is using Jib Core. The tool name is sent as part of the {@code
+         * User-Agent} in registry requests and set as the {@code created_by} in the container layer
+         * history. Defaults to {@code jib-core}.
+         *
+         * @param toolName the name of the tool using this library
+         * @return this
+         */
+        public Containerizer setToolName(string toolName)
+        {
+            this.toolName = toolName;
+            return this;
+        }
 
-  /** Instantiate with {@link #to}. */
-  private Containerizer(
-      string description,
-      ImageConfiguration imageConfiguration,
-      Function<BuildConfiguration, StepsRunner> stepsRunnerFactory,
-      bool mustBeOnline) {
-    this.description = description;
-    this.imageConfiguration = imageConfiguration;
-    this.stepsRunnerFactory = stepsRunnerFactory;
-    this.mustBeOnline = mustBeOnline;
-  }
+        public ISet<string> getAdditionalTags()
+        {
+            return additionalTags;
+        }
 
-  /**
-   * Adds an additional tag to tag the target image with. For example, the following would
-   * containerize to both {@code gcr.io/my-project/my-image:tag} and {@code
-   * gcr.io/my-project/my-image:tag2}:
-   *
-   * <pre>{@code
-   * Containerizer.to(RegistryImage.named("gcr.io/my-project/my-image:tag")).withAdditionalTag("tag2");
-   * }</pre>
-   *
-   * @param tag the additional tag to push to
-   * @return this
-   */
-  public Containerizer withAdditionalTag(string tag) {
-    Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '%s'", tag);
-    additionalTags.add(tag);
-    return this;
-  }
+        public SystemPath getBaseImageLayersCacheDirectory()
+        {
+            return baseImageLayersCacheDirectory;
+        }
 
-  /**
-   * Sets the {@link ExecutorService} Jib executes on. Jib, by default, uses {@link
-   * Executors#newCachedThreadPool}.
-   *
-   * @param executorService the {@link ExecutorService}
-   * @return this
-   */
-  public Containerizer setExecutorService(ExecutorService executorService) {
-    this.executorService = executorService;
-    return this;
-  }
+        public SystemPath getApplicationLayersCacheDirectory()
+        {
+            if (applicationLayersCacheDirectory == null)
+            {
+                // Uses a temporary directory if application layers cache directory is not set.
+                try
+                {
+                    SystemPath temporaryDirectory = Files.createTempDirectory(null);
+                    temporaryDirectory.toFile().deleteOnExit();
+                    applicationLayersCacheDirectory = temporaryDirectory;
 
-  /**
-   * Sets the directory to use for caching base image layers. This cache can (and should) be shared
-   * between multiple images. The default base image layers cache directory is {@code [user cache
-   * home]/google-cloud-tools-java/jib} ({@link #DEFAULT_BASE_CACHE_DIRECTORY}. This directory can
-   * be the same directory used for {@link #setApplicationLayersCache}.
-   *
-   * @param cacheDirectory the cache directory
-   * @return this
-   */
-  public Containerizer setBaseImageLayersCache(Path cacheDirectory) {
-    baseImageLayersCacheDirectory = cacheDirectory;
-    return this;
-  }
-  /**
-   * Sets the directory to use for caching application layers. This cache can be shared between
-   * multiple images. If not set, a temporary directory will be used as the application layers
-   * cache. This directory can be the same directory used for {@link #setBaseImageLayersCache}.
-   *
-   * @param cacheDirectory the cache directory
-   * @return this
-   */
-  public Containerizer setApplicationLayersCache(Path cacheDirectory) {
-    applicationLayersCacheDirectory = cacheDirectory;
-    return this;
-  }
+                }
+                catch (IOException ex)
+                {
+                    throw new CacheDirectoryCreationException(ex);
+                }
+            }
+            return applicationLayersCacheDirectory;
+        }
 
-  /**
-   * Adds the {@code eventConsumer} to handle the {@link JibEvent} with class {@code eventType}. The
-   * order in which handlers are added is the order in which they are called when the event is
-   * dispatched.
-   *
-   * <p><b>Note: Implementations of {@code eventConsumer} must be thread-safe.</b>
-   *
-   * @param eventType the event type that {@code eventConsumer} should handle
-   * @param eventConsumer the event handler
-   * @param <E> the type of {@code eventType}
-   * @return this
-   */
-  public Containerizer addEventHandler<E>(
-      Class<E> eventType, Consumer<E> eventConsumer) where E : JibEvent {
-    eventHandlersBuilder.add(eventType, eventConsumer);
-    return this;
-  }
+        public bool getAllowInsecureRegistries()
+        {
+            return allowInsecureRegistries;
+        }
 
-  /**
-   * Adds the {@code eventConsumer} to handle all {@link JibEvent} types. See {@link
-   * #addEventHandler(Class, Consumer)} for more details.
-   *
-   * @param eventConsumer the event handler
-   * @return this
-   */
-  public Containerizer addEventHandler(Consumer<JibEvent> eventConsumer) {
-    eventHandlersBuilder.add(typeof(JibEvent), eventConsumer);
-    return this;
-  }
+        public bool isOfflineMode()
+        {
+            return offline;
+        }
 
-  /**
-   * Sets whether or not to allow communication over HTTP/insecure HTTPS.
-   *
-   * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
-   * @return this
-   */
-  public Containerizer setAllowInsecureRegistries(bool allowInsecureRegistries) {
-    this.allowInsecureRegistries = allowInsecureRegistries;
-    return this;
-  }
+        public string getToolName()
+        {
+            return toolName;
+        }
 
-  /**
-   * Sets whether or not to run the build in offline mode. In offline mode, the base image is
-   * retrieved from the cache instead of pulled from a registry, and the build will fail if the base
-   * image is not in the cache or if the target is an image registry.
-   *
-   * @param offline if {@code true}, the build will run in offline mode
-   * @return this
-   */
-  public Containerizer setOfflineMode(bool offline) {
-    if (mustBeOnline && offline) {
-      throw new IllegalStateException("Cannot build to a container registry in offline mode");
+        public string getDescription()
+        {
+            return description;
+        }
+
+        public ImageConfiguration getImageConfiguration()
+        {
+            return imageConfiguration;
+        }
+
+        public StepsRunner createStepsRunner(BuildConfiguration buildConfiguration)
+        {
+            return stepsRunnerFactory.apply(buildConfiguration);
+        }
+
+        internal EventHandlers buildEventHandlers()
+        {
+            throw new NotImplementedException();
+        }
     }
-    this.offline = offline;
-    return this;
-  }
-
-  /**
-   * Sets the name of the tool that is using Jib Core. The tool name is sent as part of the {@code
-   * User-Agent} in registry requests and set as the {@code created_by} in the container layer
-   * history. Defaults to {@code jib-core}.
-   *
-   * @param toolName the name of the tool using this library
-   * @return this
-   */
-  public Containerizer setToolName(string toolName) {
-    this.toolName = toolName;
-    return this;
-  }
-
-  Set<string> getAdditionalTags() {
-    return additionalTags;
-  }
-
-  Optional<ExecutorService> getExecutorService() {
-    return Optional.ofNullable(executorService);
-  }
-
-  Path getBaseImageLayersCacheDirectory() {
-    return baseImageLayersCacheDirectory;
-  }
-
-  Path getApplicationLayersCacheDirectory() {
-    if (applicationLayersCacheDirectory == null) {
-      // Uses a temporary directory if application layers cache directory is not set.
-      try {
-        Path temporaryDirectory = Files.createTempDirectory(null);
-        temporaryDirectory.toFile().deleteOnExit();
-        this.applicationLayersCacheDirectory = temporaryDirectory;
-
-      } catch (IOException ex) {
-        throw new CacheDirectoryCreationException(ex);
-      }
-    }
-    return applicationLayersCacheDirectory;
-  }
-
-  EventHandlers buildEventHandlers() {
-    return eventHandlersBuilder.build();
-  }
-
-  bool getAllowInsecureRegistries() {
-    return allowInsecureRegistries;
-  }
-
-  bool isOfflineMode() {
-    return offline;
-  }
-
-  string getToolName() {
-    return toolName;
-  }
-
-  string getDescription() {
-    return description;
-  }
-
-  ImageConfiguration getImageConfiguration() {
-    return imageConfiguration;
-  }
-
-  StepsRunner createStepsRunner(BuildConfiguration buildConfiguration) {
-    return stepsRunnerFactory.apply(buildConfiguration);
-  }
-}
 }

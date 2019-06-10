@@ -14,7 +14,14 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System.IO;
+
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
@@ -22,17 +29,17 @@ namespace com.google.cloud.tools.jib.blob {
 
 
 
-/** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
-class StringBlob : $2 {
+    /** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
+    class StringBlob : Blob {
   private readonly string content;
 
-  StringBlob(string content) {
+  public StringBlob(string content) {
     this.content = content;
   }
 
-  public BlobDescriptor writeTo(OutputStream outputStream) {
-    using (InputStream stringIn =
-        new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+  public BlobDescriptor writeTo(Stream outputStream) {
+    using (Stream stringIn =
+        new MemoryStream(content.getBytes(StandardCharsets.UTF_8))) {
       return Digests.computeDigest(stringIn, outputStream);
     }
   }

@@ -14,14 +14,28 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
 /** Thrown when a pulled BLOB did not have the same digest as requested. */
-class UnexpectedBlobDigestException extends RegistryException {
+class UnexpectedBlobDigestException : RegistryException {
 
-  UnexpectedBlobDigestException(string message) {
-    super(message);
+  public UnexpectedBlobDigestException(string message) : base(message) {
+    
   }
-}
+
+        public UnexpectedBlobDigestException(string message, System.Exception cause) : base(message, cause)
+        {
+        }
+
+        public UnexpectedBlobDigestException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public UnexpectedBlobDigestException() : base()
+        {
+        }
+    }
 }

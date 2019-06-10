@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core;
+using Jib.Net.Core.Blob;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -34,47 +45,45 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pushes the container configuration. */
-class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>>, Callable<AsyncStep<PushBlobStep>>  {
+class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>> {
   private static readonly string DESCRIPTION = "Pushing container configuration";
 
   private readonly BuildConfiguration buildConfiguration;
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly AuthenticatePushStep authenticatePushStep;
   private readonly BuildImageStep buildImageStep;
 
-  private readonly ListenableFuture<AsyncStep<PushBlobStep>> listenableFuture;
+  private readonly Task<AsyncStep<PushBlobStep>> listenableFuture;
 
-  PushContainerConfigurationStep(
-      ListeningExecutorService listeningExecutorService,
+  public PushContainerConfigurationStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       AuthenticatePushStep authenticatePushStep,
-      BuildImageStep buildImageStep) {
-    this.listeningExecutorService = listeningExecutorService;
+      BuildImageStep buildImageStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.authenticatePushStep = authenticatePushStep;
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(buildImageStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<AsyncStep<PushBlobStep>> getFuture() {
+  public Task<AsyncStep<PushBlobStep>> getFuture() {
     return listenableFuture;
   }
 
   public AsyncStep<PushBlobStep> call() {
-    ListenableFuture<PushBlobStep> pushBlobStepFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+    Task<PushBlobStep> pushBlobStepFuture =
+        AsyncDependencies.@using()
             .addStep(authenticatePushStep)
             .addStep(NonBlockingSteps.get(buildImageStep))
             .whenAllSucceed(this.afterBuildConfigurationFutureFuture);
-    return () => pushBlobStepFuture;
+    return AsyncStep.Of(() => pushBlobStepFuture);
   }
 
   private PushBlobStep afterBuildConfigurationFutureFuture()
@@ -82,7 +91,7 @@ class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>>, Calla
     using(ProgressEventDispatcher progressEventDispatcher =
             progressEventDispatcherFactory.create("pushing container configuration", 1))
     using(TimerEventDispatcher ignored =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION)))
+            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
     {
 
       Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
@@ -91,7 +100,6 @@ class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>>, Calla
       BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
 
       return new PushBlobStep(
-          listeningExecutorService,
           buildConfiguration,
           progressEventDispatcher.newChildProducer(),
           authenticatePushStep,

@@ -14,6 +14,8 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -23,5 +25,17 @@ public class UnknownManifestFormatException : RegistryException {
   public UnknownManifestFormatException(string message) : base(message) {
     
   }
-}
+
+        public UnknownManifestFormatException(string message, System.Exception cause) : base(message, cause)
+        {
+        }
+
+        public UnknownManifestFormatException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public UnknownManifestFormatException() : base()
+        {
+        }
+    }
 }

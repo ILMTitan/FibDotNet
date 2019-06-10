@@ -43,18 +43,18 @@ namespace com.google.cloud.tools.jib.cache {
 /** Tests for {@link CacheStorageReader}. */
 public class CacheStorageReaderTest {
 
-  private static void setupCachedMetadataV21(Path cacheDirectory)
+  private static void setupCachedMetadataV21(SystemPath cacheDirectory)
       {
-    Path imageDirectory = cacheDirectory.resolve("images/test/image!tag");
+    SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
     Files.createDirectories(imageDirectory);
     Files.copy(
         Paths.get(Resources.getResource("core/json/v21manifest.json").toURI()),
         imageDirectory.resolve("manifest.json"));
   }
 
-  private static void setupCachedMetadataV22(Path cacheDirectory)
+  private static void setupCachedMetadataV22(SystemPath cacheDirectory)
       {
-    Path imageDirectory = cacheDirectory.resolve("images/test/image!tag");
+    SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
     Files.createDirectories(imageDirectory);
     Files.copy(
         Paths.get(Resources.getResource("core/json/v22manifest.json").toURI()),
@@ -64,7 +64,7 @@ public class CacheStorageReaderTest {
         imageDirectory.resolve("config.json"));
   }
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private DescriptorDigest layerDigest1;
   private DescriptorDigest layerDigest2;
@@ -111,7 +111,7 @@ public class CacheStorageReaderTest {
   [TestMethod]
   public void testRetrieveManifest_v21()
       {
-    Path cacheDirectory = temporaryFolder.newFolder().toPath();
+    SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV21(cacheDirectory);
 
     CacheStorageFiles cacheStorageFiles = new CacheStorageFiles(cacheDirectory);
@@ -129,7 +129,7 @@ public class CacheStorageReaderTest {
   [TestMethod]
   public void testRetrieveManifest_v22()
       {
-    Path cacheDirectory = temporaryFolder.newFolder().toPath();
+    SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV22(cacheDirectory);
 
     CacheStorageFiles cacheStorageFiles = new CacheStorageFiles(cacheDirectory);
@@ -147,7 +147,7 @@ public class CacheStorageReaderTest {
   [TestMethod]
   public void testRetrieveContainerConfiguration()
       {
-    Path cacheDirectory = temporaryFolder.newFolder().toPath();
+    SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
     setupCachedMetadataV22(cacheDirectory);
 
     CacheStorageFiles cacheStorageFiles = new CacheStorageFiles(cacheDirectory);
@@ -174,7 +174,7 @@ public class CacheStorageReaderTest {
     DescriptorDigest layerDigest = layerDigest1;
     DescriptorDigest layerDiffId = layerDigest2;
     Files.createDirectories(cacheStorageFiles.getLayerDirectory(layerDigest));
-    using (OutputStream out =
+    using (Stream out =
         Files.newOutputStream(cacheStorageFiles.getLayerFile(layerDigest, layerDiffId))) {
       out.write("layerBlob".getBytes(StandardCharsets.UTF_8));
     }
@@ -212,7 +212,7 @@ public class CacheStorageReaderTest {
     CacheStorageReader cacheStorageReader = new CacheStorageReader(cacheStorageFiles);
 
     DescriptorDigest selector = layerDigest1;
-    Path selectorFile = cacheStorageFiles.getSelectorFile(selector);
+    SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
     Files.createDirectories(selectorFile.getParent());
     Files.write(selectorFile, "not a valid layer digest".getBytes(StandardCharsets.UTF_8));
 
@@ -238,7 +238,7 @@ public class CacheStorageReaderTest {
     CacheStorageReader cacheStorageReader = new CacheStorageReader(cacheStorageFiles);
 
     DescriptorDigest selector = layerDigest1;
-    Path selectorFile = cacheStorageFiles.getSelectorFile(selector);
+    SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
     Files.createDirectories(selectorFile.getParent());
     Files.write(selectorFile, layerDigest2.getHash().getBytes(StandardCharsets.UTF_8));
 

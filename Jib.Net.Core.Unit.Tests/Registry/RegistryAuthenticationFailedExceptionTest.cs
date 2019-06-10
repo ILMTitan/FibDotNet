@@ -35,7 +35,7 @@ public class RegistryAuthenticationFailedExceptionTest {
 
   [TestMethod]
   public void testRegistryAuthenticationFailedException_exception() {
-    Throwable cause = new Throwable("message");
+    Throwable cause = new Exception("message");
     RegistryAuthenticationFailedException exception =
         new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
     Assert.assertEquals("serverUrl", exception.getServerUrl());

@@ -56,7 +56,7 @@ public class ImageToJsonTranslatorTest {
         {
     Image.Builder testImageBuilder =
         Image.builder(imageFormat)
-            .setCreated(Instant.ofEpochSecond(20))
+            .setCreated(Instant.FromUnixTimeSeconds(20))
             .setArchitecture("wasm")
             .setOs("js")
             .addEnvironmentVariable("VAR1", "VAL1")
@@ -64,18 +64,18 @@ public class ImageToJsonTranslatorTest {
             .setEntrypoint(Arrays.asList("some", "entrypoint", "command"))
             .setProgramArguments(Arrays.asList("arg1", "arg2"))
             .setHealthCheck(
-                DockerHealthCheck.fromCommand(ImmutableList.of("CMD-SHELL", "/checkhealth"))
+                DockerHealthCheck.fromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
                     .setInterval(Duration.ofSeconds(3))
                     .setTimeout(Duration.ofSeconds(1))
                     .setStartPeriod(Duration.ofSeconds(2))
                     .setRetries(3)
                     .build())
-            .addExposedPorts(ImmutableSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)))
+            .addExposedPorts(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)))
             .addVolumes(
-                ImmutableSet.of(
+                ImmutableHashSet.of(
                     AbsoluteUnixPath.get("/var/job-result-data"),
                     AbsoluteUnixPath.get("/var/log/my-app-logs")))
-            .addLabels(ImmutableMap.of("key1", "value1", "key2", "value2"))
+            .addLabels(ImmutableDictionary.of("key1", "value1", "key2", "value2"))
             .setWorkingDirectory("/some/workspace")
             .setUser("tomcat");
 
@@ -93,7 +93,7 @@ public class ImageToJsonTranslatorTest {
             .build());
     testImageBuilder.addHistory(
         HistoryEntry.builder()
-            .setCreationTimestamp(Instant.ofEpochSecond(20))
+            .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
             .setAuthor("Jib")
             .setCreatedBy("jib")
             .build());
@@ -125,7 +125,7 @@ public class ImageToJsonTranslatorTest {
     setUp(typeof(V22ManifestTemplate));
 
     // Loads the expected JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Translates the image to the container configuration and writes the JSON string.
@@ -148,28 +148,28 @@ public class ImageToJsonTranslatorTest {
 
   [TestMethod]
   public void testPortListToMap() {
-    ImmutableSet<Port> input = ImmutableSet.of(Port.tcp(1000), Port.udp(2000));
-    ImmutableSortedMap<string, Map<object, object>> expected =
-        ImmutableSortedMap.of("1000/tcp", ImmutableMap.of(), "2000/udp", ImmutableMap.of());
+    ImmutableHashSet<Port> input = ImmutableHashSet.of(Port.tcp(1000), Port.udp(2000));
+    ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
+        ImmutableSortedDictionary.of("1000/tcp", ImmutableDictionary.of(), "2000/udp", ImmutableDictionary.of());
     Assert.assertEquals(expected, ImageToJsonTranslator.portSetToMap(input));
   }
 
   [TestMethod]
   public void testVolumeListToMap() {
-    ImmutableSet<AbsoluteUnixPath> input =
-        ImmutableSet.of(
+    ImmutableHashSet<AbsoluteUnixPath> input =
+        ImmutableHashSet.of(
             AbsoluteUnixPath.get("/var/job-result-data"),
             AbsoluteUnixPath.get("/var/log/my-app-logs"));
-    ImmutableSortedMap<string, Map<object, object>> expected =
-        ImmutableSortedMap.of(
-            "/var/job-result-data", ImmutableMap.of(), "/var/log/my-app-logs", ImmutableMap.of());
+    ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
+        ImmutableSortedDictionary.of(
+            "/var/job-result-data", ImmutableDictionary.of(), "/var/log/my-app-logs", ImmutableDictionary.of());
     Assert.assertEquals(expected, ImageToJsonTranslator.volumesSetToMap(input));
   }
 
   [TestMethod]
   public void testEnvironmentMapToList() {
-    ImmutableMap<string, string> input = ImmutableMap.of("NAME1", "VALUE1", "NAME2", "VALUE2");
-    ImmutableList<string> expected = ImmutableList.of("NAME1=VALUE1", "NAME2=VALUE2");
+    ImmutableDictionary<string, string> input = ImmutableDictionary.of("NAME1", "VALUE1", "NAME2", "VALUE2");
+    ImmutableArray<string> expected = ImmutableArray.Create("NAME1=VALUE1", "NAME2=VALUE2");
     Assert.assertEquals(expected, ImageToJsonTranslator.environmentMapToList(input));
   }
 
@@ -177,7 +177,7 @@ public class ImageToJsonTranslatorTest {
   private void testGetManifest<T>(
       Class<T> manifestTemplateClass, string translatedJsonFilename) where T : BuildableManifestTemplate {
     // Loads the expected JSON string.
-    Path jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     // Translates the image to the manifest and writes the JSON string.

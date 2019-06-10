@@ -14,165 +14,192 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.cache {
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+
+namespace com.google.cloud.tools.jib.cache
+{
 
 
 
 
 
 
-/** Resolves the files used in the default cache storage engine. */
-class CacheStorageFiles {
-
-  private static readonly string LAYERS_DIRECTORY = "layers";
-  private static readonly string IMAGES_DIRECTORY = "images";
-  private static readonly string SELECTORS_DIRECTORY = "selectors";
-  private static readonly string TEMPORARY_DIRECTORY = "tmp";
-  private static readonly string TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
-
-  /**
-   * Returns whether or not {@code file} is a layer contents file.
-   *
-   * @param file the file to check
-   * @return {@code true} if {@code file} is a layer contents file; {@code false} otherwise
-   */
-  static bool isLayerFile(Path file) {
-    return file.getFileName().toString().length() == DescriptorDigest.HASH_LENGTH;
-  }
-
-  private readonly Path cacheDirectory;
-
-  CacheStorageFiles(Path cacheDirectory) {
-    this.cacheDirectory = cacheDirectory;
-  }
-
-  /**
-   * Gets the diff ID portion of the layer filename.
-   *
-   * @param layerFile the layer file to parse for the diff ID
-   * @return the diff ID portion of the layer file filename
-   * @throws CacheCorruptedException if no valid diff ID could be parsed
-   */
-  DescriptorDigest getDiffId(Path layerFile) {
-    try {
-      string diffId = layerFile.getFileName().toString();
-      return DescriptorDigest.fromHash(diffId);
-
-    } catch (DigestException | IndexOutOfBoundsException ex) {
-      throw new CacheCorruptedException(
-          cacheDirectory, "Layer file did not include valid diff ID: " + layerFile, ex);
-    }
-  }
-
-  /**
-   * Gets the cache directory.
-   *
-   * @return the cache directory
-   */
-  Path getCacheDirectory() {
-    return cacheDirectory;
-  }
-
-  /**
-   * Resolves the layer contents file.
-   *
-   * @param layerDigest the layer digest
-   * @param layerDiffId the layer diff Id
-   * @return the layer contents file
-   */
-  Path getLayerFile(DescriptorDigest layerDigest, DescriptorDigest layerDiffId) {
-    return getLayerDirectory(layerDigest).resolve(getLayerFilename(layerDiffId));
-  }
-
-  /**
-   * Gets the filename for the layer file. The filename is in the form {@code <layer diff
-   * ID>.layer}.
-   *
-   * @param layerDiffId the layer's diff ID
-   * @return the layer filename
-   */
-  string getLayerFilename(DescriptorDigest layerDiffId) {
-    return layerDiffId.getHash();
-  }
-
-  /**
-   * Resolves a selector file.
-   *
-   * @param selector the selector digest
-   * @return the selector file
-   */
-  Path getSelectorFile(DescriptorDigest selector) {
-    return cacheDirectory.resolve(SELECTORS_DIRECTORY).resolve(selector.getHash());
-  }
-
-  /**
-   * Resolves the {@link #LAYERS_DIRECTORY} in the {@link #cacheDirectory}.
-   *
-   * @return the directory containing all the layer directories
-   */
-  Path getLayersDirectory() {
-    return cacheDirectory.resolve(LAYERS_DIRECTORY);
-  }
-
-  /**
-   * Gets the directory for the layer with digest {@code layerDigest}.
-   *
-   * @param layerDigest the digest of the layer
-   * @return the directory for that {@code layerDigest}
-   */
-  Path getLayerDirectory(DescriptorDigest layerDigest) {
-    return getLayersDirectory().resolve(layerDigest.getHash());
-  }
-
-  /**
-   * Gets the directory to store the image manifest and configuration.
-   *
-   * @return the directory for the image manifest and configuration
-   */
-  Path getImagesDirectory() {
-    return cacheDirectory.resolve(IMAGES_DIRECTORY);
-  }
-
-  /**
-   * Gets the directory corresponding to the given image reference.
-   *
-   * @param imageReference the image reference
-   * @return a path in the form of {@code
-   *     (jib-cache)/images/registry[!port]/repository!(tag|digest-type!digest)}
-   */
-  Path getImageDirectory(ImageReference imageReference) {
-    // Replace ':' and '@' with '!' to avoid directory-naming restrictions
-    string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
-
-    // Split image reference on '/' to build directory structure
-    Iterable<string> directories = Splitter.on('/').split(replacedReference);
-    Path destination = getImagesDirectory();
-    foreach (string dir in directories)
+    /** Resolves the files used in the default cache storage engine. */
+    class CacheStorageFiles
     {
-      destination = destination.resolve(dir);
+
+        private static readonly string LAYERS_DIRECTORY = "layers";
+        private static readonly string IMAGES_DIRECTORY = "images";
+        private static readonly string SELECTORS_DIRECTORY = "selectors";
+        private static readonly string TEMPORARY_DIRECTORY = "tmp";
+        private static readonly string TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
+
+        /**
+         * Returns whether or not {@code file} is a layer contents file.
+         *
+         * @param file the file to check
+         * @return {@code true} if {@code file} is a layer contents file; {@code false} otherwise
+         */
+        public static bool isLayerFile(SystemPath file)
+        {
+            return file.getFileName().toString().length() == DescriptorDigest.HASH_LENGTH;
+        }
+
+        private readonly SystemPath cacheDirectory;
+
+        public CacheStorageFiles(SystemPath cacheDirectory)
+        {
+            this.cacheDirectory = cacheDirectory;
+        }
+
+        /**
+         * Gets the diff ID portion of the layer filename.
+         *
+         * @param layerFile the layer file to parse for the diff ID
+         * @return the diff ID portion of the layer file filename
+         * @throws CacheCorruptedException if no valid diff ID could be parsed
+         */
+        public DescriptorDigest getDiffId(SystemPath layerFile)
+        {
+            try
+            {
+                string diffId = layerFile.getFileName().toString();
+                return DescriptorDigest.fromHash(diffId);
+
+            }
+            catch (Exception ex) when (ex is DigestException || ex is IndexOutOfRangeException)
+            {
+                throw new CacheCorruptedException(
+                    cacheDirectory, "Layer file did not include valid diff ID: " + layerFile, ex);
+            }
+        }
+
+
+        /**
+         * Gets the cache directory.
+         *
+         * @return the cache directory
+         */
+        public SystemPath getCacheDirectory()
+        {
+            return cacheDirectory;
+        }
+
+        /**
+         * Resolves the layer contents file.
+         *
+         * @param layerDigest the layer digest
+         * @param layerDiffId the layer diff Id
+         * @return the layer contents file
+         */
+        public SystemPath getLayerFile(DescriptorDigest layerDigest, DescriptorDigest layerDiffId)
+        {
+            return getLayerDirectory(layerDigest).resolve(getLayerFilename(layerDiffId));
+        }
+
+        /**
+         * Gets the filename for the layer file. The filename is in the form {@code <layer diff
+         * ID>.layer}.
+         *
+         * @param layerDiffId the layer's diff ID
+         * @return the layer filename
+         */
+        public string getLayerFilename(DescriptorDigest layerDiffId)
+        {
+            return layerDiffId.getHash();
+        }
+
+        /**
+         * Resolves a selector file.
+         *
+         * @param selector the selector digest
+         * @return the selector file
+         */
+        public SystemPath getSelectorFile(DescriptorDigest selector)
+        {
+            return cacheDirectory.resolve(SELECTORS_DIRECTORY).resolve(selector.getHash());
+        }
+
+        /**
+         * Resolves the {@link #LAYERS_DIRECTORY} in the {@link #cacheDirectory}.
+         *
+         * @return the directory containing all the layer directories
+         */
+        public SystemPath getLayersDirectory()
+        {
+            return cacheDirectory.resolve(LAYERS_DIRECTORY);
+        }
+
+        /**
+         * Gets the directory for the layer with digest {@code layerDigest}.
+         *
+         * @param layerDigest the digest of the layer
+         * @return the directory for that {@code layerDigest}
+         */
+        public SystemPath getLayerDirectory(DescriptorDigest layerDigest)
+        {
+            return getLayersDirectory().resolve(layerDigest.getHash());
+        }
+
+        /**
+         * Gets the directory to store the image manifest and configuration.
+         *
+         * @return the directory for the image manifest and configuration
+         */
+        SystemPath getImagesDirectory()
+        {
+            return cacheDirectory.resolve(IMAGES_DIRECTORY);
+        }
+
+        /**
+         * Gets the directory corresponding to the given image reference.
+         *
+         * @param imageReference the image reference
+         * @return a path in the form of {@code
+         *     (jib-cache)/images/registry[!port]/repository!(tag|digest-type!digest)}
+         */
+        public SystemPath getImageDirectory(ImageReference imageReference)
+        {
+            // Replace ':' and '@' with '!' to avoid directory-naming restrictions
+            string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
+
+            // Split image reference on '/' to build directory structure
+            IEnumerable<string> directories = Splitter.on('/').split(replacedReference);
+            SystemPath destination = getImagesDirectory();
+            foreach (string dir in directories)
+            {
+                destination = destination.resolve(dir);
+            }
+            return destination;
+        }
+
+        /**
+         * Gets the directory to store temporary files.
+         *
+         * @return the directory for temporary files
+         */
+        public SystemPath getTemporaryDirectory()
+        {
+            return cacheDirectory.resolve(TEMPORARY_DIRECTORY);
+        }
+
+        /**
+         * Resolves a file to use as a temporary file to write layer contents to.
+         *
+         * @param layerDirectory the directory in which to resolve the temporary layer file
+         * @return the temporary layer file
+         */
+        public SystemPath getTemporaryLayerFile(SystemPath layerDirectory)
+        {
+            SystemPath temporaryLayerFile = layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME);
+            temporaryLayerFile.toFile().deleteOnExit();
+            return temporaryLayerFile;
+        }
     }
-    return destination;
-  }
-
-  /**
-   * Gets the directory to store temporary files.
-   *
-   * @return the directory for temporary files
-   */
-  Path getTemporaryDirectory() {
-    return cacheDirectory.resolve(TEMPORARY_DIRECTORY);
-  }
-
-  /**
-   * Resolves a file to use as a temporary file to write layer contents to.
-   *
-   * @param layerDirectory the directory in which to resolve the temporary layer file
-   * @return the temporary layer file
-   */
-  Path getTemporaryLayerFile(Path layerDirectory) {
-    Path temporaryLayerFile = layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME);
-    temporaryLayerFile.toFile().deleteOnExit();
-    return temporaryLayerFile;
-  }
-}
 }

@@ -38,7 +38,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_simple() {
-    Path rootDirectory = Paths.get(Resources.getResource("core/class-finder-tests/simple").toURI());
+    SystemPath rootDirectory = Paths.get(Resources.getResource("core/class-finder-tests/simple").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
     Assert.assertSame(Type.MAIN_CLASS_FOUND, mainClassFinderResult.getType());
@@ -48,7 +48,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_subdirectories() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/subdirectories").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -60,7 +60,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_noClass() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/no-main").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -69,7 +69,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_multiple() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/multiple").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -83,7 +83,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_extension() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/extension").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -94,7 +94,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_importedMethods() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/imported-methods").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -105,7 +105,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_externalClasses() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/external-classes").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -116,7 +116,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testFindMainClass_innerClasses() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/inner-classes").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);
@@ -128,7 +128,7 @@ public class MainClassFinderTest {
 
   [TestMethod]
   public void testMainClass_varargs() {
-    Path rootDirectory =
+    SystemPath rootDirectory =
         Paths.get(Resources.getResource("core/class-finder-tests/varargs").toURI());
     MainClassFinder.Result mainClassFinderResult =
         MainClassFinder.find(new DirectoryWalker(rootDirectory).walk(), logEventConsumer);

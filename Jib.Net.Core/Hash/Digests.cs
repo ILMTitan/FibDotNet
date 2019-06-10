@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.hash {
 
 
@@ -32,30 +38,30 @@ namespace com.google.cloud.tools.jib.hash {
 // Note: intentionally this class does not depend on Blob, as Blob classes depend on this class.
 // TODO: BlobDescriptor is merely a tuple of (size, digest). Rename BlobDescriptor to something
 // more general.
-public class Digests {
+public static class Digests {
 
-  public static DescriptorDigest computeJsonDigest(JsonTemplate template) {
-    return computeDigest(template, ByteStreams.nullOutputStream()).getDigest();
+        public static DescriptorDigest computeJsonDigest(JsonTemplate template) {
+    return computeDigest(template, Stream.Null).getDigest();
   }
 
   public static DescriptorDigest computeJsonDigest(IReadOnlyList<JsonTemplate> templates)
       {
     WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(templates, contentsOut);
-    return computeDigest(contents, ByteStreams.nullOutputStream()).getDigest();
+    return computeDigest(contents, Stream.Null).getDigest();
   }
 
   public static BlobDescriptor computeDigest(JsonTemplate template) {
-    return computeDigest(template, ByteStreams.nullOutputStream());
+    return computeDigest(template, Stream.Null);
   }
 
-  public static BlobDescriptor computeDigest(JsonTemplate template, OutputStream outStream)
+  public static BlobDescriptor computeDigest(JsonTemplate template, Stream outStream)
       {
     WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(template, contentsOut);
     return computeDigest(contents, outStream);
   }
 
-  public static BlobDescriptor computeDigest(InputStream inStream) {
-    return computeDigest(inStream, ByteStreams.nullOutputStream());
+  public static BlobDescriptor computeDigest(Stream inStream) {
+    return computeDigest(inStream, Stream.Null);
   }
 
   /**
@@ -66,7 +72,7 @@ public class Digests {
    * @throws IOException if reading fails
    */
   public static BlobDescriptor computeDigest(WritableContents contents) {
-    return computeDigest(contents, ByteStreams.nullOutputStream());
+    return computeDigest(contents, Stream.Null);
   }
 
   /**
@@ -79,7 +85,7 @@ public class Digests {
    * @return computed digest and bytes consumed
    * @throws IOException if reading from or writing fails
    */
-  public static BlobDescriptor computeDigest(InputStream inStream, OutputStream outStream)
+  public static BlobDescriptor computeDigest(Stream inStream, Stream outStream)
       {
     WritableContents contents = contentsOut => ByteStreams.copy(inStream, contentsOut);
     return computeDigest(contents, outStream);
@@ -95,11 +101,11 @@ public class Digests {
    * @return computed digest and bytes consumed
    * @throws IOException if reading from or writing fails
    */
-  public static BlobDescriptor computeDigest(WritableContents contents, OutputStream outStream)
+  public static BlobDescriptor computeDigest(WritableContents contents, Stream outStream)
       {
     CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream);
     contents.writeTo(digestOutStream);
-    digestOutStream.flush();
+    digestOutStream.Flush();
     return digestOutStream.computeDigest();
   }
 }

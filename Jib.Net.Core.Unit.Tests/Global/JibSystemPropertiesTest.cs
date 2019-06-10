@@ -58,7 +58,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkHttpTimeoutProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("jib.httpTimeout must be an integer: random string", ex.getMessage());
     }
   }
@@ -96,7 +96,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("http.proxyPort cannot be less than 0: -1", ex.getMessage());
     }
 
@@ -105,7 +105,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("https.proxyPort cannot be less than 0: -1", ex.getMessage());
     }
   }
@@ -117,7 +117,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("http.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
     }
 
@@ -126,7 +126,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("https.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
     }
   }
@@ -138,7 +138,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("http.proxyPort must be an integer: some string", ex.getMessage());
     }
 
@@ -147,7 +147,7 @@ public class JibSystemPropertiesTest {
     try {
       JibSystemProperties.checkProxyPortProperty();
       Assert.fail();
-    } catch (NumberFormatException ex) {
+    } catch (FormatException ex) {
       Assert.assertEquals("https.proxyPort must be an integer: some string", ex.getMessage());
     }
   }

@@ -14,6 +14,20 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.global;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using System;
+using System.IO;
+using System.Text;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -41,7 +55,7 @@ namespace com.google.cloud.tools.jib.registry {
 public class RegistryClient {
 
   /** Factory for creating {@link RegistryClient}s. */
-  public static class Factory {
+  public class Factory {
 
     private readonly EventHandlers eventHandlers;
     private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
@@ -50,7 +64,7 @@ public class RegistryClient {
     private string userAgentSuffix;
     private Authorization authorization;
 
-    private Factory(
+    public Factory(
         EventHandlers eventHandlers,
         RegistryEndpointRequestProperties registryEndpointRequestProperties) {
       this.eventHandlers = eventHandlers;
@@ -192,18 +206,18 @@ public class RegistryClient {
    * @throws RegistryException if communicating with the endpoint fails
    */
   public T pullManifest<T>(
-      string imageTag, Class<T> manifestTemplateClass) where T : ManifestTemplate {
+      string imageTag) where T : ManifestTemplate {
     ManifestPuller<T> manifestPuller =
-        new ManifestPuller<>(registryEndpointRequestProperties, imageTag, manifestTemplateClass);
+        new ManifestPuller<T>(registryEndpointRequestProperties, imageTag);
     T manifestTemplate = callRegistryEndpoint(manifestPuller);
     if (manifestTemplate == null) {
-      throw new IllegalStateException("ManifestPuller#handleResponse does not return null");
+      throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
     }
     return manifestTemplate;
   }
 
   public ManifestTemplate pullManifest(string imageTag) {
-    return pullManifest(imageTag, typeof(ManifestTemplate));
+    return pullManifest< ManifestTemplate>(imageTag);
   }
 
   /**
@@ -248,8 +262,8 @@ public class RegistryClient {
    */
   public Blob pullBlob(
       DescriptorDigest blobDigest,
-      Consumer<Long> blobSizeListener,
-      Consumer<Long> writtenByteCountListener) {
+      Consumer<long> blobSizeListener,
+      Consumer<long> writtenByteCountListener) {
     return Blobs.from(
         outputStream => {
           try {
@@ -262,7 +276,7 @@ public class RegistryClient {
                     writtenByteCountListener));
 
           } catch (RegistryException ex) {
-            throw new IOException(ex);
+            throw new IOException("", ex);
           }
         });
   }
@@ -285,7 +299,7 @@ public class RegistryClient {
       DescriptorDigest blobDigest,
       Blob blob,
       string sourceRepository,
-      Consumer<Long> writtenByteCountListener)
+      Consumer<long> writtenByteCountListener)
       {
     BlobPusher blobPusher =
         new BlobPusher(registryEndpointRequestProperties, blobDigest, blob, sourceRepository);
@@ -338,7 +352,7 @@ public class RegistryClient {
    * @throws RegistryException if communicating with the endpoint fails
    */
   private T callRegistryEndpoint<T>(RegistryEndpointProvider<T> registryEndpointProvider) {
-    return new RegistryEndpointCaller<>(
+    return new RegistryEndpointCaller<T>(
             eventHandlers,
             userAgent,
             getApiRouteBase(),

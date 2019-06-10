@@ -36,7 +36,7 @@ public class CredentialTest {
     Assert.assertNotEquals(credentialA1, credentialB1);
     Assert.assertNotEquals(credentialA1, credentialB2);
 
-    Set<Credential> credentialSet =
+    ISet<Credential> credentialSet =
         new HashSet<>(Arrays.asList(credentialA1, credentialA2, credentialB1, credentialB2));
     Assert.assertEquals(new HashSet<>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
   }

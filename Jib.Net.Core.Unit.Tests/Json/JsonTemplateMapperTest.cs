@@ -39,20 +39,20 @@ public class JsonTemplateMapperTest {
     private string text;
     private DescriptorDigest digest;
     private InnerObject innerObject;
-    private List<InnerObject> list;
+    private IList<InnerObject> list;
 
     private class InnerObject : JsonTemplate  {
       // This field has the same name as a field in the outer class, but either NOT interfere with
       // the other.
       private int number;
       private List<string> texts;
-      private List<DescriptorDigest> digests;
+      private IList<DescriptorDigest> digests;
     }
   }
 
   [TestMethod]
   public void testWriteJson() {
-    Path jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
     string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
 
     TestJson testJson = new TestJson();
@@ -88,7 +88,7 @@ public class JsonTemplateMapperTest {
 
   [TestMethod]
   public void testReadJsonWithLock() {
-    Path jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
 
     // Deserializes into a metadata JSON object.
     TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock(jsonFile, typeof(TestJson));
@@ -117,10 +117,10 @@ public class JsonTemplateMapperTest {
 
   [TestMethod]
   public void testReadListOfJson() {
-    Path jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
     string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    List<TestJson> listofJsons = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
+    IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
     TestJson json1 = listofJsons.get(0);
     TestJson json2 = listofJsons.get(1);
 
@@ -145,10 +145,10 @@ public class JsonTemplateMapperTest {
 
   [TestMethod]
   public void testToBlob_listOfJson() {
-    Path jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
     string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
+    IList<TestJson> listOfJson = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
 
     Assert.assertEquals(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));
   }

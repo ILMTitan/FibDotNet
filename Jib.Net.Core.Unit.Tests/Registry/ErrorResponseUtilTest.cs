@@ -28,7 +28,7 @@ public class ErrorResponseUtilTest {
   public void testGetErrorCode_knownErrorCode() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent(
                 "{\"errors\":[{\"code\":\"MANIFEST_INVALID\",\"message\":\"manifest invalid\",\"detail\":{}}]}")
             .build();
@@ -42,7 +42,7 @@ public class ErrorResponseUtilTest {
   public void testGetErrorCode_unknownErrorCode() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent(
                 "{\"errors\":[{\"code\":\"INVALID_ERROR_CODE\",\"message\":\"invalid code\",\"detail\":{}}]}")
             .build();
@@ -59,7 +59,7 @@ public class ErrorResponseUtilTest {
   public void testGetErrorCode_multipleErrors() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent(
                 "{\"errors\":["
                     + "{\"code\":\"MANIFEST_INVALID\",\"message\":\"message 1\",\"detail\":{}},"
@@ -79,7 +79,7 @@ public class ErrorResponseUtilTest {
   public void testGetErrorCode_invalidErrorObject() {
     HttpResponseException httpResponseException =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent("{\"type\":\"other\",\"message\":\"some other object\"}")
             .build();
     try {

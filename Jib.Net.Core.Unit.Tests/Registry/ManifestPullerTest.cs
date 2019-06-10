@@ -46,11 +46,11 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ManifestPullerTest {
 
-  private static InputStream stringToInputStreamUtf8(string string) {
-    return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+  private static Stream stringToInputStreamUtf8(string string) {
+    return new MemoryStream(string.getBytes(StandardCharsets.UTF_8));
   }
 
-  [Mock] private Response mockResponse;
+  [Mock] private HttpResponseMessage mockResponse;
 
   private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
@@ -61,8 +61,8 @@ public class ManifestPullerTest {
   [TestMethod]
   public void testHandleResponse_v21()
       {
-    Path v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
-    InputStream v21Manifest = new ByteArrayInputStream(Files.readAllBytes(v21ManifestFile));
+    SystemPath v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
+    Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
 
     Mockito.when(mockResponse.getBody()).thenReturn(v21Manifest);
     ManifestTemplate manifestTemplate =
@@ -76,8 +76,8 @@ public class ManifestPullerTest {
   [TestMethod]
   public void testHandleResponse_v22()
       {
-    Path v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
-    InputStream v22Manifest = new ByteArrayInputStream(Files.readAllBytes(v22ManifestFile));
+    SystemPath v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+    Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
 
     Mockito.when(mockResponse.getBody()).thenReturn(v22Manifest);
     ManifestTemplate manifestTemplate =

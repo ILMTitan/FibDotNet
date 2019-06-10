@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.configuration {
 
 
@@ -25,10 +30,10 @@ namespace com.google.cloud.tools.jib.configuration {
 public class ImageConfiguration {
 
   /** Builder for instantiating an {@link ImageConfiguration}. */
-  public static class Builder {
+  public class Builder {
 
     private ImageReference imageReference;
-    private ImmutableList<CredentialRetriever> credentialRetrievers = ImmutableList.of();
+    private ImmutableArray<CredentialRetriever> credentialRetrievers = ImmutableArray.Create<CredentialRetriever>();
 
     /**
      * Sets the providers for registry credentials. The order determines the priority in which the
@@ -37,10 +42,10 @@ public class ImageConfiguration {
      * @param credentialRetrievers the list of {@link CredentialRetriever}s
      * @return this
      */
-    public Builder setCredentialRetrievers(List<CredentialRetriever> credentialRetrievers) {
+    public Builder setCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers) {
       Preconditions.checkArgument(
           !credentialRetrievers.contains(null), "credential retriever list contains null elements");
-      this.credentialRetrievers = ImmutableList.copyOf(credentialRetrievers);
+      this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);
       return this;
     }
 
@@ -53,7 +58,7 @@ public class ImageConfiguration {
       return new ImageConfiguration(imageReference, credentialRetrievers);
     }
 
-    private Builder(ImageReference imageReference) {
+    public Builder(ImageReference imageReference) {
       this.imageReference = imageReference;
     }
   }
@@ -69,10 +74,10 @@ public class ImageConfiguration {
   }
 
   private readonly ImageReference image;
-  private readonly ImmutableList<CredentialRetriever> credentialRetrievers;
+  private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
 
   private ImageConfiguration(
-      ImageReference image, ImmutableList<CredentialRetriever> credentialRetrievers) {
+      ImageReference image, ImmutableArray<CredentialRetriever> credentialRetrievers) {
     this.image = image;
     this.credentialRetrievers = credentialRetrievers;
   }
@@ -93,7 +98,7 @@ public class ImageConfiguration {
     return image.getTag();
   }
 
-  public ImmutableList<CredentialRetriever> getCredentialRetrievers() {
+  public ImmutableArray<CredentialRetriever> getCredentialRetrievers() {
     return credentialRetrievers;
   }
 }

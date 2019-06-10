@@ -66,10 +66,10 @@ public class Credential {
    * @return true if this credential is an OAuth 2.0 refresh token.
    */
   public bool isOAuth2RefreshToken() {
-    return OAUTH2_TOKEN_USER_NAME.equals(this.username);
+    return OAUTH2_TOKEN_USER_NAME.Equals(this.username);
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -77,14 +77,14 @@ public class Credential {
       return false;
     }
     Credential otherCredential = (Credential) other;
-    return username.equals(otherCredential.username) && password.equals(otherCredential.password);
+    return username.Equals(otherCredential.username) && password.Equals(otherCredential.password);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(username, password);
   }
 
-  public string toString() {
+  public override string ToString() {
     return username + ":" + password;
   }
 }

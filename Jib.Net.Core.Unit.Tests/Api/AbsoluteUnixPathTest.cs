@@ -29,7 +29,7 @@ public class AbsoluteUnixPathTest {
       AbsoluteUnixPath.get("not/absolute");
       Assert.fail();
 
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals(
           "Path does not start with forward slash (/): not/absolute", ex.getMessage());
     }
@@ -78,7 +78,7 @@ public class AbsoluteUnixPathTest {
       AbsoluteUnixPath.get("/").resolve(Paths.get("/not/relative"));
       Assert.fail();
 
-    } catch (IllegalArgumentException ex) {
+    } catch (ArgumentException ex) {
       Assert.assertEquals(
           "Cannot resolve against absolute Path: " + Paths.get("/not/relative"), ex.getMessage());
     }

@@ -33,7 +33,7 @@ public class V21ManifestTemplateTest {
   [TestMethod]
   public void testFromJson() {
     // Loads the JSON string.
-    Path jsonFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
+    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
 
     // Deserializes into a manifest JSON object.
     V21ManifestTemplate manifestJson =

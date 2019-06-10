@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.tar {
 
 
@@ -32,7 +38,7 @@ public class TarStreamBuilder {
    * Maps from {@link TarArchiveEntry} to a {@link Blob}. The order of the entries is the order they
    * belong in the tarball.
    */
-  private readonly LinkedHashMap<TarArchiveEntry, Blob> archiveMap = new LinkedHashMap<>();
+  private readonly Dictionary<TarEntry, Blob> archiveMap = new Dictionary<TarEntry, Blob>();
 
   /**
    * Writes each entry in the filesystem to the tarball archive stream.
@@ -40,12 +46,10 @@ public class TarStreamBuilder {
    * @param out the stream to write to.
    * @throws IOException if building the tarball fails.
    */
-  public void writeAsTarArchiveTo(OutputStream out) {
-    using (TarArchiveOutputStream tarArchiveOutputStream =
-        new TarArchiveOutputStream(out, StandardCharsets.UTF_8.name())) {
-      // Enables PAX extended headers to support long file names.
-      tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-      for (Map.Entry<TarArchiveEntry, Blob> entry : archiveMap.entrySet()) {
+  public void writeAsTarArchiveTo(Stream @out) {
+
+    using (TarOutputStream tarArchiveOutputStream = new TarOutputStream(@out)) {
+      foreach (KeyValuePair<TarEntry, Blob> entry in archiveMap.entrySet()) {
         tarArchiveOutputStream.putArchiveEntry(entry.getKey());
         entry.getValue().writeTo(tarArchiveOutputStream);
         tarArchiveOutputStream.closeArchiveEntry();
@@ -58,7 +62,7 @@ public class TarStreamBuilder {
    *
    * @param entry the {@link TarArchiveEntry}
    */
-  public void addTarArchiveEntry(TarArchiveEntry entry) {
+  public void addTarArchiveEntry(TarEntry entry) {
     archiveMap.put(
         entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(ignored => {}));
   }
@@ -71,8 +75,8 @@ public class TarStreamBuilder {
    * @param name the name of the entry (i.e. filename)
    */
   public void addByteEntry(byte[] contents, string name) {
-    TarArchiveEntry entry = new TarArchiveEntry(name);
-    entry.setSize(contents.length);
+    TarEntry entry = TarEntry.CreateTarEntry(name);
+    entry.setSize(contents.Length);
     archiveMap.put(entry, Blobs.from(outputStream => outputStream.write(contents)));
   }
 
@@ -85,7 +89,7 @@ public class TarStreamBuilder {
    * @param name the name of the entry (i.e. filename)
    */
   public void addBlobEntry(Blob blob, long size, string name) {
-    TarArchiveEntry entry = new TarArchiveEntry(name);
+    TarEntry entry = TarEntry.CreateTarEntry(name);
     entry.setSize(size);
     archiveMap.put(entry, blob);
   }

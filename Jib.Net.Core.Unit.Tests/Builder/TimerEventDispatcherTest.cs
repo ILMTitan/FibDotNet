@@ -36,7 +36,7 @@ public class TimerEventDispatcherTest {
 
   private readonly Deque<TimerEvent> timerEventQueue = new ArrayDeque<>();
 
-  [Mock] private Clock mockClock;
+  [Mock] private IClock mockClock;
 
   [TestMethod]
   public void testLogging() {
@@ -113,8 +113,8 @@ public class TimerEventDispatcherTest {
    */
   private void verifyStartState(TimerEvent timerEvent) {
     Assert.assertEquals(State.START, timerEvent.getState());
-    Assert.assertEquals(Duration.ZERO, timerEvent.getDuration());
-    Assert.assertEquals(Duration.ZERO, timerEvent.getElapsed());
+    Assert.assertEquals(Duration.Zero, timerEvent.getDuration());
+    Assert.assertEquals(Duration.Zero, timerEvent.getElapsed());
   }
 
   /**
@@ -126,7 +126,7 @@ public class TimerEventDispatcherTest {
    */
   private void verifyStateFirstLap(TimerEvent timerEvent, State expectedState) {
     Assert.assertEquals(expectedState, timerEvent.getState());
-    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.ZERO) > 0);
+    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
     Assert.assertEquals(0, timerEvent.getElapsed().compareTo(timerEvent.getDuration()));
   }
 
@@ -139,7 +139,7 @@ public class TimerEventDispatcherTest {
    */
   private void verifyStateNotFirstLap(TimerEvent timerEvent, State expectedState) {
     Assert.assertEquals(expectedState, timerEvent.getState());
-    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.ZERO) > 0);
+    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
     Assert.assertTrue(timerEvent.getElapsed().compareTo(timerEvent.getDuration()) > 0);
   }
 

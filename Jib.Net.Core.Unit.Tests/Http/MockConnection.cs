@@ -27,21 +27,21 @@ namespace com.google.cloud.tools.jib.http {
  */
 public class MockConnection : Connection {
 
-  private readonly BiFunction<string, Request, Response> responseSupplier;
-  private Integer httpTimeout;
+  private readonly BiFunc<string, Request, HttpResponseMessage> responseSupplier;
+  private int httpTimeout;
 
-  public MockConnection(BiFunction<string, Request, Response> responseSupplier) : base(
+  public MockConnection(Func<string, Request, HttpResponseMessage> responseSupplier) : base(
         new GenericUrl("ftp://non-exisiting.example.url.ever").toURL(), new ApacheHttpTransport()) {
     
     this.responseSupplier = responseSupplier;
   }
 
-  public Response send(string httpMethod, Request request) {
+  public HttpResponseMessage send(string httpMethod, Request request) {
     httpTimeout = request.getHttpTimeout();
     return responseSupplier.apply(httpMethod, request);
   }
 
-  public Integer getRequestedHttpTimeout() {
+  public int getRequestedHttpTimeout() {
     return httpTimeout;
   }
 }

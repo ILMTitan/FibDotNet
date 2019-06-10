@@ -14,18 +14,23 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using NodaTime;
+
+namespace com.google.cloud.tools.jib.api
+{
 
 
 
 
-/**
- * Represents an entry in the layer. A layer consists of many entries that can be converted into tar
- * archive entries.
- */
-public class LayerEntry {
+    /**
+     * Represents an entry in the layer. A layer consists of many entries that can be converted into tar
+     * archive entries.
+     */
+    public class LayerEntry {
 
-  private readonly Path sourceFile;
+  private readonly SystemPath sourceFile;
   private readonly AbsoluteUnixPath extractionPath;
   private readonly FilePermissions permissions;
   private readonly Instant lastModifiedTime;
@@ -58,7 +63,7 @@ public class LayerEntry {
    *     (https://github.com/GoogleContainerTools/jib/issues/1079)
    */
   public LayerEntry(
-      Path sourceFile,
+      SystemPath sourceFile,
       AbsoluteUnixPath extractionPath,
       FilePermissions permissions,
       Instant lastModifiedTime) {
@@ -84,7 +89,7 @@ public class LayerEntry {
    *
    * @return the source file
    */
-  public Path getSourceFile() {
+  public SystemPath getSourceFile() {
     return sourceFile;
   }
 
@@ -106,7 +111,7 @@ public class LayerEntry {
     return permissions;
   }
 
-  public bool equals(object other) {
+  public override bool Equals(object other) {
     if (this == other) {
       return true;
     }
@@ -114,13 +119,13 @@ public class LayerEntry {
       return false;
     }
     LayerEntry otherLayerEntry = (LayerEntry) other;
-    return sourceFile.equals(otherLayerEntry.sourceFile)
-        && extractionPath.equals(otherLayerEntry.extractionPath)
-        && Objects.equals(permissions, otherLayerEntry.permissions)
-        && Objects.equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
+    return sourceFile.Equals(otherLayerEntry.sourceFile)
+        && extractionPath.Equals(otherLayerEntry.extractionPath)
+        && Objects.Equals(permissions, otherLayerEntry.permissions)
+        && Objects.Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
   }
 
-  public int hashCode() {
+  public override int GetHashCode() {
     return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
   }
 }

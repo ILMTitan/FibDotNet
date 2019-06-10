@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.docker.json;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.tar;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.docker {
 
 
@@ -54,7 +62,7 @@ public class ImageTarball {
     this.imageReference = imageReference;
   }
 
-  public void writeTo(OutputStream out) {
+  public void writeTo(Stream @out) {
     TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
     DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
 
@@ -81,7 +89,7 @@ public class ImageTarball {
         JsonTemplateMapper.toByteArray(Collections.singletonList(manifestTemplate)),
         MANIFEST_JSON_FILE_NAME);
 
-    tarStreamBuilder.writeAsTarArchiveTo(out);
+    tarStreamBuilder.writeAsTarArchiveTo(@out);
   }
 }
 }

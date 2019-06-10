@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.registry.credentials.json;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
+
 namespace com.google.cloud.tools.jib.registry.credentials {
 
 
@@ -25,34 +32,31 @@ namespace com.google.cloud.tools.jib.registry.credentials {
 
 
 /** Handles getting useful information from a {@link DockerConfigTemplate}. */
-class DockerConfig {
+public class DockerConfig {
 
   /**
    * Returns the first entry matching the given key predicates (short-circuiting in the order of
    * predicates).
    */
-  private static <K, T> Map.Entry<K, T> findFirstInMapByKey(
-      Map<K, T> map, List<Predicate<K>> keyMatches) {
+  private static KeyValuePair<K, T>? findFirstInMapByKey<K, T>(     IDictionary<K, T> map, IList<Predicate<K>> keyMatches) {
     return keyMatches
         .stream()
         .map(keyMatch => findFirstInMapByKey(map, keyMatch))
-        .filter(Objects::nonNull)
-        .findFirst()
-        .orElse(null);
+        .filter(Objects.nonNull)
+        .findFirst();
   }
 
   /** Returns the first entry matching the given key predicate. */
-  private static <K, T> Map.Entry<K, T> findFirstInMapByKey(Map<K, T> map, Predicate<K> keyMatch) {
+  private static  KeyValuePair<K, T>? findFirstInMapByKey<K, T>(IDictionary<K, T> map, Predicate<K> keyMatch) {
     return map.entrySet()
         .stream()
         .filter(entry => keyMatch.test(entry.getKey()))
-        .findFirst()
-        .orElse(null);
+        .findFirst();
   }
 
   private readonly DockerConfigTemplate dockerConfigTemplate;
 
-  DockerConfig(DockerConfigTemplate dockerConfigTemplate) {
+  public DockerConfig(DockerConfigTemplate dockerConfigTemplate) {
     this.dockerConfigTemplate = dockerConfigTemplate;
   }
 
@@ -71,10 +75,10 @@ class DockerConfig {
    * @return the base64-encoded {@code Basic} authorization for {@code registry}, or {@code null} if
    *     none exists
    */
-  string getAuthFor(string registry) {
-    Map.Entry<string, AuthTemplate> authEntry =
+  public string getAuthFor(string registry) {
+    KeyValuePair<string, AuthTemplate>? authEntry =
         findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry));
-    return authEntry != null ? authEntry.getValue().getAuth() : null;
+    return authEntry?.getValue().getAuth();
   }
 
   /**
@@ -91,21 +95,21 @@ class DockerConfig {
    * @return the {@link DockerCredentialHelper} or {@code null} if none is found for the given
    *     registry
    */
-  DockerCredentialHelper getCredentialHelperFor(string registry) {
-    List<Predicate<string>> registryMatchers = getRegistryMatchersFor(registry);
+  public DockerCredentialHelper getCredentialHelperFor(string registry) {
+    IList<Predicate<string>> registryMatchers = getRegistryMatchersFor(registry);
 
-    Map.Entry<string, ?> firstAuthMatch =
+    KeyValuePair<string, AuthTemplate>? firstAuthMatch =
         findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers);
     if (firstAuthMatch != null && dockerConfigTemplate.getCredsStore() != null) {
       return new DockerCredentialHelper(
-          firstAuthMatch.getKey(), dockerConfigTemplate.getCredsStore());
+          firstAuthMatch.Value.getKey(), dockerConfigTemplate.getCredsStore());
     }
 
-    Map.Entry<string, string> firstCredHelperMatch =
+    KeyValuePair<string, string>? firstCredHelperMatch =
         findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers);
     if (firstCredHelperMatch != null) {
       return new DockerCredentialHelper(
-          firstCredHelperMatch.getKey(), firstCredHelperMatch.getValue());
+          firstCredHelperMatch.Value.getKey(), firstCredHelperMatch.Value.getValue());
     }
 
     return null;
@@ -124,9 +128,9 @@ class DockerConfig {
    * @param registry the registry to get matchers for
    * @return the list of predicates to match possible aliases
    */
-  private List<Predicate<string>> getRegistryMatchersFor(string registry) {
+  private IList<Predicate<string>> getRegistryMatchersFor(string registry) {
     Predicate<string> exactMatch = registry.equals;
-    Predicate<string> withHttps = ("https://" + registry)::equals;
+    Predicate<string> withHttps = ("https://" + registry).equals;
     Predicate<string> withSuffix = name => name.startsWith(registry + "/");
     Predicate<string> withHttpsAndSuffix = name => name.startsWith("https://" + registry + "/");
     return Arrays.asList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);

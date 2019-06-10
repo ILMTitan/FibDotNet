@@ -14,13 +14,17 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event {
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+
+namespace com.google.cloud.tools.jib.@event {
 
 
 
 
 /** Handles a dispatched {@link JibEvent}. */
-class Handler<E extends JibEvent> {
+class Handler<E> where E : JibEvent {
 
   private readonly Class<E> eventClass;
   private readonly Consumer<E> eventConsumer;

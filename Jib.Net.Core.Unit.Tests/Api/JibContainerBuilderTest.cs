@@ -64,9 +64,9 @@ public class JibContainerBuilderTest {
     JibContainerBuilder jibContainerBuilder =
         new JibContainerBuilder(RegistryImage.named("base/image"), spyBuildConfigurationBuilder)
             .setEntrypoint(Arrays.asList("entry", "point"))
-            .setEnvironment(ImmutableMap.of("name", "value"))
-            .setExposedPorts(ImmutableSet.of(Port.tcp(1234), Port.udp(5678)))
-            .setLabels(ImmutableMap.of("key", "value"))
+            .setEnvironment(ImmutableDictionary.of("name", "value"))
+            .setExposedPorts(ImmutableHashSet.of(Port.tcp(1234), Port.udp(5678)))
+            .setLabels(ImmutableDictionary.of("key", "value"))
             .setProgramArguments(Arrays.asList("program", "arguments"))
             .setCreationTime(Instant.ofEpochMilli(1000))
             .setUser("user")
@@ -79,10 +79,10 @@ public class JibContainerBuilderTest {
     ContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
     Assert.assertEquals(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
     Assert.assertEquals(
-        ImmutableMap.of("name", "value"), containerConfiguration.getEnvironmentMap());
+        ImmutableDictionary.of("name", "value"), containerConfiguration.getEnvironmentMap());
     Assert.assertEquals(
-        ImmutableSet.of(Port.tcp(1234), Port.udp(5678)), containerConfiguration.getExposedPorts());
-    Assert.assertEquals(ImmutableMap.of("key", "value"), containerConfiguration.getLabels());
+        ImmutableHashSet.of(Port.tcp(1234), Port.udp(5678)), containerConfiguration.getExposedPorts());
+    Assert.assertEquals(ImmutableDictionary.of("key", "value"), containerConfiguration.getLabels());
     Assert.assertEquals(
         Arrays.asList("program", "arguments"), containerConfiguration.getProgramArguments());
     Assert.assertEquals(Instant.ofEpochMilli(1000), containerConfiguration.getCreationTime());
@@ -97,11 +97,11 @@ public class JibContainerBuilderTest {
     JibContainerBuilder jibContainerBuilder =
         new JibContainerBuilder(RegistryImage.named("base/image"), spyBuildConfigurationBuilder)
             .setEntrypoint("entry", "point")
-            .setEnvironment(ImmutableMap.of("name", "value"))
+            .setEnvironment(ImmutableDictionary.of("name", "value"))
             .addEnvironmentVariable("environment", "variable")
             .setExposedPorts(Port.tcp(1234), Port.udp(5678))
             .addExposedPort(Port.tcp(1337))
-            .setLabels(ImmutableMap.of("key", "value"))
+            .setLabels(ImmutableDictionary.of("key", "value"))
             .addLabel("added", "label")
             .setProgramArguments("program", "arguments");
 
@@ -112,13 +112,13 @@ public class JibContainerBuilderTest {
     ContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
     Assert.assertEquals(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
     Assert.assertEquals(
-        ImmutableMap.of("name", "value", "environment", "variable"),
+        ImmutableDictionary.of("name", "value", "environment", "variable"),
         containerConfiguration.getEnvironmentMap());
     Assert.assertEquals(
-        ImmutableSet.of(Port.tcp(1234), Port.udp(5678), Port.tcp(1337)),
+        ImmutableHashSet.of(Port.tcp(1234), Port.udp(5678), Port.tcp(1337)),
         containerConfiguration.getExposedPorts());
     Assert.assertEquals(
-        ImmutableMap.of("key", "value", "added", "label"), containerConfiguration.getLabels());
+        ImmutableDictionary.of("key", "value", "added", "label"), containerConfiguration.getLabels());
     Assert.assertEquals(
         Arrays.asList("program", "arguments"), containerConfiguration.getProgramArguments());
     Assert.assertEquals(Instant.EPOCH, containerConfiguration.getCreationTime());
@@ -170,7 +170,7 @@ public class JibContainerBuilderTest {
             .retrieve()
             .orElseThrow(AssertionError.new));
 
-    Assert.assertEquals(ImmutableSet.of("latest"), buildConfiguration.getAllTargetImageTags());
+    Assert.assertEquals(ImmutableHashSet.of("latest"), buildConfiguration.getAllTargetImageTags());
 
     Mockito.verify(spyBuildConfigurationBuilder)
         .setBaseImageLayersCacheDirectory(Paths.get("base/image/layers"));
@@ -204,7 +204,7 @@ public class JibContainerBuilderTest {
                 MoreExecutors.newDirectExecutorService());
     Assert.assertSame(typeof(OCIManifestTemplate), buildConfiguration.getTargetFormat());
     Assert.assertEquals(
-        ImmutableSet.of("latest", "tag1", "tag2"), buildConfiguration.getAllTargetImageTags());
+        ImmutableHashSet.of("latest", "tag1", "tag2"), buildConfiguration.getAllTargetImageTags());
     Assert.assertEquals("toolName", buildConfiguration.getToolName());
   }
 
@@ -214,9 +214,9 @@ public class JibContainerBuilderTest {
     JibContainerBuilder jibContainerBuilder =
         new JibContainerBuilder(RegistryImage.named("base/image"), spyBuildConfigurationBuilder)
             .setEntrypoint(Arrays.asList("entry", "point"))
-            .setEnvironment(ImmutableMap.of("name", "value"))
-            .setExposedPorts(ImmutableSet.of(Port.tcp(1234), Port.udp(5678)))
-            .setLabels(ImmutableMap.of("key", "value"))
+            .setEnvironment(ImmutableDictionary.of("name", "value"))
+            .setExposedPorts(ImmutableHashSet.of(Port.tcp(1234), Port.udp(5678)))
+            .setLabels(ImmutableDictionary.of("key", "value"))
             .setProgramArguments(Arrays.asList("program", "arguments"))
             .setCreationTime(Instant.ofEpochMilli(1000))
             .setUser("user")
@@ -235,9 +235,9 @@ public class JibContainerBuilderTest {
     JibContainerBuilder jibContainerBuilder =
         new JibContainerBuilder(RegistryImage.named("base/image"), spyBuildConfigurationBuilder)
             .setEntrypoint(Arrays.asList("entry", "point"))
-            .setEnvironment(ImmutableMap.of("name", "value"))
-            .setExposedPorts(ImmutableSet.of(Port.tcp(1234), Port.udp(5678)))
-            .setLabels(ImmutableMap.of("key", "value"))
+            .setEnvironment(ImmutableDictionary.of("name", "value"))
+            .setExposedPorts(ImmutableHashSet.of(Port.tcp(1234), Port.udp(5678)))
+            .setLabels(ImmutableDictionary.of("key", "value"))
             .setProgramArguments(Arrays.asList("program", "arguments"))
             .setCreationTime(Instant.ofEpochMilli(1000))
             .setUser("user")

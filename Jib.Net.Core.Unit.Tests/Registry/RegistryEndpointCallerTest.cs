@@ -63,7 +63,7 @@ public class RegistryEndpointCallerTest {
 
   /** Implementation of {@link RegistryEndpointProvider} for testing. */
   private class TestRegistryEndpointProvider : RegistryEndpointProvider<string>  {
-    public string getHttpMethod() {
+    public HttpMethod getHttpMethod() {
       return "httpMethod";
     }
 
@@ -75,13 +75,13 @@ public class RegistryEndpointCallerTest {
       return null;
     }
 
-    public List<string> getAccept() {
+    public IList<string> getAccept() {
       return Collections.emptyList();
     }
 
-    public string handleResponse(Response response) {
+    public string handleResponse(HttpResponseMessage response) {
       return CharStreams.toString(
-          new InputStreamReader(response.getBody(), StandardCharsets.UTF_8));
+          new StreamReader(response.getBody(), StandardCharsets.UTF_8));
     }
 
     public string getActionDescription() {
@@ -99,16 +99,16 @@ public class RegistryEndpointCallerTest {
   }
 
   private static HttpResponse mockRedirectHttpResponse(string redirectLocation) {
-    int code307 = HttpStatusCodes.STATUS_CODE_TEMPORARY_REDIRECT;
+    int code307 = HttpStatusCode.TemporaryRedirect;
     return mockHttpResponse(code307, new HttpHeaders().setLocation(redirectLocation));
   }
 
   [Mock] private EventHandlers mockEventHandlers;
   [Mock] private Connection mockConnection;
   [Mock] private Connection mockInsecureConnection;
-  [Mock] private Response mockResponse;
-  [Mock] private Function<Uri, Connection> mockConnectionFactory;
-  [Mock] private Function<Uri, Connection> mockInsecureConnectionFactory;
+  [Mock] private HttpResponseMessage mockResponse;
+  [Mock] private Func<Uri, Connection> mockConnectionFactory;
+  [Mock] private Func<Uri, Connection> mockInsecureConnectionFactory;
 
   private RegistryEndpointCaller<string> secureEndpointCaller;
 
@@ -120,7 +120,7 @@ public class RegistryEndpointCallerTest {
     Mockito.when(mockInsecureConnectionFactory.apply(Mockito.any()))
         .thenReturn(mockInsecureConnection);
     Mockito.when(mockResponse.getBody())
-        .thenReturn(new ByteArrayInputStream("body".getBytes(StandardCharsets.UTF_8)));
+        .thenReturn(new MemoryStream("body".getBytes(StandardCharsets.UTF_8)));
   }
 
   @After
@@ -288,14 +288,14 @@ public class RegistryEndpointCallerTest {
 
   [TestMethod]
   public void testCall_unauthorized() {
-    verifyThrowsRegistryUnauthorizedException(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED);
+    verifyThrowsRegistryUnauthorizedException(HttpStatusCode.Unauthorized);
   }
 
   [TestMethod]
   public void testCall_credentialsNotSentOverHttp() {
     HttpResponse redirectResponse = mockRedirectHttpResponse("http://newlocation");
     HttpResponse unauthroizedResponse =
-        mockHttpResponse(HttpStatusCodes.STATUS_CODE_UNAUTHORIZED, null);
+        mockHttpResponse(HttpStatusCode.Unauthorized, null);
 
     Mockito.when(mockConnection.send(Mockito.eq("httpMethod"), Mockito.any()))
         .thenThrow(Mockito.mock(typeof(SSLPeerUnverifiedException))) // server is not HTTPS
@@ -355,28 +355,28 @@ public class RegistryEndpointCallerTest {
 
   [TestMethod]
   public void testCall_forbidden() {
-    verifyThrowsRegistryUnauthorizedException(HttpStatusCodes.STATUS_CODE_FORBIDDEN);
+    verifyThrowsRegistryUnauthorizedException(HttpStatusCode.Forbidden);
   }
 
   [TestMethod]
   public void testCall_badRequest() {
-    verifyThrowsRegistryErrorException(HttpStatusCodes.STATUS_CODE_BAD_REQUEST);
+    verifyThrowsRegistryErrorException(HttpStatusCode.BadRequest);
   }
 
   [TestMethod]
   public void testCall_notFound() {
-    verifyThrowsRegistryErrorException(HttpStatusCodes.STATUS_CODE_NOT_FOUND);
+    verifyThrowsRegistryErrorException(HttpStatusCode.NotFound);
   }
 
   [TestMethod]
   public void testCall_methodNotAllowed() {
-    verifyThrowsRegistryErrorException(HttpStatusCodes.STATUS_CODE_METHOD_NOT_ALLOWED);
+    verifyThrowsRegistryErrorException(HttpStatusCode.MethodNotAllowed);
   }
 
   [TestMethod]
   public void testCall_unknown() {
     HttpResponse mockHttpResponse =
-        mockHttpResponse(HttpStatusCodes.STATUS_CODE_SERVER_ERROR, null);
+        mockHttpResponse(HttpStatusCode.STATUS_CODE_SERVER_ERROR, null);
     HttpResponseException httpResponseException = new HttpResponseException(mockHttpResponse);
 
     Mockito.when(mockConnection.send(Mockito.eq("httpMethod"), Mockito.any()))
@@ -393,12 +393,12 @@ public class RegistryEndpointCallerTest {
 
   [TestMethod]
   public void testCall_temporaryRedirect() {
-    verifyRetriesWithNewLocation(HttpStatusCodes.STATUS_CODE_TEMPORARY_REDIRECT);
+    verifyRetriesWithNewLocation(HttpStatusCode.TemporaryRedirect);
   }
 
   [TestMethod]
   public void testCall_movedPermanently() {
-    verifyRetriesWithNewLocation(HttpStatusCodes.STATUS_CODE_MOVED_PERMANENTLY);
+    verifyRetriesWithNewLocation(HttpStatusCode.MovedPermanently);
   }
 
   [TestMethod]
@@ -458,7 +458,7 @@ public class RegistryEndpointCallerTest {
 
     // We let the negative value pass through:
     // https://github.com/GoogleContainerTools/jib/pull/656#discussion_r203562639
-    Assert.assertEquals(Integer.valueOf(-1), mockConnection.getRequestedHttpTimeout());
+    Assert.assertEquals(int.valueOf(-1), mockConnection.getRequestedHttpTimeout());
   }
 
   [TestMethod]
@@ -470,7 +470,7 @@ public class RegistryEndpointCallerTest {
 
     secureEndpointCaller.call();
 
-    Assert.assertEquals(Integer.valueOf(0), mockConnection.getRequestedHttpTimeout());
+    Assert.assertEquals(int.valueOf(0), mockConnection.getRequestedHttpTimeout());
   }
 
   [TestMethod]
@@ -482,7 +482,7 @@ public class RegistryEndpointCallerTest {
 
     secureEndpointCaller.call();
 
-    Assert.assertEquals(Integer.valueOf(7593), mockConnection.getRequestedHttpTimeout());
+    Assert.assertEquals(int.valueOf(7593), mockConnection.getRequestedHttpTimeout());
   }
 
   [TestMethod]

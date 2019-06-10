@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.events;
+using NodaTime;
+using System;
+using static com.google.cloud.tools.jib.@event.events.TimerEvent;
+
 namespace com.google.cloud.tools.jib.builder {
 
 
@@ -25,14 +31,14 @@ namespace com.google.cloud.tools.jib.builder {
 
 
 /** Handles {@link Timer}s to dispatch {@link TimerEvent}s. */
-public class TimerEventDispatcher : Closeable {
+public class TimerEventDispatcher : IDisposable{
 
-  private static readonly Clock DEFAULT_CLOCK = Clock.systemUTC();
+        private static readonly IClock DEFAULT_CLOCK = SystemClock.Instance;
 
   private readonly EventHandlers eventHandlers;
   private readonly string description;
 
-  private readonly Clock clock;
+  private readonly IClock clock;
   private readonly Timer timer;
 
   /**
@@ -41,18 +47,18 @@ public class TimerEventDispatcher : Closeable {
    * @param eventHandlers the {@link EventHandlers} used to dispatch the {@link TimerEvent}s
    * @param description the default description for the {@link TimerEvent}s
    */
-  public TimerEventDispatcher(EventHandlers eventHandlers, string description) {
-    this(eventHandlers, description, DEFAULT_CLOCK, null);
+  public TimerEventDispatcher(EventHandlers eventHandlers, string description) : this(eventHandlers, description, DEFAULT_CLOCK, null) {
+    
   }
 
   TimerEventDispatcher(
-      EventHandlers eventHandlers, string description, Clock clock, Timer parentTimer) {
+      EventHandlers eventHandlers, string description, IClock clock, Timer parentTimer) {
     this.eventHandlers = eventHandlers;
     this.description = description;
     this.clock = clock;
     this.timer = new Timer(clock, parentTimer);
 
-    dispatchTimerEvent(State.START, Duration.ZERO, description);
+    dispatchTimerEvent(State.START, Duration.Zero, description);
   }
 
   /**
@@ -88,7 +94,7 @@ public class TimerEventDispatcher : Closeable {
 
   /** Laps and dispatches a {@link State#FINISHED} {@link TimerEvent} upon close. */
 
-  public void close() {
+  public void Dispose() {
     dispatchTimerEvent(State.FINISHED, timer.lap(), description);
   }
 

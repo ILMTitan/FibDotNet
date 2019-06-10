@@ -14,6 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -37,15 +41,15 @@ public class RelativeUnixPath {
    */
   public static RelativeUnixPath get(string relativePath) {
     Preconditions.checkArgument(
-        !relativePath.startsWith("/"), "Path starts with forward slash (/): " + relativePath);
+        !relativePath.StartsWith("/"), "Path starts with forward slash (/): " + relativePath);
 
     return new RelativeUnixPath(UnixPathParser.parse(relativePath));
   }
 
-  private readonly ImmutableList<string> pathComponents;
+  private readonly ImmutableArray<string> pathComponents;
 
   /** Instantiate with {@link #get}. */
-  private RelativeUnixPath(ImmutableList<string> pathComponents) {
+  private RelativeUnixPath(ImmutableArray<string> pathComponents) {
     this.pathComponents = pathComponents;
   }
 
@@ -54,7 +58,7 @@ public class RelativeUnixPath {
    *
    * @return the relative path this represents, in a list of components
    */
-  ImmutableList<string> getRelativePathComponents() {
+  public ImmutableArray<string> getRelativePathComponents() {
     return pathComponents;
   }
 }

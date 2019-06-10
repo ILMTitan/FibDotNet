@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.docker.json {
 
 
@@ -46,9 +51,8 @@ namespace com.google.cloud.tools.jib.docker.json {
  */
 public class DockerLoadManifestEntryTemplate : JsonTemplate {
 
-  private readonly string config = "config.json";
-  private List<string> repoTags = Collections.singletonList(null);
-  private readonly List<string> layers = new ArrayList<>();
+  private List<string> repoTags = Collections.singletonList<string>(null);
+  private readonly IList<string> layers = new List<string>();
 
   public void setRepoTags(string repoTags) {
     this.repoTags = Collections.singletonList(repoTags);

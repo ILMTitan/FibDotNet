@@ -14,6 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.registry.credentials.json {
 
 
@@ -57,14 +62,14 @@ namespace com.google.cloud.tools.jib.registry.credentials.json {
  * @see <a
  *     href="https://www.projectatomic.io/blog/2016/03/docker-credentials-store/">https://www.projectatomic.io/blog/2016/03/docker-credentials-store/</a>
  */
-[JsonIgnoreProperties(ignoreUnknown = true)]
+[JsonObject(ItemNullValueHandling =NullValueHandling.Ignore)]
 public class DockerConfigTemplate : JsonTemplate {
 
   /** Template for an {@code auth} defined for a registry under {@code auths}. */
-  [JsonIgnoreProperties(ignoreUnknown = true)]
-  public static class AuthTemplate implements JsonTemplate {
+  [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+  public class AuthTemplate : JsonTemplate {
 
-    private string auth;
+    public string auth;
 
     public string getAuth() {
       return auth;
@@ -72,14 +77,14 @@ public class DockerConfigTemplate : JsonTemplate {
   }
 
   /** Maps from registry to its {@link AuthTemplate}. */
-  private readonly Map<string, AuthTemplate> auths = new HashMap<>();
+  private readonly IDictionary<string, AuthTemplate> auths = new Dictionary<string, AuthTemplate>();
 
   private string credsStore;
 
   /** Maps from registry to credential helper name. */
-  private readonly Map<string, string> credHelpers = new HashMap<>();
+  private readonly IDictionary<string, string> credHelpers = new Dictionary<string, string>();
 
-  public Map<string, AuthTemplate> getAuths() {
+  public IDictionary<string, AuthTemplate> getAuths() {
     return auths;
   }
 
@@ -87,7 +92,7 @@ public class DockerConfigTemplate : JsonTemplate {
     return credsStore;
   }
 
-  public Map<string, string> getCredHelpers() {
+  public IDictionary<string, string> getCredHelpers() {
     return credHelpers;
   }
 

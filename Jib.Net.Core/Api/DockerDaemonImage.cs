@@ -14,6 +14,10 @@
  * the License.
  */
 
+using System;
+using System.Collections.Generic;
+using Jib.Net.Core.FileSystem;
+
 namespace com.google.cloud.tools.jib.api {
 // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
@@ -50,8 +54,8 @@ public class DockerDaemonImage {
   }
 
   private readonly ImageReference imageReference;
-  private Path dockerExecutable;
-  private Map<string, string> dockerEnvironment = Collections.emptyMap();
+  private SystemPath dockerExecutable;
+  private IDictionary<string, string> dockerEnvironment = Collections.emptyMap<string, string>();
 
   /** Instantiate with {@link #named}. */
   private DockerDaemonImage(ImageReference imageReference) {
@@ -64,7 +68,7 @@ public class DockerDaemonImage {
    * @param dockerExecutable the path to the {@code docker} CLI
    * @return this
    */
-  public DockerDaemonImage setDockerExecutable(Path dockerExecutable) {
+  public DockerDaemonImage setDockerExecutable(SystemPath dockerExecutable) {
     this.dockerExecutable = dockerExecutable;
     return this;
   }
@@ -75,20 +79,20 @@ public class DockerDaemonImage {
    * @param dockerEnvironment additional environment variables
    * @return this
    */
-  public DockerDaemonImage setDockerEnvironment(Map<string, string> dockerEnvironment) {
+  public DockerDaemonImage setDockerEnvironment(IDictionary<string, string> dockerEnvironment) {
     this.dockerEnvironment = dockerEnvironment;
     return this;
   }
 
-  ImageReference getImageReference() {
+  public ImageReference getImageReference() {
     return imageReference;
   }
 
-  Optional<Path> getDockerExecutable() {
+  public Optional<SystemPath> getDockerExecutable() {
     return Optional.ofNullable(dockerExecutable);
   }
 
-  Map<string, string> getDockerEnvironment() {
+  public IDictionary<string, string> getDockerEnvironment() {
     return dockerEnvironment;
   }
 }

@@ -14,7 +14,9 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using com.google.cloud.tools.jib.api;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -51,7 +53,7 @@ public class Allocation {
   }
 
   /** The parent {@link Allocation}, or {@code null} to indicate a root node. */
-  private final Allocation parent;
+  private readonly Allocation parent;
 
   /** User-facing description of what the allocation represents. */
   private readonly string description;

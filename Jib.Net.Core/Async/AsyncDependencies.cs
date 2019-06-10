@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.async {
 
 
@@ -34,17 +42,17 @@ public class AsyncDependencies {
    * @param listeningExecutorService the {@link ListeningExecutorService}
    * @return a new {@link AsyncDependencies}
    */
-  public static AsyncDependencies @using(ListeningExecutorService listeningExecutorService) {
-    return new AsyncDependencies(listeningExecutorService);
+  public static AsyncDependencies @using()
+        {
+    return new AsyncDependencies();
   }
 
-  private readonly ListeningExecutorService listeningExecutorService;
 
   /** Stores the list of {@link ListenableFuture}s to wait on. */
-  private readonly List<Task> futures = new ArrayList<Task>();
+  private readonly IList<Task> futures = new List<Task>();
 
-  private AsyncDependencies(ListeningExecutorService listeningExecutorService) {
-    this.listeningExecutorService = listeningExecutorService;
+  private AsyncDependencies()
+        {
   }
 
   /**
@@ -53,7 +61,7 @@ public class AsyncDependencies {
    * @param asyncStep the {@link AsyncStep}
    * @return this
    */
-  public AsyncDependencies addStep(AsyncStep asyncStep) {
+  public AsyncDependencies addStep<T>(AsyncStep<T> asyncStep) {
     futures.add(asyncStep.getFuture());
     return this;
   }
@@ -64,21 +72,27 @@ public class AsyncDependencies {
    * @param asyncSteps the {@link AsyncStep}s
    * @return this
    */
-  public AsyncDependencies addSteps(List<AsyncStep> asyncSteps) {
+  public AsyncDependencies addSteps<T>(IEnumerable<AsyncStep<T>> asyncSteps) {
     asyncSteps.forEach(this.addStep);
     return this;
   }
 
-  /**
-   * Creates the {@link ListenableFuture} which will return the result of calling {@code combiner}
-   * when all the added futures succeed.
-   *
-   * @param combiner the {@link Callable}
-   * @param <C> the return type of {@code combiner}
-   * @return a {@link ListenableFuture} to handle completion of the call to {@code combiner}
-   */
-  public ListenableFuture<C> whenAllSucceed<C>(Callable<C> combiner) {
-    return Futures.whenAllSucceed(futures).call(combiner, listeningExecutorService);
-  }
+        internal Task<T> whenAllSucceed<T>(AsyncStep<T> pullAndCacheBaseImageLayersStep)
+        {
+            throw new NotImplementedException();
+        }
+        internal Task<TResult> whenAllSucceed<TResult>(Func<TResult> f) {
+            throw new NotImplementedException();
+        }
+
+        internal Task<T> call<T>(Func<T> p)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
+
+namespace Jib.Net.Core
+{
+    public delegate void Callable<C>();
 }

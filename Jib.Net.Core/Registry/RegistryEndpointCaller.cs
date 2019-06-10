@@ -14,6 +14,21 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.global;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Authorization = com.google.cloud.tools.jib.http.Authorization;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -43,88 +58,94 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-/**
- * Makes requests to a registry endpoint.
- *
- * @param <T> the type returned by calling the endpoint
- */
-class RegistryEndpointCaller<T> {
+    /**
+     * Makes requests to a registry endpoint.
+     *
+     * @param <T> the type returned by calling the endpoint
+     */
+    class RegistryEndpointCaller<T>
+    {
 
-  /**
-   * @see <a
-   *     href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308">https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308</a>
-   */
-  @VisibleForTesting static final int STATUS_CODE_PERMANENT_REDIRECT = 308;
+        /**
+         * @see <a
+         *     href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308">https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308</a>
+         */
+        static readonly HttpStatusCode STATUS_CODE_PERMANENT_REDIRECT = (HttpStatusCode)308;
 
-  private static readonly string DEFAULT_PROTOCOL = "https";
+        private static readonly string DEFAULT_PROTOCOL = "https";
 
-  private static bool isHttpsProtocol(Uri url) {
-    return "https".equals(url.getProtocol());
-  }
+        private static bool isHttpsProtocol(Uri url)
+        {
+            return "https".Equals(url.getProtocol());
+        }
 
-  // https://github.com/GoogleContainerTools/jib/issues/1316
+        // https://github.com/GoogleContainerTools/jib/issues/1316
 
-  static bool isBrokenPipe(IOException original) {
-    Throwable exception = original;
-    while (exception != null) {
-      string message = exception.getMessage();
-      if (message != null && message.toLowerCase(Locale.US).contains("broken pipe")) {
-        return true;
-      }
+        static bool isBrokenPipe(IOException original)
+        {
+            Exception exception = original;
+            while (exception != null)
+            {
+                string message = exception.getMessage();
+                if (message != null && message.toLowerCase(Locale.US).contains("broken pipe"))
+                {
+                    return true;
+                }
 
-      exception = exception.getCause();
-      if (exception == original) { // just in case if there's a circular chain
-        return false;
-      }
-    }
-    return false;
-  }
+                exception = exception.getCause();
+                if (exception == original)
+                { // just in case if there's a circular chain
+                    return false;
+                }
+            }
+            return false;
+        }
 
-  private readonly EventHandlers eventHandlers;
-  private readonly Uri initialRequestUrl;
-  private readonly string userAgent;
-  private readonly RegistryEndpointProvider<T> registryEndpointProvider;
-  private final Authorization authorization;
-  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private readonly bool allowInsecureRegistries;
+        private readonly EventHandlers eventHandlers;
+        private readonly Uri initialRequestUrl;
+        private readonly string userAgent;
+        private readonly RegistryEndpointProvider<T> registryEndpointProvider;
+        private readonly Authorization authorization;
+        private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+        private readonly bool allowInsecureRegistries;
 
-  /** Makes a {@link Connection} to the specified {@link Uri}. */
-  private readonly Function<Uri, Connection> connectionFactory;
+        /** Makes a {@link Connection} to the specified {@link Uri}. */
+        private readonly Func<Uri, Connection> connectionFactory;
 
-  /** Makes an insecure {@link Connection} to the specified {@link Uri}. */
-  private Function<Uri, Connection> insecureConnectionFactory;
+        /** Makes an insecure {@link Connection} to the specified {@link Uri}. */
+        private Func<Uri, Connection> insecureConnectionFactory;
 
-  /**
-   * Constructs with parameters for making the request.
-   *
-   * @param eventHandlers the event dispatcher used for dispatching log events
-   * @param userAgent {@code User-Agent} header to send with the request
-   * @param apiRouteBase the endpoint's API root, without the protocol
-   * @param registryEndpointProvider the {@link RegistryEndpointProvider} to the endpoint
-   * @param authorization optional authentication credentials to use
-   * @param registryEndpointRequestProperties properties of the registry endpoint request
-   * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
-   * @throws MalformedURLException if the Uri generated for the endpoint is malformed
-   */
-  RegistryEndpointCaller(
-      EventHandlers eventHandlers,
-      string userAgent,
-      string apiRouteBase,
-      RegistryEndpointProvider<T> registryEndpointProvider,
-      Authorization authorization,
-      RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      bool allowInsecureRegistries)
-      throws MalformedURLException {
-    this(
-        eventHandlers,
-        userAgent,
-        apiRouteBase,
-        registryEndpointProvider,
-        authorization,
-        registryEndpointRequestProperties,
-        allowInsecureRegistries,
-        Connection.getConnectionFactory(),
-        null /* might never be used, so create lazily to delay throwing potential GeneralSecurityException */);
+        /**
+         * Constructs with parameters for making the request.
+         *
+         * @param eventHandlers the event dispatcher used for dispatching log events
+         * @param userAgent {@code User-Agent} header to send with the request
+         * @param apiRouteBase the endpoint's API root, without the protocol
+         * @param registryEndpointProvider the {@link RegistryEndpointProvider} to the endpoint
+         * @param authorization optional authentication credentials to use
+         * @param registryEndpointRequestProperties properties of the registry endpoint request
+         * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
+         * @throws MalformedURLException if the Uri generated for the endpoint is malformed
+         */
+        public RegistryEndpointCaller(
+            EventHandlers eventHandlers,
+            string userAgent,
+            string apiRouteBase,
+            RegistryEndpointProvider<T> registryEndpointProvider,
+            Authorization authorization,
+            RegistryEndpointRequestProperties registryEndpointRequestProperties,
+            bool allowInsecureRegistries) :
+          this(
+              eventHandlers,
+              userAgent,
+              apiRouteBase,
+              registryEndpointProvider,
+              authorization,
+              registryEndpointRequestProperties,
+              allowInsecureRegistries,
+              Connection.getConnectionFactory(),
+              null /* might never be used, so create lazily to delay throwing potential GeneralSecurityException */)
+    {
   }
 
   RegistryEndpointCaller(
@@ -135,9 +156,9 @@ class RegistryEndpointCaller<T> {
       Authorization authorization,
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       bool allowInsecureRegistries,
-      Function<Uri, Connection> connectionFactory,
-      Function<Uri, Connection> insecureConnectionFactory)
-      throws MalformedURLException {
+      Func<Uri, Connection> connectionFactory,
+      Func<Uri, Connection> insecureConnectionFactory)
+       {
     this.eventHandlers = eventHandlers;
     this.initialRequestUrl =
         registryEndpointProvider.getApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
@@ -157,7 +178,7 @@ class RegistryEndpointCaller<T> {
    * @throws IOException for most I/O exceptions when making the request
    * @throws RegistryException for known exceptions when interacting with the registry
    */
-  T call() {
+  public T call() {
     return callWithAllowInsecureRegistryHandling(initialRequestUrl);
   }
 
@@ -169,16 +190,16 @@ class RegistryEndpointCaller<T> {
     try {
       return call(url, connectionFactory);
 
-    } catch (SSLException ex) {
+    } catch (SSLException) {
       return handleUnverifiableServerException(url);
 
-    } catch (ConnectException ex) {
+    } catch (ConnectException) {
       if (allowInsecureRegistries && isHttpsProtocol(url) && url.getPort() == -1) {
         // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
         // port 443) and we could not connect to 443. It's worth trying port 80.
         return fallBackToHttp(url);
       }
-      throw ex;
+      throw;
     }
   }
 
@@ -193,13 +214,13 @@ class RegistryEndpointCaller<T> {
               "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
       return call(url, getInsecureConnectionFactory());
 
-    } catch (SSLException ex) {
+    } catch (SSLException) {
       return fallBackToHttp(url);
     }
   }
 
   private T fallBackToHttp(Uri url) {
-    GenericUrl httpUrl = new GenericUrl(url);
+            UriBuilder httpUrl = new UriBuilder(url) { Port = url.IsDefaultPort ? -1 : url.Port };
     httpUrl.setScheme("http");
     eventHandlers.dispatch(
         LogEvent.info(
@@ -207,7 +228,7 @@ class RegistryEndpointCaller<T> {
     return call(httpUrl.toURL(), connectionFactory);
   }
 
-  private Function<Uri, Connection> getInsecureConnectionFactory() {
+  private Func<Uri, Connection> getInsecureConnectionFactory() {
     try {
       if (insecureConnectionFactory == null) {
         insecureConnectionFactory = Connection.getInsecureConnectionFactory();
@@ -227,99 +248,96 @@ class RegistryEndpointCaller<T> {
    * @throws IOException for most I/O exceptions when making the request
    * @throws RegistryException for known exceptions when interacting with the registry
    */
-  private T call(Uri url, Function<Uri, Connection> connectionFactory)
+  private T call(Uri url, Func<Uri, Connection> connectionFactory)
       {
     // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
     bool sendCredentials =
         isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
+            try {
+                using (Connection connection = connectionFactory.apply(url))
+                {
+                    var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
+                    request.Headers.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
+                    foreach (var accept in registryEndpointProvider.getAccept()) {
+                        request.Headers.Accept.ParseAdd(accept);
+                    }
+                    request.Content = registryEndpointProvider.getContent();
+                    if (sendCredentials)
+                    {
+                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
+                    }
+                    HttpResponseMessage response =
+                        connection.send(request);
 
-    using (Connection connection = connectionFactory.apply(url)) {
-      Request.Builder requestBuilder =
-          Request.builder()
-              .setUserAgent(userAgent)
-              .setHttpTimeout(JibSystemProperties.getHttpTimeout())
-              .setAccept(registryEndpointProvider.getAccept())
-              .setBody(registryEndpointProvider.getContent());
-      if (sendCredentials) {
-        requestBuilder.setAuthorization(authorization);
-      }
-      Response response =
-          connection.send(registryEndpointProvider.getHttpMethod(), requestBuilder.build());
-
-      return registryEndpointProvider.handleResponse(response);
-
-    } catch (HttpResponseException ex) {
-      // First, see if the endpoint provider handles an exception as an expected response.
-      try {
-        return registryEndpointProvider.handleHttpResponseException(ex);
-
-      } catch (HttpResponseException httpResponseException) {
-        if (httpResponseException.getStatusCode() == HttpStatusCodes.STATUS_CODE_BAD_REQUEST
-            || httpResponseException.getStatusCode() == HttpStatusCodes.STATUS_CODE_NOT_FOUND
-            || httpResponseException.getStatusCode()
-                == HttpStatusCodes.STATUS_CODE_METHOD_NOT_ALLOWED) {
+                    return registryEndpointProvider.handleResponse(response);
+                }
+    } catch (HttpResponseException ex) { {
+        if (ex.getStatusCode() == HttpStatusCode.BadRequest
+            || ex.getStatusCode() == HttpStatusCode.NotFound
+            || ex.getStatusCode()
+                == HttpStatusCode.MethodNotAllowed) {
           // The name or reference was invalid.
-          throw newRegistryErrorException(httpResponseException);
+          throw newRegistryErrorException(ex);
 
-        } else if (httpResponseException.getStatusCode() == HttpStatusCodes.STATUS_CODE_FORBIDDEN) {
+        } else if (ex.getStatusCode() == HttpStatusCode.Forbidden) {
           throw new RegistryUnauthorizedException(
               registryEndpointRequestProperties.getServerUrl(),
               registryEndpointRequestProperties.getImageName(),
-              httpResponseException);
+              ex);
 
-        } else if (httpResponseException.getStatusCode()
-            == HttpStatusCodes.STATUS_CODE_UNAUTHORIZED) {
+        } else if (ex.getStatusCode()
+            == HttpStatusCode.Unauthorized) {
           if (sendCredentials) {
             // Credentials are either missing or wrong.
             throw new RegistryUnauthorizedException(
                 registryEndpointRequestProperties.getServerUrl(),
                 registryEndpointRequestProperties.getImageName(),
-                httpResponseException);
+                ex);
           } else {
             throw new RegistryCredentialsNotSentException(
                 registryEndpointRequestProperties.getServerUrl(),
                 registryEndpointRequestProperties.getImageName());
           }
 
-        } else if (httpResponseException.getStatusCode()
-                == HttpStatusCodes.STATUS_CODE_TEMPORARY_REDIRECT
-            || httpResponseException.getStatusCode()
-                == HttpStatusCodes.STATUS_CODE_MOVED_PERMANENTLY
-            || httpResponseException.getStatusCode() == STATUS_CODE_PERMANENT_REDIRECT) {
+        } else if (ex.getStatusCode()
+                == HttpStatusCode.TemporaryRedirect
+            || ex.getStatusCode()
+                == HttpStatusCode.MovedPermanently
+            || ex.getStatusCode() == STATUS_CODE_PERMANENT_REDIRECT) {
           // 'Location' header can be relative or absolute.
-          Uri redirectLocation = new Uri(url, httpResponseException.getHeaders().getLocation());
+          Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
           return callWithAllowInsecureRegistryHandling(redirectLocation);
 
         } else {
           // Unknown
-          throw httpResponseException;
+          throw;
         }
       }
     } catch (NoHttpResponseException ex) {
-      throw new RegistryNoResponseException(ex);
+      throw new RegistryNoResponseException(ex.Message, ex);
 
     } catch (IOException ex) {
       if (isBrokenPipe(ex)) {
         throw new RegistryBrokenPipeException(ex);
       }
-      throw ex;
+      throw;
     }
   }
 
   RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException) {
     RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
         new RegistryErrorExceptionBuilder(
-            registryEndpointProvider.getActionDescription(), httpResponseException);
+            registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
 
     try {
       ErrorResponseTemplate errorResponse =
-          JsonTemplateMapper.readJson(
-              httpResponseException.getContent(), typeof(ErrorResponseTemplate));
+          JsonTemplateMapper.readJson<ErrorResponseTemplate>(
+              httpResponseException.getContent().ReadAsStringAsync().Result);
       foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
       {
         registryErrorExceptionBuilder.addReason(errorEntry);
       }
-    } catch (IOException ex) {
+    } catch (IOException) {
       registryErrorExceptionBuilder.addReason(
           "registry returned error code "
               + httpResponseException.getStatusCode()

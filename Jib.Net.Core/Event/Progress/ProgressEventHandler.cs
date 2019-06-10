@@ -14,7 +14,11 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Api;
+using System.Collections.Immutable;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -26,18 +30,18 @@ namespace com.google.cloud.tools.jib.event.progress {
  *
  * <p>This implementation is thread-safe.
  */
-public class ProgressEventHandler : Consumer<ProgressEvent> {
+public class ProgressEventHandler {
 
   /**
    * Contains the accumulated progress and which "leaf" tasks are not yet complete. Leaf tasks are
    * those that do not have sub-tasks.
    */
-  public static class Update {
+  public class Update {
 
     private readonly double progress;
-    private readonly ImmutableList<string> unfinishedLeafTasks;
+    private readonly ImmutableArray<string> unfinishedLeafTasks;
 
-    private Update(double progress, ImmutableList<string> unfinishedLeafTasks) {
+    public Update(double progress, ImmutableArray<string> unfinishedLeafTasks) {
       this.progress = progress;
       this.unfinishedLeafTasks = unfinishedLeafTasks;
     }
@@ -57,7 +61,7 @@ public class ProgressEventHandler : Consumer<ProgressEvent> {
      *
      * @return a list of unfinished "leaf" tasks
      */
-    public ImmutableList<string> getUnfinishedLeafTasks() {
+    public ImmutableArray<string> getUnfinishedLeafTasks() {
       return unfinishedLeafTasks;
     }
   }

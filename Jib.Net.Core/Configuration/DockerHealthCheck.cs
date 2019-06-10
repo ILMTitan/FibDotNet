@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Global;
+using NodaTime;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.configuration {
 
 
@@ -26,15 +32,15 @@ namespace com.google.cloud.tools.jib.configuration {
 public class DockerHealthCheck {
 
   /** Builds the immutable {@link DockerHealthCheck}. */
-  public static class Builder {
+  public class Builder {
 
-    private readonly ImmutableList<string> command;
+    private readonly ImmutableArray<string> command;
     private Duration interval;
     private Duration timeout;
     private Duration startPeriod;
-    private Integer retries;
+    private int retries;
 
-    private Builder(ImmutableList<string> command) {
+    public Builder(ImmutableArray<string> command) {
       this.command = command;
     }
 
@@ -94,24 +100,24 @@ public class DockerHealthCheck {
    * @param command the command
    * @return a new {@link DockerHealthCheck.Builder}
    */
-  public static DockerHealthCheck.Builder fromCommand(List<string> command) {
+  public static DockerHealthCheck.Builder fromCommand(IList<string> command) {
     Preconditions.checkArgument(command.size() > 0, "command must not be empty");
     Preconditions.checkArgument(!command.contains(null), "command must not contain null elements");
-    return new Builder(ImmutableList.copyOf(command));
+    return new Builder(ImmutableArray.CreateRange(command));
   }
 
-  private readonly ImmutableList<string> command;
-  private final Duration interval;
-  private final Duration timeout;
-  private final Duration startPeriod;
-  private final Integer retries;
+  private readonly ImmutableArray<string> command;
+  private readonly Duration interval;
+  private readonly Duration timeout;
+  private readonly Duration startPeriod;
+  private readonly int retries;
 
   private DockerHealthCheck(
-      ImmutableList<string> command,
+      ImmutableArray<string> command,
       Duration interval,
       Duration timeout,
       Duration startPeriod,
-      Integer retries) {
+      int retries) {
     this.command = command;
     this.interval = interval;
     this.timeout = timeout;
@@ -125,7 +131,7 @@ public class DockerHealthCheck {
    *
    * @return the healthcheck command
    */
-  public List<string> getCommand() {
+  public IList<string> getCommand() {
     return command;
   }
 
@@ -165,7 +171,7 @@ public class DockerHealthCheck {
    *
    * @return the healthcheck retry count
    */
-  public Optional<Integer> getRetries() {
+  public Optional<int> getRetries() {
     return Optional.ofNullable(retries);
   }
 }

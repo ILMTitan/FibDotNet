@@ -36,11 +36,11 @@ public class ResponseTest {
   [TestMethod]
   public void testGetContent() {
     byte[] expectedResponse = "crepecake\nis\ngood!".getBytes(StandardCharsets.UTF_8);
-    ByteArrayInputStream responseInputStream = new ByteArrayInputStream(expectedResponse);
+    ByteArrayInputStream responseInputStream = new MemoryStream(expectedResponse);
 
     Mockito.when(httpResponseMock.getContent()).thenReturn(responseInputStream);
 
-    Response response = new Response(httpResponseMock);
+    HttpResponseMessage response = new HttpResponseMessage(httpResponseMock);
 
     Assert.assertArrayEquals(expectedResponse, ByteStreams.toByteArray(response.getBody()));
   }

@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -65,17 +73,17 @@ public class V21ManifestTemplate : ManifestTemplate {
   private readonly int schemaVersion = 1;
 
   /** The list of layer references. */
-  private readonly List<LayerObjectTemplate> fsLayers = new ArrayList<>();
+  private readonly IList<LayerObjectTemplate> fsLayers = new List<LayerObjectTemplate>();
 
-  private readonly List<HistoryObjectTemplate> history = new ArrayList<>();
+  private readonly IList<HistoryObjectTemplate> history = new List<HistoryObjectTemplate>();
 
   /**
    * Template for inner JSON object representing a layer as part of the list of layer references.
    */
 
-  static class LayerObjectTemplate implements JsonTemplate {
+  public class LayerObjectTemplate : JsonTemplate {
 
-    private DescriptorDigest blobSum;
+    public DescriptorDigest blobSum;
 
     DescriptorDigest getDigest() {
       return blobSum;
@@ -87,11 +95,12 @@ public class V21ManifestTemplate : ManifestTemplate {
     // The value is basically free-form; they may be structured differently in practice, e.g.,
     // {"architecture": "amd64", "config": {"User": "1001", ...}, "parent": ...}
     // {"id": ..., "container_config": {"Cmd":[""]}}
-    private string v1Compatibility;
+    [JsonProperty]
+            public string v1Compatibility { get; }
   }
 
   public List<DescriptorDigest> getLayerDigests() {
-    List<DescriptorDigest> layerDigests = new ArrayList<>();
+    List<DescriptorDigest> layerDigests = new List<DescriptorDigest>();
 
     foreach (LayerObjectTemplate layerObjectTemplate in fsLayers)
 
@@ -106,7 +115,7 @@ public class V21ManifestTemplate : ManifestTemplate {
     return schemaVersion;
   }
 
-  public List<LayerObjectTemplate> getFsLayers() {
+  public IReadOnlyList<LayerObjectTemplate> getFsLayers() {
     return Collections.unmodifiableList(fsLayers);
   }
 
@@ -120,18 +129,18 @@ public class V21ManifestTemplate : ManifestTemplate {
   public Optional<ContainerConfigurationTemplate> getContainerConfiguration() {
     try {
       if (history.isEmpty()) {
-        return Optional.empty();
+        return Optional.empty<ContainerConfigurationTemplate>();
       }
       string v1Compatibility = history.get(0).v1Compatibility;
       if (v1Compatibility == null) {
-        return Optional.empty();
+        return Optional.empty<ContainerConfigurationTemplate>();
       }
 
       return Optional.of(
-          JsonTemplateMapper.readJson(v1Compatibility, typeof(ContainerConfigurationTemplate)));
-    } catch (IOException ex) {
+          JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(v1Compatibility));
+    } catch (IOException) {
       // not a container configuration; ignore and continue
-      return Optional.empty();
+      return Optional.empty<ContainerConfigurationTemplate>();
     }
   }
 }

@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using System.IO;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -33,32 +44,32 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Pulls and caches a single base image layer. */
-class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>, Callable<CachedLayer>  {
-  private static readonly string DESCRIPTION = "Pulling base image layer %s";
+public class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer> {
+  private static readonly string DESCRIPTION = "Pulling base image layer {0}";
 
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
   private readonly DescriptorDigest layerDigest;
-  private final Authorization pullAuthorization;
+  private readonly Authorization pullAuthorization;
 
-  private readonly ListenableFuture<CachedLayer> listenableFuture;
+  private readonly Task<CachedLayer> listenableFuture;
 
-  PullAndCacheBaseImageLayerStep(
-      ListeningExecutorService listeningExecutorService,
+  public PullAndCacheBaseImageLayerStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
       DescriptorDigest layerDigest,
-      Authorization pullAuthorization) {
+      Authorization pullAuthorization)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.layerDigest = layerDigest;
     this.pullAuthorization = pullAuthorization;
 
-    listenableFuture = listeningExecutorService.submit(this);
+            listenableFuture = Task.Run(call);
   }
 
-  public ListenableFuture<CachedLayer> getFuture() {
+  public Task<CachedLayer> getFuture() {
     return listenableFuture;
   }
 
@@ -67,7 +78,7 @@ class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>, Callable<CachedLa
             progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
     using(TimerEventDispatcher ignored =
             new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), string.format(DESCRIPTION, layerDigest))))
+                buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, layerDigest)))
     {
 
       Cache cache = buildConfiguration.getBaseImageLayersCache();
@@ -96,7 +107,7 @@ class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>, Callable<CachedLa
         return cache.writeCompressedLayer(
             registryClient.pullBlob(
                 layerDigest,
-                progressEventDispatcherWrapper::setProgressTarget,
+                progressEventDispatcherWrapper.setProgressTarget,
                 progressEventDispatcherWrapper.dispatchProgress));
       }
     }

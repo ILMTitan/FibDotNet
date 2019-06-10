@@ -14,14 +14,33 @@
  * the License.
  */
 
+using Jib.Net.Core.FileSystem;
+using System;
+
 namespace com.google.cloud.tools.jib.registry.credentials {
 
 
 /** Thrown because the requested credential helper CLI does not exist. */
 public class CredentialHelperNotFoundException : CredentialRetrievalException {
 
-  CredentialHelperNotFoundException(Path credentialHelper, Throwable cause) {
-    super("The system does not have " + credentialHelper + " CLI", cause);
+  public CredentialHelperNotFoundException(SystemPath credentialHelper, Exception cause) : base("The system does not have " + credentialHelper + " CLI", cause) {
+    
   }
-}
+
+        public CredentialHelperNotFoundException(Exception cause) : base(cause)
+        {
+        }
+
+        public CredentialHelperNotFoundException() : base()
+        {
+        }
+
+        protected CredentialHelperNotFoundException(string message, Exception cause) : base(message, cause)
+        {
+        }
+
+        protected CredentialHelperNotFoundException(string message) : base(message)
+        {
+        }
+    }
 }

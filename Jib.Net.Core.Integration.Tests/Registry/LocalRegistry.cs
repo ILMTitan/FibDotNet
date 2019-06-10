@@ -14,43 +14,30 @@
  * the License.
  */
 
+using System;
+using System.Threading;
+
 namespace com.google.cloud.tools.jib.registry {
+    /** Runs a local registry. */
+    public class LocalRegistry
+    {
 
+        private readonly string containerName = "registry-" + new Guid();
+        private readonly int port;
+        private readonly string username;
+        private readonly string password;
 
+        public LocalRegistry(int port) : this(port, null, null) { }
 
-
-
-
-
-
-
-
-
-
-
-
-
-/** Runs a local registry. */
-public class LocalRegistry : ExternalResource {
-
-  private readonly string containerName = "registry-" + UUID.randomUUID();
-  private readonly int port;
-  private final string username;
-  private final string password;
-
-  public LocalRegistry(int port) {
-    this(port, null, null);
-  }
-
-  public LocalRegistry(int port, string username, string password) {
-    this.port = port;
-    this.username = username;
-    this.password = password;
-  }
+        public LocalRegistry(int port, string username, string password) {
+            this.port = port;
+            this.username = username;
+            this.password = password;
+        }
 
   /** Starts the local registry. */
 
-  protected void before() throws IOException, InterruptedException {
+  protected void before() {
     start();
   }
 
@@ -62,7 +49,7 @@ public class LocalRegistry : ExternalResource {
   public void start() {
     // Runs the Docker registry.
     ArrayList<string> dockerTokens =
-        new ArrayList<>(
+        new List<>(
             Arrays.asList(
                 "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName));
     if (username != null && password != null) {
@@ -82,7 +69,7 @@ public class LocalRegistry : ExternalResource {
       // Creates the temporary directory in /tmp since that is one of the default directories
       // mounted into Docker.
       // See: https://docs.docker.com/docker-for-mac/osxfs
-      Path tempFolder = Files.createTempDirectory(Paths.get("/tmp"), "");
+      SystemPath tempFolder = Files.createTempDirectory(Paths.get("/tmp"), "");
       Files.write(
           tempFolder.resolve("htpasswd"), credentialString.getBytes(StandardCharsets.UTF_8));
 
@@ -110,8 +97,8 @@ public class LocalRegistry : ExternalResource {
       logout();
       new Command("docker", "stop", containerName).run();
 
-    } catch (InterruptedException | IOException ex) {
-      throw new RuntimeException("Could not stop local registry fully: " + containerName, ex);
+    } catch (Exception ex) when (ex is OperationCanceledException || ex is IOException) {
+      throw new Exception("Could not stop local registry fully: " + containerName, ex);
     }
   }
 

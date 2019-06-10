@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NodaTime.Text;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -48,8 +60,8 @@ public class JsonToImageTranslator {
    *
    * <p>Example matches: 100, 1000/tcp, 2000/udp
    */
-  private static readonly Pattern PORT_PATTERN =
-      Pattern.compile("(?<portNum>\\d+)(?:/(?<protocol>tcp|udp))?");
+  private static readonly Regex PORT_PATTERN =
+      new Regex("(?<portNum>\\d+)(?:/(?<protocol>tcp|udp))?");
 
   /**
    * Pattern used for parsing environment variables in the format {@code NAME=VALUE}. {@code NAME}
@@ -58,7 +70,7 @@ public class JsonToImageTranslator {
    * <p>Example matches: NAME=VALUE, A12345=$$$$$
    */
 
-  static final Pattern ENVIRONMENT_PATTERN = Pattern.compile("(?<name>[^=]+)=(?<value>.*)");
+  static readonly Regex ENVIRONMENT_PATTERN = new Regex("(?<name>[^=]+)=(?<value>.*)");
 
   /**
    * Translates {@link V21ManifestTemplate} to {@link Image}.
@@ -71,7 +83,7 @@ public class JsonToImageTranslator {
    */
   public static Image toImage(V21ManifestTemplate manifestTemplate)
       {
-    Image.Builder imageBuilder = Image.builder(typeof(V21ManifestTemplate));
+            Image.Builder imageBuilder = Image.builder((Class<V21ManifestTemplate>)typeof(V21ManifestTemplate));
 
     // V21 layers are in reverse order of V22. (The first layer is the latest one.)
     foreach (DescriptorDigest digest in Lists.reverse(manifestTemplate.getLayerDigests()))
@@ -100,15 +112,15 @@ public class JsonToImageTranslator {
    * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
    *     format
    */
-  public static Image toImage(
-      BuildableManifestTemplate manifestTemplate,
-      ContainerConfigurationTemplate containerConfigurationTemplate)
+  public static Image toImage<T>(
+      T manifestTemplate,
+      ContainerConfigurationTemplate containerConfigurationTemplate) where T:BuildableManifestTemplate
       {
-    List<ReferenceNoDiffIdLayer> layers = new ArrayList<>();
-    for (BuildableManifestTemplate.ContentDescriptorTemplate layerObjectTemplate :
+    IList<ReferenceNoDiffIdLayer> layers = new List<ReferenceNoDiffIdLayer>();
+    foreach (ContentDescriptorTemplate layerObjectTemplate in
         manifestTemplate.getLayers()) {
       if (layerObjectTemplate.getDigest() == null) {
-        throw new IllegalArgumentException(
+        throw new ArgumentException(
             "All layers in the manifest template must have digest set");
       }
 
@@ -117,13 +129,13 @@ public class JsonToImageTranslator {
               new BlobDescriptor(layerObjectTemplate.getSize(), layerObjectTemplate.getDigest())));
     }
 
-    List<DescriptorDigest> diffIds = containerConfigurationTemplate.getDiffIds();
+    IList<DescriptorDigest> diffIds = containerConfigurationTemplate.getDiffIds();
     if (layers.size() != diffIds.size()) {
       throw new LayerCountMismatchException(
           "Mismatch between image manifest and container configuration");
     }
 
-    Image.Builder imageBuilder = Image.builder(manifestTemplate.getClass());
+    Image.Builder imageBuilder = Image.builder((IClass<ManifestTemplate>)manifestTemplate.getClass());
 
     for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++) {
       ReferenceNoDiffIdLayer noDiffIdLayer = layers.get(layerIndex);
@@ -143,8 +155,8 @@ public class JsonToImageTranslator {
 
     if (containerConfigurationTemplate.getCreated() != null) {
       try {
-        imageBuilder.setCreated(Instant.parse(containerConfigurationTemplate.getCreated()));
-      } catch (DateTimeParseException ex) {
+                    imageBuilder.setCreated(Instant.FromDateTimeOffset(DateTimeOffset.Parse(containerConfigurationTemplate.getCreated())));
+      } catch (FormatException ex) {
         throw new BadContainerConfigurationFormatException(
             "Invalid image creation time: " + containerConfigurationTemplate.getCreated(), ex);
       }
@@ -160,23 +172,23 @@ public class JsonToImageTranslator {
     imageBuilder.setEntrypoint(containerConfigurationTemplate.getContainerEntrypoint());
     imageBuilder.setProgramArguments(containerConfigurationTemplate.getContainerCmd());
 
-    List<string> baseHealthCheckCommand = containerConfigurationTemplate.getContainerHealthTest();
+    IList<string> baseHealthCheckCommand = containerConfigurationTemplate.getContainerHealthTest();
     if (baseHealthCheckCommand != null) {
       DockerHealthCheck.Builder builder = DockerHealthCheck.fromCommand(baseHealthCheckCommand);
       if (containerConfigurationTemplate.getContainerHealthInterval() != null) {
         builder.setInterval(
-            Duration.ofNanos(containerConfigurationTemplate.getContainerHealthInterval()));
+            Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthInterval().GetValueOrDefault()));
       }
       if (containerConfigurationTemplate.getContainerHealthTimeout() != null) {
         builder.setTimeout(
-            Duration.ofNanos(containerConfigurationTemplate.getContainerHealthTimeout()));
+            Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthTimeout().GetValueOrDefault()));
       }
       if (containerConfigurationTemplate.getContainerHealthStartPeriod() != null) {
         builder.setStartPeriod(
-            Duration.ofNanos(containerConfigurationTemplate.getContainerHealthStartPeriod()));
+            Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthStartPeriod().GetValueOrDefault()));
       }
       if (containerConfigurationTemplate.getContainerHealthRetries() != null) {
-        builder.setRetries(containerConfigurationTemplate.getContainerHealthRetries());
+        builder.setRetries(containerConfigurationTemplate.getContainerHealthRetries().GetValueOrDefault());
       }
       imageBuilder.setHealthCheck(builder.build());
     }
@@ -193,7 +205,7 @@ public class JsonToImageTranslator {
     if (containerConfigurationTemplate.getContainerEnvironment() != null) {
       foreach (string environmentVariable in containerConfigurationTemplate.getContainerEnvironment())
       {
-        Matcher matcher = ENVIRONMENT_PATTERN.matcher(environmentVariable);
+        Match matcher = ENVIRONMENT_PATTERN.matcher(environmentVariable);
         if (!matcher.matches()) {
           throw new BadContainerConfigurationFormatException(
               "Invalid environment variable definition: " + environmentVariable);
@@ -215,21 +227,21 @@ public class JsonToImageTranslator {
    * @return a set of {@link Port}s
    */
 
-  static ImmutableSet<Port> portMapToSet(Map<string, Map<object, object>> portMap)
+  static ImmutableHashSet<Port> portMapToSet(IDictionary<string, IDictionary<object, object>> portMap)
       {
     if (portMap == null) {
-      return ImmutableSet.of();
+      return ImmutableHashSet.Create<Port>();
     }
-    ImmutableSet.Builder<Port> ports = new ImmutableSet.Builder<>();
-    for (Map.Entry<string, Map<object, object>> entry : portMap.entrySet()) {
+    ImmutableHashSet<Port>.Builder ports = ImmutableHashSet.CreateBuilder<Port>();
+    foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap.entrySet()) {
       string port = entry.getKey();
-      Matcher matcher = PORT_PATTERN.matcher(port);
+      Match matcher = PORT_PATTERN.matcher(port);
       if (!matcher.matches()) {
         throw new BadContainerConfigurationFormatException(
             "Invalid port configuration: '" + port + "'.");
       }
 
-      int portNumber = Integer.parseInt(matcher.group("portNum"));
+      int portNumber = int.Parse(matcher.group("portNum"));
       string protocol = matcher.group("protocol");
       ports.add(Port.parseProtocol(portNumber, protocol));
     }
@@ -244,18 +256,18 @@ public class JsonToImageTranslator {
    * @return a set of {@link AbsoluteUnixPath}s
    */
 
-  static ImmutableSet<AbsoluteUnixPath> volumeMapToSet(Map<string, Map<object, object>> volumeMap)
+  static ImmutableHashSet<AbsoluteUnixPath> volumeMapToSet(IDictionary<string, IDictionary<object, object>> volumeMap)
       {
     if (volumeMap == null) {
-      return ImmutableSet.of();
+      return ImmutableHashSet.Create<AbsoluteUnixPath>();
     }
 
-    ImmutableSet.Builder<AbsoluteUnixPath> volumeList = ImmutableSet.builder();
+    ImmutableHashSet<AbsoluteUnixPath>.Builder volumeList = ImmutableHashSet.CreateBuilder<AbsoluteUnixPath>();
     foreach (string volume in volumeMap.keySet())
     {
       try {
         volumeList.add(AbsoluteUnixPath.get(volume));
-      } catch (IllegalArgumentException exception) {
+      } catch (ArgumentException) {
         throw new BadContainerConfigurationFormatException("Invalid volume path: " + volume);
       }
     }

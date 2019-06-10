@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.global;
+using Jib.Net.Core.Global;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -47,14 +53,14 @@ namespace com.google.cloud.tools.jib.http {
  * }
  * }</pre>
  */
-public class Connection : Closeable {
+public class Connection : IDisposable {
 
   /**
    * Returns a factory for {@link Connection}.
    *
    * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
    */
-  public static Function<Uri, Connection> getConnectionFactory() {
+  public static Func<Uri, Connection> getConnectionFactory() {
     /*
      * Do not use {@link NetHttpTransport}. It does not process response errors properly. A new
      * {@link ApacheHttpTransport} needs to be created for each connection because otherwise HTTP
@@ -63,9 +69,7 @@ public class Connection : Closeable {
      * @see <a
      *     href="https://github.com/google/google-http-java-client/issues/39">https://github.com/google/google-http-java-client/issues/39</a>
      */
-    ApacheHttpTransport transport = new ApacheHttpTransport();
-    addProxyCredentials(transport);
-    return url => new Connection(url, transport);
+    return url => new Connection(url);
   }
 
   /**
@@ -74,107 +78,32 @@ public class Connection : Closeable {
    * @throws GeneralSecurityException if unable to turn off TLS peer verification
    * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
    */
-  public static Function<Uri, Connection> getInsecureConnectionFactory()
+  public static Func<Uri, Connection> getInsecureConnectionFactory()
       {
     // Do not use {@link NetHttpTransport}. See {@link getConnectionFactory} for details.
-    ApacheHttpTransport transport =
-        new ApacheHttpTransport.Builder().doNotValidateCertificate().build();
-    addProxyCredentials(transport);
-    return url => new Connection(url, transport);
+    
+    return url => new Connection(url);
   }
 
-  /**
-   * Registers proxy credentials onto transport client, in order to deal with proxies that require
-   * basic authentication.
-   *
-   * @param transport Apache HTTP transport
-   */
 
-  static void addProxyCredentials(ApacheHttpTransport transport) {
-    addProxyCredentials(transport, "https");
-    addProxyCredentials(transport, "http");
-  }
-
-  private static void addProxyCredentials(ApacheHttpTransport transport, string protocol) {
-    Preconditions.checkArgument(protocol.equals("http") || protocol.equals("https"));
-
-    string proxyHost = System.getProperty(protocol + ".proxyHost");
-    string proxyUser = System.getProperty(protocol + ".proxyUser");
-    string proxyPassword = System.getProperty(protocol + ".proxyPassword");
-    if (proxyHost == null || proxyUser == null || proxyPassword == null) {
-      return;
-    }
-
-    string defaultProxyPort = protocol.equals("http") ? "80" : "443";
-    int proxyPort = Integer.parseInt(System.getProperty(protocol + ".proxyPort", defaultProxyPort));
-
-    DefaultHttpClient httpClient = (DefaultHttpClient) transport.getHttpClient();
-    httpClient
-        .getCredentialsProvider()
-        .setCredentials(
-            new AuthScope(proxyHost, proxyPort),
-            new UsernamePasswordCredentials(proxyUser, proxyPassword));
-  }
-
-  private HttpRequestFactory requestFactory;
-
-  private HttpResponse httpResponse;
 
   /** The Uri to send the request to. */
-  private readonly GenericUrl url;
+          private readonly HttpClient client;
 
-  /**
-   * Make sure to wrap with a try-with-resource to ensure that the connection is closed after usage.
-   *
-   * @param url the url to send the request to
-   */
+        /**
+         * Make sure to wrap with a try-with-resource to ensure that the connection is closed after usage.
+         *
+         * @param url the url to send the request to
+         */
 
-  Connection(Uri url, HttpTransport transport) {
-    this.url = new GenericUrl(url);
-    requestFactory = transport.createRequestFactory();
+        Connection(Uri url)
+        {
+            client = new HttpClient() { BaseAddress = url, Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()) };
   }
 
-  public void close() {
-    if (httpResponse == null) {
-      return;
-    }
+  public void Dispose() {
 
-    httpResponse.disconnect();
   }
-
-  /**
-   * Sends the request with method GET.
-   *
-   * @param request the request to send
-   * @return the response to the sent request
-   * @throws IOException if sending the request fails
-   */
-  public Response get(Request request) {
-    return send(HttpMethods.GET, request);
-  }
-
-  /**
-   * Sends the request with method POST.
-   *
-   * @param request the request to send
-   * @return the response to the sent request
-   * @throws IOException if sending the request fails
-   */
-  public Response post(Request request) {
-    return send(HttpMethods.POST, request);
-  }
-
-  /**
-   * Sends the request with method PUT.
-   *
-   * @param request the request to send
-   * @return the response to the sent request
-   * @throws IOException if sending the request fails
-   */
-  public Response put(Request request) {
-    return send(HttpMethods.PUT, request);
-  }
-
   /**
    * Sends the request.
    *
@@ -183,20 +112,8 @@ public class Connection : Closeable {
    * @return the response to the sent request
    * @throws IOException if building the HTTP request fails.
    */
-  public Response send(string httpMethod, Request request) {
-    Preconditions.checkState(httpResponse == null, "Connection can send only one request");
-
-    HttpRequest httpRequest =
-        requestFactory
-            .buildRequest(httpMethod, url, request.getHttpContent())
-            .setHeaders(request.getHeaders());
-    if (request.getHttpTimeout() != null) {
-      httpRequest.setConnectTimeout(request.getHttpTimeout());
-      httpRequest.setReadTimeout(request.getHttpTimeout());
-    }
-
-    httpResponse = httpRequest.execute();
-    return new Response(httpResponse);
+  public HttpResponseMessage send(HttpRequestMessage request) {
+            return client.SendAsync(request).Result;
   }
 }
 }

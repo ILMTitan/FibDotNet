@@ -86,7 +86,7 @@ public class EventHandlersTest {
 
   [TestMethod]
   public void testDispatch() {
-    List<string> emissions = new ArrayList<>();
+    IList<string> emissions = new List<>();
 
     EventHandlers eventHandlers =
         EventHandlers.builder()

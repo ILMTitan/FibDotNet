@@ -51,10 +51,10 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ManifestPusherTest {
 
-  [Mock] private Response mockResponse;
+  [Mock] private HttpResponseMessage mockResponse;
   [Mock] private EventHandlers mockEventHandlers;
 
-  private Path v22manifestJsonFile;
+  private SystemPath v22manifestJsonFile;
   private V22ManifestTemplate fakeManifestTemplate;
   private ManifestPusher testManifestPusher;
 
@@ -79,7 +79,7 @@ public class ManifestPusherTest {
     Assert.assertNotNull(body);
     Assert.assertEquals(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.getType());
 
-    ByteArrayOutputStream bodyCaptureStream = new ByteArrayOutputStream();
+    MemoryStream bodyCaptureStream = new MemoryStream();
     body.writeTo(bodyCaptureStream);
     string v22manifestJson =
         new string(Files.readAllBytes(v22manifestJsonFile), StandardCharsets.UTF_8);
@@ -160,7 +160,7 @@ public class ManifestPusherTest {
       {
     HttpResponseException exception =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent(
                 "{\"errors\":[{\"code\":\"TAG_INVALID\","
                     + "\"message\":\"manifest tag did not match URI\"}]}")
@@ -184,7 +184,7 @@ public class ManifestPusherTest {
       {
     HttpResponseException exception =
         new HttpResponseException.Builder(
-                HttpStatus.SC_BAD_REQUEST, "Bad Request", new HttpHeaders())
+                HttpStatusCode.BadRequest, "Bad Request", new HttpHeaders())
             .setContent(
                 "{\"errors\":[{\"code\":\"MANIFEST_INVALID\","
                     + "\"message\":\"manifest invalid\",\"detail\":{}}]}")
@@ -207,7 +207,7 @@ public class ManifestPusherTest {
   public void testHandleHttpResponseException_quayIo() {
     HttpResponseException exception =
         new HttpResponseException.Builder(
-                HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED MEDIA TYPE", new HttpHeaders())
+                HttpStatusCode.UnsupportedMediaType, "UNSUPPORTED MEDIA TYPE", new HttpHeaders())
             .setContent(
                 "{\"errors\":[{\"code\":\"MANIFEST_INVALID\","
                     + "\"detail\":{\"message\":\"manifest schema version not supported\"},"
@@ -230,7 +230,7 @@ public class ManifestPusherTest {
   public void testHandleHttpResponseException_otherError() {
     HttpResponseException exception =
         new HttpResponseException.Builder(
-                HttpStatus.SC_UNAUTHORIZED, "Unauthorized", new HttpHeaders())
+                HttpStatusCode.SC_UNAUTHORIZED, "Unauthorized", new HttpHeaders())
             .setContent("{\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"Unauthorized\"]}}")
             .build();
     try {

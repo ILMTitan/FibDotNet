@@ -92,7 +92,7 @@ public class AllocationCompletionTrackerTest {
       allocationCompletionTracker.updateProgress(AllocationTree.child1, 1L);
       Assert.fail();
 
-    } catch (IllegalStateException ex) {
+    } catch (InvalidOperationException ex) {
       Assert.assertEquals("Progress exceeds max for 'child1': 1 more beyond 1", ex.getMessage());
     }
   }
@@ -121,7 +121,7 @@ public class AllocationCompletionTrackerTest {
           allocationCompletionTracker.getUnfinishedAllocations());
 
       // Adds 50 to child1Child and 100 to child2.
-      List<Callable<bool>> callables = new ArrayList<>(150);
+      IList<Callable<bool>> callables = new List<>(150);
       callables.addAll(
           Collections.nCopies(
               50,

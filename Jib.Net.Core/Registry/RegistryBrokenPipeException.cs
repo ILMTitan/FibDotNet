@@ -14,18 +14,37 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using System;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
 /** Thrown when the registry shut down the connection. */
-class RegistryBrokenPipeException extends RegistryException {
+class RegistryBrokenPipeException : RegistryException {
 
-  RegistryBrokenPipeException(Throwable cause) {
-    super(
+  public RegistryBrokenPipeException(Exception cause) : base(
         "I/O error due to broken pipe: the server shut down the connection. "
             + "Check the server log if possible. This could also be a proxy issue. For example,"
             + "a proxy may prevent sending packets that are too large.",
-        cause);
+        cause) {
+    
   }
-}
+
+        public RegistryBrokenPipeException(string message, Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryBrokenPipeException(string message) : base(message)
+        {
+        }
+
+        public RegistryBrokenPipeException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public RegistryBrokenPipeException() : base()
+        {
+        }
+    }
 }

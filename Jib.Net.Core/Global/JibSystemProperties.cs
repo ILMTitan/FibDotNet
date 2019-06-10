@@ -14,6 +14,9 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using System;
+
 namespace com.google.cloud.tools.jib.global {
 
 
@@ -21,8 +24,8 @@ namespace com.google.cloud.tools.jib.global {
 
 /** Names of system properties defined/used by Jib. */
 public class JibSystemProperties {
-
-  @VisibleForTesting public static final string HTTP_TIMEOUT = "jib.httpTimeout";
+        private const int defaultTimeoutMills = 20000;
+        public static readonly string HTTP_TIMEOUT = "jib.httpTimeout";
 
   public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
 
@@ -30,19 +33,22 @@ public class JibSystemProperties {
 
   private static readonly string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
 
-  /**
-   * Gets the HTTP connection/read timeouts for registry interactions in milliseconds. This is
-   * defined by the {@code jib.httpTimeout} system property. The default value is 20000 if the
-   * system property is not set, and 0 indicates an infinite timeout.
-   *
-   * @return the HTTP connection/read timeouts for registry interactions in milliseconds
-   */
-  public static int getHttpTimeout() {
-    if (Integer.getInteger(HTTP_TIMEOUT) == null) {
-      return 20000;
-    }
-    return Integer.getInteger(HTTP_TIMEOUT);
-  }
+        /**
+         * Gets the HTTP connection/read timeouts for registry interactions in milliseconds. This is
+         * defined by the {@code jib.httpTimeout} system property. The default value is 20000 if the
+         * system property is not set, and 0 indicates an infinite timeout.
+         *
+         * @return the HTTP connection/read timeouts for registry interactions in milliseconds
+         */
+        public static int getHttpTimeout() {
+            if (int.TryParse(Environment.GetEnvironmentVariable(HTTP_TIMEOUT), out int timeoutMills)
+                )
+            { return timeoutMills; }
+            else
+            {
+                return defaultTimeoutMills;
+            }
+        }
 
   /**
    * Gets whether or not to serialize Jib's execution. This is defined by the {@code jibSerialize}
@@ -51,19 +57,33 @@ public class JibSystemProperties {
    * @return {@code true} if Jib's execution should be serialized, {@code false} if not
    */
   public static bool isSerializedExecutionEnabled() {
-    return bool.getBoolean(SERIALIZE);
+            if(bool.TryParse(Environment.GetEnvironmentVariable(SERIALIZE), out bool serialize))
+            {
+                return serialize;
+            } else
+            {
+                return false;
+            }
   }
 
-  /**
-   * Gets whether or not to allow sending authentication information over insecure HTTP connections.
-   * This is defined by the {@code sendCredentialsOverHttp} system property.
-   *
-   * @return {@code true} if authentication information is allowed to be sent over insecure
-   *     connections, {@code false} if not
-   */
-  public static bool isSendCredentialsOverHttpEnabled() {
-    return bool.getBoolean(SEND_CREDENTIALS_OVER_HTTP);
-  }
+        /**
+         * Gets whether or not to allow sending authentication information over insecure HTTP connections.
+         * This is defined by the {@code sendCredentialsOverHttp} system property.
+         *
+         * @return {@code true} if authentication information is allowed to be sent over insecure
+         *     connections, {@code false} if not
+         */
+        public static bool isSendCredentialsOverHttpEnabled()
+        {
+            if (bool.TryParse(Environment.GetEnvironmentVariable(SEND_CREDENTIALS_OVER_HTTP), out bool sendCredentialsOverHttp))
+            {
+                return sendCredentialsOverHttp;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
   /**
    * Gets whether or not to enable the User-Agent header. This is defined by the {@code
@@ -72,7 +92,7 @@ public class JibSystemProperties {
    * @return {@code true} if the User-Agent header is enabled, {@code false} if not
    */
   public static bool isUserAgentEnabled() {
-    return Strings.isNullOrEmpty(System.getProperty(DISABLE_USER_AGENT));
+    return Strings.isNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
   }
 
   /**
@@ -96,23 +116,23 @@ public class JibSystemProperties {
     checkNumericSystemProperty("https.proxyPort", Range.closed(0, 65535));
   }
 
-  private static void checkNumericSystemProperty(string property, Range<Integer> validRange) {
-    string value = System.getProperty(property);
+  private static void checkNumericSystemProperty(string property, Range<int> validRange) {
+    string value = Environment.GetEnvironmentVariable(property);
     if (value == null) {
       return;
     }
 
     int parsed;
     try {
-      parsed = Integer.parseInt(value);
-    } catch (NumberFormatException ex) {
-      throw new NumberFormatException(property + " must be an integer: " + value);
+      parsed = int.Parse(value);
+    } catch (FormatException ex) {
+      throw new FormatException(property + " must be an integer: " + value, ex);
     }
     if (validRange.hasLowerBound() && validRange.lowerEndpoint() > parsed) {
-      throw new NumberFormatException(
+      throw new FormatException(
           property + " cannot be less than " + validRange.lowerEndpoint() + ": " + value);
     } else if (validRange.hasUpperBound() && validRange.upperEndpoint() < parsed) {
-      throw new NumberFormatException(
+      throw new FormatException(
           property + " cannot be greater than " + validRange.upperEndpoint() + ": " + value);
     }
   }

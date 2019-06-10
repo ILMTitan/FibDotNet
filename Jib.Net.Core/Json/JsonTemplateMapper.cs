@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.json {
 
 
@@ -52,7 +59,7 @@ namespace com.google.cloud.tools.jib.json {
  *
  * @see <a href="https://github.com/FasterXML/jackson">https://github.com/FasterXML/jackson</a>
  */
-public class JsonTemplateMapper {
+public static class JsonTemplateMapper {
 
   private static readonly ObjectMapper objectMapper = new ObjectMapper();
 
@@ -65,8 +72,11 @@ public class JsonTemplateMapper {
    * @return the template filled with the values parsed from {@code jsonFile}
    * @throws IOException if an error occurred during reading the file or parsing the JSON
    */
-  public static T readJsonFromFile<T>(Path jsonFile, Class<T> templateClass) where T : JsonTemplate {
-    return objectMapper.readValue(Files.newInputStream(jsonFile), templateClass);
+  public static T readJsonFromFile<T>(SystemPath jsonFile) where T : JsonTemplate {
+            using (StreamReader reader = jsonFile.toFile().OpenText())
+            {
+                return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+            }
   }
 
   /**
@@ -79,41 +89,32 @@ public class JsonTemplateMapper {
    * @throws IOException if an error occurred during reading the file or parsing the JSON
    */
   public static T readJsonFromFileWithLock<T>(
-      Path jsonFile, Class<T> templateClass) where T : JsonTemplate {
-    // channel is closed by inputStream.close()
-    FileChannel channel = FileChannel.open(jsonFile, StandardOpenOption.READ);
-    channel.@lock(0, Long.MAX_VALUE, true); // shared lock, released by channel close
-    using (InputStream inputStream = Channels.newInputStream(channel)) {
-      return objectMapper.readValue(inputStream, templateClass);
-    }
+      SystemPath jsonFile) where T : JsonTemplate {
+            return readJsonFromFile<T>(jsonFile);
   }
 
-  /**
-   * Deserializes a JSON object from a JSON string.
-   *
-   * @param <T> child type of {@link JsonTemplate}
-   * @param jsonString a JSON string
-   * @param templateClass the template to deserialize the string to
-   * @return the template filled with the values parsed from {@code jsonString}
-   * @throws IOException if an error occurred during parsing the JSON
-   */
-  public static T readJson<T>(string jsonString, Class<T> templateClass) where T : JsonTemplate {
-    return objectMapper.readValue(jsonString, templateClass);
-  }
+        /**
+         * Deserializes a JSON object from a JSON string.
+         *
+         * @param <T> child type of {@link JsonTemplate}
+         * @param jsonString a JSON string
+         * @param templateClass the template to deserialize the string to
+         * @return the template filled with the values parsed from {@code jsonString}
+         * @throws IOException if an error occurred during parsing the JSON
+         */
+        public static T readJson<T>(string jsonString) where T : JsonTemplate => objectMapper.readValue<T>(jsonString);
 
-  /**
-   * Deserializes a JSON object list from a JSON string.
-   *
-   * @param <T> child type of {@link JsonTemplate}
-   * @param jsonString a JSON string
-   * @param templateClass the template to deserialize the string to
-   * @return the template filled with the values parsed from {@code jsonString}
-   * @throws IOException if an error occurred during parsing the JSON
-   */
-  public static List<T> readListOfJson<T>() where T : JsonTemplate {
-    CollectionType listType =
-        objectMapper.getTypeFactory().constructCollectionType(typeof(List), templateClass);
-    return objectMapper.readValue(jsonString, listType);
+        /**
+         * Deserializes a JSON object list from a JSON string.
+         *
+         * @param <T> child type of {@link JsonTemplate}
+         * @param jsonString a JSON string
+         * @param templateClass the template to deserialize the string to
+         * @return the template filled with the values parsed from {@code jsonString}
+         * @throws IOException if an error occurred during parsing the JSON
+         */
+        public static List<T> readListOfJson<T>(string jsonString) where T : JsonTemplate {
+            return JsonConvert.DeserializeObject<List<T>>(jsonString);
   }
 
   public static string toUtf8String(JsonTemplate template)
@@ -131,38 +132,38 @@ public class JsonTemplateMapper {
     return toByteArray((object) template);
   }
 
-  public static byte[] toByteArray(IReadOnlyList< JsonTemplate> templates)
+  public static byte[] toByteArray(IEnumerable<JsonTemplate> templates)
       {
     return toByteArray((object) templates);
   }
 
-  public static void writeTo(JsonTemplate template, OutputStream @out)
+  public static void writeTo(JsonTemplate template, Stream @out)
       {
     writeTo((object) template, @out);
   }
 
-  public static void writeTo(IReadOnlyList< JsonTemplate> templates, OutputStream @out)
+  public static void writeTo(IReadOnlyList< JsonTemplate> templates, Stream @out)
       {
     writeTo((object) templates, @out);
   }
 
   private static string toUtf8String(object template)
       {
-    return new string(toByteArray(template), StandardCharsets.UTF_8);
+    return StandardCharsets.UTF_8.GetString(toByteArray(template));
   }
 
   private static byte[] toByteArray(object template)
       {
-    ByteArrayOutputStream @out = new ByteArrayOutputStream();
-    writeTo(template, @out);
-    return @out.toByteArray();
+            return StandardCharsets.UTF_8.GetBytes(JsonConvert.SerializeObject(template));
   }
 
-  private static void writeTo(object template, OutputStream @out)
-      {
-    objectMapper.writeValue(@out, template);
-  }
-
-  private JsonTemplateMapper() {}
+        private static void writeTo(object template, Stream @out)
+        {
+            var jsonString = JsonConvert.SerializeObject(template);
+            using (var writer = new StreamWriter(@out))
+            {
+                writer.Write(jsonString);
+            }
+        }
 }
 }

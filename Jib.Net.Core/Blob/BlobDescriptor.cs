@@ -14,72 +14,87 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.blob {
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+
+namespace Jib.Net.Core.Blob
+{
 
 
-/** Contains properties describing a BLOB, including its digest and possibly its size (in bytes). */
-public class BlobDescriptor {
+    /** Contains properties describing a BLOB, including its digest and possibly its size (in bytes). */
+    public class BlobDescriptor
+    {
 
-  private readonly DescriptorDigest digest;
+        private readonly DescriptorDigest digest;
 
-  /** The size of the BLOB (in bytes). Negative if unknown. */
-  private readonly long size;
+        /** The size of the BLOB (in bytes). Negative if unknown. */
+        private readonly long size;
 
-  public BlobDescriptor(long size, DescriptorDigest digest) {
-    this.size = size;
-    this.digest = digest;
-  }
+        public BlobDescriptor(long size, DescriptorDigest digest)
+        {
+            this.size = size;
+            this.digest = digest;
+        }
 
-  /**
-   * Initialize with just digest.
-   *
-   * @param digest the digest to initialize the {@link BlobDescriptor} from
-   */
-  public BlobDescriptor(DescriptorDigest digest) {
-    this(-1, digest);
-  }
+        /**
+         * Initialize with just digest.
+         *
+         * @param digest the digest to initialize the {@link BlobDescriptor} from
+         */
+        public BlobDescriptor(DescriptorDigest digest) : this(-1, digest)
+        {
+            
+        }
 
-  public bool hasSize() {
-    return size >= 0;
-  }
+        public bool hasSize()
+        {
+            return size >= 0;
+        }
 
-  public DescriptorDigest getDigest() {
-    return digest;
-  }
+        public DescriptorDigest getDigest()
+        {
+            return digest;
+        }
 
-  public long getSize() {
-    return size;
-  }
+        public long getSize()
+        {
+            return size;
+        }
 
-  /**
-   * Two {@link BlobDescriptor} objects are equal if their
-   *
-   * <ol>
-   *   <li>{@code digest}s are not null and equal, and
-   *   <li>{@code size}s are non-negative and equal
-   * </ol>
-   */
+        /**
+         * Two {@link BlobDescriptor} objects are equal if their
+         *
+         * <ol>
+         *   <li>{@code digest}s are not null and equal, and
+         *   <li>{@code size}s are non-negative and equal
+         * </ol>
+         */
 
-  public bool equals(object obj) {
-    if (obj == this) {
-      return true;
+        public override bool Equals(object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (size < 0 || !(obj is BlobDescriptor))
+            {
+                return false;
+            }
+
+            BlobDescriptor other = (BlobDescriptor)obj;
+            return size == other.getSize() && digest.Equals(other.getDigest());
+        }
+
+        public override int GetHashCode()
+        {
+            int result = digest.hashCode();
+            result = 31 * result + (int)(size ^ size >> 32);
+            return result;
+        }
+
+        public override string ToString()
+        {
+            return "digest: " + digest + ", size: " + size;
+        }
     }
-    if (size < 0 || !(obj is BlobDescriptor)) {
-      return false;
-    }
-
-    BlobDescriptor other = (BlobDescriptor) obj;
-    return size == other.getSize() && digest.equals(other.getDigest());
-  }
-
-  public int hashCode() {
-    int result = digest.hashCode();
-    result = 31 * result + (int) (size ^ (size >>> 32));
-    return result;
-  }
-
-  public string toString() {
-    return "digest: " + digest + ", size: " + size;
-  }
-}
 }

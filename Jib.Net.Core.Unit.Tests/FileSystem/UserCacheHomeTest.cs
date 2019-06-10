@@ -44,7 +44,7 @@ public class UserCacheHomeTest {
 
   [TestMethod]
   public void testGetCacheHome_hasXdgCacheHome() {
-    Map<string, string> fakeEnvironment = ImmutableMap.of("XDG_CACHE_HOME", fakeCacheHome);
+    IDictionary<string, string> fakeEnvironment = ImmutableDictionary.of("XDG_CACHE_HOME", fakeCacheHome);
 
     Assert.assertEquals(
         Paths.get(fakeCacheHome),
@@ -68,7 +68,7 @@ public class UserCacheHomeTest {
     fakeProperties.setProperty("user.home", "nonexistent");
     fakeProperties.setProperty("os.name", "os is WiNdOwS");
 
-    Map<string, string> fakeEnvironment = ImmutableMap.of("LOCALAPPDATA", fakeCacheHome);
+    IDictionary<string, string> fakeEnvironment = ImmutableDictionary.of("LOCALAPPDATA", fakeCacheHome);
 
     Assert.assertEquals(
         Paths.get(fakeCacheHome), UserCacheHome.getCacheHome(fakeProperties, fakeEnvironment));
@@ -76,7 +76,7 @@ public class UserCacheHomeTest {
 
   [TestMethod]
   public void testGetCacheHome_mac() {
-    Path libraryApplicationSupport = Paths.get(fakeCacheHome, "Library", "Application Support");
+    SystemPath libraryApplicationSupport = Paths.get(fakeCacheHome, "Library", "Application Support");
     Files.createDirectories(libraryApplicationSupport);
 
     Properties fakeProperties = new Properties();

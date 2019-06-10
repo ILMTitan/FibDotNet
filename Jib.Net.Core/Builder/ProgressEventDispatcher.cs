@@ -13,40 +13,51 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.events;
+using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core.Global;
+using System;
 
-namespace com.google.cloud.tools.jib.builder {
+namespace com.google.cloud.tools.jib.builder
+{
 
 
 
 
 
+    public static class ProgressEventDispatcherFactoryExtensions
+    {
 
-/**
- * Dispatches {@link ProgressEvent}s associated with a managed {@link Allocation}. Keeps track of
- * the allocation units that are remaining so that it can emit the remaining progress units upon
- * {@link #close}.
- *
- * <p>This class is <em>not</em> thread-safe. Only use a single instance per thread and create child
- * instances with {@link #newChildProducer}.
- */
-public class ProgressEventDispatcher : Closeable {
+        /**
+         * Creates the {@link ProgressEventDispatcher} with an associated {@link Allocation}.
+         *
+         * @param description user-facing description of what the allocation represents
+         * @param allocationUnits number of allocation units
+         * @return the new {@link ProgressEventDispatcher}
+         */
+        public static ProgressEventDispatcher create(this ProgressEventDispatcher.Factory f, string description, long allocationUnits)
+        {
+            return f(description, allocationUnits);
+        }
+    }
 
-  /**
-   * Creates a new {@link ProgressEventDispatcher} based off an existing {@link
-   * ProgressEventDispatcher}. {@link #create} should only be called once.
-   */
-  @FunctionalInterface
-  public interface Factory {
 
     /**
-     * Creates the {@link ProgressEventDispatcher} with an associated {@link Allocation}.
+     * Dispatches {@link ProgressEvent}s associated with a managed {@link Allocation}. Keeps track of
+     * the allocation units that are remaining so that it can emit the remaining progress units upon
+     * {@link #close}.
      *
-     * @param description user-facing description of what the allocation represents
-     * @param allocationUnits number of allocation units
-     * @return the new {@link ProgressEventDispatcher}
+     * <p>This class is <em>not</em> thread-safe. Only use a single instance per thread and create child
+     * instances with {@link #newChildProducer}.
      */
-    ProgressEventDispatcher create(string description, long allocationUnits);
-  }
+    public class ProgressEventDispatcher : IDisposable {
+
+        /**
+         * Creates a new {@link ProgressEventDispatcher} based off an existing {@link
+         * ProgressEventDispatcher}. {@link #create} should only be called once.
+         */
+        public delegate ProgressEventDispatcher Factory(string description, long allocationUnits);
 
   /**
    * Creates a new {@link ProgressEventDispatcher} with a root {@link Allocation}.
@@ -91,32 +102,28 @@ public class ProgressEventDispatcher : Closeable {
     remainingAllocationUnits = allocation.getAllocationUnits();
   }
 
-  /**
-   * Creates a new {@link Factory} for a {@link ProgressEventDispatcher} that manages a child {@link
-   * Allocation}. Since each child {@link Allocation} accounts for 1 allocation unit of its parent,
-   * this method decrements the {@link #remainingAllocationUnits} by {@code 1}.
-   *
-   * @return a new {@link Factory}
-   */
-  public Factory newChildProducer() {
-    decrementRemainingAllocationUnits(1);
+        /**
+         * Creates a new {@link Factory} for a {@link ProgressEventDispatcher} that manages a child {@link
+         * Allocation}. Since each child {@link Allocation} accounts for 1 allocation unit of its parent,
+         * this method decrements the {@link #remainingAllocationUnits} by {@code 1}.
+         *
+         * @return a new {@link Factory}
+         */
+        public Factory newChildProducer() {
+            decrementRemainingAllocationUnits(1);
 
-    return new Factory() {
-
-      private bool used = false;
-
-      public ProgressEventDispatcher create(string description, long allocationUnits) {
-        Preconditions.checkState(!used);
-        used = true;
-        return newProgressEventDispatcher(
-            eventHandlers, allocation.newChild(description, allocationUnits));
-      }
-    };
-  }
+            bool used = false;
+            return (string description, long allocationUnits) =>
+            {
+                Preconditions.checkState(!used);
+                used = true;
+                return newProgressEventDispatcher(eventHandlers, allocation.newChild(description, allocationUnits));
+            };
+        }
 
   /** Emits the remaining allocation units as progress units in a {@link ProgressEvent}. */
 
-  public void close() {
+  public void Dispose() {
     if (remainingAllocationUnits > 0) {
       dispatchProgress(remainingAllocationUnits);
     }

@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.filesystem;
+using com.google.cloud.tools.jib.image;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using System.Collections.Immutable;
+using System.IO;
+using System.Threading.Tasks;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -35,28 +48,26 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-public class WriteTarFileStep : AsyncStep<BuildResult>, Callable<BuildResult> {
+public class WriteTarFileStep : AsyncStep<BuildResult>{
 
-  private readonly ListeningExecutorService listeningExecutorService;
   private readonly BuildConfiguration buildConfiguration;
   private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private readonly Path outputPath;
+  private readonly SystemPath outputPath;
   private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
   private readonly BuildImageStep buildImageStep;
 
-  private readonly ListenableFuture<BuildResult> listenableFuture;
+  private readonly Task<BuildResult> listenableFuture;
 
-  WriteTarFileStep(
-      ListeningExecutorService listeningExecutorService,
+  public WriteTarFileStep(
       BuildConfiguration buildConfiguration,
       ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      Path outputPath,
+      SystemPath outputPath,
       PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableList<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
-      BuildImageStep buildImageStep) {
-    this.listeningExecutorService = listeningExecutorService;
+      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+      BuildImageStep buildImageStep)
+        {
     this.buildConfiguration = buildConfiguration;
     this.progressEventDispatcherFactory = progressEventDispatcherFactory;
     this.outputPath = outputPath;
@@ -65,22 +76,22 @@ public class WriteTarFileStep : AsyncStep<BuildResult>, Callable<BuildResult> {
     this.buildImageStep = buildImageStep;
 
     listenableFuture =
-        AsyncDependencies.@using(listeningExecutorService)
+        AsyncDependencies.@using()
             .addStep(pullAndCacheBaseImageLayersStep)
             .addStep(buildImageStep)
             .whenAllSucceed(this);
   }
 
-  public ListenableFuture<BuildResult> getFuture() {
+  public Task<BuildResult> getFuture() {
     return listenableFuture;
   }
 
   public BuildResult call() {
-    return AsyncDependencies.@using(listeningExecutorService)
+    return AsyncDependencies.@using()
         .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
         .addSteps(buildAndCacheApplicationLayerSteps)
         .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(this.writeTarFile)
+        .whenAllSucceed(writeTarFile)
         .get();
   }
 
@@ -95,8 +106,8 @@ public class WriteTarFileStep : AsyncStep<BuildResult>, Callable<BuildResult> {
 
       // Builds the image to a tarball.
       Files.createDirectories(outputPath.getParent());
-      using (OutputStream outputStream =
-          new BufferedOutputStream(FileOperations.newLockingOutputStream(outputPath))) {
+      using (Stream outputStream =
+          new BufferedStream(FileOperations.newLockingOutputStream(outputPath))) {
         new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
             .writeTo(outputStream);
       }

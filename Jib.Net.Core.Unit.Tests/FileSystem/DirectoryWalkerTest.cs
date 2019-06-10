@@ -30,10 +30,10 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Tests for {@link DirectoryWalker}. */
 public class DirectoryWalkerTest {
 
-  private readonly Set<Path> walkedPaths = new HashSet<>();
+  private readonly ISet<SystemPath> walkedPaths = new HashSet<>();
   private readonly PathConsumer addToWalkedPaths = walkedPaths.add;
 
-  private Path testDir;
+  private SystemPath testDir;
 
   [TestInitialize]
   public void setUp() {
@@ -44,7 +44,7 @@ public class DirectoryWalkerTest {
   public void testWalk() {
     new DirectoryWalker(testDir).walk(addToWalkedPaths);
 
-    Set<Path> expectedPaths =
+    ISet<SystemPath> expectedPaths =
         new HashSet<>(
             Arrays.asList(
                 testDir,
@@ -61,11 +61,11 @@ public class DirectoryWalkerTest {
   public void testWalk_withFilter() {
     // Filters to immediate subdirectories of testDir, and foo.
     new DirectoryWalker(testDir)
-        .filter(path => path.getParent().equals(testDir))
+        .filter(path => path.getParent().Equals(testDir))
         .filter(path => !path.endsWith("foo"))
         .walk(addToWalkedPaths);
 
-    Set<Path> expectedPaths =
+    ISet<SystemPath> expectedPaths =
         new HashSet<>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
     Assert.assertEquals(expectedPaths, walkedPaths);
   }
@@ -74,7 +74,7 @@ public class DirectoryWalkerTest {
   public void testWalk_withFilterRoot() {
     new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
 
-    Set<Path> expectedPaths =
+    ISet<SystemPath> expectedPaths =
         new HashSet<>(
             Arrays.asList(
                 testDir.resolve("a"),

@@ -29,7 +29,7 @@ namespace com.google.cloud.tools.jib.builder {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class TimerTest {
 
-  [Mock] private Clock mockClock;
+  [Mock] private IClock mockClock;
 
   [TestMethod]
   public void testLap() {

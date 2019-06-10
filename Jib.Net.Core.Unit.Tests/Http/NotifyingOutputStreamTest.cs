@@ -33,9 +33,9 @@ public class NotifyingOutputStreamTest {
 
   [TestMethod]
   public void testCallback_correctSequence() {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
 
-    List<Long> byteCounts = new ArrayList<>();
+    List<long> byteCounts = new ArrayList<>();
 
     using (NotifyingOutputStream notifyingOutputStream =
         new NotifyingOutputStream(byteArrayOutputStream, byteCounts::add)) {
@@ -50,9 +50,9 @@ public class NotifyingOutputStreamTest {
 
   [TestMethod]
   public void testDelay() {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    MemoryStream byteArrayOutputStream = new MemoryStream();
 
-    List<Long> byteCounts = new ArrayList<>();
+    IList<long> byteCounts = new List<>();
 
     Queue<Instant> instantQueue = new ArrayDeque<>();
     instantQueue.add(Instant.EPOCH);

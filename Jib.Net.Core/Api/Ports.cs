@@ -14,6 +14,12 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -29,7 +35,7 @@ public class Ports {
    *
    * <p>Example matches: 100, 200-210, 1000/tcp, 2000/udp, 500-600/tcp
    */
-  private static readonly Pattern portPattern = Pattern.compile("(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?");
+  private static readonly Regex portPattern = new Regex("(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?");
 
   /**
    * Converts/validates a list of strings representing port ranges to an expanded list of {@link
@@ -43,16 +49,16 @@ public class Ports {
    * @return the ports as a list of {@link Port}
    * @throws NumberFormatException if any of the ports are in an invalid format or out of range
    */
-  public static ImmutableSet<Port> parse(List<string> ports) {
-    ImmutableSet.Builder<Port> result = new ImmutableSet.Builder<>();
+  public static ImmutableHashSet<Port> parse(IList<string> ports) {
+    ImmutableHashSet<Port>.Builder result = ImmutableHashSet.CreateBuilder<Port>();
 
     foreach (string port in ports)
 
     {
-      Matcher matcher = portPattern.matcher(port);
+      Match matcher = portPattern.matcher(port);
 
       if (!matcher.matches()) {
-        throw new NumberFormatException(
+        throw new FormatException(
             "Invalid port configuration: '"
                 + port
                 + "'. Make sure the port is a single number or a range of two numbers separated "
@@ -61,22 +67,22 @@ public class Ports {
       }
 
       // Parse protocol
-      int min = Integer.parseInt(matcher.group(1));
+      int min = int.Parse(matcher.group(1));
       int max = min;
       if (!Strings.isNullOrEmpty(matcher.group(2))) {
-        max = Integer.parseInt(matcher.group(2));
+        max = int.Parse(matcher.group(2));
       }
       string protocol = matcher.group(3);
 
       // Error if configured as 'max-min' instead of 'min-max'
       if (min > max) {
-        throw new NumberFormatException(
+        throw new FormatException(
             "Invalid port range '" + port + "'; smaller number must come first.");
       }
 
       // Warn for possibly invalid port numbers
       if (min < 1 || max > 65535) {
-        throw new NumberFormatException(
+        throw new FormatException(
             "Port number '" + port + "' is out of usual range (1-65535).");
       }
 

@@ -29,15 +29,15 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Tests for {@link TemporaryDirectory}. */
 public class TemporaryDirectoryTest {
 
-  private static void createFilesInDirectory(Path directory)
+  private static void createFilesInDirectory(SystemPath directory)
       {
-    Path testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
+    SystemPath testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
     new DirectoryWalker(testFilesDirectory)
         .filterRoot()
         .walk(path => Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
   }
 
-  [Rule] public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   [TestMethod]
   public void testClose_directoryDeleted() {
@@ -52,7 +52,7 @@ public class TemporaryDirectoryTest {
 
   [TestMethod]
   public void testClose_directoryNotDeletedIfMoved() {
-    Path destinationParent = temporaryFolder.newFolder().toPath();
+    SystemPath destinationParent = temporaryFolder.newFolder().toPath();
 
     using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {

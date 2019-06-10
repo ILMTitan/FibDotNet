@@ -25,16 +25,16 @@ namespace com.google.cloud.tools.jib.api {
 /** Tests for {@link ImageReference}. */
 public class ImageReferenceTest {
 
-  private static readonly List<string> goodRegistries =
+  private static readonly IList<string> goodRegistries =
       Arrays.asList("some.domain---name.123.com:8080", "gcr.io", "localhost", null, "");
-  private static readonly List<string> goodRepositories =
+  private static readonly IList<string> goodRepositories =
       Arrays.asList("some123_abc/repository__123-456/name---here", "distroless/java", "repository");
-  private static readonly List<string> goodTags = Arrays.asList("some-.-.Tag", "", "latest", null);
-  private static readonly List<string> goodDigests =
+  private static readonly IList<string> goodTags = Arrays.asList("some-.-.Tag", "", "latest", null);
+  private static readonly IList<string> goodDigests =
       Arrays.asList(
           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", null);
 
-  private static readonly List<string> badImageReferences =
+  private static readonly IList<string> badImageReferences =
       Arrays.asList(
           "",
           ":justsometag",
@@ -213,7 +213,7 @@ public class ImageReferenceTest {
       expectedRegistry = "registry-1.docker.io";
     }
     string expectedRepository = repository;
-    if ("registry-1.docker.io".equals(expectedRegistry) && repository.indexOf('/') < 0) {
+    if ("registry-1.docker.io".Equals(expectedRegistry) && repository.indexOf('/') < 0) {
       expectedRepository = "library/" + expectedRepository;
     }
     string expectedTag = tag;
