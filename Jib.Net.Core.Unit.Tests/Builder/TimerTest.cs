@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Global;
+using Moq;
+using NodaTime;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.builder {
 
 
@@ -29,28 +35,34 @@ namespace com.google.cloud.tools.jib.builder {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class TimerTest {
 
-  [Mock] private IClock mockClock;
+  private IClock mockClock = Mock.Of<IClock>();
 
-  [TestMethod]
+  [Test]
   public void testLap() {
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH);
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0));
+
     Timer parentTimer = new Timer(mockClock, null);
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(5));
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(5));
+
     Duration parentDuration1 = parentTimer.lap();
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(15));
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(15));
+
     Duration parentDuration2 = parentTimer.lap();
 
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(16));
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16));
+
     Timer childTimer = new Timer(mockClock, parentTimer);
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(16).plusNanos(1));
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16).plusNanos(1));
+
     Duration childDuration = childTimer.lap();
 
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(16).plusNanos(2));
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16).plusNanos(2));
+
     Duration parentDuration3 = parentTimer.lap();
 
-    Assert.assertTrue(parentDuration2.compareTo(parentDuration1) > 0);
-    Assert.assertTrue(parentDuration1.compareTo(parentDuration3) > 0);
-    Assert.assertTrue(parentDuration3.compareTo(childDuration) > 0);
+    Assert.IsTrue(parentDuration2.compareTo(parentDuration1) > 0);
+    Assert.IsTrue(parentDuration1.compareTo(parentDuration3) > 0);
+    Assert.IsTrue(parentDuration3.compareTo(childDuration) > 0);
   }
 }
 }

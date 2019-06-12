@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -27,44 +34,44 @@ namespace com.google.cloud.tools.jib.image {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class LayerTest {
 
-  [Mock] private DescriptorDigest mockDescriptorDigest;
-  [Mock] private BlobDescriptor mockBlobDescriptor;
-  [Mock] private DescriptorDigest mockDiffId;
+  private DescriptorDigest mockDescriptorDigest = Mock.Of<DescriptorDigest>();
+  private BlobDescriptor mockBlobDescriptor = Mock.Of<BlobDescriptor>();
+  private DescriptorDigest mockDiffId = Mock.Of<DescriptorDigest>();
 
-  [TestMethod]
+  [Test]
   public void testNew_reference() {
     Layer layer = new ReferenceLayer(mockBlobDescriptor, mockDiffId);
 
     try {
       layer.getBlob();
-      Assert.fail("Blob content should not be available for reference layer");
+      Assert.Fail("Blob content should not be available for reference layer");
     } catch (LayerPropertyNotFoundException ex) {
-      Assert.assertEquals("Blob not available for reference layer", ex.getMessage());
+      Assert.AreEqual("Blob not available for reference layer", ex.getMessage());
     }
 
-    Assert.assertEquals(mockBlobDescriptor, layer.getBlobDescriptor());
-    Assert.assertEquals(mockDiffId, layer.getDiffId());
+    Assert.AreEqual(mockBlobDescriptor, layer.getBlobDescriptor());
+    Assert.AreEqual(mockDiffId, layer.getDiffId());
   }
 
-  [TestMethod]
+  [Test]
   public void testNew_digestOnly() {
     Layer layer = new DigestOnlyLayer(mockDescriptorDigest);
 
     try {
       layer.getBlob();
-      Assert.fail("Blob content should not be available for digest-only layer");
+      Assert.Fail("Blob content should not be available for digest-only layer");
     } catch (LayerPropertyNotFoundException ex) {
-      Assert.assertEquals("Blob not available for digest-only layer", ex.getMessage());
+      Assert.AreEqual("Blob not available for digest-only layer", ex.getMessage());
     }
 
-    Assert.assertFalse(layer.getBlobDescriptor().hasSize());
-    Assert.assertEquals(mockDescriptorDigest, layer.getBlobDescriptor().getDigest());
+    Assert.IsFalse(layer.getBlobDescriptor().hasSize());
+    Assert.AreEqual(mockDescriptorDigest, layer.getBlobDescriptor().getDigest());
 
     try {
       layer.getDiffId();
-      Assert.fail("Diff ID should not be available for digest-only layer");
+      Assert.Fail("Diff ID should not be available for digest-only layer");
     } catch (LayerPropertyNotFoundException ex) {
-      Assert.assertEquals("Diff ID not available for digest-only layer", ex.getMessage());
+      Assert.AreEqual("Diff ID not available for digest-only layer", ex.getMessage());
     }
   }
 }

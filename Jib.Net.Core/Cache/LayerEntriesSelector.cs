@@ -66,7 +66,7 @@ class LayerEntriesSelector {
 
   /** Serialized form of a {@link LayerEntry}. */
 
-  class LayerEntryTemplate : JsonTemplate, IComparable<LayerEntryTemplate> {
+  public class LayerEntryTemplate : JsonTemplate, IComparable<LayerEntryTemplate> {
 
     private readonly string sourceFile;
     private readonly string extractionPath;
@@ -126,7 +126,7 @@ class LayerEntriesSelector {
    * @throws IOException if checking the file creation time of a layer entry fails
    */
 
-  static List<LayerEntryTemplate> toSortedJsonTemplates(IList<LayerEntry> layerEntries)
+  public static List<LayerEntryTemplate> toSortedJsonTemplates(IList<LayerEntry> layerEntries)
       {
     List<LayerEntryTemplate> jsonTemplates = new List<LayerEntryTemplate>();
     foreach (LayerEntry entry in layerEntries)

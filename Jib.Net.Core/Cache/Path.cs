@@ -26,10 +26,32 @@ namespace Jib.Net.Core.FileSystem
     public class SystemPath : IEnumerable<SystemPath>
     {
         private string file;
+        private FileSystemInfo fileInfo;
+        private AbsoluteUnixPath absolutePath;
+
+        public static implicit operator SystemPath(AbsoluteUnixPath absolutePath)
+        {
+            return new SystemPath(absolutePath);
+        }
 
         public SystemPath(string file)
         {
             this.file = file;
+        }
+
+        public SystemPath(FileSystemInfo fileInfo)
+        {
+            this.fileInfo = fileInfo;
+        }
+
+        public SystemPath(AbsoluteUnixPath absolutePath)
+        {
+            this.absolutePath = absolutePath;
+        }
+
+        public SystemPath resolve(string v)
+        {
+            throw new NotImplementedException();
         }
 
         internal object getRoot()
@@ -52,7 +74,7 @@ namespace Jib.Net.Core.FileSystem
             throw new NotImplementedException();
         }
 
-        internal SystemPath resolve(SystemPath relativePath)
+        public SystemPath resolve(SystemPath relativePath)
         {
             throw new NotImplementedException();
         }
@@ -62,7 +84,12 @@ namespace Jib.Net.Core.FileSystem
             throw new NotImplementedException();
         }
 
-        internal SystemPath getParent()
+        public SystemPath getParent()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string toURI()
         {
             throw new NotImplementedException();
         }
@@ -77,7 +104,7 @@ namespace Jib.Net.Core.FileSystem
             throw new NotImplementedException();
         }
 
-        internal RelativeUnixPath getFileName()
+        public RelativeUnixPath getFileName()
         {
             throw new NotImplementedException();
         }
@@ -87,7 +114,7 @@ namespace Jib.Net.Core.FileSystem
             throw new NotImplementedException();
         }
 
-        internal SystemPath resolve(string v)
+        public bool endsWith(string s)
         {
             throw new NotImplementedException();
         }

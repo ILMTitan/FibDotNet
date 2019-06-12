@@ -336,11 +336,11 @@ public class RegistryClient {
 
   /** @return the registry endpoint's API root, without the protocol */
 
-  string getApiRouteBase() {
+  public string getApiRouteBase() {
     return registryEndpointRequestProperties.getServerUrl() + "/v2/";
   }
 
-  string getUserAgent() {
+  public string getUserAgent() {
     return userAgent;
   }
 

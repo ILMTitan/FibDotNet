@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.builder {
 
 
 /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
-class Timer : TimerEvent.Timer
+public class Timer : TimerEvent.Timer
     {
   private readonly IClock clock;
   private readonly Timer parentTimer;

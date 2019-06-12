@@ -14,6 +14,21 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Reflection.Metadata;
+using Blob = com.google.cloud.tools.jib.blob.Blob;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -66,27 +81,28 @@ public class BuildAndCacheApplicationLayerStepTest {
    */
   private static LayerConfiguration makeLayerConfiguration(
       string resourcePath, AbsoluteUnixPath extractionPath) {
-    using (IEnumerable<SystemPath> fileStream =
-        Files.list(Paths.get(Resources.getResource(resourcePath).toURI()))) {
-      LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
-      fileStream.forEach(
-          sourceFile =>
-              layerConfigurationBuilder.addEntry(
-                  sourceFile, extractionPath.resolve(sourceFile.getFileName())));
-      return layerConfigurationBuilder.build();
-    }
+            IEnumerable<SystemPath> fileStream =
+                Files.list(Paths.get(Resources.getResource(resourcePath).toURI()));
+            {
+                LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
+                fileStream.forEach(
+                    sourceFile =>
+                        layerConfigurationBuilder.addEntry(
+                            sourceFile, extractionPath.resolve(sourceFile.getFileName())));
+                return layerConfigurationBuilder.build();
+            }
   }
 
   private static void assertBlobsEqual(Blob expectedBlob, Blob blob) {
-    Assert.assertArrayEquals(Blobs.writeToByteArray(expectedBlob), Blobs.writeToByteArray(blob));
+    CollectionAssert.AreEqual(Blobs.writeToByteArray(expectedBlob), Blobs.writeToByteArray(blob));
   }
 
-  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [Mock] private BuildConfiguration mockBuildConfiguration;
+  private BuildConfiguration mockBuildConfiguration = Mock.Of<BuildConfiguration>();
 
   private Cache cache;
-  [Mock] private EventHandlers mockEventHandlers;
+  private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
 
   private LayerConfiguration fakeDependenciesLayerConfiguration;
   private LayerConfiguration fakeSnapshotDependenciesLayerConfiguration;
@@ -95,7 +111,7 @@ public class BuildAndCacheApplicationLayerStepTest {
   private LayerConfiguration fakeExtraFilesLayerConfiguration;
   private LayerConfiguration emptyLayerConfiguration;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     fakeDependenciesLayerConfiguration =
         makeLayerConfiguration(
@@ -121,8 +137,10 @@ public class BuildAndCacheApplicationLayerStepTest {
 
     cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
-    Mockito.when(mockBuildConfiguration.getEventHandlers()).thenReturn(mockEventHandlers);
-    Mockito.when(mockBuildConfiguration.getApplicationLayersCache()).thenReturn(cache);
+    Mock.Get(mockBuildConfiguration).Setup(m => m.getEventHandlers()).Returns(mockEventHandlers);
+
+    Mock.Get(mockBuildConfiguration).Setup(m => m.getApplicationLayersCache()).Returns(cache);
+
   }
 
   private ImageLayers buildFakeLayersToCache() {
@@ -130,7 +148,6 @@ public class BuildAndCacheApplicationLayerStepTest {
 
     ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
         BuildAndCacheApplicationLayerStep.makeList(
-            MoreExecutors.newDirectExecutorService(),
             mockBuildConfiguration,
             ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());
 
@@ -143,7 +160,7 @@ public class BuildAndCacheApplicationLayerStepTest {
     return applicationLayersBuilder.build();
   }
 
-  [TestMethod]
+  [Test]
   public void testRun()
       {
     ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
@@ -153,12 +170,11 @@ public class BuildAndCacheApplicationLayerStepTest {
             fakeResourcesLayerConfiguration,
             fakeClassesLayerConfiguration,
             fakeExtraFilesLayerConfiguration);
-    Mockito.when(mockBuildConfiguration.getLayerConfigurations())
-        .thenReturn(fakeLayerConfigurations);
+    Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
 
     // Populates the cache.
     ImageLayers applicationLayers = buildFakeLayersToCache();
-    Assert.assertEquals(5, applicationLayers.size());
+    Assert.AreEqual(5, applicationLayers.size());
 
     ImmutableArray<LayerEntry> dependenciesLayerEntries =
         fakeLayerConfigurations.get(0).getLayerEntries();
@@ -172,28 +188,28 @@ public class BuildAndCacheApplicationLayerStepTest {
         fakeLayerConfigurations.get(4).getLayerEntries();
 
     CachedLayer dependenciesCachedLayer =
-        cache.retrieve(dependenciesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(dependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer snapshotDependenciesCachedLayer =
-        cache.retrieve(snapshotDependenciesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(snapshotDependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer resourcesCachedLayer =
-        cache.retrieve(resourcesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(resourcesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer classesCachedLayer =
-        cache.retrieve(classesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(classesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer extraFilesCachedLayer =
-        cache.retrieve(extraFilesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(extraFilesLayerEntries).orElseThrow(() => new AssertionException(""));
 
     // Verifies that the cached layers are up-to-date.
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(0).getBlobDescriptor().getDigest(),
         dependenciesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(1).getBlobDescriptor().getDigest(),
         snapshotDependenciesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(2).getBlobDescriptor().getDigest(), resourcesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(3).getBlobDescriptor().getDigest(), classesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(4).getBlobDescriptor().getDigest(),
         extraFilesCachedLayer.getDigest());
 
@@ -205,7 +221,7 @@ public class BuildAndCacheApplicationLayerStepTest {
     assertBlobsEqual(applicationLayers.get(4).getBlob(), extraFilesCachedLayer.getBlob());
   }
 
-  [TestMethod]
+  [Test]
   public void testRun_emptyLayersIgnored()
       {
     ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
@@ -215,12 +231,11 @@ public class BuildAndCacheApplicationLayerStepTest {
             fakeResourcesLayerConfiguration,
             fakeClassesLayerConfiguration,
             emptyLayerConfiguration);
-    Mockito.when(mockBuildConfiguration.getLayerConfigurations())
-        .thenReturn(fakeLayerConfigurations);
+    Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
 
     // Populates the cache.
     ImageLayers applicationLayers = buildFakeLayersToCache();
-    Assert.assertEquals(3, applicationLayers.size());
+    Assert.AreEqual(3, applicationLayers.size());
 
     ImmutableArray<LayerEntry> dependenciesLayerEntries =
         fakeLayerConfigurations.get(0).getLayerEntries();
@@ -230,19 +245,19 @@ public class BuildAndCacheApplicationLayerStepTest {
         fakeLayerConfigurations.get(3).getLayerEntries();
 
     CachedLayer dependenciesCachedLayer =
-        cache.retrieve(dependenciesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(dependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer resourcesCachedLayer =
-        cache.retrieve(resourcesLayerEntries).orElseThrow(AssertionError::new);
+        cache.retrieve(resourcesLayerEntries).orElseThrow(() => new AssertionException(""));
     CachedLayer classesCachedLayer =
-        cache.retrieve(classesLayerEntries).orElseThrow(AssertionError.new);
+        cache.retrieve(classesLayerEntries).orElseThrow(() => new AssertionException(""));
 
     // Verifies that the cached layers are up-to-date.
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(0).getBlobDescriptor().getDigest(),
         dependenciesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(1).getBlobDescriptor().getDigest(), resourcesCachedLayer.getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         applicationLayers.get(2).getBlobDescriptor().getDigest(), classesCachedLayer.getDigest());
 
     // Verifies that the cache reader gets the same layers as the newest application layers.

@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -38,7 +49,7 @@ public class BlobPullerIntegrationTest {
 
   [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [TestMethod]
+  [Test]
   public void testPull() {
     // Pulls the busybox image.
     localRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -47,7 +58,7 @@ public class BlobPullerIntegrationTest {
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V21ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", typeof(V21ManifestTemplate));
+        registryClient.pullManifest< V21ManifestTemplate>("latest");
 
     DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
 
@@ -58,16 +69,16 @@ public class BlobPullerIntegrationTest {
         registryClient.pullBlob(
             realDigest,
             size => {
-              Assert.assertEquals(0, expectedSize.sum());
+              Assert.AreEqual(0, expectedSize.sum());
               expectedSize.add(size);
             },
             totalByteCount.add);
-    Assert.assertEquals(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
-    Assert.assertTrue(expectedSize.sum() > 0);
-    Assert.assertEquals(expectedSize.sum(), totalByteCount.sum());
+    Assert.AreEqual(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
+    Assert.IsTrue(expectedSize.sum() > 0);
+    Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
   }
 
-  [TestMethod]
+  [Test]
   public void testPull_unknownBlob() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     DescriptorDigest nonexistentDigest =
@@ -83,16 +94,15 @@ public class BlobPullerIntegrationTest {
       registryClient
           .pullBlob(nonexistentDigest, ignored => {}, ignored => {})
           .writeTo(Stream.Null);
-      Assert.fail("Trying to pull nonexistent blob should have errored");
+      Assert.Fail("Trying to pull nonexistent blob should have errored");
 
     } catch (IOException ex) {
       if (!(ex.getCause() is RegistryErrorException)) {
-        throw ex;
+                    throw;
       }
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.containsString(
-              "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest));
+                StringAssert.Contains(
+                    ex.getMessage(),
+                        "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest);
     }
   }
 }

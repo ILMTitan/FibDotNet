@@ -25,8 +25,17 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             throw new NotImplementedException();
         }
+        internal static Splitter on(string v)
+        {
+            throw new NotImplementedException();
+        }
 
         internal IEnumerable<string> split(string unixPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal IList<string> splitToList(string layers)
         {
             throw new NotImplementedException();
         }

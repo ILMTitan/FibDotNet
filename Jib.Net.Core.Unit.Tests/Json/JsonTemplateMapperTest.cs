@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.json {
 
 
@@ -35,25 +44,25 @@ namespace com.google.cloud.tools.jib.json {
 public class JsonTemplateMapperTest {
 
   private class TestJson : JsonTemplate  {
-    private int number;
-    private string text;
-    private DescriptorDigest digest;
-    private InnerObject innerObject;
-    private IList<InnerObject> list;
+    public int number;
+    public string text;
+    public DescriptorDigest digest;
+    public InnerObject innerObject;
+    public IList<InnerObject> list;
 
-    private class InnerObject : JsonTemplate  {
+    public class InnerObject : JsonTemplate  {
       // This field has the same name as a field in the outer class, but either NOT interfere with
       // the other.
-      private int number;
-      private List<string> texts;
-      private IList<DescriptorDigest> digests;
+      public int number;
+      public List<string> texts;
+      public IList<DescriptorDigest> digests;
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testWriteJson() {
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
-    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
     TestJson testJson = new TestJson();
     testJson.number = 54;
@@ -73,7 +82,7 @@ public class JsonTemplateMapperTest {
 
     TestJson.InnerObject innerObject1 = new TestJson.InnerObject();
     innerObject1.number = 42;
-    innerObject1.texts = Collections.emptyList();
+    innerObject1.texts = Collections.emptyList<string>();
     TestJson.InnerObject innerObject2 = new TestJson.InnerObject();
     innerObject2.number = 99;
     innerObject2.texts = Collections.singletonList("some text");
@@ -83,44 +92,45 @@ public class JsonTemplateMapperTest {
                 "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e"));
     testJson.list = Arrays.asList(innerObject1, innerObject2);
 
-    Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(testJson));
+    Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(testJson));
   }
 
-  [TestMethod]
+  [Test]
   public void testReadJsonWithLock() {
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic.json").toURI());
 
     // Deserializes into a metadata JSON object.
-    TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock(jsonFile, typeof(TestJson));
+    TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock<TestJson>(jsonFile);
 
-    Assert.assertThat(testJson.number, CoreMatchers.is(54));
-    Assert.assertThat(testJson.text, CoreMatchers.is("crepecake"));
-    Assert.assertThat(
-        testJson.digest,
-        CoreMatchers.is(
+    Assert.AreEqual(testJson.number, 54);
+    Assert.AreEqual(testJson.text, "crepecake");
+    Assert.AreEqual(
+        testJson.digest, 
             DescriptorDigest.fromDigest(
-                "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad")));
-    Assert.assertThat(testJson.innerObject, CoreMatchers.instanceOf(TestJson.typeof(InnerObject)));
-    Assert.assertThat(testJson.innerObject.number, CoreMatchers.is(23));
-    Assert.assertThat(
-        testJson.innerObject.texts, CoreMatchers.is(Arrays.asList("first text", "second text")));
-    Assert.assertThat(
-        testJson.innerObject.digests,
-        CoreMatchers.is(
+                "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
+    Assert.IsInstanceOf<TestJson.InnerObject>(testJson.innerObject);
+    Assert.AreEqual(testJson.innerObject.number, 23);
+
+    Assert.AreEqual(
+        testJson.innerObject.texts, Arrays.asList("first text", "second text"));
+
+    Assert.AreEqual(
+        testJson.innerObject.digests, 
             Arrays.asList(
                 DescriptorDigest.fromDigest(
                     "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
                 DescriptorDigest.fromHash(
-                    "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"))));
+                    "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")));
+
     // ignore testJson.list
   }
 
-  [TestMethod]
+  [Test]
   public void testReadListOfJson() {
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
-    string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
+    string jsonString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+    IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
     TestJson json1 = listofJsons.get(0);
     TestJson json2 = listofJsons.get(1);
 
@@ -131,26 +141,26 @@ public class JsonTemplateMapperTest {
         DescriptorDigest.fromDigest(
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
 
-    Assert.assertEquals(1, json1.number);
-    Assert.assertEquals(2, json2.number);
-    Assert.assertEquals("text1", json1.text);
-    Assert.assertEquals("text2", json2.text);
-    Assert.assertEquals(digest1, json1.digest);
-    Assert.assertEquals(digest2, json2.digest);
-    Assert.assertEquals(10, json1.innerObject.number);
-    Assert.assertEquals(20, json2.innerObject.number);
-    Assert.assertEquals(2, json1.list.size());
-    Assert.assertTrue(json2.list.isEmpty());
+    Assert.AreEqual(1, json1.number);
+    Assert.AreEqual(2, json2.number);
+    Assert.AreEqual("text1", json1.text);
+    Assert.AreEqual("text2", json2.text);
+    Assert.AreEqual(digest1, json1.digest);
+    Assert.AreEqual(digest2, json2.digest);
+    Assert.AreEqual(10, json1.innerObject.number);
+    Assert.AreEqual(20, json2.innerObject.number);
+    Assert.AreEqual(2, json1.list.size());
+    Assert.IsTrue(json2.list.isEmpty());
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_listOfJson() {
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/basic_list.json").toURI());
 
-    string jsonString = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
-    IList<TestJson> listOfJson = JsonTemplateMapper.readListOfJson(jsonString, typeof(TestJson));
+    string jsonString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+    List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
 
-    Assert.assertEquals(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));
+    Assert.AreEqual(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));
   }
 }
 }

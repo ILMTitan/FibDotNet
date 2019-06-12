@@ -14,6 +14,10 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using System;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -27,22 +31,16 @@ namespace com.google.cloud.tools.jib.http {
  */
 public class MockConnection : Connection {
 
-  private readonly BiFunc<string, Request, HttpResponseMessage> responseSupplier;
-  private int httpTimeout;
+  private readonly Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier;
 
-  public MockConnection(Func<string, Request, HttpResponseMessage> responseSupplier) : base(
-        new GenericUrl("ftp://non-exisiting.example.url.ever").toURL(), new ApacheHttpTransport()) {
+  public MockConnection(Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier) : base(
+        new UriBuilder("ftp://non-exisiting.example.url.ever").toURL()) {
     
     this.responseSupplier = responseSupplier;
   }
 
-  public HttpResponseMessage send(string httpMethod, Request request) {
-    httpTimeout = request.getHttpTimeout();
+  public HttpResponseMessage send(string httpMethod, HttpRequestMessage request) {
     return responseSupplier.apply(httpMethod, request);
   }
-
-  public int getRequestedHttpTimeout() {
-    return httpTimeout;
-  }
-}
+    }
 }

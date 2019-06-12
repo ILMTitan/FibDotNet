@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib {
 
 
@@ -56,7 +62,7 @@ public class Command {
     }
 
     // Read in stdout.
-    using (InputStreamReader inputStreamReader =
+    using (StreamReader inputStreamReader =
         new StreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
       string output = CharStreams.toString(inputStreamReader);
 
@@ -64,7 +70,7 @@ public class Command {
         string stderr =
             CharStreams.toString(
                 new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-        throw new RuntimeException("Command '" + string.join(" ", command) + "' failed: " + stderr);
+        throw new Exception("Command '" + string.Join(" ", command) + "' failed: " + stderr);
       }
 
       return output;

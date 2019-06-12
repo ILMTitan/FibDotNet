@@ -25,7 +25,7 @@ namespace com.google.cloud.tools.jib.api {
 
     public struct Optional<T>
     {
-        internal bool isPresent()
+        public bool isPresent()
         {
             throw new NotImplementedException();
         }
@@ -50,19 +50,24 @@ namespace com.google.cloud.tools.jib.api {
             throw new NotImplementedException();
         }
 
-        internal T get()
+        public T get()
         {
             throw new NotImplementedException();
         }
 
-        internal T orElseThrow(Func<Exception> p)
+        public T orElseThrow(Func<Exception> p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Optional<TResult> map<TResult>(Func<T, TResult> p)
         {
             throw new NotImplementedException();
         }
     }
-    internal static class Optional
+    public static class Optional
     {
-        internal static Optional<T> of<T>(T credential)
+        public static Optional<T> of<T>(T credential)
         {
             throw new NotImplementedException();
         }
@@ -77,12 +82,12 @@ namespace com.google.cloud.tools.jib.api {
             throw new NotImplementedException();
         }
 
-        internal static Optional<T> empty<T>()
+        public static Optional<T> empty<T>()
         {
             throw new NotImplementedException();
         }
 
-        public static TOut orElse<TOut, TIn>(this Optional<TIn> o, TOut defaultValue) where TIn : TOut
+        public static T orElse<T>(this Optional<T> o, T defaultValue) where T : class
         {
             if (o.isPresent())
             {
@@ -93,16 +98,9 @@ namespace com.google.cloud.tools.jib.api {
             }
         }
 
-        public static T? orElse<T>(this Optional<T> o, T? defaultValue) where T :struct
+        public static T? asNullable<T>(this Optional<T> o) where T:struct
         {
-            if (o.isPresent())
-            {
-                return o.get();
-            }
-            else
-            {
-                return defaultValue;
-            }
+            throw new NotImplementedException();
         }
     }
 }

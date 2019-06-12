@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Global;
 using System;
+using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.http {
 
@@ -33,6 +34,10 @@ namespace com.google.cloud.tools.jib.http {
  */
 public class Authorization {
 
+        public static implicit operator AuthenticationHeaderValue(Authorization a)
+        {
+            return new AuthenticationHeaderValue(a.getScheme(), a.getToken());
+        }
   /**
    * @param token the token
    * @return an {@link Authorization} with a {@code Bearer} token

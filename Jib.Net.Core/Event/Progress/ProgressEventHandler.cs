@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.@event.events;
 using Jib.Net.Core.Api;
+using System;
 using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.@event.progress {
@@ -31,7 +32,10 @@ namespace com.google.cloud.tools.jib.@event.progress {
  * <p>This implementation is thread-safe.
  */
 public class ProgressEventHandler {
-
+        public static implicit operator Action<ProgressEvent>(ProgressEventHandler h)
+        {
+            return h.accept;
+        }
   /**
    * Contains the accumulated progress and which "leaf" tasks are not yet complete. Leaf tasks are
    * those that do not have sub-tasks.

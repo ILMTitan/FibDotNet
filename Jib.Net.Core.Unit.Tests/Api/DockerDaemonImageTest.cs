@@ -14,34 +14,39 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link DockerDaemonImage}. */
 
+    public class DockerDaemonImageTest
+    {
+        [Test]
+        public void testGetters_default()
+        {
+            DockerDaemonImage dockerDaemonImage = DockerDaemonImage.named("docker/daemon/image");
 
+            Assert.AreEqual("docker/daemon/image", dockerDaemonImage.getImageReference().toString());
+            Assert.AreEqual(Optional.empty<SystemPath>(), dockerDaemonImage.getDockerExecutable());
+            Assert.AreEqual(0, dockerDaemonImage.getDockerEnvironment().size());
+        }
 
+        [Test]
+        public void testGetters()
+        {
+            DockerDaemonImage dockerDaemonImage =
+                DockerDaemonImage.named("docker/daemon/image")
+                    .setDockerExecutable(Paths.get("docker/binary"))
+                    .setDockerEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }));
 
-
-/** Tests for {@link DockerDaemonImage}. */
-public class DockerDaemonImageTest {
-
-  [TestMethod]
-  public void testGetters_default() {
-    DockerDaemonImage dockerDaemonImage = DockerDaemonImage.named("docker/daemon/image");
-
-    Assert.assertEquals("docker/daemon/image", dockerDaemonImage.getImageReference().toString());
-    Assert.assertEquals(Optional.empty(), dockerDaemonImage.getDockerExecutable());
-    Assert.assertEquals(0, dockerDaemonImage.getDockerEnvironment().size());
-  }
-
-  [TestMethod]
-  public void testGetters() {
-    DockerDaemonImage dockerDaemonImage =
-        DockerDaemonImage.named("docker/daemon/image")
-            .setDockerExecutable(Paths.get("docker/binary"))
-            .setDockerEnvironment(ImmutableDictionary.of("key", "value"));
-
-    Assert.assertEquals(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().get());
-    Assert.assertEquals(ImmutableDictionary.of("key", "value"), dockerDaemonImage.getDockerEnvironment());
-  }
-}
+            Assert.AreEqual(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().get());
+            Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), dockerDaemonImage.getDockerEnvironment());
+        }
+    }
 }

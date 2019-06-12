@@ -94,5 +94,5 @@ public class AsyncDependencies {
 
 namespace Jib.Net.Core
 {
-    public delegate void Callable<C>();
+    public delegate C Callable<C>();
 }

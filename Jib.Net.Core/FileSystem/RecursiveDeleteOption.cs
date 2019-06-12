@@ -16,7 +16,7 @@
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-    internal class RecursiveDeleteOption
+    internal static class RecursiveDeleteOption
     {
         public static object ALLOW_INSECURE { get; internal set; }
     }

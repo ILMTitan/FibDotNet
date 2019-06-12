@@ -23,7 +23,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.docker {
+namespace com.google.cloud.tools.jib.docker
+{
 
 
 
@@ -40,8 +41,8 @@ namespace com.google.cloud.tools.jib.docker {
 
 
 
-/** Calls out to the {@code docker} CLI. */
-public class DockerClient {
+    /** Calls out to the {@code docker} CLI. */
+    public class DockerClient {
 
   /** Builds a {@link DockerClient}. */
   public class Builder {
@@ -104,7 +105,7 @@ public class DockerClient {
    * @return the default {@link ProcessBuilder} factory for running a {@code docker} subcommand
    */
 
-  static Func<IList<string>, ProcessBuilder> defaultProcessBuilderFactory(
+  public static Func<IList<string>, ProcessBuilder> defaultProcessBuilderFactory(
       string dockerExecutable, ImmutableDictionary<string, string> dockerEnvironment) {
     return dockerSubCommand => {
       IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.size());
@@ -124,7 +125,7 @@ public class DockerClient {
   /** Factory for generating the {@link ProcessBuilder} for running {@code docker} commands. */
   private readonly Func<List<string>, ProcessBuilder> processBuilderFactory;
 
-  DockerClient(Func<IList<string>, ProcessBuilder> processBuilderFactory) {
+  public DockerClient(Func<IList<string>, ProcessBuilder> processBuilderFactory) {
     this.processBuilderFactory = processBuilderFactory;
   }
 

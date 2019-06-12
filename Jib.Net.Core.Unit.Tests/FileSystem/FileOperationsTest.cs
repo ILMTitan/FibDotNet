@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -41,37 +51,29 @@ namespace com.google.cloud.tools.jib.filesystem {
 public class FileOperationsTest {
 
   private static void verifyWriteWithLock(SystemPath file) {
-    Stream fileOutputStream = FileOperations.newLockingOutputStream(file);
+            using (Stream fileOutputStream = FileOperations.newLockingOutputStream(file))
+            {
 
-            try {
-                // Checks that the file was locked.
-                using (FileChannel channel = FileChannel.open(file, StandardOpenOption.READ))
+                try
                 {
-                    // locking should either fail and return null or throw an OverlappingFileLockException
-                    FileLock @lock = channel.tryLock(0, long.MAX_VALUE, true);
-                    Assert.assertNull("Lock attempt should have failed", @lock);
+                    // Checks that the file was locked.
+                    File.ReadAllText(file.toString());
+                    Assert.Fail("Lock attempt should have failed");
                 }
-    } catch (OverlappingFileLockException ex) {
-      // pass
-    }
+                catch (IOException)
+                {
+                    // pass
+                }
 
-    fileOutputStream.write("jib".getBytes(StandardCharsets.UTF_8));
-    fileOutputStream.close();
+                fileOutputStream.write("jib".getBytes(StandardCharsets.UTF_8));
+            }
 
-    FileChannel channel = FileChannel.open(file, StandardOpenOption.READ);
-    channel.@lock(0, long.MAX_VALUE, true);
-    using(Stream inputStream = Channels.newInputStream(channel))
-    using(StreamReader inputStreamReader =
-            new StreamReader(inputStream, StandardCharsets.UTF_8))
-    {
-
-      Assert.assertEquals("jib", CharStreams.toString(inputStreamReader));
-    }
+      Assert.AreEqual("jib", File.ReadAllText(file.toString()));
   }
 
   [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [TestMethod]
+  [Test]
   public void testCopy() {
     SystemPath destDir = temporaryFolder.newFolder().toPath();
     SystemPath libraryA =
@@ -84,8 +86,8 @@ public class FileOperationsTest {
 
     assertFilesEqual(libraryA, destDir.resolve("libraryA.jar"));
     assertFilesEqual(libraryB, destDir.resolve("libraryB.jar"));
-    Assert.assertTrue(Files.exists(destDir.resolve("layer").resolve("a").resolve("b")));
-    Assert.assertTrue(Files.exists(destDir.resolve("layer").resolve("c")));
+    Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("a").resolve("b")));
+    Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("c")));
     assertFilesEqual(
         dirLayer.resolve("a").resolve("b").resolve("bar"),
         destDir.resolve("layer").resolve("a").resolve("b").resolve("bar"));
@@ -94,29 +96,29 @@ public class FileOperationsTest {
     assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
   }
 
-  [TestMethod]
+  [Test]
   public void testNewLockingOutputStream_newFile() {
     SystemPath file = Files.createTempFile("", "");
     // Ensures file doesn't exist.
-    Assert.assertTrue(Files.deleteIfExists(file));
+    Assert.IsTrue(Files.deleteIfExists(file));
 
     verifyWriteWithLock(file);
   }
 
-  [TestMethod]
+  [Test]
   public void testNewLockingOutputStream_existingFile() {
     SystemPath file = Files.createTempFile("", "");
     // Writes out more bytes to ensure proper truncated.
     byte[] dataBytes = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    Files.write(file, dataBytes, StandardOpenOption.WRITE);
-    Assert.assertTrue(Files.exists(file));
-    Assert.assertEquals(10, Files.size(file));
+    Files.write(file, dataBytes);
+    Assert.IsTrue(Files.exists(file));
+    Assert.AreEqual(10, Files.size(file));
 
     verifyWriteWithLock(file);
   }
 
   private void assertFilesEqual(SystemPath file1, SystemPath file2) {
-    Assert.assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+    CollectionAssert.AreEqual(Files.readAllBytes(file1), Files.readAllBytes(file2));
   }
 }
 }

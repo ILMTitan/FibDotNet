@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.api
         {
         }
 
-  JibContainerBuilder(
+  public JibContainerBuilder(
       RegistryImage baseImage, BuildConfiguration.Builder buildConfigurationBuilder) {
     this.buildConfigurationBuilder = buildConfigurationBuilder;
 
@@ -500,7 +500,7 @@ namespace com.google.cloud.tools.jib.api
    * @throws IOException if an I/O exception occurs
    */
 
-  BuildConfiguration toBuildConfiguration(
+  public BuildConfiguration toBuildConfiguration(
       Containerizer containerizer)
       {
     return buildConfigurationBuilder

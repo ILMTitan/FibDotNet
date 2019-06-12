@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NodaTime;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -278,7 +279,12 @@ public class Image {
     }
   }
 
-  public static Builder builder(IClass<ManifestTemplate> imageFormat) {
+
+        public static Builder builder(Type imageFormat)
+        {
+            return new Builder(new Class<ManifestTemplate>(imageFormat));
+        }
+        public static Builder builder(IClass<ManifestTemplate> imageFormat) {
     return new Builder(imageFormat);
   }
 

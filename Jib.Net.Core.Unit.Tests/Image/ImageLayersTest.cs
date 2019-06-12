@@ -14,6 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -32,16 +40,16 @@ namespace com.google.cloud.tools.jib.image {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ImageLayersTest {
 
-  [Mock] private Layer mockLayer;
-  [Mock] private ReferenceLayer mockReferenceLayer;
-  [Mock] private DigestOnlyLayer mockDigestOnlyLayer;
-  [Mock] private Layer mockLayer2;
+  private Layer mockLayer = Mock.Of<Layer>();
+  private ReferenceLayer mockReferenceLayer = Mock.Of<ReferenceLayer>();
+  private DigestOnlyLayer mockDigestOnlyLayer = Mock.Of<DigestOnlyLayer>();
+  private Layer mockLayer2 = Mock.Of<Layer>();
 
-  [TestInitialize]
+  [SetUp]
   public void setUpFakes() {
-    DescriptorDigest mockDescriptorDigest1 = Mockito.mock(typeof(DescriptorDigest));
-    DescriptorDigest mockDescriptorDigest2 = Mockito.mock(typeof(DescriptorDigest));
-    DescriptorDigest mockDescriptorDigest3 = Mockito.mock(typeof(DescriptorDigest));
+    DescriptorDigest mockDescriptorDigest1 = Mock.Of<DescriptorDigest>();
+    DescriptorDigest mockDescriptorDigest2 = Mock.Of<DescriptorDigest>();
+    DescriptorDigest mockDescriptorDigest3 = Mock.Of<DescriptorDigest>();
 
     BlobDescriptor layerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
     BlobDescriptor referenceLayerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest2);
@@ -50,14 +58,17 @@ public class ImageLayersTest {
     // Intentionally the same digest as the mockLayer.
     BlobDescriptor anotherBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
 
-    Mockito.when(mockLayer.getBlobDescriptor()).thenReturn(layerBlobDescriptor);
-    Mockito.when(mockReferenceLayer.getBlobDescriptor()).thenReturn(referenceLayerBlobDescriptor);
-    Mockito.when(mockDigestOnlyLayer.getBlobDescriptor())
-        .thenReturn(referenceNoDiffIdLayerBlobDescriptor);
-    Mockito.when(mockLayer2.getBlobDescriptor()).thenReturn(anotherBlobDescriptor);
+    Mock.Get(mockLayer).Setup(m => m.getBlobDescriptor()).Returns(layerBlobDescriptor);
+
+    Mock.Get(mockReferenceLayer).Setup(m => m.getBlobDescriptor()).Returns(referenceLayerBlobDescriptor);
+
+    Mock.Get(mockDigestOnlyLayer).Setup(m => m.getBlobDescriptor()).Returns(referenceNoDiffIdLayerBlobDescriptor);
+
+    Mock.Get(mockLayer2).Setup(m => m.getBlobDescriptor()).Returns(anotherBlobDescriptor);
+
   }
 
-  [TestMethod]
+  [Test]
   public void testAddLayer_success() {
     IList<Layer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
 
@@ -68,10 +79,10 @@ public class ImageLayersTest {
             .add(mockDigestOnlyLayer)
             .build();
 
-    Assert.assertThat(imageLayers.getLayers(), CoreMatchers.is(expectedLayers));
+            Assert.AreEqual(imageLayers.getLayers(), expectedLayers);
   }
 
-  [TestMethod]
+  [Test]
   public void testAddLayer_maintainDuplicates() {
     // must maintain duplicate
     IList<Layer> expectedLayers =
@@ -86,10 +97,10 @@ public class ImageLayersTest {
             .add(mockLayer)
             .build();
 
-    Assert.assertEquals(expectedLayers, imageLayers.getLayers());
+    Assert.AreEqual(expectedLayers, imageLayers.getLayers());
   }
 
-  [TestMethod]
+  [Test]
   public void testAddLayer_removeDuplicates() {
     // remove duplicates: last layer should be kept
     IList<Layer> expectedLayers =
@@ -105,7 +116,7 @@ public class ImageLayersTest {
             .add(mockLayer)
             .build();
 
-    Assert.assertEquals(expectedLayers, imageLayers.getLayers());
+    Assert.AreEqual(expectedLayers, imageLayers.getLayers());
   }
 }
 }

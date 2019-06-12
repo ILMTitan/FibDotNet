@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Api;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -31,7 +37,7 @@ public class BlobPusherIntegrationTest {
 
   [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  [TestMethod]
+  [Test]
   public void testPush()
       {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -45,7 +51,7 @@ public class BlobPusherIntegrationTest {
         RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
-    Assert.assertFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => {}));
+    Assert.IsFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => {}));
   }
 }
 }

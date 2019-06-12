@@ -14,7 +14,14 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.events {
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+using static com.google.cloud.tools.jib.api.LogEvent;
+
+namespace com.google.cloud.tools.jib.@event.events {
 
 
 
@@ -26,14 +33,19 @@ namespace com.google.cloud.tools.jib.event.events {
 /** Tests for {@link LogEvent}. */
 public class LogEventTest {
 
-  private readonly Deque<LogEvent> receivedLogEvents = new ArrayDeque<>();
+  private readonly Queue<LogEvent> receivedLogEvents = new Queue<LogEvent>();
 
   // Note that in actual code, the event handler should NOT perform thread unsafe operations like
   // here.
-  private readonly EventHandlers eventHandlers =
-      EventHandlers.builder().add(typeof(LogEvent), receivedLogEvents.offer).build();
+  private readonly EventHandlers eventHandlers;
+        public LogEventTest()
+        {
+            eventHandlers =
+         EventHandlers.builder().add<LogEvent>(typeof(LogEvent), receivedLogEvents.add).build();
 
-  [TestMethod]
+        }
+
+  [Test]
   public void testFactories() {
     eventHandlers.dispatch(LogEvent.error("error"));
     eventHandlers.dispatch(LogEvent.lifecycle("lifecycle"));
@@ -48,16 +60,16 @@ public class LogEventTest {
     verifyNextLogEvent(Level.WARN, "warn");
     verifyNextLogEvent(Level.INFO, "info");
     verifyNextLogEvent(Level.DEBUG, "debug");
-    Assert.assertTrue(receivedLogEvents.isEmpty());
+    Assert.IsTrue(receivedLogEvents.isEmpty());
   }
 
   private void verifyNextLogEvent(Level level, string message) {
-    Assert.assertFalse(receivedLogEvents.isEmpty());
+    Assert.IsFalse(receivedLogEvents.isEmpty());
 
     LogEvent logEvent = receivedLogEvents.poll();
 
-    Assert.assertEquals(level, logEvent.getLevel());
-    Assert.assertEquals(message, logEvent.getMessage());
+    Assert.AreEqual(level, logEvent.getLevel());
+    Assert.AreEqual(message, logEvent.getMessage());
   }
 }
 }

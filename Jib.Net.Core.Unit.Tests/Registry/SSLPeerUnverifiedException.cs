@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,25 +14,22 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.http {
+using System;
 
+namespace com.google.cloud.tools.jib.registry
+{
+    internal class SSLPeerUnverifiedException: Exception
+    {
+        public SSLPeerUnverifiedException() : base()
+        {
+        }
 
+        public SSLPeerUnverifiedException(string message) : base(message)
+        {
+        }
 
-/** Tests for {@link Request}. */
-public class RequestTest {
-
-  [TestMethod]
-  public void testGetHttpTimeout() {
-    Request request = Request.builder().build();
-
-    Assert.assertNull(request.getHttpTimeout());
-  }
-
-  [TestMethod]
-  public void testSetHttpTimeout() {
-    Request request = Request.builder().setHttpTimeout(3000).build();
-
-    Assert.assertEquals(int.valueOf(3000), request.getHttpTimeout());
-  }
-}
+        public SSLPeerUnverifiedException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 }

@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -30,22 +37,26 @@ namespace com.google.cloud.tools.jib.filesystem {
 /** Tests for {@link DirectoryWalker}. */
 public class DirectoryWalkerTest {
 
-  private readonly ISet<SystemPath> walkedPaths = new HashSet<>();
-  private readonly PathConsumer addToWalkedPaths = walkedPaths.add;
+  private readonly ISet<SystemPath> walkedPaths = new HashSet<SystemPath>();
+  private readonly PathConsumer addToWalkedPaths;
 
   private SystemPath testDir;
+        public DirectoryWalkerTest()
+        {
+            addToWalkedPaths = walkedPaths.add;
+        }
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     testDir = Paths.get(Resources.getResource("core/layer").toURI());
   }
 
-  [TestMethod]
+  [Test]
   public void testWalk() {
     new DirectoryWalker(testDir).walk(addToWalkedPaths);
 
     ISet<SystemPath> expectedPaths =
-        new HashSet<>(
+        new HashSet<SystemPath>(
             Arrays.asList(
                 testDir,
                 testDir.resolve("a"),
@@ -54,10 +65,10 @@ public class DirectoryWalkerTest {
                 testDir.resolve("c"),
                 testDir.resolve("c").resolve("cat"),
                 testDir.resolve("foo")));
-    Assert.assertEquals(expectedPaths, walkedPaths);
+    Assert.AreEqual(expectedPaths, walkedPaths);
   }
 
-  [TestMethod]
+  [Test]
   public void testWalk_withFilter() {
     // Filters to immediate subdirectories of testDir, and foo.
     new DirectoryWalker(testDir)
@@ -66,16 +77,16 @@ public class DirectoryWalkerTest {
         .walk(addToWalkedPaths);
 
     ISet<SystemPath> expectedPaths =
-        new HashSet<>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
-    Assert.assertEquals(expectedPaths, walkedPaths);
+        new HashSet<SystemPath>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
+    Assert.AreEqual(expectedPaths, walkedPaths);
   }
 
-  [TestMethod]
+  [Test]
   public void testWalk_withFilterRoot() {
     new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
 
     ISet<SystemPath> expectedPaths =
-        new HashSet<>(
+        new HashSet<SystemPath>(
             Arrays.asList(
                 testDir.resolve("a"),
                 testDir.resolve("a").resolve("b"),
@@ -83,7 +94,7 @@ public class DirectoryWalkerTest {
                 testDir.resolve("c"),
                 testDir.resolve("c").resolve("cat"),
                 testDir.resolve("foo")));
-    Assert.assertEquals(expectedPaths, walkedPaths);
+    Assert.AreEqual(expectedPaths, walkedPaths);
   }
 }
 }

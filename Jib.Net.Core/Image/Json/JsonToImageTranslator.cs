@@ -70,7 +70,7 @@ public class JsonToImageTranslator {
    * <p>Example matches: NAME=VALUE, A12345=$$$$$
    */
 
-  static readonly Regex ENVIRONMENT_PATTERN = new Regex("(?<name>[^=]+)=(?<value>.*)");
+  public static readonly Regex ENVIRONMENT_PATTERN = new Regex("(?<name>[^=]+)=(?<value>.*)");
 
   /**
    * Translates {@link V21ManifestTemplate} to {@link Image}.
@@ -227,7 +227,7 @@ public class JsonToImageTranslator {
    * @return a set of {@link Port}s
    */
 
-  static ImmutableHashSet<Port> portMapToSet(IDictionary<string, IDictionary<object, object>> portMap)
+  public static ImmutableHashSet<Port> portMapToSet(IDictionary<string, IDictionary<object, object>> portMap)
       {
     if (portMap == null) {
       return ImmutableHashSet.Create<Port>();
@@ -256,7 +256,7 @@ public class JsonToImageTranslator {
    * @return a set of {@link AbsoluteUnixPath}s
    */
 
-  static ImmutableHashSet<AbsoluteUnixPath> volumeMapToSet(IDictionary<string, IDictionary<object, object>> volumeMap)
+  public static ImmutableHashSet<AbsoluteUnixPath> volumeMapToSet(IDictionary<string, IDictionary<object, object>> volumeMap)
       {
     if (volumeMap == null) {
       return ImmutableHashSet.Create<AbsoluteUnixPath>();

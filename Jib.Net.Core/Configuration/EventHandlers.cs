@@ -15,7 +15,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 
 namespace com.google.cloud.tools.jib.configuration
 {
@@ -23,7 +25,42 @@ namespace com.google.cloud.tools.jib.configuration
     {
         public static EventHandlers NONE { get; internal set; }
 
-        internal void dispatch(JibEvent @event)
+        public void dispatch(JibEvent @event)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Builder builder()
+        {
+            throw new NotImplementedException();
+        }
+        public class Builder
+        {
+            private IList<Action<JibEvent>> handlers = new List<Action<JibEvent>>();
+
+            public Builder add<T>(Action<T> action) where T :JibEvent
+            {
+                handlers.Add(jibEvent =>
+                {
+                    if (jibEvent is T e)
+                    {
+                        action(e);
+                    }
+                });
+                return this;
+            }
+
+            public Builder add<T>(Type _, Action<T> action) where T : JibEvent
+            {
+                return add<T>(action);
+            }
+            public EventHandlers build()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        internal object getHandlers()
         {
             throw new NotImplementedException();
         }

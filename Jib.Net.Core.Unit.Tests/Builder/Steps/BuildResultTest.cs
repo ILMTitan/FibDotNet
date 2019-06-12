@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.builder.steps {
 
 
@@ -31,7 +37,7 @@ public class BuildResultTest {
   private DescriptorDigest digest2;
   private DescriptorDigest id;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     digest1 =
         DescriptorDigest.fromDigest(
@@ -44,33 +50,33 @@ public class BuildResultTest {
             "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
   }
 
-  [TestMethod]
+  [Test]
   public void testCreated() {
     BuildResult container = new BuildResult(digest1, id);
-    Assert.assertEquals(digest1, container.getImageDigest());
-    Assert.assertEquals(id, container.getImageId());
+    Assert.AreEqual(digest1, container.getImageDigest());
+    Assert.AreEqual(id, container.getImageId());
   }
 
-  [TestMethod]
+  [Test]
   public void testEquality() {
     BuildResult container1 = new BuildResult(digest1, id);
     BuildResult container2 = new BuildResult(digest1, id);
     BuildResult container3 = new BuildResult(digest2, id);
 
-    Assert.assertEquals(container1, container2);
-    Assert.assertEquals(container1.hashCode(), container2.hashCode());
-    Assert.assertNotEquals(container1, container3);
+    Assert.AreEqual(container1, container2);
+    Assert.AreEqual(container1.hashCode(), container2.hashCode());
+    Assert.AreNotEqual(container1, container3);
   }
 
-  [TestMethod]
+  [Test]
   public void testFromImage() {
     Image image1 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
     Image image2 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
     Image image3 = Image.builder(typeof(V22ManifestTemplate)).setUser("anotherUser").build();
-    Assert.assertEquals(
+    Assert.AreEqual(
         BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
         BuildResult.fromImage(image2, typeof(V22ManifestTemplate)));
-    Assert.assertNotEquals(
+    Assert.AreNotEqual(
         BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
         BuildResult.fromImage(image3, typeof(V22ManifestTemplate)));
   }

@@ -20,7 +20,7 @@ using System.Runtime.Serialization;
 namespace com.google.cloud.tools.jib.api
 {
     [Serializable]
-    internal class DigestException : Exception
+    public class DigestException : Exception
     {
         public DigestException()
         {

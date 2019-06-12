@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.tar {
 
 
@@ -46,7 +58,7 @@ public class TarStreamBuilderTest {
   private byte[] fileBContents;
   private TarStreamBuilder testTarStreamBuilder = new TarStreamBuilder();
 
-  [TestInitialize]
+  [SetUp]
   public void setup() {
     // Gets the test resource files.
     fileA = Paths.get(Resources.getResource("core/fileA").toURI());
@@ -57,48 +69,48 @@ public class TarStreamBuilderTest {
     fileBContents = Files.readAllBytes(fileB);
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_tarArchiveEntries() {
     setUpWithTarEntries();
     verifyBlobWithoutCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_strings() {
     setUpWithStrings();
     verifyBlobWithoutCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_stringsAndTarArchiveEntries() {
     setUpWithStringsAndTarEntries();
     verifyBlobWithoutCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_tarArchiveEntriesWithCompression() {
     setUpWithTarEntries();
     verifyBlobWithCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_stringsWithCompression() {
     setUpWithStrings();
     verifyBlobWithCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_stringsAndTarArchiveEntriesWithCompression() {
     setUpWithStringsAndTarEntries();
     verifyBlobWithCompression();
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_multiByte() {
     testTarStreamBuilder.addByteEntry("日本語".getBytes(StandardCharsets.UTF_8), "test");
     testTarStreamBuilder.addByteEntry("asdf".getBytes(StandardCharsets.UTF_8), "crepecake");
     testTarStreamBuilder.addBlobEntry(
-        Blobs.from("jib"), "jib".getBytes(StandardCharsets.UTF_8).length, "jib");
+        Blobs.from("jib"), "jib".getBytes(StandardCharsets.UTF_8).Length, "jib");
 
     // Writes the BLOB and captures the output.
     MemoryStream tarByteOutputStream = new MemoryStream();
@@ -106,40 +118,39 @@ public class TarStreamBuilderTest {
     testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
 
     // Rearrange the output into input for verification.
-    ByteArrayInputStream byteArrayInputStream =
+    MemoryStream byteArrayInputStream =
         new MemoryStream(tarByteOutputStream.toByteArray());
-    Stream tarByteInputStream = new GZIPInputStream(byteArrayInputStream);
-    TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(tarByteInputStream);
+    Stream tarByteInputStream = new GZipInputStream(byteArrayInputStream);
+    TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
 
     // Verify multi-byte characters are written/read correctly
     TarEntry headerFile = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("test", headerFile.getName());
-    Assert.assertEquals(
-        "日本語", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+    Assert.AreEqual("test", headerFile.getName());
+    Assert.AreEqual(
+        "日本語", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
     headerFile = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("crepecake", headerFile.getName());
-    Assert.assertEquals(
-        "asdf", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+    Assert.AreEqual("crepecake", headerFile.getName());
+    Assert.AreEqual(
+        "asdf", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
     headerFile = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("jib", headerFile.getName());
-    Assert.assertEquals(
-        "jib", new string(ByteStreams.toByteArray(tarArchiveInputStream), StandardCharsets.UTF_8));
+    Assert.AreEqual("jib", headerFile.getName());
+    Assert.AreEqual(
+        "jib", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
-    Assert.assertNull(tarArchiveInputStream.getNextTarEntry());
+    Assert.IsNull(tarArchiveInputStream.getNextTarEntry());
   }
 
   /** Creates a TarStreamBuilder using TarArchiveEntries. */
   private void setUpWithTarEntries() {
     // Prepares a test TarStreamBuilder.
+    testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.toFile(), "some/path/to/resourceFileA"));
+    testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
     testTarStreamBuilder.addTarArchiveEntry(
-        new TarEntry(fileA.toFile(), "some/path/to/resourceFileA"));
-    testTarStreamBuilder.addTarArchiveEntry(new TarEntry(fileB.toFile(), "crepecake"));
+        TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
     testTarStreamBuilder.addTarArchiveEntry(
-        new TarEntry(directoryA.toFile(), "some/path/to"));
-    testTarStreamBuilder.addTarArchiveEntry(
-        new TarEntry(
+        TarStreamBuilder.CreateEntryFromFile(
             fileA.toFile(),
             "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890"));
   }
@@ -150,7 +161,7 @@ public class TarStreamBuilderTest {
     testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
     testTarStreamBuilder.addByteEntry(fileBContents, "crepecake");
     testTarStreamBuilder.addTarArchiveEntry(
-        new TarEntry(directoryA.toFile(), "some/path/to"));
+        TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
     testTarStreamBuilder.addByteEntry(
         fileAContents,
         "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
@@ -160,9 +171,9 @@ public class TarStreamBuilderTest {
   private void setUpWithStringsAndTarEntries() {
     // Prepares a test TarStreamBuilder.
     testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
-    testTarStreamBuilder.addTarArchiveEntry(new TarEntry(fileB.toFile(), "crepecake"));
+    testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
     testTarStreamBuilder.addTarArchiveEntry(
-        new TarEntry(directoryA.toFile(), "some/path/to"));
+        TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
     testTarStreamBuilder.addByteEntry(
         fileAContents,
         "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
@@ -176,10 +187,10 @@ public class TarStreamBuilderTest {
     testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
 
     // Rearrange the output into input for verification.
-    ByteArrayInputStream byteArrayInputStream =
+    MemoryStream byteArrayInputStream =
         new MemoryStream(tarByteOutputStream.toByteArray());
-    Stream tarByteInputStream = new GZIPInputStream(byteArrayInputStream);
-    TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(tarByteInputStream);
+    Stream tarByteInputStream = new GZipInputStream(byteArrayInputStream);
+    TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
     verifyTarArchive(tarArchiveInputStream);
   }
 
@@ -190,9 +201,9 @@ public class TarStreamBuilderTest {
     testTarStreamBuilder.writeAsTarArchiveTo(tarByteOutputStream);
 
     // Rearrange the output into input for verification.
-    ByteArrayInputStream byteArrayInputStream =
+    MemoryStream byteArrayInputStream =
         new MemoryStream(tarByteOutputStream.toByteArray());
-    TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(byteArrayInputStream);
+    TarInputStream tarArchiveInputStream = new TarInputStream(byteArrayInputStream);
     verifyTarArchive(tarArchiveInputStream);
   }
 
@@ -200,32 +211,32 @@ public class TarStreamBuilderTest {
    * Helper method to verify that the files were archived correctly by reading {@code
    * tarArchiveInputStream}.
    */
-  private void verifyTarArchive(TarArchiveInputStream tarArchiveInputStream) {
+  private void verifyTarArchive(TarInputStream tarArchiveInputStream) {
     // Verifies fileA was archived correctly.
     TarEntry headerFileA = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("some/path/to/resourceFileA", headerFileA.getName());
+    Assert.AreEqual("some/path/to/resourceFileA", headerFileA.getName());
     byte[] fileAString = ByteStreams.toByteArray(tarArchiveInputStream);
-    Assert.assertArrayEquals(fileAContents, fileAString);
+    CollectionAssert.AreEqual(fileAContents, fileAString);
 
     // Verifies fileB was archived correctly.
     TarEntry headerFileB = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("crepecake", headerFileB.getName());
+    Assert.AreEqual("crepecake", headerFileB.getName());
     byte[] fileBString = ByteStreams.toByteArray(tarArchiveInputStream);
-    Assert.assertArrayEquals(fileBContents, fileBString);
+    CollectionAssert.AreEqual(fileBContents, fileBString);
 
     // Verifies directoryA was archived correctly.
     TarEntry headerDirectoryA = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals("some/path/to/", headerDirectoryA.getName());
+    Assert.AreEqual("some/path/to/", headerDirectoryA.getName());
 
     // Verifies the long file was archived correctly.
     TarEntry headerFileALong = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals(
+    Assert.AreEqual(
         "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890",
         headerFileALong.getName());
     byte[] fileALongString = ByteStreams.toByteArray(tarArchiveInputStream);
-    Assert.assertArrayEquals(fileAContents, fileALongString);
+    CollectionAssert.AreEqual(fileAContents, fileALongString);
 
-    Assert.assertNull(tarArchiveInputStream.getNextTarEntry());
+    Assert.IsNull(tarArchiveInputStream.getNextTarEntry());
   }
 }
 }

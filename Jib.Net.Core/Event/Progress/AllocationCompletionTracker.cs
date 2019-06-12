@@ -118,7 +118,7 @@ class AllocationCompletionTracker {
    * @return a list of unfinished {@link Allocation}s
    */
 
-  IList<Allocation> getUnfinishedAllocations() {
+  public IList<Allocation> getUnfinishedAllocations() {
     return completionMap
         .values()
         .stream()

@@ -15,13 +15,15 @@
  */
 
 using System;
+using System.IO;
 using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
     [Serializable]
-    internal class SSLException : Exception
+    internal class SSLException : IOException
     {
+
         public SSLException()
         {
         }
@@ -35,6 +37,10 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         protected SSLException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        public SSLException(string message, int hresult) : base(message, hresult)
         {
         }
     }

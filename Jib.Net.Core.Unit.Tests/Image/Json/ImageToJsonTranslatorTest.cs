@@ -14,6 +14,23 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -51,8 +68,12 @@ namespace com.google.cloud.tools.jib.image.json {
 public class ImageToJsonTranslatorTest {
 
   private ImageToJsonTranslator imageToJsonTranslator;
-
-        private void setUp<T>(Class<T> imageFormat)where T:BuildableManifestTemplate
+        private static DescriptorDigest fakeDigest;
+        private void setUp(Type t) 
+        {
+            setUp(new Class<BuildableManifestTemplate>(t));
+        }
+        private void setUp(IClass<BuildableManifestTemplate> imageFormat)
         {
     Image.Builder testImageBuilder =
         Image.builder(imageFormat)
@@ -65,17 +86,17 @@ public class ImageToJsonTranslatorTest {
             .setProgramArguments(Arrays.asList("arg1", "arg2"))
             .setHealthCheck(
                 DockerHealthCheck.fromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
-                    .setInterval(Duration.ofSeconds(3))
-                    .setTimeout(Duration.ofSeconds(1))
-                    .setStartPeriod(Duration.ofSeconds(2))
+                    .setInterval(Duration.FromSeconds(3))
+                    .setTimeout(Duration.FromSeconds(1))
+                    .setStartPeriod(Duration.FromSeconds(2))
                     .setRetries(3)
                     .build())
-            .addExposedPorts(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)))
+            .addExposedPorts(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)))
             .addVolumes(
-                ImmutableHashSet.of(
+                ImmutableHashSet.Create(
                     AbsoluteUnixPath.get("/var/job-result-data"),
                     AbsoluteUnixPath.get("/var/log/my-app-logs")))
-            .addLabels(ImmutableDictionary.of("key1", "value1", "key2", "value2"))
+            .addLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))
             .setWorkingDirectory("/some/workspace")
             .setUser("tomcat");
 
@@ -86,7 +107,7 @@ public class ImageToJsonTranslatorTest {
         new FakeLayer());
     testImageBuilder.addHistory(
         HistoryEntry.builder()
-            .setCreationTimestamp(Instant.EPOCH)
+            .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
             .setAuthor("Bazel")
             .setCreatedBy("bazel build ...")
             .setEmptyLayer(true)
@@ -100,7 +121,7 @@ public class ImageToJsonTranslatorTest {
     imageToJsonTranslator = new ImageToJsonTranslator(testImageBuilder.build());
   }
 
-        class FakeLayer
+        class FakeLayer : Layer
         {
 
             public Blob getBlob()
@@ -119,66 +140,78 @@ public class ImageToJsonTranslatorTest {
             }
         }
 
-        [TestMethod]
+        [Test]
   public void testGetContainerConfiguration()
       {
     setUp(typeof(V22ManifestTemplate));
 
     // Loads the expected JSON string.
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
-    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
     // Translates the image to the container configuration and writes the JSON string.
     JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
 
-    Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
+    Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetManifest_v22() {
     setUp(typeof(V22ManifestTemplate));
     testGetManifest(typeof(V22ManifestTemplate), "core/json/translated_v22manifest.json");
   }
 
-  [TestMethod]
+  [Test]
   public void testGetManifest_oci() {
     setUp(typeof(OCIManifestTemplate));
     testGetManifest(typeof(OCIManifestTemplate), "core/json/translated_ocimanifest.json");
   }
 
-  [TestMethod]
+  [Test]
   public void testPortListToMap() {
-    ImmutableHashSet<Port> input = ImmutableHashSet.of(Port.tcp(1000), Port.udp(2000));
+    ImmutableHashSet<Port> input = ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000));
     ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
-        ImmutableSortedDictionary.of("1000/tcp", ImmutableDictionary.of(), "2000/udp", ImmutableDictionary.of());
-    Assert.assertEquals(expected, ImageToJsonTranslator.portSetToMap(input));
+        new Dictionary<string, IDictionary<object, object>>
+        {
+            ["1000/tcp"] = ImmutableDictionary.Create<object, object>(),
+            ["2000/udp"] = ImmutableDictionary.Create<object, object>()
+        }.ToImmutableSortedDictionary();
+    Assert.AreEqual(expected, ImageToJsonTranslator.portSetToMap(input));
   }
 
-  [TestMethod]
-  public void testVolumeListToMap() {
-    ImmutableHashSet<AbsoluteUnixPath> input =
-        ImmutableHashSet.of(
-            AbsoluteUnixPath.get("/var/job-result-data"),
-            AbsoluteUnixPath.get("/var/log/my-app-logs"));
-    ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
-        ImmutableSortedDictionary.of(
-            "/var/job-result-data", ImmutableDictionary.of(), "/var/log/my-app-logs", ImmutableDictionary.of());
-    Assert.assertEquals(expected, ImageToJsonTranslator.volumesSetToMap(input));
-  }
+        [Test]
+        public void testVolumeListToMap()
+        {
+            ImmutableHashSet<AbsoluteUnixPath> input =
+                ImmutableHashSet.Create(
+                    AbsoluteUnixPath.get("/var/job-result-data"),
+                    AbsoluteUnixPath.get("/var/log/my-app-logs"));
+            ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
+                new Dictionary<string, IDictionary<object, object>>
+                {
+                    ["/var/job-result-data"] = ImmutableDictionary.Create<object, object>(),
+                    ["/var/log/my-app-logs"] = ImmutableDictionary.Create<object, object>()
+                }.ToImmutableSortedDictionary();
+            Assert.AreEqual(expected, ImageToJsonTranslator.volumesSetToMap(input));
+        }
 
-  [TestMethod]
+  [Test]
   public void testEnvironmentMapToList() {
-    ImmutableDictionary<string, string> input = ImmutableDictionary.of("NAME1", "VALUE1", "NAME2", "VALUE2");
+    ImmutableDictionary<string, string> input = ImmutableDic.of("NAME1", "VALUE1", "NAME2", "VALUE2");
     ImmutableArray<string> expected = ImmutableArray.Create("NAME1=VALUE1", "NAME2=VALUE2");
-    Assert.assertEquals(expected, ImageToJsonTranslator.environmentMapToList(input));
+    Assert.AreEqual(expected, ImageToJsonTranslator.environmentMapToList(input));
   }
 
+        private void testGetManifest(Type t, string translatedJsonFilename)
+        {
+            testGetManifest<BuildableManifestTemplate>(new Class<BuildableManifestTemplate>(t), translatedJsonFilename);
+        }
   /** Tests translation of image to {@link BuildableManifestTemplate}. */
   private void testGetManifest<T>(
-      Class<T> manifestTemplateClass, string translatedJsonFilename) where T : BuildableManifestTemplate {
+      IClass<T> manifestTemplateClass, string translatedJsonFilename) where T : BuildableManifestTemplate {
     // Loads the expected JSON string.
     SystemPath jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
-    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
     // Translates the image to the manifest and writes the JSON string.
     JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
@@ -186,7 +219,7 @@ public class ImageToJsonTranslatorTest {
     T manifestTemplate =
         imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
 
-    Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));
+    Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));
   }
 }
 }

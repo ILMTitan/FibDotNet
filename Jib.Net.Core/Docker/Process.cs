@@ -19,9 +19,9 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.docker
 {
-    internal class Process
+    public class Process
     {
-        internal Stream getOutputStream()
+        public Stream getOutputStream()
         {
             throw new NotImplementedException();
         }
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.docker
             throw new NotImplementedException();
         }
 
-        internal int waitFor()
+        public int waitFor()
         {
             throw new NotImplementedException();
         }

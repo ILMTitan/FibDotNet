@@ -19,9 +19,9 @@ using System;
 
 namespace Jib.Net.Core.Api
 {
-    internal static class Paths
+    public static class Paths
     {
-        internal static SystemPath get(params string[] pathParts)
+        public static SystemPath get(params string[] pathParts)
         {
             throw new NotImplementedException();
         }

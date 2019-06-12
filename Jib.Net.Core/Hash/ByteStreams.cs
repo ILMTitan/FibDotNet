@@ -15,13 +15,19 @@
  */
 
 using System;
+using System.Collections;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.hash
 {
-    internal class ByteStreams
+    internal static class ByteStreams
     {
         internal static void copy(Stream inStream, Stream contentsOut)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static byte[] toByteArray(Stream stream)
         {
             throw new NotImplementedException();
         }

@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -31,7 +37,7 @@ public class ManifestPullerIntegrationTest {
 
   [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  [TestMethod]
+  [Test]
   public void testPull_v21() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
@@ -39,25 +45,25 @@ public class ManifestPullerIntegrationTest {
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V21ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", typeof(V21ManifestTemplate));
+        registryClient.pullManifest< V21ManifestTemplate>("latest");
 
-    Assert.assertEquals(1, manifestTemplate.getSchemaVersion());
-    Assert.assertTrue(manifestTemplate.getFsLayers().size() > 0);
+    Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
+    Assert.IsTrue(manifestTemplate.getFsLayers().size() > 0);
   }
 
-  [TestMethod]
+  [Test]
   public void testPull_v22() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
         RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
     ManifestTemplate manifestTemplate = registryClient.pullManifest("latest");
 
-    Assert.assertEquals(2, manifestTemplate.getSchemaVersion());
+    Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
     V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate) manifestTemplate;
-    Assert.assertTrue(v22ManifestTemplate.getLayers().size() > 0);
+    Assert.IsTrue(v22ManifestTemplate.getLayers().size() > 0);
   }
 
-  [TestMethod]
+  [Test]
   public void testPull_unknownManifest()
       {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -67,13 +73,12 @@ public class ManifestPullerIntegrationTest {
               .setAllowInsecureRegistries(true)
               .newRegistryClient();
       registryClient.pullManifest("nonexistent-tag");
-      Assert.fail("Trying to pull nonexistent image should have errored");
+      Assert.Fail("Trying to pull nonexistent image should have errored");
 
     } catch (RegistryErrorException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.containsString(
-              "pull image manifest for localhost:5000/busybox:nonexistent-tag"));
+                StringAssert.Contains(
+                    ex.getMessage(),
+                        "pull image manifest for localhost:5000/busybox:nonexistent-tag");
     }
   }
 }

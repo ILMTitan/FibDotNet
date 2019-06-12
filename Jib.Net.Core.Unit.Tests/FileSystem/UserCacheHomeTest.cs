@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -37,44 +47,44 @@ public class UserCacheHomeTest {
 
   private string fakeCacheHome;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     fakeCacheHome = temporaryFolder.newFolder().getPath();
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCacheHome_hasXdgCacheHome() {
-    IDictionary<string, string> fakeEnvironment = ImmutableDictionary.of("XDG_CACHE_HOME", fakeCacheHome);
+    IDictionary<string, string> fakeEnvironment = ImmutableDic.of("XDG_CACHE_HOME", fakeCacheHome);
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get(fakeCacheHome),
-        UserCacheHome.getCacheHome(Mockito.mock(typeof(Properties)), fakeEnvironment));
+        UserCacheHome.getCacheHome());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCacheHome_linux() {
     Properties fakeProperties = new Properties();
     fakeProperties.setProperty("user.home", fakeCacheHome);
     fakeProperties.setProperty("os.name", "os is LiNuX");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get(fakeCacheHome, ".cache"),
-        UserCacheHome.getCacheHome(fakeProperties, Collections.emptyMap()));
+        UserCacheHome.getCacheHome());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCacheHome_windows() {
     Properties fakeProperties = new Properties();
     fakeProperties.setProperty("user.home", "nonexistent");
     fakeProperties.setProperty("os.name", "os is WiNdOwS");
 
-    IDictionary<string, string> fakeEnvironment = ImmutableDictionary.of("LOCALAPPDATA", fakeCacheHome);
+    IDictionary<string, string> fakeEnvironment = ImmutableDic.of("LOCALAPPDATA", fakeCacheHome);
 
-    Assert.assertEquals(
-        Paths.get(fakeCacheHome), UserCacheHome.getCacheHome(fakeProperties, fakeEnvironment));
+    Assert.AreEqual(
+        Paths.get(fakeCacheHome), UserCacheHome.getCacheHome());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCacheHome_mac() {
     SystemPath libraryApplicationSupport = Paths.get(fakeCacheHome, "Library", "Application Support");
     Files.createDirectories(libraryApplicationSupport);
@@ -83,9 +93,9 @@ public class UserCacheHomeTest {
     fakeProperties.setProperty("user.home", fakeCacheHome);
     fakeProperties.setProperty("os.name", "os is mAc or DaRwIn");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         libraryApplicationSupport,
-        UserCacheHome.getCacheHome(fakeProperties, Collections.emptyMap()));
+        UserCacheHome.getCacheHome());
   }
 }
 }

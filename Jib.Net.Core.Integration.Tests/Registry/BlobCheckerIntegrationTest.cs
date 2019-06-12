@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -30,7 +37,7 @@ public class BlobCheckerIntegrationTest {
 
   [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
-  [TestMethod]
+  [Test]
   public void testCheck_exists() {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
     RegistryClient registryClient =
@@ -38,13 +45,13 @@ public class BlobCheckerIntegrationTest {
             .setAllowInsecureRegistries(true)
             .newRegistryClient();
     V22ManifestTemplate manifestTemplate =
-        registryClient.pullManifest("latest", typeof(V22ManifestTemplate));
+        registryClient.pullManifest< V22ManifestTemplate>("latest");
     DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
 
-    Assert.assertEquals(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
+    Assert.AreEqual(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
   }
 
-  [TestMethod]
+  [Test]
   public void testCheck_doesNotExist()
       {
     localRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -56,7 +63,7 @@ public class BlobCheckerIntegrationTest {
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-    Assert.assertNull(registryClient.checkBlob(fakeBlobDigest));
+    Assert.IsNull(registryClient.checkBlob(fakeBlobDigest));
   }
 }
 }

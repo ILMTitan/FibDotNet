@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.cache
 
 
     /** Resolves the files used in the default cache storage engine. */
-    class CacheStorageFiles
+    public class CacheStorageFiles
     {
 
         private static readonly string LAYERS_DIRECTORY = "layers";
@@ -152,7 +152,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the directory for the image manifest and configuration
          */
-        SystemPath getImagesDirectory()
+        public SystemPath getImagesDirectory()
         {
             return cacheDirectory.resolve(IMAGES_DIRECTORY);
         }

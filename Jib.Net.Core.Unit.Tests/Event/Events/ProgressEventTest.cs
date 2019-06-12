@@ -14,7 +14,15 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.events {
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+
+namespace com.google.cloud.tools.jib.@event.events {
 
 
 
@@ -30,30 +38,30 @@ public class ProgressEventTest {
   private class AllocationTree {
 
     /** The root node. */
-    private static readonly Allocation root = Allocation.newRoot("ignored", 2);
+    public static readonly Allocation root = Allocation.newRoot("ignored", 2);
 
     /** First child of the root node. */
-    private static readonly Allocation child1 = root.newChild("ignored", 1);
+    public static readonly Allocation child1 = root.newChild("ignored", 1);
     /** Child of the first child of the root node. */
-    private static readonly Allocation child1Child = child1.newChild("ignored", 100);
+    public static readonly Allocation child1Child = child1.newChild("ignored", 100);
 
     /** Second child of the root node. */
-    private static readonly Allocation child2 = root.newChild("ignored", 200);
+    public static readonly Allocation child2 = root.newChild("ignored", 200);
 
     private AllocationTree() {}
   }
 
-  private static EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer) {
-    return EventHandlers.builder().add(typeof(ProgressEvent), progressEventConsumer).build();
+  private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer) {
+    return EventHandlers.builder().add<ProgressEvent>(progressEventConsumer).build();
   }
 
   private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<>();
+  private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<Allocation, long>();
 
   private double progress = 0.0;
 
-  [TestMethod]
+  [Test]
   public void testAccumulateProgress() {
     Consumer<ProgressEvent> progressEventConsumer =
         progressEvent => {
@@ -66,19 +74,24 @@ public class ProgressEventTest {
     EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
-    Assert.assertEquals(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
-    Assert.assertEquals(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 10));
-    Assert.assertEquals(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 190));
-    Assert.assertEquals(1.0, progress, DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
   }
 
-  [TestMethod]
+        private EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
   public void testSmoke() {
     Consumer<ProgressEvent> progressEventConsumer =
         progressEvent => {
@@ -92,26 +105,26 @@ public class ProgressEventTest {
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
 
-    Assert.assertEquals(1, allocationCompletionMap.size());
-    Assert.assertEquals(50, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+    Assert.AreEqual(1, allocationCompletionMap.size());
+    Assert.AreEqual(50, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
 
-    Assert.assertEquals(3, allocationCompletionMap.size());
-    Assert.assertEquals(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-    Assert.assertEquals(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-    Assert.assertEquals(1, allocationCompletionMap.get(AllocationTree.root).longValue());
+    Assert.AreEqual(3, allocationCompletionMap.size());
+    Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
+    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.root).longValue());
 
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 200));
 
-    Assert.assertEquals(4, allocationCompletionMap.size());
-    Assert.assertEquals(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-    Assert.assertEquals(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-    Assert.assertEquals(200, allocationCompletionMap.get(AllocationTree.child2).longValue());
-    Assert.assertEquals(2, allocationCompletionMap.get(AllocationTree.root).longValue());
+    Assert.AreEqual(4, allocationCompletionMap.size());
+    Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
+    Assert.AreEqual(200, allocationCompletionMap.get(AllocationTree.child2).longValue());
+    Assert.AreEqual(2, allocationCompletionMap.get(AllocationTree.root).longValue());
   }
 
-  [TestMethod]
+  [Test]
   public void testType() {
     // Used to test whether or not progress event was consumed
     bool[] called = new bool[] {false};
@@ -122,7 +135,7 @@ public class ProgressEventTest {
 
     EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
     eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 50));
-    Assert.assertTrue(called[0]);
+    Assert.IsTrue(called[0]);
   }
 
   /**

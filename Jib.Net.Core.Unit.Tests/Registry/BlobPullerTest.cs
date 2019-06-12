@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Global;
+using Jib.Net.Core.Api;
+using NUnit.Framework;
+using System.IO;
+using System.Net.Http;
+using Moq;
+using System;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -44,12 +55,16 @@ public class BlobPullerTest {
   private DescriptorDigest fakeDigest;
 
   private readonly MemoryStream layerContentOutputStream = new MemoryStream();
-  private readonly CountingDigestOutputStream layerOutputStream =
-      new CountingDigestOutputStream(layerContentOutputStream);
+  private readonly CountingDigestOutputStream layerOutputStream;
 
   private BlobPuller testBlobPuller;
+        public BlobPullerTest()
+        {
+            layerOutputStream =
+      new CountingDigestOutputStream(layerContentOutputStream);
+        }
 
-  [TestInitialize]
+  [SetUp]
   public void setUpFakes() {
     fakeDigest =
         DescriptorDigest.fromHash(
@@ -64,16 +79,17 @@ public class BlobPullerTest {
             ignored => {});
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse() {
-    Stream blobContent =
+            MemoryStream blobContent =
         new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
-    blobContent.reset();
+    blobContent.Position = 0;
 
-    HttpResponseMessage mockResponse = Mockito.mock(typeof(HttpResponseMessage));
-    Mockito.when(mockResponse.getContentLength()).thenReturn((long) "some BLOB content".length());
-    Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
+    HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns((long) "some BLOB content".length());
+
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
 
     LongAdder byteCount = new LongAdder();
     BlobPuller blobPuller =
@@ -81,32 +97,32 @@ public class BlobPullerTest {
             fakeRegistryEndpointRequestProperties,
             testBlobDigest,
             layerOutputStream,
-            size => Assert.assertEquals("some BLOB content".length(), size.longValue()),
+            size => Assert.AreEqual("some BLOB content".length(), size.longValue()),
             byteCount.add);
     blobPuller.handleResponse(mockResponse);
-    Assert.assertEquals(
+    Assert.AreEqual(
         "some BLOB content",
-        new string(layerContentOutputStream.toByteArray(), StandardCharsets.UTF_8));
-    Assert.assertEquals(testBlobDigest, layerOutputStream.computeDigest().getDigest());
-    Assert.assertEquals("some BLOB content".length(), byteCount.sum());
+        StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
+    Assert.AreEqual(testBlobDigest, layerOutputStream.computeDigest().getDigest());
+    Assert.AreEqual("some BLOB content".length(), byteCount.sum());
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_unexpectedDigest() {
-    Stream blobContent =
+            MemoryStream blobContent =
         new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
     DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
-    blobContent.reset();
+            blobContent.Position = 0;
 
-    HttpResponseMessage mockResponse = Mockito.mock(typeof(HttpResponseMessage));
-    Mockito.when(mockResponse.getBody()).thenReturn(blobContent);
+    HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
 
     try {
       testBlobPuller.handleResponse(mockResponse);
-      Assert.fail("Receiving an unexpected digest should fail");
+      Assert.Fail("Receiving an unexpected digest should fail");
 
     } catch (UnexpectedBlobDigestException ex) {
-      Assert.assertEquals(
+      Assert.AreEqual(
           "The pulled BLOB has digest '"
               + testBlobDigest
               + "', but the request digest was '"
@@ -116,33 +132,33 @@ public class BlobPullerTest {
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testGetApiRoute() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
         testBlobPuller.getApiRoute("http://someApiBase/"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "pull BLOB for someServerUrl/someImageName with digest " + fakeDigest,
         testBlobPuller.getActionDescription());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetHttpMethod() {
-    Assert.assertEquals("GET", testBlobPuller.getHttpMethod());
+    Assert.AreEqual("GET", testBlobPuller.getHttpMethod());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetContent() {
-    Assert.assertNull(testBlobPuller.getContent());
+    Assert.IsNull(testBlobPuller.getContent());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAccept() {
-    Assert.assertEquals(0, testBlobPuller.getAccept().size());
+    Assert.AreEqual(0, testBlobPuller.getAccept().size());
   }
 }
 }

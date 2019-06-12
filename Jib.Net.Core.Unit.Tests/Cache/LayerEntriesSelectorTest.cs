@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System.Collections.Immutable;
+using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
+
 namespace com.google.cloud.tools.jib.cache {
 
 
@@ -52,7 +65,7 @@ public class LayerEntriesSelectorTest {
 
   private static ImmutableArray<LayerEntryTemplate> toLayerEntryTemplates(
       ImmutableArray<LayerEntry> layerEntries) {
-    ImmutableArray.Builder<LayerEntryTemplate> builder = ImmutableArray.builder();
+    ImmutableArray<LayerEntryTemplate>.Builder builder = ImmutableArray.CreateBuilder<LayerEntryTemplate>();
     foreach (LayerEntry layerEntry in layerEntries)
     {
       builder.add(new LayerEntryTemplate(layerEntry));
@@ -60,7 +73,7 @@ public class LayerEntriesSelectorTest {
     return builder.build();
   }
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     SystemPath folder = temporaryFolder.newFolder().toPath();
     SystemPath file1 = Files.createDirectory(folder.resolve("files"));
@@ -103,56 +116,56 @@ public class LayerEntriesSelectorTest {
             testLayerEntry6);
   }
 
-  [TestMethod]
+  [Test]
   public void testLayerEntryTemplate_compareTo() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         toLayerEntryTemplates(inOrderLayerEntries),
-        ImmutableArray.sortedCopyOf(toLayerEntryTemplates(outOfOrderLayerEntries)));
+        ImmutableArray.CreateRange(toLayerEntryTemplates(outOfOrderLayerEntries).sorted()));
   }
 
-  [TestMethod]
+  [Test]
   public void testToSortedJsonTemplates() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         toLayerEntryTemplates(inOrderLayerEntries),
         LayerEntriesSelector.toSortedJsonTemplates(outOfOrderLayerEntries));
   }
 
-  [TestMethod]
+  [Test]
   public void testGenerateSelector_empty() {
-    DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create());
-    Assert.assertEquals(
-        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create()));
+    DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create<JsonTemplate>());
+    Assert.AreEqual(
+        expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create<LayerEntry>()));
   }
 
-  [TestMethod]
+  [Test]
   public void testGenerateSelector() {
     DescriptorDigest expectedSelector =
         Digests.computeJsonDigest(toLayerEntryTemplates(inOrderLayerEntries));
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedSelector, LayerEntriesSelector.generateSelector(outOfOrderLayerEntries));
   }
 
-  [TestMethod]
+  [Test]
   public void testGenerateSelector_fileModified() {
     SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
-    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.EPOCH));
+    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
     LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
     DescriptorDigest expectedSelector =
         LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry));
 
     // Verify that changing modified time generates a different selector
     Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(1)));
-    Assert.assertNotEquals(
+    Assert.AreNotEqual(
         expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
 
     // Verify that changing modified time back generates same selector
-    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.EPOCH));
-    Assert.assertEquals(
+    Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
+    Assert.AreEqual(
         expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
   }
 
-  [TestMethod]
+  [Test]
   public void testGenerateSelector_permissionsModified() {
     SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
     Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
@@ -170,7 +183,7 @@ public class LayerEntriesSelectorTest {
             LayerConfiguration.DEFAULT_MODIFIED_TIME);
 
     // Verify that changing permissions generates a different selector
-    Assert.assertNotEquals(
+    Assert.AreNotEqual(
         LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry111)),
         LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry222)));
   }

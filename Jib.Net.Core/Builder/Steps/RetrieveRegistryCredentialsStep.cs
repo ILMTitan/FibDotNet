@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 /** Attempts to retrieve registry credentials. */
-class RetrieveRegistryCredentialsStep : AsyncStep<Credential> {
+public class RetrieveRegistryCredentialsStep : AsyncStep<Credential> {
   private static string makeDescription(string registry) {
     return "Retrieving registry credentials for " + registry;
   }

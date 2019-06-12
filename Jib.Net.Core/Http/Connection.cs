@@ -96,7 +96,7 @@ public class Connection : IDisposable {
          * @param url the url to send the request to
          */
 
-        Connection(Uri url)
+        public Connection(Uri url)
         {
             client = new HttpClient() { BaseAddress = url, Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()) };
   }
@@ -115,5 +115,10 @@ public class Connection : IDisposable {
   public HttpResponseMessage send(HttpRequestMessage request) {
             return client.SendAsync(request).Result;
   }
+
+        internal int? getRequestedHttpTimeout()
+        {
+            throw new NotImplementedException();
+        }
 }
 }

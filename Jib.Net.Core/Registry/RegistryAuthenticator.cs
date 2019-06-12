@@ -201,14 +201,14 @@ public class RegistryAuthenticator {
         + scope;
   }
 
-  Uri getAuthenticationUrl(Credential credential, string scope)
+  public Uri getAuthenticationUrl(Credential credential, string scope)
       {
     return isOAuth2Auth(credential)
         ? new Uri(realm) // Required parameters will be sent via POST .
         : new Uri(realm + "?" + getServiceScopeRequestParameters(scope));
   }
 
-  string getAuthRequestParameters(Credential credential, string scope) {
+  public string getAuthRequestParameters(Credential credential, string scope) {
     string serviceScope = getServiceScopeRequestParameters(scope);
     return isOAuth2Auth(credential)
         ? serviceScope
@@ -220,7 +220,7 @@ public class RegistryAuthenticator {
         : serviceScope;
   }
 
-  bool isOAuth2Auth(Credential credential) {
+  public bool isOAuth2Auth(Credential credential) {
     return credential != null && credential.isOAuth2RefreshToken();
   }
 

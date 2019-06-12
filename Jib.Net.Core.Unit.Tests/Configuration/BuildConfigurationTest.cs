@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using Moq;
+using NodaTime;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.configuration {
 
 
@@ -45,7 +57,7 @@ namespace com.google.cloud.tools.jib.configuration {
 /** Tests for {@link BuildConfiguration}. */
 public class BuildConfigurationTest {
 
-  [TestMethod]
+  [Test]
   public void testBuilder() {
     string expectedBaseImageServerUrl = "someserver";
     string expectedBaseImageName = "baseimage";
@@ -53,17 +65,17 @@ public class BuildConfigurationTest {
     string expectedTargetServerUrl = "someotherserver";
     string expectedTargetImageName = "targetimage";
     string expectedTargetTag = "targettag";
-    ISet<string> additionalTargetImageTags = ImmutableHashSet.of("tag1", "tag2", "tag3");
-    ISet<string> expectedTargetImageTags = ImmutableHashSet.of("targettag", "tag1", "tag2", "tag3");
+    ISet<string> additionalTargetImageTags = ImmutableHashSet.Create("tag1", "tag2", "tag3");
+    ISet<string> expectedTargetImageTags = ImmutableHashSet.Create("targettag", "tag1", "tag2", "tag3");
     IList<CredentialRetriever> credentialRetrievers =
-        Collections.singletonList(() => Optional.of(Credential.from("username", "password")));
+        Collections.singletonList<CredentialRetriever>(() => Optional.of(Credential.from("username", "password")));
     Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
     IList<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
     IList<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");
-    IDictionary<string, string> expectedEnvironment = ImmutableDictionary.of("key", "value");
-    ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000));
-    IDictionary<string, string> expectedLabels = ImmutableDictionary.of("key1", "value1", "key2", "value2");
-    Class<? extends BuildableManifestTemplate> expectedTargetFormat = typeof(OCIManifestTemplate);
+    IDictionary<string, string> expectedEnvironment = ImmutableDic.of("key", "value");
+    ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000));
+    IDictionary<string, string> expectedLabels = ImmutableDic.of("key1", "value1", "key2", "value2");
+            IClass<BuildableManifestTemplate> expectedTargetFormat = new Class<OCIManifestTemplate>(typeof(OCIManifestTemplate));
     SystemPath expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
     SystemPath expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
     IList<LayerConfiguration> expectedLayerConfigurations =
@@ -104,61 +116,59 @@ public class BuildConfigurationTest {
             .setTargetFormat(ImageFormat.OCI)
             .setAllowInsecureRegistries(true)
             .setLayerConfigurations(expectedLayerConfigurations)
-            .setToolName(expectedCreatedBy)
-            .setExecutorService(MoreExecutors.newDirectExecutorService());
+            .setToolName(expectedCreatedBy);
     BuildConfiguration buildConfiguration = buildConfigurationBuilder.build();
 
-    Assert.assertNotNull(buildConfiguration.getContainerConfiguration());
-    Assert.assertEquals(
+    Assert.IsNotNull(buildConfiguration.getContainerConfiguration());
+    Assert.AreEqual(
         expectedCreationTime, buildConfiguration.getContainerConfiguration().getCreationTime());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedBaseImageServerUrl,
         buildConfiguration.getBaseImageConfiguration().getImageRegistry());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedBaseImageName, buildConfiguration.getBaseImageConfiguration().getImageRepository());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedBaseImageTag, buildConfiguration.getBaseImageConfiguration().getImageTag());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedTargetServerUrl,
         buildConfiguration.getTargetImageConfiguration().getImageRegistry());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedTargetImageName,
         buildConfiguration.getTargetImageConfiguration().getImageRepository());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedTargetTag, buildConfiguration.getTargetImageConfiguration().getImageTag());
-    Assert.assertEquals(expectedTargetImageTags, buildConfiguration.getAllTargetImageTags());
-    Assert.assertEquals(
+    Assert.AreEqual(expectedTargetImageTags, buildConfiguration.getAllTargetImageTags());
+    Assert.AreEqual(
         Credential.from("username", "password"),
         buildConfiguration
             .getTargetImageConfiguration()
             .getCredentialRetrievers()
             .get(0)
             .retrieve()
-            .orElseThrow(AssertionError.new));
-    Assert.assertEquals(
+            .orElseThrow(() => new AssertionException("")));
+    Assert.AreEqual(
         expectedProgramArguments,
         buildConfiguration.getContainerConfiguration().getProgramArguments());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedEnvironment, buildConfiguration.getContainerConfiguration().getEnvironmentMap());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedExposedPorts, buildConfiguration.getContainerConfiguration().getExposedPorts());
-    Assert.assertEquals(expectedLabels, buildConfiguration.getContainerConfiguration().getLabels());
-    Assert.assertEquals(expectedTargetFormat, buildConfiguration.getTargetFormat());
-    Assert.assertEquals(
+    Assert.AreEqual(expectedLabels, buildConfiguration.getContainerConfiguration().getLabels());
+    Assert.AreEqual(expectedTargetFormat, buildConfiguration.getTargetFormat());
+    Assert.AreEqual(
         expectedApplicationLayersCacheDirectory,
         buildConfigurationBuilder.getApplicationLayersCacheDirectory());
-    Assert.assertEquals(
+    Assert.AreEqual(
         expectedBaseImageLayersCacheDirectory,
         buildConfigurationBuilder.getBaseImageLayersCacheDirectory());
-    Assert.assertTrue(buildConfiguration.getAllowInsecureRegistries());
-    Assert.assertEquals(expectedLayerConfigurations, buildConfiguration.getLayerConfigurations());
-    Assert.assertEquals(
+    Assert.IsTrue(buildConfiguration.getAllowInsecureRegistries());
+    Assert.AreEqual(expectedLayerConfigurations, buildConfiguration.getLayerConfigurations());
+    Assert.AreEqual(
         expectedEntrypoint, buildConfiguration.getContainerConfiguration().getEntrypoint());
-    Assert.assertEquals(expectedCreatedBy, buildConfiguration.getToolName());
-    Assert.assertNotNull(buildConfiguration.getExecutorService());
+    Assert.AreEqual(expectedCreatedBy, buildConfiguration.getToolName());
   }
 
-  [TestMethod]
+  [Test]
   public void testBuilder_default() {
     // These are required and don't have defaults.
     string expectedBaseImageServerUrl = "someserver";
@@ -183,39 +193,37 @@ public class BuildConfigurationTest {
             .setBaseImageConfiguration(baseImageConfiguration)
             .setTargetImageConfiguration(targetImageConfiguration)
             .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
-            .setApplicationLayersCacheDirectory(Paths.get("ignored"))
-            .setExecutorService(MoreExecutors.newDirectExecutorService());
+            .setApplicationLayersCacheDirectory(Paths.get("ignored"));
     BuildConfiguration buildConfiguration = buildConfigurationBuilder.build();
 
-    Assert.assertEquals(ImmutableHashSet.of("targettag"), buildConfiguration.getAllTargetImageTags());
-    Assert.assertEquals(typeof(V22ManifestTemplate), buildConfiguration.getTargetFormat());
-    Assert.assertNotNull(buildConfigurationBuilder.getApplicationLayersCacheDirectory());
-    Assert.assertEquals(
+    Assert.AreEqual(ImmutableHashSet.Create("targettag"), buildConfiguration.getAllTargetImageTags());
+    Assert.AreEqual(typeof(V22ManifestTemplate), buildConfiguration.getTargetFormat());
+    Assert.IsNotNull(buildConfigurationBuilder.getApplicationLayersCacheDirectory());
+    Assert.AreEqual(
         Paths.get("ignored"), buildConfigurationBuilder.getApplicationLayersCacheDirectory());
-    Assert.assertNotNull(buildConfigurationBuilder.getBaseImageLayersCacheDirectory());
-    Assert.assertEquals(
+    Assert.IsNotNull(buildConfigurationBuilder.getBaseImageLayersCacheDirectory());
+    Assert.AreEqual(
         Paths.get("ignored"), buildConfigurationBuilder.getBaseImageLayersCacheDirectory());
-    Assert.assertNull(buildConfiguration.getContainerConfiguration());
-    Assert.assertFalse(buildConfiguration.getAllowInsecureRegistries());
-    Assert.assertEquals(Collections.emptyList(), buildConfiguration.getLayerConfigurations());
-    Assert.assertEquals("jib", buildConfiguration.getToolName());
+    Assert.IsNull(buildConfiguration.getContainerConfiguration());
+    Assert.IsFalse(buildConfiguration.getAllowInsecureRegistries());
+    Assert.AreEqual(Collections.emptyList<LayerConfiguration>(), buildConfiguration.getLayerConfigurations());
+    Assert.AreEqual("jib", buildConfiguration.getToolName());
   }
 
-  [TestMethod]
+  [Test]
   public void testBuilder_missingValues() {
     // Target image is missing
     try {
       BuildConfiguration.builder()
           .setBaseImageConfiguration(
-              ImageConfiguration.builder(Mockito.mock(typeof(ImageReference))).build())
+              ImageConfiguration.builder(Mock.Of<ImageReference>()).build())
           .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
           .setApplicationLayersCacheDirectory(Paths.get("ignored"))
-          .setExecutorService(MoreExecutors.newDirectExecutorService())
           .build();
-      Assert.fail("Build configuration should not be built with missing values");
+      Assert.Fail("Build configuration should not be built with missing values");
 
     } catch (InvalidOperationException ex) {
-      Assert.assertEquals("target image configuration is required but not set", ex.getMessage());
+      Assert.AreEqual("target image configuration is required but not set", ex.getMessage());
     }
 
     // Two required fields missing
@@ -223,12 +231,11 @@ public class BuildConfigurationTest {
       BuildConfiguration.builder()
           .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
           .setApplicationLayersCacheDirectory(Paths.get("ignored"))
-          .setExecutorService(MoreExecutors.newDirectExecutorService())
           .build();
-      Assert.fail("Build configuration should not be built with missing values");
+      Assert.Fail("Build configuration should not be built with missing values");
 
     } catch (InvalidOperationException ex) {
-      Assert.assertEquals(
+      Assert.AreEqual(
           "base image configuration and target image configuration are required but not set",
           ex.getMessage());
     }
@@ -236,10 +243,10 @@ public class BuildConfigurationTest {
     // All required fields missing
     try {
       BuildConfiguration.builder().build();
-      Assert.fail("Build configuration should not be built with missing values");
+      Assert.Fail("Build configuration should not be built with missing values");
 
     } catch (InvalidOperationException ex) {
-      Assert.assertEquals(
+      Assert.AreEqual(
           "base image configuration, target image configuration, base image layers cache directory, "
               + "application layers cache directory, and executor service are required but not set",
           ex.getMessage());

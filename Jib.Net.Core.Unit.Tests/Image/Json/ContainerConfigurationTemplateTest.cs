@@ -14,6 +14,18 @@
  * the License.
  */
 
+using NUnit.Framework;
+using Jib.Net.Core.Global;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using System.Collections.Immutable;
+using com.google.cloud.tools.jib.api;
+using System.Collections.Generic;
+using NodaTime;
+using com.google.cloud.tools.jib.json;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -36,11 +48,11 @@ namespace com.google.cloud.tools.jib.image.json {
 /** Tests for {@link ContainerConfigurationTemplate}. */
 public class ContainerConfigurationTemplateTest {
 
-  [TestMethod]
+  [Test]
   public void testToJson() {
     // Loads the expected JSON string.
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
-    string expectedJson = new string(Files.readAllBytes(jsonFile), StandardCharsets.UTF_8);
+    string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
     // Creates the JSON object to serialize.
     ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate();
@@ -57,17 +69,18 @@ public class ContainerConfigurationTemplateTest {
     containerConfigJson.setContainerHealthCheckStartPeriod(2000000000L);
     containerConfigJson.setContainerHealthCheckRetries(3);
     containerConfigJson.setContainerExposedPorts(
-        ImmutableSortedDictionary.of(
-            "1000/tcp",
-            ImmutableDictionary.of(),
-            "2000/tcp",
-            ImmutableDictionary.of(),
-            "3000/udp",
-            ImmutableDictionary.of()));
-    containerConfigJson.setContainerLabels(ImmutableDictionary.of("key1", "value1", "key2", "value2"));
+        new Dictionary<string, IDictionary<object, object>> {
+            ["1000/tcp"] =
+            ImmutableDictionary.Create<object, object>(),
+            ["2000/tcp"] =
+            ImmutableDictionary.Create<object, object>(),
+            ["3000/udp"] =
+            ImmutableDictionary.Create < object, object>()
+        }.ToImmutableSortedDictionary());
+    containerConfigJson.setContainerLabels(ImmutableDic.of("key1", "value1", "key2", "value2"));
     containerConfigJson.setContainerVolumes(
-        ImmutableDictionary.of(
-            "/var/job-result-data", ImmutableDictionary.of(), "/var/log/my-app-logs", ImmutableDictionary.of()));
+        ImmutableDic.of<string, IDictionary<object, object>>(
+            "/var/job-result-data", ImmutableDictionary.Create<object, object>(), "/var/log/my-app-logs", ImmutableDictionary.Create<object, object>()));
     containerConfigJson.setContainerWorkingDir("/some/workspace");
     containerConfigJson.setContainerUser("tomcat");
 
@@ -76,7 +89,7 @@ public class ContainerConfigurationTemplateTest {
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
     containerConfigJson.addHistoryEntry(
         HistoryEntry.builder()
-            .setCreationTimestamp(Instant.EPOCH)
+            .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
             .setAuthor("Bazel")
             .setCreatedBy("bazel build ...")
             .setEmptyLayer(true)
@@ -89,52 +102,52 @@ public class ContainerConfigurationTemplateTest {
             .build());
 
     // Serializes the JSON object.
-    Assert.assertEquals(expectedJson, JsonTemplateMapper.toUtf8String(containerConfigJson));
+    Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfigJson));
   }
 
-  [TestMethod]
+  [Test]
   public void testFromJson() {
     // Loads the JSON string.
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
 
-    // Deserializes into a manifest JSON object.
-    ContainerConfigurationTemplate containerConfigJson =
-        JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(ContainerConfigurationTemplate));
+            // Deserializes into a manifest JSON object.
+            ContainerConfigurationTemplate containerConfigJson =
+                JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(jsonFile);
 
-    Assert.assertEquals("1970-01-01T00:00:20Z", containerConfigJson.getCreated());
-    Assert.assertEquals("wasm", containerConfigJson.getArchitecture());
-    Assert.assertEquals("js", containerConfigJson.getOs());
-    Assert.assertEquals(
+    Assert.AreEqual("1970-01-01T00:00:20Z", containerConfigJson.getCreated());
+    Assert.AreEqual("wasm", containerConfigJson.getArchitecture());
+    Assert.AreEqual("js", containerConfigJson.getOs());
+    Assert.AreEqual(
         Arrays.asList("VAR1=VAL1", "VAR2=VAL2"), containerConfigJson.getContainerEnvironment());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Arrays.asList("some", "entrypoint", "command"),
         containerConfigJson.getContainerEntrypoint());
-    Assert.assertEquals(Arrays.asList("arg1", "arg2"), containerConfigJson.getContainerCmd());
+    Assert.AreEqual(Arrays.asList("arg1", "arg2"), containerConfigJson.getContainerCmd());
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Arrays.asList("CMD-SHELL", "/checkhealth"), containerConfigJson.getContainerHealthTest());
-    Assert.assertNotNull(containerConfigJson.getContainerHealthInterval());
-    Assert.assertEquals(3000000000L, containerConfigJson.getContainerHealthInterval().longValue());
-    Assert.assertNotNull(containerConfigJson.getContainerHealthTimeout());
-    Assert.assertEquals(1000000000L, containerConfigJson.getContainerHealthTimeout().longValue());
-    Assert.assertNotNull(containerConfigJson.getContainerHealthStartPeriod());
-    Assert.assertEquals(
+    Assert.IsNotNull(containerConfigJson.getContainerHealthInterval());
+    Assert.AreEqual(3000000000L, containerConfigJson.getContainerHealthInterval().longValue());
+    Assert.IsNotNull(containerConfigJson.getContainerHealthTimeout());
+    Assert.AreEqual(1000000000L, containerConfigJson.getContainerHealthTimeout().longValue());
+    Assert.IsNotNull(containerConfigJson.getContainerHealthStartPeriod());
+    Assert.AreEqual(
         2000000000L, containerConfigJson.getContainerHealthStartPeriod().longValue());
-    Assert.assertNotNull(containerConfigJson.getContainerHealthRetries());
-    Assert.assertEquals(3, containerConfigJson.getContainerHealthRetries().intValue());
+    Assert.IsNotNull(containerConfigJson.getContainerHealthRetries());
+    Assert.AreEqual(3, containerConfigJson.getContainerHealthRetries().intValue());
 
-    Assert.assertEquals(
-        ImmutableDictionary.of("key1", "value1", "key2", "value2"),
+    Assert.AreEqual(
+        ImmutableDic.of("key1", "value1", "key2", "value2"),
         containerConfigJson.getContainerLabels());
-    Assert.assertEquals("/some/workspace", containerConfigJson.getContainerWorkingDir());
-    Assert.assertEquals(
+    Assert.AreEqual("/some/workspace", containerConfigJson.getContainerWorkingDir());
+    Assert.AreEqual(
         DescriptorDigest.fromDigest(
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
         containerConfigJson.getLayerDiffId(0));
-    Assert.assertEquals(
+    Assert.AreEqual(
         ImmutableArray.Create(
             HistoryEntry.builder()
-                .setCreationTimestamp(Instant.EPOCH)
+                .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
                 .setAuthor("Bazel")
                 .setCreatedBy("bazel build ...")
                 .setEmptyLayer(true)

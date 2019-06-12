@@ -18,6 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.api
 {
+    [AttributeUsage(AttributeTargets.All)]
     internal class JsonSerializeAttribute : Attribute
     {
         internal JsonSerializeAttribute(Type _)

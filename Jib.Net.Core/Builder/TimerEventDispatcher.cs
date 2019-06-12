@@ -51,7 +51,7 @@ public class TimerEventDispatcher : IDisposable{
     
   }
 
-  TimerEventDispatcher(
+  public TimerEventDispatcher(
       EventHandlers eventHandlers, string description, IClock clock, Timer parentTimer) {
     this.eventHandlers = eventHandlers;
     this.description = description;

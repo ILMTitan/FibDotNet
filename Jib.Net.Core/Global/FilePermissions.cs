@@ -90,7 +90,7 @@ public class FilePermissions {
 
   private readonly int permissionBits;
 
-  FilePermissions(int permissionBits) {
+  public FilePermissions(int permissionBits) {
     this.permissionBits = permissionBits;
   }
 

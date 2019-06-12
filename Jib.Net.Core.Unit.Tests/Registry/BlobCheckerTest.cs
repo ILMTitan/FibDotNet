@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Net;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -40,7 +52,7 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class BlobCheckerTest {
 
-  [Mock] private HttpResponseMessage mockResponse;
+  private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
 
   private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
@@ -48,7 +60,7 @@ public class BlobCheckerTest {
   private BlobChecker testBlobChecker;
   private DescriptorDigest fakeDigest;
 
-  [TestInitialize]
+  [SetUp]
   public void setUpFakes() {
     fakeDigest =
         DescriptorDigest.fromHash(
@@ -56,132 +68,127 @@ public class BlobCheckerTest {
     testBlobChecker = new BlobChecker(fakeRegistryEndpointRequestProperties, fakeDigest);
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse() {
-    Mockito.when(mockResponse.getContentLength()).thenReturn(0L);
+    Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns(0L);
+
     BlobDescriptor expectedBlobDescriptor = new BlobDescriptor(0, fakeDigest);
 
     BlobDescriptor blobDescriptor = testBlobChecker.handleResponse(mockResponse);
 
-    Assert.assertEquals(expectedBlobDescriptor, blobDescriptor);
+    Assert.AreEqual(expectedBlobDescriptor, blobDescriptor);
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_noContentLength() {
-    Mockito.when(mockResponse.getContentLength()).thenReturn(-1L);
+    Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns(-1L);
 
     try {
       testBlobChecker.handleResponse(mockResponse);
-      Assert.fail("Should throw exception if Content-Length header is not present");
+      Assert.Fail("Should throw exception if Content-Length header is not present");
 
     } catch (RegistryErrorException ex) {
-      Assert.assertThat(
-          ex.getMessage(), CoreMatchers.containsString("Did not receive Content-Length header"));
+                StringAssert.Contains(
+                    ex.getMessage(), "Did not receive Content-Length header");
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleHttpResponseException() {
-    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
-    Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCode.NotFound);
+    HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate =
         new ErrorResponseTemplate()
             .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"));
-    Mockito.when(mockHttpResponseException.getContent())
-        .thenReturn(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+    Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
 
     BlobDescriptor blobDescriptor =
         testBlobChecker.handleHttpResponseException(mockHttpResponseException);
 
-    Assert.assertNull(blobDescriptor);
+    Assert.IsNull(blobDescriptor);
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleHttpResponseException_hasOtherErrors()
       {
-    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
-    Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCode.NotFound);
+    HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate =
         new ErrorResponseTemplate()
             .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"))
             .addError(new ErrorEntryTemplate(ErrorCodes.MANIFEST_UNKNOWN.name(), "some message"));
-    Mockito.when(mockHttpResponseException.getContent())
-        .thenReturn(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+    Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
 
     try {
       testBlobChecker.handleHttpResponseException(mockHttpResponseException);
-      Assert.fail("Non-BLOB_UNKNOWN errors should not be handled");
+      Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
 
     } catch (HttpResponseException ex) {
-      Assert.assertEquals(mockHttpResponseException, ex);
+      Assert.AreEqual(mockHttpResponseException, ex);
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleHttpResponseException_notBlobUnknown()
       {
-    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
-    Mockito.when(mockHttpResponseException.getStatusCode())
-        .thenReturn(HttpStatusCode.NotFound);
+            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
 
     ErrorResponseTemplate emptyErrorResponseTemplate = new ErrorResponseTemplate();
-    Mockito.when(mockHttpResponseException.getContent())
-        .thenReturn(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+    Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
 
     try {
       testBlobChecker.handleHttpResponseException(mockHttpResponseException);
-      Assert.fail("Non-BLOB_UNKNOWN errors should not be handled");
+      Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
 
     } catch (HttpResponseException ex) {
-      Assert.assertEquals(mockHttpResponseException, ex);
+      Assert.AreEqual(mockHttpResponseException, ex);
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleHttpResponseException_invalidStatusCode() {
-    HttpResponseException mockHttpResponseException = Mockito.mock(typeof(HttpResponseException));
-    Mockito.when(mockHttpResponseException.getStatusCode()).thenReturn(-1);
+            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
+    Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)(-1));
 
     try {
       testBlobChecker.handleHttpResponseException(mockHttpResponseException);
-      Assert.fail("Non-404 status codes should not be handled");
+      Assert.Fail("Non-404 status codes should not be handled");
 
     } catch (HttpResponseException ex) {
-      Assert.assertEquals(mockHttpResponseException, ex);
+      Assert.AreEqual(mockHttpResponseException, ex);
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testGetApiRoute() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
         testBlobChecker.getApiRoute("http://someApiBase/"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetContent() {
-    Assert.assertNull(testBlobChecker.getContent());
+    Assert.IsNull(testBlobChecker.getContent());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAccept() {
-    Assert.assertEquals(0, testBlobChecker.getAccept().size());
+    Assert.AreEqual(0, testBlobChecker.getAccept().size());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "check BLOB exists for someServerUrl/someImageName with digest " + fakeDigest,
         testBlobChecker.getActionDescription());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetHttpMethod() {
-    Assert.assertEquals("HEAD", testBlobChecker.getHttpMethod());
+    Assert.AreEqual("HEAD", testBlobChecker.getHttpMethod());
   }
 }
 }

@@ -14,6 +14,20 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.IO;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -46,133 +60,143 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ManifestPullerTest {
 
-  private static Stream stringToInputStreamUtf8(string string) {
-    return new MemoryStream(string.getBytes(StandardCharsets.UTF_8));
+  private static Stream stringToInputStreamUtf8(string @string) {
+    return new MemoryStream(@string.getBytes(StandardCharsets.UTF_8));
   }
 
-  [Mock] private HttpResponseMessage mockResponse;
+  private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
 
   private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
       new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
-  private readonly ManifestPuller<ManifestTemplate> testManifestPuller =
-      new ManifestPuller<>(
-          fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(ManifestTemplate));
+        private readonly ManifestPuller<ManifestTemplate> testManifestPuller;
+        public ManifestPullerTest()
+        {
+            testManifestPuller =
+         new ManifestPuller<ManifestTemplate>(
+             fakeRegistryEndpointRequestProperties, "test-image-tag");
 
-  [TestMethod]
+        }
+
+  [Test]
   public void testHandleResponse_v21()
       {
     SystemPath v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
     Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
 
-    Mockito.when(mockResponse.getBody()).thenReturn(v21Manifest);
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(v21Manifest);
+
     ManifestTemplate manifestTemplate =
-        new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V21ManifestTemplate))
+        new ManifestPuller<V21ManifestTemplate>(
+                fakeRegistryEndpointRequestProperties, "test-image-tag")
             .handleResponse(mockResponse);
 
-    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(typeof(V21ManifestTemplate)));
+    Assert.IsInstanceOf<V21ManifestTemplate>(manifestTemplate);
+
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_v22()
       {
     SystemPath v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
     Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
 
-    Mockito.when(mockResponse.getBody()).thenReturn(v22Manifest);
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(v22Manifest);
+
     ManifestTemplate manifestTemplate =
-        new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V22ManifestTemplate))
+        new ManifestPuller<V22ManifestTemplate>(
+                fakeRegistryEndpointRequestProperties, "test-image-tag")
             .handleResponse(mockResponse);
 
-    Assert.assertThat(manifestTemplate, CoreMatchers.instanceOf(typeof(V22ManifestTemplate)));
+    Assert.IsInstanceOf<V22ManifestTemplate>(manifestTemplate);
+
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_noSchemaVersion() {
-    Mockito.when(mockResponse.getBody()).thenReturn(stringToInputStreamUtf8("{}"));
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{}"));
+
     try {
       testManifestPuller.handleResponse(mockResponse);
-      Assert.fail("An empty manifest should throw an error");
+      Assert.Fail("An empty manifest should throw an error");
 
     } catch (UnknownManifestFormatException ex) {
-      Assert.assertEquals("Cannot find field 'schemaVersion' in manifest", ex.getMessage());
+      Assert.AreEqual("Cannot find field 'schemaVersion' in manifest", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_invalidSchemaVersion() {
-    Mockito.when(mockResponse.getBody())
-        .thenReturn(stringToInputStreamUtf8("{\"schemaVersion\":\"not valid\"}"));
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{\"schemaVersion\":\"not valid\"}"));
+
     try {
       testManifestPuller.handleResponse(mockResponse);
-      Assert.fail("A non-integer schemaVersion should throw an error");
+      Assert.Fail("A non-integer schemaVersion should throw an error");
 
     } catch (UnknownManifestFormatException ex) {
-      Assert.assertEquals("`schemaVersion` field is not an integer", ex.getMessage());
+      Assert.AreEqual("`schemaVersion` field is not an integer", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testHandleResponse_unknownSchemaVersion() {
-    Mockito.when(mockResponse.getBody())
-        .thenReturn(stringToInputStreamUtf8("{\"schemaVersion\":0}"));
+    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{\"schemaVersion\":0}"));
+
     try {
       testManifestPuller.handleResponse(mockResponse);
-      Assert.fail("An unknown manifest schemaVersion should throw an error");
+      Assert.Fail("An unknown manifest schemaVersion should throw an error");
 
     } catch (UnknownManifestFormatException ex) {
-      Assert.assertEquals("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.getMessage());
+      Assert.AreEqual("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testGetApiRoute() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri("http://someApiBase/someImageName/manifests/test-image-tag"),
         testManifestPuller.getApiRoute("http://someApiBase/"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetHttpMethod() {
-    Assert.assertEquals("GET", testManifestPuller.getHttpMethod());
+    Assert.AreEqual("GET", testManifestPuller.getHttpMethod());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "pull image manifest for someServerUrl/someImageName:test-image-tag",
         testManifestPuller.getActionDescription());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetContent() {
-    Assert.assertNull(testManifestPuller.getContent());
+    Assert.IsNull(testManifestPuller.getContent());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAccept() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         Arrays.asList(
             OCIManifestTemplate.MANIFEST_MEDIA_TYPE,
             V22ManifestTemplate.MANIFEST_MEDIA_TYPE,
             V21ManifestTemplate.MEDIA_TYPE),
         testManifestPuller.getAccept());
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Collections.singletonList(OCIManifestTemplate.MANIFEST_MEDIA_TYPE),
-        new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(OCIManifestTemplate))
+        new ManifestPuller<OCIManifestTemplate>(
+                fakeRegistryEndpointRequestProperties, "test-image-tag")
             .getAccept());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Collections.singletonList(V22ManifestTemplate.MANIFEST_MEDIA_TYPE),
-        new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V22ManifestTemplate))
+        new ManifestPuller<V22ManifestTemplate>(
+                fakeRegistryEndpointRequestProperties, "test-image-tag")
             .getAccept());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Collections.singletonList(V21ManifestTemplate.MEDIA_TYPE),
-        new ManifestPuller<>(
-                fakeRegistryEndpointRequestProperties, "test-image-tag", typeof(V21ManifestTemplate))
+        new ManifestPuller<V21ManifestTemplate>(
+                fakeRegistryEndpointRequestProperties, "test-image-tag")
             .getAccept());
   }
 }

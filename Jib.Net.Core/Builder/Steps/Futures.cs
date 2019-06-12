@@ -22,13 +22,18 @@ using com.google.cloud.tools.jib.cache;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    internal static class Futures
+    public static class Futures
     {
-        internal static AsyncDependencies whenAllSucceed<T>(Task<T> task)
+        public static AsyncDependencies whenAllSucceed<T>(Task<T> task)
         {
             throw new NotImplementedException();
         }
-        internal static AsyncDependencies whenAllSucceed<T>(IEnumerable<Task<T>> tasks)
+        public static AsyncDependencies whenAllSucceed<T>(IEnumerable<Task<T>> tasks)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Task<T> immediateFuture<T>(T mockCachedLayer)
         {
             throw new NotImplementedException();
         }

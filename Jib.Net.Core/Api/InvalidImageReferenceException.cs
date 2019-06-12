@@ -28,7 +28,15 @@ public class InvalidImageReferenceException : Exception {
     this.reference = reference;
   }
 
-  public string getInvalidReference() {
+        public InvalidImageReferenceException() : base()
+        {
+        }
+
+        public InvalidImageReferenceException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public string getInvalidReference() {
     return reference;
   }
 }

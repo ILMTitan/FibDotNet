@@ -14,6 +14,23 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker.json;
+using com.google.cloud.tools.jib.image;
+using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.json;
+using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.docker {
 
 
@@ -52,10 +69,10 @@ namespace com.google.cloud.tools.jib.docker {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ImageTarballTest {
 
-  [Mock] private Layer mockLayer1;
-  [Mock] private Layer mockLayer2;
+  private Layer mockLayer1 = Mock.Of<Layer>();
+  private Layer mockLayer2 = Mock.Of<Layer>();
 
-  [TestMethod]
+  [Test]
   public void testWriteTo()
       {
     SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
@@ -70,55 +87,59 @@ public class ImageTarballTest {
         DescriptorDigest.fromHash(
             "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc6");
 
-    Mockito.when(mockLayer1.getBlob()).thenReturn(Blobs.from(fileA));
-    Mockito.when(mockLayer1.getBlobDescriptor())
-        .thenReturn(new BlobDescriptor(fileASize, fakeDigestA));
-    Mockito.when(mockLayer1.getDiffId()).thenReturn(fakeDigestA);
-    Mockito.when(mockLayer2.getBlob()).thenReturn(Blobs.from(fileB));
-    Mockito.when(mockLayer2.getBlobDescriptor())
-        .thenReturn(new BlobDescriptor(fileBSize, fakeDigestB));
-    Mockito.when(mockLayer2.getDiffId()).thenReturn(fakeDigestB);
+    Mock.Get(mockLayer1).Setup(m => m.getBlob()).Returns(Blobs.from(fileA));
+
+    Mock.Get(mockLayer1).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(fileASize, fakeDigestA));
+
+    Mock.Get(mockLayer1).Setup(m => m.getDiffId()).Returns(fakeDigestA);
+
+    Mock.Get(mockLayer2).Setup(m => m.getBlob()).Returns(Blobs.from(fileB));
+
+    Mock.Get(mockLayer2).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(fileBSize, fakeDigestB));
+
+    Mock.Get(mockLayer2).Setup(m => m.getDiffId()).Returns(fakeDigestB);
+
     Image testImage =
-        Image.builder(typeof(V22ManifestTemplate)).addLayer(mockLayer1).addLayer(mockLayer2).build();
+        Image.builder(new Class<V22ManifestTemplate>(typeof(V22ManifestTemplate))).addLayer(mockLayer1).addLayer(mockLayer2).build();
 
     ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 
-    MemoryStream out = new MemoryStream();
-    imageToTarball.writeTo(out);
-    ByteArrayInputStream in = new MemoryStream(out.toByteArray());
-    using (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(in)) {
+    MemoryStream @out = new MemoryStream();
+    imageToTarball.writeTo(@out);
+            MemoryStream @in = new MemoryStream(@out.toByteArray());
+    using (TarInputStream tarArchiveInputStream = new TarInputStream(@in)) {
 
       // Verifies layer with fileA was added.
       TarEntry headerFileALayer = tarArchiveInputStream.getNextTarEntry();
-      Assert.assertEquals(fakeDigestA.getHash() + ".tar.gz", headerFileALayer.getName());
+      Assert.AreEqual(fakeDigestA.getHash() + ".tar.gz", headerFileALayer.getName());
       string fileAString =
           CharStreams.toString(
               new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-      Assert.assertEquals(Blobs.writeToString(Blobs.from(fileA)), fileAString);
+      Assert.AreEqual(Blobs.writeToString(Blobs.from(fileA)), fileAString);
 
       // Verifies layer with fileB was added.
       TarEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
-      Assert.assertEquals(fakeDigestB.getHash() + ".tar.gz", headerFileBLayer.getName());
+      Assert.AreEqual(fakeDigestB.getHash() + ".tar.gz", headerFileBLayer.getName());
       string fileBString =
           CharStreams.toString(
               new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-      Assert.assertEquals(Blobs.writeToString(Blobs.from(fileB)), fileBString);
+      Assert.AreEqual(Blobs.writeToString(Blobs.from(fileB)), fileBString);
 
       // Verifies container configuration was added.
       TarEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();
-      Assert.assertEquals("config.json", headerContainerConfiguration.getName());
+      Assert.AreEqual("config.json", headerContainerConfiguration.getName());
       string containerConfigJson =
           CharStreams.toString(
               new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-      JsonTemplateMapper.readJson(containerConfigJson, typeof(ContainerConfigurationTemplate));
+      JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(containerConfigJson);
 
       // Verifies manifest was added.
       TarEntry headerManifest = tarArchiveInputStream.getNextTarEntry();
-      Assert.assertEquals("manifest.json", headerManifest.getName());
+      Assert.AreEqual("manifest.json", headerManifest.getName());
       string manifestJson =
           CharStreams.toString(
               new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-      JsonTemplateMapper.readListOfJson(manifestJson, typeof(DockerLoadManifestEntryTemplate));
+      JsonTemplateMapper.readListOfJson<DockerLoadManifestEntryTemplate>(manifestJson);
     }
   }
 }

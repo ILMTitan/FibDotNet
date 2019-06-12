@@ -19,9 +19,9 @@ using System;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    internal static class NonBlockingSteps
+    public static class NonBlockingSteps
     {
-        internal static T get<T>(AsyncStep<T> step)
+        public static T get<T>(AsyncStep<T> step)
         {
             return step.getFuture().Result;
         }

@@ -14,6 +14,10 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+
 namespace com.google.cloud.tools.jib.global {
 
 
@@ -27,128 +31,118 @@ public class JibSystemPropertiesTest {
   private string httpProxyPortSaved;
   private string httpsProxyPortSaved;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
-    httpProxyPortSaved = System.getProperty("http.proxyPort");
-    httpsProxyPortSaved = System.getProperty("https.proxyPort");
   }
 
-  @After
+  [TearDown]
   public void tearDown() {
-    System.clearProperty(JibSystemProperties.HTTP_TIMEOUT);
-    System.clearProperty("http.proxyPort");
-    System.clearProperty("https.proxyPort");
-    if (httpProxyPortSaved != null) {
-      System.setProperty("http.proxyPort", httpProxyPortSaved);
-    }
-    if (httpsProxyPortSaved != null) {
-      System.setProperty("https.proxyPort", httpsProxyPortSaved);
-    }
+    Environment.SetEnvironmentVariable((JibSystemProperties.HTTP_TIMEOUT), null);
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpTimeoutProperty_ok() {
-    Assert.assertNull(System.getProperty(JibSystemProperties.HTTP_TIMEOUT));
+    Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT));
     JibSystemProperties.checkHttpTimeoutProperty();
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpTimeoutProperty_stringValue() {
-    System.setProperty(JibSystemProperties.HTTP_TIMEOUT, "random string");
+    Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "random string");
     try {
       JibSystemProperties.checkHttpTimeoutProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("jib.httpTimeout must be an integer: random string", ex.getMessage());
+      Assert.AreEqual("jib.httpTimeout must be an integer: random string", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpProxyPortProperty_undefined() {
-    System.clearProperty("http.proxyPort");
-    System.clearProperty("https.proxyPort");
+            Environment.SetEnvironmentVariable("http.proxyPort", null);
+            Environment.SetEnvironmentVariable("https.proxyPort", null);
     JibSystemProperties.checkProxyPortProperty();
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpProxyPortProperty() {
-    System.setProperty("http.proxyPort", "0");
-    System.setProperty("https.proxyPort", "0");
+    Environment.SetEnvironmentVariable("http.proxyPort", "0");
+    Environment.SetEnvironmentVariable("https.proxyPort", "0");
     JibSystemProperties.checkProxyPortProperty();
 
-    System.setProperty("http.proxyPort", "1");
-    System.setProperty("https.proxyPort", "1");
+    Environment.SetEnvironmentVariable("http.proxyPort", "1");
+    Environment.SetEnvironmentVariable("https.proxyPort", "1");
     JibSystemProperties.checkProxyPortProperty();
 
-    System.setProperty("http.proxyPort", "65535");
-    System.setProperty("https.proxyPort", "65535");
+    Environment.SetEnvironmentVariable("http.proxyPort", "65535");
+    Environment.SetEnvironmentVariable("https.proxyPort", "65535");
     JibSystemProperties.checkProxyPortProperty();
 
-    System.setProperty("http.proxyPort", "65534");
-    System.setProperty("https.proxyPort", "65534");
+    Environment.SetEnvironmentVariable("http.proxyPort", "65534");
+    Environment.SetEnvironmentVariable("https.proxyPort", "65534");
     JibSystemProperties.checkProxyPortProperty();
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpProxyPortProperty_negativeValue() {
-    System.setProperty("http.proxyPort", "-1");
-    System.clearProperty("https.proxyPort");
+    Environment.SetEnvironmentVariable("http.proxyPort", "-1");
+            Environment.SetEnvironmentVariable("https.proxyPort", null);
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("http.proxyPort cannot be less than 0: -1", ex.getMessage());
+      Assert.AreEqual("http.proxyPort cannot be less than 0: -1", ex.getMessage());
     }
 
-    System.clearProperty("http.proxyPort");
-    System.setProperty("https.proxyPort", "-1");
+            Environment.SetEnvironmentVariable("http.proxyPort", null);
+    Environment.SetEnvironmentVariable("https.proxyPort", "-1");
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("https.proxyPort cannot be less than 0: -1", ex.getMessage());
+      Assert.AreEqual("https.proxyPort cannot be less than 0: -1", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpProxyPortProperty_over65535() {
-    System.setProperty("http.proxyPort", "65536");
-    System.clearProperty("https.proxyPort");
+    Environment.SetEnvironmentVariable("http.proxyPort", "65536");
+            Environment.SetEnvironmentVariable("https.proxyPort", null);
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("http.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
+      Assert.AreEqual("http.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
     }
 
-    System.clearProperty("http.proxyPort");
-    System.setProperty("https.proxyPort", "65536");
+            Environment.SetEnvironmentVariable("http.proxyPort", null);
+    Environment.SetEnvironmentVariable("https.proxyPort", "65536");
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("https.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
+      Assert.AreEqual("https.proxyPort cannot be greater than 65535: 65536", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testCheckHttpProxyPortProperty_stringValue() {
-    System.setProperty("http.proxyPort", "some string");
-    System.clearProperty("https.proxyPort");
+    Environment.SetEnvironmentVariable("http.proxyPort", "some string");
+            Environment.SetEnvironmentVariable("https.proxyPort", null);
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("http.proxyPort must be an integer: some string", ex.getMessage());
+      Assert.AreEqual("http.proxyPort must be an integer: some string", ex.getMessage());
     }
 
-    System.clearProperty("http.proxyPort");
-    System.setProperty("https.proxyPort", "some string");
+            Environment.SetEnvironmentVariable("http.proxyPort", null);
+    Environment.SetEnvironmentVariable("https.proxyPort", "some string");
     try {
       JibSystemProperties.checkProxyPortProperty();
-      Assert.fail();
+      Assert.Fail();
     } catch (FormatException ex) {
-      Assert.assertEquals("https.proxyPort must be an integer: some string", ex.getMessage());
+      Assert.AreEqual("https.proxyPort must be an integer: some string", ex.getMessage());
     }
   }
 }

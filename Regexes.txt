@@ -39,3 +39,60 @@ $1;
 
 (^\s*(?:(?:public|private)\s+)?\w+\([^)]*\))(\s*{\s*)this\(((?:[^()]|(?<-open>\))|(?<open>\())*)\);\s*$
 $1 : this($3)$2
+
+^(\s*)Assert\.assertThat\(((?:[^(),]|(?<open>\()|(?<-open>[^()]*\)))*),\s*CoreMatchers\.containsString\(((?:[^()]|(?<open2>\()|(?<-open2>\)))*)\)\s*\)\s*;
+$1StringAssert.Contains($2, $3);
+
+^(\s*)Assert\.assertThat\(((?:[^(),]|(?<open>\()|(?<-open>[^()]*\)))*),\s*CoreMatchers\.startsWith\(((?:[^()]|(?<open2>\()|(?<-open2>\)))*)\)\s*\)\s*;(\s*$)
+$1StringAssert.StartsWith($2, $3);$4
+
+^(\s*)Assert\.assertThat\(((?:[^(),]|(?<open>\()|(?<-open>[^()]*\)))*),\s*CoreMatchers\.instanceOf\(typeof\(([^)]*)\)\)\s*\)\s*;(\s*$)
+$1Assert.IsInstanceOf<$3>($2);$4
+
+^(\s*)Assert\.assertThat\(((?:[^(),]|(?<open>\()|(?<-open>[^()]*\)))*),\s*CoreMatchers\.is\(((?:[^()]|(?<o>\()|(?<-o>\)))*)\)\s*\)\s*;(\s*$)
+$1Assert.AreEqual($2, $3);$4
+
+^(\s*)\[Mock\]\s*((?:(?:private)|(?:public))\s+)?([\w.]+(?:\<(?:[^<>]|(?<o>\<)|(?<-o>\>))*\>)?)\s+(\w+);
+$1$2$3 $4 = Mock.Of<$3>();
+
+^(\s*)@Spy\s*((?:(?:private)|(?:public))\s+)?([\w.]+(?:\<(?:[^<>]|(?<o>\<)|(?<-o>\>))*\>)?)\s+(\w+);
+$1$2$3 $4 = Mock.Of<$3>();
+
+^(\s*)Mockito\s*\.\s*verify\(\s*((\w)\w*)\s*\)\s*\.([^;]*);\s*$
+$1Mock.Get($2).Verify($3 => $3.$4);
+
+^([^"/*;]*)Mockito\s*\.\s*when\(\s*((\w)\w*)\.((?:[^()]|(?<o>\()|(?<-o>\)))*)\)\s*\.thenReturn\(((?:[^()]|(?<o2>\()|(?<-o2>\)))*)\)
+$1Mock.Get($2).Setup($3 => $3.$4).Returns($5)
+
+^([^"/*;]*)Mockito\s*\.\s*mock\(typeof\(([^)]*)\)\)
+$1Mock.Of<$2>()
+
+^([^"/*;]*)Mockito\s*\.\s*any\(\s*typeof\(([^)]*)\)\)
+$1It.IsAny<$2>()
+
+^([^"/*;]*)Mockito\s*\.\s*when\(*((\w)\w*)\.((?:[^()"]|(?<o1>\()|(?<-o1>\))|"(?:[^\"]|\\.)*")*\s*)\)(\s*)\.thenThrow\(((?:[^()"]|(?<o1>\()|(?<-o1>\)))*)\)(.*?$)
+$1Mock.Get($2).Setup($3 => $3.$4)$5.Throws($6)$7
+
+^([^/*;"]*)\bnew\s+string\(((?:[^(),]|(?<o>\([^()]*)|(?<-o>[^()]*\)))*),\s*([^()]*)\)
+$1$3.GetString($2)
+
+^([^/*;"]*)\bJsonTemplateMapper\.readJsonFromFileWithLock\(((?:[^()]|(?<o>\()|(?<-o>\)))*),\s*typeof\(([^()]+)\)\)([^;]*;\s*$)
+$1JsonTemplateMapper.readJsonFromFileWithLock<$3>($2)$4
+
+^([^/*;"]*)\badd\(\s*typeof\(([^()]*)\),((?:[^()]|(?<o>\([^()]*)|(?<-o>[^()]\)))*\)\s*$)
+$1add<$2>($3
+
+^([^/*;"]*)\bJsonTemplateMapper\.readJsonFromFile\(((?:[^()]|(?<o>\()|(?<-o>\)))*),\s*typeof\(([^()]+)\)\)([^;]*;\s*$)
+$1JsonTemplateMapper.readJsonFromFile<$3>($2)$4
+
+^([^/*;"]*\bmockHttpResponse\([^(),]*,\s*)new\s+HttpHeaders\(\)((?:[^()]|(?<o>\()|(?<-o>\)))*)\)
+$1h => h$2)
+
+^([^"/*;{}]*)Mockito.eq\(((?:[^()"]|(?<o1>\()|(?<-o1>\))|"(?:[^\"]|\\.)*")*)\)
+$1$2
+
+\bMockito\.verify\(((\w)[^(),]*),\s*Mockito.times\(([^()]*)\)\)([^;]*);
+Mock.Get($1).Verify($2 => $2$4, Times.Exactly($3));
+
+\bMockito\.verifyNoMoreInteractions\(((\w)[^(),]*)\)
+Mock.Get($1).VerifyNoOtherCalls()

@@ -14,6 +14,10 @@
  * the License.
  */
 
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -25,34 +29,34 @@ namespace com.google.cloud.tools.jib.registry {
 /** Tests for {@link RegistryAliasGroup}. */
 public class RegistryAliasGroupTest {
 
-  [TestMethod]
+  [Test]
   public void testGetAliasesGroup_noKnownAliases() {
     IList<string> singleton = RegistryAliasGroup.getAliasesGroup("something.gcr.io");
-    Assert.assertEquals(1, singleton.size());
-    Assert.assertEquals("something.gcr.io", singleton.get(0));
+    Assert.AreEqual(1, singleton.size());
+    Assert.AreEqual("something.gcr.io", singleton.get(0));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAliasesGroup_dockerHub() {
     ISet<string> aliases =
         Sets.newHashSet(
             "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io");
     foreach (string alias in aliases)
     {
-      Assert.assertEquals(aliases, new HashSet<>(RegistryAliasGroup.getAliasesGroup(alias)));
+      Assert.AreEqual(aliases, new HashSet<string>(RegistryAliasGroup.getAliasesGroup(alias)));
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testGetHost_noAlias() {
     string host = RegistryAliasGroup.getHost("something.gcr.io");
-    Assert.assertEquals("something.gcr.io", host);
+    Assert.AreEqual("something.gcr.io", host);
   }
 
-  [TestMethod]
+  [Test]
   public void testGetHost_dockerIo() {
     string host = RegistryAliasGroup.getHost("docker.io");
-    Assert.assertEquals("registry-1.docker.io", host);
+    Assert.AreEqual("registry-1.docker.io", host);
   }
 }
 }

@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.filesystem {
 
 
@@ -39,18 +46,18 @@ public class TemporaryDirectoryTest {
 
   [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [TestMethod]
+  [Test]
   public void testClose_directoryDeleted() {
     using (TemporaryDirectory temporaryDirectory =
         new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
       createFilesInDirectory(temporaryDirectory.getDirectory());
 
       temporaryDirectory.close();
-      Assert.assertFalse(Files.exists(temporaryDirectory.getDirectory()));
+      Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testClose_directoryNotDeletedIfMoved() {
     SystemPath destinationParent = temporaryFolder.newFolder().toPath();
 
@@ -58,12 +65,12 @@ public class TemporaryDirectoryTest {
         new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
       createFilesInDirectory(temporaryDirectory.getDirectory());
 
-      Assert.assertFalse(Files.exists(destinationParent.resolve("destination")));
+      Assert.IsFalse(Files.exists(destinationParent.resolve("destination")));
       Files.move(temporaryDirectory.getDirectory(), destinationParent.resolve("destination"));
 
       temporaryDirectory.close();
-      Assert.assertFalse(Files.exists(temporaryDirectory.getDirectory()));
-      Assert.assertTrue(Files.exists(destinationParent.resolve("destination")));
+      Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
+      Assert.IsTrue(Files.exists(destinationParent.resolve("destination")));
     }
   }
 }

@@ -278,11 +278,11 @@ public class BuildConfiguration {
       }
     }
 
-    SystemPath getBaseImageLayersCacheDirectory() {
+    public SystemPath getBaseImageLayersCacheDirectory() {
       return baseImageLayersCacheDirectory;
     }
 
-    SystemPath getApplicationLayersCacheDirectory() {
+    public SystemPath getApplicationLayersCacheDirectory() {
       return applicationLayersCacheDirectory;
     }
   }

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.docker
 {
-    internal class ProcessBuilder
+    public class ProcessBuilder
     {
         private IList<string> dockerCommand;
         private string v;
@@ -39,7 +39,12 @@ namespace com.google.cloud.tools.jib.docker
             throw new NotImplementedException();
         }
 
-        internal Process start()
+        public Process start()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal double command()
         {
             throw new NotImplementedException();
         }

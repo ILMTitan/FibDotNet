@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.hash;
+using ICSharpCode.SharpZipLib.GZip;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.cache {
 
 
@@ -65,7 +78,7 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private static Blob decompress(Blob blob) {
-    return Blobs.from(new GZIPInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
+    return Blobs.from(new GZipInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
   }
 
   /**
@@ -87,8 +100,8 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private static long sizeOf(Blob blob) {
-    CountingOutputStream countingOutputStream =
-        new CountingOutputStream(Stream.Null);
+    CountingDigestOutputStream countingOutputStream =
+        new CountingDigestOutputStream(Stream.Null);
     blob.writeTo(countingOutputStream);
     return countingOutputStream.getCount();
   }
@@ -97,7 +110,7 @@ public class CacheTest {
     return new LayerEntry(
         source,
         destination,
-        LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(source, destination),
+        LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER(source, destination),
         LayerConfiguration.DEFAULT_MODIFIED_TIME);
   }
 
@@ -115,7 +128,7 @@ public class CacheTest {
   private long layerSize2;
   private ImmutableArray<LayerEntry> layerEntries2;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     SystemPath directory = temporaryFolder.newFolder().toPath();
     Files.createDirectory(directory.resolve("source"));
@@ -139,67 +152,67 @@ public class CacheTest {
     layerDigest2 = digestOf(compress(layerBlob2));
     layerDiffId2 = digestOf(layerBlob2);
     layerSize2 = sizeOf(compress(layerBlob2));
-    layerEntries2 = ImmutableArray.Create();
+    layerEntries2 = ImmutableArray.Create<LayerEntry>();
   }
 
-  [TestMethod]
+  [Test]
   public void testWithDirectory_existsButNotDirectory() {
     SystemPath file = temporaryFolder.newFile().toPath();
 
     try {
       Cache.withDirectory(file);
-      Assert.fail();
+      Assert.Fail();
 
-    } catch (FileAlreadyExistsException ex) {
+    } catch (IOException) {
       // pass
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testWriteCompressed_retrieveByLayerDigest()
       {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeCompressedLayer(compress(layerBlob1)));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(AssertionError::new));
-    Assert.assertFalse(cache.retrieve(layerDigest2).isPresent());
+    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriteUncompressedWithLayerEntries_retrieveByLayerDigest()
       {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(AssertionError::new));
-    Assert.assertFalse(cache.retrieve(layerDigest2).isPresent());
+    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriteUncompressedWithLayerEntries_retrieveByLayerEntries()
       {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
-    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(AssertionError::new));
-    Assert.assertFalse(cache.retrieve(layerDigest2).isPresent());
+    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
+    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
 
     // A source file modification results in the cached layer to be out-of-date and not retrieved.
     Files.setLastModifiedTime(
         layerEntries1.get(0).getSourceFile(), FileTime.from(SystemClock.Instance.GetCurrentInstant().plusSeconds(1)));
-    Assert.assertFalse(cache.retrieve(layerEntries1).isPresent());
+    Assert.IsFalse(cache.retrieve(layerEntries1).isPresent());
   }
 
-  [TestMethod]
+  [Test]
   public void testRetrieveWithTwoEntriesInCache() {
     Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
     verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
     verifyIsLayer2(cache.writeUncompressedLayer(layerBlob2, layerEntries2));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(AssertionError::new));
-    verifyIsLayer2(cache.retrieve(layerDigest2).orElseThrow(AssertionError::new));
-    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(AssertionError::new));
-    verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(AssertionError.new));
+    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+    verifyIsLayer2(cache.retrieve(layerDigest2).orElseThrow(() => new AssertionException("")));
+    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
+    verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(() => new AssertionException("")));
   }
 
   /**
@@ -209,10 +222,10 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private void verifyIsLayer1(CachedLayer cachedLayer) {
-    Assert.assertEquals("layerBlob1", Blobs.writeToString(decompress(cachedLayer.getBlob())));
-    Assert.assertEquals(layerDigest1, cachedLayer.getDigest());
-    Assert.assertEquals(layerDiffId1, cachedLayer.getDiffId());
-    Assert.assertEquals(layerSize1, cachedLayer.getSize());
+    Assert.AreEqual("layerBlob1", Blobs.writeToString(decompress(cachedLayer.getBlob())));
+    Assert.AreEqual(layerDigest1, cachedLayer.getDigest());
+    Assert.AreEqual(layerDiffId1, cachedLayer.getDiffId());
+    Assert.AreEqual(layerSize1, cachedLayer.getSize());
   }
 
   /**
@@ -222,10 +235,10 @@ public class CacheTest {
    * @throws IOException if an I/O exception occurs
    */
   private void verifyIsLayer2(CachedLayer cachedLayer) {
-    Assert.assertEquals("layerBlob2", Blobs.writeToString(decompress(cachedLayer.getBlob())));
-    Assert.assertEquals(layerDigest2, cachedLayer.getDigest());
-    Assert.assertEquals(layerDiffId2, cachedLayer.getDiffId());
-    Assert.assertEquals(layerSize2, cachedLayer.getSize());
+    Assert.AreEqual("layerBlob2", Blobs.writeToString(decompress(cachedLayer.getBlob())));
+    Assert.AreEqual(layerDigest2, cachedLayer.getDigest());
+    Assert.AreEqual(layerDiffId2, cachedLayer.getDiffId());
+    Assert.AreEqual(layerSize2, cachedLayer.getSize());
   }
 }
 }

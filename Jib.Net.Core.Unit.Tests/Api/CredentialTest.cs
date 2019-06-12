@@ -14,43 +14,45 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link com.google.cloud.tools.jib.api.Credential}. */
 
+    public class CredentialTest
+    {
+        [Test]
+        public void testCredentialsHash()
+        {
+            Credential credentialA1 = Credential.from("username", "password");
+            Credential credentialA2 = Credential.from("username", "password");
+            Credential credentialB1 = Credential.from("", "");
+            Credential credentialB2 = Credential.from("", "");
 
+            Assert.AreEqual(credentialA1, credentialA2);
+            Assert.AreEqual(credentialB1, credentialB2);
+            Assert.AreNotEqual(credentialA1, credentialB1);
+            Assert.AreNotEqual(credentialA1, credentialB2);
 
+            ISet<Credential> credentialSet =
+                new HashSet<Credential>(Arrays.asList(credentialA1, credentialA2, credentialB1, credentialB2));
+            Assert.AreEqual(new HashSet<Credential>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
+        }
 
-
-/** Tests for {@link com.google.cloud.tools.jib.api.Credential}. */
-public class CredentialTest {
-
-  [TestMethod]
-  public void testCredentialsHash() {
-    Credential credentialA1 = Credential.from("username", "password");
-    Credential credentialA2 = Credential.from("username", "password");
-    Credential credentialB1 = Credential.from("", "");
-    Credential credentialB2 = Credential.from("", "");
-
-    Assert.assertEquals(credentialA1, credentialA2);
-    Assert.assertEquals(credentialB1, credentialB2);
-    Assert.assertNotEquals(credentialA1, credentialB1);
-    Assert.assertNotEquals(credentialA1, credentialB2);
-
-    ISet<Credential> credentialSet =
-        new HashSet<>(Arrays.asList(credentialA1, credentialA2, credentialB1, credentialB2));
-    Assert.assertEquals(new HashSet<>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
-  }
-
-  [TestMethod]
-  public void testCredentialsOAuth2RefreshToken() {
-    Credential oauth2Credential = Credential.from("<token>", "eyJhbGciOi...3gw");
-    Assert.assertTrue(
-        "Credential should be an auth2 token when username is <token>",
-        oauth2Credential.isOAuth2RefreshToken());
-    Assert.assertEquals(
-        "OAuth2 token credential should take password as refresh token",
-        "eyJhbGciOi...3gw",
-        oauth2Credential.getPassword());
-  }
-}
+        [Test]
+        public void testCredentialsOAuth2RefreshToken()
+        {
+            Credential oauth2Credential = Credential.from("<token>", "eyJhbGciOi...3gw");
+            Assert.IsTrue(
+                oauth2Credential.isOAuth2RefreshToken(),
+                "Credential should be an auth2 token when username is <token>");
+            Assert.AreEqual(
+                "OAuth2 token credential should take password as refresh token",
+                "eyJhbGciOi...3gw",
+                oauth2Credential.getPassword());
+        }
+    }
 }

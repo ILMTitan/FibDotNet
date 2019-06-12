@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.frontend {
   private readonly Consumer<LogEvent> logger;
   private readonly DockerCredentialHelperFactory dockerCredentialHelperFactory;
 
-  CredentialRetrieverFactory(
+  public CredentialRetrieverFactory(
       ImageReference imageReference,
       Consumer<LogEvent> logger,
       DockerCredentialHelperFactory dockerCredentialHelperFactory) {
@@ -225,7 +225,7 @@ namespace com.google.cloud.tools.jib.frontend {
         new DockerConfigCredentialRetriever(imageReference.getRegistry(), dockerConfigFile));
   }
 
-  CredentialRetriever dockerConfig(
+  public CredentialRetriever dockerConfig(
       DockerConfigCredentialRetriever dockerConfigCredentialRetriever) {
     return () => {
       try {

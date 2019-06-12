@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+
 namespace com.google.cloud.tools.jib.docker {
 
 
@@ -48,184 +61,157 @@ public class DockerClientTest {
 
   [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [Mock] private ProcessBuilder mockProcessBuilder;
-  [Mock] private Process mockProcess;
-  [Mock] private ImageTarball imageTarball;
+  private ProcessBuilder mockProcessBuilder = Mock.Of<ProcessBuilder>();
+  private Process mockProcess = Mock.Of<Process>();
+  private ImageTarball imageTarball = Mock.Of<ImageTarball>();
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
-    Mockito.when(mockProcessBuilder.start()).thenReturn(mockProcess);
+    Mock.Get(mockProcessBuilder).Setup(m => m.start()).Returns(mockProcess);
 
-    Mockito.doAnswer(
-            AdditionalAnswers.answerVoid(
-                (VoidAnswer1<Stream>)
-                    out => out.write("jib".getBytes(StandardCharsets.UTF_8))))
-        .when(imageTarball)
-        .writeTo(Mockito.any(typeof(Stream)));
+            Mock.Get(imageTarball).Setup(i => i.writeTo(It.IsAny<Stream>()))
+                .Callback<Stream>(s => s.write("jib".getBytes(StandardCharsets.UTF_8)));
   }
 
-  [TestMethod]
+  [Test]
   public void testIsDockerInstalled_fail() {
-    Assert.assertFalse(DockerClient.isDockerInstalled(Paths.get("path/to/nonexistent/file")));
+    Assert.IsFalse(DockerClient.isDockerInstalled(Paths.get("path/to/nonexistent/file")));
   }
 
-  [TestMethod]
+  [Test]
   public void testLoad() {
     DockerClient testDockerClient =
         new DockerClient(
             subcommand => {
-              Assert.assertEquals(Collections.singletonList("load"), subcommand);
+              Assert.AreEqual(Collections.singletonList("load"), subcommand);
               return mockProcessBuilder;
             });
-    Mockito.when(mockProcess.waitFor()).thenReturn(0);
+    Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(0);
 
     // Captures stdin.
     MemoryStream byteArrayOutputStream = new MemoryStream();
-    Mockito.when(mockProcess.getOutputStream()).thenReturn(byteArrayOutputStream);
+    Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(byteArrayOutputStream);
 
     // Simulates stdout.
-    Mockito.when(mockProcess.getInputStream())
-        .thenReturn(new MemoryStream("output".getBytes(StandardCharsets.UTF_8)));
+    Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("output".getBytes(StandardCharsets.UTF_8)));
 
     string output = testDockerClient.load(imageTarball);
 
-    Assert.assertEquals(
-        "jib", new string(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
-    Assert.assertEquals("output", output);
+    Assert.AreEqual(
+        "jib", StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
+    Assert.AreEqual("output", output);
   }
 
-  [TestMethod]
+  [Test]
   public void testLoad_stdinFail() {
     DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
 
-    Mockito.when(mockProcess.getOutputStream())
-        .thenReturn(
-            new Stream() {
+            Mock.Get(mockProcess).Setup(m => m.getOutputStream().write(It.IsAny<byte[]>())).Throws<IOException>();
 
-              public void write(int b) {
-                throw new IOException();
-              }
-            });
-    Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+    Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.load(imageTarball);
-      Assert.fail("Write should have failed");
+      Assert.Fail("Write should have failed");
 
     } catch (IOException ex) {
-      Assert.assertEquals("'docker load' command failed with error: error", ex.getMessage());
+      Assert.AreEqual("'docker load' command failed with error: error", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testLoad_stdinFail_stderrFail() {
     DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
     IOException expectedIOException = new IOException();
 
-    Mockito.when(mockProcess.getOutputStream())
-        .thenReturn(
-            new Stream() {
+    Mock.Get(mockProcess).Setup(m => m.getOutputStream().write(It.IsAny<byte[]>())).Throws(expectedIOException);
 
-              public void write(int b) {
-                throw expectedIOException;
-              }
-            });
-    Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(
-            new Stream() {
-
-              public int read() {
-                throw new IOException();
-              }
-            });
-
+            Mock.Get(mockProcess).Setup(m => m.getErrorStream().Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws<IOException>();
     try {
       testDockerClient.load(imageTarball);
-      Assert.fail("Write should have failed");
+      Assert.Fail("Write should have failed");
 
     } catch (IOException ex) {
-      Assert.assertSame(expectedIOException, ex);
+      Assert.AreSame(expectedIOException, ex);
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testLoad_stdoutFail() {
     DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
-    Mockito.when(mockProcess.waitFor()).thenReturn(1);
+    Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
 
-    Mockito.when(mockProcess.getOutputStream()).thenReturn(Stream.Null);
-    Mockito.when(mockProcess.getInputStream())
-        .thenReturn(new MemoryStream("ignored".getBytes(StandardCharsets.UTF_8)));
-    Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+    Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(Stream.Null);
+
+    Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("ignored".getBytes(StandardCharsets.UTF_8)));
+
+    Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.load(imageTarball);
-      Assert.fail("Process should have failed");
+      Assert.Fail("Process should have failed");
 
     } catch (IOException ex) {
-      Assert.assertEquals("'docker load' command failed with output: error", ex.getMessage());
+      Assert.AreEqual("'docker load' command failed with output: error", ex.getMessage());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testTag() {
     DockerClient testDockerClient =
         new DockerClient(
             subcommand => {
-              Assert.assertEquals(Arrays.asList("tag", "original", "new"), subcommand);
+              Assert.AreEqual(Arrays.asList("tag", "original", "new"), subcommand);
               return mockProcessBuilder;
             });
-    Mockito.when(mockProcess.waitFor()).thenReturn(0);
+    Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(0);
 
     testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));
   }
 
-  [TestMethod]
+  [Test]
   public void testDefaultProcessorBuilderFactory_customExecutable() {
     ProcessBuilder processBuilder =
-        DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableDictionary.of())
+        DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
             .apply(Arrays.asList("sub", "command"));
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Arrays.asList("docker-executable", "sub", "command"), processBuilder.command());
-    Assert.assertEquals(System.getenv(), processBuilder.environment());
+    Assert.AreEqual(Environment.GetEnvironmentVariables(), processBuilder.environment());
   }
 
-  [TestMethod]
+  [Test]
   public void testDefaultProcessorBuilderFactory_customEnvironment() {
-    ImmutableDictionary<string, string> environment = ImmutableDictionary.of("Key1", "Value1");
+    ImmutableDictionary<string, string> environment = ImmutableDic.of("Key1", "Value1");
 
-    IDictionary<string, string> expectedEnvironment = new Dictionary<>(System.getenv());
+    IDictionary<string, string> expectedEnvironment = new Dictionary<string, string>(Environment.GetEnvironmentVariables().Cast<KeyValuePair<string, string>>());
     expectedEnvironment.putAll(environment);
 
     ProcessBuilder processBuilder =
         DockerClient.defaultProcessBuilderFactory("docker", environment)
-            .apply(Collections.emptyList());
+            .apply(Collections.emptyList<string>());
 
-    Assert.assertEquals(expectedEnvironment, processBuilder.environment());
+    Assert.AreEqual(expectedEnvironment, processBuilder.environment());
   }
 
-  [TestMethod]
+  [Test]
   public void testTag_fail() {
     DockerClient testDockerClient =
         new DockerClient(
             subcommand => {
-              Assert.assertEquals(Arrays.asList("tag", "original", "new"), subcommand);
+              Assert.AreEqual(Arrays.asList("tag", "original", "new"), subcommand);
               return mockProcessBuilder;
             });
-    Mockito.when(mockProcess.waitFor()).thenReturn(1);
+    Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
 
-    Mockito.when(mockProcess.getErrorStream())
-        .thenReturn(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+    Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
 
     try {
       testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));
-      Assert.fail("docker tag should have failed");
+      Assert.Fail("docker tag should have failed");
 
     } catch (IOException ex) {
-      Assert.assertEquals("'docker tag' command failed with error: error", ex.getMessage());
+      Assert.AreEqual("'docker tag' command failed with error: error", ex.getMessage());
     }
   }
 }

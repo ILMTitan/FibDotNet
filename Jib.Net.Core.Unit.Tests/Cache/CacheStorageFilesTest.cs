@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.cache {
 
 
@@ -31,20 +37,20 @@ public class CacheStorageFilesTest {
   private static readonly CacheStorageFiles TEST_CACHE_STORAGE_FILES =
       new CacheStorageFiles(Paths.get("cache/directory"));
 
-  [TestMethod]
+  [Test]
   public void testIsLayerFile() {
-    Assert.assertTrue(
+    Assert.IsTrue(
         CacheStorageFiles.isLayerFile(
             Paths.get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
-    Assert.assertTrue(
+    Assert.IsTrue(
         CacheStorageFiles.isLayerFile(
             Paths.get("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")));
-    Assert.assertFalse(CacheStorageFiles.isLayerFile(Paths.get("is.not.layer.file")));
+    Assert.IsFalse(CacheStorageFiles.isLayerFile(Paths.get("is.not.layer.file")));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetDiffId() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         DescriptorDigest.fromHash(
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"),
         TEST_CACHE_STORAGE_FILES.getDiffId(
@@ -52,43 +58,44 @@ public class CacheStorageFilesTest {
                 "layer",
                 "file",
                 "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")));
-    Assert.assertEquals(
+    Assert.AreEqual(
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
         TEST_CACHE_STORAGE_FILES.getDiffId(
             Paths.get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetDiffId_corrupted() {
     try {
       TEST_CACHE_STORAGE_FILES.getDiffId(Paths.get("not long enough"));
-      Assert.fail("Should have thrown CacheCorruptedException");
+      Assert.Fail("Should have thrown CacheCorruptedException");
 
     } catch (CacheCorruptedException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.startsWith("Layer file did not include valid diff ID: not long enough"));
-      Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(typeof(DigestException)));
+      StringAssert.StartsWith(
+          ex.getMessage(), "Layer file did not include valid diff ID: not long enough");
+
+      Assert.IsInstanceOf<DigestException>(ex.getCause());
     }
 
     try {
       TEST_CACHE_STORAGE_FILES.getDiffId(
           Paths.get(
               "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
-      Assert.fail("Should have thrown CacheCorruptedException");
+      Assert.Fail("Should have thrown CacheCorruptedException");
 
     } catch (CacheCorruptedException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.startsWith(
+      StringAssert.StartsWith(
+          ex.getMessage(), 
               "Layer file did not include valid diff ID: "
-                  + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
-      Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(typeof(DigestException)));
+                  + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+      Assert.IsInstanceOf<DigestException>(ex.getCause());
+
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testGetLayerFile() {
     DescriptorDigest layerDigest =
         DescriptorDigest.fromHash(
@@ -97,7 +104,7 @@ public class CacheStorageFilesTest {
         DescriptorDigest.fromHash(
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get(
             "cache",
             "directory",
@@ -107,24 +114,24 @@ public class CacheStorageFilesTest {
         TEST_CACHE_STORAGE_FILES.getLayerFile(layerDigest, diffId));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetLayerFilename() {
     DescriptorDigest diffId =
         DescriptorDigest.fromHash(
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         TEST_CACHE_STORAGE_FILES.getLayerFilename(diffId));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetSelectorFile() {
     DescriptorDigest selector =
         DescriptorDigest.fromHash(
             "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get(
             "cache",
             "directory",
@@ -133,19 +140,19 @@ public class CacheStorageFilesTest {
         TEST_CACHE_STORAGE_FILES.getSelectorFile(selector));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetLayersDirectory() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("cache", "directory", "layers"), TEST_CACHE_STORAGE_FILES.getLayersDirectory());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetLayerDirectory() {
     DescriptorDigest layerDigest =
         DescriptorDigest.fromHash(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get(
             "cache",
             "directory",
@@ -154,34 +161,34 @@ public class CacheStorageFilesTest {
         TEST_CACHE_STORAGE_FILES.getLayerDirectory(layerDigest));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetTemporaryDirectory() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("cache/directory/tmp"), TEST_CACHE_STORAGE_FILES.getTemporaryDirectory());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetImagesDirectory() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("cache/directory/images"), TEST_CACHE_STORAGE_FILES.getImagesDirectory());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetImageDirectory() {
     SystemPath imagesDirectory = Paths.get("cache", "directory", "images");
-    Assert.assertEquals(imagesDirectory, TEST_CACHE_STORAGE_FILES.getImagesDirectory());
+    Assert.AreEqual(imagesDirectory, TEST_CACHE_STORAGE_FILES.getImagesDirectory());
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         imagesDirectory.resolve("reg.istry/repo/sitory!tag"),
         TEST_CACHE_STORAGE_FILES.getImageDirectory(
             ImageReference.parse("reg.istry/repo/sitory:tag")));
-    Assert.assertEquals(
+    Assert.AreEqual(
         imagesDirectory.resolve(
             "reg.istry/repo!sha256!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
         TEST_CACHE_STORAGE_FILES.getImageDirectory(
             ImageReference.parse(
                 "reg.istry/repo@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
-    Assert.assertEquals(
+    Assert.AreEqual(
         imagesDirectory.resolve("reg.istry!5000/repo/sitory!tag"),
         TEST_CACHE_STORAGE_FILES.getImageDirectory(
             ImageReference.parse("reg.istry:5000/repo/sitory:tag")));

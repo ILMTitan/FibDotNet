@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -27,9 +34,9 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class RegistryErrorExceptionBuilderTest {
 
-  [Mock] private HttpResponseException mockHttpResponseException;
+  private HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
 
-  [TestMethod]
+  [Test]
   public void testAddErrorEntry() {
     RegistryErrorExceptionBuilder builder =
         new RegistryErrorExceptionBuilder("do something", mockHttpResponseException);
@@ -50,7 +57,7 @@ public class RegistryErrorExceptionBuilderTest {
       throw builder.build();
 
     } catch (RegistryErrorException ex) {
-      Assert.assertEquals(
+      Assert.AreEqual(
           "Tried to do something but failed because: manifest invalid (something went wrong), blob unknown (something went wrong), manifest unknown, tag invalid, manifest unverified, other: some other error happened, unknown: some unknown error happened | If this is a bug, please file an issue at https://github.com/GoogleContainerTools/jib/issues/new",
           ex.getMessage());
     }

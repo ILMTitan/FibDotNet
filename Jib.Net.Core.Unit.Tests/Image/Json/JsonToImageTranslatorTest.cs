@@ -14,6 +14,19 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
+
 namespace com.google.cloud.tools.jib.image.json {
 
 
@@ -44,99 +57,103 @@ namespace com.google.cloud.tools.jib.image.json {
 /** Tests for {@link JsonToImageTranslator}. */
 public class JsonToImageTranslatorTest {
 
-  [TestMethod]
+  [Test]
   public void testToImage_v21()
       {
     // Loads the JSON string.
     SystemPath jsonFile =
-        Paths.get(getClass().getClassLoader().getResource("core/json/v21manifest.json").toURI());
+        Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
 
     // Deserializes into a manifest JSON object.
     V21ManifestTemplate manifestTemplate =
-        JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(V21ManifestTemplate));
+        JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(jsonFile);
 
     Image image = JsonToImageTranslator.toImage(manifestTemplate);
 
     IList<Layer> layers = image.getLayers();
-    Assert.assertEquals(2, layers.size());
-    Assert.assertEquals(
+    Assert.AreEqual(2, layers.size());
+    Assert.AreEqual(
         DescriptorDigest.fromDigest(
             "sha256:5bd451067f9ab05e97cda8476c82f86d9b69c2dffb60a8ad2fe3723942544ab3"),
         layers.get(0).getBlobDescriptor().getDigest());
-    Assert.assertEquals(
+    Assert.AreEqual(
         DescriptorDigest.fromDigest(
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
         layers.get(1).getBlobDescriptor().getDigest());
   }
 
-  [TestMethod]
+  [Test]
   public void testToImage_v22()
       {
-    testToImage_buildable("core/json/v22manifest.json", typeof(V22ManifestTemplate));
+    testToImage_buildable< V22ManifestTemplate>("core/json/v22manifest.json");
   }
 
-  [TestMethod]
+  [Test]
   public void testToImage_oci()
       {
-    testToImage_buildable("core/json/ocimanifest.json", typeof(OCIManifestTemplate));
+    testToImage_buildable< OCIManifestTemplate>("core/json/ocimanifest.json");
   }
 
-  [TestMethod]
+  [Test]
   public void testPortMapToList() {
     ImmutableSortedDictionary<string, IDictionary<object, object>> input =
-        ImmutableSortedDictionary.of(
-            "1000",
-            ImmutableDictionary.of(),
-            "2000/tcp",
-            ImmutableDictionary.of(),
-            "3000/udp",
-            ImmutableDictionary.of());
-    ImmutableHashSet<Port> expected = ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000));
-    Assert.assertEquals(expected, JsonToImageTranslator.portMapToSet(input));
+        new Dictionary<string, IDictionary<object, object>>
+        {
+            ["1000"] =ImmutableDictionary.Create<object, object>(),
+            ["2000/tcp"] =
+            ImmutableDictionary.Create<object, object>(),
+            ["3000/udp"] =
+            ImmutableDictionary.Create<object, object>()
+        }.ToImmutableSortedDictionary();
+    ImmutableHashSet<Port> expected = ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000), Port.udp(3000));
+    Assert.AreEqual(expected, JsonToImageTranslator.portMapToSet(input));
 
     ImmutableArray<IDictionary<string, IDictionary<object, object>>> badInputs =
-        ImmutableArray.Create(
-            ImmutableDictionary.of("abc", ImmutableDictionary.of()),
-            ImmutableDictionary.of("1000-2000", ImmutableDictionary.of()),
-            ImmutableDictionary.of("/udp", ImmutableDictionary.of()),
-            ImmutableDictionary.of("123/xxx", ImmutableDictionary.of()));
+        ImmutableArray.Create<IDictionary<string, IDictionary<object, object>>>(
+            ImmutableDic.of<string, IDictionary<object, object>>("abc", ImmutableDictionary.Create<object, object>()),
+            ImmutableDic.of<string, IDictionary<object, object>>("1000-2000", ImmutableDictionary.Create<object, object>()),
+            ImmutableDic.of<string, IDictionary<object, object>>("/udp", ImmutableDictionary.Create<object, object>()),
+            ImmutableDic.of<string, IDictionary<object, object>>("123/xxx", ImmutableDictionary.Create<object, object>()));
     foreach (IDictionary<string, IDictionary<object, object>> badInput in badInputs)
     {
       try {
         JsonToImageTranslator.portMapToSet(badInput);
-        Assert.fail();
-      } catch (BadContainerConfigurationFormatException ignored) {
+        Assert.Fail();
+      } catch (BadContainerConfigurationFormatException) {
       }
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testVolumeMapToList() {
     ImmutableSortedDictionary<string, IDictionary<object, object>> input =
-        ImmutableSortedDictionary.of(
-            "/var/job-result-data", ImmutableDictionary.of(), "/var/log/my-app-logs", ImmutableDictionary.of());
+                new Dictionary<string, IDictionary<object, object>>
+                {
+                    ["/var/job-result-data"] = ImmutableDictionary.Create<object, object>(),
+                    ["/var/log/my-app-logs"] = ImmutableDictionary.Create<object, object>()
+                }.ToImmutableSortedDictionary();
     ImmutableHashSet<AbsoluteUnixPath> expected =
-        ImmutableHashSet.of(
+        ImmutableHashSet.Create(
             AbsoluteUnixPath.get("/var/job-result-data"),
             AbsoluteUnixPath.get("/var/log/my-app-logs"));
-    Assert.assertEquals(expected, JsonToImageTranslator.volumeMapToSet(input));
+    Assert.AreEqual(expected, JsonToImageTranslator.volumeMapToSet(input));
 
     ImmutableArray<IDictionary<string, IDictionary<object, object>>> badInputs =
-        ImmutableArray.Create(
-            ImmutableDictionary.of("var/job-result-data", ImmutableDictionary.of()),
-            ImmutableDictionary.of("log", ImmutableDictionary.of()),
-            ImmutableDictionary.of("C:/udp", ImmutableDictionary.of()));
+        ImmutableArray.Create<IDictionary<string, IDictionary<object, object>>>(
+            ImmutableDic.of<string, IDictionary<object, object>>("var/job-result-data", ImmutableDictionary.Create<object, object>()),
+            ImmutableDic.of<string, IDictionary<object, object>>("log", ImmutableDictionary.Create<object, object>()),
+            ImmutableDic.of<string, IDictionary<object, object>>("C:/udp", ImmutableDictionary.Create<object, object>()));
     foreach (IDictionary<string, IDictionary<object, object>> badInput in badInputs)
     {
       try {
         JsonToImageTranslator.volumeMapToSet(badInput);
-        Assert.fail();
-      } catch (BadContainerConfigurationFormatException ignored) {
+        Assert.Fail();
+      } catch (BadContainerConfigurationFormatException) {
       }
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testJsonToImageTranslatorRegex() {
     assertGoodEnvironmentPattern("NAME=VALUE", "NAME", "VALUE");
     assertGoodEnvironmentPattern("A1203921=www=ww", "A1203921", "www=ww");
@@ -151,50 +168,50 @@ public class JsonToImageTranslatorTest {
   private void assertGoodEnvironmentPattern(
       string input, string expectedName, string expectedValue) {
     Match matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
-    Assert.assertTrue(matcher.matches());
-    Assert.assertEquals(expectedName, matcher.group("name"));
-    Assert.assertEquals(expectedValue, matcher.group("value"));
+    Assert.IsTrue(matcher.matches());
+    Assert.AreEqual(expectedName, matcher.group("name"));
+    Assert.AreEqual(expectedValue, matcher.group("value"));
   }
 
   private void assertBadEnvironmentPattern(string input) {
     Match matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
-    Assert.assertFalse(matcher.matches());
+    Assert.IsFalse(matcher.matches());
   }
 
   private void testToImage_buildable<T>(
-      string jsonFilename, Class<T> manifestTemplateClass) where T : BuildableManifestTemplate {
+      string jsonFilename) where T : BuildableManifestTemplate {
     // Loads the container configuration JSON.
     SystemPath containerConfigurationJsonFile =
         Paths.get(
-            getClass().getClassLoader().getResource("core/json/containerconfig.json").toURI());
+            Resources.getResource("core/json/containerconfig.json").toURI());
     ContainerConfigurationTemplate containerConfigurationTemplate =
-        JsonTemplateMapper.readJsonFromFile(
-            containerConfigurationJsonFile, typeof(ContainerConfigurationTemplate));
+        JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
+            containerConfigurationJsonFile);
 
     // Loads the manifest JSON.
     SystemPath manifestJsonFile =
-        Paths.get(getClass().getClassLoader().getResource(jsonFilename).toURI());
+        Paths.get(Resources.getResource(jsonFilename).toURI());
     T manifestTemplate =
-        JsonTemplateMapper.readJsonFromFile(manifestJsonFile, manifestTemplateClass);
+        JsonTemplateMapper.readJsonFromFile<T>(manifestJsonFile);
 
     Image image = JsonToImageTranslator.toImage(manifestTemplate, containerConfigurationTemplate);
 
     IList<Layer> layers = image.getLayers();
-    Assert.assertEquals(1, layers.size());
-    Assert.assertEquals(
+    Assert.AreEqual(1, layers.size());
+    Assert.AreEqual(
         new BlobDescriptor(
             1000000,
             DescriptorDigest.fromDigest(
                 "sha256:4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")),
         layers.get(0).getBlobDescriptor());
-    Assert.assertEquals(
+    Assert.AreEqual(
         DescriptorDigest.fromDigest(
             "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
         layers.get(0).getDiffId());
-    Assert.assertEquals(
+    Assert.AreEqual(
         ImmutableArray.Create(
             HistoryEntry.builder()
-                .setCreationTimestamp(Instant.EPOCH)
+                .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
                 .setAuthor("Bazel")
                 .setCreatedBy("bazel build ...")
                 .setEmptyLayer(true)
@@ -205,21 +222,21 @@ public class JsonToImageTranslatorTest {
                 .setCreatedBy("jib")
                 .build()),
         image.getHistory());
-    Assert.assertEquals(Instant.FromUnixTimeSeconds(20), image.getCreated());
-    Assert.assertEquals(Arrays.asList("some", "entrypoint", "command"), image.getEntrypoint());
-    Assert.assertEquals(ImmutableDictionary.of("VAR1", "VAL1", "VAR2", "VAL2"), image.getEnvironment());
-    Assert.assertEquals("/some/workspace", image.getWorkingDirectory());
-    Assert.assertEquals(
-        ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)), image.getExposedPorts());
-    Assert.assertEquals(
-        ImmutableHashSet.of(
+    Assert.AreEqual(Instant.FromUnixTimeSeconds(20), image.getCreated());
+    Assert.AreEqual(Arrays.asList("some", "entrypoint", "command"), image.getEntrypoint());
+    Assert.AreEqual(ImmutableDic.of("VAR1", "VAL1", "VAR2", "VAL2"), image.getEnvironment());
+    Assert.AreEqual("/some/workspace", image.getWorkingDirectory());
+    Assert.AreEqual(
+        ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)), image.getExposedPorts());
+    Assert.AreEqual(
+        ImmutableHashSet.Create(
             AbsoluteUnixPath.get("/var/job-result-data"),
             AbsoluteUnixPath.get("/var/log/my-app-logs")),
         image.getVolumes());
-    Assert.assertEquals("tomcat", image.getUser());
-    Assert.assertEquals("value1", image.getLabels().get("key1"));
-    Assert.assertEquals("value2", image.getLabels().get("key2"));
-    Assert.assertEquals(2, image.getLabels().size());
+    Assert.AreEqual("tomcat", image.getUser());
+    Assert.AreEqual("value1", image.getLabels().get("key1"));
+    Assert.AreEqual("value2", image.getLabels().get("key2"));
+    Assert.AreEqual(2, image.getLabels().size());
   }
 }
 }

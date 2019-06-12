@@ -18,11 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Global
 {
-    internal static class Arrays
+    public static class Arrays
     {
-        internal static List<T> asList<T>(params T[] items)
+        public static List<T> asList<T>(params T[] items)
         {
             return items.ToList();
         }

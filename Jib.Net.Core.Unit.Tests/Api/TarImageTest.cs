@@ -14,19 +14,22 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link TarImage}. */
 
-
-
-/** Tests for {@link TarImage}. */
-public class TarImageTest {
-
-  [TestMethod]
-  public void testGetters() {
-    TarImage tarImage = TarImage.named("tar/image").saveTo(Paths.get("output/file"));
-    Assert.assertEquals("tar/image", tarImage.getImageReference().toString());
-    Assert.assertEquals(Paths.get("output/file"), tarImage.getOutputFile());
-  }
-}
+    public class TarImageTest
+    {
+        [Test]
+        public void testGetters()
+        {
+            TarImage tarImage = TarImage.named("tar/image").saveTo(Paths.get("output/file"));
+            Assert.AreEqual("tar/image", tarImage.getImageReference().toString());
+            Assert.AreEqual(Paths.get("output/file"), tarImage.getOutputFile());
+        }
+    }
 }

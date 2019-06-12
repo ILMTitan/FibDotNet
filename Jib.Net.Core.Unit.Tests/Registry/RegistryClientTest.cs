@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -30,27 +37,27 @@ namespace com.google.cloud.tools.jib.registry {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class RegistryClientTest {
 
-  [Mock] private EventHandlers eventHandlers;
-  [Mock] private Authorization mockAuthorization;
+  private EventHandlers eventHandlers = Mock.Of<EventHandlers>();
+  private Authorization mockAuthorization = Mock.Of<Authorization>();
 
   private RegistryClient.Factory testRegistryClientFactory;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     testRegistryClientFactory =
         RegistryClient.factory(eventHandlers, "some.server.url", "some image name");
   }
 
-  [TestMethod]
+  [Test]
   public void testGetUserAgent_null() {
-    Assert.assertTrue(
+    Assert.IsTrue(
         testRegistryClientFactory
             .setAuthorization(mockAuthorization)
             .newRegistryClient()
             .getUserAgent()
             .startsWith("jib"));
 
-    Assert.assertTrue(
+    Assert.IsTrue(
         testRegistryClientFactory
             .setAuthorization(mockAuthorization)
             .setUserAgentSuffix(null)
@@ -59,7 +66,7 @@ public class RegistryClientTest {
             .startsWith("jib"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetUserAgent() {
     RegistryClient registryClient =
         testRegistryClientFactory
@@ -67,13 +74,13 @@ public class RegistryClientTest {
             .setUserAgentSuffix("some user agent suffix")
             .newRegistryClient();
 
-    Assert.assertTrue(registryClient.getUserAgent().startsWith("jib "));
-    Assert.assertTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
+    Assert.IsTrue(registryClient.getUserAgent().startsWith("jib "));
+    Assert.IsTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetApiRouteBase() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "some.server.url/v2/",
         testRegistryClientFactory
             .setAllowInsecureRegistries(true)

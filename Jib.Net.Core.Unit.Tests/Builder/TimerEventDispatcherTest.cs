@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Global;
+using Moq;
+using NodaTime;
+using NUnit.Framework;
+using System.Collections.Generic;
+using static com.google.cloud.tools.jib.@event.events.TimerEvent;
+
 namespace com.google.cloud.tools.jib.builder {
 
 
@@ -34,24 +44,28 @@ namespace com.google.cloud.tools.jib.builder {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class TimerEventDispatcherTest {
 
-  private readonly Deque<TimerEvent> timerEventQueue = new ArrayDeque<>();
+  private readonly Queue<TimerEvent> timerEventQueue = new Queue<TimerEvent>();
 
-  [Mock] private IClock mockClock;
+  private IClock mockClock = Mock.Of<IClock>();
 
-  [TestMethod]
+  [Test]
   public void testLogging() {
     EventHandlers eventHandlers =
-        EventHandlers.builder().add(typeof(TimerEvent), timerEventQueue.add).build();
+        EventHandlers.builder().add<TimerEvent>(timerEventQueue.Enqueue).build();
 
-    Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH);
+    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0));
+
     using (TimerEventDispatcher parentTimerEventDispatcher =
         new TimerEventDispatcher(eventHandlers, "description", mockClock, null)) {
-      Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(1));
+      Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1));
+
       parentTimerEventDispatcher.lap();
-      Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(1).plusNanos(1));
+      Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1).plusNanos(1));
+
       using (TimerEventDispatcher ignored =
           parentTimerEventDispatcher.subTimer("child description")) {
-        Mockito.when(mockClock.instant()).thenReturn(Instant.EPOCH.plusMillis(2));
+        Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(2));
+
         // Laps on close.
       }
     }
@@ -83,7 +97,7 @@ public class TimerEventDispatcherTest {
     verifyStateNotFirstLap(timerEvent, State.FINISHED);
     verifyDescription(timerEvent, "description");
 
-    Assert.assertTrue(timerEventQueue.isEmpty());
+    Assert.IsTrue(timerEventQueue.Count == 0);
   }
 
   /**
@@ -92,7 +106,7 @@ public class TimerEventDispatcherTest {
    * @param timerEvent the {@link TimerEvent} to verify
    */
   private void verifyNoParent(TimerEvent timerEvent) {
-    Assert.assertFalse(timerEvent.getTimer().getParent().isPresent());
+    Assert.IsFalse(timerEvent.getTimer().getParent().isPresent());
   }
 
   /**
@@ -102,8 +116,8 @@ public class TimerEventDispatcherTest {
    * @param expectedParentTimer the expected parent timer
    */
   private void verifyParent(TimerEvent timerEvent, TimerEvent.Timer expectedParentTimer) {
-    Assert.assertTrue(timerEvent.getTimer().getParent().isPresent());
-    Assert.assertSame(expectedParentTimer, timerEvent.getTimer().getParent().get());
+    Assert.IsTrue(timerEvent.getTimer().getParent().isPresent());
+    Assert.AreSame(expectedParentTimer, timerEvent.getTimer().getParent().get());
   }
 
   /**
@@ -112,9 +126,9 @@ public class TimerEventDispatcherTest {
    * @param timerEvent the {@link TimerEvent} to verify
    */
   private void verifyStartState(TimerEvent timerEvent) {
-    Assert.assertEquals(State.START, timerEvent.getState());
-    Assert.assertEquals(Duration.Zero, timerEvent.getDuration());
-    Assert.assertEquals(Duration.Zero, timerEvent.getElapsed());
+    Assert.AreEqual(State.START, timerEvent.getState());
+    Assert.AreEqual(Duration.Zero, timerEvent.getDuration());
+    Assert.AreEqual(Duration.Zero, timerEvent.getElapsed());
   }
 
   /**
@@ -125,9 +139,9 @@ public class TimerEventDispatcherTest {
    * @param expectedState the expected {@link State}
    */
   private void verifyStateFirstLap(TimerEvent timerEvent, State expectedState) {
-    Assert.assertEquals(expectedState, timerEvent.getState());
-    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
-    Assert.assertEquals(0, timerEvent.getElapsed().compareTo(timerEvent.getDuration()));
+    Assert.AreEqual(expectedState, timerEvent.getState());
+    Assert.IsTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
+    Assert.AreEqual(0, timerEvent.getElapsed().compareTo(timerEvent.getDuration()));
   }
 
   /**
@@ -138,9 +152,9 @@ public class TimerEventDispatcherTest {
    * @param expectedState the expected {@link State}
    */
   private void verifyStateNotFirstLap(TimerEvent timerEvent, State expectedState) {
-    Assert.assertEquals(expectedState, timerEvent.getState());
-    Assert.assertTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
-    Assert.assertTrue(timerEvent.getElapsed().compareTo(timerEvent.getDuration()) > 0);
+    Assert.AreEqual(expectedState, timerEvent.getState());
+    Assert.IsTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
+    Assert.IsTrue(timerEvent.getElapsed().compareTo(timerEvent.getDuration()) > 0);
   }
 
   /**
@@ -150,7 +164,7 @@ public class TimerEventDispatcherTest {
    * @param expectedDescription the expected description
    */
   private void verifyDescription(TimerEvent timerEvent, string expectedDescription) {
-    Assert.assertEquals(expectedDescription, timerEvent.getDescription());
+    Assert.AreEqual(expectedDescription, timerEvent.getDescription());
   }
 
   /**
@@ -160,7 +174,7 @@ public class TimerEventDispatcherTest {
    */
   private TimerEvent getNextTimerEvent() {
     TimerEvent timerEvent = timerEventQueue.poll();
-    Assert.assertNotNull(timerEvent);
+    Assert.IsNotNull(timerEvent);
     return timerEvent;
   }
 }

@@ -359,7 +359,7 @@ public class ContainerConfigurationTemplate : JsonTemplate {
     return config.Volumes;
   }
 
-  DescriptorDigest getLayerDiffId(int index) {
+  public DescriptorDigest getLayerDiffId(int index) {
     return rootfs.diff_ids.get(index);
   }
 }

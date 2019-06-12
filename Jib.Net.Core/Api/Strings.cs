@@ -18,9 +18,9 @@ using System;
 
 namespace com.google.cloud.tools.jib.api
 {
-    internal class Strings
+    public static class Strings
     {
-        internal static bool isNullOrEmpty(string registry)
+        public static bool isNullOrEmpty(string registry)
         {
             throw new NotImplementedException();
         }

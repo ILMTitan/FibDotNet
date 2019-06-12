@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.cache
 
 
     /** Reads from the default cache storage engine. */
-    class CacheStorageReader {
+    public class CacheStorageReader {
 
   private readonly CacheStorageFiles cacheStorageFiles;
 
@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.cache
    * @throws CacheCorruptedException if the cache was found to be corrupted
    * @throws IOException if an I/O exception occurs
    */
-  ISet<DescriptorDigest> fetchDigests() {
+  public ISet<DescriptorDigest> fetchDigests() {
             IEnumerable < SystemPath > layerDirectories = Files.list(cacheStorageFiles.getLayersDirectory());
             
       IList<SystemPath> layerDirectoriesList = layerDirectories.ToList();

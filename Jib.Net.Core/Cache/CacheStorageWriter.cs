@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.cache
 
 
     /** Writes to the default cache storage engine. */
-    class CacheStorageWriter {
+    public class CacheStorageWriter {
 
   /** Holds information about a layer that was written. */
   public class WrittenLayer {

@@ -14,7 +14,15 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -35,85 +43,79 @@ public class ProgressEventHandlerTest {
   private class AllocationTree {
 
     /** The root node. */
-    private static readonly Allocation root = Allocation.newRoot("root", 2);
+    public static readonly Allocation root = Allocation.newRoot("root", 2);
 
     /** First child of the root node. */
-    private static readonly Allocation child1 = root.newChild("child1", 1);
+    public static readonly Allocation child1 = root.newChild("child1", 1);
     /** Child of the first child of the root node. */
-    private static readonly Allocation child1Child = child1.newChild("child1Child", 100);
+    public static readonly Allocation child1Child = child1.newChild("child1Child", 100);
 
     /** Second child of the root node. */
-    private static readonly Allocation child2 = root.newChild("child2", 200);
+    public static readonly Allocation child2 = root.newChild("child2", 200);
 
     private AllocationTree() {}
   }
 
   private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  [TestMethod]
+  [Test]
   public void testAccept() {
     using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor()) {
-      DoubleAccumulator maxProgress = new DoubleAccumulator(Double.max, 0);
+      DoubleAccumulator maxProgress = new DoubleAccumulator(Double.MaxValue, 0);
 
       ProgressEventHandler progressEventHandler =
           new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
       EventHandlers eventHandlers =
-          EventHandlers.builder().add(typeof(ProgressEvent), progressEventHandler).build();
+          EventHandlers.builder().add<ProgressEvent>( progressEventHandler).build();
 
       // Adds root, child1, and child1Child.
       multithreadedExecutor.invoke(
           () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.root, 0L));
-            return null;
           });
       multithreadedExecutor.invoke(
           () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
-            return null;
           });
       multithreadedExecutor.invoke(
           () => {
             eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 0L));
-            return null;
           });
-      Assert.assertEquals(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+      Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
       // Adds 50 to child1Child and 100 to child2.
-      IList<Callable<Void>> callables = new List<>(150);
+      IList<Action> callables = new List<Action>(150);
       callables.addAll(
-          Collections.nCopies(
+          Collections.nCopies<Action>(
               50,
               () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 1L));
-                return null;
               }));
       callables.addAll(
-          Collections.nCopies(
+          Collections.nCopies<Action>(
               100,
               () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 1L));
-                return null;
               }));
 
       multithreadedExecutor.invokeAll(callables);
 
-      Assert.assertEquals(
+      Assert.AreEqual(
           1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
       // 0 progress doesn't do anything.
       multithreadedExecutor.invokeAll(
-          Collections.nCopies(
+          Collections.nCopies<Action>(
               100,
               () => {
                 eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
-                return null;
               }));
-      Assert.assertEquals(
+      Assert.AreEqual(
           1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
       // Adds 50 to child1Child and 100 to child2 to finish it up.
       multithreadedExecutor.invokeAll(callables);
-      Assert.assertEquals(1.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+      Assert.AreEqual(1.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
     }
   }
 }

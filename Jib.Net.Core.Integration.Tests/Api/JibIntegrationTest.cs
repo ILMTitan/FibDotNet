@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+
 namespace com.google.cloud.tools.jib.api {
 
 
@@ -53,17 +62,17 @@ public class JibIntegrationTest {
     return new Command("docker", "run", "--rm", imageReference).run();
   }
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
-    System.setProperty("sendCredentialsOverHttp", "true");
+    Environment.SetEnvironmentVariable("sendCredentialsOverHttp", "true");
   }
 
-  @After
+  [TearDown]
   public void tearDown() {
-    System.clearProperty("sendCredentialsOverHttp");
+    Environment.SetEnvironmentVariable("sendCredentialsOverHttp", null);
   }
 
-  [TestMethod]
+  [Test]
   public void testBasic_helloWorld()
       {
     ImageReference targetImageReference =
@@ -78,14 +87,14 @@ public class JibIntegrationTest {
                                 () => Optional.of(Credential.from("username", "password"))))
                     .setAllowInsecureRegistries(true));
 
-    Assert.assertEquals("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
-    Assert.assertEquals(
+    Assert.AreEqual("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
+    Assert.AreEqual(
         "Hello World\n",
         pullAndRunBuiltImage(
             targetImageReference.withTag(jibContainer.getDigest().toString()).toString()));
   }
 
-  [TestMethod]
+  [Test]
   public void testScratch()
       {
     ImageReference targetImageReference =
@@ -101,12 +110,10 @@ public class JibIntegrationTest {
     // Check that resulting image has no layers
     localRegistry.pull(targetImageReference.toString());
     string inspectOutput = new Command("docker", "inspect", targetImageReference.toString()).run();
-    Assert.assertFalse(
-        "docker inspect output contained layers: " + inspectOutput,
-        inspectOutput.contains("\"Layers\": ["));
+    Assert.IsFalse(inspectOutput.contains("\"Layers\": ["), "docker inspect output contained layers: " + inspectOutput);
   }
 
-  [TestMethod]
+  [Test]
   public void testOffline()
       {
     LocalRegistry tempRegistry = new LocalRegistry(5001);
@@ -126,9 +133,9 @@ public class JibIntegrationTest {
     try {
       jibContainerBuilder.containerize(
           Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true));
-      Assert.fail();
+      Assert.Fail();
     } catch (InvalidOperationException ex) {
-      Assert.assertEquals("Cannot build to a container registry in offline mode", ex.getMessage());
+      Assert.AreEqual("Cannot build to a container registry in offline mode", ex.getMessage());
     }
 
     // Should fail since Jib hasn't cached the base image yet
@@ -137,9 +144,9 @@ public class JibIntegrationTest {
           Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
               .setBaseImageLayersCache(cacheDirectory)
               .setOfflineMode(true));
-      Assert.fail();
+      Assert.Fail();
     } catch (ExecutionException ex) {
-      Assert.assertEquals(
+      Assert.AreEqual(
           "Cannot run Jib in offline mode; localhost:5001/busybox not found in local Jib cache",
           ex.getCause().getMessage());
     }
@@ -158,30 +165,9 @@ public class JibIntegrationTest {
             .setOfflineMode(true));
 
     // Verify output
-    Assert.assertEquals(
+    Assert.AreEqual(
         "Hello World\n",
         new Command("docker", "run", "--rm", targetImageReferenceOffline.toString()).run());
   }
-
-  /** Ensure that a provided executor is not disposed. */
-  [TestMethod]
-  public void testProvidedExecutorNotDisposed()
-      {
-    ImageReference targetImageReference =
-        ImageReference.of("localhost:5000", "jib-core", "basic-helloworld");
-    Containerizer containerizer =
-        Containerizer.to(
-                RegistryImage.named(targetImageReference)
-                    .addCredentialRetriever(
-                        () => Optional.of(Credential.from("username", "password"))))
-            .setAllowInsecureRegistries(true);
-
-    ExecutorService executorService = Executors.newCachedThreadPool();
-    containerizer.setExecutorService(executorService);
-    Jib.from("busybox").setEntrypoint("echo", "Hello World").containerize(containerizer);
-    Assert.assertFalse(executorService.isShutdown());
-
-    executorService.shutdown();
-  }
-}
+    }
 }

@@ -21,7 +21,7 @@ using Jib.Net.Core.FileSystem;
 
 namespace Jib.Net.Core.Api
 {
-    internal static class Files
+    public static class Files
     {
         internal static SystemPath createTempDirectory(object p, object x)
         {
@@ -37,7 +37,17 @@ namespace Jib.Net.Core.Api
             throw new NotImplementedException();
         }
 
-        internal static IEnumerable<SystemPath> list(SystemPath sourceFile)
+        public static void copy(SystemPath systemPath1, SystemPath systemPath2)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static SystemPath createDirectories(SystemPath imageDirectory)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IEnumerable<SystemPath> list(SystemPath sourceFile)
         {
             throw new NotImplementedException();
         }
@@ -52,17 +62,12 @@ namespace Jib.Net.Core.Api
             throw new NotImplementedException();
         }
 
-        internal static void createDirectories(SystemPath destPath)
+        internal static byte[] readAllBytes(SystemPath expectedFile)
         {
             throw new NotImplementedException();
         }
 
-        internal static bool exists(SystemPath temporaryDirectory)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static void copy(SystemPath path, SystemPath destPath)
+        public static bool exists(SystemPath temporaryDirectory)
         {
             throw new NotImplementedException();
         }
@@ -82,12 +87,22 @@ namespace Jib.Net.Core.Api
             throw new NotImplementedException();
         }
 
-        internal static Stream newOutputStream(SystemPath temporaryFile)
+        public static Stream newOutputStream(SystemPath temporaryFile)
         {
             throw new NotImplementedException();
         }
 
         internal static void move(SystemPath temporarySelectorFile, SystemPath selectorFile, StandardCopyOption aTOMIC_MOVE, StandardCopyOption rEPLACE_EXISTING)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static SystemPath createDirectory(SystemPath systemPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static bool? deleteIfExists(SystemPath file)
         {
             throw new NotImplementedException();
         }
@@ -103,6 +118,21 @@ namespace Jib.Net.Core.Api
         }
 
         internal static long size(SystemPath fileInLayerDirectory)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static SystemPath createFile(SystemPath systemPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static SystemPath write(SystemPath selectorFile, byte[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void setLastModifiedTime(SystemPath systemPath, object p)
         {
             throw new NotImplementedException();
         }

@@ -155,7 +155,7 @@ public class DockerCredentialHelper {
     }
   }
 
-  SystemPath getCredentialHelper() {
+  public SystemPath getCredentialHelper() {
     return credentialHelper;
   }
 }

@@ -14,6 +14,13 @@
  * the License.
  */
 
+using NUnit.Framework;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
+using System.IO;
+using NodaTime;
+using com.google.cloud.tools.jib.@event.progress;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -31,59 +38,59 @@ namespace com.google.cloud.tools.jib.http {
 /** Tests for {@link NotifyingOutputStream}. */
 public class NotifyingOutputStreamTest {
 
-  [TestMethod]
+  [Test]
   public void testCallback_correctSequence() {
     MemoryStream byteArrayOutputStream = new MemoryStream();
 
-    List<long> byteCounts = new ArrayList<>();
+    List<long> byteCounts = new List<long>();
 
     using (NotifyingOutputStream notifyingOutputStream =
-        new NotifyingOutputStream(byteArrayOutputStream, byteCounts::add)) {
-      notifyingOutputStream.write(0);
+        new NotifyingOutputStream(byteArrayOutputStream, byteCounts.add)) {
+      notifyingOutputStream.write(new byte[] { 0 });
       notifyingOutputStream.write(new byte[] {1, 2, 3});
-      notifyingOutputStream.write(new byte[] {1, 2, 3, 4, 5}, 3, 2);
+      notifyingOutputStream.Write(new byte[] {1, 2, 3, 4, 5}, 3, 2);
     }
 
-    Assert.assertEquals(Arrays.asList(1L, 3L, 2L), byteCounts);
-    Assert.assertArrayEquals(new byte[] {0, 1, 2, 3, 4, 5}, byteArrayOutputStream.toByteArray());
+    Assert.AreEqual(Arrays.asList(1L, 3L, 2L), byteCounts);
+    CollectionAssert.AreEqual(new byte[] {0, 1, 2, 3, 4, 5}, byteArrayOutputStream.toByteArray());
   }
 
-  [TestMethod]
+  [Test]
   public void testDelay() {
     MemoryStream byteArrayOutputStream = new MemoryStream();
 
-    IList<long> byteCounts = new List<>();
+    IList<long> byteCounts = new List<long>();
 
-    Queue<Instant> instantQueue = new ArrayDeque<>();
-    instantQueue.add(Instant.EPOCH);
+    Queue<Instant> instantQueue = new Queue<Instant>();
+    instantQueue.add(Instant.FromUnixTimeSeconds(0));
 
     using(ThrottledAccumulatingConsumer byteCounter =
             new ThrottledAccumulatingConsumer(
-                byteCounts::add, Duration.ofSeconds(3), instantQueue.remove))
+                byteCounts.add, Duration.FromSeconds(3), instantQueue.remove))
 
     using(NotifyingOutputStream notifyingOutputStream =
             new NotifyingOutputStream(byteArrayOutputStream, byteCounter))
 
     {
 
-      instantQueue.add(Instant.EPOCH);
+      instantQueue.add(Instant.FromUnixTimeSeconds(0));
       notifyingOutputStream.write(100);
-      instantQueue.add(Instant.EPOCH);
+      instantQueue.add(Instant.FromUnixTimeSeconds(0));
       notifyingOutputStream.write(new byte[] {101, 102, 103});
-      instantQueue.add(Instant.EPOCH.plusSeconds(4));
+      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(4));
       notifyingOutputStream.write(new byte[] {104, 105, 106});
 
-      instantQueue.add(Instant.EPOCH.plusSeconds(10));
+      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
       notifyingOutputStream.write(new byte[] {107, 108});
 
-      instantQueue.add(Instant.EPOCH.plusSeconds(10));
+      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
       notifyingOutputStream.write(new byte[] {109});
-      instantQueue.add(Instant.EPOCH.plusSeconds(13));
+      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(13));
       notifyingOutputStream.write(new byte[] {0, 110}, 1, 1);
     }
 
-    Assert.assertEquals(Arrays.asList(7L, 2L, 2L), byteCounts);
-    Assert.assertArrayEquals(
+    Assert.AreEqual(Arrays.asList(7L, 2L, 2L), byteCounts);
+    CollectionAssert.AreEqual(
         new byte[] {100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110},
         byteArrayOutputStream.toByteArray());
   }

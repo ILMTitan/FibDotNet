@@ -14,57 +14,65 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link FilePermissions}. */
 
-
-
-
-
-/** Tests for {@link FilePermissions}. */
-public class FilePermissionsTest {
-
-  [TestMethod]
-  public void testFromOctalString() {
-    Assert.assertEquals(new FilePermissions(0777), FilePermissions.fromOctalString("777"));
-    Assert.assertEquals(new FilePermissions(0000), FilePermissions.fromOctalString("000"));
-    Assert.assertEquals(new FilePermissions(0123), FilePermissions.fromOctalString("123"));
-    Assert.assertEquals(new FilePermissions(0755), FilePermissions.fromOctalString("755"));
-    Assert.assertEquals(new FilePermissions(0644), FilePermissions.fromOctalString("644"));
-
-    ImmutableArray<string> badStrings = ImmutableArray.Create("abc", "-123", "777444333", "987", "3");
-    foreach (string badString in badStrings)
+    public class FilePermissionsTest
     {
-      try {
-        FilePermissions.fromOctalString(badString);
-        Assert.fail();
-      } catch (ArgumentException ex) {
-        Assert.assertEquals(
-            "octalPermissions must be a 3-digit octal number (000-777)", ex.getMessage());
-      }
-    }
-  }
+        [Test]
+        public void testFromOctalString()
+        {
+            Assert.AreEqual(new FilePermissions(0777), FilePermissions.fromOctalString("777"));
+            Assert.AreEqual(new FilePermissions(0000), FilePermissions.fromOctalString("000"));
+            Assert.AreEqual(new FilePermissions(0123), FilePermissions.fromOctalString("123"));
+            Assert.AreEqual(new FilePermissions(0755), FilePermissions.fromOctalString("755"));
+            Assert.AreEqual(new FilePermissions(0644), FilePermissions.fromOctalString("644"));
 
-  [TestMethod]
-  public void testFromPosixFilePermissions() {
-    Assert.assertEquals(
-        new FilePermissions(0000), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.of()));
-    Assert.assertEquals(
-        new FilePermissions(0110),
-        FilePermissions.fromPosixFilePermissions(
-            ImmutableHashSet.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE)));
-    Assert.assertEquals(
-        new FilePermissions(0202),
-        FilePermissions.fromPosixFilePermissions(
-            ImmutableHashSet.of(PosixFilePermission.OWNER_WRITE, PosixFilePermission.OTHERS_WRITE)));
-    Assert.assertEquals(
-        new FilePermissions(0044),
-        FilePermissions.fromPosixFilePermissions(
-            ImmutableHashSet.of(PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ)));
-    Assert.assertEquals(
-        new FilePermissions(0777),
-        FilePermissions.fromPosixFilePermissions(
-            ImmutableHashSet.CreateRange(PosixFilePermission.values())));
-  }
-}
+            ImmutableArray<string> badStrings = ImmutableArray.Create("abc", "-123", "777444333", "987", "3");
+            foreach (string badString in badStrings)
+            {
+                try
+                {
+                    FilePermissions.fromOctalString(badString);
+                    Assert.Fail();
+                }
+                catch (ArgumentException ex)
+                {
+                    Assert.AreEqual(
+                        "octalPermissions must be a 3-digit octal number (000-777)", ex.getMessage());
+                }
+            }
+        }
+
+        [Test]
+        public void testFromPosixFilePermissions()
+        {
+            Assert.AreEqual(
+                new FilePermissions(0000), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermission>()));
+            Assert.AreEqual(
+                new FilePermissions(0110),
+                FilePermissions.fromPosixFilePermissions(
+                    ImmutableHashSet.Create(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE)));
+            Assert.AreEqual(
+                new FilePermissions(0202),
+                FilePermissions.fromPosixFilePermissions(
+                    ImmutableHashSet.Create(PosixFilePermission.OWNER_WRITE, PosixFilePermission.OTHERS_WRITE)));
+            Assert.AreEqual(
+                new FilePermissions(0044),
+                FilePermissions.fromPosixFilePermissions(
+                    ImmutableHashSet.Create(PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ)));
+            Assert.AreEqual(
+                new FilePermissions(0777),
+                FilePermissions.fromPosixFilePermissions(
+                    ImmutableHashSet.CreateRange(Enum.GetValues(typeof(PosixFilePermission)).Cast<PosixFilePermission>())));
+        }
+    }
 }

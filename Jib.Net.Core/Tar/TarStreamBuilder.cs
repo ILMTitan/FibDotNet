@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.blob;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -93,5 +94,12 @@ public class TarStreamBuilder {
     entry.setSize(size);
     archiveMap.put(entry, blob);
   }
-}
+
+        internal static TarEntry CreateEntryFromFile(FileInfo fileInfo, string name)
+        {
+            var entry = TarEntry.CreateEntryFromFile(fileInfo.FullName);
+            entry.Name = name;
+            return entry;
+        }
+    }
 }

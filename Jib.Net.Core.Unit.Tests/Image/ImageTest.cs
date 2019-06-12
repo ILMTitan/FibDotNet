@@ -14,6 +14,17 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using Moq;
+using NodaTime;
+using NUnit.Framework;
+using System.Collections.Immutable;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -37,16 +48,16 @@ namespace com.google.cloud.tools.jib.image {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class ImageTest {
 
-  [Mock] private Layer mockLayer;
-  [Mock] private DescriptorDigest mockDescriptorDigest;
+  private Layer mockLayer = Mock.Of<Layer>();
+  private DescriptorDigest mockDescriptorDigest = Mock.Of<DescriptorDigest>();
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
-    Mockito.when(mockLayer.getBlobDescriptor())
-        .thenReturn(new BlobDescriptor(mockDescriptorDigest));
+    Mock.Get(mockLayer).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(mockDescriptorDigest));
+
   }
 
-  [TestMethod]
+  [Test]
   public void test_smokeTest() {
     Image image =
         Image.builder(typeof(V22ManifestTemplate))
@@ -55,44 +66,44 @@ public class ImageTest {
             .addEnvironmentVariable("VARIABLE", "VALUE")
             .setEntrypoint(Arrays.asList("some", "command"))
             .setProgramArguments(Arrays.asList("arg1", "arg2"))
-            .addExposedPorts(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000)))
+            .addExposedPorts(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000)))
             .addVolumes(
-                ImmutableHashSet.of(
+                ImmutableHashSet.Create(
                     AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")))
             .setUser("john")
             .addLayer(mockLayer)
             .build();
 
-    Assert.assertEquals(typeof(V22ManifestTemplate), image.getImageFormat());
-    Assert.assertEquals(
+    Assert.AreEqual(typeof(V22ManifestTemplate), image.getImageFormat());
+    Assert.AreEqual(
         mockDescriptorDigest, image.getLayers().get(0).getBlobDescriptor().getDigest());
-    Assert.assertEquals(Instant.FromUnixTimeSeconds(10000), image.getCreated());
-    Assert.assertEquals(
-        ImmutableDictionary.of("crepecake", "is great", "VARIABLE", "VALUE"), image.getEnvironment());
-    Assert.assertEquals(Arrays.asList("some", "command"), image.getEntrypoint());
-    Assert.assertEquals(Arrays.asList("arg1", "arg2"), image.getProgramArguments());
-    Assert.assertEquals(ImmutableHashSet.of(Port.tcp(1000), Port.tcp(2000)), image.getExposedPorts());
-    Assert.assertEquals(
-        ImmutableHashSet.of(AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")),
+    Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.getCreated());
+    Assert.AreEqual(
+        ImmutableDic.of("crepecake", "is great", "VARIABLE", "VALUE"), image.getEnvironment());
+    Assert.AreEqual(Arrays.asList("some", "command"), image.getEntrypoint());
+    Assert.AreEqual(Arrays.asList("arg1", "arg2"), image.getProgramArguments());
+    Assert.AreEqual(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000)), image.getExposedPorts());
+    Assert.AreEqual(
+        ImmutableHashSet.Create(AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")),
         image.getVolumes());
-    Assert.assertEquals("john", image.getUser());
+    Assert.AreEqual("john", image.getUser());
   }
 
-  [TestMethod]
+  [Test]
   public void testDefaults() {
     Image image = Image.builder(typeof(V22ManifestTemplate)).build();
-    Assert.assertEquals("amd64", image.getArchitecture());
-    Assert.assertEquals("linux", image.getOs());
-    Assert.assertEquals(Collections.emptyList(), image.getLayers());
-    Assert.assertEquals(Collections.emptyList(), image.getHistory());
+    Assert.AreEqual("amd64", image.getArchitecture());
+    Assert.AreEqual("linux", image.getOs());
+    Assert.AreEqual(Collections.emptyList<Layer>(), image.getLayers());
+    Assert.AreEqual(Collections.emptyList<HistoryEntry>(), image.getHistory());
   }
 
-  [TestMethod]
+  [Test]
   public void testOsArch() {
     Image image =
         Image.builder(typeof(V22ManifestTemplate)).setArchitecture("wasm").setOs("js").build();
-    Assert.assertEquals("wasm", image.getArchitecture());
-    Assert.assertEquals("js", image.getOs());
+    Assert.AreEqual("wasm", image.getArchitecture());
+    Assert.AreEqual("js", image.getOs());
   }
 }
 }

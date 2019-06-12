@@ -14,7 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 
 namespace com.google.cloud.tools.jib.registry {
@@ -47,11 +56,9 @@ namespace com.google.cloud.tools.jib.registry {
 
   /** Starts the registry */
   public void start() {
-    // Runs the Docker registry.
-    ArrayList<string> dockerTokens =
-        new List<>(
-            Arrays.asList(
-                "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName));
+            // Runs the Docker registry.
+            string[] dockerTokens = new[] {
+                "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName };
     if (username != null && password != null) {
       // Generate the htpasswd file to store credentials
       string credentialString =
@@ -149,14 +156,15 @@ namespace com.google.cloud.tools.jib.registry {
 
     for (int i = 0; i < 40; i++) {
       try {
-        HttpURLConnection connection = (HttpURLConnection) queryUrl.openConnection();
-        int code = connection.getResponseCode();
-        if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+var client =                    new HttpClient();
+                    var message = client.GetAsync(queryUrl).Result;
+        var code = message.StatusCode;
+        if (code == HttpStatusCode.OK|| code == HttpStatusCode.Unauthorized) {
           return;
         }
-      } catch (IOException ex) {
+      } catch (IOException) {
       }
-      Thread.sleep(250);
+      Thread.Sleep(250);
     }
   }
 }

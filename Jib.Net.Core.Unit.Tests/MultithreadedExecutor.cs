@@ -14,7 +14,18 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib {
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace com.google.cloud.tools.jib
+{
 
 
 
@@ -29,42 +40,51 @@ namespace com.google.cloud.tools.jib {
 
 
 
-/** Testing infrastructure for running code across multiple threads. */
-public class MultithreadedExecutor : IDisposable {
-
-  private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.ofSeconds(1);
-  private static readonly int THREAD_COUNT = 20;
-
-  private readonly ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-
-  public E invoke<E>(Callable<E> callable) {
-    List<E> returnValue = invokeAll(Collections.singletonList(callable));
-    return returnValue.get(0);
-  }
-
-  public List<E> invokeAll<E>(List<Callable<E>> callables) {
-    List<Future<E>> futures =
-        executorService.invokeAll(
-            callables, MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
-
-    IList<E> returnValues = new List<>();
-    foreach (Future<E> future in futures)
+    /** Testing infrastructure for running code across multiple threads. */
+    public class MultithreadedExecutor : IDisposable
     {
-      Assert.assertTrue(future.isDone());
-      returnValues.add(future.get());
+
+        private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.FromSeconds(1);
+        private static readonly int THREAD_COUNT = 20;
+
+        public E invoke<E>(Callable<E> callable)
+        {
+            List<E> returnValue = invokeAll(Collections.singletonList(callable));
+            return returnValue.get(0);
+        }
+
+        public void invoke(Action a)
+        {
+            invokeAll(Collections.singletonList(a));
+        }
+        public void invokeAll(IEnumerable<Action> callables)
+        {
+            List<Task> futures =
+                        callables.Select(c => Task.Run(() => c())).ToList();
+
+            foreach (Task future in futures)
+            {
+                Assert.IsTrue(future.isDone());
+            }
+        }
+
+        public List<E> invokeAll<E>(IEnumerable<Callable<E>> callables)
+        {
+            List<Task<E>> futures =
+                        callables.Select(c => Task.Run(() => c())).ToList();
+
+            List<E> returnValues = new List<E>();
+            foreach (Task<E> future in futures)
+            {
+                Assert.IsTrue(future.isDone());
+                returnValues.add(future.get());
+            }
+
+            return returnValues;
+        }
+
+        public void Dispose()
+        {
+        }
     }
-
-    return returnValues;
-  }
-
-  public void Dispose() {
-    executorService.shutdown();
-    try {
-      executorService.awaitTermination(MULTITHREADED_TEST_TIMEOUT.getSeconds(), TimeUnit.SECONDS);
-
-    } catch (OperationCanceledException ex) {
-      throw new IOException(ex);
-    }
-  }
-}
 }

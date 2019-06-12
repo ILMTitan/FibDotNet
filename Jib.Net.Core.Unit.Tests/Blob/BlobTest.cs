@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.blob {
 
 
@@ -35,27 +45,27 @@ namespace com.google.cloud.tools.jib.blob {
 /** Tests for {@link Blob}. */
 public class BlobTest {
 
-  [TestMethod]
+  [Test]
   public void testFromInputStream() {
     string expected = "crepecake";
     Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
     verifyBlobWriteTo(expected, Blobs.from(inputStream));
   }
 
-  [TestMethod]
+  [Test]
   public void testFromFile() {
     SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-    string expected = new string(Files.readAllBytes(fileA), StandardCharsets.UTF_8);
+    string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
     verifyBlobWriteTo(expected, Blobs.from(fileA));
   }
 
-  [TestMethod]
+  [Test]
   public void testFromString() {
     string expected = "crepecake";
     verifyBlobWriteTo(expected, Blobs.from(expected));
   }
 
-  [TestMethod]
+  [Test]
   public void testFromWritableContents() {
     string expected = "crepecake";
 
@@ -71,14 +81,14 @@ public class BlobTest {
     BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
 
     string output = outputStream.toString();
-    Assert.assertEquals(expected, output);
+    Assert.AreEqual(expected, output);
 
     byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
-    Assert.assertEquals(expectedBytes.length, blobDescriptor.getSize());
+    Assert.AreEqual(expectedBytes.Length, blobDescriptor.getSize());
 
     DescriptorDigest expectedDigest =
         Digests.computeDigest(new MemoryStream(expectedBytes)).getDigest();
-    Assert.assertEquals(expectedDigest, blobDescriptor.getDigest());
+    Assert.AreEqual(expectedDigest, blobDescriptor.getDigest());
   }
 }
 }

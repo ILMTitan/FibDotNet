@@ -19,7 +19,7 @@ using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-    internal class MoreFiles
+    internal static class MoreFiles
     {
         internal static void deleteRecursively(SystemPath temporaryDirectory, object aLLOW_INSECURE)
         {

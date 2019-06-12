@@ -14,6 +14,18 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.cache {
 
 
@@ -64,12 +76,12 @@ public class CacheStorageReaderTest {
         imageDirectory.resolve("config.json"));
   }
 
-  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+  public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private DescriptorDigest layerDigest1;
   private DescriptorDigest layerDigest2;
 
-  [TestInitialize]
+  [SetUp]
   public void setUp() {
     layerDigest1 =
         DescriptorDigest.fromHash(
@@ -79,7 +91,7 @@ public class CacheStorageReaderTest {
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
   }
 
-  [TestMethod]
+  [Test]
   public void testListDigests() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
@@ -91,24 +103,24 @@ public class CacheStorageReaderTest {
     Files.createDirectories(cacheStorageFiles.getLayersDirectory().resolve(layerDigest2.getHash()));
 
     // Checks that layer directories created are all listed.
-    Assert.assertEquals(
-        new HashSet<>(Arrays.asList(layerDigest1, layerDigest2)),
+    Assert.AreEqual(
+        new HashSet<DescriptorDigest>(Arrays.asList(layerDigest1, layerDigest2)),
         cacheStorageReader.fetchDigests());
 
     // Checks that non-digest directories means the cache is corrupted.
     Files.createDirectory(cacheStorageFiles.getLayersDirectory().resolve("not a hash"));
     try {
       cacheStorageReader.fetchDigests();
-      Assert.fail("Listing digests should have failed");
+      Assert.Fail("Listing digests should have failed");
 
     } catch (CacheCorruptedException ex) {
-      Assert.assertThat(
-          ex.getMessage(), CoreMatchers.startsWith("Found non-digest file in layers directory"));
-      Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(typeof(DigestException)));
+      StringAssert.StartsWith(
+          ex.getMessage(), "Found non-digest file in layers directory");
+      Assert.IsInstanceOf<DigestException>(ex.getCause());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testRetrieveManifest_v21()
       {
     SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
@@ -123,10 +135,10 @@ public class CacheStorageReaderTest {
                 .retrieveMetadata(ImageReference.of("test", "image", "tag"))
                 .get()
                 .getManifest();
-    Assert.assertEquals(1, manifestTemplate.getSchemaVersion());
+    Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
   }
 
-  [TestMethod]
+  [Test]
   public void testRetrieveManifest_v22()
       {
     SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
@@ -141,10 +153,10 @@ public class CacheStorageReaderTest {
                 .retrieveMetadata(ImageReference.of("test", "image", "tag"))
                 .get()
                 .getManifest();
-    Assert.assertEquals(2, manifestTemplate.getSchemaVersion());
+    Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
   }
 
-  [TestMethod]
+  [Test]
   public void testRetrieveContainerConfiguration()
       {
     SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
@@ -159,11 +171,11 @@ public class CacheStorageReaderTest {
             .get()
             .getConfig()
             .get();
-    Assert.assertEquals("wasm", configurationTemplate.getArchitecture());
-    Assert.assertEquals("js", configurationTemplate.getOs());
+    Assert.AreEqual("wasm", configurationTemplate.getArchitecture());
+    Assert.AreEqual("js", configurationTemplate.getOs());
   }
 
-  [TestMethod]
+  [Test]
   public void testRetrieve() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
@@ -174,37 +186,37 @@ public class CacheStorageReaderTest {
     DescriptorDigest layerDigest = layerDigest1;
     DescriptorDigest layerDiffId = layerDigest2;
     Files.createDirectories(cacheStorageFiles.getLayerDirectory(layerDigest));
-    using (Stream out =
+    using (Stream @out =
         Files.newOutputStream(cacheStorageFiles.getLayerFile(layerDigest, layerDiffId))) {
-      out.write("layerBlob".getBytes(StandardCharsets.UTF_8));
+      @out.write("layerBlob".getBytes(StandardCharsets.UTF_8));
     }
 
     // Checks that the CachedLayer is retrieved correctly.
     Optional<CachedLayer> optionalCachedLayer = cacheStorageReader.retrieve(layerDigest);
-    Assert.assertTrue(optionalCachedLayer.isPresent());
-    Assert.assertEquals(layerDigest, optionalCachedLayer.get().getDigest());
-    Assert.assertEquals(layerDiffId, optionalCachedLayer.get().getDiffId());
-    Assert.assertEquals("layerBlob".length(), optionalCachedLayer.get().getSize());
-    Assert.assertEquals("layerBlob", Blobs.writeToString(optionalCachedLayer.get().getBlob()));
+    Assert.IsTrue(optionalCachedLayer.isPresent());
+    Assert.AreEqual(layerDigest, optionalCachedLayer.get().getDigest());
+    Assert.AreEqual(layerDiffId, optionalCachedLayer.get().getDiffId());
+    Assert.AreEqual("layerBlob".length(), optionalCachedLayer.get().getSize());
+    Assert.AreEqual("layerBlob", Blobs.writeToString(optionalCachedLayer.get().getBlob()));
 
     // Checks that multiple .layer files means the cache is corrupted.
     Files.createFile(cacheStorageFiles.getLayerFile(layerDigest, layerDigest));
     try {
       cacheStorageReader.retrieve(layerDigest);
-      Assert.fail("Should have thrown CacheCorruptedException");
+      Assert.Fail("Should have thrown CacheCorruptedException");
 
     } catch (CacheCorruptedException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.startsWith(
+      StringAssert.StartsWith(
+          ex.getMessage(), 
               "Multiple layer files found for layer with digest "
                   + layerDigest.getHash()
                   + " in directory: "
-                  + cacheStorageFiles.getLayerDirectory(layerDigest)));
+                  + cacheStorageFiles.getLayerDirectory(layerDigest));
+
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testSelect_invalidLayerDigest() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
@@ -218,19 +230,19 @@ public class CacheStorageReaderTest {
 
     try {
       cacheStorageReader.select(selector);
-      Assert.fail("Should have thrown CacheCorruptedException");
+      Assert.Fail("Should have thrown CacheCorruptedException");
 
     } catch (CacheCorruptedException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.startsWith(
+      StringAssert.StartsWith(
+          ex.getMessage(), 
               "Expected valid layer digest as contents of selector file `"
                   + selectorFile
-                  + "` for selector `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, but got: not a valid layer digest"));
+                  + "` for selector `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, but got: not a valid layer digest");
+
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testSelect() {
     CacheStorageFiles cacheStorageFiles =
         new CacheStorageFiles(temporaryFolder.newFolder().toPath());
@@ -243,8 +255,8 @@ public class CacheStorageReaderTest {
     Files.write(selectorFile, layerDigest2.getHash().getBytes(StandardCharsets.UTF_8));
 
     Optional<DescriptorDigest> selectedLayerDigest = cacheStorageReader.select(selector);
-    Assert.assertTrue(selectedLayerDigest.isPresent());
-    Assert.assertEquals(layerDigest2, selectedLayerDigest.get());
+    Assert.IsTrue(selectedLayerDigest.isPresent());
+    Assert.AreEqual(layerDigest2, selectedLayerDigest.get());
   }
 }
 }

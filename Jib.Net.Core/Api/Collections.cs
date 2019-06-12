@@ -20,17 +20,18 @@ using System.Linq;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core;
 
 namespace com.google.cloud.tools.jib.api
 {
-    internal static class Collections
+    public static class Collections
     {
         internal static IDictionary<TKey, TValue> emptyMap<TKey, TValue>()
         {
             throw new NotImplementedException();
         }
 
-        internal static List<T> singletonList<T>(T value)
+        public static List<T> singletonList<T>(T value)
         {
             return new List<T> { value };
         }
@@ -46,9 +47,19 @@ namespace com.google.cloud.tools.jib.api
             return errors as IReadOnlyList<T> ?? errors.ToList();
         }
 
-        internal static IList<T> emptyList<T>()
+        public static List<T> emptyList<T>()
         {
-            return new T[0];
+            return new List<T>();
+        }
+
+        public static ISet<T> emptySet<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static IEnumerable<T> nCopies<T>(int v, T p)
+        {
+            throw new NotImplementedException();
         }
     }
 }

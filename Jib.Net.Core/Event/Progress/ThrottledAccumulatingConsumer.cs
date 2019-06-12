@@ -33,7 +33,10 @@ namespace com.google.cloud.tools.jib.@event.progress {
  * period of time are merged into a single later call with the value accumulated up to that point.
  */
 public class ThrottledAccumulatingConsumer : IDisposable {
-
+        public static implicit operator Consumer<long>(ThrottledAccumulatingConsumer c)
+        {
+            return c.accept;
+        }
   private readonly Consumer<long> consumer;
 
   /** Delay between each call to the underlying {@link #accept}. */

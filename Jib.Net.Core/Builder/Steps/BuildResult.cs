@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using System;
 
 namespace com.google.cloud.tools.jib.builder.steps {
 
@@ -34,14 +35,18 @@ namespace com.google.cloud.tools.jib.builder.steps {
 /** Used to record the results of a build. */
 public class BuildResult {
 
-  /**
-   * Gets a {@link BuildResult} from an {@link Image}.
-   *
-   * @param image the image
-   * @param targetFormat the target format of the image
-   * @return a new {@link BuildResult} with the image's digest and id
-   * @throws IOException if writing the digest or container configuration fails
-   */
+        /**
+         * Gets a {@link BuildResult} from an {@link Image}.
+         *
+         * @param image the image
+         * @param targetFormat the target format of the image
+         * @return a new {@link BuildResult} with the image's digest and id
+         * @throws IOException if writing the digest or container configuration fails
+         */
+        public static BuildResult fromImage(Image image, Type targetFormat)
+        {
+            return fromImage(image, new Class<BuildableManifestTemplate>(targetFormat));
+        }
   public static BuildResult fromImage(Image image, IClass<BuildableManifestTemplate> targetFormat)
       {
     ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);

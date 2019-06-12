@@ -203,7 +203,7 @@ class BlobPusher {
             }
   }
 
-  public BlobPusher(
+        public BlobPusher(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       DescriptorDigest blobDigest,
       Blob blob,

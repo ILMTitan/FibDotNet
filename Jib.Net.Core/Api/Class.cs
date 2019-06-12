@@ -22,6 +22,13 @@ namespace Jib.Net.Core.Api
 {
     public class Class<E> : IClass<E>
     {
+        private Type type;
+
+        public Class(Type type)
+        {
+            this.type = type;
+        }
+
         public Type Type => throw new NotImplementedException();
 
         public static implicit operator Class<E>(Type v)

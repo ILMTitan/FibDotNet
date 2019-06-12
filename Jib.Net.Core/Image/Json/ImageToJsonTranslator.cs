@@ -68,7 +68,7 @@ public class ImageToJsonTranslator {
    *     values, or {@code null} if {@code exposedPorts} is {@code null}
    */
 
-  static IDictionary<string, IDictionary<object, object>> portSetToMap(ISet<Port> exposedPorts) {
+  public static IDictionary<string, IDictionary<object, object>> portSetToMap(ISet<Port> exposedPorts) {
     return setToMap(exposedPorts, port => port.getPort() + "/" + port.getProtocol());
   }
 
@@ -82,7 +82,7 @@ public class ImageToJsonTranslator {
    *     values, or {@code null} if {@code exposedPorts} is {@code null}
    */
 
-  static ImmutableSortedDictionary<string, IDictionary<object, object>> volumesSetToMap(ISet<AbsoluteUnixPath> volumes) {
+  public static ImmutableSortedDictionary<string, IDictionary<object, object>> volumesSetToMap(ISet<AbsoluteUnixPath> volumes) {
     return setToMap(volumes, p => p.toString());
   }
 
@@ -92,7 +92,7 @@ public class ImageToJsonTranslator {
    * @return the list
    */
 
-  static ImmutableArray<string> environmentMapToList(IDictionary<string, string> environment) {
+  public static ImmutableArray<string> environmentMapToList(IDictionary<string, string> environment) {
     if (environment == null) {
       return ImmutableArray<string>.Empty;
     }
@@ -190,7 +190,7 @@ public class ImageToJsonTranslator {
           .getStartPeriod()
           .ifPresent(
               startPeriod => template.setContainerHealthCheckStartPeriod(startPeriod.toNanos()));
-      template.setContainerHealthCheckRetries(healthCheck.getRetries().orElse(null));
+      template.setContainerHealthCheckRetries(healthCheck.getRetries().asNullable());
     }
 
     return template;

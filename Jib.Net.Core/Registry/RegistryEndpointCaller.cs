@@ -22,6 +22,7 @@ using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -57,37 +58,33 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-
-    /**
-     * Makes requests to a registry endpoint.
-     *
-     * @param <T> the type returned by calling the endpoint
-     */
-    class RegistryEndpointCaller<T>
+    static class RegistryEndpointCaller
     {
-
         /**
          * @see <a
          *     href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308">https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308</a>
          */
-        static readonly HttpStatusCode STATUS_CODE_PERMANENT_REDIRECT = (HttpStatusCode)308;
+        public static readonly HttpStatusCode STATUS_CODE_PERMANENT_REDIRECT = (HttpStatusCode)308;
 
-        private static readonly string DEFAULT_PROTOCOL = "https";
-
-        private static bool isHttpsProtocol(Uri url)
-        {
-            return "https".Equals(url.getProtocol());
-        }
+        /// <summary>
+        /// The broken pipe error code.
+        /// </summary>
+        /// <seealso href="https://docs.microsoft.com/openspecs/windows_protocols/ms-erref"/>
+        public const int ERROR_BROKEN_PIPE = 0x6d;
 
         // https://github.com/GoogleContainerTools/jib/issues/1316
 
-        static bool isBrokenPipe(IOException original)
+        public static bool isBrokenPipe(Exception original)
         {
             Exception exception = original;
             while (exception != null)
             {
                 string message = exception.getMessage();
                 if (message != null && message.toLowerCase(Locale.US).contains("broken pipe"))
+                {
+                    return true;
+                }
+                if (exception is Win32Exception e && e.ErrorCode == ERROR_BROKEN_PIPE)
                 {
                     return true;
                 }
@@ -99,6 +96,21 @@ namespace com.google.cloud.tools.jib.registry {
                 }
             }
             return false;
+        }
+    }
+    /**
+     * Makes requests to a registry endpoint.
+     *
+     * @param <T> the type returned by calling the endpoint
+     */
+    class RegistryEndpointCaller<T>
+    {
+
+        private static readonly string DEFAULT_PROTOCOL = "https";
+
+        private static bool isHttpsProtocol(Uri url)
+        {
+            return "https".Equals(url.getProtocol());
         }
 
         private readonly EventHandlers eventHandlers;
@@ -148,7 +160,7 @@ namespace com.google.cloud.tools.jib.registry {
     {
   }
 
-  RegistryEndpointCaller(
+  public RegistryEndpointCaller(
       EventHandlers eventHandlers,
       string userAgent,
       string apiRouteBase,
@@ -303,7 +315,7 @@ namespace com.google.cloud.tools.jib.registry {
                 == HttpStatusCode.TemporaryRedirect
             || ex.getStatusCode()
                 == HttpStatusCode.MovedPermanently
-            || ex.getStatusCode() == STATUS_CODE_PERMANENT_REDIRECT) {
+            || ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT) {
           // 'Location' header can be relative or absolute.
           Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
           return callWithAllowInsecureRegistryHandling(redirectLocation);
@@ -317,14 +329,14 @@ namespace com.google.cloud.tools.jib.registry {
       throw new RegistryNoResponseException(ex.Message, ex);
 
     } catch (IOException ex) {
-      if (isBrokenPipe(ex)) {
+      if (RegistryEndpointCaller.isBrokenPipe(ex)) {
         throw new RegistryBrokenPipeException(ex);
       }
       throw;
     }
   }
 
-  RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException) {
+  public RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException) {
     RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
         new RegistryErrorExceptionBuilder(
             registryEndpointProvider.getActionDescription(), httpResponseException.Cause);

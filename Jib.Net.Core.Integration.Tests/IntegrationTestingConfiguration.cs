@@ -14,6 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using NUnit.Framework;
+using System;
+
 namespace com.google.cloud.tools.jib {
 
 
@@ -22,9 +26,9 @@ namespace com.google.cloud.tools.jib {
 public class IntegrationTestingConfiguration {
 
   public static string getGCPProject() {
-    string projectId = System.getenv("JIB_INTEGRATION_TESTING_PROJECT");
+    string projectId = Environment.GetEnvironmentVariable("JIB_INTEGRATION_TESTING_PROJECT");
     if (Strings.isNullOrEmpty(projectId)) {
-      Assert.fail(
+      Assert.Fail(
           "Must set environment variable JIB_INTEGRATION_TESTING_PROJECT to the GCP project to use for integration testing.");
     }
     return projectId;

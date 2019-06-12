@@ -134,7 +134,7 @@ namespace Jib.Net.Core.Api
         private readonly Func<BuildConfiguration, StepsRunner> stepsRunnerFactory;
         private readonly bool mustBeOnline;
         private readonly ISet<string> additionalTags = new HashSet<string>();
-        public event Consumer<JibEvent> JibEvents = _ => { };
+        public event Action<JibEvent> JibEvents = _ => { };
 
         private SystemPath baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
         private SystemPath applicationLayersCacheDirectory;
@@ -201,6 +201,16 @@ namespace Jib.Net.Core.Api
             applicationLayersCacheDirectory = cacheDirectory;
             return this;
         }
+        public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : JibEvent
+        {
+            return addEventHandler(je =>
+            {
+                if (je is T te)
+                {
+                    eventConsumer(te);
+                }
+            });
+        }
 
         /**
          * Adds the {@code eventConsumer} to handle all {@link JibEvent} types. See {@link
@@ -209,7 +219,7 @@ namespace Jib.Net.Core.Api
          * @param eventConsumer the event handler
          * @return this
          */
-        public Containerizer addEventHandler(Consumer<JibEvent> eventConsumer)
+        private Containerizer addEventHandler(Action<JibEvent> eventConsumer)
         {
             JibEvents += eventConsumer;
             return this;
@@ -319,7 +329,7 @@ namespace Jib.Net.Core.Api
             return stepsRunnerFactory.apply(buildConfiguration);
         }
 
-        internal EventHandlers buildEventHandlers()
+        public EventHandlers buildEventHandlers()
         {
             throw new NotImplementedException();
         }

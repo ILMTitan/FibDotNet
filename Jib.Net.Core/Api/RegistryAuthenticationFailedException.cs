@@ -40,8 +40,24 @@ public class RegistryAuthenticationFailedException : RegistryException {
     this.imageName = imageName;
   }
 
-  /** @return the server being authenticated */
-  public string getServerUrl() {
+        public RegistryAuthenticationFailedException(string message, Exception cause) : base(message, cause)
+        {
+        }
+
+        public RegistryAuthenticationFailedException(string message) : base(message)
+        {
+        }
+
+        public RegistryAuthenticationFailedException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        public RegistryAuthenticationFailedException() : base()
+        {
+        }
+
+        /** @return the server being authenticated */
+        public string getServerUrl() {
     return serverUrl;
   }
 

@@ -14,53 +14,56 @@
  * limitations under the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using com.google.cloud.tools.jib.builder.steps;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link JibContainer}. */
 
+    public class JibContainerTest
+    {
+        public TemporaryFolder temporaryDirectory = new TemporaryFolder();
 
+        private DescriptorDigest digest1;
+        private DescriptorDigest digest2;
+        private DescriptorDigest digest3;
 
+        [SetUp]
+        public void setUp()
+        {
+            digest1 =
+                DescriptorDigest.fromDigest(
+                    "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
+            digest2 =
+                DescriptorDigest.fromDigest(
+                    "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
+            digest3 =
+                DescriptorDigest.fromDigest(
+                    "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210");
+        }
 
+        [Test]
+        public void testCreation()
+        {
+            JibContainer container = new JibContainer(digest1, digest2);
 
+            Assert.AreEqual(digest1, container.getDigest());
+            Assert.AreEqual(digest2, container.getImageId());
+        }
 
-/** Tests for {@link JibContainer}. */
-public class JibContainerTest {
+        [Test]
+        public void testEquality()
+        {
+            JibContainer container1 = new JibContainer(digest1, digest2);
+            JibContainer container2 = new JibContainer(digest1, digest2);
+            JibContainer container3 = new JibContainer(digest2, digest3);
 
-  [Rule] public TemporaryFolder temporaryDirectory = new TemporaryFolder();
-
-  private DescriptorDigest digest1;
-  private DescriptorDigest digest2;
-  private DescriptorDigest digest3;
-
-  [TestInitialize]
-  public void setUp() {
-    digest1 =
-        DescriptorDigest.fromDigest(
-            "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
-    digest2 =
-        DescriptorDigest.fromDigest(
-            "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
-    digest3 =
-        DescriptorDigest.fromDigest(
-            "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210");
-  }
-
-  [TestMethod]
-  public void testCreation() {
-    JibContainer container = new JibContainer(digest1, digest2);
-
-    Assert.assertEquals(digest1, container.getDigest());
-    Assert.assertEquals(digest2, container.getImageId());
-  }
-
-  [TestMethod]
-  public void testEquality() {
-    JibContainer container1 = new JibContainer(digest1, digest2);
-    JibContainer container2 = new JibContainer(digest1, digest2);
-    JibContainer container3 = new JibContainer(digest2, digest3);
-
-    Assert.assertEquals(container1, container2);
-    Assert.assertEquals(container1.hashCode(), container2.hashCode());
-    Assert.assertNotEquals(container1, container3);
-  }
-}
+            Assert.AreEqual(container1, container2);
+            Assert.AreEqual(container1.hashCode(), container2.hashCode());
+            Assert.AreNotEqual(container1, container3);
+        }
+    }
 }

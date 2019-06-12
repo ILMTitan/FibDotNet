@@ -14,6 +14,20 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -47,13 +61,13 @@ public class BlobPusherTest {
   private static readonly string TEST_BLOB_CONTENT = "some BLOB content";
   private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
-  [Mock] private Uri mockURL;
-  [Mock] private HttpResponseMessage mockResponse;
+  private Uri mockURL = Mock.Of<Uri>();
+  private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
 
   private DescriptorDigest fakeDescriptorDigest;
   private BlobPusher testBlobPusher;
 
-  [TestInitialize]
+  [SetUp]
   public void setUpFakes() {
     fakeDescriptorDigest =
         DescriptorDigest.fromHash(
@@ -66,72 +80,68 @@ public class BlobPusherTest {
             null);
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_getContent() {
-    Assert.assertNull(testBlobPusher.initializer().getContent());
+    Assert.IsNull(testBlobPusher.initializer().getContent());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAccept() {
-    Assert.assertEquals(0, testBlobPusher.initializer().getAccept().size());
+    Assert.AreEqual(0, testBlobPusher.initializer().getAccept().size());
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_handleResponse_created() {
-    Mockito.when(mockResponse.getStatusCode()).thenReturn(201); // Created
-    Assert.assertNull(testBlobPusher.initializer().handleResponse(mockResponse));
-  }
+    Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)201); // Created
+    Assert.IsNull(testBlobPusher.initializer().handleResponse(mockResponse));
+    Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)202); // Accepted
+    Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Collections.singletonList("location"));
 
-  [TestMethod]
-  public void testInitializer_handleResponse_accepted() {
-    Mockito.when(mockResponse.getStatusCode()).thenReturn(202); // Accepted
-    Mockito.when(mockResponse.getHeader("Location"))
-        .thenReturn(Collections.singletonList("location"));
-    GenericUrl requestUrl = new GenericUrl("https://someurl");
-    Mockito.when(mockResponse.getRequestUrl()).thenReturn(requestUrl);
-    Assert.assertEquals(
+    UriBuilder requestUrl = new UriBuilder("https://someurl");
+    Mock.Get(mockResponse).Setup(m => m.getRequestUrl()).Returns(requestUrl.Uri);
+
+    Assert.AreEqual(
         new Uri("https://someurl/location"),
         testBlobPusher.initializer().handleResponse(mockResponse));
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_handleResponse_accepted_multipleLocations()
       {
-    Mockito.when(mockResponse.getStatusCode()).thenReturn(202); // Accepted
-    Mockito.when(mockResponse.getHeader("Location"))
-        .thenReturn(Arrays.asList("location1", "location2"));
+    Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)202); // Accepted
+    Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Arrays.asList("location1", "location2"));
+
     try {
       testBlobPusher.initializer().handleResponse(mockResponse);
-      Assert.fail("Multiple 'Location' headers should be a registry error");
+      Assert.Fail("Multiple 'Location' headers should be a registry error");
 
     } catch (RegistryErrorException ex) {
-      Assert.assertThat(
-          ex.getMessage(),
-          CoreMatchers.containsString("Expected 1 'Location' header, but found 2"));
+                StringAssert.Contains(
+                    ex.getMessage(), "Expected 1 'Location' header, but found 2");
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_handleResponse_unrecognized() {
-    Mockito.when(mockResponse.getStatusCode()).thenReturn(-1); // Unrecognized
-    try {
+            Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)(-1)); // Unrecognized
+            try {
       testBlobPusher.initializer().handleResponse(mockResponse);
-      Assert.fail("Multiple 'Location' headers should be a registry error");
+      Assert.Fail("Multiple 'Location' headers should be a registry error");
 
     } catch (RegistryErrorException ex) {
-      Assert.assertThat(
-          ex.getMessage(), CoreMatchers.containsString("Received unrecognized status code -1"));
+                StringAssert.Contains(
+                    ex.getMessage(), "Received unrecognized status code -1");
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_getApiRoute_nullSource() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri("http://someApiBase/someImageName/blobs/uploads/"),
         testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_getApiRoute_sameSource() {
     testBlobPusher =
         new BlobPusher(
@@ -140,7 +150,7 @@ public class BlobPusherTest {
             TEST_BLOB,
             "sourceImageName");
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri(
             "http://someApiBase/someImageName/blobs/uploads/?mount="
                 + fakeDescriptorDigest
@@ -148,99 +158,100 @@ public class BlobPusherTest {
         testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_getHttpMethod() {
-    Assert.assertEquals("POST", testBlobPusher.initializer().getHttpMethod());
+    Assert.AreEqual("POST", testBlobPusher.initializer().getHttpMethod());
   }
 
-  [TestMethod]
+  [Test]
   public void testInitializer_getActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
         testBlobPusher.initializer().getActionDescription());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_getContent() {
     LongAdder byteCount = new LongAdder();
     BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount.add).getContent();
 
-    Assert.assertNotNull(body);
-    Assert.assertEquals("application/octet-stream", body.getType());
+    Assert.IsNotNull(body);
+    Assert.AreEqual("application/octet-stream", body.getType());
 
     MemoryStream byteArrayOutputStream = new MemoryStream();
     body.writeTo(byteArrayOutputStream);
 
-    Assert.assertEquals(
-        TEST_BLOB_CONTENT, new string(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8));
-    Assert.assertEquals(TEST_BLOB_CONTENT.length(), byteCount.sum());
+    Assert.AreEqual(
+        TEST_BLOB_CONTENT, StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
+    Assert.AreEqual(TEST_BLOB_CONTENT.length(), byteCount.sum());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_GetAccept() {
-    Assert.assertEquals(0, testBlobPusher.writer(mockURL, ignored => {}).getAccept().size());
+    Assert.AreEqual(0, testBlobPusher.writer(mockURL, ignored => {}).getAccept().size());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_handleResponse() {
-    Mockito.when(mockResponse.getHeader("Location"))
-        .thenReturn(Collections.singletonList("https://somenewurl/location"));
-    GenericUrl requestUrl = new GenericUrl("https://someurl");
-    Mockito.when(mockResponse.getRequestUrl()).thenReturn(requestUrl);
-    Assert.assertEquals(
+    Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Collections.singletonList("https://somenewurl/location"));
+
+    UriBuilder requestUrl = new UriBuilder("https://someurl");
+    Mock.Get(mockResponse).Setup(m => m.getRequestUrl()).Returns(requestUrl.Uri);
+
+    Assert.AreEqual(
         new Uri("https://somenewurl/location"),
         testBlobPusher.writer(mockURL, ignored => {}).handleResponse(mockResponse));
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_getApiRoute() {
     Uri fakeUrl = new Uri("http://someurl");
-    Assert.assertEquals(fakeUrl, testBlobPusher.writer(fakeUrl, ignored => {}).getApiRoute(""));
+    Assert.AreEqual(fakeUrl, testBlobPusher.writer(fakeUrl, ignored => {}).getApiRoute(""));
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_getHttpMethod() {
-    Assert.assertEquals("PATCH", testBlobPusher.writer(mockURL, ignored => {}).getHttpMethod());
+    Assert.AreEqual("PATCH", testBlobPusher.writer(mockURL, ignored => {}).getHttpMethod());
   }
 
-  [TestMethod]
+  [Test]
   public void testWriter_getActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
         testBlobPusher.writer(mockURL, ignored => {}).getActionDescription());
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_getContent() {
-    Assert.assertNull(testBlobPusher.committer(mockURL).getContent());
+    Assert.IsNull(testBlobPusher.committer(mockURL).getContent());
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_GetAccept() {
-    Assert.assertEquals(0, testBlobPusher.committer(mockURL).getAccept().size());
+    Assert.AreEqual(0, testBlobPusher.committer(mockURL).getAccept().size());
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_handleResponse() {
-    Assert.assertNull(
-        testBlobPusher.committer(mockURL).handleResponse(Mockito.mock(typeof(HttpResponseMessage))));
+    Assert.IsNull(
+        testBlobPusher.committer(mockURL).handleResponse(Mock.Of<HttpResponseMessage>()));
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_getApiRoute() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         new Uri("https://someurl?somequery=somevalue&digest=" + fakeDescriptorDigest),
         testBlobPusher.committer(new Uri("https://someurl?somequery=somevalue")).getApiRoute(""));
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_getHttpMethod() {
-    Assert.assertEquals("PUT", testBlobPusher.committer(mockURL).getHttpMethod());
+    Assert.AreEqual("PUT", testBlobPusher.committer(mockURL).getHttpMethod());
   }
 
-  [TestMethod]
+  [Test]
   public void testCommitter_getActionDescription() {
-    Assert.assertEquals(
+    Assert.AreEqual(
         "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
         testBlobPusher.committer(mockURL).getActionDescription());
   }

@@ -14,41 +14,42 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link RegistryImage}. */
 
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class RegistryImageTest
+    {
+        private CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
 
+        [Test]
+        public void testGetters_default()
+        {
+            RegistryImage image = RegistryImage.named("registry/image");
 
+            Assert.AreEqual("registry/image", image.getImageReference().toString());
+            Assert.AreEqual(0, image.getCredentialRetrievers().size());
+        }
 
+        [Test]
+        public void testGetters()
+        {
+            RegistryImage image =
+                RegistryImage.named("registry/image")
+                    .addCredentialRetriever(mockCredentialRetriever)
+                    .addCredential("username", "password");
 
-
-/** Tests for {@link RegistryImage}. */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class RegistryImageTest {
-
-  [Mock] private CredentialRetriever mockCredentialRetriever;
-
-  [TestMethod]
-  public void testGetters_default() {
-    RegistryImage image = RegistryImage.named("registry/image");
-
-    Assert.assertEquals("registry/image", image.getImageReference().toString());
-    Assert.assertEquals(0, image.getCredentialRetrievers().size());
-  }
-
-  [TestMethod]
-  public void testGetters()
-      {
-    RegistryImage image =
-        RegistryImage.named("registry/image")
-            .addCredentialRetriever(mockCredentialRetriever)
-            .addCredential("username", "password");
-
-    Assert.assertEquals(2, image.getCredentialRetrievers().size());
-    Assert.assertSame(mockCredentialRetriever, image.getCredentialRetrievers().get(0));
-    Assert.assertEquals(
-        Credential.from("username", "password"),
-        image.getCredentialRetrievers().get(1).retrieve().get());
-  }
-}
+            Assert.AreEqual(2, image.getCredentialRetrievers().size());
+            Assert.AreSame(mockCredentialRetriever, image.getCredentialRetrievers().get(0));
+            Assert.AreEqual(
+                Credential.from("username", "password"),
+                image.getCredentialRetrievers().get(1).retrieve().get());
+        }
+    }
 }

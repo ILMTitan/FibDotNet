@@ -125,9 +125,14 @@ public static class JsonTemplateMapper {
   public static string toUtf8String(IReadOnlyList<JsonTemplate> templates)
       {
     return toUtf8String((object) templates);
-  }
+        }
 
-  public static byte[] toByteArray(JsonTemplate template)
+        public static string toUtf8String(IList<JsonTemplate> templates)
+        {
+            return toUtf8String((object)templates);
+        }
+
+        public static byte[] toByteArray(JsonTemplate template)
       {
     return toByteArray((object) template);
   }

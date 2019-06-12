@@ -22,7 +22,7 @@ using com.google.cloud.tools.jib.cache;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    internal class AsyncSteps
+    internal static class AsyncSteps
     {
         internal static AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>> immediate(ImmutableArray<BuildAndCacheApplicationLayerStep> immutableArray)
         {

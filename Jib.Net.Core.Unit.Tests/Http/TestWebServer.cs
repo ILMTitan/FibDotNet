@@ -14,6 +14,19 @@
  * the License.
  */
 
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+
 namespace com.google.cloud.tools.jib.http {
 
 
@@ -41,72 +54,52 @@ namespace com.google.cloud.tools.jib.http {
 public class TestWebServer : IDisposable {
 
   private readonly bool https;
-  private readonly ServerSocket serverSocket;
-  private readonly ExecutorService executorService = Executors.newSingleThreadExecutor();
-  private readonly Semaphore threadStarted = new Semaphore(0);
+  private readonly TcpListener serverSocket;
+        private readonly object serveTask;
+        private readonly SemaphoreSlim threadStarted = new SemaphoreSlim(0);
   private readonly StringBuilder inputRead = new StringBuilder();
 
   public TestWebServer(bool https)
       {
     this.https = https;
     serverSocket = createServerSocket(https);
-    ignoreReturn(executorService.submit(this.serve200));
+    serveTask = serve200();
     threadStarted.acquire();
   }
 
   public string getEndpoint() {
-    string host = serverSocket.getInetAddress().getHostAddress();
-    return (https ? "https" : "http") + "://" + host + ":" + serverSocket.getLocalPort();
+            var host = serverSocket.LocalEndpoint as IPEndPoint;
+    return (https ? "https" : "http") + "://" + host.Address + ":" + host.Port;
   }
 
   public void Dispose() {
-    serverSocket.close();
-    executorService.shutdown();
+    serverSocket.Stop();
   }
 
-  private ServerSocket createServerSocket(bool https)
+  private TcpListener createServerSocket(bool https)
       {
-    if (https) {
-      KeyStore keyStore = KeyStore.getInstance("JKS");
-      // generated with: keytool -genkey -keyalg RSA -keystore ./TestWebServer-keystore
-      SystemPath keyStoreFile = Paths.get(Resources.getResource("core/TestWebServer-keystore").toURI());
-      using (Stream in = Files.newInputStream(keyStoreFile)) {
-        keyStore.load(in, "password".toCharArray());
-      }
-
-      KeyManagerFactory keyManagerFactory =
-          KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-      keyManagerFactory.init(keyStore, "password".toCharArray());
-
-      SSLContext sslContext = SSLContext.getInstance("TLS");
-      sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
-      return sslContext.getServerSocketFactory().createServerSocket(0);
-    } else {
-      return new ServerSocket(0);
-    }
+            return new TcpListener(IPAddress.Loopback, 0);
   }
 
-  private Void serve200() {
+  private async Task serve200() {
     threadStarted.release();
-    using (Socket socket = serverSocket.accept()) {
+            serverSocket.Start();
+            using (var socket = await serverSocket.AcceptTcpClientAsync())
+            {
 
-      Stream in = socket.getInputStream();
-      BufferedReader reader = new BufferedReader(new StreamReader(in, StandardCharsets.UTF_8));
-      for (string line = reader.readLine();
-          line != null && !line.isEmpty(); // An empty line marks the end of an HTTP request.
-          line = reader.readLine()) {
-        inputRead.append(line + "\n");
-      }
+                Stream @in = socket.GetStream();
+                TextReader reader = new StreamReader(@in, StandardCharsets.UTF_8);
+                for (string line = await reader.ReadLineAsync();
+                    line != null && !line.isEmpty(); // An empty line marks the end of an HTTP request.
+                    line = await reader.ReadLineAsync())
+                {
+                    inputRead.append(line + "\n");
+                }
 
-      string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
-      socket.getOutputStream().write(response.getBytes(StandardCharsets.UTF_8));
-      socket.getOutputStream().flush();
-    }
-    return null;
-  }
+                string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
+                socket.GetStream().write(response.getBytes(StandardCharsets.UTF_8));
 
-  private void ignoreReturn(Future<Void> future) {
-    // do nothing; to make Error Prone happy
+            }
   }
 
   public string getInputRead() {

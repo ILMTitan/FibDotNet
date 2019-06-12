@@ -100,7 +100,7 @@ public class DockerConfigCredentialRetriever {
    * @return the retrieved credentials, or {@code Optional#empty} if none are found
    */
 
-  Optional<Credential> retrieve(DockerConfig dockerConfig, Consumer<LogEvent> logger) {
+  public Optional<Credential> retrieve(DockerConfig dockerConfig, Consumer<LogEvent> logger) {
     foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
     {
       // First, tries to find defined auth.

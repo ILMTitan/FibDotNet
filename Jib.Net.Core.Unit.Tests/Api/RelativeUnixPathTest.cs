@@ -14,30 +14,37 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using NUnit.Framework;
+using Jib.Net.Core.Global;
+using System;
+using System.Collections.Immutable;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link RelativeUnixPath}. */
 
+    public class RelativeUnixPathTest
+    {
+        [Test]
+        public void testGet_absolute()
+        {
+            try
+            {
+                RelativeUnixPath.get("/absolute");
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual("Path starts with forward slash (/): /absolute", ex.getMessage());
+            }
+        }
 
-
-/** Tests for {@link RelativeUnixPath}. */
-public class RelativeUnixPathTest {
-
-  [TestMethod]
-  public void testGet_absolute() {
-    try {
-      RelativeUnixPath.get("/absolute");
-      Assert.fail();
-
-    } catch (ArgumentException ex) {
-      Assert.assertEquals("Path starts with forward slash (/): /absolute", ex.getMessage());
+        [Test]
+        public void testGet()
+        {
+            Assert.AreEqual(
+                ImmutableArray.Create("some", "relative", "path"),
+                RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
+        }
     }
-  }
-
-  [TestMethod]
-  public void testGet() {
-    Assert.assertEquals(
-        ImmutableArray.Create("some", "relative", "path"),
-        RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
-  }
-}
 }

@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -22,26 +27,26 @@ namespace com.google.cloud.tools.jib.registry {
 /** Tests for {@link RegistryAuthenticationFailedException}. */
 public class RegistryAuthenticationFailedExceptionTest {
 
-  [TestMethod]
+  [Test]
   public void testRegistryAuthenticationFailedException_message() {
     RegistryAuthenticationFailedException exception =
         new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
-    Assert.assertEquals("serverUrl", exception.getServerUrl());
-    Assert.assertEquals("imageName", exception.getImageName());
-    Assert.assertEquals(
+    Assert.AreEqual("serverUrl", exception.getServerUrl());
+    Assert.AreEqual("imageName", exception.getImageName());
+    Assert.AreEqual(
         "Failed to authenticate with registry serverUrl/imageName because: message",
         exception.getMessage());
   }
 
-  [TestMethod]
+  [Test]
   public void testRegistryAuthenticationFailedException_exception() {
-    Throwable cause = new Exception("message");
+    Exception cause = new Exception("message");
     RegistryAuthenticationFailedException exception =
         new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
-    Assert.assertEquals("serverUrl", exception.getServerUrl());
-    Assert.assertEquals("imageName", exception.getImageName());
-    Assert.assertSame(cause, exception.getCause());
-    Assert.assertEquals(
+    Assert.AreEqual("serverUrl", exception.getServerUrl());
+    Assert.AreEqual("imageName", exception.getImageName());
+    Assert.AreSame(cause, exception.getCause());
+    Assert.AreEqual(
         "Failed to authenticate with registry serverUrl/imageName because: message",
         exception.getMessage());
   }

@@ -83,7 +83,12 @@ public class CountingDigestOutputStream : DigestOutputStream {
     }
   }
 
-  public override void Write(byte[] data, int offset, int length) {
+        public long getCount()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] data, int offset, int length) {
     base.Write(data, offset, length);
     bytesSoFar += length;
   }

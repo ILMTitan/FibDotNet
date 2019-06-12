@@ -85,7 +85,7 @@ public class V21ManifestTemplate : ManifestTemplate {
 
     public DescriptorDigest blobSum;
 
-    DescriptorDigest getDigest() {
+    public DescriptorDigest getDigest() {
       return blobSum;
     }
   }

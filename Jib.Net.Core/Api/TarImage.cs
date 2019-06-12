@@ -14,6 +14,7 @@
  * the License.
  */
 
+using System;
 using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api {
@@ -41,13 +42,18 @@ public class TarImage {
       this.imageReference = imageReference;
     }
 
-    /**
-     * Sets the output file to save the tarball archive to.
-     *
-     * @param outputFile the output file
-     * @return a new {@link TarImage}
-     */
-    public TarImage saveTo(SystemPath outputFile) {
+            public TarImage saveTo(object p)
+            {
+                throw new NotImplementedException();
+            }
+
+            /**
+             * Sets the output file to save the tarball archive to.
+             *
+             * @param outputFile the output file
+             * @return a new {@link TarImage}
+             */
+            public TarImage saveTo(SystemPath outputFile) {
       return new TarImage(imageReference, outputFile);
     }
   }

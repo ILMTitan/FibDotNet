@@ -14,6 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.hash {
 
 
@@ -34,7 +43,7 @@ namespace com.google.cloud.tools.jib.hash {
 public class CountingDigestOutputStreamTest {
 
   private readonly IDictionary<string, string> KNOWN_SHA256_HASHES =
-      ImmutableDictionary.of(
+      ImmutableDic.of(
           "crepecake",
           "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c",
           "12345",
@@ -42,9 +51,9 @@ public class CountingDigestOutputStreamTest {
           "",
           "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 
-  [TestMethod]
+  [Test]
   public void test_smokeTest() {
-    for (KeyValuePair<string, string> knownHash : KNOWN_SHA256_HASHES.entrySet()) {
+    foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES.entrySet()) {
       string toHash = knownHash.getKey();
       string expectedHash = knownHash.getValue();
 
@@ -57,8 +66,8 @@ public class CountingDigestOutputStreamTest {
       ByteStreams.copy(toHashInputStream, countingDigestOutputStream);
 
       BlobDescriptor blobDescriptor = countingDigestOutputStream.computeDigest();
-      Assert.assertEquals(DescriptorDigest.fromHash(expectedHash), blobDescriptor.getDigest());
-      Assert.assertEquals(bytesToHash.length, blobDescriptor.getSize());
+      Assert.AreEqual(DescriptorDigest.fromHash(expectedHash), blobDescriptor.getDigest());
+      Assert.AreEqual(bytesToHash.Length, blobDescriptor.getSize());
     }
   }
 }

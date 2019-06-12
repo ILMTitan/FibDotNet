@@ -14,19 +14,18 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
-using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
@@ -49,8 +48,8 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-/** Pulls an image's manifest. */
-class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
+    /** Pulls an image's manifest. */
+    class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
     {
 
   private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;

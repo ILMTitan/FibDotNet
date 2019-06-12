@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.registry;
+using System;
 using System.Net.Http;
 
 namespace com.google.cloud.tools.jib.api {
@@ -90,5 +91,10 @@ public class RegistryUnauthorizedException : RegistryException {
   public HttpResponseMessage getHttpResponse() {
             return Cause;
   }
-}
+
+        internal object getHttpResponseException()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

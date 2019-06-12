@@ -18,7 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.api
 {
-    internal class Character
+    internal static class Character
     {
         internal static string toUpperCase(object p)
         {

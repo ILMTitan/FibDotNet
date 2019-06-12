@@ -14,7 +14,9 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.event.progress {
+using NUnit.Framework;
+
+namespace com.google.cloud.tools.jib.@event.progress {
 
 
 
@@ -24,31 +26,29 @@ public class AllocationTest {
   /** Error margin for checking equality of two doubles. */
   private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-  [TestMethod]
+  [Test]
   public void testSmoke_linear() {
     Allocation root = Allocation.newRoot("root", 1);
     Allocation node1 = root.newChild("node1", 2);
     Allocation node2 = node1.newChild("node2", 3);
 
-    Assert.assertEquals("node2", node2.getDescription());
-    Assert.assertEquals(3, node2.getAllocationUnits());
-    Assert.assertEquals(1.0 / 2 / 3, node2.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertTrue(node2.getParent().isPresent());
-    Assert.assertEquals(node1, node2.getParent().get());
+    Assert.AreEqual("node2", node2.getDescription());
+    Assert.AreEqual(1.0 / 2 / 3, node2.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.IsTrue(node2.getParent().isPresent());
+    Assert.AreEqual(node1, node2.getParent().get());
 
-    Assert.assertEquals("node1", node1.getDescription());
-    Assert.assertEquals(2, node1.getAllocationUnits());
-    Assert.assertTrue(node1.getParent().isPresent());
-    Assert.assertEquals(root, node1.getParent().get());
-    Assert.assertEquals(1.0 / 2, node1.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual("node1", node1.getDescription());
+    Assert.IsTrue(node1.getParent().isPresent());
+    Assert.AreEqual(root, node1.getParent().get());
+    Assert.AreEqual(1.0 / 2, node1.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
 
-    Assert.assertEquals("root", root.getDescription());
-    Assert.assertEquals(1, root.getAllocationUnits());
-    Assert.assertFalse(root.getParent().isPresent());
-    Assert.assertEquals(1.0, root.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual("root", root.getDescription());
+    Assert.AreEqual(1, root.getAllocationUnits());
+    Assert.IsFalse(root.getParent().isPresent());
+    Assert.AreEqual(1.0, root.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
   }
 
-  [TestMethod]
+  [Test]
   public void testFractionOfRoot_tree_partial() {
     Allocation root = Allocation.newRoot("ignored", 10);
     Allocation left = root.newChild("ignored", 2);
@@ -58,17 +58,17 @@ public class AllocationTest {
     Allocation rightRight = right.newChild("ignored", 100);
     Allocation rightRightDown = rightRight.newChild("ignored", 200);
 
-    Assert.assertEquals(1.0 / 10, root.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(1.0 / 10 / 2, left.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(1.0 / 10 / 4, right.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(1.0 / 10 / 2 / 20, leftDown.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(1.0 / 10 / 4 / 20, rightLeft.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(1.0 / 10 / 4 / 100, rightRight.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
-    Assert.assertEquals(
+    Assert.AreEqual(1.0 / 10, root.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 10 / 2, left.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 10 / 4, right.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 10 / 2 / 20, leftDown.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 10 / 4 / 20, rightLeft.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0 / 10 / 4 / 100, rightRight.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(
         1.0 / 10 / 4 / 100 / 200, rightRightDown.getFractionOfRoot(), DOUBLE_ERROR_MARGIN);
   }
 
-  [TestMethod]
+  [Test]
   public void testFractionOfRoot_tree_complete() {
     Allocation root = Allocation.newRoot("ignored", 2);
 
@@ -87,7 +87,7 @@ public class AllocationTest {
             + leftMiddle.getFractionOfRoot() * leftMiddle.getAllocationUnits()
             + leftRight.getFractionOfRoot() * leftRight.getAllocationUnits()
             + rightDown.getFractionOfRoot() * rightDown.getAllocationUnits();
-    Assert.assertEquals(1.0, total, DOUBLE_ERROR_MARGIN);
+    Assert.AreEqual(1.0, total, DOUBLE_ERROR_MARGIN);
   }
 }
 }

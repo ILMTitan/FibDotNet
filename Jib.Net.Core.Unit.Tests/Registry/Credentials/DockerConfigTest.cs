@@ -14,6 +14,16 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.docker;
+using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.credentials.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using NUnit.Framework;
+using System;
+using System.Buffers.Text;
+
 namespace com.google.cloud.tools.jib.registry.credentials {
 
 
@@ -31,130 +41,138 @@ namespace com.google.cloud.tools.jib.registry.credentials {
 public class DockerConfigTest {
 
   private static string decodeBase64(string base64String) {
-    return new string(Base64.decodeBase64(base64String), StandardCharsets.UTF_8);
+    return StandardCharsets.UTF_8.GetString(Convert.FromBase64String(base64String));
   }
 
-  [TestMethod]
+  [Test]
   public void test_fromJson() {
     // Loads the JSON string.
     SystemPath jsonFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     // Deserializes into a docker config JSON object.
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(jsonFile, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(jsonFile));
 
-    Assert.assertEquals("some:auth", decodeBase64(dockerConfig.getAuthFor("some registry")));
-    Assert.assertEquals(
+
+    Assert.AreEqual("some:auth", decodeBase64(dockerConfig.getAuthFor("some registry")));
+    Assert.AreEqual(
         "some:other:auth", decodeBase64(dockerConfig.getAuthFor("some other registry")));
-    Assert.assertEquals("token", decodeBase64(dockerConfig.getAuthFor("registry")));
-    Assert.assertEquals("token", decodeBase64(dockerConfig.getAuthFor("https://registry")));
-    Assert.assertNull(dockerConfig.getAuthFor("just registry"));
+    Assert.AreEqual("token", decodeBase64(dockerConfig.getAuthFor("registry")));
+    Assert.AreEqual("token", decodeBase64(dockerConfig.getAuthFor("https://registry")));
+    Assert.IsNull(dockerConfig.getAuthFor("just registry"));
 
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("some registry").getCredentialHelper());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("some other registry").getCredentialHelper());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("just registry").getCredentialHelper());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.protocol").getCredentialHelper());
-    Assert.assertEquals(
+    Assert.AreEqual(
         Paths.get("docker-credential-another credential helper"),
         dockerConfig.getCredentialHelperFor("another registry").getCredentialHelper());
-    Assert.assertNull(dockerConfig.getCredentialHelperFor("unknonwn registry"));
+    Assert.IsNull(dockerConfig.getCredentialHelperFor("unknonwn registry"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAuthFor_orderOfMatchPreference() {
     SystemPath json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertEquals("my-registry: exact match", dockerConfig.getAuthFor("my-registry"));
-    Assert.assertEquals("cool-registry: with https", dockerConfig.getAuthFor("cool-registry"));
-    Assert.assertEquals(
+
+    Assert.AreEqual("my-registry: exact match", dockerConfig.getAuthFor("my-registry"));
+    Assert.AreEqual("cool-registry: with https", dockerConfig.getAuthFor("cool-registry"));
+    Assert.AreEqual(
         "awesome-registry: starting with name", dockerConfig.getAuthFor("awesome-registry"));
-    Assert.assertEquals(
+    Assert.AreEqual(
         "dull-registry: starting with name and with https",
         dockerConfig.getAuthFor("dull-registry"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetAuthFor_correctSuffixMatching() {
     SystemPath json =
         Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertNull(dockerConfig.getAuthFor("example"));
+
+    Assert.IsNull(dockerConfig.getAuthFor("example"));
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCredentialHelperFor() {
     SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertEquals(
+
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("just registry").getCredentialHelper());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCredentialHelperFor_withHttps() {
     SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertEquals(
+
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.protocol").getCredentialHelper());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCredentialHelperFor_withSuffix() {
     SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertEquals(
+
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.suffix").getCredentialHelper());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCredentialHelperFor_withProtocolAndSuffix()
       {
     SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertEquals(
+
+    Assert.AreEqual(
         Paths.get("docker-credential-some credential store"),
         dockerConfig.getCredentialHelperFor("with.protocol.and.suffix").getCredentialHelper());
   }
 
-  [TestMethod]
+  [Test]
   public void testGetCredentialHelperFor_correctSuffixMatching()
       {
     SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
 
     DockerConfig dockerConfig =
-        new DockerConfig(JsonTemplateMapper.readJsonFromFile(json, typeof(DockerConfigTemplate)));
+        new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
 
-    Assert.assertNull(dockerConfig.getCredentialHelperFor("example"));
-    Assert.assertNull(dockerConfig.getCredentialHelperFor("another.example"));
+
+    Assert.IsNull(dockerConfig.getCredentialHelperFor("example"));
+    Assert.IsNull(dockerConfig.getCredentialHelperFor("another.example"));
   }
 }
 }

@@ -14,115 +14,135 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Api;
+using NUnit.Framework;
+using System.Text;
+using Jib.Net.Core.Global;
+using System.Collections.Generic;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link DescriptorDigest}. */
 
+    public class DescriptorDigestTest
+    {
+        [Test]
+        public void testCreateFromHash_pass()
+        {
+            string goodHash = createGoodHash('a');
 
+            DescriptorDigest descriptorDigest = DescriptorDigest.fromHash(goodHash);
 
+            Assert.AreEqual(goodHash, descriptorDigest.getHash());
+            Assert.AreEqual("sha256:" + goodHash, descriptorDigest.toString());
+        }
 
+        [Test]
+        public void testCreateFromHash_fail()
+        {
+            string badHash = "not a valid hash";
 
-/** Tests for {@link DescriptorDigest}. */
-public class DescriptorDigestTest {
+            try
+            {
+                DescriptorDigest.fromHash(badHash);
+                Assert.Fail("Invalid hash should have caused digest creation failure.");
+            }
+            catch (DigestException ex)
+            {
+                Assert.AreEqual("Invalid hash: " + badHash, ex.getMessage());
+            }
+        }
 
-  [TestMethod]
-  public void testCreateFromHash_pass() {
-    string goodHash = createGoodHash('a');
+        [Test]
+        public void testCreateFromHash_failIncorrectLength()
+        {
+            string badHash = createGoodHash('a') + 'a';
 
-    DescriptorDigest descriptorDigest = DescriptorDigest.fromHash(goodHash);
+            try
+            {
+                DescriptorDigest.fromHash(badHash);
+                Assert.Fail("Invalid hash should have caused digest creation failure.");
+            }
+            catch (DigestException ex)
+            {
+                Assert.AreEqual("Invalid hash: " + badHash, ex.getMessage());
+            }
+        }
 
-    Assert.assertEquals(goodHash, descriptorDigest.getHash());
-    Assert.assertEquals("sha256:" + goodHash, descriptorDigest.toString());
-  }
+        [Test]
+        public void testCreateFromDigest_pass()
+        {
+            string goodHash = createGoodHash('a');
+            string goodDigest = "sha256:" + createGoodHash('a');
 
-  [TestMethod]
-  public void testCreateFromHash_fail() {
-    string badHash = "not a valid hash";
+            DescriptorDigest descriptorDigest = DescriptorDigest.fromDigest(goodDigest);
 
-    try {
-      DescriptorDigest.fromHash(badHash);
-      Assert.fail("Invalid hash should have caused digest creation failure.");
-    } catch (DigestException ex) {
-      Assert.assertEquals("Invalid hash: " + badHash, ex.getMessage());
+            Assert.AreEqual(goodHash, descriptorDigest.getHash());
+            Assert.AreEqual(goodDigest, descriptorDigest.toString());
+        }
+
+        [Test]
+        public void testCreateFromDigest_fail()
+        {
+            string badDigest = "sha256:not a valid digest";
+
+            try
+            {
+                DescriptorDigest.fromDigest(badDigest);
+                Assert.Fail("Invalid digest should have caused digest creation failure.");
+            }
+            catch (DigestException ex)
+            {
+                Assert.AreEqual("Invalid digest: " + badDigest, ex.getMessage());
+            }
+        }
+
+        [Test]
+        public void testUseAsMapKey()
+        {
+            DescriptorDigest descriptorDigestA1 = DescriptorDigest.fromHash(createGoodHash('a'));
+            DescriptorDigest descriptorDigestA2 = DescriptorDigest.fromHash(createGoodHash('a'));
+            DescriptorDigest descriptorDigestA3 =
+                DescriptorDigest.fromDigest("sha256:" + createGoodHash('a'));
+            DescriptorDigest descriptorDigestB = DescriptorDigest.fromHash(createGoodHash('b'));
+
+            IDictionary<DescriptorDigest, string> digestMap = new Dictionary<DescriptorDigest, string>();
+
+            digestMap.put(descriptorDigestA1, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
+            Assert.IsNull(digestMap.get(descriptorDigestB));
+
+            digestMap.put(descriptorDigestA2, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
+            Assert.IsNull(digestMap.get(descriptorDigestB));
+
+            digestMap.put(descriptorDigestA3, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
+            Assert.IsNull(digestMap.get(descriptorDigestB));
+
+            digestMap.put(descriptorDigestB, "digest with b");
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
+            Assert.AreEqual("digest with b", digestMap.get(descriptorDigestB));
+        }
+
+        /** Creates a 32 byte hexademical string to fit valid hash pattern. */
+
+        private static string createGoodHash(char character)
+        {
+            StringBuilder goodHashBuffer = new StringBuilder(64);
+            for (int i = 0; i < 64; i++)
+            {
+                goodHashBuffer.append(character);
+            }
+            return goodHashBuffer.toString();
+        }
     }
-  }
-
-  [TestMethod]
-  public void testCreateFromHash_failIncorrectLength() {
-    string badHash = createGoodHash('a') + 'a';
-
-    try {
-      DescriptorDigest.fromHash(badHash);
-      Assert.fail("Invalid hash should have caused digest creation failure.");
-    } catch (DigestException ex) {
-      Assert.assertEquals("Invalid hash: " + badHash, ex.getMessage());
-    }
-  }
-
-  [TestMethod]
-  public void testCreateFromDigest_pass() {
-    string goodHash = createGoodHash('a');
-    string goodDigest = "sha256:" + createGoodHash('a');
-
-    DescriptorDigest descriptorDigest = DescriptorDigest.fromDigest(goodDigest);
-
-    Assert.assertEquals(goodHash, descriptorDigest.getHash());
-    Assert.assertEquals(goodDigest, descriptorDigest.toString());
-  }
-
-  [TestMethod]
-  public void testCreateFromDigest_fail() {
-    string badDigest = "sha256:not a valid digest";
-
-    try {
-      DescriptorDigest.fromDigest(badDigest);
-      Assert.fail("Invalid digest should have caused digest creation failure.");
-    } catch (DigestException ex) {
-      Assert.assertEquals("Invalid digest: " + badDigest, ex.getMessage());
-    }
-  }
-
-  [TestMethod]
-  public void testUseAsMapKey() {
-    DescriptorDigest descriptorDigestA1 = DescriptorDigest.fromHash(createGoodHash('a'));
-    DescriptorDigest descriptorDigestA2 = DescriptorDigest.fromHash(createGoodHash('a'));
-    DescriptorDigest descriptorDigestA3 =
-        DescriptorDigest.fromDigest("sha256:" + createGoodHash('a'));
-    DescriptorDigest descriptorDigestB = DescriptorDigest.fromHash(createGoodHash('b'));
-
-    IDictionary<DescriptorDigest, string> digestMap = new Dictionary<>();
-
-    digestMap.put(descriptorDigestA1, "digest with a");
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA2));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA3));
-    Assert.assertNull(digestMap.get(descriptorDigestB));
-
-    digestMap.put(descriptorDigestA2, "digest with a");
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA2));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA3));
-    Assert.assertNull(digestMap.get(descriptorDigestB));
-
-    digestMap.put(descriptorDigestA3, "digest with a");
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA2));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA3));
-    Assert.assertNull(digestMap.get(descriptorDigestB));
-
-    digestMap.put(descriptorDigestB, "digest with b");
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA1));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA2));
-    Assert.assertEquals("digest with a", digestMap.get(descriptorDigestA3));
-    Assert.assertEquals("digest with b", digestMap.get(descriptorDigestB));
-  }
-
-  /** Creates a 32 byte hexademical string to fit valid hash pattern. */
-  private static string createGoodHash(char character) {
-    StringBuilder goodHashBuffer = new StringBuilder(64);
-    for (int i = 0; i < 64; i++) {
-      goodHashBuffer.append(character);
-    }
-    return goodHashBuffer.toString();
-  }
-}
 }

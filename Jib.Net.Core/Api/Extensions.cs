@@ -15,11 +15,14 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.http;
+using com.google.cloud.tools.jib.registry;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using NodaTime;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -31,12 +34,140 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Global
 {
     public static class Extensions
     {
+        public static IDictionary<TKey, TValue> asMap<TKey, TValue>(this IDictionary<TKey, TValue> d)
+        {
+            return d;
+        }
+        public static int lastIndexOf(this string s, char c)
+        {
+            return s.LastIndexOf(c);
+        }
+        public static  int lastIndexOf(this string s, string substring)
+        {
+            return s.LastIndexOf(substring);
+        }
+        public static void setLocation(this HttpResponseHeaders h, string location)
+        {
+            h.Location = new Uri(location);
+        }
+        public static string parseAsString(this HttpResponseMessage m)
+        {
+            return m.Content.ReadAsStringAsync().Result;
+        }
+        public static void writeTo(this BlobHttpContent c, Stream s) {
+            c.CopyToAsync(s).Wait();
+        }
+        public static string name(this ErrorCodes e){
+            return e.ToString("G");
+        }
+        public static bool isDone(this Task t)
+        {
+            return t.IsCompleted;
+        }
+        public static bool containsKey<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key)
+        {
+            return d.ContainsKey(key);
+        }
+        public static int intValue(this int? i)
+        {
+            return i.GetValueOrDefault();
+        }
+        public static long longValue(this long? l)
+        {
+            return l.GetValueOrDefault();
+        }
+        public static long longValue(this long l)
+        {
+            return l;
+        }
+        public static bool isEmpty<T>(this Queue<T> queue)
+        {
+            return queue.Count == 0;
+        }
+        public static bool offer<T>(this Queue<T> queue, T item)
+        {
+            queue.Enqueue(item);
+            return true;
+        }
+        public static DateTime getLastModifiedDate(this TarEntry e)
+        {
+            return e.TarHeader.ModTime;
+        }
+        public static DateTime getModTime(this TarEntry e)
+        {
+            return e.ModTime;
+        }
+        public static bool isDirectory(this TarEntry e)
+        {
+            return e.IsDirectory;
+        }
+        public static char[] toCharArray(this string s)
+        {
+            return s.ToCharArray();
+        }
+        public static int release(this SemaphoreSlim s)
+        {
+            return s.Release();
+        }
+        public static void acquire(this SemaphoreSlim s)
+        {
+            s.Wait();
+        }
+        public static void write(this Stream s, byte[] buffer, int offset, int count)
+        {
+            s.Write(buffer, offset, count);
+        }
+        public static void write(this Stream s, byte b)
+        {
+            s.WriteByte(b);
+        }
+        public static T remove<T>(this Queue<T> queue)
+        {
+            return queue.Dequeue();
+        }
+        public static void add<T>(this Queue<T> queue, T value)
+        {
+            queue.Enqueue(value);
+        }
+        public static string getPath(this FileSystemInfo info)
+        {
+            return info.FullName;
+        }
+        public static TarEntry getNextEntry(this TarInputStream i)
+        {
+            return i.GetNextEntry();
+        }
+        public static TarEntry getNextTarEntry(this TarInputStream i)
+        {
+            return i.GetNextEntry();
+        }
+        public static Instant plusSeconds(this Instant i, int seconds)
+        {
+            return i + Duration.FromSeconds(seconds);
+        }
+        public static T poll<T>(this Queue<T> q)
+        {
+            return q.Dequeue();
+        }
+        public static Instant plusNanos(this Instant i, int nanos)
+        {
+            return i.PlusNanoseconds(nanos);
+        }
+        public static Instant plusMillis(this Instant i, int mills)
+        {
+            return i + Duration.FromMilliseconds(mills);
+        }
+        public static IList<T> asList<T>(this IEnumerable<T> e)
+        {
+            return e.ToList();
+        }
         public static int groupCount(this Match m)
         {
             return m.Groups.Count;
@@ -75,9 +206,9 @@ namespace Jib.Net.Core.Global
         {
             e.TarHeader.Size = size;
         }
-        public static string toPath(this FileSystemInfo fileInfo)
+        public static SystemPath toPath(this FileSystemInfo fileInfo)
         {
-            return fileInfo.FullName;
+            return new SystemPath(fileInfo);
         }
         public static FileInfo getFile(this TarEntry e)
         {
@@ -146,10 +277,18 @@ namespace Jib.Net.Core.Global
         {
             return c[index];
         }
+        public static T get<T>(this List<T> c, int index)
+        {
+            return c[index];
+        }
 
         public static int size<T>(this ImmutableHashSet<T> c)
         {
             return c.Count;
+        }
+        public static int size<TKey, TValue>(this ImmutableDictionary<TKey, TValue> d)
+        {
+            return d.Count;
         }
         public static int size<T>(this IReadOnlyCollection<T> c) {
             return c.Count;
@@ -309,9 +448,13 @@ namespace Jib.Net.Core.Global
         {
             return p(value);
         }
-        public static T findFirst<T>(this IEnumerable<T> e)
+        public static Optional<T> findFirst<T>(this IEnumerable<Optional<T>> e)
         {
             return e.FirstOrDefault();
+        }
+        public static Optional<T> findFirst<T>(this IEnumerable<T> e)
+        {
+            return e.Select(Optional.of).FirstOrDefault();
         }
         public static IDictionary<TKey, TValue> entrySet<TKey, TValue>(this IDictionary<TKey, TValue> d)
         {
@@ -380,6 +523,11 @@ namespace Jib.Net.Core.Global
         {
             return e.Select(f);
         }
+
+        public static void accept<T1, T2>(this Action<T1, T2> a, T1 arg1, T2 arg2)
+        {
+            a(arg1, arg2);
+        }
         public static TResult apply<T, TResult>(this Func<T, TResult> f, T input)
         {
             return f(input);
@@ -391,7 +539,7 @@ namespace Jib.Net.Core.Global
 
         public static void putAll<TKey, TValue>(this IDictionary<TKey, TValue> d, IEnumerable<KeyValuePair<TKey, TValue>> entries)
         {
-            foreach(var (k, v) in entries)
+            foreach (var (k, v) in entries)
             {
                 d.Add(k, v);
             }
@@ -441,6 +589,14 @@ namespace Jib.Net.Core.Global
         public static void add<T>(this ICollection<T> set, T value)
         {
             set.Add(value);
+        }
+        public static TCollection add<TCollection, T>(this TCollection set, params T[] values) where TCollection : ICollection<T>
+        {
+            foreach(T v in values)
+            {
+                set.Add(v);
+            }
+            return set;
         }
 
         public static void addAll<T>(this ISet<T> set, IEnumerable<T> values)

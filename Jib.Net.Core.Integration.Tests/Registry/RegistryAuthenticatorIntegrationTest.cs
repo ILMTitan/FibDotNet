@@ -14,6 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Global;
+using NUnit.Framework;
+
 namespace com.google.cloud.tools.jib.registry {
 
 
@@ -27,7 +33,7 @@ namespace com.google.cloud.tools.jib.registry {
 /** Integration tests for {@link RegistryAuthenticator}. */
 public class RegistryAuthenticatorIntegrationTest {
 
-  [TestMethod]
+  [Test]
   public void testAuthenticate()
       {
     ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
@@ -38,11 +44,11 @@ public class RegistryAuthenticatorIntegrationTest {
                 dockerHubImageReference.getRepository())
             .newRegistryClient()
             .getRegistryAuthenticator();
-    Assert.assertNotNull(registryAuthenticator);
+    Assert.IsNotNull(registryAuthenticator);
     Authorization authorization = registryAuthenticator.authenticatePull(null);
 
     // Checks that some token was received.
-    Assert.assertTrue(0 < authorization.getToken().length());
+    Assert.IsTrue(0 < authorization.getToken().length());
   }
 }
 }

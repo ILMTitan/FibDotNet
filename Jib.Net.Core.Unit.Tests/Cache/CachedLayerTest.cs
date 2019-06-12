@@ -14,6 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
+using Moq;
+using NUnit.Framework;
+using System;
+
 namespace com.google.cloud.tools.jib.cache {
 
 
@@ -29,51 +36,52 @@ namespace com.google.cloud.tools.jib.cache {
 [RunWith(typeof(MockitoJUnitRunner))]
 public class CachedLayerTest {
 
-  [Mock] private DescriptorDigest mockLayerDigest;
-  [Mock] private DescriptorDigest mockLayerDiffId;
+  private DescriptorDigest mockLayerDigest = Mock.Of<DescriptorDigest>();
+  private DescriptorDigest mockLayerDiffId = Mock.Of<DescriptorDigest>();
 
-  [TestMethod]
+  [Test]
   public void testBuilder_fail() {
     try {
       CachedLayer.builder().build();
-      Assert.fail("missing required");
+      Assert.Fail("missing required");
 
-    } catch (NullPointerException ex) {
-      Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("layerDigest"));
+    } catch (NullReferenceException ex) {
+      StringAssert.Contains(ex.getMessage(), "layerDigest")
+;
     }
 
     try {
       CachedLayer.builder().setLayerDigest(mockLayerDigest).build();
-      Assert.fail("missing required");
+      Assert.Fail("missing required");
 
-    } catch (NullPointerException ex) {
-      Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("layerDiffId"));
+    } catch (NullReferenceException ex) {
+      StringAssert.Contains(ex.getMessage(), "layerDiffId");
     }
 
     try {
       CachedLayer.builder().setLayerDigest(mockLayerDigest).setLayerDiffId(mockLayerDiffId).build();
-      Assert.fail("missing required");
+      Assert.Fail("missing required");
 
-    } catch (NullPointerException ex) {
-      Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("layerBlob"));
+    } catch (NullReferenceException ex) {
+      StringAssert.Contains(ex.getMessage(), "layerBlob");
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testBuilder_pass() {
     CachedLayer.Builder cachedLayerBuilder =
         CachedLayer.builder()
             .setLayerDigest(mockLayerDigest)
             .setLayerDiffId(mockLayerDiffId)
             .setLayerSize(1337);
-    Assert.assertFalse(cachedLayerBuilder.hasLayerBlob());
+    Assert.IsFalse(cachedLayerBuilder.hasLayerBlob());
     cachedLayerBuilder.setLayerBlob(Blobs.from("layerBlob"));
-    Assert.assertTrue(cachedLayerBuilder.hasLayerBlob());
+    Assert.IsTrue(cachedLayerBuilder.hasLayerBlob());
     CachedLayer cachedLayer = cachedLayerBuilder.build();
-    Assert.assertEquals(mockLayerDigest, cachedLayer.getDigest());
-    Assert.assertEquals(mockLayerDiffId, cachedLayer.getDiffId());
-    Assert.assertEquals(1337, cachedLayer.getSize());
-    Assert.assertEquals("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
+    Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
+    Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
+    Assert.AreEqual(1337, cachedLayer.getSize());
+    Assert.AreEqual("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
   }
 }
 }

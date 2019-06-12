@@ -14,32 +14,37 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+using Jib.Net.Core.Global;
+using NUnit.Framework;
 
+namespace com.google.cloud.tools.jib.api
+{
+    /** Tests for {@link Port}. */
 
+    public class PortTest
+    {
+        [Test]
+        public void testTcp()
+        {
+            Port port = Port.tcp(5555);
+            Assert.AreEqual(5555, port.getPort());
+            Assert.AreEqual("5555/tcp", port.toString());
+        }
 
-/** Tests for {@link Port}. */
-public class PortTest {
+        [Test]
+        public void testUdp()
+        {
+            Port port = Port.udp(6666);
+            Assert.AreEqual(6666, port.getPort());
+            Assert.AreEqual("6666/udp", port.toString());
+        }
 
-  [TestMethod]
-  public void testTcp() {
-    Port port = Port.tcp(5555);
-    Assert.assertEquals(5555, port.getPort());
-    Assert.assertEquals("5555/tcp", port.toString());
-  }
-
-  [TestMethod]
-  public void testUdp() {
-    Port port = Port.udp(6666);
-    Assert.assertEquals(6666, port.getPort());
-    Assert.assertEquals("6666/udp", port.toString());
-  }
-
-  [TestMethod]
-  public void testParseProtocol() {
-    Assert.assertEquals(Port.tcp(1111), Port.parseProtocol(1111, "tcp"));
-    Assert.assertEquals(Port.udp(2222), Port.parseProtocol(2222, "udp"));
-    Assert.assertEquals(Port.tcp(3333), Port.parseProtocol(3333, ""));
-  }
-}
+        [Test]
+        public void testParseProtocol()
+        {
+            Assert.AreEqual(Port.tcp(1111), Port.parseProtocol(1111, "tcp"));
+            Assert.AreEqual(Port.udp(2222), Port.parseProtocol(2222, "udp"));
+            Assert.AreEqual(Port.tcp(3333), Port.parseProtocol(3333, ""));
+        }
+    }
 }

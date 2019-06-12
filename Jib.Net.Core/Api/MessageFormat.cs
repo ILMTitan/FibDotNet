@@ -18,7 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.api
 {
-    internal class MessageFormat
+    internal static class MessageFormat
     {
         internal static string format(string rEASON, string serverUrl, string imageName, string v)
         {

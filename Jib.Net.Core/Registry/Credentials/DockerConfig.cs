@@ -21,7 +21,8 @@ using System;
 using System.Collections.Generic;
 using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
+namespace com.google.cloud.tools.jib.registry.credentials
+{
 
 
 
@@ -31,26 +32,26 @@ namespace com.google.cloud.tools.jib.registry.credentials {
 
 
 
-/** Handles getting useful information from a {@link DockerConfigTemplate}. */
-public class DockerConfig {
+    /** Handles getting useful information from a {@link DockerConfigTemplate}. */
+    public class DockerConfig {
 
   /**
    * Returns the first entry matching the given key predicates (short-circuiting in the order of
    * predicates).
    */
-  private static KeyValuePair<K, T>? findFirstInMapByKey<K, T>(     IDictionary<K, T> map, IList<Predicate<K>> keyMatches) {
-    return keyMatches
-        .stream()
-        .map(keyMatch => findFirstInMapByKey(map, keyMatch))
-        .filter(Objects.nonNull)
-        .findFirst();
+  private static Optional<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches) {
+            return keyMatches
+                .stream()
+                .map(keyMatch => findFirstInMapByKey(map, keyMatch))
+                .filter(o => o.isPresent())
+                .findFirst();
   }
 
   /** Returns the first entry matching the given key predicate. */
-  private static  KeyValuePair<K, T>? findFirstInMapByKey<K, T>(IDictionary<K, T> map, Predicate<K> keyMatch) {
+  private static  Optional<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch) {
     return map.entrySet()
         .stream()
-        .filter(entry => keyMatch.test(entry.getKey()))
+        .filter(entry => keyMatch(entry.getKey()))
         .findFirst();
   }
 
@@ -77,7 +78,7 @@ public class DockerConfig {
    */
   public string getAuthFor(string registry) {
     KeyValuePair<string, AuthTemplate>? authEntry =
-        findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry));
+        findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry)).asNullable();
     return authEntry?.getValue().getAuth();
   }
 
@@ -96,17 +97,17 @@ public class DockerConfig {
    *     registry
    */
   public DockerCredentialHelper getCredentialHelperFor(string registry) {
-    IList<Predicate<string>> registryMatchers = getRegistryMatchersFor(registry);
+    IList<Func<string, bool>> registryMatchers = getRegistryMatchersFor(registry);
 
     KeyValuePair<string, AuthTemplate>? firstAuthMatch =
-        findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers);
+        findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers).asNullable();
     if (firstAuthMatch != null && dockerConfigTemplate.getCredsStore() != null) {
       return new DockerCredentialHelper(
           firstAuthMatch.Value.getKey(), dockerConfigTemplate.getCredsStore());
     }
 
     KeyValuePair<string, string>? firstCredHelperMatch =
-        findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers);
+        findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers).asNullable();
     if (firstCredHelperMatch != null) {
       return new DockerCredentialHelper(
           firstCredHelperMatch.Value.getKey(), firstCredHelperMatch.Value.getValue());
@@ -128,11 +129,11 @@ public class DockerConfig {
    * @param registry the registry to get matchers for
    * @return the list of predicates to match possible aliases
    */
-  private IList<Predicate<string>> getRegistryMatchersFor(string registry) {
-    Predicate<string> exactMatch = registry.equals;
-    Predicate<string> withHttps = ("https://" + registry).equals;
-    Predicate<string> withSuffix = name => name.startsWith(registry + "/");
-    Predicate<string> withHttpsAndSuffix = name => name.startsWith("https://" + registry + "/");
+  private IList<Func<string, bool>> getRegistryMatchersFor(string registry) {
+            Func<string, bool> exactMatch = registry.equals;
+    Func<string, bool> withHttps = ("https://" + registry).equals;
+    Func<string, bool> withSuffix = name => name.startsWith(registry + "/");
+    Func<string, bool> withHttpsAndSuffix = name => name.startsWith("https://" + registry + "/");
     return Arrays.asList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
   }
 }

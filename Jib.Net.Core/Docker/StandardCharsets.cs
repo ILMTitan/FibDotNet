@@ -18,7 +18,7 @@ using System.Text;
 
 namespace com.google.cloud.tools.jib.docker
 {
-    internal static class StandardCharsets
+    public static class StandardCharsets
     {
         public static Encoding UTF_8 { get; } = Encoding.UTF8;
     }

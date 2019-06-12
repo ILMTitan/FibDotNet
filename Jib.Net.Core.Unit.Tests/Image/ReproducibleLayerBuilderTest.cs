@@ -14,6 +14,21 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder.steps;
+using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.docker;
+using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Global;
+using NodaTime;
+using NUnit.Framework;
+using System;
+using System.Collections.Immutable;
+using System.IO;
+
 namespace com.google.cloud.tools.jib.image {
 
 
@@ -61,17 +76,17 @@ public class ReproducibleLayerBuilderTest {
    * @throws IOException if an I/O exception occurs
    */
   private static void verifyNextTarArchiveEntry(
-      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
+      TarInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
       {
     TarEntry header = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals(expectedExtractionPath, header.getName());
+    Assert.AreEqual(expectedExtractionPath, header.getName());
 
-    string expectedString = new string(Files.readAllBytes(expectedFile), StandardCharsets.UTF_8);
+            string expectedString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(expectedFile));
 
     string extractedString =
         CharStreams.toString(new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
 
-    Assert.assertEquals(expectedString, extractedString);
+    Assert.AreEqual(expectedString, extractedString);
   }
 
   /**
@@ -83,12 +98,11 @@ public class ReproducibleLayerBuilderTest {
    * @throws IOException if an I/O exception occurs
    */
   private static void verifyNextTarArchiveEntryIsDirectory(
-      TarArchiveInputStream tarArchiveInputStream, string expectedExtractionPath)
+      TarInputStream tarArchiveInputStream, string expectedExtractionPath)
       {
     TarEntry extractionPathEntry = tarArchiveInputStream.getNextTarEntry();
-    Assert.assertEquals(expectedExtractionPath, extractionPathEntry.getName());
-    Assert.assertTrue(extractionPathEntry.isDirectory());
-    Assert.assertEquals(TarEntry.DEFAULT_DIR_MODE, extractionPathEntry.getMode());
+    Assert.AreEqual(expectedExtractionPath, extractionPathEntry.getName());
+    Assert.IsTrue(extractionPathEntry.isDirectory());
   }
 
   private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination) {
@@ -101,7 +115,7 @@ public class ReproducibleLayerBuilderTest {
 
   [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [TestMethod]
+  [Test]
   public void testBuild() {
     SystemPath layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
     SystemPath blobA = Paths.get(Resources.getResource("core/blobA").toURI());
@@ -125,8 +139,8 @@ public class ReproducibleLayerBuilderTest {
     }
 
     // Reads the file back.
-    using (TarArchiveInputStream tarArchiveInputStream =
-        new TarArchiveInputStream(Files.newInputStream(temporaryFile))) {
+    using (TarInputStream tarArchiveInputStream =
+        new TarInputStream(Files.newInputStream(temporaryFile))) {
       verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/");
       verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/");
       verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/");
@@ -152,7 +166,7 @@ public class ReproducibleLayerBuilderTest {
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testToBlob_reproducibility() {
     SystemPath testRoot = temporaryFolder.getRoot().toPath();
     SystemPath root1 = Files.createDirectories(testRoot.resolve("files1"));
@@ -168,8 +182,8 @@ public class ReproducibleLayerBuilderTest {
     SystemPath fileB2 = createFile(root2, "fileB", contentB, 20000);
 
     // check if modified times are off
-    Assert.assertNotEquals(Files.getLastModifiedTime(fileA1), Files.getLastModifiedTime(fileA2));
-    Assert.assertNotEquals(Files.getLastModifiedTime(fileB1), Files.getLastModifiedTime(fileB2));
+    Assert.AreNotEqual(Files.getLastModifiedTime(fileA1), Files.getLastModifiedTime(fileA2));
+    Assert.AreNotEqual(Files.getLastModifiedTime(fileB1), Files.getLastModifiedTime(fileB2));
 
     // create layers of exact same content but ordered differently and with different timestamps
     Blob layer =
@@ -188,10 +202,10 @@ public class ReproducibleLayerBuilderTest {
     byte[] layerContent = Blobs.writeToByteArray(layer);
     byte[] reproducedLayerContent = Blobs.writeToByteArray(reproduced);
 
-    Assert.assertThat(layerContent, CoreMatchers.is(reproducedLayerContent));
+    Assert.AreEqual(layerContent, (reproducedLayerContent));
   }
 
-  [TestMethod]
+  [Test]
   public void testBuild_parentDirBehavior() {
     SystemPath testRoot = temporaryFolder.getRoot().toPath();
 
@@ -234,44 +248,44 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     SystemPath tarFile = temporaryFolder.newFile().toPath();
-    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
-      layer.writeTo(out);
+    using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile))) {
+      layer.writeTo(@out);
     }
 
-    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile))) {
       // root (default folder permissions)
-      TarEntry root = in.getNextTarEntry();
-      Assert.assertEquals(040755, root.getMode());
-      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+      TarEntry root = @in.getNextTarEntry();
+      Assert.AreEqual(040755, root.getMode());
+      Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // parentAAA (custom permissions, custom timestamp)
-      TarEntry rootParentAAA = in.getNextTarEntry();
-      Assert.assertEquals(040111, rootParentAAA.getMode());
-      Assert.assertEquals(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
+      TarEntry rootParentAAA = @in.getNextTarEntry();
+      Assert.AreEqual(040111, rootParentAAA.getMode());
+      Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
 
       // skip over fileA
-      in.getNextTarEntry();
+      @in.getNextTarEntry();
 
       // parentBBB (default permissions - ignored custom permissions, since fileB added first)
-      TarEntry rootParentBBB = in.getNextTarEntry();
+      TarEntry rootParentBBB = @in.getNextTarEntry();
       // TODO (#1650): we want 040444 here.
-      Assert.assertEquals(040755, rootParentBBB.getMode());
+      Assert.AreEqual(040755, rootParentBBB.getMode());
       // TODO (#1650): we want Instant.ofEpochSecond(40) here.
-      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+      Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // skip over fileB
-      in.getNextTarEntry();
+      @in.getNextTarEntry();
 
       // parentCCC (default permissions - no entry provided)
-      TarEntry rootParentCCC = in.getNextTarEntry();
-      Assert.assertEquals(040755, rootParentCCC.getMode());
-      Assert.assertEquals(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+      TarEntry rootParentCCC = @in.getNextTarEntry();
+      Assert.AreEqual(040755, rootParentCCC.getMode());
+      Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
       // we don't care about fileC
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testBuild_timestampDefault() {
     SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
@@ -281,18 +295,18 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     SystemPath tarFile = temporaryFolder.newFile().toPath();
-    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
-      blob.writeTo(out);
+    using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile))) {
+      blob.writeTo(@out);
     }
 
     // Reads the file back.
-    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
-      Assert.assertEquals(
-          Date.from(Instant.EPOCH.plusSeconds(1)), in.getNextEntry().getLastModifiedDate());
+    using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile))) {
+      Assert.AreEqual(
+          Instant.FromUnixTimeSeconds(0).plusSeconds(1).ToDateTimeUtc(), @in.getNextEntry().getLastModifiedDate());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testBuild_timestampNonDefault() {
     SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
@@ -307,18 +321,18 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     SystemPath tarFile = temporaryFolder.newFile().toPath();
-    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
-      blob.writeTo(out);
+    using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile))) {
+      blob.writeTo(@out);
     }
 
     // Reads the file back.
-    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
-      Assert.assertEquals(
-          Date.from(Instant.EPOCH.plusSeconds(123)), in.getNextEntry().getLastModifiedDate());
+    using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile))) {
+      Assert.AreEqual(
+          Date.from(Instant.FromUnixTimeSeconds(0).plusSeconds(123)), @in.getNextEntry().getLastModifiedDate());
     }
   }
 
-  [TestMethod]
+  [Test]
   public void testBuild_permissions() {
     SystemPath testRoot = temporaryFolder.getRoot().toPath();
     SystemPath folder = Files.createDirectories(testRoot.resolve("files1"));
@@ -342,19 +356,19 @@ public class ReproducibleLayerBuilderTest {
             .build();
 
     SystemPath tarFile = temporaryFolder.newFile().toPath();
-    using (Stream out = new BufferedStream(Files.newOutputStream(tarFile))) {
-      blob.writeTo(out);
+    using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile))) {
+      blob.writeTo(@out);
     }
 
-    using (TarArchiveInputStream in = new TarArchiveInputStream(Files.newInputStream(tarFile))) {
+    using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile))) {
       // Root folder (default folder permissions)
-      Assert.assertEquals(040755, in.getNextTarEntry().getMode());
+      Assert.AreEqual(040755, @in.getNextTarEntry().getMode());
       // fileA (default file permissions)
-      Assert.assertEquals(0100644, in.getNextTarEntry().getMode());
+      Assert.AreEqual(0100644, @in.getNextTarEntry().getMode());
       // fileB (custom file permissions)
-      Assert.assertEquals(0100123, in.getNextTarEntry().getMode());
+      Assert.AreEqual(0100123, @in.getNextTarEntry().getMode());
       // folder (custom folder permissions)
-      Assert.assertEquals(040456, in.getNextTarEntry().getMode());
+      Assert.AreEqual(040456, @in.getNextTarEntry().getMode());
     }
   }
 
@@ -363,8 +377,7 @@ public class ReproducibleLayerBuilderTest {
     SystemPath newFile =
         Files.write(
             root.resolve(filename),
-            content.getBytes(StandardCharsets.UTF_8),
-            StandardOpenOption.CREATE_NEW);
+            content.getBytes(StandardCharsets.UTF_8));
     Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModifiedTime));
     return newFile;
   }
