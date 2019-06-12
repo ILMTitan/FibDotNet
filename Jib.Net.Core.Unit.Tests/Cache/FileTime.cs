@@ -19,7 +19,7 @@ using NodaTime;
 
 namespace com.google.cloud.tools.jib.cache
 {
-    internal class FileTime
+    internal static class FileTime
     {
         internal static object from(Instant instant)
         {

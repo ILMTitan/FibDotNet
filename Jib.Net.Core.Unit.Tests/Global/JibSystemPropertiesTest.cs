@@ -28,9 +28,6 @@ namespace com.google.cloud.tools.jib.global {
 /** Tests for {@link JibSystemProperties}. */
 public class JibSystemPropertiesTest {
 
-  private string httpProxyPortSaved;
-  private string httpsProxyPortSaved;
-
   [SetUp]
   public void setUp() {
   }

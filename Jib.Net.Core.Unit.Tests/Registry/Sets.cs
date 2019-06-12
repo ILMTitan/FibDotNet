@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.registry
 {
-    internal class Sets
+    internal static class Sets
     {
         internal static ISet<string> newHashSet(string v1, string v2, string v3, string v4)
         {

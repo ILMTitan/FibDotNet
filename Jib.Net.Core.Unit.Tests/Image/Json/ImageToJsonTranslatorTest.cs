@@ -68,7 +68,7 @@ namespace com.google.cloud.tools.jib.image.json {
 public class ImageToJsonTranslatorTest {
 
   private ImageToJsonTranslator imageToJsonTranslator;
-        private static DescriptorDigest fakeDigest;
+        private static DescriptorDigest fakeDigest = DescriptorDigest.fromHash(new string('a', 32));
         private void setUp(Type t) 
         {
             setUp(new Class<BuildableManifestTemplate>(t));

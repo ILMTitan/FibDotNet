@@ -45,7 +45,6 @@ namespace com.google.cloud.tools.jib
     {
 
         private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.FromSeconds(1);
-        private static readonly int THREAD_COUNT = 20;
 
         public E invoke<E>(Callable<E> callable)
         {

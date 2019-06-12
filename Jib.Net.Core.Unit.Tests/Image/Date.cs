@@ -19,7 +19,7 @@ using NodaTime;
 
 namespace com.google.cloud.tools.jib.image
 {
-    internal class Date
+    internal static class Date
     {
         internal static double from(Instant instant)
         {
