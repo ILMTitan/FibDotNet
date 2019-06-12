@@ -30,20 +30,9 @@ namespace com.google.cloud.tools.jib
 
 
 
-
-
-
-
-
-
-
-
-
-
     /** Testing infrastructure for running code across multiple threads. */
     public class MultithreadedExecutor : IDisposable
     {
-
         private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.FromSeconds(1);
 
         public E invoke<E>(Callable<E> callable)
@@ -56,6 +45,7 @@ namespace com.google.cloud.tools.jib
         {
             invokeAll(Collections.singletonList(a));
         }
+
         public void invokeAll(IEnumerable<Action> callables)
         {
             List<Task> futures =

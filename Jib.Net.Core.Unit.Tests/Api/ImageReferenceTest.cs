@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testParse_dockerHub_official()
         {
-            string imageReferenceString = "busybox";
+            const string imageReferenceString = "busybox";
             ImageReference imageReference = ImageReference.parse(imageReferenceString);
 
             Assert.AreEqual("registry-1.docker.io", imageReference.getRegistry());
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testParse_dockerHub_user()
         {
-            string imageReferenceString = "someuser/someimage";
+            const string imageReferenceString = "someuser/someimage";
             ImageReference imageReference = ImageReference.parse(imageReferenceString);
 
             Assert.AreEqual("registry-1.docker.io", imageReference.getRegistry());
@@ -110,9 +110,9 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testOf_smoke()
         {
-            string expectedRegistry = "someregistry";
-            string expectedRepository = "somerepository";
-            string expectedTag = "sometag";
+            const string expectedRegistry = "someregistry";
+            const string expectedRepository = "somerepository";
+            const string expectedTag = "sometag";
 
             Assert.AreEqual(
                 expectedRegistry,

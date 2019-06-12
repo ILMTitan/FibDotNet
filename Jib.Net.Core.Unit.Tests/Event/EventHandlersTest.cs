@@ -21,96 +21,93 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.@event {
+namespace com.google.cloud.tools.jib.@event
+{
+    /** Tests for {@link EventHandlers}. */
+    public class EventHandlersTest
+    {
+        /** Test {@link JibEvent}. */
+        private interface TestJibEvent1 : JibEvent
+        {
+            string getPayload();
+        }
 
+        /** Test implementation of {@link JibEvent}. */
+        private class TestJibEvent2 : JibEvent
+        {
+            private string message;
 
+            public void assertMessageCorrect(string name)
+            {
+                Assert.AreEqual("Hello " + name, message);
+            }
 
+            public void sayHello(string name)
+            {
+                Assert.IsNull(message);
+                message = "Hello " + name;
+            }
+        }
 
+        /** Test {@link JibEvent}. */
+        private class TestJibEvent3 : JibEvent { }
 
+        [Test]
+        public void testAdd()
+        {
+            int[] counter = new int[1];
+            EventHandlers eventHandlers =
+                EventHandlers.builder()
+                    .add<TestJibEvent1>(
+                        testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
+                    .add<TestJibEvent2>(e => e.sayHello("Jib"))
 
+                    .add<JibEvent>(jibEvent => counter[0]++)
 
+                    .build();
 
+            TestJibEvent1 mockTestJibEvent1 = Mock.Of<TestJibEvent1>();
+            Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
 
-/** Tests for {@link EventHandlers}. */
-public class EventHandlersTest {
+            TestJibEvent2 testJibEvent2 = new TestJibEvent2();
 
-  /** Test {@link JibEvent}. */
-  private interface TestJibEvent1 :JibEvent {
-
-    string getPayload();
-  }
-
-  /** Test implementation of {@link JibEvent}. */
-  private class TestJibEvent2 : JibEvent  {
-    private string message;
-
-    public void assertMessageCorrect(string name) {
-      Assert.AreEqual("Hello " + name, message);
-    }
-
-    public void sayHello(string name) {
-      Assert.IsNull(message);
-      message = "Hello " + name;
-    }
-  }
-
-  /** Test {@link JibEvent}. */
-  private class TestJibEvent3 : JibEvent {}
-
-  [Test]
-  public void testAdd() {
-    int[] counter = new int[1];
-    EventHandlers eventHandlers =
-        EventHandlers.builder()
-            .add<TestJibEvent1>(
-                testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
-            .add<TestJibEvent2>( e => e.sayHello("Jib"))
-
-            .add<JibEvent>( jibEvent => counter[0]++)
-
-            .build();
-
-    TestJibEvent1 mockTestJibEvent1 = Mock.Of<TestJibEvent1>();
-    Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
-
-    TestJibEvent2 testJibEvent2 = new TestJibEvent2();
-
-    Assert.AreEqual(2, counter[0]);
-    Mock.Get(mockTestJibEvent1).Verify(m => m.getPayload());
+            Assert.AreEqual(2, counter[0]);
+            Mock.Get(mockTestJibEvent1).Verify(m => m.getPayload());
 
             Mock.Get(mockTestJibEvent1).VerifyNoOtherCalls();
-    testJibEvent2.assertMessageCorrect("Jib");
-  }
+            testJibEvent2.assertMessageCorrect("Jib");
+        }
 
-  [Test]
-  public void testDispatch() {
-    IList<string> emissions = new List<string>();
+        [Test]
+        public void testDispatch()
+        {
+            IList<string> emissions = new List<string>();
 
-    EventHandlers eventHandlers =
-        EventHandlers.builder()
-            .add<TestJibEvent2>( _ => emissions.add("handled 2 first"))
-            .add<TestJibEvent2>( _ => emissions.add("handled 2 second"))
+            EventHandlers eventHandlers =
+                EventHandlers.builder()
+                    .add<TestJibEvent2>(_ => emissions.add("handled 2 first"))
+                    .add<TestJibEvent2>(_ => emissions.add("handled 2 second"))
 
-            .add<TestJibEvent3>( _ => emissions.add("handled 3"))
+                    .add<TestJibEvent3>(_ => emissions.add("handled 3"))
 
-            .add<JibEvent>( _ => emissions.add("handled generic"))
+                    .add<JibEvent>(_ => emissions.add("handled generic"))
 
-            .build();
+                    .build();
 
-    TestJibEvent2 testJibEvent2 = new TestJibEvent2();
-    TestJibEvent3 testJibEvent3 = new TestJibEvent3();
+            TestJibEvent2 testJibEvent2 = new TestJibEvent2();
+            TestJibEvent3 testJibEvent3 = new TestJibEvent3();
 
-    eventHandlers.dispatch(testJibEvent2);
-    eventHandlers.dispatch(testJibEvent3);
+            eventHandlers.dispatch(testJibEvent2);
+            eventHandlers.dispatch(testJibEvent3);
 
-    Assert.AreEqual(
-        Arrays.asList(
-            "handled generic",
-            "handled 2 first",
-            "handled 2 second",
-            "handled generic",
-            "handled 3"),
-        emissions);
-  }
-}
+            Assert.AreEqual(
+                Arrays.asList(
+                    "handled generic",
+                    "handled 2 first",
+                    "handled 2 second",
+                    "handled generic",
+                    "handled 3"),
+                emissions);
+        }
+    }
 }

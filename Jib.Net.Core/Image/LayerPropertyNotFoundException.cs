@@ -16,14 +16,14 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.image {
-
-/** Exception thrown when accessing non-existent properties of layers. */
-public class LayerPropertyNotFoundException : Exception {
-
-  public LayerPropertyNotFoundException(string message) : base(message) {
-    
-  }
+namespace com.google.cloud.tools.jib.image
+{
+    /** Exception thrown when accessing non-existent properties of layers. */
+    public class LayerPropertyNotFoundException : Exception
+    {
+        public LayerPropertyNotFoundException(string message) : base(message)
+        {
+        }
 
         public LayerPropertyNotFoundException() : base()
         {

@@ -23,87 +23,89 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
-
-
-
-
-
-
-
-
-
-
-/** Retrieves the {@code WWW-Authenticate} header from the registry API. */
-class AuthenticationMethodRetriever : RegistryEndpointProvider<RegistryAuthenticator>
+    /** Retrieves the {@code WWW-Authenticate} header from the registry API. */
+    internal class AuthenticationMethodRetriever : RegistryEndpointProvider<RegistryAuthenticator>
     {
-  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private readonly string userAgent;
+        private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+        private readonly string userAgent;
 
-  public AuthenticationMethodRetriever(
-      RegistryEndpointRequestProperties registryEndpointRequestProperties, string userAgent) {
-    this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-    this.userAgent = userAgent;
-  }
+        public AuthenticationMethodRetriever(
+            RegistryEndpointRequestProperties registryEndpointRequestProperties, string userAgent)
+        {
+            this.registryEndpointRequestProperties = registryEndpointRequestProperties;
+            this.userAgent = userAgent;
+        }
 
-  public BlobHttpContent getContent() {
-    return null;
-  }
+        public BlobHttpContent getContent()
+        {
+            return null;
+        }
 
-  public IList<string> getAccept() {
-    return Collections.emptyList<string>();
-  }
+        public IList<string> getAccept()
+        {
+            return Collections.emptyList<string>();
+        }
 
-  /**
-   * The request did not error, meaning that the registry does not require authentication.
-   *
-   * @param response ignored
-   * @return {@code null}
-   */
+        /**
+         * The request did not error, meaning that the registry does not require authentication.
+         *
+         * @param response ignored
+         * @return {@code null}
+         */
 
-  public RegistryAuthenticator handleResponse(HttpResponseMessage response) {
-    return null;
-  }
+        public RegistryAuthenticator handleResponse(HttpResponseMessage response)
+        {
+            return null;
+        }
 
-  public Uri getApiRoute(string apiRouteBase) {
-    return new Uri(apiRouteBase);
-  }
+        public Uri getApiRoute(string apiRouteBase)
+        {
+            return new Uri(apiRouteBase);
+        }
 
-  public HttpMethod getHttpMethod() {
-    return HttpMethod.Get;
-  }
+        public HttpMethod getHttpMethod()
+        {
+            return HttpMethod.Get;
+        }
 
-  public string getActionDescription() {
-    return "retrieve authentication method for " + registryEndpointRequestProperties.getServerUrl();
-  }
+        public string getActionDescription()
+        {
+            return "retrieve authentication method for " + registryEndpointRequestProperties.getServerUrl();
+        }
 
-  public RegistryAuthenticator handleHttpResponse(HttpResponseMessage httpResponse)
-      {
-    // Only valid for status code of '401 Unauthorized'.
-    if (httpResponse.getStatusCode() != HttpStatusCode.Unauthorized) {
+        public RegistryAuthenticator handleHttpResponse(HttpResponseMessage httpResponse)
+        {
+            // Only valid for status code of '401 Unauthorized'.
+            if (httpResponse.getStatusCode() != HttpStatusCode.Unauthorized)
+            {
                 throw new HttpResponseException(httpResponse);
-    }
+            }
 
-    // Checks if the 'WWW-Authenticate' header is present.
-    string authenticationMethod = httpResponse.getHeaders().getAuthenticate().Single().Parameter;
-    if (authenticationMethod == null) {
-      throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
-          .addReason("'WWW-Authenticate' header not found")
-          .build();
-    }
+            // Checks if the 'WWW-Authenticate' header is present.
+            string authenticationMethod = httpResponse.getHeaders().getAuthenticate().Single().Parameter;
+            if (authenticationMethod == null)
+            {
+                throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
+                    .addReason("'WWW-Authenticate' header not found")
+                    .build();
+            }
 
-    // Parses the header to retrieve the components.
-    try {
-      return RegistryAuthenticator.fromAuthenticationMethod(
-          authenticationMethod, registryEndpointRequestProperties, userAgent);
-
-    } catch (RegistryAuthenticationFailedException) {
-      throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
-          .addReason("Failed get authentication method from 'WWW-Authenticate' header")
-          .build();
+            // Parses the header to retrieve the components.
+            try
+            {
+                return RegistryAuthenticator.fromAuthenticationMethod(
+                    authenticationMethod, registryEndpointRequestProperties, userAgent);
+            }
+            catch (RegistryAuthenticationFailedException)
+            {
+                throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
+                    .addReason("Failed get authentication method from 'WWW-Authenticate' header")
+                    .build();
+            }
+        }
     }
-  }
-}
 }

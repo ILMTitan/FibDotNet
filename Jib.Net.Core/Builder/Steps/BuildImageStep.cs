@@ -27,7 +27,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -39,205 +40,205 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Builds a model {@link Image}. */
-public class BuildImageStep : AsyncStep<AsyncStep<Image>> {
-
-  private static readonly string DESCRIPTION = "Building container configuration";
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-  private readonly PullBaseImageStep pullBaseImageStep;
-  private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-
-  private readonly Task<AsyncStep<Image>> listenableFuture;
-
-  public BuildImageStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      PullBaseImageStep pullBaseImageStep,
-      PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps)
-        {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.pullBaseImageStep = pullBaseImageStep;
-    this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-    this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
-
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(pullBaseImageStep)
-            .addStep(pullAndCacheBaseImageLayersStep)
-            .whenAllSucceed(this);
-  }
-
-  public Task<AsyncStep<Image>> getFuture() {
-    return listenableFuture;
-  }
-
-  public AsyncStep<Image> call() {
-    Task<Image> future =
-        AsyncDependencies.@using()
-            .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
-            .addSteps(buildAndCacheApplicationLayerSteps)
-            .whenAllSucceed(this.afterCachedLayerSteps);
-    return AsyncStep.Of(() => future);
-  }
-
-  private Image afterCachedLayerSteps() {
-    using(ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("building image format", 1))
-    using(TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+    /** Builds a model {@link Image}. */
+    public class BuildImageStep : AsyncStep<AsyncStep<Image>>
     {
+        private static readonly string DESCRIPTION = "Building container configuration";
 
-      // Constructs the image.
-      Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
-      Image baseImage = NonBlockingSteps.get(pullBaseImageStep).getBaseImage();
-      ContainerConfiguration containerConfiguration =
-          buildConfiguration.getContainerConfiguration();
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+        private readonly PullBaseImageStep pullBaseImageStep;
+        private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
 
-      // Base image layers
-      IReadOnlyList<AsyncStep<CachedLayer>> baseImageLayers =
-          NonBlockingSteps.get(pullAndCacheBaseImageLayersStep);
-      foreach (AsyncStep<CachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
-      {
-        imageBuilder.addLayer(NonBlockingSteps.get(pullAndCacheBaseImageLayerStep));
-      }
+        private readonly Task<AsyncStep<Image>> listenableFuture;
 
-      // Passthrough config and count non-empty history entries
-      int nonEmptyLayerCount = 0;
-      foreach (HistoryEntry historyObject in baseImage.getHistory())
-      {
-        imageBuilder.addHistory(historyObject);
-        if (!historyObject.hasCorrespondingLayer()) {
-          nonEmptyLayerCount++;
+        public BuildImageStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            PullBaseImageStep pullBaseImageStep,
+            PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
+            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps)
+        {
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.pullBaseImageStep = pullBaseImageStep;
+            this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
+            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(pullBaseImageStep)
+                    .addStep(pullAndCacheBaseImageLayersStep)
+                    .whenAllSucceed(this);
         }
-      }
-      imageBuilder
-          .setArchitecture(baseImage.getArchitecture())
-          .setOs(baseImage.getOs())
-          .addEnvironment(baseImage.getEnvironment())
-          .addLabels(baseImage.getLabels())
-          .setHealthCheck(baseImage.getHealthCheck())
-          .addExposedPorts(baseImage.getExposedPorts())
-          .addVolumes(baseImage.getVolumes())
-          .setWorkingDirectory(baseImage.getWorkingDirectory());
 
-      // Add history elements for non-empty layers that don't have one yet
-      Instant layerCreationTime =
-          containerConfiguration == null
-              ? ContainerConfiguration.DEFAULT_CREATION_TIME
-              : containerConfiguration.getCreationTime();
-      for (int count = 0; count < baseImageLayers.size() - nonEmptyLayerCount; count++) {
-        imageBuilder.addHistory(
-            HistoryEntry.builder()
-                .setCreationTimestamp(layerCreationTime)
-                .setComment("auto-generated by Jib")
-                .build());
-      }
-
-      // Add built layers/configuration
-      foreach (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
-      {
-        imageBuilder
-            .addLayer(NonBlockingSteps.get(buildAndCacheApplicationLayerStep))
-            .addHistory(
-                HistoryEntry.builder()
-                    .setCreationTimestamp(layerCreationTime)
-                    .setAuthor("Jib")
-                    .setCreatedBy(buildConfiguration.getToolName() + ":" + ProjectInfo.VERSION)
-                    .setComment(buildAndCacheApplicationLayerStep.getLayerType())
-                    .build());
-      }
-      if (containerConfiguration != null) {
-        imageBuilder
-            .addEnvironment(containerConfiguration.getEnvironmentMap())
-            .setCreated(containerConfiguration.getCreationTime())
-            .setUser(containerConfiguration.getUser())
-            .setEntrypoint(computeEntrypoint(baseImage, containerConfiguration))
-            .setProgramArguments(computeProgramArguments(baseImage, containerConfiguration))
-            .addExposedPorts(containerConfiguration.getExposedPorts())
-            .addVolumes(containerConfiguration.getVolumes())
-            .addLabels(containerConfiguration.getLabels());
-        if (containerConfiguration.getWorkingDirectory() != null) {
-          imageBuilder.setWorkingDirectory(containerConfiguration.getWorkingDirectory().toString());
+        public Task<AsyncStep<Image>> getFuture()
+        {
+            return listenableFuture;
         }
-      }
 
-      // Gets the container configuration content descriptor.
-      return imageBuilder.build();
+        public AsyncStep<Image> call()
+        {
+            Task<Image> future =
+                AsyncDependencies.@using()
+                    .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+                    .addSteps(buildAndCacheApplicationLayerSteps)
+                    .whenAllSucceed(this.afterCachedLayerSteps);
+            return AsyncStep.Of(() => future);
+        }
+
+        private Image afterCachedLayerSteps()
+        {
+            using (ProgressEventDispatcher ignored =
+                    progressEventDispatcherFactory.create("building image format", 1))
+            using (TimerEventDispatcher ignored2 =
+                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+            {
+                // Constructs the image.
+                Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
+                Image baseImage = NonBlockingSteps.get(pullBaseImageStep).getBaseImage();
+                ContainerConfiguration containerConfiguration =
+                    buildConfiguration.getContainerConfiguration();
+
+                // Base image layers
+                IReadOnlyList<AsyncStep<CachedLayer>> baseImageLayers =
+                    NonBlockingSteps.get(pullAndCacheBaseImageLayersStep);
+                foreach (AsyncStep<CachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
+                {
+                    imageBuilder.addLayer(NonBlockingSteps.get(pullAndCacheBaseImageLayerStep));
+                }
+
+                // Passthrough config and count non-empty history entries
+                int nonEmptyLayerCount = 0;
+                foreach (HistoryEntry historyObject in baseImage.getHistory())
+                {
+                    imageBuilder.addHistory(historyObject);
+                    if (!historyObject.hasCorrespondingLayer())
+                    {
+                        nonEmptyLayerCount++;
+                    }
+                }
+                imageBuilder
+                    .setArchitecture(baseImage.getArchitecture())
+                    .setOs(baseImage.getOs())
+                    .addEnvironment(baseImage.getEnvironment())
+                    .addLabels(baseImage.getLabels())
+                    .setHealthCheck(baseImage.getHealthCheck())
+                    .addExposedPorts(baseImage.getExposedPorts())
+                    .addVolumes(baseImage.getVolumes())
+                    .setWorkingDirectory(baseImage.getWorkingDirectory());
+
+                // Add history elements for non-empty layers that don't have one yet
+                Instant layerCreationTime =
+                    containerConfiguration == null
+                        ? ContainerConfiguration.DEFAULT_CREATION_TIME
+                        : containerConfiguration.getCreationTime();
+                for (int count = 0; count < baseImageLayers.size() - nonEmptyLayerCount; count++)
+                {
+                    imageBuilder.addHistory(
+                        HistoryEntry.builder()
+                            .setCreationTimestamp(layerCreationTime)
+                            .setComment("auto-generated by Jib")
+                            .build());
+                }
+
+                // Add built layers/configuration
+                foreach (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
+                {
+                    imageBuilder
+                        .addLayer(NonBlockingSteps.get(buildAndCacheApplicationLayerStep))
+                        .addHistory(
+                            HistoryEntry.builder()
+                                .setCreationTimestamp(layerCreationTime)
+                                .setAuthor("Jib")
+                                .setCreatedBy(buildConfiguration.getToolName() + ":" + ProjectInfo.VERSION)
+                                .setComment(buildAndCacheApplicationLayerStep.getLayerType())
+                                .build());
+                }
+                if (containerConfiguration != null)
+                {
+                    imageBuilder
+                        .addEnvironment(containerConfiguration.getEnvironmentMap())
+                        .setCreated(containerConfiguration.getCreationTime())
+                        .setUser(containerConfiguration.getUser())
+                        .setEntrypoint(computeEntrypoint(baseImage, containerConfiguration))
+                        .setProgramArguments(computeProgramArguments(baseImage, containerConfiguration))
+                        .addExposedPorts(containerConfiguration.getExposedPorts())
+                        .addVolumes(containerConfiguration.getVolumes())
+                        .addLabels(containerConfiguration.getLabels());
+                    if (containerConfiguration.getWorkingDirectory() != null)
+                    {
+                        imageBuilder.setWorkingDirectory(containerConfiguration.getWorkingDirectory().toString());
+                    }
+                }
+
+                // Gets the container configuration content descriptor.
+                return imageBuilder.build();
+            }
+        }
+
+        /**
+         * Computes the image entrypoint. If {@link ContainerConfiguration#getEntrypoint()} is null, the
+         * entrypoint is inherited from the base image. Otherwise {@link
+         * ContainerConfiguration#getEntrypoint()} is returned.
+         *
+         * @param baseImage the base image
+         * @param containerConfiguration the container configuration
+         * @return the container entrypoint
+         */
+        private ImmutableArray<string>? computeEntrypoint(
+            Image baseImage, ContainerConfiguration containerConfiguration)
+        {
+            bool shouldInherit =
+                baseImage.getEntrypoint() != null && containerConfiguration.getEntrypoint() == null;
+
+            ImmutableArray<string>? entrypointToUse =
+                shouldInherit ? baseImage.getEntrypoint() : containerConfiguration.getEntrypoint();
+
+            if (entrypointToUse != null)
+            {
+                string logSuffix = shouldInherit ? " (inherited from base image)" : "";
+                string message = "Container entrypoint set to " + entrypointToUse + logSuffix;
+                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(""));
+                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
+            }
+
+            return entrypointToUse;
+        }
+
+        /**
+         * Computes the image program arguments. If {@link ContainerConfiguration#getEntrypoint()} and
+         * {@link ContainerConfiguration#getProgramArguments()} are null, the program arguments are
+         * inherited from the base image. Otherwise {@link ContainerConfiguration#getProgramArguments()}
+         * is returned.
+         *
+         * @param baseImage the base image
+         * @param containerConfiguration the container configuration
+         * @return the container program arguments
+         */
+        private ImmutableArray<string>? computeProgramArguments(
+            Image baseImage, ContainerConfiguration containerConfiguration)
+        {
+            bool shouldInherit =
+                baseImage.getProgramArguments() != null
+                    // Inherit CMD only when inheriting ENTRYPOINT.
+                    && containerConfiguration.getEntrypoint() == null
+                    && containerConfiguration.getProgramArguments() == null;
+
+            ImmutableArray<string>? programArgumentsToUse =
+                shouldInherit
+                    ? baseImage.getProgramArguments()
+                    : containerConfiguration.getProgramArguments();
+
+            if (programArgumentsToUse != null)
+            {
+                string logSuffix = shouldInherit ? " (inherited from base image)" : "";
+                string message = "Container program arguments set to " + programArgumentsToUse + logSuffix;
+                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
+            }
+
+            return programArgumentsToUse;
+        }
     }
-  }
-
-  /**
-   * Computes the image entrypoint. If {@link ContainerConfiguration#getEntrypoint()} is null, the
-   * entrypoint is inherited from the base image. Otherwise {@link
-   * ContainerConfiguration#getEntrypoint()} is returned.
-   *
-   * @param baseImage the base image
-   * @param containerConfiguration the container configuration
-   * @return the container entrypoint
-   */
-  private ImmutableArray<string>? computeEntrypoint(
-      Image baseImage, ContainerConfiguration containerConfiguration) {
-    bool shouldInherit =
-        baseImage.getEntrypoint() != null && containerConfiguration.getEntrypoint() == null;
-
-    ImmutableArray<string>? entrypointToUse =
-        shouldInherit ? baseImage.getEntrypoint() : containerConfiguration.getEntrypoint();
-
-    if (entrypointToUse != null) {
-      string logSuffix = shouldInherit ? " (inherited from base image)" : "";
-      string message = "Container entrypoint set to " + entrypointToUse + logSuffix;
-      buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(""));
-      buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
-    }
-
-    return entrypointToUse;
-  }
-
-  /**
-   * Computes the image program arguments. If {@link ContainerConfiguration#getEntrypoint()} and
-   * {@link ContainerConfiguration#getProgramArguments()} are null, the program arguments are
-   * inherited from the base image. Otherwise {@link ContainerConfiguration#getProgramArguments()}
-   * is returned.
-   *
-   * @param baseImage the base image
-   * @param containerConfiguration the container configuration
-   * @return the container program arguments
-   */
-  private ImmutableArray<string>? computeProgramArguments(
-      Image baseImage, ContainerConfiguration containerConfiguration) {
-    bool shouldInherit =
-        baseImage.getProgramArguments() != null
-            // Inherit CMD only when inheriting ENTRYPOINT.
-            && containerConfiguration.getEntrypoint() == null
-            && containerConfiguration.getProgramArguments() == null;
-
-    ImmutableArray<string>? programArgumentsToUse =
-        shouldInherit
-            ? baseImage.getProgramArguments()
-            : containerConfiguration.getProgramArguments();
-
-    if (programArgumentsToUse != null) {
-      string logSuffix = shouldInherit ? " (inherited from base image)" : "";
-      string message = "Container program arguments set to " + programArgumentsToUse + logSuffix;
-      buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
-    }
-
-    return programArgumentsToUse;
-  }
-}
 }

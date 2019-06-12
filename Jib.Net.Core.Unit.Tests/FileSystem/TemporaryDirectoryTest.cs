@@ -21,57 +21,52 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
 
+    /** Tests for {@link TemporaryDirectory}. */
+    public class TemporaryDirectoryTest
+    {
+        private static void createFilesInDirectory(SystemPath directory)
+        {
+            SystemPath testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
+            new DirectoryWalker(testFilesDirectory)
+                .filterRoot()
+                .walk(path => Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
+        }
 
+        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+        [Test]
+        public void testClose_directoryDeleted()
+        {
+            using (TemporaryDirectory temporaryDirectory =
+                new TemporaryDirectory(temporaryFolder.newFolder().toPath()))
+            {
+                createFilesInDirectory(temporaryDirectory.getDirectory());
 
+                temporaryDirectory.close();
+                Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
+            }
+        }
 
+        [Test]
+        public void testClose_directoryNotDeletedIfMoved()
+        {
+            SystemPath destinationParent = temporaryFolder.newFolder().toPath();
 
+            using (TemporaryDirectory temporaryDirectory =
+                new TemporaryDirectory(temporaryFolder.newFolder().toPath()))
+            {
+                createFilesInDirectory(temporaryDirectory.getDirectory());
 
+                Assert.IsFalse(Files.exists(destinationParent.resolve("destination")));
+                Files.move(temporaryDirectory.getDirectory(), destinationParent.resolve("destination"));
 
-
-
-
-/** Tests for {@link TemporaryDirectory}. */
-public class TemporaryDirectoryTest {
-
-  private static void createFilesInDirectory(SystemPath directory)
-      {
-    SystemPath testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
-    new DirectoryWalker(testFilesDirectory)
-        .filterRoot()
-        .walk(path => Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
-  }
-
-  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  [Test]
-  public void testClose_directoryDeleted() {
-    using (TemporaryDirectory temporaryDirectory =
-        new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
-      createFilesInDirectory(temporaryDirectory.getDirectory());
-
-      temporaryDirectory.close();
-      Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
+                temporaryDirectory.close();
+                Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
+                Assert.IsTrue(Files.exists(destinationParent.resolve("destination")));
+            }
+        }
     }
-  }
-
-  [Test]
-  public void testClose_directoryNotDeletedIfMoved() {
-    SystemPath destinationParent = temporaryFolder.newFolder().toPath();
-
-    using (TemporaryDirectory temporaryDirectory =
-        new TemporaryDirectory(temporaryFolder.newFolder().toPath())) {
-      createFilesInDirectory(temporaryDirectory.getDirectory());
-
-      Assert.IsFalse(Files.exists(destinationParent.resolve("destination")));
-      Files.move(temporaryDirectory.getDirectory(), destinationParent.resolve("destination"));
-
-      temporaryDirectory.close();
-      Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
-      Assert.IsTrue(Files.exists(destinationParent.resolve("destination")));
-    }
-  }
-}
 }

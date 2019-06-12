@@ -16,15 +16,14 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.image.json {
-
-
-/** Exception thrown when trying to parse an unknown image manifest format. */
-public class UnknownManifestFormatException : RegistryException {
-
-  public UnknownManifestFormatException(string message) : base(message) {
-    
-  }
+namespace com.google.cloud.tools.jib.image.json
+{
+    /** Exception thrown when trying to parse an unknown image manifest format. */
+    public class UnknownManifestFormatException : RegistryException
+    {
+        public UnknownManifestFormatException(string message) : base(message)
+        {
+        }
 
         public UnknownManifestFormatException(string message, System.Exception cause) : base(message, cause)
         {

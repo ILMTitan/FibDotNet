@@ -24,132 +24,132 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.cache {
+namespace com.google.cloud.tools.jib.cache
+{
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-/**
- * Generates a selector based on {@link LayerEntry}s for a layer. Selectors are secondary references
- * for a cache entries.
- *
- * <p>The selector is the SHA256 hash of the list of layer entries serialized in the following form:
- *
- * <pre>{@code
- * [
- *   {
- *     "sourceFile": "source/file/for/layer/entry/1",
- *     "extractionPath": "/extraction/path/for/layer/entry/1"
- *     "lastModifiedTime": "2018-10-03T15:48:32.416152Z"
- *     "permissions": "777"
- *   },
- *   {
- *     "sourceFile": "source/file/for/layer/entry/2",
- *     "extractionPath": "/extraction/path/for/layer/entry/2"
- *     "lastModifiedTime": "2018-10-03T15:48:32.416152Z"
- *     "permissions": "777"
- *   }
- * ]
- * }</pre>
- */
-class LayerEntriesSelector {
-
-  /** Serialized form of a {@link LayerEntry}. */
-
-  public class LayerEntryTemplate : JsonTemplate, IComparable<LayerEntryTemplate> {
-
-    private readonly string sourceFile;
-    private readonly string extractionPath;
-    private readonly Instant lastModifiedTime;
-    private readonly string permissions;
-
-    public LayerEntryTemplate(LayerEntry layerEntry) {
-      sourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
-      extractionPath = layerEntry.getExtractionPath().toString();
-      lastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile()).toInstant();
-      permissions = layerEntry.getPermissions().toOctalString();
-    }
-
-    public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate) {
-      int sourceFileComparison = sourceFile.compareTo(otherLayerEntryTemplate.sourceFile);
-      if (sourceFileComparison != 0) {
-        return sourceFileComparison;
-      }
-      int extractionPathComparison =
-          extractionPath.compareTo(otherLayerEntryTemplate.extractionPath);
-      if (extractionPathComparison != 0) {
-        return extractionPathComparison;
-      }
-      int lastModifiedTimeComparison =
-          lastModifiedTime.compareTo(otherLayerEntryTemplate.lastModifiedTime);
-      if (lastModifiedTimeComparison != 0) {
-        return lastModifiedTimeComparison;
-      }
-      return permissions.compareTo(otherLayerEntryTemplate.permissions);
-    }
-
-    public override bool Equals(object other) {
-      if (this == other) {
-        return true;
-      }
-      if (!(other is LayerEntryTemplate)) {
-        return false;
-      }
-      LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate) other;
-      return sourceFile.Equals(otherLayerEntryTemplate.sourceFile)
-          && extractionPath.Equals(otherLayerEntryTemplate.extractionPath)
-          && lastModifiedTime.Equals(otherLayerEntryTemplate.lastModifiedTime)
-          && permissions.Equals(otherLayerEntryTemplate.permissions);
-    }
-
-    public override int GetHashCode() {
-      return Objects.hash(sourceFile, extractionPath, lastModifiedTime, permissions);
-    }
-  }
-
-  /**
-   * Converts a list of {@link LayerEntry}s into a list of {@link LayerEntryTemplate}. The list is
-   * sorted by source file first, then extraction path (see {@link LayerEntryTemplate#compareTo}).
-   *
-   * @param layerEntries the list of {@link LayerEntry} to convert
-   * @return list of {@link LayerEntryTemplate} after sorting
-   * @throws IOException if checking the file creation time of a layer entry fails
-   */
-
-  public static List<LayerEntryTemplate> toSortedJsonTemplates(IList<LayerEntry> layerEntries)
-      {
-    List<LayerEntryTemplate> jsonTemplates = new List<LayerEntryTemplate>();
-    foreach (LayerEntry entry in layerEntries)
+    /**
+     * Generates a selector based on {@link LayerEntry}s for a layer. Selectors are secondary references
+     * for a cache entries.
+     *
+     * <p>The selector is the SHA256 hash of the list of layer entries serialized in the following form:
+     *
+     * <pre>{@code
+     * [
+     *   {
+     *     "sourceFile": "source/file/for/layer/entry/1",
+     *     "extractionPath": "/extraction/path/for/layer/entry/1"
+     *     "lastModifiedTime": "2018-10-03T15:48:32.416152Z"
+     *     "permissions": "777"
+     *   },
+     *   {
+     *     "sourceFile": "source/file/for/layer/entry/2",
+     *     "extractionPath": "/extraction/path/for/layer/entry/2"
+     *     "lastModifiedTime": "2018-10-03T15:48:32.416152Z"
+     *     "permissions": "777"
+     *   }
+     * ]
+     * }</pre>
+     */
+    internal sealed class LayerEntriesSelector
     {
-      jsonTemplates.add(new LayerEntryTemplate(entry));
+        /** Serialized form of a {@link LayerEntry}. */
+
+        public class LayerEntryTemplate : JsonTemplate, IComparable<LayerEntryTemplate>
+        {
+            private readonly string sourceFile;
+            private readonly string extractionPath;
+            private readonly Instant lastModifiedTime;
+            private readonly string permissions;
+
+            public LayerEntryTemplate(LayerEntry layerEntry)
+            {
+                sourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
+                extractionPath = layerEntry.getExtractionPath().toString();
+                lastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile()).toInstant();
+                permissions = layerEntry.getPermissions().toOctalString();
+            }
+
+            public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate)
+            {
+                int sourceFileComparison = sourceFile.compareTo(otherLayerEntryTemplate.sourceFile);
+                if (sourceFileComparison != 0)
+                {
+                    return sourceFileComparison;
+                }
+                int extractionPathComparison =
+                    extractionPath.compareTo(otherLayerEntryTemplate.extractionPath);
+                if (extractionPathComparison != 0)
+                {
+                    return extractionPathComparison;
+                }
+                int lastModifiedTimeComparison =
+                    lastModifiedTime.compareTo(otherLayerEntryTemplate.lastModifiedTime);
+                if (lastModifiedTimeComparison != 0)
+                {
+                    return lastModifiedTimeComparison;
+                }
+                return permissions.compareTo(otherLayerEntryTemplate.permissions);
+            }
+
+            public override bool Equals(object other)
+            {
+                if (this == other)
+                {
+                    return true;
+                }
+                if (!(other is LayerEntryTemplate))
+                {
+                    return false;
+                }
+                LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate)other;
+                return sourceFile.Equals(otherLayerEntryTemplate.sourceFile)
+                    && extractionPath.Equals(otherLayerEntryTemplate.extractionPath)
+                    && lastModifiedTime.Equals(otherLayerEntryTemplate.lastModifiedTime)
+                    && permissions.Equals(otherLayerEntryTemplate.permissions);
+            }
+
+            public override int GetHashCode()
+            {
+                return Objects.hash(sourceFile, extractionPath, lastModifiedTime, permissions);
+            }
+        }
+
+        /**
+         * Converts a list of {@link LayerEntry}s into a list of {@link LayerEntryTemplate}. The list is
+         * sorted by source file first, then extraction path (see {@link LayerEntryTemplate#compareTo}).
+         *
+         * @param layerEntries the list of {@link LayerEntry} to convert
+         * @return list of {@link LayerEntryTemplate} after sorting
+         * @throws IOException if checking the file creation time of a layer entry fails
+         */
+
+        public static List<LayerEntryTemplate> toSortedJsonTemplates(IList<LayerEntry> layerEntries)
+        {
+            List<LayerEntryTemplate> jsonTemplates = new List<LayerEntryTemplate>();
+            foreach (LayerEntry entry in layerEntries)
+            {
+                jsonTemplates.add(new LayerEntryTemplate(entry));
+            }
+            Collections.sort(jsonTemplates);
+            return jsonTemplates;
+        }
+
+        /**
+         * Generates a selector for the list of {@link LayerEntry}s. The selector is unique to each unique
+         * set of layer entries, regardless of order. TODO: Should we care about order?
+         *
+         * @param layerEntries the layer entries
+         * @return the selector
+         * @throws IOException if an I/O exception occurs
+         */
+        public static DescriptorDigest generateSelector(ImmutableArray<LayerEntry> layerEntries)
+        {
+            return Digests.computeJsonDigest(toSortedJsonTemplates(layerEntries));
+        }
+
+        private LayerEntriesSelector() { }
     }
-    Collections.sort(jsonTemplates);
-    return jsonTemplates;
-  }
-
-  /**
-   * Generates a selector for the list of {@link LayerEntry}s. The selector is unique to each unique
-   * set of layer entries, regardless of order. TODO: Should we care about order?
-   *
-   * @param layerEntries the layer entries
-   * @return the selector
-   * @throws IOException if an I/O exception occurs
-   */
-  public static DescriptorDigest generateSelector(ImmutableArray<LayerEntry> layerEntries)
-      {
-    return Digests.computeJsonDigest(toSortedJsonTemplates(layerEntries));
-  }
-
-  private LayerEntriesSelector() {}
-}
 }

@@ -16,29 +16,25 @@
 
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.async {
-
-
-
-
-
-/**
- * Holds the future for an asynchronously-running step. Implementations should:
- *
- * <ol>
- *   <li>Be immutable
- *   <li>Construct with the dependent {@link AsyncStep}s and submit a {@link Callable} to the {@link
- *       ListeningExecutorService} to run after all its dependent {@link AsyncStep}s (for example,
- *       by using {@link Futures#whenAllSucceed})
- *   <li>Have {@link #getFuture} return the submitted future
- * </ol>
- *
- * @param <T> the object type passed on by this step
- */
-public interface AsyncStep<T> {
-
-  /** @return the submitted future */
-  // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.
-  Task<T> getFuture();
-}
+namespace com.google.cloud.tools.jib.async
+{
+    /**
+     * Holds the future for an asynchronously-running step. Implementations should:
+     *
+     * <ol>
+     *   <li>Be immutable
+     *   <li>Construct with the dependent {@link AsyncStep}s and submit a {@link Callable} to the {@link
+     *       ListeningExecutorService} to run after all its dependent {@link AsyncStep}s (for example,
+     *       by using {@link Futures#whenAllSucceed})
+     *   <li>Have {@link #getFuture} return the submitted future
+     * </ol>
+     *
+     * @param <T> the object type passed on by this step
+     */
+    public interface AsyncStep<T>
+    {
+        /** @return the submitted future */
+        // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.
+        Task<T> getFuture();
+    }
 }

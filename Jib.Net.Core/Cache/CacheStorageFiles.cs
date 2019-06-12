@@ -24,16 +24,9 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
-
     /** Resolves the files used in the default cache storage engine. */
     public class CacheStorageFiles
     {
-
         private static readonly string LAYERS_DIRECTORY = "layers";
         private static readonly string IMAGES_DIRECTORY = "images";
         private static readonly string SELECTORS_DIRECTORY = "selectors";
@@ -71,7 +64,6 @@ namespace com.google.cloud.tools.jib.cache
             {
                 string diffId = layerFile.getFileName().toString();
                 return DescriptorDigest.fromHash(diffId);
-
             }
             catch (Exception ex) when (ex is DigestException || ex is IndexOutOfRangeException)
             {
@@ -79,7 +71,6 @@ namespace com.google.cloud.tools.jib.cache
                     cacheDirectory, "Layer file did not include valid diff ID: " + layerFile, ex);
             }
         }
-
 
         /**
          * Gets the cache directory.

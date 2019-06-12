@@ -18,20 +18,14 @@ using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.image.json {
-
-
-
-
-
-
-
-/** Deserializes a JSON element into a {@link DescriptorDigest} object. */
-public class DescriptorDigestDeserializer : JsonDeserializer<DescriptorDigest> {
-
-  public DescriptorDigest deserialize(JsonParser jsonParser, DeserializationContext ignored)
-      {
-      return DescriptorDigest.fromDigest(jsonParser.getValueAsString());
-  }
-}
+namespace com.google.cloud.tools.jib.image.json
+{
+    /** Deserializes a JSON element into a {@link DescriptorDigest} object. */
+    public class DescriptorDigestDeserializer : JsonDeserializer<DescriptorDigest>
+    {
+        public DescriptorDigest deserialize(JsonParser jsonParser, DeserializationContext ignored)
+        {
+            return DescriptorDigest.fromDigest(jsonParser.getValueAsString());
+        }
+    }
 }

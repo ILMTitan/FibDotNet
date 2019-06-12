@@ -17,49 +17,50 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.@event.progress;
 
-namespace com.google.cloud.tools.jib.@event.events {
+namespace com.google.cloud.tools.jib.@event.events
+{
+    /**
+     * Event representing progress. The progress accounts for allocation units in an {@link Allocation},
+     * which makes up a Decentralized Allocation Tree.
+     *
+     * @see Allocation
+     */
+    public class ProgressEvent : JibEvent
+    {
+        /**
+         * The allocation this progress is for. Each progress unit accounts for a single allocation unit
+         * on the {@link Allocation}.
+         */
+        private readonly Allocation allocation;
 
+        /** Units of progress. */
+        private readonly long progressUnits;
 
+        public ProgressEvent(Allocation allocation, long progressUnits)
+        {
+            this.allocation = allocation;
+            this.progressUnits = progressUnits;
+        }
 
-/**
- * Event representing progress. The progress accounts for allocation units in an {@link Allocation},
- * which makes up a Decentralized Allocation Tree.
- *
- * @see Allocation
- */
-public class ProgressEvent : JibEvent {
+        /**
+         * Gets the {@link Allocation} this progress event accounts for.
+         *
+         * @return the {@link Allocation}
+         */
+        public Allocation getAllocation()
+        {
+            return allocation;
+        }
 
-  /**
-   * The allocation this progress is for. Each progress unit accounts for a single allocation unit
-   * on the {@link Allocation}.
-   */
-  private readonly Allocation allocation;
-
-  /** Units of progress. */
-  private readonly long progressUnits;
-
-  public ProgressEvent(Allocation allocation, long progressUnits) {
-    this.allocation = allocation;
-    this.progressUnits = progressUnits;
-  }
-
-  /**
-   * Gets the {@link Allocation} this progress event accounts for.
-   *
-   * @return the {@link Allocation}
-   */
-  public Allocation getAllocation() {
-    return allocation;
-  }
-
-  /**
-   * Gets the units of progress this progress event accounts for in the associated {@link
-   * Allocation}.
-   *
-   * @return units of allocation
-   */
-  public long getUnits() {
-    return progressUnits;
-  }
-}
+        /**
+         * Gets the units of progress this progress event accounts for in the associated {@link
+         * Allocation}.
+         *
+         * @return units of allocation
+         */
+        public long getUnits()
+        {
+            return progressUnits;
+        }
+    }
 }

@@ -17,15 +17,14 @@
 using com.google.cloud.tools.jib.api;
 using System;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-/** Thrown when a registry did not respond. */
-public class RegistryNoResponseException : RegistryException {
-
-  RegistryNoResponseException(Exception cause) : base("", cause) {
-    
-  }
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Thrown when a registry did not respond. */
+    public class RegistryNoResponseException : RegistryException
+    {
+        private RegistryNoResponseException(Exception cause) : base("", cause)
+        {
+        }
 
         public RegistryNoResponseException(string message, Exception cause) : base(message, cause)
         {

@@ -17,13 +17,11 @@
 using Jib.Net.Core.FileSystem;
 using System;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
-
-
-/** Thrown because the credential helper does not have credentials for the specified server Uri. */
-public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalException
+namespace com.google.cloud.tools.jib.registry.credentials
+{
+    /** Thrown because the credential helper does not have credentials for the specified server Uri. */
+    public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalException
     {
-
         public CredentialHelperUnhandledServerUrlException(
             SystemPath credentialHelper, string serverUrl, string credentialHelperOutput, Exception cause) : base(
               "The credential helper ("
@@ -33,7 +31,6 @@ public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalEx
                   + "\n\nGot output:\n\n"
                   + credentialHelperOutput, cause)
         {
-
         }
 
         public CredentialHelperUnhandledServerUrlException(
@@ -43,9 +40,9 @@ public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalEx
             + ") has nothing for server Uri: "
             + serverUrl
             + "\n\nGot output:\n\n"
-            + credentialHelperOutput) {
-    
-  }
+            + credentialHelperOutput)
+        {
+        }
 
         protected CredentialHelperUnhandledServerUrlException(string message, System.Exception cause) : base(message, cause)
         {

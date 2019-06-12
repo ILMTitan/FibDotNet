@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.api
             ContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
             Assert.AreEqual(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
             Assert.AreEqual(
-                ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"]= "value" }), containerConfiguration.getEnvironmentMap());
+                ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }), containerConfiguration.getEnvironmentMap());
             Assert.AreEqual(
                 ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)), containerConfiguration.getExposedPorts());
             Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), containerConfiguration.getLabels());
@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreEqual(
                 Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2),
                 buildConfiguration.getLayerConfigurations());
-            
+
             buildConfiguration.getEventHandlers().dispatch(mockJibEvent);
             Mock.Get(mockJibEventConsumer).Verify(m => m(mockJibEvent));
 
@@ -204,7 +204,6 @@ namespace com.google.cloud.tools.jib.api
             Containerizer mockContainerizer = createMockContainerizer();
 
             jibContainerBuilder.containerize(mockContainerizer);
-
         }
 
         /** Verify that a provided ExecutorService is not shutdown. */
@@ -257,7 +256,7 @@ namespace com.google.cloud.tools.jib.api
             Mock.Get(mockContainerizer).Setup(m => m.getAllowInsecureRegistries()).Returns(false);
 
             Mock.Get(mockContainerizer).Setup(m => m.getToolName()).Returns("mocktool");
-            
+
             Mock.Get(mockContainerizer).Setup(m => m.buildEventHandlers()).Returns(EventHandlers.NONE);
 
             return mockContainerizer;

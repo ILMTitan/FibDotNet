@@ -19,19 +19,16 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
     /** Holds a BLOB source for writing to an {@link OutputStream}. */
-    public interface Blob {
-
-  /**
-   * Writes the BLOB to an {@link OutputStream}. Does not close the {@code outputStream}.
-   *
-   * @param outputStream the {@link OutputStream} to write to
-   * @return the {@link BlobDescriptor} of the written BLOB
-   * @throws IOException if writing the BLOB fails
-   */
-  BlobDescriptor writeTo(Stream outputStream);
-}
+    public interface Blob
+    {
+        /**
+         * Writes the BLOB to an {@link OutputStream}. Does not close the {@code outputStream}.
+         *
+         * @param outputStream the {@link OutputStream} to write to
+         * @return the {@link BlobDescriptor} of the written BLOB
+         * @throws IOException if writing the BLOB fails
+         */
+        BlobDescriptor writeTo(Stream outputStream);
+    }
 }

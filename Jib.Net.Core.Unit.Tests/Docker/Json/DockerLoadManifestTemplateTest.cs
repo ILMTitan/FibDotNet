@@ -22,39 +22,31 @@ using Jib.Net.Core.FileSystem;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.docker.json {
+namespace com.google.cloud.tools.jib.docker.json
+{
 
 
 
 
+    /** Tests for {@link DockerLoadManifestEntryTemplate}. */
+    public class DockerLoadManifestTemplateTest
+    {
+        [Test]
+        public void testToJson()
+        {
+            // Loads the expected JSON string.
+            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
+            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
+            DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
+            template.setRepoTags(
+                ImageReference.of("testregistry", "testrepo", "testtag").toStringWithTag());
+            template.addLayerFile("layer1.tar.gz");
+            template.addLayerFile("layer2.tar.gz");
+            template.addLayerFile("layer3.tar.gz");
 
-
-
-
-
-
-
-
-
-/** Tests for {@link DockerLoadManifestEntryTemplate}. */
-public class DockerLoadManifestTemplateTest {
-
-  [Test]
-  public void testToJson() {
-    // Loads the expected JSON string.
-    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
-    string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
-
-    DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
-    template.setRepoTags(
-        ImageReference.of("testregistry", "testrepo", "testtag").toStringWithTag());
-    template.addLayerFile("layer1.tar.gz");
-    template.addLayerFile("layer2.tar.gz");
-    template.addLayerFile("layer3.tar.gz");
-
-    List<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
-    Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
-  }
-}
+            List<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
+        }
+    }
 }

@@ -25,7 +25,8 @@ using Jib.Net.Core.Api;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -33,84 +34,80 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
+    /** Pulls and caches a single base image layer. */
+    public class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>
+    {
+        private static readonly string DESCRIPTION = "Pulling base image layer {0}";
 
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
+        private readonly DescriptorDigest layerDigest;
+        private readonly Authorization pullAuthorization;
 
+        private readonly Task<CachedLayer> listenableFuture;
 
-
-
-
-
-
-
-/** Pulls and caches a single base image layer. */
-public class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer> {
-  private static readonly string DESCRIPTION = "Pulling base image layer {0}";
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-
-  private readonly DescriptorDigest layerDigest;
-  private readonly Authorization pullAuthorization;
-
-  private readonly Task<CachedLayer> listenableFuture;
-
-  public PullAndCacheBaseImageLayerStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      DescriptorDigest layerDigest,
-      Authorization pullAuthorization)
+        public PullAndCacheBaseImageLayerStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            DescriptorDigest layerDigest,
+            Authorization pullAuthorization)
         {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.layerDigest = layerDigest;
-    this.pullAuthorization = pullAuthorization;
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.layerDigest = layerDigest;
+            this.pullAuthorization = pullAuthorization;
 
             listenableFuture = Task.Run(call);
-  }
+        }
 
-  public Task<CachedLayer> getFuture() {
-    return listenableFuture;
-  }
+        public Task<CachedLayer> getFuture()
+        {
+            return listenableFuture;
+        }
 
-  public CachedLayer call() {
-    using(ProgressEventDispatcher progressEventDispatcher =
-            progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
-    using(TimerEventDispatcher ignored =
-            new TimerEventDispatcher(
-                buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, layerDigest)))
-    {
+        public CachedLayer call()
+        {
+            using (ProgressEventDispatcher progressEventDispatcher =
+                    progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
+            using (TimerEventDispatcher ignored =
+                    new TimerEventDispatcher(
+                        buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, layerDigest)))
+            {
+                Cache cache = buildConfiguration.getBaseImageLayersCache();
 
-      Cache cache = buildConfiguration.getBaseImageLayersCache();
+                // Checks if the layer already exists in the cache.
+                Optional<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
+                if (optionalCachedLayer.isPresent())
+                {
+                    return optionalCachedLayer.get();
+                }
+                else if (buildConfiguration.isOffline())
+                {
+                    throw new IOException(
+                        "Cannot run Jib in offline mode; local Jib cache for base image is missing image layer "
+                            + layerDigest
+                            + ". You may need to rerun Jib in online mode to re-download the base image layers.");
+                }
 
-      // Checks if the layer already exists in the cache.
-      Optional<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
-      if (optionalCachedLayer.isPresent()) {
-        return optionalCachedLayer.get();
-      } else if (buildConfiguration.isOffline()) {
-        throw new IOException(
-            "Cannot run Jib in offline mode; local Jib cache for base image is missing image layer "
-                + layerDigest
-                + ". You may need to rerun Jib in online mode to re-download the base image layers.");
-      }
+                RegistryClient registryClient =
+                    buildConfiguration
+                        .newBaseImageRegistryClientFactory()
+                        .setAuthorization(pullAuthorization)
+                        .newRegistryClient();
 
-      RegistryClient registryClient =
-          buildConfiguration
-              .newBaseImageRegistryClientFactory()
-              .setAuthorization(pullAuthorization)
-              .newRegistryClient();
-
-      using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
-          new ThrottledProgressEventDispatcherWrapper(
-              progressEventDispatcher.newChildProducer(),
-              "pulling base image layer " + layerDigest)) {
-        return cache.writeCompressedLayer(
-            registryClient.pullBlob(
-                layerDigest,
-                progressEventDispatcherWrapper.setProgressTarget,
-                progressEventDispatcherWrapper.dispatchProgress));
-      }
+                using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
+                    new ThrottledProgressEventDispatcherWrapper(
+                        progressEventDispatcher.newChildProducer(),
+                        "pulling base image layer " + layerDigest))
+                {
+                    return cache.writeCompressedLayer(
+                        registryClient.pullBlob(
+                            layerDigest,
+                            progressEventDispatcherWrapper.setProgressTarget,
+                            progressEventDispatcherWrapper.dispatchProgress));
+                }
+            }
+        }
     }
-  }
-}
 }

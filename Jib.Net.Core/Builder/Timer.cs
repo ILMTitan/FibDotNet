@@ -19,54 +19,52 @@ using com.google.cloud.tools.jib.@event.events;
 using Jib.Net.Core.Global;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.builder {
-
-
-
-
-
-
-
-/** Times code execution intervals. Call {@link #lap} at the end of each interval. */
-public class Timer : TimerEvent.Timer
+namespace com.google.cloud.tools.jib.builder
+{
+    /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
+    public class Timer : TimerEvent.Timer
     {
-  private readonly IClock clock;
-  private readonly Timer parentTimer;
+        private readonly IClock clock;
+        private readonly Timer parentTimer;
 
-  private readonly Instant startTime;
-  private Instant lapStartTime;
+        private readonly Instant startTime;
+        private Instant lapStartTime;
 
-  public Timer(IClock clock, Timer parentTimer) {
-    this.clock = clock;
-    this.parentTimer = parentTimer;
+        public Timer(IClock clock, Timer parentTimer)
+        {
+            this.clock = clock;
+            this.parentTimer = parentTimer;
 
-    startTime = clock.instant();
-    lapStartTime = startTime;
-  }
+            startTime = clock.instant();
+            lapStartTime = startTime;
+        }
 
-  public Optional<TimerEvent.Timer> getParent() {
-    return Optional.ofNullable<TimerEvent.Timer>(parentTimer);
-  }
+        public Optional<TimerEvent.Timer> getParent()
+        {
+            return Optional.ofNullable<TimerEvent.Timer>(parentTimer);
+        }
 
-  /**
-   * Captures the time since last lap or creation, and resets the start time.
-   *
-   * @return the duration of the last lap, or since creation
-   */
-  public Duration lap() {
-    Instant now = clock.instant();
+        /**
+         * Captures the time since last lap or creation, and resets the start time.
+         *
+         * @return the duration of the last lap, or since creation
+         */
+        public Duration lap()
+        {
+            Instant now = clock.instant();
             Duration duration = lapStartTime - now;
-    lapStartTime = now;
-    return duration;
-  }
+            lapStartTime = now;
+            return duration;
+        }
 
-  /**
-   * Gets the total elapsed time since creation.
-   *
-   * @return the total elapsed time
-   */
-  public Duration getElapsedTime() {
-    return startTime - clock.instant();
-  }
-}
+        /**
+         * Gets the total elapsed time since creation.
+         *
+         * @return the total elapsed time
+         */
+        public Duration getElapsedTime()
+        {
+            return startTime - clock.instant();
+        }
+    }
 }

@@ -19,47 +19,48 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Test for {@link ErrorReponseUtil}. */
+    public class ErrorResponseUtilTest
+    {
+        [Test]
+        public void testGetErrorCode_knownErrorCode()
+        {
+            HttpResponseMessage httpResponseException =
+                new HttpResponseException.Builder(HttpStatusCode.BadRequest)
+                    .setContent(
+                        "{\"errors\":[{\"code\":\"MANIFEST_INVALID\",\"message\":\"manifest invalid\",\"detail\":{}}]}")
+                    .build();
 
+            Assert.AreSame(
+                ErrorCodes.MANIFEST_INVALID, ErrorResponseUtil.getErrorCode(httpResponseException));
+        }
 
-
-
-
-
-/** Test for {@link ErrorReponseUtil}. */
-public class ErrorResponseUtilTest {
-
-  [Test]
-  public void testGetErrorCode_knownErrorCode() {
-    HttpResponseMessage httpResponseException =
-        new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-            .setContent(
-                "{\"errors\":[{\"code\":\"MANIFEST_INVALID\",\"message\":\"manifest invalid\",\"detail\":{}}]}")
-            .build();
-
-    Assert.AreSame(
-        ErrorCodes.MANIFEST_INVALID, ErrorResponseUtil.getErrorCode(httpResponseException));
-  }
-
-  /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
-  [Test]
-  public void testGetErrorCode_unknownErrorCode() {
+        /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
+        [Test]
+        public void testGetErrorCode_unknownErrorCode()
+        {
             HttpResponseMessage httpResponseException =
         new HttpResponseException.Builder(HttpStatusCode.BadRequest)
             .setContent(
                 "{\"errors\":[{\"code\":\"INVALID_ERROR_CODE\",\"message\":\"invalid code\",\"detail\":{}}]}")
             .build();
-    try {
-      ErrorResponseUtil.getErrorCode(httpResponseException);
-      Assert.Fail();
-    } catch (HttpResponseException ex) {
-      Assert.AreSame(httpResponseException, ex);
-    }
-  }
+            try
+            {
+                ErrorResponseUtil.getErrorCode(httpResponseException);
+                Assert.Fail();
+            }
+            catch (HttpResponseException ex)
+            {
+                Assert.AreSame(httpResponseException, ex);
+            }
+        }
 
-  /** Multiple error objects should cause original exception to be rethrown. */
-  [Test]
-  public void testGetErrorCode_multipleErrors() {
+        /** Multiple error objects should cause original exception to be rethrown. */
+        [Test]
+        public void testGetErrorCode_multipleErrors()
+        {
             HttpResponseMessage httpResponseException =
         new HttpResponseException.Builder(HttpStatusCode.BadRequest)
             .setContent(
@@ -68,27 +69,34 @@ public class ErrorResponseUtilTest {
                     + "{\"code\":\"TAG_INVALID\",\"message\":\"message 2\",\"detail\":{}}"
                     + "]}")
             .build();
-    try {
-      ErrorResponseUtil.getErrorCode(httpResponseException);
-      Assert.Fail();
-    } catch (HttpResponseException ex) {
-      Assert.AreSame(httpResponseException, ex);
-    }
-  }
+            try
+            {
+                ErrorResponseUtil.getErrorCode(httpResponseException);
+                Assert.Fail();
+            }
+            catch (HttpResponseException ex)
+            {
+                Assert.AreSame(httpResponseException, ex);
+            }
+        }
 
-  /** An non-error object should cause original exception to be rethrown. */
-  [Test]
-  public void testGetErrorCode_invalidErrorObject() {
+        /** An non-error object should cause original exception to be rethrown. */
+        [Test]
+        public void testGetErrorCode_invalidErrorObject()
+        {
             HttpResponseMessage httpResponseException =
         new HttpResponseException.Builder(HttpStatusCode.BadRequest)
             .setContent("{\"type\":\"other\",\"message\":\"some other object\"}")
             .build();
-    try {
-      ErrorResponseUtil.getErrorCode(httpResponseException);
-      Assert.Fail();
-    } catch (HttpResponseException ex) {
-      Assert.AreSame(httpResponseException, ex);
+            try
+            {
+                ErrorResponseUtil.getErrorCode(httpResponseException);
+                Assert.Fail();
+            }
+            catch (HttpResponseException ex)
+            {
+                Assert.AreSame(httpResponseException, ex);
+            }
+        }
     }
-  }
-}
 }

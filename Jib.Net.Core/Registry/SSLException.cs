@@ -23,7 +23,6 @@ namespace com.google.cloud.tools.jib.registry
     [Serializable]
     internal class SSLException : IOException
     {
-
         public SSLException()
         {
         }

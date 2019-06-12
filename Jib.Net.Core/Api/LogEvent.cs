@@ -14,107 +14,120 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Log message event. */
+    public sealed class LogEvent : JibEvent
+    {
+        /** Log levels, in order of verbosity. */
+        public enum Level
+        {
 
+            /** Something went wrong. */
+            ERROR,
 
+            /** Something might not work as intended. */
+            WARN,
 
-/** Log message event. */
-public class LogEvent : JibEvent {
+            /** Default. */
+            LIFECYCLE,
 
-  /** Log levels, in order of verbosity. */
-  public enum Level {
+            /** Same as {@link #LIFECYCLE}, except represents progress updates. */
+            PROGRESS,
 
-    /** Something went wrong. */
-    ERROR,
+            /**
+             * Details that can be ignored.
+             *
+             * <p>Use {@link #LIFECYCLE} for progress-indicating messages.
+             */
+            INFO,
 
-    /** Something might not work as intended. */
-    WARN,
+            /** Useful for debugging. */
+            DEBUG
+        }
 
-    /** Default. */
-    LIFECYCLE,
+        public static LogEvent error(string message)
+        {
+            return new LogEvent(Level.ERROR, message);
+        }
 
-    /** Same as {@link #LIFECYCLE}, except represents progress updates. */
-    PROGRESS,
+        public static LogEvent lifecycle(string message)
+        {
+            return new LogEvent(Level.LIFECYCLE, message);
+        }
 
-    /**
-     * Details that can be ignored.
-     *
-     * <p>Use {@link #LIFECYCLE} for progress-indicating messages.
-     */
-    INFO,
+        public static LogEvent progress(string message)
+        {
+            return new LogEvent(Level.PROGRESS, message);
+        }
 
-    /** Useful for debugging. */
-    DEBUG
-  }
+        public static LogEvent warn(string message)
+        {
+            return new LogEvent(Level.WARN, message);
+        }
 
-  public static LogEvent error(string message) {
-    return new LogEvent(Level.ERROR, message);
-  }
+        public static LogEvent info(string message)
+        {
+            return new LogEvent(Level.INFO, message);
+        }
 
-  public static LogEvent lifecycle(string message) {
-    return new LogEvent(Level.LIFECYCLE, message);
-  }
+        public static LogEvent debug(string message)
+        {
+            return new LogEvent(Level.DEBUG, message);
+        }
 
-  public static LogEvent progress(string message) {
-    return new LogEvent(Level.PROGRESS, message);
-  }
+        private readonly Level level;
+        private readonly string message;
 
-  public static LogEvent warn(string message) {
-    return new LogEvent(Level.WARN, message);
-  }
+        private LogEvent(Level level, string message)
+        {
+            this.level = level;
+            this.message = message;
+        }
 
-  public static LogEvent info(string message) {
-    return new LogEvent(Level.INFO, message);
-  }
+        /**
+         * Gets the log level to log at.
+         *
+         * @return the log level
+         */
+        public Level getLevel()
+        {
+            return level;
+        }
 
-  public static LogEvent debug(string message) {
-    return new LogEvent(Level.DEBUG, message);
-  }
+        /**
+         * Gets the log message.
+         *
+         * @return the log message
+         */
+        public string getMessage()
+        {
+            return message;
+        }
 
-  private readonly Level level;
-  private readonly string message;
+        public override bool Equals(object other)
+        {
+            if (other == this)
+            {
+                return true;
+            }
+            if (!(other is LogEvent))
+            {
+                return false;
+            }
 
-  private LogEvent(Level level, string message) {
-    this.level = level;
-    this.message = message;
-  }
+            LogEvent otherLogEvent = (LogEvent)other;
+            return level == otherLogEvent.level && message.Equals(otherLogEvent.message);
+        }
 
-  /**
-   * Gets the log level to log at.
-   *
-   * @return the log level
-   */
-  public Level getLevel() {
-    return level;
-  }
+        public override int GetHashCode()
+        {
+            return Objects.hash(level, message);
+        }
 
-  /**
-   * Gets the log message.
-   *
-   * @return the log message
-   */
-  public string getMessage() {
-    return message;
-  }
-
-  public override bool Equals(object other) {
-    if (other == this) {
-      return true;
+        public override string ToString()
+        {
+            return "LogEvent [level=" + level + ", message=" + message + "]";
+        }
     }
-    if (!(other is LogEvent)) {
-      return false;
-    }
-
-    LogEvent otherLogEvent = (LogEvent) other;
-    return level == otherLogEvent.level && message.Equals(otherLogEvent.message);
-  }
-
-  public override int GetHashCode() {
-    return Objects.hash(level, message);
-  }
-
-  public override string ToString() {
-    return "LogEvent [level=" + level + ", message=" + message + "]";
-  }
-}
 }

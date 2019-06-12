@@ -21,55 +21,50 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using static com.google.cloud.tools.jib.api.LogEvent;
 
-namespace com.google.cloud.tools.jib.@event.events {
+namespace com.google.cloud.tools.jib.@event.events
+{
+    /** Tests for {@link LogEvent}. */
+    public class LogEventTest
+    {
+        private readonly Queue<LogEvent> receivedLogEvents = new Queue<LogEvent>();
 
+        // Note that in actual code, the event handler should NOT perform thread unsafe operations like
+        // here.
+        private readonly EventHandlers eventHandlers;
 
-
-
-
-
-
-
-/** Tests for {@link LogEvent}. */
-public class LogEventTest {
-
-  private readonly Queue<LogEvent> receivedLogEvents = new Queue<LogEvent>();
-
-  // Note that in actual code, the event handler should NOT perform thread unsafe operations like
-  // here.
-  private readonly EventHandlers eventHandlers;
         public LogEventTest()
         {
             eventHandlers =
          EventHandlers.builder().add<LogEvent>(typeof(LogEvent), receivedLogEvents.add).build();
-
         }
 
-  [Test]
-  public void testFactories() {
-    eventHandlers.dispatch(LogEvent.error("error"));
-    eventHandlers.dispatch(LogEvent.lifecycle("lifecycle"));
-    eventHandlers.dispatch(LogEvent.progress("progress"));
-    eventHandlers.dispatch(LogEvent.warn("warn"));
-    eventHandlers.dispatch(LogEvent.info("info"));
-    eventHandlers.dispatch(LogEvent.debug("debug"));
+        [Test]
+        public void testFactories()
+        {
+            eventHandlers.dispatch(LogEvent.error("error"));
+            eventHandlers.dispatch(LogEvent.lifecycle("lifecycle"));
+            eventHandlers.dispatch(LogEvent.progress("progress"));
+            eventHandlers.dispatch(LogEvent.warn("warn"));
+            eventHandlers.dispatch(LogEvent.info("info"));
+            eventHandlers.dispatch(LogEvent.debug("debug"));
 
-    verifyNextLogEvent(Level.ERROR, "error");
-    verifyNextLogEvent(Level.LIFECYCLE, "lifecycle");
-    verifyNextLogEvent(Level.PROGRESS, "progress");
-    verifyNextLogEvent(Level.WARN, "warn");
-    verifyNextLogEvent(Level.INFO, "info");
-    verifyNextLogEvent(Level.DEBUG, "debug");
-    Assert.IsTrue(receivedLogEvents.isEmpty());
-  }
+            verifyNextLogEvent(Level.ERROR, "error");
+            verifyNextLogEvent(Level.LIFECYCLE, "lifecycle");
+            verifyNextLogEvent(Level.PROGRESS, "progress");
+            verifyNextLogEvent(Level.WARN, "warn");
+            verifyNextLogEvent(Level.INFO, "info");
+            verifyNextLogEvent(Level.DEBUG, "debug");
+            Assert.IsTrue(receivedLogEvents.isEmpty());
+        }
 
-  private void verifyNextLogEvent(Level level, string message) {
-    Assert.IsFalse(receivedLogEvents.isEmpty());
+        private void verifyNextLogEvent(Level level, string message)
+        {
+            Assert.IsFalse(receivedLogEvents.isEmpty());
 
-    LogEvent logEvent = receivedLogEvents.poll();
+            LogEvent logEvent = receivedLogEvents.poll();
 
-    Assert.AreEqual(level, logEvent.getLevel());
-    Assert.AreEqual(message, logEvent.getMessage());
-  }
-}
+            Assert.AreEqual(level, logEvent.getLevel());
+            Assert.AreEqual(message, logEvent.getMessage());
+        }
+    }
 }

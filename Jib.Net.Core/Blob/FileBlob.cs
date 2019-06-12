@@ -22,27 +22,22 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
-
-
-
     /** A {@link Blob} that holds a {@link Path}. */
-    class FileBlob : Blob {
+    internal class FileBlob : Blob
+    {
+        private readonly SystemPath file;
 
-  private readonly SystemPath file;
+        public FileBlob(SystemPath file)
+        {
+            this.file = file;
+        }
 
-  public FileBlob(SystemPath file) {
-    this.file = file;
-  }
-
-  public BlobDescriptor writeTo(Stream outputStream) {
-    using (Stream fileIn = new BufferedStream(Files.newInputStream(file))) {
-      return Digests.computeDigest(fileIn, outputStream);
+        public BlobDescriptor writeTo(Stream outputStream)
+        {
+            using (Stream fileIn = new BufferedStream(Files.newInputStream(file)))
+            {
+                return Digests.computeDigest(fileIn, outputStream);
+            }
+        }
     }
-  }
-}
 }

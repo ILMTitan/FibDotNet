@@ -18,30 +18,29 @@ using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.@event {
+namespace com.google.cloud.tools.jib.@event
+{
+    /** Handles a dispatched {@link JibEvent}. */
+    internal sealed class Handler<E> where E : JibEvent
+    {
+        private readonly Class<E> eventClass;
+        private readonly Consumer<E> eventConsumer;
 
+        private Handler(Class<E> eventClass, Consumer<E> eventConsumer)
+        {
+            this.eventClass = eventClass;
+            this.eventConsumer = eventConsumer;
+        }
 
-
-
-/** Handles a dispatched {@link JibEvent}. */
-class Handler<E> where E : JibEvent {
-
-  private readonly Class<E> eventClass;
-  private readonly Consumer<E> eventConsumer;
-
-  Handler(Class<E> eventClass, Consumer<E> eventConsumer) {
-    this.eventClass = eventClass;
-    this.eventConsumer = eventConsumer;
-  }
-
-  /**
-   * Handles a {@link JibEvent}.
-   *
-   * @param jibEvent the event to handle
-   */
-  void handle(JibEvent jibEvent) {
-    Preconditions.checkArgument(eventClass.isInstance(jibEvent));
-    eventConsumer.accept(eventClass.cast(jibEvent));
-  }
-}
+        /**
+         * Handles a {@link JibEvent}.
+         *
+         * @param jibEvent the event to handle
+         */
+        private void handle(JibEvent jibEvent)
+        {
+            Preconditions.checkArgument(eventClass.isInstance(jibEvent));
+            eventConsumer.accept(eventClass.cast(jibEvent));
+        }
+    }
 }

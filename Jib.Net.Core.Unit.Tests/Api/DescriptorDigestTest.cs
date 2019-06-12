@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testCreateFromHash_fail()
         {
-            string badHash = "not a valid hash";
+            const string badHash = "not a valid hash";
 
             try
             {
@@ -84,7 +84,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testCreateFromDigest_fail()
         {
-            string badDigest = "sha256:not a valid digest";
+            const string badDigest = "sha256:not a valid digest";
 
             try
             {

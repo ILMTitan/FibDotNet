@@ -20,61 +20,61 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace com.google.cloud.tools.jib {
+namespace com.google.cloud.tools.jib
+{
+    /** Test utility to run shell commands for integration tests. */
+    public class Command
+    {
+        private readonly IList<string> command;
 
+        /** Instantiate with a command. */
+        public Command(params string[] command)
+        {
+            this.command = Arrays.asList(command);
+        }
 
+        /** Instantiate with a command. */
+        public Command(IList<string> command)
+        {
+            this.command = command;
+        }
 
+        /** Runs the command. */
+        public string run()
+        {
+            return run(null);
+        }
 
+        /** Runs the command and pipes in {@code stdin}. */
+        public string run(byte[] stdin)
+        {
+            Process process = new ProcessBuilder(command).start();
 
+            if (stdin != null)
+            {
+                // Write out stdin.
+                using (Stream outputStream = process.getOutputStream())
+                {
+                    outputStream.write(stdin);
+                }
+            }
 
+            // Read in stdout.
+            using (StreamReader inputStreamReader =
+                new StreamReader(process.getInputStream(), StandardCharsets.UTF_8))
+            {
+                string output = CharStreams.toString(inputStreamReader);
 
+                if (process.waitFor() != 0)
+                {
+                    string stderr =
+                        CharStreams.toString(
+                            new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+                    throw new Exception("Command '" + string.Join(" ", command) + "' failed: " + stderr);
+                }
 
-
-/** Test utility to run shell commands for integration tests. */
-public class Command {
-
-  private readonly IList<string> command;
-
-  /** Instantiate with a command. */
-  public Command(params string[] command) {
-    this.command = Arrays.asList(command);
-  }
-
-  /** Instantiate with a command. */
-  public Command(IList<string> command) {
-    this.command = command;
-  }
-
-  /** Runs the command. */
-  public string run() {
-    return run(null);
-  }
-
-  /** Runs the command and pipes in {@code stdin}. */
-  public string run(byte[] stdin) {
-    Process process = new ProcessBuilder(command).start();
-
-    if (stdin != null) {
-      // Write out stdin.
-      using (Stream outputStream = process.getOutputStream()) {
-        outputStream.write(stdin);
-      }
+                return output;
+            }
+        }
     }
-
-    // Read in stdout.
-    using (StreamReader inputStreamReader =
-        new StreamReader(process.getInputStream(), StandardCharsets.UTF_8)) {
-      string output = CharStreams.toString(inputStreamReader);
-
-      if (process.waitFor() != 0) {
-        string stderr =
-            CharStreams.toString(
-                new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-        throw new Exception("Command '" + string.Join(" ", command) + "' failed: " + stderr);
-      }
-
-      return output;
-    }
-  }
-}
 }

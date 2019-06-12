@@ -21,14 +21,8 @@ using System;
 
 namespace com.google.cloud.tools.jib.builder
 {
-
-
-
-
-
     public static class ProgressEventDispatcherFactoryExtensions
     {
-
         /**
          * Creates the {@link ProgressEventDispatcher} with an associated {@link Allocation}.
          *
@@ -42,7 +36,6 @@ namespace com.google.cloud.tools.jib.builder
         }
     }
 
-
     /**
      * Dispatches {@link ProgressEvent}s associated with a managed {@link Allocation}. Keeps track of
      * the allocation units that are remaining so that it can emit the remaining progress units upon
@@ -51,56 +44,59 @@ namespace com.google.cloud.tools.jib.builder
      * <p>This class is <em>not</em> thread-safe. Only use a single instance per thread and create child
      * instances with {@link #newChildProducer}.
      */
-    public class ProgressEventDispatcher : IDisposable {
-
+    public sealed class ProgressEventDispatcher : IDisposable
+    {
         /**
          * Creates a new {@link ProgressEventDispatcher} based off an existing {@link
          * ProgressEventDispatcher}. {@link #create} should only be called once.
          */
         public delegate ProgressEventDispatcher Factory(string description, long allocationUnits);
 
-  /**
-   * Creates a new {@link ProgressEventDispatcher} with a root {@link Allocation}.
-   *
-   * @param eventHandlers the {@link EventHandlers}
-   * @param description user-facing description of what the allocation represents
-   * @param allocationUnits number of allocation units
-   * @return a new {@link ProgressEventDispatcher}
-   */
-  public static ProgressEventDispatcher newRoot(
-      EventHandlers eventHandlers, string description, long allocationUnits) {
-    return newProgressEventDispatcher(
-        eventHandlers, Allocation.newRoot(description, allocationUnits));
-  }
+        /**
+         * Creates a new {@link ProgressEventDispatcher} with a root {@link Allocation}.
+         *
+         * @param eventHandlers the {@link EventHandlers}
+         * @param description user-facing description of what the allocation represents
+         * @param allocationUnits number of allocation units
+         * @return a new {@link ProgressEventDispatcher}
+         */
+        public static ProgressEventDispatcher newRoot(
+            EventHandlers eventHandlers, string description, long allocationUnits)
+        {
+            return newProgressEventDispatcher(
+                eventHandlers, Allocation.newRoot(description, allocationUnits));
+        }
 
-  /**
-   * Creates a new {@link ProgressEventDispatcher} and dispatches a new {@link ProgressEvent} with
-   * progress 0 for {@code allocation}.
-   *
-   * @param eventHandlers the {@link EventHandlers}
-   * @param allocation the {@link Allocation} to manage
-   * @return a new {@link ProgressEventDispatcher}
-   */
-  private static ProgressEventDispatcher newProgressEventDispatcher(
-      EventHandlers eventHandlers, Allocation allocation) {
-    ProgressEventDispatcher progressEventDispatcher =
-        new ProgressEventDispatcher(eventHandlers, allocation);
-    progressEventDispatcher.dispatchProgress(0);
-    return progressEventDispatcher;
-  }
+        /**
+         * Creates a new {@link ProgressEventDispatcher} and dispatches a new {@link ProgressEvent} with
+         * progress 0 for {@code allocation}.
+         *
+         * @param eventHandlers the {@link EventHandlers}
+         * @param allocation the {@link Allocation} to manage
+         * @return a new {@link ProgressEventDispatcher}
+         */
+        private static ProgressEventDispatcher newProgressEventDispatcher(
+            EventHandlers eventHandlers, Allocation allocation)
+        {
+            ProgressEventDispatcher progressEventDispatcher =
+                new ProgressEventDispatcher(eventHandlers, allocation);
+            progressEventDispatcher.dispatchProgress(0);
+            return progressEventDispatcher;
+        }
 
-  private readonly EventHandlers eventHandlers;
-  private readonly Allocation allocation;
+        private readonly EventHandlers eventHandlers;
+        private readonly Allocation allocation;
 
-  private long remainingAllocationUnits;
-  private bool closed = false;
+        private long remainingAllocationUnits;
+        private bool closed = false;
 
-  private ProgressEventDispatcher(EventHandlers eventHandlers, Allocation allocation) {
-    this.eventHandlers = eventHandlers;
-    this.allocation = allocation;
+        private ProgressEventDispatcher(EventHandlers eventHandlers, Allocation allocation)
+        {
+            this.eventHandlers = eventHandlers;
+            this.allocation = allocation;
 
-    remainingAllocationUnits = allocation.getAllocationUnits();
-  }
+            remainingAllocationUnits = allocation.getAllocationUnits();
+        }
 
         /**
          * Creates a new {@link Factory} for a {@link ProgressEventDispatcher} that manages a child {@link
@@ -109,7 +105,8 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @return a new {@link Factory}
          */
-        public Factory newChildProducer() {
+        public Factory newChildProducer()
+        {
             decrementRemainingAllocationUnits(1);
 
             bool used = false;
@@ -121,45 +118,50 @@ namespace com.google.cloud.tools.jib.builder
             };
         }
 
-  /** Emits the remaining allocation units as progress units in a {@link ProgressEvent}. */
+        /** Emits the remaining allocation units as progress units in a {@link ProgressEvent}. */
 
-  public void Dispose() {
-    if (remainingAllocationUnits > 0) {
-      dispatchProgress(remainingAllocationUnits);
+        public void Dispose()
+        {
+            if (remainingAllocationUnits > 0)
+            {
+                dispatchProgress(remainingAllocationUnits);
+            }
+            closed = true;
+        }
+
+        /**
+         * Dispatches a {@link ProgressEvent} representing {@code progressUnits} of progress on the
+         * managed {@link #allocation}.
+         *
+         * @param progressUnits units of progress
+         */
+        public void dispatchProgress(long progressUnits)
+        {
+            long unitsDecremented = decrementRemainingAllocationUnits(progressUnits);
+            eventHandlers.dispatch(new ProgressEvent(allocation, unitsDecremented));
+        }
+
+        /**
+         * Decrements remaining allocation units by {@code units} but no more than the remaining
+         * allocation units (which may be 0). Returns the actual units decremented, which never exceeds
+         * {@code units}.
+         *
+         * @param units units to decrement
+         * @return units actually decremented
+         */
+        private long decrementRemainingAllocationUnits(long units)
+        {
+            Preconditions.checkState(!closed);
+
+            if (remainingAllocationUnits > units)
+            {
+                remainingAllocationUnits -= units;
+                return units;
+            }
+
+            long actualDecrement = remainingAllocationUnits;
+            remainingAllocationUnits = 0;
+            return actualDecrement;
+        }
     }
-    closed = true;
-  }
-
-  /**
-   * Dispatches a {@link ProgressEvent} representing {@code progressUnits} of progress on the
-   * managed {@link #allocation}.
-   *
-   * @param progressUnits units of progress
-   */
-  public void dispatchProgress(long progressUnits) {
-    long unitsDecremented = decrementRemainingAllocationUnits(progressUnits);
-    eventHandlers.dispatch(new ProgressEvent(allocation, unitsDecremented));
-  }
-
-  /**
-   * Decrements remaining allocation units by {@code units} but no more than the remaining
-   * allocation units (which may be 0). Returns the actual units decremented, which never exceeds
-   * {@code units}.
-   *
-   * @param units units to decrement
-   * @return units actually decremented
-   */
-  private long decrementRemainingAllocationUnits(long units) {
-    Preconditions.checkState(!closed);
-
-    if (remainingAllocationUnits > units) {
-      remainingAllocationUnits -= units;
-      return units;
-    }
-
-    long actualDecrement = remainingAllocationUnits;
-    remainingAllocationUnits = 0;
-    return actualDecrement;
-  }
-}
 }

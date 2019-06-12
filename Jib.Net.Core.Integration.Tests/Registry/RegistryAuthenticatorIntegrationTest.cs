@@ -20,35 +20,27 @@ using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Integration tests for {@link RegistryAuthenticator}. */
+    public class RegistryAuthenticatorIntegrationTest
+    {
+        [Test]
+        public void testAuthenticate()
+        {
+            ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
+            RegistryAuthenticator registryAuthenticator =
+                RegistryClient.factory(
+                        EventHandlers.NONE,
+                        dockerHubImageReference.getRegistry(),
+                        dockerHubImageReference.getRepository())
+                    .newRegistryClient()
+                    .getRegistryAuthenticator();
+            Assert.IsNotNull(registryAuthenticator);
+            Authorization authorization = registryAuthenticator.authenticatePull(null);
 
-
-
-
-
-
-
-
-
-/** Integration tests for {@link RegistryAuthenticator}. */
-public class RegistryAuthenticatorIntegrationTest {
-
-  [Test]
-  public void testAuthenticate()
-      {
-    ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
-    RegistryAuthenticator registryAuthenticator =
-        RegistryClient.factory(
-                EventHandlers.NONE,
-                dockerHubImageReference.getRegistry(),
-                dockerHubImageReference.getRepository())
-            .newRegistryClient()
-            .getRegistryAuthenticator();
-    Assert.IsNotNull(registryAuthenticator);
-    Authorization authorization = registryAuthenticator.authenticatePull(null);
-
-    // Checks that some token was received.
-    Assert.IsTrue(0 < authorization.getToken().length());
-  }
-}
+            // Checks that some token was received.
+            Assert.IsTrue(0 < authorization.getToken().length());
+        }
+    }
 }

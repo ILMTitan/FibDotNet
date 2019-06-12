@@ -25,7 +25,8 @@ using System.Net.Http;
 using Moq;
 using System;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
@@ -36,129 +37,131 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
+    /** Tests for {@link BlobPuller}. */
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class BlobPullerTest
+    {
+        private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
+            new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
 
+        private DescriptorDigest fakeDigest;
 
+        private readonly MemoryStream layerContentOutputStream = new MemoryStream();
+        private readonly CountingDigestOutputStream layerOutputStream;
 
+        private BlobPuller testBlobPuller;
 
-
-
-
-
-
-
-/** Tests for {@link BlobPuller}. */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class BlobPullerTest {
-
-  private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
-      new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
-  private DescriptorDigest fakeDigest;
-
-  private readonly MemoryStream layerContentOutputStream = new MemoryStream();
-  private readonly CountingDigestOutputStream layerOutputStream;
-
-  private BlobPuller testBlobPuller;
         public BlobPullerTest()
         {
             layerOutputStream =
       new CountingDigestOutputStream(layerContentOutputStream);
         }
 
-  [SetUp]
-  public void setUpFakes() {
-    fakeDigest =
-        DescriptorDigest.fromHash(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        [SetUp]
+        public void setUpFakes()
+        {
+            fakeDigest =
+                DescriptorDigest.fromHash(
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-    testBlobPuller =
-        new BlobPuller(
-            fakeRegistryEndpointRequestProperties,
-            fakeDigest,
-            layerOutputStream,
-            ignored => {},
-            ignored => {});
-  }
+            testBlobPuller =
+                new BlobPuller(
+                    fakeRegistryEndpointRequestProperties,
+                    fakeDigest,
+                    layerOutputStream,
+                    ignored => { },
+                    ignored => { });
+        }
 
-  [Test]
-  public void testHandleResponse() {
+        [Test]
+        public void testHandleResponse()
+        {
             MemoryStream blobContent =
         new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-    DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
-    blobContent.Position = 0;
-
-    HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-    Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns((long) "some BLOB content".length());
-
-    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
-
-    LongAdder byteCount = new LongAdder();
-    BlobPuller blobPuller =
-        new BlobPuller(
-            fakeRegistryEndpointRequestProperties,
-            testBlobDigest,
-            layerOutputStream,
-            size => Assert.AreEqual("some BLOB content".length(), size.longValue()),
-            byteCount.add);
-    blobPuller.handleResponse(mockResponse);
-    Assert.AreEqual(
-        "some BLOB content",
-        StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
-    Assert.AreEqual(testBlobDigest, layerOutputStream.computeDigest().getDigest());
-    Assert.AreEqual("some BLOB content".length(), byteCount.sum());
-  }
-
-  [Test]
-  public void testHandleResponse_unexpectedDigest() {
-            MemoryStream blobContent =
-        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-    DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
+            DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
             blobContent.Position = 0;
 
-    HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-    Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
+            HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
+            Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns((long)"some BLOB content".length());
 
-    try {
-      testBlobPuller.handleResponse(mockResponse);
-      Assert.Fail("Receiving an unexpected digest should fail");
+            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
 
-    } catch (UnexpectedBlobDigestException ex) {
-      Assert.AreEqual(
-          "The pulled BLOB has digest '"
-              + testBlobDigest
-              + "', but the request digest was '"
-              + fakeDigest
-              + "'",
-          ex.getMessage());
+            LongAdder byteCount = new LongAdder();
+            BlobPuller blobPuller =
+                new BlobPuller(
+                    fakeRegistryEndpointRequestProperties,
+                    testBlobDigest,
+                    layerOutputStream,
+                    size => Assert.AreEqual("some BLOB content".length(), size.longValue()),
+                    byteCount.add);
+            blobPuller.handleResponse(mockResponse);
+            Assert.AreEqual(
+                "some BLOB content",
+                StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
+            Assert.AreEqual(testBlobDigest, layerOutputStream.computeDigest().getDigest());
+            Assert.AreEqual("some BLOB content".length(), byteCount.sum());
+        }
+
+        [Test]
+        public void testHandleResponse_unexpectedDigest()
+        {
+            MemoryStream blobContent =
+        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+            DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
+            blobContent.Position = 0;
+
+            HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
+            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
+
+            try
+            {
+                testBlobPuller.handleResponse(mockResponse);
+                Assert.Fail("Receiving an unexpected digest should fail");
+            }
+            catch (UnexpectedBlobDigestException ex)
+            {
+                Assert.AreEqual(
+                    "The pulled BLOB has digest '"
+                        + testBlobDigest
+                        + "', but the request digest was '"
+                        + fakeDigest
+                        + "'",
+                    ex.getMessage());
+            }
+        }
+
+        [Test]
+        public void testGetApiRoute()
+        {
+            Assert.AreEqual(
+                new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
+                testBlobPuller.getApiRoute("http://someApiBase/"));
+        }
+
+        [Test]
+        public void testGetActionDescription()
+        {
+            Assert.AreEqual(
+                "pull BLOB for someServerUrl/someImageName with digest " + fakeDigest,
+                testBlobPuller.getActionDescription());
+        }
+
+        [Test]
+        public void testGetHttpMethod()
+        {
+            Assert.AreEqual("GET", testBlobPuller.getHttpMethod());
+        }
+
+        [Test]
+        public void testGetContent()
+        {
+            Assert.IsNull(testBlobPuller.getContent());
+        }
+
+        [Test]
+        public void testGetAccept()
+        {
+            Assert.AreEqual(0, testBlobPuller.getAccept().size());
+        }
     }
-  }
-
-  [Test]
-  public void testGetApiRoute() {
-    Assert.AreEqual(
-        new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
-        testBlobPuller.getApiRoute("http://someApiBase/"));
-  }
-
-  [Test]
-  public void testGetActionDescription() {
-    Assert.AreEqual(
-        "pull BLOB for someServerUrl/someImageName with digest " + fakeDigest,
-        testBlobPuller.getActionDescription());
-  }
-
-  [Test]
-  public void testGetHttpMethod() {
-    Assert.AreEqual("GET", testBlobPuller.getHttpMethod());
-  }
-
-  [Test]
-  public void testGetContent() {
-    Assert.IsNull(testBlobPuller.getContent());
-  }
-
-  [Test]
-  public void testGetAccept() {
-    Assert.AreEqual(0, testBlobPuller.getAccept().size());
-  }
-}
 }

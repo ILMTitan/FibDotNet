@@ -16,23 +16,22 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
+namespace com.google.cloud.tools.jib.registry.credentials
+{
+    /** Thrown if something went wrong during {@link CredentialRetriever#retrieve}. */
+    public class CredentialRetrievalException : Exception
+    {
+        protected CredentialRetrievalException(string message, Exception cause) : base(message, cause)
+        {
+        }
 
+        protected CredentialRetrievalException(string message) : base(message)
+        {
+        }
 
-/** Thrown if something went wrong during {@link CredentialRetriever#retrieve}. */
-public class CredentialRetrievalException : Exception {
-
-  protected CredentialRetrievalException(string message, Exception cause) : base(message, cause) {
-    
-  }
-
-  protected CredentialRetrievalException(string message) : base(message) {
-    
-  }
-
-  public CredentialRetrievalException(Exception cause) : base("", cause) {
-    
-  }
+        public CredentialRetrievalException(Exception cause) : base("", cause)
+        {
+        }
 
         public CredentialRetrievalException() : base()
         {

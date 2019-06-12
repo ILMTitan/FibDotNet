@@ -21,71 +21,67 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /**
+     * Tests for {@link RegistryClient}. More comprehensive tests can be found in the integration tests.
+     */
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class RegistryClientTest
+    {
+        private EventHandlers eventHandlers = Mock.Of<EventHandlers>();
+        private Authorization mockAuthorization = Mock.Of<Authorization>();
 
+        private RegistryClient.Factory testRegistryClientFactory;
 
+        [SetUp]
+        public void setUp()
+        {
+            testRegistryClientFactory =
+                RegistryClient.factory(eventHandlers, "some.server.url", "some image name");
+        }
 
+        [Test]
+        public void testGetUserAgent_null()
+        {
+            Assert.IsTrue(
+                testRegistryClientFactory
+                    .setAuthorization(mockAuthorization)
+                    .newRegistryClient()
+                    .getUserAgent()
+                    .startsWith("jib"));
 
+            Assert.IsTrue(
+                testRegistryClientFactory
+                    .setAuthorization(mockAuthorization)
+                    .setUserAgentSuffix(null)
+                    .newRegistryClient()
+                    .getUserAgent()
+                    .startsWith("jib"));
+        }
 
+        [Test]
+        public void testGetUserAgent()
+        {
+            RegistryClient registryClient =
+                testRegistryClientFactory
+                    .setAllowInsecureRegistries(true)
+                    .setUserAgentSuffix("some user agent suffix")
+                    .newRegistryClient();
 
+            Assert.IsTrue(registryClient.getUserAgent().startsWith("jib "));
+            Assert.IsTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
+        }
 
-
-
-/**
- * Tests for {@link RegistryClient}. More comprehensive tests can be found in the integration tests.
- */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class RegistryClientTest {
-
-  private EventHandlers eventHandlers = Mock.Of<EventHandlers>();
-  private Authorization mockAuthorization = Mock.Of<Authorization>();
-
-  private RegistryClient.Factory testRegistryClientFactory;
-
-  [SetUp]
-  public void setUp() {
-    testRegistryClientFactory =
-        RegistryClient.factory(eventHandlers, "some.server.url", "some image name");
-  }
-
-  [Test]
-  public void testGetUserAgent_null() {
-    Assert.IsTrue(
-        testRegistryClientFactory
-            .setAuthorization(mockAuthorization)
-            .newRegistryClient()
-            .getUserAgent()
-            .startsWith("jib"));
-
-    Assert.IsTrue(
-        testRegistryClientFactory
-            .setAuthorization(mockAuthorization)
-            .setUserAgentSuffix(null)
-            .newRegistryClient()
-            .getUserAgent()
-            .startsWith("jib"));
-  }
-
-  [Test]
-  public void testGetUserAgent() {
-    RegistryClient registryClient =
-        testRegistryClientFactory
-            .setAllowInsecureRegistries(true)
-            .setUserAgentSuffix("some user agent suffix")
-            .newRegistryClient();
-
-    Assert.IsTrue(registryClient.getUserAgent().startsWith("jib "));
-    Assert.IsTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
-  }
-
-  [Test]
-  public void testGetApiRouteBase() {
-    Assert.AreEqual(
-        "some.server.url/v2/",
-        testRegistryClientFactory
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient()
-            .getApiRouteBase());
-  }
-}
+        [Test]
+        public void testGetApiRouteBase()
+        {
+            Assert.AreEqual(
+                "some.server.url/v2/",
+                testRegistryClientFactory
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient()
+                    .getApiRouteBase());
+        }
+    }
 }

@@ -27,7 +27,8 @@ using NUnit.Framework;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.cache {
+namespace com.google.cloud.tools.jib.cache
+{
 
 
 
@@ -42,203 +43,207 @@ namespace com.google.cloud.tools.jib.cache {
 
 
 
+    /** Tests for {@link Cache}. */
+    public class CacheTest
+    {
+        /**
+         * Gets a {@link Blob} that is {@code blob} compressed.
+         *
+         * @param blob the {@link Blob} to compress
+         * @return the compressed {@link Blob}
+         */
+        private static Blob compress(Blob blob)
+        {
+            return Blobs.from(
+                outputStream =>
+                {
+                    using (GZipOutputStream compressorStream = new GZipOutputStream(outputStream))
+                    {
+                        blob.writeTo(compressorStream);
+                    }
+                });
+        }
 
+        /**
+         * Gets a {@link Blob} that is {@code blob} decompressed.
+         *
+         * @param blob the {@link Blob} to decompress
+         * @return the decompressed {@link Blob}
+         * @throws IOException if an I/O exception occurs
+         */
+        private static Blob decompress(Blob blob)
+        {
+            return Blobs.from(new GZipInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
+        }
 
+        /**
+         * Gets the digest of {@code blob}.
+         *
+         * @param blob the {@link Blob}
+         * @return the {@link DescriptorDigest} of {@code blob}
+         * @throws IOException if an I/O exception occurs
+         */
+        private static DescriptorDigest digestOf(Blob blob)
+        {
+            return blob.writeTo(Stream.Null).getDigest();
+        }
 
+        /**
+         * Gets the size of {@code blob}.
+         *
+         * @param blob the {@link Blob}
+         * @return the size (in bytes) of {@code blob}
+         * @throws IOException if an I/O exception occurs
+         */
+        private static long sizeOf(Blob blob)
+        {
+            CountingDigestOutputStream countingOutputStream =
+                new CountingDigestOutputStream(Stream.Null);
+            blob.writeTo(countingOutputStream);
+            return countingOutputStream.getCount();
+        }
 
+        private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
+        {
+            return new LayerEntry(
+                source,
+                destination,
+                LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER(source, destination),
+                LayerConfiguration.DEFAULT_MODIFIED_TIME);
+        }
 
+        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+        private Blob layerBlob1;
+        private DescriptorDigest layerDigest1;
+        private DescriptorDigest layerDiffId1;
+        private long layerSize1;
+        private ImmutableArray<LayerEntry> layerEntries1;
 
+        private Blob layerBlob2;
+        private DescriptorDigest layerDigest2;
+        private DescriptorDigest layerDiffId2;
+        private long layerSize2;
+        private ImmutableArray<LayerEntry> layerEntries2;
 
+        [SetUp]
+        public void setUp()
+        {
+            SystemPath directory = temporaryFolder.newFolder().toPath();
+            Files.createDirectory(directory.resolve("source"));
+            Files.createFile(directory.resolve("source/file"));
+            Files.createDirectories(directory.resolve("another/source"));
+            Files.createFile(directory.resolve("another/source/file"));
 
+            layerBlob1 = Blobs.from("layerBlob1");
+            layerDigest1 = digestOf(compress(layerBlob1));
+            layerDiffId1 = digestOf(layerBlob1);
+            layerSize1 = sizeOf(compress(layerBlob1));
+            layerEntries1 =
+                ImmutableArray.Create(
+                    defaultLayerEntry(
+                        directory.resolve("source/file"), AbsoluteUnixPath.get("/extraction/path")),
+                    defaultLayerEntry(
+                        directory.resolve("another/source/file"),
+                        AbsoluteUnixPath.get("/another/extraction/path")));
 
-/** Tests for {@link Cache}. */
-public class CacheTest {
+            layerBlob2 = Blobs.from("layerBlob2");
+            layerDigest2 = digestOf(compress(layerBlob2));
+            layerDiffId2 = digestOf(layerBlob2);
+            layerSize2 = sizeOf(compress(layerBlob2));
+            layerEntries2 = ImmutableArray.Create<LayerEntry>();
+        }
 
-  /**
-   * Gets a {@link Blob} that is {@code blob} compressed.
-   *
-   * @param blob the {@link Blob} to compress
-   * @return the compressed {@link Blob}
-   */
-  private static Blob compress(Blob blob) {
-    return Blobs.from(
-        outputStream => {
-          using (GZipOutputStream compressorStream = new GZipOutputStream(outputStream)) {
-            blob.writeTo(compressorStream);
-          }
-        });
-  }
+        [Test]
+        public void testWithDirectory_existsButNotDirectory()
+        {
+            SystemPath file = temporaryFolder.newFile().toPath();
 
-  /**
-   * Gets a {@link Blob} that is {@code blob} decompressed.
-   *
-   * @param blob the {@link Blob} to decompress
-   * @return the decompressed {@link Blob}
-   * @throws IOException if an I/O exception occurs
-   */
-  private static Blob decompress(Blob blob) {
-    return Blobs.from(new GZipInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
-  }
+            try
+            {
+                Cache.withDirectory(file);
+                Assert.Fail();
+            }
+            catch (IOException)
+            {
+                // pass
+            }
+        }
 
-  /**
-   * Gets the digest of {@code blob}.
-   *
-   * @param blob the {@link Blob}
-   * @return the {@link DescriptorDigest} of {@code blob}
-   * @throws IOException if an I/O exception occurs
-   */
-  private static DescriptorDigest digestOf(Blob blob) {
-    return blob.writeTo(Stream.Null).getDigest();
-  }
+        [Test]
+        public void testWriteCompressed_retrieveByLayerDigest()
+        {
+            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
-  /**
-   * Gets the size of {@code blob}.
-   *
-   * @param blob the {@link Blob}
-   * @return the size (in bytes) of {@code blob}
-   * @throws IOException if an I/O exception occurs
-   */
-  private static long sizeOf(Blob blob) {
-    CountingDigestOutputStream countingOutputStream =
-        new CountingDigestOutputStream(Stream.Null);
-    blob.writeTo(countingOutputStream);
-    return countingOutputStream.getCount();
-  }
+            verifyIsLayer1(cache.writeCompressedLayer(compress(layerBlob1)));
+            verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+            Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
+        }
 
-  private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination) {
-    return new LayerEntry(
-        source,
-        destination,
-        LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER(source, destination),
-        LayerConfiguration.DEFAULT_MODIFIED_TIME);
-  }
+        [Test]
+        public void testWriteUncompressedWithLayerEntries_retrieveByLayerDigest()
+        {
+            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
-  [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+            verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
+            verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+            Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
+        }
 
-  private Blob layerBlob1;
-  private DescriptorDigest layerDigest1;
-  private DescriptorDigest layerDiffId1;
-  private long layerSize1;
-  private ImmutableArray<LayerEntry> layerEntries1;
+        [Test]
+        public void testWriteUncompressedWithLayerEntries_retrieveByLayerEntries()
+        {
+            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
-  private Blob layerBlob2;
-  private DescriptorDigest layerDigest2;
-  private DescriptorDigest layerDiffId2;
-  private long layerSize2;
-  private ImmutableArray<LayerEntry> layerEntries2;
+            verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
+            verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
+            Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
 
-  [SetUp]
-  public void setUp() {
-    SystemPath directory = temporaryFolder.newFolder().toPath();
-    Files.createDirectory(directory.resolve("source"));
-    Files.createFile(directory.resolve("source/file"));
-    Files.createDirectories(directory.resolve("another/source"));
-    Files.createFile(directory.resolve("another/source/file"));
+            // A source file modification results in the cached layer to be out-of-date and not retrieved.
+            Files.setLastModifiedTime(
+                layerEntries1.get(0).getSourceFile(), FileTime.from(SystemClock.Instance.GetCurrentInstant().plusSeconds(1)));
+            Assert.IsFalse(cache.retrieve(layerEntries1).isPresent());
+        }
 
-    layerBlob1 = Blobs.from("layerBlob1");
-    layerDigest1 = digestOf(compress(layerBlob1));
-    layerDiffId1 = digestOf(layerBlob1);
-    layerSize1 = sizeOf(compress(layerBlob1));
-    layerEntries1 =
-        ImmutableArray.Create(
-            defaultLayerEntry(
-                directory.resolve("source/file"), AbsoluteUnixPath.get("/extraction/path")),
-            defaultLayerEntry(
-                directory.resolve("another/source/file"),
-                AbsoluteUnixPath.get("/another/extraction/path")));
+        [Test]
+        public void testRetrieveWithTwoEntriesInCache()
+        {
+            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
 
-    layerBlob2 = Blobs.from("layerBlob2");
-    layerDigest2 = digestOf(compress(layerBlob2));
-    layerDiffId2 = digestOf(layerBlob2);
-    layerSize2 = sizeOf(compress(layerBlob2));
-    layerEntries2 = ImmutableArray.Create<LayerEntry>();
-  }
+            verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
+            verifyIsLayer2(cache.writeUncompressedLayer(layerBlob2, layerEntries2));
+            verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
+            verifyIsLayer2(cache.retrieve(layerDigest2).orElseThrow(() => new AssertionException("")));
+            verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
+            verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(() => new AssertionException("")));
+        }
 
-  [Test]
-  public void testWithDirectory_existsButNotDirectory() {
-    SystemPath file = temporaryFolder.newFile().toPath();
+        /**
+         * Verifies that {@code cachedLayer} corresponds to the first fake layer in {@link #setUp}.
+         *
+         * @param cachedLayer the {@link CachedLayer} to verify
+         * @throws IOException if an I/O exception occurs
+         */
+        private void verifyIsLayer1(CachedLayer cachedLayer)
+        {
+            Assert.AreEqual("layerBlob1", Blobs.writeToString(decompress(cachedLayer.getBlob())));
+            Assert.AreEqual(layerDigest1, cachedLayer.getDigest());
+            Assert.AreEqual(layerDiffId1, cachedLayer.getDiffId());
+            Assert.AreEqual(layerSize1, cachedLayer.getSize());
+        }
 
-    try {
-      Cache.withDirectory(file);
-      Assert.Fail();
-
-    } catch (IOException) {
-      // pass
+        /**
+         * Verifies that {@code cachedLayer} corresponds to the second fake layer in {@link #setUp}.
+         *
+         * @param cachedLayer the {@link CachedLayer} to verify
+         * @throws IOException if an I/O exception occurs
+         */
+        private void verifyIsLayer2(CachedLayer cachedLayer)
+        {
+            Assert.AreEqual("layerBlob2", Blobs.writeToString(decompress(cachedLayer.getBlob())));
+            Assert.AreEqual(layerDigest2, cachedLayer.getDigest());
+            Assert.AreEqual(layerDiffId2, cachedLayer.getDiffId());
+            Assert.AreEqual(layerSize2, cachedLayer.getSize());
+        }
     }
-  }
-
-  [Test]
-  public void testWriteCompressed_retrieveByLayerDigest()
-      {
-    Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
-
-    verifyIsLayer1(cache.writeCompressedLayer(compress(layerBlob1)));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
-    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
-  }
-
-  [Test]
-  public void testWriteUncompressedWithLayerEntries_retrieveByLayerDigest()
-      {
-    Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
-
-    verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
-    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
-  }
-
-  [Test]
-  public void testWriteUncompressedWithLayerEntries_retrieveByLayerEntries()
-      {
-    Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
-
-    verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
-    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
-    Assert.IsFalse(cache.retrieve(layerDigest2).isPresent());
-
-    // A source file modification results in the cached layer to be out-of-date and not retrieved.
-    Files.setLastModifiedTime(
-        layerEntries1.get(0).getSourceFile(), FileTime.from(SystemClock.Instance.GetCurrentInstant().plusSeconds(1)));
-    Assert.IsFalse(cache.retrieve(layerEntries1).isPresent());
-  }
-
-  [Test]
-  public void testRetrieveWithTwoEntriesInCache() {
-    Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
-
-    verifyIsLayer1(cache.writeUncompressedLayer(layerBlob1, layerEntries1));
-    verifyIsLayer2(cache.writeUncompressedLayer(layerBlob2, layerEntries2));
-    verifyIsLayer1(cache.retrieve(layerDigest1).orElseThrow(() => new AssertionException("")));
-    verifyIsLayer2(cache.retrieve(layerDigest2).orElseThrow(() => new AssertionException("")));
-    verifyIsLayer1(cache.retrieve(layerEntries1).orElseThrow(() => new AssertionException("")));
-    verifyIsLayer2(cache.retrieve(layerEntries2).orElseThrow(() => new AssertionException("")));
-  }
-
-  /**
-   * Verifies that {@code cachedLayer} corresponds to the first fake layer in {@link #setUp}.
-   *
-   * @param cachedLayer the {@link CachedLayer} to verify
-   * @throws IOException if an I/O exception occurs
-   */
-  private void verifyIsLayer1(CachedLayer cachedLayer) {
-    Assert.AreEqual("layerBlob1", Blobs.writeToString(decompress(cachedLayer.getBlob())));
-    Assert.AreEqual(layerDigest1, cachedLayer.getDigest());
-    Assert.AreEqual(layerDiffId1, cachedLayer.getDiffId());
-    Assert.AreEqual(layerSize1, cachedLayer.getSize());
-  }
-
-  /**
-   * Verifies that {@code cachedLayer} corresponds to the second fake layer in {@link #setUp}.
-   *
-   * @param cachedLayer the {@link CachedLayer} to verify
-   * @throws IOException if an I/O exception occurs
-   */
-  private void verifyIsLayer2(CachedLayer cachedLayer) {
-    Assert.AreEqual("layerBlob2", Blobs.writeToString(decompress(cachedLayer.getBlob())));
-    Assert.AreEqual(layerDigest2, cachedLayer.getDigest());
-    Assert.AreEqual(layerDiffId2, cachedLayer.getDiffId());
-    Assert.AreEqual(layerSize2, cachedLayer.getSize());
-  }
-}
 }

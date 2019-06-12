@@ -18,57 +18,55 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image {
+namespace com.google.cloud.tools.jib.image
+{
+    /**
+     * Represents a layer in an image. Implementations represent the various types of layers.
+     *
+     * <p>An image layer consists of:
+     *
+     * <ul>
+     *   <li>Content BLOB
+     *   <li>
+     *       <ul>
+     *         <li>The compressed archive (tarball gzip) of the partial filesystem changeset.
+     *       </ul>
+     *   <li>Content Digest
+     *   <li>
+     *       <ul>
+     *         <li>The SHA-256 hash of the content BLOB.
+     *       </ul>
+     *   <li>Content Size
+     *   <li>
+     *       <ul>
+     *         <li>The size (in bytes) of the content BLOB.
+     *       </ul>
+     *   <li>Diff ID
+     *   <li>
+     *       <ul>
+     *         <li>The SHA-256 hash of the uncompressed archive (tarball) of the partial filesystem
+     *             changeset.
+     *       </ul>
+     * </ul>
+     */
+    public interface Layer
+    {
+        /**
+         * @return the layer's content BLOB
+         * @throws LayerPropertyNotFoundException if not available
+         */
+        Blob getBlob();
+        // TODO: Remove this
+        /**
+         * @return the layer's content {@link BlobDescriptor}
+         * @throws LayerPropertyNotFoundException if not available
+         */
+        BlobDescriptor getBlobDescriptor();
 
-
-
-
-/**
- * Represents a layer in an image. Implementations represent the various types of layers.
- *
- * <p>An image layer consists of:
- *
- * <ul>
- *   <li>Content BLOB
- *   <li>
- *       <ul>
- *         <li>The compressed archive (tarball gzip) of the partial filesystem changeset.
- *       </ul>
- *   <li>Content Digest
- *   <li>
- *       <ul>
- *         <li>The SHA-256 hash of the content BLOB.
- *       </ul>
- *   <li>Content Size
- *   <li>
- *       <ul>
- *         <li>The size (in bytes) of the content BLOB.
- *       </ul>
- *   <li>Diff ID
- *   <li>
- *       <ul>
- *         <li>The SHA-256 hash of the uncompressed archive (tarball) of the partial filesystem
- *             changeset.
- *       </ul>
- * </ul>
- */
-public interface Layer {
-
-  /**
-   * @return the layer's content BLOB
-   * @throws LayerPropertyNotFoundException if not available
-   */
-  Blob getBlob();
-  // TODO: Remove this
-  /**
-   * @return the layer's content {@link BlobDescriptor}
-   * @throws LayerPropertyNotFoundException if not available
-   */
-  BlobDescriptor getBlobDescriptor();
-  /**
-   * @return the layer's diff ID
-   * @throws LayerPropertyNotFoundException if not available
-   */
-  DescriptorDigest getDiffId();
-}
+        /**
+         * @return the layer's diff ID
+         * @throws LayerPropertyNotFoundException if not available
+         */
+        DescriptorDigest getDiffId();
+    }
 }

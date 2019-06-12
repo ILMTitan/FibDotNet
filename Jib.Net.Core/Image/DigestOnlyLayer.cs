@@ -18,36 +18,37 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image {
+namespace com.google.cloud.tools.jib.image
+{
+    /** A {@link Layer} reference that only has its {@link DescriptorDigest}. */
+    public class DigestOnlyLayer : Layer
+    {
+        /** The {@link BlobDescriptor} of the compressed layer content. */
+        private readonly BlobDescriptor blobDescriptor;
 
+        /**
+         * Instantiate with a {@link DescriptorDigest}.
+         *
+         * @param digest the digest to instantiate the {@link DigestOnlyLayer} from
+         */
+        public DigestOnlyLayer(DescriptorDigest digest)
+        {
+            blobDescriptor = new BlobDescriptor(digest);
+        }
 
+        public Blob getBlob()
+        {
+            throw new LayerPropertyNotFoundException("Blob not available for digest-only layer");
+        }
 
+        public BlobDescriptor getBlobDescriptor()
+        {
+            return blobDescriptor;
+        }
 
-/** A {@link Layer} reference that only has its {@link DescriptorDigest}. */
-public class DigestOnlyLayer : Layer {
-
-  /** The {@link BlobDescriptor} of the compressed layer content. */
-  private readonly BlobDescriptor blobDescriptor;
-
-  /**
-   * Instantiate with a {@link DescriptorDigest}.
-   *
-   * @param digest the digest to instantiate the {@link DigestOnlyLayer} from
-   */
-  public DigestOnlyLayer(DescriptorDigest digest) {
-    blobDescriptor = new BlobDescriptor(digest);
-  }
-
-  public Blob getBlob() {
-    throw new LayerPropertyNotFoundException("Blob not available for digest-only layer");
-  }
-
-  public BlobDescriptor getBlobDescriptor() {
-    return blobDescriptor;
-  }
-
-  public DescriptorDigest getDiffId() {
-    throw new LayerPropertyNotFoundException("Diff ID not available for digest-only layer");
-  }
-}
+        public DescriptorDigest getDiffId()
+        {
+            throw new LayerPropertyNotFoundException("Diff ID not available for digest-only layer");
+        }
+    }
 }

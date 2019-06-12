@@ -19,41 +19,38 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.registry.json {
+namespace com.google.cloud.tools.jib.registry.json
+{
+    /**
+     * Template for the registry response body JSON when a request errored.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * {
+     *   "errors": [
+     *     {
+     *       "code": "MANIFEST_UNKNOWN",
+     *       "message": "manifest unknown",
+     *       "detail": {"Tag": "latest"}
+     *     }
+     *   ]
+     * }
+     * }</pre>
+     */
+    public class ErrorResponseTemplate : JsonTemplate
+    {
+        private readonly List<ErrorEntryTemplate> errors = new List<ErrorEntryTemplate>();
 
+        public IReadOnlyList<ErrorEntryTemplate> getErrors()
+        {
+            return Collections.unmodifiableList(errors);
+        }
 
-
-
-
-
-/**
- * Template for the registry response body JSON when a request errored.
- *
- * <p>Example:
- *
- * <pre>{@code
- * {
- *   "errors": [
- *     {
- *       "code": "MANIFEST_UNKNOWN",
- *       "message": "manifest unknown",
- *       "detail": {"Tag": "latest"}
- *     }
- *   ]
- * }
- * }</pre>
- */
-public class ErrorResponseTemplate : JsonTemplate {
-
-  private readonly List<ErrorEntryTemplate> errors = new List<ErrorEntryTemplate>();
-
-  public IReadOnlyList<ErrorEntryTemplate> getErrors() {
-    return Collections.unmodifiableList(errors);
-  }
-
-  public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate) {
-    errors.add(errorEntryTemplate);
-    return this;
-  }
-}
+        public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate)
+        {
+            errors.add(errorEntryTemplate);
+            return this;
+        }
+    }
 }

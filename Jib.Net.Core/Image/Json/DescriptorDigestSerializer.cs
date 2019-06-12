@@ -17,20 +17,15 @@
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.image.json {
-
-
-
-
-
-
-/** Serializes a {@link DescriptorDigest} into JSON element. */
-public class DescriptorDigestSerializer : JsonSerializer<DescriptorDigest> {
-
-  public void serialize(
-      DescriptorDigest value, JsonGenerator jsonGenerator, SerializerProvider ignored)
-      {
-    jsonGenerator.writeString(value.toString());
-  }
-}
+namespace com.google.cloud.tools.jib.image.json
+{
+    /** Serializes a {@link DescriptorDigest} into JSON element. */
+    public class DescriptorDigestSerializer : JsonSerializer<DescriptorDigest>
+    {
+        public void serialize(
+            DescriptorDigest value, JsonGenerator jsonGenerator, SerializerProvider ignored)
+        {
+            jsonGenerator.writeString(value.toString());
+        }
+    }
 }

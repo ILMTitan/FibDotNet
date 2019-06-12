@@ -40,10 +40,12 @@ namespace com.google.cloud.tools.jib.hash
 
         public override long Position { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
         public MessageDigest digest => throw new NotImplementedException();
+
         public void setMessageDigest(MessageDigest d)
         {
             throw new NotImplementedException();
         }
+
         public override void Flush()
         {
             throw new System.NotImplementedException();

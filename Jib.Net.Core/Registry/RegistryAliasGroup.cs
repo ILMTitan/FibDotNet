@@ -20,18 +20,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-
-
-
-
-
-
+namespace com.google.cloud.tools.jib.registry
+{
     /** Provides known aliases and alternative hosts for a given registry. */
-    public static class RegistryAliasGroup {
-
+    public static class RegistryAliasGroup
+    {
         private static readonly ImmutableArray<ImmutableHashSet<string>> REGISTRY_ALIAS_GROUPS =
             ImmutableArray.Create(
                 // Docker Hub alias group (https://github.com/moby/moby/pull/28100)
@@ -45,35 +38,38 @@ namespace com.google.cloud.tools.jib.registry {
                 ["docker.io"] = "registry-1.docker.io"
             });
 
-  /**
-   * Returns the list of registry aliases for the given {@code registry}, including {@code registry}
-   * as the first element.
-   *
-   * @param registry the registry for which the alias group is requested
-   * @return non-empty list of registries where {@code registry} is the first element
-   */
-  public static IList<string> getAliasesGroup(string registry) {
-    foreach (ImmutableHashSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
-    {
-      if (aliasGroup.contains(registry)) {
-        // Found a group. Move the requested "registry" to the front before returning it.
-        IEnumerable<string> self = new[] { registry };
-        IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.Equals(alias));
-        return self.Concat(withoutSelf).ToList();
-      }
+        /**
+         * Returns the list of registry aliases for the given {@code registry}, including {@code registry}
+         * as the first element.
+         *
+         * @param registry the registry for which the alias group is requested
+         * @return non-empty list of registries where {@code registry} is the first element
+         */
+        public static IList<string> getAliasesGroup(string registry)
+        {
+            foreach (ImmutableHashSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
+            {
+                if (aliasGroup.contains(registry))
+                {
+                    // Found a group. Move the requested "registry" to the front before returning it.
+                    IEnumerable<string> self = new[] { registry };
+                    IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.Equals(alias));
+                    return self.Concat(withoutSelf).ToList();
+                }
+            }
+
+            return Collections.singletonList(registry);
+        }
+
+        /**
+         * Returns the server host name to use for the given registry.
+         *
+         * @param registry the name of the registry
+         * @return the registry host
+         */
+        public static string getHost(string registry)
+        {
+            return REGISTRY_HOST_MAP.getOrDefault(registry, registry);
+        }
     }
-
-    return Collections.singletonList(registry);
-  }
-
-  /**
-   * Returns the server host name to use for the given registry.
-   *
-   * @param registry the name of the registry
-   * @return the registry host
-   */
-  public static string getHost(string registry) {
-    return REGISTRY_HOST_MAP.getOrDefault(registry, registry);
-  }
-}
 }

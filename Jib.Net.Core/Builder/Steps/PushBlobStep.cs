@@ -24,7 +24,8 @@ using Jib.Net.Core;
 using Jib.Net.Core.Blob;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -33,83 +34,76 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
+    /** Pushes a BLOB to the target registry. */
+    internal class PushBlobStep : AsyncStep<BlobDescriptor>
+    {
+        private static readonly string DESCRIPTION = "Pushing BLOB ";
 
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDipatcherFactory;
 
+        private readonly AuthenticatePushStep authenticatePushStep;
+        private readonly BlobDescriptor blobDescriptor;
+        private readonly Blob blob;
 
+        private readonly Task<BlobDescriptor> listenableFuture;
 
-
-
-
-
-
-
-/** Pushes a BLOB to the target registry. */
-class PushBlobStep : AsyncStep<BlobDescriptor> {
-  private static readonly string DESCRIPTION = "Pushing BLOB ";
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDipatcherFactory;
-
-  private readonly AuthenticatePushStep authenticatePushStep;
-  private readonly BlobDescriptor blobDescriptor;
-  private readonly Blob blob;
-
-  private readonly Task<BlobDescriptor> listenableFuture;
-
-  public PushBlobStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDipatcherFactory,
-      AuthenticatePushStep authenticatePushStep,
-      BlobDescriptor blobDescriptor,
-      Blob blob)
+        public PushBlobStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDipatcherFactory,
+            AuthenticatePushStep authenticatePushStep,
+            BlobDescriptor blobDescriptor,
+            Blob blob)
         {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDipatcherFactory = progressEventDipatcherFactory;
-    this.authenticatePushStep = authenticatePushStep;
-    this.blobDescriptor = blobDescriptor;
-    this.blob = blob;
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDipatcherFactory = progressEventDipatcherFactory;
+            this.authenticatePushStep = authenticatePushStep;
+            this.blobDescriptor = blobDescriptor;
+            this.blob = blob;
 
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(authenticatePushStep)
-            .whenAllSucceed(this);
-  }
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(authenticatePushStep)
+                    .whenAllSucceed(this);
+        }
 
-  public Task<BlobDescriptor> getFuture() {
-    return listenableFuture;
-  }
+        public Task<BlobDescriptor> getFuture()
+        {
+            return listenableFuture;
+        }
 
-  public BlobDescriptor call() {
-    using(ProgressEventDispatcher progressEventDispatcher =
-            progressEventDipatcherFactory.create(
-                "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
+        public BlobDescriptor call()
+        {
+            using (ProgressEventDispatcher progressEventDispatcher =
+                    progressEventDipatcherFactory.create(
+                        "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
                         buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor))
-                using(
-        ThrottledAccumulatingConsumer throttledProgressReporter =
-            new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress))
-    {
+            using (
+    ThrottledAccumulatingConsumer throttledProgressReporter =
+        new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress))
+            {
+                RegistryClient registryClient =
+                    buildConfiguration
+                        .newTargetImageRegistryClientFactory()
+                        .setAuthorization(NonBlockingSteps.get(authenticatePushStep))
+                        .newRegistryClient();
 
-      RegistryClient registryClient =
-          buildConfiguration
-              .newTargetImageRegistryClientFactory()
-              .setAuthorization(NonBlockingSteps.get(authenticatePushStep))
-              .newRegistryClient();
+                // check if the BLOB is available
+                if (registryClient.checkBlob(blobDescriptor.getDigest()) != null)
+                {
+                    buildConfiguration
+                        .getEventHandlers()
+                        .dispatch(LogEvent.info("BLOB : " + blobDescriptor + " already exists on registry"));
+                    return blobDescriptor;
+                }
 
-      // check if the BLOB is available
-      if (registryClient.checkBlob(blobDescriptor.getDigest()) != null) {
-        buildConfiguration
-            .getEventHandlers()
-            .dispatch(LogEvent.info("BLOB : " + blobDescriptor + " already exists on registry"));
-        return blobDescriptor;
-      }
+                // todo: leverage cross-repository mounts
+                registryClient.pushBlob(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept);
 
-      // todo: leverage cross-repository mounts
-      registryClient.pushBlob(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept);
-
-      return blobDescriptor;
+                return blobDescriptor;
+            }
+        }
     }
-  }
-}
 }

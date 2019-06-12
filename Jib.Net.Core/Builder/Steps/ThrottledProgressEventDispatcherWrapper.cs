@@ -20,12 +20,6 @@ using System;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
     /**
      * Contains a {@link ProgressEventDispatcher} and throttles dispatching progress events with the
      * default delay used by {@link ThrottledConsumer}. This class is mutable and should only be used
@@ -35,35 +29,40 @@ namespace com.google.cloud.tools.jib.builder.steps
      * response headers are received, only after which can the {@link ProgressEventDispatcher} be
      * created.
      */
-    class ThrottledProgressEventDispatcherWrapper : IDisposable {
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-  private readonly string description;
-  private ProgressEventDispatcher progressEventDispatcher;
-  private ThrottledAccumulatingConsumer throttledDispatcher;
+    internal class ThrottledProgressEventDispatcherWrapper : IDisposable
+    {
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+        private readonly string description;
+        private ProgressEventDispatcher progressEventDispatcher;
+        private ThrottledAccumulatingConsumer throttledDispatcher;
 
-  public ThrottledProgressEventDispatcherWrapper(
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory, string description) {
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.description = description;
-  }
+        public ThrottledProgressEventDispatcherWrapper(
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory, string description)
+        {
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.description = description;
+        }
 
-  public void dispatchProgress(long progressUnits) {
-    Preconditions.checkNotNull(throttledDispatcher);
-    throttledDispatcher.accept(progressUnits);
-  }
+        public void dispatchProgress(long progressUnits)
+        {
+            Preconditions.checkNotNull(throttledDispatcher);
+            throttledDispatcher.accept(progressUnits);
+        }
 
-  public void Dispose() {
-    Preconditions.checkNotNull(progressEventDispatcher);
-    Preconditions.checkNotNull(throttledDispatcher);
-    throttledDispatcher.close();
-    progressEventDispatcher.close();
-  }
+        public void Dispose()
+        {
+            Preconditions.checkNotNull(progressEventDispatcher);
+            Preconditions.checkNotNull(throttledDispatcher);
+            throttledDispatcher.close();
+            progressEventDispatcher.close();
+        }
 
-  public void setProgressTarget(long allocationUnits) {
-    Preconditions.checkState(progressEventDispatcher == null);
-    progressEventDispatcher = progressEventDispatcherFactory.create(description, allocationUnits);
-    throttledDispatcher =
-        new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress);
-  }
-}
+        public void setProgressTarget(long allocationUnits)
+        {
+            Preconditions.checkState(progressEventDispatcher == null);
+            progressEventDispatcher = progressEventDispatcherFactory.create(description, allocationUnits);
+            throttledDispatcher =
+                new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress);
+        }
+    }
 }

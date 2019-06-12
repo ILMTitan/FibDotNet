@@ -21,78 +21,70 @@ using System.IO;
 using NodaTime;
 using com.google.cloud.tools.jib.@event.progress;
 
-namespace com.google.cloud.tools.jib.http {
+namespace com.google.cloud.tools.jib.http
+{
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Tests for {@link NotifyingOutputStream}. */
-public class NotifyingOutputStreamTest {
-
-  [Test]
-  public void testCallback_correctSequence() {
-    MemoryStream byteArrayOutputStream = new MemoryStream();
-
-    List<long> byteCounts = new List<long>();
-
-    using (NotifyingOutputStream notifyingOutputStream =
-        new NotifyingOutputStream(byteArrayOutputStream, byteCounts.add)) {
-      notifyingOutputStream.write(new byte[] { 0 });
-      notifyingOutputStream.write(new byte[] {1, 2, 3});
-      notifyingOutputStream.Write(new byte[] {1, 2, 3, 4, 5}, 3, 2);
-    }
-
-    Assert.AreEqual(Arrays.asList(1L, 3L, 2L), byteCounts);
-    CollectionAssert.AreEqual(new byte[] {0, 1, 2, 3, 4, 5}, byteArrayOutputStream.toByteArray());
-  }
-
-  [Test]
-  public void testDelay() {
-    MemoryStream byteArrayOutputStream = new MemoryStream();
-
-    IList<long> byteCounts = new List<long>();
-
-    Queue<Instant> instantQueue = new Queue<Instant>();
-    instantQueue.add(Instant.FromUnixTimeSeconds(0));
-
-    using(ThrottledAccumulatingConsumer byteCounter =
-            new ThrottledAccumulatingConsumer(
-                byteCounts.add, Duration.FromSeconds(3), instantQueue.remove))
-
-    using(NotifyingOutputStream notifyingOutputStream =
-            new NotifyingOutputStream(byteArrayOutputStream, byteCounter))
-
+    /** Tests for {@link NotifyingOutputStream}. */
+    public class NotifyingOutputStreamTest
     {
+        [Test]
+        public void testCallback_correctSequence()
+        {
+            MemoryStream byteArrayOutputStream = new MemoryStream();
 
-      instantQueue.add(Instant.FromUnixTimeSeconds(0));
-      notifyingOutputStream.write(100);
-      instantQueue.add(Instant.FromUnixTimeSeconds(0));
-      notifyingOutputStream.write(new byte[] {101, 102, 103});
-      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(4));
-      notifyingOutputStream.write(new byte[] {104, 105, 106});
+            List<long> byteCounts = new List<long>();
 
-      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
-      notifyingOutputStream.write(new byte[] {107, 108});
+            using (NotifyingOutputStream notifyingOutputStream =
+                new NotifyingOutputStream(byteArrayOutputStream, byteCounts.add))
+            {
+                notifyingOutputStream.write(new byte[] { 0 });
+                notifyingOutputStream.write(new byte[] { 1, 2, 3 });
+                notifyingOutputStream.Write(new byte[] { 1, 2, 3, 4, 5 }, 3, 2);
+            }
 
-      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
-      notifyingOutputStream.write(new byte[] {109});
-      instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(13));
-      notifyingOutputStream.write(new byte[] {0, 110}, 1, 1);
+            Assert.AreEqual(Arrays.asList(1L, 3L, 2L), byteCounts);
+            CollectionAssert.AreEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, byteArrayOutputStream.toByteArray());
+        }
+
+        [Test]
+        public void testDelay()
+        {
+            MemoryStream byteArrayOutputStream = new MemoryStream();
+
+            IList<long> byteCounts = new List<long>();
+
+            Queue<Instant> instantQueue = new Queue<Instant>();
+            instantQueue.add(Instant.FromUnixTimeSeconds(0));
+
+            using (ThrottledAccumulatingConsumer byteCounter =
+                    new ThrottledAccumulatingConsumer(
+                        byteCounts.add, Duration.FromSeconds(3), instantQueue.remove))
+            using (NotifyingOutputStream notifyingOutputStream =
+                    new NotifyingOutputStream(byteArrayOutputStream, byteCounter))
+
+            {
+                instantQueue.add(Instant.FromUnixTimeSeconds(0));
+                notifyingOutputStream.write(100);
+                instantQueue.add(Instant.FromUnixTimeSeconds(0));
+                notifyingOutputStream.write(new byte[] { 101, 102, 103 });
+                instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(4));
+                notifyingOutputStream.write(new byte[] { 104, 105, 106 });
+
+                instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
+                notifyingOutputStream.write(new byte[] { 107, 108 });
+
+                instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(10));
+                notifyingOutputStream.write(new byte[] { 109 });
+                instantQueue.add(Instant.FromUnixTimeSeconds(0).plusSeconds(13));
+                notifyingOutputStream.write(new byte[] { 0, 110 }, 1, 1);
+            }
+
+            Assert.AreEqual(Arrays.asList(7L, 2L, 2L), byteCounts);
+            CollectionAssert.AreEqual(
+                new byte[] { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 },
+                byteArrayOutputStream.toByteArray());
+        }
     }
-
-    Assert.AreEqual(Arrays.asList(7L, 2L, 2L), byteCounts);
-    CollectionAssert.AreEqual(
-        new byte[] {100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110},
-        byteArrayOutputStream.toByteArray());
-  }
-}
 }

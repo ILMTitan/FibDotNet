@@ -21,21 +21,19 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
     /** A {@link Blob} that holds {@link JsonTemplate}. */
-    class JsonBlob : Blob {
-  private readonly JsonTemplate template;
+    internal class JsonBlob : Blob
+    {
+        private readonly JsonTemplate template;
 
-  public JsonBlob(JsonTemplate template) {
-    this.template = template;
-  }
+        public JsonBlob(JsonTemplate template)
+        {
+            this.template = template;
+        }
 
-  public BlobDescriptor writeTo(Stream outputStream) {
-    return Digests.computeDigest(template, outputStream);
-  }
-}
+        public BlobDescriptor writeTo(Stream outputStream)
+        {
+            return Digests.computeDigest(template, outputStream);
+        }
+    }
 }

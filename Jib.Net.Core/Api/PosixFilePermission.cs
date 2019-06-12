@@ -26,9 +26,9 @@ namespace Jib.Net.Core
         OTHERS_READ,
         GROUP_EXECUTE,
         GROUP_WRITE,
-        GROUP_READ ,
+        GROUP_READ,
         OWNER_EXECUTE,
-        OWNER_WRITE ,
-        OWNER_READ 
+        OWNER_WRITE,
+        OWNER_READ
     }
 }

@@ -27,7 +27,8 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.http {
+namespace com.google.cloud.tools.jib.http
+{
 
 
 
@@ -40,53 +41,45 @@ namespace com.google.cloud.tools.jib.http {
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Simple local web server for testing. */
-public class TestWebServer : IDisposable {
-
-  private readonly bool https;
-  private readonly TcpListener serverSocket;
+    /** Simple local web server for testing. */
+    public class TestWebServer : IDisposable
+    {
+        private readonly bool https;
+        private readonly TcpListener serverSocket;
         private readonly object serveTask;
         private readonly SemaphoreSlim threadStarted = new SemaphoreSlim(0);
-  private readonly StringBuilder inputRead = new StringBuilder();
+        private readonly StringBuilder inputRead = new StringBuilder();
 
-  public TestWebServer(bool https)
-      {
-    this.https = https;
-    serverSocket = createServerSocket(https);
-    serveTask = serve200();
-    threadStarted.acquire();
-  }
+        public TestWebServer(bool https)
+        {
+            this.https = https;
+            serverSocket = createServerSocket(https);
+            serveTask = serve200();
+            threadStarted.acquire();
+        }
 
-  public string getEndpoint() {
+        public string getEndpoint()
+        {
             var host = serverSocket.LocalEndpoint as IPEndPoint;
-    return (https ? "https" : "http") + "://" + host.Address + ":" + host.Port;
-  }
+            return (https ? "https" : "http") + "://" + host.Address + ":" + host.Port;
+        }
 
-  public void Dispose() {
-    serverSocket.Stop();
-  }
+        public void Dispose()
+        {
+            serverSocket.Stop();
+        }
 
-  private TcpListener createServerSocket(bool https)
-      {
+        private TcpListener createServerSocket(bool https)
+        {
             return new TcpListener(IPAddress.Loopback, 0);
-  }
+        }
 
-  private async Task serve200() {
-    threadStarted.release();
+        private async Task serve200()
+        {
+            threadStarted.release();
             serverSocket.Start();
             using (var socket = await serverSocket.AcceptTcpClientAsync())
             {
-
                 Stream @in = socket.GetStream();
                 TextReader reader = new StreamReader(@in, StandardCharsets.UTF_8);
                 for (string line = await reader.ReadLineAsync();
@@ -96,14 +89,14 @@ public class TestWebServer : IDisposable {
                     inputRead.append(line + "\n");
                 }
 
-                string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
+                const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
                 socket.GetStream().write(response.getBytes(StandardCharsets.UTF_8));
-
             }
-  }
+        }
 
-  public string getInputRead() {
-    return inputRead.toString();
-  }
-}
+        public string getInputRead()
+        {
+            return inputRead.toString();
+        }
+    }
 }

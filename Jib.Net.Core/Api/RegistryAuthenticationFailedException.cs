@@ -17,28 +17,27 @@
 using Jib.Net.Core.Global;
 using System;
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Thrown because registry authentication failed. */
+    public class RegistryAuthenticationFailedException : RegistryException
+    {
+        private static readonly string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
+        private readonly string serverUrl;
+        private readonly string imageName;
 
+        public RegistryAuthenticationFailedException(
+            string serverUrl, string imageName, Exception cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause)
+        {
+            this.serverUrl = serverUrl;
+            this.imageName = imageName;
+        }
 
-/** Thrown because registry authentication failed. */
-public class RegistryAuthenticationFailedException : RegistryException {
-
-  private static readonly string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
-  private readonly string serverUrl;
-  private readonly string imageName;
-
-  public RegistryAuthenticationFailedException(
-      string serverUrl, string imageName, Exception cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause) {
-    
-    this.serverUrl = serverUrl;
-    this.imageName = imageName;
-  }
-
-  public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(MessageFormat.format(REASON, serverUrl, imageName, reason)) {
-    
-    this.serverUrl = serverUrl;
-    this.imageName = imageName;
-  }
+        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(MessageFormat.format(REASON, serverUrl, imageName, reason))
+        {
+            this.serverUrl = serverUrl;
+            this.imageName = imageName;
+        }
 
         public RegistryAuthenticationFailedException(string message, Exception cause) : base(message, cause)
         {
@@ -57,13 +56,15 @@ public class RegistryAuthenticationFailedException : RegistryException {
         }
 
         /** @return the server being authenticated */
-        public string getServerUrl() {
-    return serverUrl;
-  }
+        public string getServerUrl()
+        {
+            return serverUrl;
+        }
 
-  /** @return the image being authenticated */
-  public string getImageName() {
-    return imageName;
-  }
-}
+        /** @return the image being authenticated */
+        public string getImageName()
+        {
+            return imageName;
+        }
+    }
 }

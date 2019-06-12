@@ -25,85 +25,82 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
 
 
 
+    /** Integration tests for {@link BlobPuller}. */
+    public class BlobPullerIntegrationTest
+    {
+        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
+        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+        [Test]
+        public void testPull()
+        {
+            // Pulls the busybox image.
+            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient();
+            V21ManifestTemplate manifestTemplate =
+                registryClient.pullManifest<V21ManifestTemplate>("latest");
 
+            DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
 
+            // Pulls a layer BLOB of the busybox image.
+            LongAdder totalByteCount = new LongAdder();
+            LongAdder expectedSize = new LongAdder();
+            Blob pulledBlob =
+                registryClient.pullBlob(
+                    realDigest,
+                    size =>
+                    {
+                        Assert.AreEqual(0, expectedSize.sum());
+                        expectedSize.add(size);
+                    },
+                    totalByteCount.add);
+            Assert.AreEqual(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
+            Assert.IsTrue(expectedSize.sum() > 0);
+            Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
+        }
 
+        [Test]
+        public void testPull_unknownBlob()
+        {
+            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            DescriptorDigest nonexistentDigest =
+                DescriptorDigest.fromHash(
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient();
 
-
-
-
-/** Integration tests for {@link BlobPuller}. */
-public class BlobPullerIntegrationTest {
-
-  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
-
-  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  [Test]
-  public void testPull() {
-    // Pulls the busybox image.
-    localRegistry.pullAndPushToLocal("busybox", "busybox");
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient();
-    V21ManifestTemplate manifestTemplate =
-        registryClient.pullManifest< V21ManifestTemplate>("latest");
-
-    DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
-
-    // Pulls a layer BLOB of the busybox image.
-    LongAdder totalByteCount = new LongAdder();
-    LongAdder expectedSize = new LongAdder();
-    Blob pulledBlob =
-        registryClient.pullBlob(
-            realDigest,
-            size => {
-              Assert.AreEqual(0, expectedSize.sum());
-              expectedSize.add(size);
-            },
-            totalByteCount.add);
-    Assert.AreEqual(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
-    Assert.IsTrue(expectedSize.sum() > 0);
-    Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
-  }
-
-  [Test]
-  public void testPull_unknownBlob() {
-    localRegistry.pullAndPushToLocal("busybox", "busybox");
-    DescriptorDigest nonexistentDigest =
-        DescriptorDigest.fromHash(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient();
-
-    try {
-      registryClient
-          .pullBlob(nonexistentDigest, ignored => {}, ignored => {})
-          .writeTo(Stream.Null);
-      Assert.Fail("Trying to pull nonexistent blob should have errored");
-
-    } catch (IOException ex) {
-      if (!(ex.getCause() is RegistryErrorException)) {
+            try
+            {
+                registryClient
+                    .pullBlob(nonexistentDigest, ignored => { }, ignored => { })
+                    .writeTo(Stream.Null);
+                Assert.Fail("Trying to pull nonexistent blob should have errored");
+            }
+            catch (IOException ex)
+            {
+                if (!(ex.getCause() is RegistryErrorException))
+                {
                     throw;
-      }
+                }
                 StringAssert.Contains(
                     ex.getMessage(),
                         "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest);
+            }
+        }
     }
-  }
-}
 }

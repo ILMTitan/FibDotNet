@@ -20,51 +20,54 @@ using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration {
+namespace com.google.cloud.tools.jib.configuration
+{
+    /** Tests for {@link DockerHealthCheck}. */
+    public class DockerHealthCheckTest
+    {
+        [Test]
+        public void testBuild()
+        {
+            DockerHealthCheck healthCheck =
+                DockerHealthCheck.fromCommand(ImmutableArray.Create("echo", "hi"))
+                    .setInterval(Duration.FromNanoseconds(123))
+                    .setTimeout(Duration.FromNanoseconds(456))
+                    .setStartPeriod(Duration.FromNanoseconds(789))
+                    .setRetries(10)
+                    .build();
 
+            Assert.IsTrue(healthCheck.getInterval().isPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.getInterval().get());
+            Assert.IsTrue(healthCheck.getTimeout().isPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.getTimeout().get());
+            Assert.IsTrue(healthCheck.getStartPeriod().isPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().get());
+            Assert.IsTrue(healthCheck.getRetries().isPresent());
+            Assert.AreEqual(10, (int)healthCheck.getRetries().get());
+        }
 
+        [Test]
+        public void testBuild_invalidCommand()
+        {
+            try
+            {
+                DockerHealthCheck.fromCommand(ImmutableArray.Create<string>());
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual("command must not be empty", ex.getMessage());
+            }
 
-
-
-
-/** Tests for {@link DockerHealthCheck}. */
-public class DockerHealthCheckTest {
-
-  [Test]
-  public void testBuild() {
-    DockerHealthCheck healthCheck =
-        DockerHealthCheck.fromCommand(ImmutableArray.Create("echo", "hi"))
-            .setInterval(Duration.FromNanoseconds(123))
-            .setTimeout(Duration.FromNanoseconds(456))
-            .setStartPeriod(Duration.FromNanoseconds(789))
-            .setRetries(10)
-            .build();
-
-    Assert.IsTrue(healthCheck.getInterval().isPresent());
-    Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.getInterval().get());
-    Assert.IsTrue(healthCheck.getTimeout().isPresent());
-    Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.getTimeout().get());
-    Assert.IsTrue(healthCheck.getStartPeriod().isPresent());
-    Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().get());
-    Assert.IsTrue(healthCheck.getRetries().isPresent());
-    Assert.AreEqual(10, (int) healthCheck.getRetries().get());
-  }
-
-  [Test]
-  public void testBuild_invalidCommand() {
-    try {
-      DockerHealthCheck.fromCommand(ImmutableArray.Create<string>());
-      Assert.Fail();
-    } catch (ArgumentException ex) {
-      Assert.AreEqual("command must not be empty", ex.getMessage());
+            try
+            {
+                DockerHealthCheck.fromCommand(Arrays.asList("CMD", null));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual("command must not contain null elements", ex.getMessage());
+            }
+        }
     }
-
-    try {
-      DockerHealthCheck.fromCommand(Arrays.asList("CMD", null));
-      Assert.Fail();
-    } catch (ArgumentException ex) {
-      Assert.AreEqual("command must not contain null elements", ex.getMessage());
-    }
-  }
-}
 }

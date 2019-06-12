@@ -23,7 +23,8 @@ using Moq;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
+namespace com.google.cloud.tools.jib.registry.credentials
+{
 
 
 
@@ -31,163 +32,160 @@ namespace com.google.cloud.tools.jib.registry.credentials {
 
 
 
+    /** Tests for {@link DockerConfigCredentialRetriever}. */
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class DockerConfigCredentialRetrieverTest
+    {
+        private static readonly Credential FAKE_CREDENTIAL = Credential.from("username", "password");
 
+        private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
+        private DockerConfig mockDockerConfig = Mock.Of<DockerConfig>();
+        private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
 
+        private SystemPath dockerConfigFile;
 
+        [SetUp]
+        public void setUp()
+        {
+            dockerConfigFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIAL);
+        }
 
+        [Test]
+        public void testRetrieve_nonexistentDockerConfigFile()
+        {
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("some registry", Paths.get("fake/path"));
 
+            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
+        }
 
+        [Test]
+        public void testRetrieve_hasAuth()
+        {
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("some registry", dockerConfigFile);
 
+            Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
+            Assert.IsTrue(credentials.isPresent());
+            Assert.AreEqual("some", credentials.get().getUsername());
+            Assert.AreEqual("auth", credentials.get().getPassword());
+        }
 
+        [Test]
+        public void testRetrieve_useCredsStore()
+        {
+            Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("just registry")).Returns(mockDockerCredentialHelper);
 
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("just registry", dockerConfigFile);
 
-/** Tests for {@link DockerConfigCredentialRetriever}. */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class DockerConfigCredentialRetrieverTest {
+            Assert.AreEqual(
+                FAKE_CREDENTIAL,
+                dockerConfigCredentialRetriever
+                    .retrieve(mockDockerConfig, mockLogger)
+                    .orElseThrow(() => new AssertionException("")));
+        }
 
-  private static readonly Credential FAKE_CREDENTIAL = Credential.from("username", "password");
+        [Test]
+        public void testRetrieve_useCredsStore_withProtocol()
+        {
+            Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("with.protocol")).Returns(mockDockerCredentialHelper);
 
-  private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
-  private DockerConfig mockDockerConfig = Mock.Of<DockerConfig>();
-  private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("with.protocol", dockerConfigFile);
 
-  private SystemPath dockerConfigFile;
+            Assert.AreEqual(
+                FAKE_CREDENTIAL,
+                dockerConfigCredentialRetriever
+                    .retrieve(mockDockerConfig, mockLogger)
+                    .orElseThrow(() => new AssertionException("")));
+        }
 
-  [SetUp]
-  public void setUp()
-      {
-    dockerConfigFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
-    Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIAL);
+        [Test]
+        public void testRetrieve_useCredHelper()
+        {
+            Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("another registry")).Returns(mockDockerCredentialHelper);
 
-  }
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("another registry", dockerConfigFile);
 
-  [Test]
-  public void testRetrieve_nonexistentDockerConfigFile() {
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("some registry", Paths.get("fake/path"));
+            Assert.AreEqual(
+                FAKE_CREDENTIAL,
+                dockerConfigCredentialRetriever
+                    .retrieve(mockDockerConfig, mockLogger)
+                    .orElseThrow(() => new AssertionException("")));
+        }
 
-    Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
-  }
+        [Test]
+        public void testRetrieve_useCredHelper_warn()
+        {
+            Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("another registry")).Returns(mockDockerCredentialHelper);
 
-  [Test]
-  public void testRetrieve_hasAuth() {
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("some registry", dockerConfigFile);
+            Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Throws(
+                    new CredentialHelperNotFoundException(
+                        Paths.get("docker-credential-path"), new Exception("cause")));
 
-    Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-    Assert.IsTrue(credentials.isPresent());
-    Assert.AreEqual("some", credentials.get().getUsername());
-    Assert.AreEqual("auth", credentials.get().getPassword());
-  }
+            new DockerConfigCredentialRetriever("another registry", dockerConfigFile)
+                .retrieve(mockDockerConfig, mockLogger);
 
-  [Test]
-  public void testRetrieve_useCredsStore() {
-    Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("just registry")).Returns(mockDockerCredentialHelper);
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("The system does not have docker-credential-path CLI")));
 
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("just registry", dockerConfigFile);
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("  Caused by: cause")));
+        }
 
-    Assert.AreEqual(
-        FAKE_CREDENTIAL,
-        dockerConfigCredentialRetriever
-            .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(() => new AssertionException("")));
-  }
+        [Test]
+        public void testRetrieve_none()
+        {
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("unknown registry", dockerConfigFile);
 
-  [Test]
-  public void testRetrieve_useCredsStore_withProtocol() {
-    Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("with.protocol")).Returns(mockDockerCredentialHelper);
+            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
+        }
 
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("with.protocol", dockerConfigFile);
+        [Test]
+        public void testRetrieve_credentialFromAlias()
+        {
+            Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("registry.hub.docker.com")).Returns(mockDockerCredentialHelper);
 
-    Assert.AreEqual(
-        FAKE_CREDENTIAL,
-        dockerConfigCredentialRetriever
-            .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(() => new AssertionException("")));
-  }
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
 
-  [Test]
-  public void testRetrieve_useCredHelper() {
-    Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("another registry")).Returns(mockDockerCredentialHelper);
+            Assert.AreEqual(
+                FAKE_CREDENTIAL,
+                dockerConfigCredentialRetriever
+                    .retrieve(mockDockerConfig, mockLogger)
+                    .orElseThrow(() => new AssertionException("")));
+        }
 
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("another registry", dockerConfigFile);
+        [Test]
+        public void testRetrieve_suffixMatching()
+        {
+            SystemPath dockerConfigFile =
+                Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
-    Assert.AreEqual(
-        FAKE_CREDENTIAL,
-        dockerConfigCredentialRetriever
-            .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(() => new AssertionException("")));
-  }
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("index.docker.io", dockerConfigFile);
 
-  [Test]
-  public void testRetrieve_useCredHelper_warn()
-      {
-    Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("another registry")).Returns(mockDockerCredentialHelper);
+            Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
+            Assert.IsTrue(credentials.isPresent());
+            Assert.AreEqual("token for", credentials.get().getUsername());
+            Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
+        }
 
-    Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Throws(
-            new CredentialHelperNotFoundException(
-                Paths.get("docker-credential-path"), new Exception("cause")));
+        [Test]
+        public void testRetrieve_suffixMatchingFromAlias()
+        {
+            SystemPath dockerConfigFile =
+                Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
-    new DockerConfigCredentialRetriever("another registry", dockerConfigFile)
-        .retrieve(mockDockerConfig, mockLogger);
+            DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
+                new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
 
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("The system does not have docker-credential-path CLI")));
-
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("  Caused by: cause")));
-
-  }
-
-  [Test]
-  public void testRetrieve_none() {
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("unknown registry", dockerConfigFile);
-
-    Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
-  }
-
-  [Test]
-  public void testRetrieve_credentialFromAlias() {
-    Mock.Get(mockDockerConfig).Setup(m => m.getCredentialHelperFor("registry.hub.docker.com")).Returns(mockDockerCredentialHelper);
-
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
-
-    Assert.AreEqual(
-        FAKE_CREDENTIAL,
-        dockerConfigCredentialRetriever
-            .retrieve(mockDockerConfig, mockLogger)
-            .orElseThrow(() => new AssertionException("")));
-  }
-
-  [Test]
-  public void testRetrieve_suffixMatching() {
-    SystemPath dockerConfigFile =
-        Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
-
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("index.docker.io", dockerConfigFile);
-
-    Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-    Assert.IsTrue(credentials.isPresent());
-    Assert.AreEqual("token for", credentials.get().getUsername());
-    Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
-  }
-
-  [Test]
-  public void testRetrieve_suffixMatchingFromAlias() {
-    SystemPath dockerConfigFile =
-        Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
-
-    DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
-        new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
-
-    Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-    Assert.IsTrue(credentials.isPresent());
-    Assert.AreEqual("token for", credentials.get().getUsername());
-    Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
-  }
-}
+            Optional<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
+            Assert.IsTrue(credentials.isPresent());
+            Assert.AreEqual("token for", credentials.get().getUsername());
+            Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
+        }
+    }
 }

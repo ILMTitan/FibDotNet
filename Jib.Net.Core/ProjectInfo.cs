@@ -18,21 +18,18 @@ using System;
 
 namespace com.google.cloud.tools.jib
 {
-
-
     /** Constants relating to the Jib project. */
-    public class ProjectInfo {
+    public sealed class ProjectInfo
+    {
+        /** Link to the GitHub repository. */
+        public static readonly string GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
 
-  /** Link to the GitHub repository. */
-  public static readonly string GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
+        /** Link to file an issue against the GitHub repository. */
+        public static readonly string GITHUB_NEW_ISSUE_URL = GITHUB_URL + "/issues/new";
 
-  /** Link to file an issue against the GitHub repository. */
-  public static readonly string GITHUB_NEW_ISSUE_URL = GITHUB_URL + "/issues/new";
+        /** The project version. May be {@code null} if the version cannot be determined. */
+        public static readonly string VERSION = "0.0.1-alpha.1";
 
-  /** The project version. May be {@code null} if the version cannot be determined. */
-  public static readonly string VERSION = "0.0.1-alpha.1";
-
-  private ProjectInfo() {}
-}
-
+        private ProjectInfo() { }
+    }
 }

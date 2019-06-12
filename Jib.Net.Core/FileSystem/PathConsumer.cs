@@ -16,11 +16,10 @@
 
 using Jib.Net.Core.FileSystem;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
+    public delegate void PathConsumer(SystemPath path);
 
-
-
-public delegate void PathConsumer(SystemPath path);
     public static class PathConsumerExtensions
     {
         public static void accept(this PathConsumer c, SystemPath path)

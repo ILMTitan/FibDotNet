@@ -19,12 +19,9 @@ using Jib.Net.Core.Global;
 
 namespace Jib.Net.Core.Blob
 {
-
-
     /** Contains properties describing a BLOB, including its digest and possibly its size (in bytes). */
     public class BlobDescriptor
     {
-
         private readonly DescriptorDigest digest;
 
         /** The size of the BLOB (in bytes). Negative if unknown. */
@@ -43,7 +40,6 @@ namespace Jib.Net.Core.Blob
          */
         public BlobDescriptor(DescriptorDigest digest) : this(-1, digest)
         {
-            
         }
 
         public bool hasSize()
@@ -88,8 +84,7 @@ namespace Jib.Net.Core.Blob
         public override int GetHashCode()
         {
             int result = digest.hashCode();
-            result = 31 * result + (int)(size ^ size >> 32);
-            return result;
+            return (31 * result) + (int)(size ^ size >> 32);
         }
 
         public override string ToString()

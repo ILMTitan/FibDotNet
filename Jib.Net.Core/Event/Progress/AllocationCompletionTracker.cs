@@ -23,164 +23,166 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.@event.progress {
+namespace com.google.cloud.tools.jib.@event.progress
+{
 
 
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Keeps track of the progress for {@link Allocation}s as well as their order in which they appear.
- *
- * <p>This implementation is thread-safe.
- */
-class AllocationCompletionTracker {
-
-  /**
-   * Holds the progress units remaining along with a creation order (index starting from 0). This is
-   * used as the value of the {@link #completionMap}.
-   */
-  private class IndexedRemainingUnits : IComparable<IndexedRemainingUnits>  {
-    /** Monotonically-increasing source for {@link #index}. */
-    private static readonly AtomicInteger currentIndex = new AtomicInteger();
-
-    /** The creation order that monotonically increases. */
-    private readonly int index = currentIndex.getAndIncrement();
 
     /**
-     * Remaining progress units until completion. This can be shared across multiple threads and
-     * should be updated atomically.
+     * Keeps track of the progress for {@link Allocation}s as well as their order in which they appear.
+     *
+     * <p>This implementation is thread-safe.
      */
-    public readonly AtomicLong remainingUnits;
+    internal class AllocationCompletionTracker
+    {
+        /**
+         * Holds the progress units remaining along with a creation order (index starting from 0). This is
+         * used as the value of the {@link #completionMap}.
+         */
+        private class IndexedRemainingUnits : IComparable<IndexedRemainingUnits>
+        {
+            /** Monotonically-increasing source for {@link #index}. */
+            private static readonly AtomicInteger currentIndex = new AtomicInteger();
 
-    public readonly Allocation allocation;
+            /** The creation order that monotonically increases. */
+            private readonly int index = currentIndex.getAndIncrement();
 
-    public IndexedRemainingUnits(Allocation allocation) {
-      this.allocation = allocation;
-      remainingUnits = new AtomicLong(allocation.getAllocationUnits());
-    }
+            /**
+             * Remaining progress units until completion. This can be shared across multiple threads and
+             * should be updated atomically.
+             */
+            public readonly AtomicLong remainingUnits;
 
-    public bool isUnfinished() {
-      return remainingUnits.get() != 0;
-    }
+            public readonly Allocation allocation;
 
-    public int CompareTo(IndexedRemainingUnits otherIndexedRemainingUnits) {
-      return index - otherIndexedRemainingUnits.index;
-    }
-  }
+            public IndexedRemainingUnits(Allocation allocation)
+            {
+                this.allocation = allocation;
+                remainingUnits = new AtomicLong(allocation.getAllocationUnits());
+            }
 
-  /**
-   * Maps from {@link Allocation} to 1) the number of progress units remaining in that {@link
-   * Allocation}; as well as 2) the insertion order of the key.
-   */
-  private readonly ConcurrentDictionary<Allocation, IndexedRemainingUnits> completionMap =
-      new ConcurrentDictionary<Allocation, IndexedRemainingUnits>();
+            public bool isUnfinished()
+            {
+                return remainingUnits.get() != 0;
+            }
 
-  /**
-   * Updates the progress for {@link Allocation} atomically relative to the {@code allocation}.
-   *
-   * <p>For any {@link Allocation}, this method <em>must</em> have been called on all of its parents
-   * beforehand.
-   *
-   * @param allocation the {@link Allocation} to update progress for
-   * @param units the units of progress
-   * @return {@code true} if the map was updated
-   */
-  public bool updateProgress(Allocation allocation, long units) {
+            public int CompareTo(IndexedRemainingUnits otherIndexedRemainingUnits)
+            {
+                return index - otherIndexedRemainingUnits.index;
+            }
+        }
 
+        /**
+         * Maps from {@link Allocation} to 1) the number of progress units remaining in that {@link
+         * Allocation}; as well as 2) the insertion order of the key.
+         */
+        private readonly ConcurrentDictionary<Allocation, IndexedRemainingUnits> completionMap =
+            new ConcurrentDictionary<Allocation, IndexedRemainingUnits>();
+
+        /**
+         * Updates the progress for {@link Allocation} atomically relative to the {@code allocation}.
+         *
+         * <p>For any {@link Allocation}, this method <em>must</em> have been called on all of its parents
+         * beforehand.
+         *
+         * @param allocation the {@link Allocation} to update progress for
+         * @param units the units of progress
+         * @return {@code true} if the map was updated
+         */
+        public bool updateProgress(Allocation allocation, long units)
+        {
             IndexedRemainingUnits newValue = new IndexedRemainingUnits(allocation);
             var finalValue = completionMap.AddOrUpdate(
         allocation, newValue,
-            (_, indexedRemainingUnits) => {
-
-          if (units != 0) {
+            (_, indexedRemainingUnits) =>
+            {
+                if (units != 0)
+                {
                     updateIndexedRemainingUnits(indexedRemainingUnits, units);
-          }
-          return indexedRemainingUnits;
-        });
+                }
+                return indexedRemainingUnits;
+            });
             return newValue == finalValue;
-  }
+        }
 
-  /**
-   * Gets a list of the unfinished {@link Allocation}s in the order in which those {@link
-   * Allocation}s were encountered. This can be used to display, for example, currently executing
-   * tasks. The order helps to keep the displayed tasks in a deterministic order (new subtasks
-   * appear below older ones) and not jumbled together in some random order.
-   *
-   * @return a list of unfinished {@link Allocation}s
-   */
+        /**
+         * Gets a list of the unfinished {@link Allocation}s in the order in which those {@link
+         * Allocation}s were encountered. This can be used to display, for example, currently executing
+         * tasks. The order helps to keep the displayed tasks in a deterministic order (new subtasks
+         * appear below older ones) and not jumbled together in some random order.
+         *
+         * @return a list of unfinished {@link Allocation}s
+         */
 
-  public IList<Allocation> getUnfinishedAllocations() {
-    return completionMap
-        .values()
-        .stream()
-        .filter(u => u.isUnfinished())
-        .sorted()
-        .map(remainingUnits => remainingUnits.allocation)
-        .ToList();
-  }
+        public IList<Allocation> getUnfinishedAllocations()
+        {
+            return completionMap
+                .values()
+                .stream()
+                .filter(u => u.isUnfinished())
+                .sorted()
+                .map(remainingUnits => remainingUnits.allocation)
+                .ToList();
+        }
 
-  /**
-   * Helper method for {@link #updateProgress(Allocation, long)}. Subtract {@code units} from {@code
-   * indexedRemainingUnits}. Updates {@link IndexedRemainingUnits} for parent {@link Allocation}s if
-   * remaining units becomes 0. This method is <em>not</em> thread-safe for the {@code
-   * indexedRemainingUnits} and should be called atomically relative to the {@code
-   * indexedRemainingUnits}.
-   *
-   * @param indexedRemainingUnits the {@link IndexedRemainingUnits} to update progress for
-   * @param units the units of progress
-   */
-  private void updateIndexedRemainingUnits(
-      IndexedRemainingUnits indexedRemainingUnits, long units) {
-    Allocation allocation = indexedRemainingUnits.allocation;
+        /**
+         * Helper method for {@link #updateProgress(Allocation, long)}. Subtract {@code units} from {@code
+         * indexedRemainingUnits}. Updates {@link IndexedRemainingUnits} for parent {@link Allocation}s if
+         * remaining units becomes 0. This method is <em>not</em> thread-safe for the {@code
+         * indexedRemainingUnits} and should be called atomically relative to the {@code
+         * indexedRemainingUnits}.
+         *
+         * @param indexedRemainingUnits the {@link IndexedRemainingUnits} to update progress for
+         * @param units the units of progress
+         */
+        private void updateIndexedRemainingUnits(
+            IndexedRemainingUnits indexedRemainingUnits, long units)
+        {
+            Allocation allocation = indexedRemainingUnits.allocation;
 
-    long newUnits = indexedRemainingUnits.remainingUnits.addAndGet(-units);
-    if (newUnits < 0L) {
-      throw new InvalidOperationException(
-          "Progress exceeds max for '"
-              + allocation.getDescription()
-              + "': "
-              + -newUnits
-              + " more beyond "
-              + allocation.getAllocationUnits());
+            long newUnits = indexedRemainingUnits.remainingUnits.addAndGet(-units);
+            if (newUnits < 0L)
+            {
+                throw new InvalidOperationException(
+                    "Progress exceeds max for '"
+                        + allocation.getDescription()
+                        + "': "
+                        + -newUnits
+                        + " more beyond "
+                        + allocation.getAllocationUnits());
+            }
+
+            // Updates the parent allocations if this allocation completed.
+            if (newUnits == 0L)
+            {
+                allocation
+                    .getParent()
+                    .ifPresent(
+                        parentAllocation =>
+                            updateIndexedRemainingUnits(
+                                Preconditions.checkNotNull(completionMap.get(parentAllocation)), 1L));
+            }
+        }
+
+        public ImmutableArray<string> getUnfinishedLeafTasks()
+        {
+            IList<Allocation> allUnfinished = getUnfinishedAllocations();
+            ISet<Allocation> unfinishedLeaves = new LinkedHashSet<Allocation>(allUnfinished); // preserves order
+
+            foreach (Allocation allocation in allUnfinished)
+
+            {
+                Optional<Allocation> parent = allocation.getParent();
+
+                while (parent.isPresent())
+                {
+                    unfinishedLeaves.remove(parent.get());
+                    parent = parent.get().getParent();
+                }
+            }
+
+            return ImmutableArray.CreateRange(
+                unfinishedLeaves.stream().map(a => a.getDescription()).ToList());
+        }
     }
-
-    // Updates the parent allocations if this allocation completed.
-    if (newUnits == 0L) {
-      allocation
-          .getParent()
-          .ifPresent(
-              parentAllocation =>
-                  updateIndexedRemainingUnits(
-                      Preconditions.checkNotNull(completionMap.get(parentAllocation)), 1L));
-    }
-  }
-
-  public ImmutableArray<string> getUnfinishedLeafTasks() {
-    IList<Allocation> allUnfinished = getUnfinishedAllocations();
-    ISet<Allocation> unfinishedLeaves = new LinkedHashSet<Allocation>(allUnfinished); // preserves order
-
-    foreach (Allocation allocation in allUnfinished)
-
-    {
-      Optional<Allocation> parent = allocation.getParent();
-
-      while (parent.isPresent()) {
-        unfinishedLeaves.remove(parent.get());
-        parent = parent.get().getParent();
-      }
-    }
-
-    return ImmutableArray.CreateRange(
-        unfinishedLeaves.stream().map(a => a.getDescription()).ToList());
-  }
-}
 }

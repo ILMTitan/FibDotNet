@@ -20,14 +20,11 @@ using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api
 {
-
-
     /** Retrieves credentials for a registry. */
     public delegate Optional<Credential> CredentialRetriever();
 
     public static class CredentialRetrieverExtensions
     {
-
         /**
          * Fetches the credentials. <b>Implementations must be thread-safe.</b>
          *

@@ -16,10 +16,8 @@
 
 using System.IO;
 
-namespace com.google.cloud.tools.jib.hash {
-
-
-
+namespace com.google.cloud.tools.jib.hash
+{
     /**
      * As a function, writes some contents to an output stream. As a class, represents contents that can
      * be written to an output stream. This may be "unrealized-before-write" contents; for example, a
@@ -27,11 +25,12 @@ namespace com.google.cloud.tools.jib.hash {
      * output stream.
      */
     public delegate void WritableContents(Stream outputStream);
-    public static class WCExtensions{
 
+    public static class WCExtensions
+    {
         public static void writeTo(this WritableContents wc, Stream outputStream)
         {
             wc(outputStream);
         }
-}
+    }
 }

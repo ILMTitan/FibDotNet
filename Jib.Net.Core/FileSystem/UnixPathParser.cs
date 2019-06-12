@@ -17,32 +17,32 @@
 using Jib.Net.Core.Global;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.filesystem {
-
-
-
-/** Parses Unix-style paths. */
-public class UnixPathParser {
-
-  /**
-   * Parses a Unix-style path into a list of path components.
-   *
-   * @param unixPath the Unix-style path
-   * @return a list of path components
-   */
-  public static ImmutableArray<string> parse(string unixPath) {
-    ImmutableArray<string>.Builder pathComponents = ImmutableArray.CreateBuilder<string>();
-    foreach (string pathComponent in Splitter.on('/').split(unixPath))
+namespace com.google.cloud.tools.jib.filesystem
+{
+    /** Parses Unix-style paths. */
+    public sealed class UnixPathParser
     {
-      if (pathComponent.isEmpty()) {
-        // Skips empty components.
-        continue;
-      }
-      pathComponents.add(pathComponent);
-    }
-    return pathComponents.build();
-  }
+        /**
+         * Parses a Unix-style path into a list of path components.
+         *
+         * @param unixPath the Unix-style path
+         * @return a list of path components
+         */
+        public static ImmutableArray<string> parse(string unixPath)
+        {
+            ImmutableArray<string>.Builder pathComponents = ImmutableArray.CreateBuilder<string>();
+            foreach (string pathComponent in Splitter.on('/').split(unixPath))
+            {
+                if (pathComponent.isEmpty())
+                {
+                    // Skips empty components.
+                    continue;
+                }
+                pathComponents.add(pathComponent);
+            }
+            return pathComponents.build();
+        }
 
-  private UnixPathParser() {}
-}
+        private UnixPathParser() { }
+    }
 }

@@ -27,6 +27,7 @@ namespace Jib.Net.Core.Api
         {
             throw new NotImplementedException();
         }
+
         internal static SystemPath createTempDirectory(object p)
         {
             throw new NotImplementedException();

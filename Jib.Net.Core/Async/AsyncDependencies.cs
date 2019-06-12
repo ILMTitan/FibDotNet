@@ -22,66 +22,63 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.async {
-
-
-
-
-
-
-
-/**
- * Builds a list of dependency {@link ListenableFuture}s to wait on before calling a {@link
- * Callable}.
- */
-public class AsyncDependencies {
-
-  /**
-   * Initialize with a {@link ListeningExecutorService}.
-   *
-   * @param listeningExecutorService the {@link ListeningExecutorService}
-   * @return a new {@link AsyncDependencies}
-   */
-  public static AsyncDependencies @using()
+namespace com.google.cloud.tools.jib.async
+{
+    /**
+     * Builds a list of dependency {@link ListenableFuture}s to wait on before calling a {@link
+     * Callable}.
+     */
+    public sealed class AsyncDependencies
+    {
+        /**
+         * Initialize with a {@link ListeningExecutorService}.
+         *
+         * @param listeningExecutorService the {@link ListeningExecutorService}
+         * @return a new {@link AsyncDependencies}
+         */
+        public static AsyncDependencies @using()
         {
-    return new AsyncDependencies();
-  }
+            return new AsyncDependencies();
+        }
 
+        /** Stores the list of {@link ListenableFuture}s to wait on. */
+        private readonly IList<Task> futures = new List<Task>();
 
-  /** Stores the list of {@link ListenableFuture}s to wait on. */
-  private readonly IList<Task> futures = new List<Task>();
-
-  private AsyncDependencies()
+        private AsyncDependencies()
         {
-  }
+        }
 
-  /**
-   * Adds the future of an {@link AsyncStep}.
-   *
-   * @param asyncStep the {@link AsyncStep}
-   * @return this
-   */
-  public AsyncDependencies addStep<T>(AsyncStep<T> asyncStep) {
-    futures.add(asyncStep.getFuture());
-    return this;
-  }
+        /**
+         * Adds the future of an {@link AsyncStep}.
+         *
+         * @param asyncStep the {@link AsyncStep}
+         * @return this
+         */
+        public AsyncDependencies addStep<T>(AsyncStep<T> asyncStep)
+        {
+            futures.add(asyncStep.getFuture());
+            return this;
+        }
 
-  /**
-   * Adds the futures of a list of {@link AsyncStep}s.
-   *
-   * @param asyncSteps the {@link AsyncStep}s
-   * @return this
-   */
-  public AsyncDependencies addSteps<T>(IEnumerable<AsyncStep<T>> asyncSteps) {
-    asyncSteps.forEach(this.addStep);
-    return this;
-  }
+        /**
+         * Adds the futures of a list of {@link AsyncStep}s.
+         *
+         * @param asyncSteps the {@link AsyncStep}s
+         * @return this
+         */
+        public AsyncDependencies addSteps<T>(IEnumerable<AsyncStep<T>> asyncSteps)
+        {
+            asyncSteps.forEach(this.addStep);
+            return this;
+        }
 
         internal Task<T> whenAllSucceed<T>(AsyncStep<T> pullAndCacheBaseImageLayersStep)
         {
             throw new NotImplementedException();
         }
-        internal Task<TResult> whenAllSucceed<TResult>(Func<TResult> f) {
+
+        internal Task<TResult> whenAllSucceed<TResult>(Func<TResult> f)
+        {
             throw new NotImplementedException();
         }
 

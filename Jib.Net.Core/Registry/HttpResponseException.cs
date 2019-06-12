@@ -25,7 +25,6 @@ namespace com.google.cloud.tools.jib.registry
     [Serializable]
     public class HttpResponseException : Exception
     {
-
         public HttpResponseException()
         {
         }
@@ -53,6 +52,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             return Cause.StatusCode;
         }
+
         public HttpResponseHeaders getHeaders()
         {
             return Cause.Headers;

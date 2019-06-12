@@ -20,7 +20,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
     /**
      * Template for inner JSON object representing content descriptor for a layer or container
      * configuration.
@@ -31,7 +30,6 @@ namespace com.google.cloud.tools.jib.image.json
 
     public class ContentDescriptorTemplate : JsonTemplate, System.IEquatable<ContentDescriptorTemplate>
     {
-
         private string mediaType;
         private DescriptorDigest digest;
         private long size;
@@ -51,7 +49,7 @@ namespace com.google.cloud.tools.jib.image.json
             return size;
         }
 
-        void setSize(long size)
+        private void setSize(long size)
         {
             this.size = size;
         }
@@ -61,7 +59,7 @@ namespace com.google.cloud.tools.jib.image.json
             return digest;
         }
 
-        void setDigest(DescriptorDigest digest)
+        private void setDigest(DescriptorDigest digest)
         {
             this.digest = digest;
         }

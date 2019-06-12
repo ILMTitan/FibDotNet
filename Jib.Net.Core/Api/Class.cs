@@ -35,10 +35,12 @@ namespace Jib.Net.Core.Api
         {
             throw new NotImplementedException();
         }
+
         public static bool operator ==(Class<E> c, Class<E> t)
         {
             return c?.GetClassType() == t?.GetClassType();
         }
+
         public static bool operator !=(Class<E> c, Class<E> t)
         {
             return c?.GetClassType() != t?.GetClassType();

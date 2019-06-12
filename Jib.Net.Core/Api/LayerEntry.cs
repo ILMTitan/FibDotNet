@@ -20,113 +20,118 @@ using NodaTime;
 
 namespace com.google.cloud.tools.jib.api
 {
-
-
-
-
     /**
      * Represents an entry in the layer. A layer consists of many entries that can be converted into tar
      * archive entries.
      */
-    public class LayerEntry {
+    public class LayerEntry
+    {
+        private readonly SystemPath sourceFile;
+        private readonly AbsoluteUnixPath extractionPath;
+        private readonly FilePermissions permissions;
+        private readonly Instant lastModifiedTime;
 
-  private readonly SystemPath sourceFile;
-  private readonly AbsoluteUnixPath extractionPath;
-  private readonly FilePermissions permissions;
-  private readonly Instant lastModifiedTime;
+        /**
+         * Instantiates with a source file and the path to place the source file in the container file
+         * system.
+         *
+         * <p>For example, {@code new LayerEntry(Paths.get("typeof(HelloWorld)"),
+         * AbsoluteUnixPath.get("/app/classes/typeof(HelloWorld)"))} adds a file {@code typeof(HelloWorld)} to
+         * the container file system at {@code /app/classes/typeof(HelloWorld)}.
+         *
+         * <p>For example, {@code new LayerEntry(Paths.get("com"),
+         * AbsoluteUnixPath.get("/app/classes/com"))} adds a directory to the container file system at
+         * {@code /app/classes/com}. This does <b>not</b> add the contents of {@code com/}.
+         *
+         * <p>Note that:
+         *
+         * <ul>
+         *   <li>Entry source files can be either files or directories.
+         *   <li>Adding a directory does not include the contents of the directory. Each file under a
+         *       directory must be added as a separate {@link LayerEntry}.
+         * </ul>
+         *
+         * @param sourceFile the source file to add to the layer
+         * @param extractionPath the path in the container file system corresponding to the {@code
+         *     sourceFile}
+         * @param permissions the file permissions on the container
+         * @param lastModifiedTime the file modification time, default to 1 second since the epoch
+         *     (https://github.com/GoogleContainerTools/jib/issues/1079)
+         */
+        public LayerEntry(
+            SystemPath sourceFile,
+            AbsoluteUnixPath extractionPath,
+            FilePermissions permissions,
+            Instant lastModifiedTime)
+        {
+            this.sourceFile = sourceFile;
+            this.extractionPath = extractionPath;
+            this.permissions = permissions;
+            this.lastModifiedTime = lastModifiedTime;
+        }
 
-  /**
-   * Instantiates with a source file and the path to place the source file in the container file
-   * system.
-   *
-   * <p>For example, {@code new LayerEntry(Paths.get("typeof(HelloWorld)"),
-   * AbsoluteUnixPath.get("/app/classes/typeof(HelloWorld)"))} adds a file {@code typeof(HelloWorld)} to
-   * the container file system at {@code /app/classes/typeof(HelloWorld)}.
-   *
-   * <p>For example, {@code new LayerEntry(Paths.get("com"),
-   * AbsoluteUnixPath.get("/app/classes/com"))} adds a directory to the container file system at
-   * {@code /app/classes/com}. This does <b>not</b> add the contents of {@code com/}.
-   *
-   * <p>Note that:
-   *
-   * <ul>
-   *   <li>Entry source files can be either files or directories.
-   *   <li>Adding a directory does not include the contents of the directory. Each file under a
-   *       directory must be added as a separate {@link LayerEntry}.
-   * </ul>
-   *
-   * @param sourceFile the source file to add to the layer
-   * @param extractionPath the path in the container file system corresponding to the {@code
-   *     sourceFile}
-   * @param permissions the file permissions on the container
-   * @param lastModifiedTime the file modification time, default to 1 second since the epoch
-   *     (https://github.com/GoogleContainerTools/jib/issues/1079)
-   */
-  public LayerEntry(
-      SystemPath sourceFile,
-      AbsoluteUnixPath extractionPath,
-      FilePermissions permissions,
-      Instant lastModifiedTime) {
-    this.sourceFile = sourceFile;
-    this.extractionPath = extractionPath;
-    this.permissions = permissions;
-    this.lastModifiedTime = lastModifiedTime;
-  }
+        /**
+         * Returns the modification time of the file in the entry.
+         *
+         * @return the modification time
+         */
+        public Instant getLastModifiedTime()
+        {
+            return lastModifiedTime;
+        }
 
-  /**
-   * Returns the modification time of the file in the entry.
-   *
-   * @return the modification time
-   */
-  public Instant getLastModifiedTime() {
-    return lastModifiedTime;
-  }
+        /**
+         * Gets the source file. The source file may be relative or absolute, so the caller should use
+         * {@code getSourceFile().toAbsolutePath().toString()} for the serialized form since the
+         * serialization could change independently of the path representation.
+         *
+         * @return the source file
+         */
+        public SystemPath getSourceFile()
+        {
+            return sourceFile;
+        }
 
-  /**
-   * Gets the source file. The source file may be relative or absolute, so the caller should use
-   * {@code getSourceFile().toAbsolutePath().toString()} for the serialized form since the
-   * serialization could change independently of the path representation.
-   *
-   * @return the source file
-   */
-  public SystemPath getSourceFile() {
-    return sourceFile;
-  }
+        /**
+         * Gets the extraction path.
+         *
+         * @return the extraction path
+         */
+        public AbsoluteUnixPath getExtractionPath()
+        {
+            return extractionPath;
+        }
 
-  /**
-   * Gets the extraction path.
-   *
-   * @return the extraction path
-   */
-  public AbsoluteUnixPath getExtractionPath() {
-    return extractionPath;
-  }
+        /**
+         * Gets the file permissions on the container.
+         *
+         * @return the file permissions on the container
+         */
+        public FilePermissions getPermissions()
+        {
+            return permissions;
+        }
 
-  /**
-   * Gets the file permissions on the container.
-   *
-   * @return the file permissions on the container
-   */
-  public FilePermissions getPermissions() {
-    return permissions;
-  }
+        public override bool Equals(object other)
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            if (!(other is LayerEntry))
+            {
+                return false;
+            }
+            LayerEntry otherLayerEntry = (LayerEntry)other;
+            return sourceFile.Equals(otherLayerEntry.sourceFile)
+                && extractionPath.Equals(otherLayerEntry.extractionPath)
+                && Objects.Equals(permissions, otherLayerEntry.permissions)
+                && Objects.Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
+        }
 
-  public override bool Equals(object other) {
-    if (this == other) {
-      return true;
+        public override int GetHashCode()
+        {
+            return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
+        }
     }
-    if (!(other is LayerEntry)) {
-      return false;
-    }
-    LayerEntry otherLayerEntry = (LayerEntry) other;
-    return sourceFile.Equals(otherLayerEntry.sourceFile)
-        && extractionPath.Equals(otherLayerEntry.extractionPath)
-        && Objects.Equals(permissions, otherLayerEntry.permissions)
-        && Objects.Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
-  }
-
-  public override int GetHashCode() {
-    return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
-  }
-}
 }

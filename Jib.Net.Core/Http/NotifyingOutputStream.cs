@@ -19,22 +19,19 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.http {
+namespace com.google.cloud.tools.jib.http
+{
+    /** Counts the number of bytes written and reports the count to a callback. */
+    public class NotifyingOutputStream : Stream
+    {
+        /** The underlying {@link OutputStream} to wrap and forward bytes to. */
+        private readonly Stream underlyingOutputStream;
 
+        /** Receives a count of bytes written since the last call. */
+        private readonly Consumer<long> byteCountListener;
 
-
-
-/** Counts the number of bytes written and reports the count to a callback. */
-public class NotifyingOutputStream : Stream {
-
-  /** The underlying {@link OutputStream} to wrap and forward bytes to. */
-  private readonly Stream underlyingOutputStream;
-
-  /** Receives a count of bytes written since the last call. */
-  private readonly Consumer<long> byteCountListener;
-
-  /** Number of bytes to provide to {@link #byteCountListener}. */
-  private long byteCount = 0;
+        /** Number of bytes to provide to {@link #byteCountListener}. */
+        private long byteCount = 0;
 
         public override bool CanRead => underlyingOutputStream.CanRead;
 
@@ -53,10 +50,11 @@ public class NotifyingOutputStream : Stream {
          * @param byteCountListener the byte count {@link Consumer}
          */
         public NotifyingOutputStream(
-      Stream underlyingOutputStream, Consumer<long> byteCountListener) {
-    this.underlyingOutputStream = underlyingOutputStream;
-    this.byteCountListener = byteCountListener;
-  }
+      Stream underlyingOutputStream, Consumer<long> byteCountListener)
+        {
+            this.underlyingOutputStream = underlyingOutputStream;
+            this.byteCountListener = byteCountListener;
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -68,15 +66,17 @@ public class NotifyingOutputStream : Stream {
             }
         }
 
-        private void countAndCallListener(int written) {
-    this.byteCount += written;
-    if (byteCount == 0) {
-      return;
-    }
+        private void countAndCallListener(int written)
+        {
+            this.byteCount += written;
+            if (byteCount == 0)
+            {
+                return;
+            }
 
-    byteCountListener.accept(byteCount);
-    byteCount = 0;
-  }
+            byteCountListener.accept(byteCount);
+            byteCount = 0;
+        }
 
         public override void Flush()
         {

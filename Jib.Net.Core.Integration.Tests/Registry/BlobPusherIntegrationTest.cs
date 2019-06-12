@@ -20,38 +20,29 @@ using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
+    /** Integration tests for {@link BlobPusher}. */
+    public class BlobPusherIntegrationTest
+    {
+        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
+        [Test]
+        public void testPush()
+        {
+            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            Blob testBlob = Blobs.from("crepecake");
+            // Known digest for 'crepecake'
+            DescriptorDigest testBlobDigest =
+                DescriptorDigest.fromHash(
+                    "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c");
 
-
-
-
-
-
-
-
-
-/** Integration tests for {@link BlobPusher}. */
-public class BlobPusherIntegrationTest {
-
-  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
-
-  [Test]
-  public void testPush()
-      {
-    localRegistry.pullAndPushToLocal("busybox", "busybox");
-    Blob testBlob = Blobs.from("crepecake");
-    // Known digest for 'crepecake'
-    DescriptorDigest testBlobDigest =
-        DescriptorDigest.fromHash(
-            "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c");
-
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient();
-    Assert.IsFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => {}));
-  }
-}
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient();
+            Assert.IsFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => { }));
+        }
+    }
 }

@@ -24,7 +24,8 @@ using NUnit.Framework;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
 
 
 
@@ -37,23 +38,13 @@ namespace com.google.cloud.tools.jib.filesystem {
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Tests for {@link FileOperations}. */
-public class FileOperationsTest {
-
-  private static void verifyWriteWithLock(SystemPath file) {
+    /** Tests for {@link FileOperations}. */
+    public class FileOperationsTest
+    {
+        private static void verifyWriteWithLock(SystemPath file)
+        {
             using (Stream fileOutputStream = FileOperations.newLockingOutputStream(file))
             {
-
                 try
                 {
                     // Checks that the file was locked.
@@ -68,57 +59,61 @@ public class FileOperationsTest {
                 fileOutputStream.write("jib".getBytes(StandardCharsets.UTF_8));
             }
 
-      Assert.AreEqual("jib", File.ReadAllText(file.toString()));
-  }
+            Assert.AreEqual("jib", File.ReadAllText(file.toString()));
+        }
 
-  [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
+        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  [Test]
-  public void testCopy() {
-    SystemPath destDir = temporaryFolder.newFolder().toPath();
-    SystemPath libraryA =
-        Paths.get(Resources.getResource("core/application/dependencies/libraryA.jar").toURI());
-    SystemPath libraryB =
-        Paths.get(Resources.getResource("core/application/dependencies/libraryB.jar").toURI());
-    SystemPath dirLayer = Paths.get(Resources.getResource("core/layer").toURI());
+        [Test]
+        public void testCopy()
+        {
+            SystemPath destDir = temporaryFolder.newFolder().toPath();
+            SystemPath libraryA =
+                Paths.get(Resources.getResource("core/application/dependencies/libraryA.jar").toURI());
+            SystemPath libraryB =
+                Paths.get(Resources.getResource("core/application/dependencies/libraryB.jar").toURI());
+            SystemPath dirLayer = Paths.get(Resources.getResource("core/layer").toURI());
 
-    FileOperations.copy(ImmutableArray.Create(libraryA, libraryB, dirLayer), destDir);
+            FileOperations.copy(ImmutableArray.Create(libraryA, libraryB, dirLayer), destDir);
 
-    assertFilesEqual(libraryA, destDir.resolve("libraryA.jar"));
-    assertFilesEqual(libraryB, destDir.resolve("libraryB.jar"));
-    Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("a").resolve("b")));
-    Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("c")));
-    assertFilesEqual(
-        dirLayer.resolve("a").resolve("b").resolve("bar"),
-        destDir.resolve("layer").resolve("a").resolve("b").resolve("bar"));
-    assertFilesEqual(
-        dirLayer.resolve("c").resolve("cat"), destDir.resolve("layer").resolve("c").resolve("cat"));
-    assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
-  }
+            assertFilesEqual(libraryA, destDir.resolve("libraryA.jar"));
+            assertFilesEqual(libraryB, destDir.resolve("libraryB.jar"));
+            Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("a").resolve("b")));
+            Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("c")));
+            assertFilesEqual(
+                dirLayer.resolve("a").resolve("b").resolve("bar"),
+                destDir.resolve("layer").resolve("a").resolve("b").resolve("bar"));
+            assertFilesEqual(
+                dirLayer.resolve("c").resolve("cat"), destDir.resolve("layer").resolve("c").resolve("cat"));
+            assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
+        }
 
-  [Test]
-  public void testNewLockingOutputStream_newFile() {
-    SystemPath file = Files.createTempFile("", "");
-    // Ensures file doesn't exist.
-    Assert.IsTrue(Files.deleteIfExists(file));
+        [Test]
+        public void testNewLockingOutputStream_newFile()
+        {
+            SystemPath file = Files.createTempFile("", "");
+            // Ensures file doesn't exist.
+            Assert.IsTrue(Files.deleteIfExists(file));
 
-    verifyWriteWithLock(file);
-  }
+            verifyWriteWithLock(file);
+        }
 
-  [Test]
-  public void testNewLockingOutputStream_existingFile() {
-    SystemPath file = Files.createTempFile("", "");
-    // Writes out more bytes to ensure proper truncated.
-    byte[] dataBytes = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    Files.write(file, dataBytes);
-    Assert.IsTrue(Files.exists(file));
-    Assert.AreEqual(10, Files.size(file));
+        [Test]
+        public void testNewLockingOutputStream_existingFile()
+        {
+            SystemPath file = Files.createTempFile("", "");
+            // Writes out more bytes to ensure proper truncated.
+            byte[] dataBytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            Files.write(file, dataBytes);
+            Assert.IsTrue(Files.exists(file));
+            Assert.AreEqual(10, Files.size(file));
 
-    verifyWriteWithLock(file);
-  }
+            verifyWriteWithLock(file);
+        }
 
-  private void assertFilesEqual(SystemPath file1, SystemPath file2) {
-    CollectionAssert.AreEqual(Files.readAllBytes(file1), Files.readAllBytes(file2));
-  }
-}
+        private void assertFilesEqual(SystemPath file1, SystemPath file2)
+        {
+            CollectionAssert.AreEqual(Files.readAllBytes(file1), Files.readAllBytes(file2));
+        }
+    }
 }

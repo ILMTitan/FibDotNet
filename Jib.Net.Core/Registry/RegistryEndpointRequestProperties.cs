@@ -14,29 +14,32 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Properties of registry endpoint requests. */
+    public class RegistryEndpointRequestProperties
+    {
+        private readonly string serverUrl;
+        private readonly string imageName;
 
-/** Properties of registry endpoint requests. */
-public class RegistryEndpointRequestProperties {
+        /**
+         * @param serverUrl the server Uri for the registry (for example, {@code gcr.io})
+         * @param imageName the image/repository name (also known as, namespace)
+         */
+        public RegistryEndpointRequestProperties(string serverUrl, string imageName)
+        {
+            this.serverUrl = serverUrl;
+            this.imageName = imageName;
+        }
 
-  private readonly string serverUrl;
-  private readonly string imageName;
+        public string getServerUrl()
+        {
+            return serverUrl;
+        }
 
-  /**
-   * @param serverUrl the server Uri for the registry (for example, {@code gcr.io})
-   * @param imageName the image/repository name (also known as, namespace)
-   */
-  public RegistryEndpointRequestProperties(string serverUrl, string imageName) {
-    this.serverUrl = serverUrl;
-    this.imageName = imageName;
-  }
-
-  public string getServerUrl() {
-    return serverUrl;
-  }
-
-  public string getImageName() {
-    return imageName;
-  }
-}
+        public string getImageName()
+        {
+            return imageName;
+        }
+    }
 }

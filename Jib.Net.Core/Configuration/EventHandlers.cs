@@ -34,11 +34,12 @@ namespace com.google.cloud.tools.jib.configuration
         {
             throw new NotImplementedException();
         }
+
         public class Builder
         {
             private IList<Action<JibEvent>> handlers = new List<Action<JibEvent>>();
 
-            public Builder add<T>(Action<T> action) where T :JibEvent
+            public Builder add<T>(Action<T> action) where T : JibEvent
             {
                 handlers.Add(jibEvent =>
                 {
@@ -54,6 +55,7 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 return add<T>(action);
             }
+
             public EventHandlers build()
             {
                 throw new NotImplementedException();

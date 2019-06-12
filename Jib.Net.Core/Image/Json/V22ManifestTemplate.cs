@@ -19,90 +19,91 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.image.json {
+namespace com.google.cloud.tools.jib.image.json
+{
+    /**
+     * JSON Template for Docker Manifest Schema V2.2
+     *
+     * <p>Example manifest JSON:
+     *
+     * <pre>{@code
+     * {
+     *   "schemaVersion": 2,
+     *   "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+     *   "config": {
+     *     "mediaType": "application/vnd.docker.container.image.v1+json",
+     *     "size": 631,
+     *     "digest": "sha256:26b84ca5b9050d32e68f66ad0f3e2bbcd247198a6e6e09a7effddf126eb8d873"
+     *   },
+     *   "layers": [
+     *     {
+     *       "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+     *       "size": 1991435,
+     *       "digest": "sha256:b56ae66c29370df48e7377c8f9baa744a3958058a766793f821dadcb144a4647"
+     *     },
+     *     {
+     *       "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
+     *       "size": 32,
+     *       "digest": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
+     *     }
+     *   ]
+     * }
+     * }</pre>
+     *
+     * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
+     *     Schema 2</a>
+     */
+    public class V22ManifestTemplate : BuildableManifestTemplate
+    {
+        /** The Docker V2.2 manifest media type. */
+        public static readonly string MANIFEST_MEDIA_TYPE =
+            "application/vnd.docker.distribution.manifest.v2+json";
 
+        /** The Docker V2.2 container configuration media type. */
+        private static readonly string CONTAINER_CONFIGURATION_MEDIA_TYPE =
+            "application/vnd.docker.container.image.v1+json";
 
+        /** The Docker V2.2 layer media type. */
+        private static readonly string LAYER_MEDIA_TYPE =
+            "application/vnd.docker.image.rootfs.diff.tar.gzip";
 
+        private readonly int schemaVersion = 2;
+        private readonly string mediaType = MANIFEST_MEDIA_TYPE;
 
+        /** The container configuration reference. */
+        private ContentDescriptorTemplate config;
 
+        /** The list of layer references. */
+        private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
 
-/**
- * JSON Template for Docker Manifest Schema V2.2
- *
- * <p>Example manifest JSON:
- *
- * <pre>{@code
- * {
- *   "schemaVersion": 2,
- *   "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
- *   "config": {
- *     "mediaType": "application/vnd.docker.container.image.v1+json",
- *     "size": 631,
- *     "digest": "sha256:26b84ca5b9050d32e68f66ad0f3e2bbcd247198a6e6e09a7effddf126eb8d873"
- *   },
- *   "layers": [
- *     {
- *       "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
- *       "size": 1991435,
- *       "digest": "sha256:b56ae66c29370df48e7377c8f9baa744a3958058a766793f821dadcb144a4647"
- *     },
- *     {
- *       "mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",
- *       "size": 32,
- *       "digest": "sha256:a3ed95caeb02ffe68cdd9fd84406680ae93d633cb16422d00e8a7c22955b46d4"
- *     }
- *   ]
- * }
- * }</pre>
- *
- * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
- *     Schema 2</a>
- */
-public class V22ManifestTemplate : BuildableManifestTemplate {
+        public int getSchemaVersion()
+        {
+            return schemaVersion;
+        }
 
-  /** The Docker V2.2 manifest media type. */
-  public static readonly string MANIFEST_MEDIA_TYPE =
-      "application/vnd.docker.distribution.manifest.v2+json";
+        public string getManifestMediaType()
+        {
+            return MANIFEST_MEDIA_TYPE;
+        }
 
-  /** The Docker V2.2 container configuration media type. */
-  private static readonly string CONTAINER_CONFIGURATION_MEDIA_TYPE =
-      "application/vnd.docker.container.image.v1+json";
+        public ContentDescriptorTemplate getContainerConfiguration()
+        {
+            return config;
+        }
 
-  /** The Docker V2.2 layer media type. */
-  private static readonly string LAYER_MEDIA_TYPE =
-      "application/vnd.docker.image.rootfs.diff.tar.gzip";
+        public IReadOnlyList<ContentDescriptorTemplate> getLayers()
+        {
+            return Collections.unmodifiableList(layers);
+        }
 
-  private readonly int schemaVersion = 2;
-  private readonly string mediaType = MANIFEST_MEDIA_TYPE;
+        public void setContainerConfiguration(long size, DescriptorDigest digest)
+        {
+            config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
+        }
 
-  /** The container configuration reference. */
-  private ContentDescriptorTemplate config;
-
-  /** The list of layer references. */
-  private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
-
-  public int getSchemaVersion() {
-    return schemaVersion;
-  }
-
-  public string getManifestMediaType() {
-    return MANIFEST_MEDIA_TYPE;
-  }
-
-  public ContentDescriptorTemplate getContainerConfiguration() {
-    return config;
-  }
-
-  public IReadOnlyList<ContentDescriptorTemplate> getLayers() {
-    return Collections.unmodifiableList(layers);
-  }
-
-  public void setContainerConfiguration(long size, DescriptorDigest digest) {
-    config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
-  }
-
-  public void addLayer(long size, DescriptorDigest digest) {
-    layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
-  }
-}
+        public void addLayer(long size, DescriptorDigest digest)
+        {
+            layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+        }
+    }
 }

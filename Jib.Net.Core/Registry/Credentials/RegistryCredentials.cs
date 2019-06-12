@@ -16,35 +16,37 @@
 
 using com.google.cloud.tools.jib.http;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
+namespace com.google.cloud.tools.jib.registry.credentials
+{
+    /**
+     * Stores retrieved registry credentials and their source.
+     *
+     * <p>The credentials are referred to by the registry they are used for.
+     */
+    public class RegistryCredentials
+    {
+        private readonly Authorization authorization;
 
+        /**
+         * A string representation of where the credentials were retrieved from. This is useful for
+         * letting the user know which credentials were used.
+         */
+        private readonly string credentialSource;
 
-/**
- * Stores retrieved registry credentials and their source.
- *
- * <p>The credentials are referred to by the registry they are used for.
- */
-public class RegistryCredentials {
+        public RegistryCredentials(string credentialSource, Authorization authorization)
+        {
+            this.authorization = authorization;
+            this.credentialSource = credentialSource;
+        }
 
-  private readonly Authorization authorization;
+        public Authorization getAuthorization()
+        {
+            return authorization;
+        }
 
-  /**
-   * A string representation of where the credentials were retrieved from. This is useful for
-   * letting the user know which credentials were used.
-   */
-  private readonly string credentialSource;
-
-  public RegistryCredentials(string credentialSource, Authorization authorization) {
-    this.authorization = authorization;
-    this.credentialSource = credentialSource;
-  }
-
-  public Authorization getAuthorization() {
-    return authorization;
-  }
-
-  public string getCredentialSource() {
-    return credentialSource;
-  }
-}
+        public string getCredentialSource()
+        {
+            return credentialSource;
+        }
+    }
 }

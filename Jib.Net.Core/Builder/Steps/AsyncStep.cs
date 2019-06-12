@@ -27,7 +27,8 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             return new FunStep<T>(p);
         }
-        class FunStep<T> : AsyncStep<T>
+
+        private class FunStep<T> : AsyncStep<T>
         {
             private Lazy<Task<T>> lazyFuture;
 

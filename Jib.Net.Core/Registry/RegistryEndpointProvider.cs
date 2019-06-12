@@ -21,24 +21,13 @@ using System.Net.Http;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
     /**
      * Provides implementations for a registry endpoint. Implementations should be immutable.
      *
      * @param <T> the type returned from handling the endpoint response
      */
-    interface RegistryEndpointProvider<T>
+    internal interface RegistryEndpointProvider<T>
     {
-
         /** @return the HTTP method to send the request with */
         HttpMethod getHttpMethod();
 
@@ -47,6 +36,7 @@ namespace com.google.cloud.tools.jib.registry
          * @return the registry endpoint Uri
          */
         Uri getApiRoute(string apiRouteBase);
+
         /** @return the {@link BlobHttpContent} to send as the request body */
         BlobHttpContent getContent();
 

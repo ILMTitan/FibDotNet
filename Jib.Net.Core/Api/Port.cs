@@ -16,98 +16,108 @@
 
 using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Represents a port number with a protocol (TCP or UDP). */
+    public sealed class Port
+    {
+        private static readonly string TCP_PROTOCOL = "tcp";
+        private static readonly string UDP_PROTOCOL = "udp";
 
+        /**
+         * Create a new {@link Port} with TCP protocol.
+         *
+         * @param port the port number
+         * @return the new {@link Port}
+         */
+        public static Port tcp(int port)
+        {
+            return new Port(port, TCP_PROTOCOL);
+        }
 
-/** Represents a port number with a protocol (TCP or UDP). */
-public class Port {
+        /**
+         * Create a new {@link Port} with UDP protocol.
+         *
+         * @param port the port number
+         * @return the new {@link Port}
+         */
+        public static Port udp(int port)
+        {
+            return new Port(port, UDP_PROTOCOL);
+        }
 
-  private static readonly string TCP_PROTOCOL = "tcp";
-  private static readonly string UDP_PROTOCOL = "udp";
+        /**
+         * Gets a {@link Port} with protocol parsed from the string form {@code protocolString}. Unknown
+         * protocols will default to TCP.
+         *
+         * @param port the port number
+         * @param protocolString the case insensitive string (e.g. "tcp", "udp")
+         * @return the {@link Port}
+         */
+        public static Port parseProtocol(int port, string protocolString)
+        {
+            string protocol = UDP_PROTOCOL.equalsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
+            return new Port(port, protocol);
+        }
 
-  /**
-   * Create a new {@link Port} with TCP protocol.
-   *
-   * @param port the port number
-   * @return the new {@link Port}
-   */
-  public static Port tcp(int port) {
-    return new Port(port, TCP_PROTOCOL);
-  }
+        private readonly int port;
+        private readonly string protocol;
 
-  /**
-   * Create a new {@link Port} with UDP protocol.
-   *
-   * @param port the port number
-   * @return the new {@link Port}
-   */
-  public static Port udp(int port) {
-    return new Port(port, UDP_PROTOCOL);
-  }
+        private Port(int port, string protocol)
+        {
+            this.port = port;
+            this.protocol = protocol;
+        }
 
-  /**
-   * Gets a {@link Port} with protocol parsed from the string form {@code protocolString}. Unknown
-   * protocols will default to TCP.
-   *
-   * @param port the port number
-   * @param protocolString the case insensitive string (e.g. "tcp", "udp")
-   * @return the {@link Port}
-   */
-  public static Port parseProtocol(int port, string protocolString) {
-    string protocol = UDP_PROTOCOL.equalsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
-    return new Port(port, protocol);
-  }
+        /**
+         * Gets the port number.
+         *
+         * @return the port number
+         */
+        public int getPort()
+        {
+            return port;
+        }
 
-  private readonly int port;
-  private readonly string protocol;
+        /**
+         * Gets the protocol.
+         *
+         * @return the protocol
+         */
+        public string getProtocol()
+        {
+            return protocol;
+        }
 
-  private Port(int port, string protocol) {
-    this.port = port;
-    this.protocol = protocol;
-  }
+        public override bool Equals(object other)
+        {
+            if (other == this)
+            {
+                return true;
+            }
+            if (!(other is Port))
+            {
+                return false;
+            }
+            Port otherPort = (Port)other;
+            return port == otherPort.port && protocol.Equals(otherPort.protocol);
+        }
 
-  /**
-   * Gets the port number.
-   *
-   * @return the port number
-   */
-  public int getPort() {
-    return port;
-  }
+        public override int GetHashCode()
+        {
+            return Objects.hash(port, protocol);
+        }
 
-  /**
-   * Gets the protocol.
-   *
-   * @return the protocol
-   */
-  public string getProtocol() {
-    return protocol;
-  }
+        /**
+         * Stringifies the port with protocol, in the form {@code <port>/<protocol>}. For example: {@code
+         * 1337/TCP}.
+         *
+         * @return the string form of the port with protocol
+         */
 
-  public override bool Equals(object other) {
-    if (other == this) {
-      return true;
+        public override string ToString()
+        {
+            return port + "/" + protocol;
+        }
     }
-    if (!(other is Port)) {
-      return false;
-    }
-    Port otherPort = (Port) other;
-    return port == otherPort.port && protocol.Equals(otherPort.protocol);
-  }
-
-  public override int GetHashCode() {
-    return Objects.hash(port, protocol);
-  }
-
-  /**
-   * Stringifies the port with protocol, in the form {@code <port>/<protocol>}. For example: {@code
-   * 1337/TCP}.
-   *
-   * @return the string form of the port with protocol
-   */
-
-  public override string ToString() {
-    return port + "/" + protocol;
-  }
-}
 }

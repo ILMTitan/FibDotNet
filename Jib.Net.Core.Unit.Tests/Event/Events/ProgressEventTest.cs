@@ -22,69 +22,66 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.@event.events {
+namespace com.google.cloud.tools.jib.@event.events
+{
+    /** Tests for {@link ProgressEvent}. */
+    public class ProgressEventTest
+    {
+        /** {@link Allocation} tree for testing. */
+        private class AllocationTree
+        {
+            /** The root node. */
+            public static readonly Allocation root = Allocation.newRoot("ignored", 2);
 
+            /** First child of the root node. */
+            public static readonly Allocation child1 = root.newChild("ignored", 1);
 
+            /** Child of the first child of the root node. */
+            public static readonly Allocation child1Child = child1.newChild("ignored", 100);
 
+            /** Second child of the root node. */
+            public static readonly Allocation child2 = root.newChild("ignored", 200);
 
+            private AllocationTree() { }
+        }
 
+        private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer)
+        {
+            return EventHandlers.builder().add<ProgressEvent>(progressEventConsumer).build();
+        }
 
+        private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
+        private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<Allocation, long>();
 
-/** Tests for {@link ProgressEvent}. */
-public class ProgressEventTest {
+        private double progress = 0.0;
 
-  /** {@link Allocation} tree for testing. */
-  private class AllocationTree {
+        [Test]
+        public void testAccumulateProgress()
+        {
+            Consumer<ProgressEvent> progressEventConsumer =
+                progressEvent =>
+                {
+                    double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
+                    long units = progressEvent.getUnits();
 
-    /** The root node. */
-    public static readonly Allocation root = Allocation.newRoot("ignored", 2);
+                    progress += units * fractionOfRoot;
+                };
 
-    /** First child of the root node. */
-    public static readonly Allocation child1 = root.newChild("ignored", 1);
-    /** Child of the first child of the root node. */
-    public static readonly Allocation child1Child = child1.newChild("ignored", 100);
+            EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-    /** Second child of the root node. */
-    public static readonly Allocation child2 = root.newChild("ignored", 200);
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
 
-    private AllocationTree() {}
-  }
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
-  private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer) {
-    return EventHandlers.builder().add<ProgressEvent>(progressEventConsumer).build();
-  }
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 10));
+            Assert.AreEqual(1.0 / 2 + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
 
-  private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
-
-  private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<Allocation, long>();
-
-  private double progress = 0.0;
-
-  [Test]
-  public void testAccumulateProgress() {
-    Consumer<ProgressEvent> progressEventConsumer =
-        progressEvent => {
-          double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
-          long units = progressEvent.getUnits();
-
-          progress += units * fractionOfRoot;
-        };
-
-    EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
-
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
-    Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
-
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
-    Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
-
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 10));
-    Assert.AreEqual(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
-
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 190));
-    Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
-  }
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 190));
+            Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
+        }
 
         private EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer)
         {
@@ -92,71 +89,78 @@ public class ProgressEventTest {
         }
 
         [Test]
-  public void testSmoke() {
-    Consumer<ProgressEvent> progressEventConsumer =
-        progressEvent => {
-          Allocation allocation = progressEvent.getAllocation();
-          long units = progressEvent.getUnits();
+        public void testSmoke()
+        {
+            Consumer<ProgressEvent> progressEventConsumer =
+                progressEvent =>
+                {
+                    Allocation allocation = progressEvent.getAllocation();
+                    long units = progressEvent.getUnits();
 
-          updateCompletionMap(allocation, units);
-        };
+                    updateCompletionMap(allocation, units);
+                };
 
-    EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
+            EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
 
-    Assert.AreEqual(1, allocationCompletionMap.size());
-    Assert.AreEqual(50, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.size());
+            Assert.AreEqual(50, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
 
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
 
-    Assert.AreEqual(3, allocationCompletionMap.size());
-    Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.root).longValue());
+            Assert.AreEqual(3, allocationCompletionMap.size());
+            Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.root).longValue());
 
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 200));
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 200));
 
-    Assert.AreEqual(4, allocationCompletionMap.size());
-    Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-    Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-    Assert.AreEqual(200, allocationCompletionMap.get(AllocationTree.child2).longValue());
-    Assert.AreEqual(2, allocationCompletionMap.get(AllocationTree.root).longValue());
-  }
+            Assert.AreEqual(4, allocationCompletionMap.size());
+            Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
+            Assert.AreEqual(200, allocationCompletionMap.get(AllocationTree.child2).longValue());
+            Assert.AreEqual(2, allocationCompletionMap.get(AllocationTree.root).longValue());
+        }
 
-  [Test]
-  public void testType() {
-    // Used to test whether or not progress event was consumed
-    bool[] called = new bool[] {false};
-    Consumer<ProgressEvent> buildImageConsumer =
-        progressEvent => {
-          called[0] = true;
-        };
+        [Test]
+        public void testType()
+        {
+            // Used to test whether or not progress event was consumed
+            bool[] called = new bool[] { false };
+            Consumer<ProgressEvent> buildImageConsumer =
+                progressEvent =>
+                {
+                    called[0] = true;
+                };
 
-    EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
-    eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 50));
-    Assert.IsTrue(called[0]);
-  }
+            EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
+            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 50));
+            Assert.IsTrue(called[0]);
+        }
 
-  /**
-   * Updates the {@link #allocationCompletionMap} with {@code units} more progress for {@code
-   * allocation}. This also updates {@link Allocation} parents if {@code allocation} is complete in
-   * terms of progress.
-   *
-   * @param allocation the allocation the progress is made on
-   * @param units the progress units
-   */
-  private void updateCompletionMap(Allocation allocation, long units) {
-    if (allocationCompletionMap.containsKey(allocation)) {
-      units += allocationCompletionMap.get(allocation);
+        /**
+         * Updates the {@link #allocationCompletionMap} with {@code units} more progress for {@code
+         * allocation}. This also updates {@link Allocation} parents if {@code allocation} is complete in
+         * terms of progress.
+         *
+         * @param allocation the allocation the progress is made on
+         * @param units the progress units
+         */
+        private void updateCompletionMap(Allocation allocation, long units)
+        {
+            if (allocationCompletionMap.containsKey(allocation))
+            {
+                units += allocationCompletionMap.get(allocation);
+            }
+            allocationCompletionMap.put(allocation, units);
+
+            if (allocation.getAllocationUnits() == units)
+            {
+                allocation
+                    .getParent()
+                    .ifPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
+            }
+        }
     }
-    allocationCompletionMap.put(allocation, units);
-
-    if (allocation.getAllocationUnits() == units) {
-      allocation
-          .getParent()
-          .ifPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
-    }
-  }
-}
 }

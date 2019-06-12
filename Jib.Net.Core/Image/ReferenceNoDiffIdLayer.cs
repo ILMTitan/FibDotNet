@@ -18,41 +18,42 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image {
+namespace com.google.cloud.tools.jib.image
+{
+    /**
+     * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
+     * layer with its digest and size, but <b>not</b> its diff ID.
+     */
+    public class ReferenceNoDiffIdLayer : Layer
+    {
+        /** The {@link BlobDescriptor} of the compressed layer content. */
+        private readonly BlobDescriptor blobDescriptor;
 
+        /**
+         * Instantiate with a {@link BlobDescriptor} and no diff ID.
+         *
+         * @param blobDescriptor the blob descriptor
+         */
+        public ReferenceNoDiffIdLayer(BlobDescriptor blobDescriptor)
+        {
+            this.blobDescriptor = blobDescriptor;
+        }
 
+        public Blob getBlob()
+        {
+            throw new LayerPropertyNotFoundException(
+                "Blob not available for reference layer without diff ID");
+        }
 
+        public BlobDescriptor getBlobDescriptor()
+        {
+            return blobDescriptor;
+        }
 
-/**
- * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
- * layer with its digest and size, but <b>not</b> its diff ID.
- */
-public class ReferenceNoDiffIdLayer : Layer {
-
-  /** The {@link BlobDescriptor} of the compressed layer content. */
-  private readonly BlobDescriptor blobDescriptor;
-
-  /**
-   * Instantiate with a {@link BlobDescriptor} and no diff ID.
-   *
-   * @param blobDescriptor the blob descriptor
-   */
-  public ReferenceNoDiffIdLayer(BlobDescriptor blobDescriptor) {
-    this.blobDescriptor = blobDescriptor;
-  }
-
-  public Blob getBlob() {
-    throw new LayerPropertyNotFoundException(
-        "Blob not available for reference layer without diff ID");
-  }
-
-  public BlobDescriptor getBlobDescriptor() {
-    return blobDescriptor;
-  }
-
-  public DescriptorDigest getDiffId() {
-    throw new LayerPropertyNotFoundException(
-        "Diff ID not available for reference layer without diff ID");
-  }
-}
+        public DescriptorDigest getDiffId()
+        {
+            throw new LayerPropertyNotFoundException(
+                "Diff ID not available for reference layer without diff ID");
+        }
+    }
 }

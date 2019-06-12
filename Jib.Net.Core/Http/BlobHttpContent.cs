@@ -21,42 +21,41 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.http {
+namespace com.google.cloud.tools.jib.http
+{
+    /** {@link Blob}-backed {@link HttpContent}. */
+    public class BlobHttpContent : HttpContent
+    {
+        private readonly Blob blob;
+        private readonly string contentType;
+        private readonly Consumer<long> writtenByteCountListener;
 
+        public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, ignored => { })
+        {
+        }
 
+        public BlobHttpContent(Blob blob, string contentType, Consumer<long> writtenByteCountListener)
+        {
+            this.blob = blob;
+            this.contentType = contentType;
+            this.writtenByteCountListener = writtenByteCountListener;
+        }
 
+        public long getLength()
+        {
+            // Returns negative value for unknown length.
+            return -1;
+        }
 
+        public string getType()
+        {
+            return contentType;
+        }
 
-
-/** {@link Blob}-backed {@link HttpContent}. */
-public class BlobHttpContent : HttpContent {
-
-  private readonly Blob blob;
-  private readonly string contentType;
-  private readonly Consumer<long> writtenByteCountListener;
-
-  public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, ignored => {}) {
-    
-  }
-
-  public BlobHttpContent(Blob blob, string contentType, Consumer<long> writtenByteCountListener) {
-    this.blob = blob;
-    this.contentType = contentType;
-    this.writtenByteCountListener = writtenByteCountListener;
-  }
-
-  public long getLength() {
-    // Returns negative value for unknown length.
-    return -1;
-  }
-
-  public string getType() {
-    return contentType;
-  }
-
-  public bool retrySupported() {
-    return false;
-  }
+        public bool retrySupported()
+        {
+            return false;
+        }
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {

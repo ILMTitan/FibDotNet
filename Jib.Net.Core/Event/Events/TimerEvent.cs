@@ -17,120 +17,124 @@
 using com.google.cloud.tools.jib.api;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.@event.events {
-
-
-
-
-/**
- * Timer event for timing various part of Jib's execution.
- *
- * <p>Timer events follow a specific {@link Timer} through a {@link State#START}, {@link State#LAP},
- * and {@link State#FINISHED} states. The duration indicates the duration since the last {@link
- * TimerEvent} dispatched for the {@link Timer}.
- *
- * <p>Timers can also define a hierarchy.
- */
-public class TimerEvent : JibEvent {
-
-  /** The state of the timing. */
-  public enum State {
-
-    /** The timer has started timing. {@link #getDuration} is 0. {@link #getElapsed} is 0. */
-    START,
-
+namespace com.google.cloud.tools.jib.@event.events
+{
     /**
-     * The timer timed a lap. {@link #getDuration} is the time since the last event. {@link
-     * #getElapsed} is the total elapsed time.
-     */
-    LAP,
-
-    /**
-     * The timer has finished timing. {@link #getDuration} is the time since the last event. {@link
-     * #getElapsed} is the total elapsed time.
-     */
-    FINISHED
-  }
-
-  /** Defines a timer hierarchy. */
-  public interface Timer {
-
-    /**
-     * Gets the parent of this {@link Timer}.
+     * Timer event for timing various part of Jib's execution.
      *
-     * @return the parent of this {@link Timer}
+     * <p>Timer events follow a specific {@link Timer} through a {@link State#START}, {@link State#LAP},
+     * and {@link State#FINISHED} states. The duration indicates the duration since the last {@link
+     * TimerEvent} dispatched for the {@link Timer}.
+     *
+     * <p>Timers can also define a hierarchy.
      */
-    Optional<Timer> getParent();
-  }
+    public class TimerEvent : JibEvent
+    {
+        /** The state of the timing. */
+        public enum State
+        {
 
-  private readonly State state;
-  private readonly Timer timer;
-  private readonly Duration duration;
-  private readonly Duration elapsed;
-  private readonly string description;
+            /** The timer has started timing. {@link #getDuration} is 0. {@link #getElapsed} is 0. */
+            START,
 
-  /**
-   * Creates a new {@link TimerEvent}. For internal use only.
-   *
-   * @param state the state of the {@link Timer}
-   * @param timer the {@link Timer}
-   * @param duration the lap duration
-   * @param elapsed the total elapsed time since the timer was created
-   * @param description the description of this event
-   */
-  public TimerEvent(
-      State state, Timer timer, Duration duration, Duration elapsed, string description) {
-    this.state = state;
-    this.timer = timer;
-    this.duration = duration;
-    this.elapsed = elapsed;
-    this.description = description;
-  }
+            /**
+             * The timer timed a lap. {@link #getDuration} is the time since the last event. {@link
+             * #getElapsed} is the total elapsed time.
+             */
+            LAP,
 
-  /**
-   * Gets the state of the timer.
-   *
-   * @return the state of the timer
-   * @see State
-   */
-  public State getState() {
-    return state;
-  }
+            /**
+             * The timer has finished timing. {@link #getDuration} is the time since the last event. {@link
+             * #getElapsed} is the total elapsed time.
+             */
+            FINISHED
+        }
 
-  /**
-   * Gets the timer this event is for.
-   *
-   * @return the timer
-   */
-  public Timer getTimer() {
-    return timer;
-  }
+        /** Defines a timer hierarchy. */
+        public interface Timer
+        {
+            /**
+             * Gets the parent of this {@link Timer}.
+             *
+             * @return the parent of this {@link Timer}
+             */
+            Optional<Timer> getParent();
+        }
 
-  /**
-   * Gets the duration since the last {@link TimerEvent} for this timer.
-   *
-   * @return the duration since the last {@link TimerEvent} for this timer.
-   */
-  public Duration getDuration() {
-    return duration;
-  }
+        private readonly State state;
+        private readonly Timer timer;
+        private readonly Duration duration;
+        private readonly Duration elapsed;
+        private readonly string description;
 
-  /**
-   * Gets the total elapsed duration since this timer was created.
-   *
-   * @return the duration since this timer was created
-   */
-  public Duration getElapsed() {
-    return elapsed;
-  }
+        /**
+         * Creates a new {@link TimerEvent}. For internal use only.
+         *
+         * @param state the state of the {@link Timer}
+         * @param timer the {@link Timer}
+         * @param duration the lap duration
+         * @param elapsed the total elapsed time since the timer was created
+         * @param description the description of this event
+         */
+        public TimerEvent(
+            State state, Timer timer, Duration duration, Duration elapsed, string description)
+        {
+            this.state = state;
+            this.timer = timer;
+            this.duration = duration;
+            this.elapsed = elapsed;
+            this.description = description;
+        }
 
-  /**
-   * Gets the description associated with this event.
-   *
-   * @return the description
-   */
-  public string getDescription() {
-    return description;
-  }
-}
+        /**
+         * Gets the state of the timer.
+         *
+         * @return the state of the timer
+         * @see State
+         */
+        public State getState()
+        {
+            return state;
+        }
+
+        /**
+         * Gets the timer this event is for.
+         *
+         * @return the timer
+         */
+        public Timer getTimer()
+        {
+            return timer;
+        }
+
+        /**
+         * Gets the duration since the last {@link TimerEvent} for this timer.
+         *
+         * @return the duration since the last {@link TimerEvent} for this timer.
+         */
+        public Duration getDuration()
+        {
+            return duration;
+        }
+
+        /**
+         * Gets the total elapsed duration since this timer was created.
+         *
+         * @return the duration since this timer was created
+         */
+        public Duration getElapsed()
+        {
+            return elapsed;
+        }
+
+        /**
+         * Gets the description associated with this event.
+         *
+         * @return the description
+         */
+        public string getDescription()
+        {
+            return description;
+        }
+    }
 }

@@ -24,7 +24,8 @@ using Moq;
 using NUnit.Framework;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.frontend {
+namespace com.google.cloud.tools.jib.frontend
+{
 
 
 
@@ -37,137 +38,129 @@ namespace com.google.cloud.tools.jib.frontend {
 
 
 
+    /** Tests for {@link CredentialRetrieverFactory}. */
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class CredentialRetrieverFactoryTest
+    {
+        private static readonly Credential FAKE_CREDENTIALS = Credential.from("username", "password");
 
+        /**
+         * Returns a {@link DockerCredentialHelperFactory} that checks given parameters upon creating a
+         * {@link DockerCredentialHelper} instance.
+         *
+         * @param expectedRegistry the expected registry given to the factory
+         * @param expectedCredentialHelper the expected credential helper path given to the factory
+         * @param returnedCredentialHelper the mock credential helper to return
+         * @return a new {@link DockerCredentialHelperFactory}
+         */
+        private static DockerCredentialHelperFactory getTestFactory(
+            string expectedRegistry,
+            SystemPath expectedCredentialHelper,
+            DockerCredentialHelper returnedCredentialHelper)
+        {
+            return (registry, credentialHelper) =>
+            {
+                Assert.AreEqual(expectedRegistry, registry);
+                Assert.AreEqual(expectedCredentialHelper, credentialHelper);
+                return returnedCredentialHelper;
+            };
+        }
 
+        private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+        private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
+        private DockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<DockerConfigCredentialRetriever>();
 
+        /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
+        private DockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
 
+        private CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
 
+        [SetUp]
+        public void setUp()
+        {
+            Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIALS);
 
+            Mock.Get(mockNonexistentDockerCredentialHelper).Setup(m => m.retrieve()).Throws(mockCredentialHelperNotFoundException);
+        }
 
+        [Test]
+        public void testDockerCredentialHelper()
+        {
+            CredentialRetrieverFactory credentialRetrieverFactory =
+                new CredentialRetrieverFactory(
+                    ImageReference.of("registry", "repository", null),
+                    mockLogger,
+                    getTestFactory(
+                        "registry", Paths.get("docker-credential-helper"), mockDockerCredentialHelper));
 
+            Assert.AreEqual(
+                FAKE_CREDENTIALS,
+                credentialRetrieverFactory
+                    .dockerCredentialHelper(Paths.get("docker-credential-helper"))
+                    .retrieve()
+                    .orElseThrow(() => new AssertionException("")));
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-helper for registry")));
+        }
 
+        [Test]
+        public void testInferCredentialHelper()
+        {
+            CredentialRetrieverFactory credentialRetrieverFactory =
+                new CredentialRetrieverFactory(
+                    ImageReference.of("something.gcr.io", "repository", null),
+                    mockLogger,
+                    getTestFactory(
+                        "something.gcr.io",
+                        Paths.get("docker-credential-gcr"),
+                        mockDockerCredentialHelper));
 
-/** Tests for {@link CredentialRetrieverFactory}. */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class CredentialRetrieverFactoryTest {
+            Assert.AreEqual(
+                FAKE_CREDENTIALS,
+                credentialRetrieverFactory
+                    .inferCredentialHelper()
+                    .retrieve()
+                    .orElseThrow(() => new AssertionException("")));
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-gcr for something.gcr.io")));
+        }
 
-  private static readonly Credential FAKE_CREDENTIALS = Credential.from("username", "password");
+        [Test]
+        public void testInferCredentialHelper_info()
+        {
+            CredentialRetrieverFactory credentialRetrieverFactory =
+                new CredentialRetrieverFactory(
+                    ImageReference.of("something.amazonaws.com", "repository", null),
+                    mockLogger,
+                    getTestFactory(
+                        "something.amazonaws.com",
+                        Paths.get("docker-credential-ecr-login"),
+                        mockNonexistentDockerCredentialHelper));
 
-  /**
-   * Returns a {@link DockerCredentialHelperFactory} that checks given parameters upon creating a
-   * {@link DockerCredentialHelper} instance.
-   *
-   * @param expectedRegistry the expected registry given to the factory
-   * @param expectedCredentialHelper the expected credential helper path given to the factory
-   * @param returnedCredentialHelper the mock credential helper to return
-   * @return a new {@link DockerCredentialHelperFactory}
-   */
-  private static DockerCredentialHelperFactory getTestFactory(
-      string expectedRegistry,
-      SystemPath expectedCredentialHelper,
-      DockerCredentialHelper returnedCredentialHelper) {
-    return (registry, credentialHelper) => {
-      Assert.AreEqual(expectedRegistry, registry);
-      Assert.AreEqual(expectedCredentialHelper, credentialHelper);
-      return returnedCredentialHelper;
-    };
-  }
+            Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getMessage()).Returns("warning");
 
-  private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
-  private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
-  private DockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<DockerConfigCredentialRetriever>();
+            Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getCause()).Returns(new IOException("the root cause"));
 
-  /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
-  private DockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
+            Assert.IsFalse(credentialRetrieverFactory.inferCredentialHelper().retrieve().isPresent());
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("warning")));
 
-  private CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("  Caused by: the root cause")));
+        }
 
-  [SetUp]
-  public void setUp()
-      {
-    Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIALS);
+        [Test]
+        public void testDockerConfig()
+        {
+            CredentialRetrieverFactory credentialRetrieverFactory =
+                CredentialRetrieverFactory.forImage(
+                    ImageReference.of("registry", "repository", null), mockLogger);
 
-    Mock.Get(mockNonexistentDockerCredentialHelper).Setup(m => m.retrieve()).Throws(mockCredentialHelperNotFoundException);
-  }
+            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.retrieve(mockLogger)).Returns(Optional.of(FAKE_CREDENTIALS));
 
-  [Test]
-  public void testDockerCredentialHelper() {
-    CredentialRetrieverFactory credentialRetrieverFactory =
-        new CredentialRetrieverFactory(
-            ImageReference.of("registry", "repository", null),
-            mockLogger,
-            getTestFactory(
-                "registry", Paths.get("docker-credential-helper"), mockDockerCredentialHelper));
-
-    Assert.AreEqual(
-        FAKE_CREDENTIALS,
-        credentialRetrieverFactory
-            .dockerCredentialHelper(Paths.get("docker-credential-helper"))
-            .retrieve()
-            .orElseThrow(() => new AssertionException("")));
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-helper for registry")));
-
-  }
-
-  [Test]
-  public void testInferCredentialHelper() {
-    CredentialRetrieverFactory credentialRetrieverFactory =
-        new CredentialRetrieverFactory(
-            ImageReference.of("something.gcr.io", "repository", null),
-            mockLogger,
-            getTestFactory(
-                "something.gcr.io",
-                Paths.get("docker-credential-gcr"),
-                mockDockerCredentialHelper));
-
-    Assert.AreEqual(
-        FAKE_CREDENTIALS,
-        credentialRetrieverFactory
-            .inferCredentialHelper()
-            .retrieve()
-            .orElseThrow(() => new AssertionException("")));
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-gcr for something.gcr.io")));
-
-  }
-
-  [Test]
-  public void testInferCredentialHelper_info() {
-    CredentialRetrieverFactory credentialRetrieverFactory =
-        new CredentialRetrieverFactory(
-            ImageReference.of("something.amazonaws.com", "repository", null),
-            mockLogger,
-            getTestFactory(
-                "something.amazonaws.com",
-                Paths.get("docker-credential-ecr-login"),
-                mockNonexistentDockerCredentialHelper));
-
-    Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getMessage()).Returns("warning");
-
-    Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getCause()).Returns(new IOException("the root cause"));
-
-    Assert.IsFalse(credentialRetrieverFactory.inferCredentialHelper().retrieve().isPresent());
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("warning")));
-
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("  Caused by: the root cause")));
-
-  }
-
-  [Test]
-  public void testDockerConfig() {
-    CredentialRetrieverFactory credentialRetrieverFactory =
-        CredentialRetrieverFactory.forImage(
-            ImageReference.of("registry", "repository", null), mockLogger);
-
-    Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.retrieve(mockLogger)).Returns(Optional.of(FAKE_CREDENTIALS));
-
-    Assert.AreEqual(
-        FAKE_CREDENTIALS,
-        credentialRetrieverFactory
-            .dockerConfig(mockDockerConfigCredentialRetriever)
-            .retrieve()
-            .orElseThrow(() => new AssertionException("")));
-    Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using credentials from Docker config for registry")));
-
-  }
-}
+            Assert.AreEqual(
+                FAKE_CREDENTIALS,
+                credentialRetrieverFactory
+                    .dockerConfig(mockDockerConfigCredentialRetriever)
+                    .retrieve()
+                    .orElseThrow(() => new AssertionException("")));
+            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using credentials from Docker config for registry")));
+        }
+    }
 }

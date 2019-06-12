@@ -25,7 +25,8 @@ using Jib.Net.Core;
 using Jib.Net.Core.Blob;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -34,78 +35,70 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Pushes the container configuration. */
-class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>> {
-  private static readonly string DESCRIPTION = "Pushing container configuration";
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-
-  private readonly AuthenticatePushStep authenticatePushStep;
-  private readonly BuildImageStep buildImageStep;
-
-  private readonly Task<AsyncStep<PushBlobStep>> listenableFuture;
-
-  public PushContainerConfigurationStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      AuthenticatePushStep authenticatePushStep,
-      BuildImageStep buildImageStep)
-        {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.authenticatePushStep = authenticatePushStep;
-    this.buildImageStep = buildImageStep;
-
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(buildImageStep)
-            .whenAllSucceed(this);
-  }
-
-  public Task<AsyncStep<PushBlobStep>> getFuture() {
-    return listenableFuture;
-  }
-
-  public AsyncStep<PushBlobStep> call() {
-    Task<PushBlobStep> pushBlobStepFuture =
-        AsyncDependencies.@using()
-            .addStep(authenticatePushStep)
-            .addStep(NonBlockingSteps.get(buildImageStep))
-            .whenAllSucceed(this.afterBuildConfigurationFutureFuture);
-    return AsyncStep.Of(() => pushBlobStepFuture);
-  }
-
-  private PushBlobStep afterBuildConfigurationFutureFuture()
-      {
-    using(ProgressEventDispatcher progressEventDispatcher =
-            progressEventDispatcherFactory.create("pushing container configuration", 1))
-    using(TimerEventDispatcher ignored =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+    /** Pushes the container configuration. */
+    internal class PushContainerConfigurationStep : AsyncStep<AsyncStep<PushBlobStep>>
     {
+        private static readonly string DESCRIPTION = "Pushing container configuration";
 
-      Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
-      JsonTemplate containerConfiguration =
-          new ImageToJsonTranslator(image).getContainerConfiguration();
-      BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-      return new PushBlobStep(
-          buildConfiguration,
-          progressEventDispatcher.newChildProducer(),
-          authenticatePushStep,
-          blobDescriptor,
-          Blobs.from(containerConfiguration));
+        private readonly AuthenticatePushStep authenticatePushStep;
+        private readonly BuildImageStep buildImageStep;
+
+        private readonly Task<AsyncStep<PushBlobStep>> listenableFuture;
+
+        public PushContainerConfigurationStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            AuthenticatePushStep authenticatePushStep,
+            BuildImageStep buildImageStep)
+        {
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.authenticatePushStep = authenticatePushStep;
+            this.buildImageStep = buildImageStep;
+
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(buildImageStep)
+                    .whenAllSucceed(this);
+        }
+
+        public Task<AsyncStep<PushBlobStep>> getFuture()
+        {
+            return listenableFuture;
+        }
+
+        public AsyncStep<PushBlobStep> call()
+        {
+            Task<PushBlobStep> pushBlobStepFuture =
+                AsyncDependencies.@using()
+                    .addStep(authenticatePushStep)
+                    .addStep(NonBlockingSteps.get(buildImageStep))
+                    .whenAllSucceed(this.afterBuildConfigurationFutureFuture);
+            return AsyncStep.Of(() => pushBlobStepFuture);
+        }
+
+        private PushBlobStep afterBuildConfigurationFutureFuture()
+        {
+            using (ProgressEventDispatcher progressEventDispatcher =
+                    progressEventDispatcherFactory.create("pushing container configuration", 1))
+            using (TimerEventDispatcher ignored =
+                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+            {
+                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+                JsonTemplate containerConfiguration =
+                    new ImageToJsonTranslator(image).getContainerConfiguration();
+                BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
+
+                return new PushBlobStep(
+                    buildConfiguration,
+                    progressEventDispatcher.newChildProducer(),
+                    authenticatePushStep,
+                    blobDescriptor,
+                    Blobs.from(containerConfiguration));
+            }
+        }
     }
-  }
-}
 }

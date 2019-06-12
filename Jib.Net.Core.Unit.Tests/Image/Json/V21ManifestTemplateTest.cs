@@ -22,44 +22,35 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.image.json {
+namespace com.google.cloud.tools.jib.image.json
+{
 
 
+    /** Tests for {@link V21ManifestTemplate}. */
+    public class V21ManifestTemplateTest
+    {
+        [Test]
+        public void testFromJson()
+        {
+            // Loads the JSON string.
+            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
 
+            // Deserializes into a manifest JSON object.
+            V21ManifestTemplate manifestJson =
+                JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(jsonFile);
 
+            Assert.AreEqual(
+                DescriptorDigest.fromDigest(
+                    "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
+                manifestJson.getFsLayers().get(0).getDigest());
 
-
-
-
-
-
-
-
-/** Tests for {@link V21ManifestTemplate}. */
-public class V21ManifestTemplateTest {
-
-  [Test]
-  public void testFromJson() {
-    // Loads the JSON string.
-    SystemPath jsonFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
-
-    // Deserializes into a manifest JSON object.
-    V21ManifestTemplate manifestJson =
-        JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(jsonFile);
-
-
-    Assert.AreEqual(
-        DescriptorDigest.fromDigest(
-            "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-        manifestJson.getFsLayers().get(0).getDigest());
-
-    ContainerConfigurationTemplate containerConfiguration =
-        manifestJson.getContainerConfiguration().orElse(null);
-    Assert.AreEqual(
-        Arrays.asList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
-        containerConfiguration.getContainerEnvironment());
-    Assert.AreEqual(
-        Arrays.asList("/opt/openjdk/bin/java"), containerConfiguration.getContainerEntrypoint());
-  }
-}
+            ContainerConfigurationTemplate containerConfiguration =
+                manifestJson.getContainerConfiguration().orElse(null);
+            Assert.AreEqual(
+                Arrays.asList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
+                containerConfiguration.getContainerEnvironment());
+            Assert.AreEqual(
+                Arrays.asList("/opt/openjdk/bin/java"), containerConfiguration.getContainerEntrypoint());
+        }
+    }
 }

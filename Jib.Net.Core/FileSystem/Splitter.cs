@@ -25,6 +25,7 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             throw new NotImplementedException();
         }
+
         internal static Splitter on(string v)
         {
             throw new NotImplementedException();

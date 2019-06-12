@@ -36,9 +36,8 @@ namespace com.google.cloud.tools.jib.api
             return new List<T> { value };
         }
 
-        internal static void sort<T>(List<T> jsonTemplates) where T: IComparable<T>
+        internal static void sort<T>(List<T> jsonTemplates) where T : IComparable<T>
         {
-
             jsonTemplates.Sort();
         }
 

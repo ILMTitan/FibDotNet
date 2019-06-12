@@ -17,19 +17,18 @@
 using com.google.cloud.tools.jib.api;
 using System;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-/** Thrown when the registry shut down the connection. */
-class RegistryBrokenPipeException : RegistryException {
-
-  public RegistryBrokenPipeException(Exception cause) : base(
-        "I/O error due to broken pipe: the server shut down the connection. "
-            + "Check the server log if possible. This could also be a proxy issue. For example,"
-            + "a proxy may prevent sending packets that are too large.",
-        cause) {
-    
-  }
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Thrown when the registry shut down the connection. */
+    internal class RegistryBrokenPipeException : RegistryException
+    {
+        public RegistryBrokenPipeException(Exception cause) : base(
+              "I/O error due to broken pipe: the server shut down the connection. "
+                  + "Check the server log if possible. This could also be a proxy issue. For example,"
+                  + "a proxy may prevent sending packets that are too large.",
+              cause)
+        {
+        }
 
         public RegistryBrokenPipeException(string message, Exception cause) : base(message, cause)
         {

@@ -22,87 +22,80 @@ using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.registry;
 
-namespace com.google.cloud.tools.jib.http {
-
-
-
-
-
-
-
-
-
-
-/** Tests for {@link Connection} using an actual local server. */
-public class WithServerConnectionTest {
-
-  [Test]
-  public void testGet()
-      {
-    using(TestWebServer server = new TestWebServer(false))
-    using(Connection connection =
-            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+namespace com.google.cloud.tools.jib.http
+{
+    /** Tests for {@link Connection} using an actual local server. */
+    public class WithServerConnectionTest
     {
-
+        [Test]
+        public void testGet()
+        {
+            using (TestWebServer server = new TestWebServer(false))
+            using (Connection connection =
+                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+            {
                 HttpResponseMessage response = connection.send(new HttpRequestMessage());
 
-      Assert.AreEqual(200, response.getStatusCode());
-      CollectionAssert.AreEqual(
-          "Hello World!".getBytes(StandardCharsets.UTF_8),
-          ByteStreams.toByteArray(response.getBody()));
+                Assert.AreEqual(200, response.getStatusCode());
+                CollectionAssert.AreEqual(
+                    "Hello World!".getBytes(StandardCharsets.UTF_8),
+                    ByteStreams.toByteArray(response.getBody()));
+            }
+        }
+
+        [Test]
+        public void testErrorOnSecondSend()
+        {
+            using (TestWebServer server = new TestWebServer(false))
+            using (Connection connection =
+                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+            {
+                connection.send(new Request.Builder().build());
+                try
+                {
+                    connection.send(new Request.Builder().build());
+                    Assert.Fail("Should fail on the second send");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Assert.AreEqual("Connection can send only one request", ex.getMessage());
+                }
+            }
+        }
+
+        [Test]
+        public void testSecureConnectionOnInsecureHttpsServer()
+        {
+            using (TestWebServer server = new TestWebServer(true))
+            using (Connection connection =
+                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+            {
+                try
+                {
+                    connection.send(new Request.Builder().build());
+                    Assert.Fail("Should fail if cannot verify peer");
+                }
+                catch (SSLException ex)
+                {
+                    Assert.IsNotNull(ex.getMessage());
+                }
+            }
+        }
+
+        [Test]
+        public void testInsecureConnection()
+        {
+            using (TestWebServer server = new TestWebServer(true))
+            using (Connection connection =
+                    Connection.getInsecureConnectionFactory().apply(new Uri(server.getEndpoint())))
+            {
+                HttpResponseMessage response = connection.send(new Request.Builder().build());
+
+                Assert.AreEqual(200, response.getStatusCode());
+                CollectionAssert.AreEqual(
+                    "Hello World!".getBytes(StandardCharsets.UTF_8),
+                    ByteStreams.toByteArray(response.getBody()));
+            }
+        }
     }
-  }
-
-  [Test]
-  public void testErrorOnSecondSend()
-      {
-    using(TestWebServer server = new TestWebServer(false))
-    using(Connection connection =
-            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
-    {
-
-      connection.send(new Request.Builder().build());
-      try {
-        connection.send(new Request.Builder().build());
-        Assert.Fail("Should fail on the second send");
-      } catch (InvalidOperationException ex) {
-        Assert.AreEqual("Connection can send only one request", ex.getMessage());
-      }
-    }
-  }
-
-  [Test]
-  public void testSecureConnectionOnInsecureHttpsServer()
-      {
-    using(TestWebServer server = new TestWebServer(true))
-    using(Connection connection =
-            Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
-    {
-
-      try {
-        connection.send(new Request.Builder().build());
-        Assert.Fail("Should fail if cannot verify peer");
-      } catch (SSLException ex) {
-        Assert.IsNotNull(ex.getMessage());
-      }
-    }
-  }
-
-  [Test]
-  public void testInsecureConnection()
-      {
-    using(TestWebServer server = new TestWebServer(true))
-    using(Connection connection =
-            Connection.getInsecureConnectionFactory().apply(new Uri(server.getEndpoint())))
-    {
-
-      HttpResponseMessage response = connection.send(new Request.Builder().build());
-
-      Assert.AreEqual(200, response.getStatusCode());
-      CollectionAssert.AreEqual(
-          "Hello World!".getBytes(StandardCharsets.UTF_8),
-          ByteStreams.toByteArray(response.getBody()));
-    }
-  }
-}
 }

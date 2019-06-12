@@ -18,7 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.registry
 {
-    internal class SSLPeerUnverifiedException: Exception
+    internal class SSLPeerUnverifiedException : Exception
     {
         public SSLPeerUnverifiedException() : base()
         {

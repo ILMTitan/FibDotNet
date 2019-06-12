@@ -16,31 +16,31 @@
 
 using com.google.cloud.tools.jib.json;
 
-namespace com.google.cloud.tools.jib.registry.json {
+namespace com.google.cloud.tools.jib.registry.json
+{
+    // TODO: Should include detail field as well - need to have custom parser
+    [JsonIgnoreProperties(ignoreUnknown = true)]
+    public class ErrorEntryTemplate : JsonTemplate
+    {
+        private string code;
+        private string message;
 
+        public ErrorEntryTemplate(string code, string message)
+        {
+            this.code = code;
+            this.message = message;
+        }
 
+        private ErrorEntryTemplate() { }
 
+        public string getCode()
+        {
+            return code;
+        }
 
-// TODO: Should include detail field as well - need to have custom parser
-[JsonIgnoreProperties(ignoreUnknown = true)]
-public class ErrorEntryTemplate : JsonTemplate {
-
-  private string code;
-  private string message;
-
-  public ErrorEntryTemplate(string code, string message) {
-    this.code = code;
-    this.message = message;
-  }
-
-  private ErrorEntryTemplate() {}
-
-  public string getCode() {
-    return code;
-  }
-
-  public string getMessage() {
-    return message;
-  }
-}
+        public string getMessage()
+        {
+            return message;
+        }
+    }
 }

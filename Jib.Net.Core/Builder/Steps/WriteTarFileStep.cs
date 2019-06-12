@@ -27,7 +27,8 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -38,82 +39,77 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
+    public class WriteTarFileStep : AsyncStep<BuildResult>
+    {
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
+        private readonly SystemPath outputPath;
+        private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+        private readonly BuildImageStep buildImageStep;
 
+        private readonly Task<BuildResult> listenableFuture;
 
-
-
-
-
-
-
-
-public class WriteTarFileStep : AsyncStep<BuildResult>{
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-
-  private readonly SystemPath outputPath;
-  private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-  private readonly BuildImageStep buildImageStep;
-
-  private readonly Task<BuildResult> listenableFuture;
-
-  public WriteTarFileStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      SystemPath outputPath,
-      PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
-      BuildImageStep buildImageStep)
+        public WriteTarFileStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            SystemPath outputPath,
+            PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
+            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+            BuildImageStep buildImageStep)
         {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.outputPath = outputPath;
-    this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-    this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
-    this.buildImageStep = buildImageStep;
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.outputPath = outputPath;
+            this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
+            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+            this.buildImageStep = buildImageStep;
 
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(pullAndCacheBaseImageLayersStep)
-            .addStep(buildImageStep)
-            .whenAllSucceed(this);
-  }
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(pullAndCacheBaseImageLayersStep)
+                    .addStep(buildImageStep)
+                    .whenAllSucceed(this);
+        }
 
-  public Task<BuildResult> getFuture() {
-    return listenableFuture;
-  }
+        public Task<BuildResult> getFuture()
+        {
+            return listenableFuture;
+        }
 
-  public BuildResult call() {
-    return AsyncDependencies.@using()
-        .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
-        .addSteps(buildAndCacheApplicationLayerSteps)
-        .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(writeTarFile)
-        .get();
-  }
+        public BuildResult call()
+        {
+            return AsyncDependencies.@using()
+                .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+                .addSteps(buildAndCacheApplicationLayerSteps)
+                .addStep(NonBlockingSteps.get(buildImageStep))
+                .whenAllSucceed(writeTarFile)
+                .get();
+        }
 
-  private BuildResult writeTarFile() {
-    buildConfiguration
-        .getEventHandlers()
-        .dispatch(LogEvent.progress("Building image to tar file..."));
+        private BuildResult writeTarFile()
+        {
+            buildConfiguration
+                .getEventHandlers()
+                .dispatch(LogEvent.progress("Building image to tar file..."));
 
-    using (ProgressEventDispatcher ignored =
-        progressEventDispatcherFactory.create("writing to tar file", 1)) {
-      Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+            using (ProgressEventDispatcher ignored =
+                progressEventDispatcherFactory.create("writing to tar file", 1))
+            {
+                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
 
-      // Builds the image to a tarball.
-      Files.createDirectories(outputPath.getParent());
-      using (Stream outputStream =
-          new BufferedStream(FileOperations.newLockingOutputStream(outputPath))) {
-        new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
-            .writeTo(outputStream);
-      }
+                // Builds the image to a tarball.
+                Files.createDirectories(outputPath.getParent());
+                using (Stream outputStream =
+                    new BufferedStream(FileOperations.newLockingOutputStream(outputPath)))
+                {
+                    new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
+                        .writeTo(outputStream);
+                }
 
-      return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+                return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+            }
+        }
     }
-  }
-}
 }

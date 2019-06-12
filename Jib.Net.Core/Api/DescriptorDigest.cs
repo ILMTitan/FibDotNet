@@ -20,12 +20,6 @@ using Jib.Net.Core.Global;
 
 namespace Jib.Net.Core.Api
 {
-
-
-
-
-
-
     /**
      * Represents a SHA-256 content descriptor digest as defined by the Registry HTTP API v2 reference.
      *
@@ -35,9 +29,8 @@ namespace Jib.Net.Core.Api
      */
     [JsonSerialize(typeof(DescriptorDigestSerializer))]
     [JsonDeserialize(typeof(DescriptorDigestDeserializer))]
-    public class DescriptorDigest
+    public sealed class DescriptorDigest
     {
-
         public static readonly int HASH_LENGTH = 64;
 
         /** Pattern matches a SHA-256 hash - 32 bytes in lowercase hexadecimal. */
@@ -113,9 +106,9 @@ namespace Jib.Net.Core.Api
 
         public override bool Equals(object obj)
         {
-            if (obj is DescriptorDigest)
+            if (obj is DescriptorDigest descriptorDigest)
             {
-                return hash.Equals(((DescriptorDigest)obj).hash);
+                return hash.Equals(descriptorDigest.hash);
             }
 
             return false;

@@ -30,7 +30,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
@@ -48,17 +49,7 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-
-
-
-
-
-
-
-
-
-
-    static class RegistryEndpointCaller
+    internal static class RegistryEndpointCaller
     {
         /**
          * @see <a
@@ -98,14 +89,14 @@ namespace com.google.cloud.tools.jib.registry {
             return false;
         }
     }
+
     /**
      * Makes requests to a registry endpoint.
      *
      * @param <T> the type returned by calling the endpoint
      */
-    class RegistryEndpointCaller<T>
+    internal class RegistryEndpointCaller<T>
     {
-
         private static readonly string DEFAULT_PROTOCOL = "https";
 
         private static bool isHttpsProtocol(Uri url)
@@ -157,120 +148,138 @@ namespace com.google.cloud.tools.jib.registry {
               allowInsecureRegistries,
               Connection.getConnectionFactory(),
               null /* might never be used, so create lazily to delay throwing potential GeneralSecurityException */)
-    {
-  }
+        {
+        }
 
-  public RegistryEndpointCaller(
-      EventHandlers eventHandlers,
-      string userAgent,
-      string apiRouteBase,
-      RegistryEndpointProvider<T> registryEndpointProvider,
-      Authorization authorization,
-      RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      bool allowInsecureRegistries,
-      Func<Uri, Connection> connectionFactory,
-      Func<Uri, Connection> insecureConnectionFactory)
-       {
-    this.eventHandlers = eventHandlers;
-    this.initialRequestUrl =
-        registryEndpointProvider.getApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
-    this.userAgent = userAgent;
-    this.registryEndpointProvider = registryEndpointProvider;
-    this.authorization = authorization;
-    this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-    this.allowInsecureRegistries = allowInsecureRegistries;
-    this.connectionFactory = connectionFactory;
-    this.insecureConnectionFactory = insecureConnectionFactory;
-  }
+        public RegistryEndpointCaller(
+            EventHandlers eventHandlers,
+            string userAgent,
+            string apiRouteBase,
+            RegistryEndpointProvider<T> registryEndpointProvider,
+            Authorization authorization,
+            RegistryEndpointRequestProperties registryEndpointRequestProperties,
+            bool allowInsecureRegistries,
+            Func<Uri, Connection> connectionFactory,
+            Func<Uri, Connection> insecureConnectionFactory)
+        {
+            this.eventHandlers = eventHandlers;
+            this.initialRequestUrl =
+                registryEndpointProvider.getApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
+            this.userAgent = userAgent;
+            this.registryEndpointProvider = registryEndpointProvider;
+            this.authorization = authorization;
+            this.registryEndpointRequestProperties = registryEndpointRequestProperties;
+            this.allowInsecureRegistries = allowInsecureRegistries;
+            this.connectionFactory = connectionFactory;
+            this.insecureConnectionFactory = insecureConnectionFactory;
+        }
 
-  /**
-   * Makes the request to the endpoint.
-   *
-   * @return an object representing the response, or {@code null}
-   * @throws IOException for most I/O exceptions when making the request
-   * @throws RegistryException for known exceptions when interacting with the registry
-   */
-  public T call() {
-    return callWithAllowInsecureRegistryHandling(initialRequestUrl);
-  }
+        /**
+         * Makes the request to the endpoint.
+         *
+         * @return an object representing the response, or {@code null}
+         * @throws IOException for most I/O exceptions when making the request
+         * @throws RegistryException for known exceptions when interacting with the registry
+         */
+        public T call()
+        {
+            return callWithAllowInsecureRegistryHandling(initialRequestUrl);
+        }
 
-  private T callWithAllowInsecureRegistryHandling(Uri url) {
-    if (!isHttpsProtocol(url) && !allowInsecureRegistries) {
-      throw new InsecureRegistryException(url);
-    }
+        private T callWithAllowInsecureRegistryHandling(Uri url)
+        {
+            if (!isHttpsProtocol(url) && !allowInsecureRegistries)
+            {
+                throw new InsecureRegistryException(url);
+            }
 
-    try {
-      return call(url, connectionFactory);
+            try
+            {
+                return call(url, connectionFactory);
+            }
+            catch (SSLException)
+            {
+                return handleUnverifiableServerException(url);
+            }
+            catch (ConnectException)
+            {
+                if (allowInsecureRegistries && isHttpsProtocol(url) && url.getPort() == -1)
+                {
+                    // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
+                    // port 443) and we could not connect to 443. It's worth trying port 80.
+                    return fallBackToHttp(url);
+                }
+                throw;
+            }
+        }
 
-    } catch (SSLException) {
-      return handleUnverifiableServerException(url);
+        private T handleUnverifiableServerException(Uri url)
+        {
+            if (!allowInsecureRegistries)
+            {
+                throw new InsecureRegistryException(url);
+            }
 
-    } catch (ConnectException) {
-      if (allowInsecureRegistries && isHttpsProtocol(url) && url.getPort() == -1) {
-        // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
-        // port 443) and we could not connect to 443. It's worth trying port 80.
-        return fallBackToHttp(url);
-      }
-      throw;
-    }
-  }
+            try
+            {
+                eventHandlers.dispatch(
+                    LogEvent.info(
+                        "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
+                return call(url, getInsecureConnectionFactory());
+            }
+            catch (SSLException)
+            {
+                return fallBackToHttp(url);
+            }
+        }
 
-  private T handleUnverifiableServerException(Uri url) {
-    if (!allowInsecureRegistries) {
-      throw new InsecureRegistryException(url);
-    }
-
-    try {
-      eventHandlers.dispatch(
-          LogEvent.info(
-              "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
-      return call(url, getInsecureConnectionFactory());
-
-    } catch (SSLException) {
-      return fallBackToHttp(url);
-    }
-  }
-
-  private T fallBackToHttp(Uri url) {
+        private T fallBackToHttp(Uri url)
+        {
             UriBuilder httpUrl = new UriBuilder(url) { Port = url.IsDefaultPort ? -1 : url.Port };
-    httpUrl.setScheme("http");
-    eventHandlers.dispatch(
-        LogEvent.info(
-            "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
-    return call(httpUrl.toURL(), connectionFactory);
-  }
+            httpUrl.setScheme("http");
+            eventHandlers.dispatch(
+                LogEvent.info(
+                    "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
+            return call(httpUrl.toURL(), connectionFactory);
+        }
 
-  private Func<Uri, Connection> getInsecureConnectionFactory() {
-    try {
-      if (insecureConnectionFactory == null) {
-        insecureConnectionFactory = Connection.getInsecureConnectionFactory();
-      }
-      return insecureConnectionFactory;
+        private Func<Uri, Connection> getInsecureConnectionFactory()
+        {
+            try
+            {
+                if (insecureConnectionFactory == null)
+                {
+                    insecureConnectionFactory = Connection.getInsecureConnectionFactory();
+                }
+                return insecureConnectionFactory;
+            }
+            catch (GeneralSecurityException ex)
+            {
+                throw new RegistryException("cannot turn off TLS peer verification", ex);
+            }
+        }
 
-    } catch (GeneralSecurityException ex) {
-      throw new RegistryException("cannot turn off TLS peer verification", ex);
-    }
-  }
-
-  /**
-   * Calls the registry endpoint with a certain {@link Uri}.
-   *
-   * @param url the endpoint Uri to call
-   * @return an object representing the response, or {@code null}
-   * @throws IOException for most I/O exceptions when making the request
-   * @throws RegistryException for known exceptions when interacting with the registry
-   */
-  private T call(Uri url, Func<Uri, Connection> connectionFactory)
-      {
-    // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
-    bool sendCredentials =
-        isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
-            try {
+        /**
+         * Calls the registry endpoint with a certain {@link Uri}.
+         *
+         * @param url the endpoint Uri to call
+         * @return an object representing the response, or {@code null}
+         * @throws IOException for most I/O exceptions when making the request
+         * @throws RegistryException for known exceptions when interacting with the registry
+         */
+        private T call(Uri url, Func<Uri, Connection> connectionFactory)
+        {
+            // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
+            bool sendCredentials =
+                isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
+            try
+            {
                 using (Connection connection = connectionFactory.apply(url))
                 {
                     var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
                     request.Headers.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
-                    foreach (var accept in registryEndpointProvider.getAccept()) {
+                    foreach (var accept in registryEndpointProvider.getAccept())
+                    {
                         request.Headers.Accept.ParseAdd(accept);
                     }
                     request.Content = registryEndpointProvider.getContent();
@@ -283,82 +292,101 @@ namespace com.google.cloud.tools.jib.registry {
 
                     return registryEndpointProvider.handleResponse(response);
                 }
-    } catch (HttpResponseException ex) { {
-        if (ex.getStatusCode() == HttpStatusCode.BadRequest
-            || ex.getStatusCode() == HttpStatusCode.NotFound
-            || ex.getStatusCode()
-                == HttpStatusCode.MethodNotAllowed) {
-          // The name or reference was invalid.
-          throw newRegistryErrorException(ex);
-
-        } else if (ex.getStatusCode() == HttpStatusCode.Forbidden) {
-          throw new RegistryUnauthorizedException(
-              registryEndpointRequestProperties.getServerUrl(),
-              registryEndpointRequestProperties.getImageName(),
-              ex);
-
-        } else if (ex.getStatusCode()
-            == HttpStatusCode.Unauthorized) {
-          if (sendCredentials) {
-            // Credentials are either missing or wrong.
-            throw new RegistryUnauthorizedException(
-                registryEndpointRequestProperties.getServerUrl(),
-                registryEndpointRequestProperties.getImageName(),
-                ex);
-          } else {
-            throw new RegistryCredentialsNotSentException(
-                registryEndpointRequestProperties.getServerUrl(),
-                registryEndpointRequestProperties.getImageName());
-          }
-
-        } else if (ex.getStatusCode()
-                == HttpStatusCode.TemporaryRedirect
-            || ex.getStatusCode()
-                == HttpStatusCode.MovedPermanently
-            || ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT) {
-          // 'Location' header can be relative or absolute.
-          Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
-          return callWithAllowInsecureRegistryHandling(redirectLocation);
-
-        } else {
-          // Unknown
-          throw;
+            }
+            catch (HttpResponseException ex)
+            {
+                {
+                    if (ex.getStatusCode() == HttpStatusCode.BadRequest
+                        || ex.getStatusCode() == HttpStatusCode.NotFound
+                        || ex.getStatusCode()
+                            == HttpStatusCode.MethodNotAllowed)
+                    {
+                        // The name or reference was invalid.
+                        throw newRegistryErrorException(ex);
+                    }
+                    else if (ex.getStatusCode() == HttpStatusCode.Forbidden)
+                    {
+                        throw new RegistryUnauthorizedException(
+                            registryEndpointRequestProperties.getServerUrl(),
+                            registryEndpointRequestProperties.getImageName(),
+                            ex);
+                    }
+                    else if (ex.getStatusCode()
+                      == HttpStatusCode.Unauthorized)
+                    {
+                        if (sendCredentials)
+                        {
+                            // Credentials are either missing or wrong.
+                            throw new RegistryUnauthorizedException(
+                                registryEndpointRequestProperties.getServerUrl(),
+                                registryEndpointRequestProperties.getImageName(),
+                                ex);
+                        }
+                        else
+                        {
+                            throw new RegistryCredentialsNotSentException(
+                                registryEndpointRequestProperties.getServerUrl(),
+                                registryEndpointRequestProperties.getImageName());
+                        }
+                    }
+                    else if (ex.getStatusCode()
+                          == HttpStatusCode.TemporaryRedirect
+                      || ex.getStatusCode()
+                          == HttpStatusCode.MovedPermanently
+                      || ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
+                    {
+                        // 'Location' header can be relative or absolute.
+                        Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
+                        return callWithAllowInsecureRegistryHandling(redirectLocation);
+                    }
+                    else
+                    {
+                        // Unknown
+                        throw;
+                    }
+                }
+            }
+            catch (NoHttpResponseException ex)
+            {
+                throw new RegistryNoResponseException(ex.Message, ex);
+            }
+            catch (IOException ex)
+            {
+                if (RegistryEndpointCaller.isBrokenPipe(ex))
+                {
+                    throw new RegistryBrokenPipeException(ex);
+                }
+                throw;
+            }
         }
-      }
-    } catch (NoHttpResponseException ex) {
-      throw new RegistryNoResponseException(ex.Message, ex);
 
-    } catch (IOException ex) {
-      if (RegistryEndpointCaller.isBrokenPipe(ex)) {
-        throw new RegistryBrokenPipeException(ex);
-      }
-      throw;
+        public RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException)
+        {
+            RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
+                new RegistryErrorExceptionBuilder(
+                    registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
+
+            try
+            {
+                ErrorResponseTemplate errorResponse =
+                    JsonTemplateMapper.readJson<ErrorResponseTemplate>(
+                        httpResponseException.getContent().ReadAsStringAsync().Result);
+                foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
+                {
+                    registryErrorExceptionBuilder.addReason(errorEntry);
+                }
+            }
+            catch (IOException)
+            {
+                registryErrorExceptionBuilder.addReason(
+                    "registry returned error code "
+                        + httpResponseException.getStatusCode()
+                        + "; possible causes include invalid or wrong reference. Actual error output follows:\n"
+                        + httpResponseException.getContent()
+                        + "\n");
+            }
+
+            return registryErrorExceptionBuilder.build();
+        }
     }
-  }
-
-  public RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException) {
-    RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
-        new RegistryErrorExceptionBuilder(
-            registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
-
-    try {
-      ErrorResponseTemplate errorResponse =
-          JsonTemplateMapper.readJson<ErrorResponseTemplate>(
-              httpResponseException.getContent().ReadAsStringAsync().Result);
-      foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
-      {
-        registryErrorExceptionBuilder.addReason(errorEntry);
-      }
-    } catch (IOException) {
-      registryErrorExceptionBuilder.addReason(
-          "registry returned error code "
-              + httpResponseException.getStatusCode()
-              + "; possible causes include invalid or wrong reference. Actual error output follows:\n"
-              + httpResponseException.getContent()
-              + "\n");
-    }
-
-    return registryErrorExceptionBuilder.build();
-  }
-}
 }

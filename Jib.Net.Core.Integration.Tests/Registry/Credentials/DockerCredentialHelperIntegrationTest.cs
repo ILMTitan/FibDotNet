@@ -20,68 +20,63 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
+namespace com.google.cloud.tools.jib.registry.credentials
+{
 
+    /** Integration tests for {@link DockerCredentialHelper}. */
+    public class DockerCredentialHelperIntegrationTest
+    {
+        /** Tests retrieval via {@code docker-credential-gcr} CLI. */
+        [Test]
+        public void testRetrieveGCR()
+        {
+            new Command("docker-credential-gcr", "store")
+                .run(Files.readAllBytes(Paths.get(Resources.getResource("credentials.json").toURI())));
 
+            DockerCredentialHelper dockerCredentialHelper = new DockerCredentialHelper("myregistry", "gcr");
 
+            Credential credentials = dockerCredentialHelper.retrieve();
+            Assert.AreEqual("myusername", credentials.getUsername());
+            Assert.AreEqual("mysecret", credentials.getPassword());
+        }
 
+        [Test]
+        public void testRetrieve_nonexistentCredentialHelper()
+        {
+            try
+            {
+                DockerCredentialHelper fakeDockerCredentialHelper =
+                    new DockerCredentialHelper("", "fake-cloud-provider");
 
+                fakeDockerCredentialHelper.retrieve();
 
+                Assert.Fail("Retrieve should have failed for nonexistent credential helper");
+            }
+            catch (CredentialHelperNotFoundException ex)
+            {
+                Assert.AreEqual(
+                    "The system does not have docker-credential-fake-cloud-provider CLI", ex.getMessage());
+            }
+        }
 
+        [Test]
+        public void testRetrieve_nonexistentServerUrl()
+        {
+            try
+            {
+                DockerCredentialHelper fakeDockerCredentialHelper =
+                    new DockerCredentialHelper("fake.server.url", "gcr");
 
+                fakeDockerCredentialHelper.retrieve();
 
-
-
-/** Integration tests for {@link DockerCredentialHelper}. */
-public class DockerCredentialHelperIntegrationTest {
-
-  /** Tests retrieval via {@code docker-credential-gcr} CLI. */
-  [Test]
-  public void testRetrieveGCR()
-      {
-    new Command("docker-credential-gcr", "store")
-        .run(Files.readAllBytes(Paths.get(Resources.getResource("credentials.json").toURI())));
-
-    DockerCredentialHelper dockerCredentialHelper = new DockerCredentialHelper("myregistry", "gcr");
-
-    Credential credentials = dockerCredentialHelper.retrieve();
-    Assert.AreEqual("myusername", credentials.getUsername());
-    Assert.AreEqual("mysecret", credentials.getPassword());
-  }
-
-  [Test]
-  public void testRetrieve_nonexistentCredentialHelper()
-      {
-    try {
-      DockerCredentialHelper fakeDockerCredentialHelper =
-          new DockerCredentialHelper("", "fake-cloud-provider");
-
-      fakeDockerCredentialHelper.retrieve();
-
-      Assert.Fail("Retrieve should have failed for nonexistent credential helper");
-
-    } catch (CredentialHelperNotFoundException ex) {
-      Assert.AreEqual(
-          "The system does not have docker-credential-fake-cloud-provider CLI", ex.getMessage());
-    }
-  }
-
-  [Test]
-  public void testRetrieve_nonexistentServerUrl()
-      {
-    try {
-      DockerCredentialHelper fakeDockerCredentialHelper =
-          new DockerCredentialHelper("fake.server.url", "gcr");
-
-      fakeDockerCredentialHelper.retrieve();
-
-      Assert.Fail("Retrieve should have failed for nonexistent server Uri");
-
-    } catch (CredentialHelperUnhandledServerUrlException ex) {
+                Assert.Fail("Retrieve should have failed for nonexistent server Uri");
+            }
+            catch (CredentialHelperUnhandledServerUrlException ex)
+            {
                 StringAssert.Contains(
                     ex.getMessage(),
                         "The credential helper (docker-credential-gcr) has nothing for server Uri: fake.server.url");
+            }
+        }
     }
-  }
-}
 }

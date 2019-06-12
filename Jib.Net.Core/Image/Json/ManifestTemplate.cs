@@ -17,14 +17,12 @@
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 
-namespace com.google.cloud.tools.jib.image.json {
-
-
-
-/** Parent class for image manifest JSON templates. */
-[JsonIgnoreProperties(ignoreUnknown = true)]
-public interface ManifestTemplate : JsonTemplate {
-
-  int getSchemaVersion();
-}
+namespace com.google.cloud.tools.jib.image.json
+{
+    /** Parent class for image manifest JSON templates. */
+    [JsonIgnoreProperties(ignoreUnknown = true)]
+    public interface ManifestTemplate : JsonTemplate
+    {
+        int getSchemaVersion();
+    }
 }

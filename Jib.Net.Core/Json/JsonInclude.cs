@@ -21,6 +21,6 @@ namespace com.google.cloud.tools.jib.json
     internal class JsonInclude : Attribute
     {
         public JsonInclude(Include include) { }
-        public enum Include {NON_NULL }
+        public enum Include { NON_NULL }
     }
 }

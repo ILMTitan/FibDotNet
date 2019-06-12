@@ -16,38 +16,39 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.image.json {
+namespace com.google.cloud.tools.jib.image.json
+{
+    /** Stores a manifest and container config. */
+    public class ManifestAndConfig
+    {
+        private readonly ManifestTemplate manifest;
+        private readonly ContainerConfigurationTemplate config;
 
+        public ManifestAndConfig(
+            ManifestTemplate manifest, ContainerConfigurationTemplate config)
+        {
+            this.manifest = manifest;
+            this.config = config;
+        }
 
+        /**
+         * Gets the manifest.
+         *
+         * @return the manifest
+         */
+        public ManifestTemplate getManifest()
+        {
+            return manifest;
+        }
 
-/** Stores a manifest and container config. */
-public class ManifestAndConfig {
-
-  private readonly ManifestTemplate manifest;
-  private readonly ContainerConfigurationTemplate config;
-
-  public ManifestAndConfig(
-      ManifestTemplate manifest, ContainerConfigurationTemplate config) {
-    this.manifest = manifest;
-    this.config = config;
-  }
-
-  /**
-   * Gets the manifest.
-   *
-   * @return the manifest
-   */
-  public ManifestTemplate getManifest() {
-    return manifest;
-  }
-
-  /**
-   * Gets the container configuration.
-   *
-   * @return the container configuration
-   */
-  public Optional<ContainerConfigurationTemplate> getConfig() {
-    return Optional.ofNullable(config);
-  }
-}
+        /**
+         * Gets the container configuration.
+         *
+         * @return the container configuration
+         */
+        public Optional<ContainerConfigurationTemplate> getConfig()
+        {
+            return Optional.ofNullable(config);
+        }
+    }
 }

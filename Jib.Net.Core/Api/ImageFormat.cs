@@ -14,15 +14,16 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Indicates the format of the image. */
+    public enum ImageFormat
+    {
 
-/** Indicates the format of the image. */
-public enum ImageFormat {
+        /** @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Docker V2.2</a> */
+        Docker,
 
-  /** @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Docker V2.2</a> */
-  Docker,
-
-  /** @see <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">OCI</a> */
-  OCI
-}
+        /** @see <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">OCI</a> */
+        OCI
+    }
 }

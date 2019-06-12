@@ -17,104 +17,109 @@
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api {
-// TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
+namespace com.google.cloud.tools.jib.api
+{
+    // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
+    /**
+     * Defines an image on a container registry that can be used as either a source or target image.
+     *
+     * <p>The registry portion of the image reference determines which registry to the image lives (or
+     * should live) on. The repository portion is the namespace within the registry. The tag is a label
+     * to easily identify an image among all the images in the repository. See {@link ImageReference}
+     * for more details.
+     *
+     * <p>When configuring credentials (via {@link #addCredential} for example), make sure the
+     * credentials are valid push (for using this as a target image) or pull (for using this as a source
+     * image) credentials for the repository specified via the image reference.
+     */
+    public sealed class RegistryImage
+    {
+        /**
+         * Instantiate with the image reference to use.
+         *
+         * @param imageReference the image reference
+         * @return a new {@link RegistryImage}
+         */
+        public static RegistryImage named(ImageReference imageReference)
+        {
+            return new RegistryImage(imageReference);
+        }
 
+        /**
+         * Instantiate with the image reference to use.
+         *
+         * @param imageReference the image reference
+         * @return a new {@link RegistryImage}
+         * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
+         */
+        public static RegistryImage named(string imageReference)
+        {
+            return named(ImageReference.parse(imageReference));
+        }
 
+        private readonly ImageReference imageReference;
+        private readonly IList<CredentialRetriever> credentialRetrievers = new List<CredentialRetriever>();
 
-/**
- * Defines an image on a container registry that can be used as either a source or target image.
- *
- * <p>The registry portion of the image reference determines which registry to the image lives (or
- * should live) on. The repository portion is the namespace within the registry. The tag is a label
- * to easily identify an image among all the images in the repository. See {@link ImageReference}
- * for more details.
- *
- * <p>When configuring credentials (via {@link #addCredential} for example), make sure the
- * credentials are valid push (for using this as a target image) or pull (for using this as a source
- * image) credentials for the repository specified via the image reference.
- */
-public class RegistryImage {
+        /** Instantiate with {@link #named}. */
+        private RegistryImage(ImageReference imageReference)
+        {
+            this.imageReference = imageReference;
+        }
 
-  /**
-   * Instantiate with the image reference to use.
-   *
-   * @param imageReference the image reference
-   * @return a new {@link RegistryImage}
-   */
-  public static RegistryImage named(ImageReference imageReference) {
-    return new RegistryImage(imageReference);
-  }
+        /**
+         * Adds a username-password credential to use to push/pull the image. This is a shorthand for
+         * {@code addCredentialRetriever(() => Optional.of(Credential.basic(username, password)))}.
+         *
+         * @param username the username
+         * @param password the password
+         * @return this
+         */
+        public RegistryImage addCredential(string username, string password)
+        {
+            addCredentialRetriever(() => Optional.of(Credential.from(username, password)));
+            return this;
+        }
 
-  /**
-   * Instantiate with the image reference to use.
-   *
-   * @param imageReference the image reference
-   * @return a new {@link RegistryImage}
-   * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
-   */
-  public static RegistryImage named(string imageReference) {
-    return named(ImageReference.parse(imageReference));
-  }
+        /**
+         * Adds {@link CredentialRetriever} to fetch push/pull credentials for the image. Credential
+         * retrievers are attempted in the order in which they are specified until credentials are
+         * successfully retrieved.
+         *
+         * <p>Example usage:
+         *
+         * <pre>{@code
+         * .addCredentialRetriever(() => {
+         *   if (!Files.exists("secret.txt") {
+         *     return Optional.empty();
+         *   }
+         *   try {
+         *     string password = fetchPasswordFromFile("secret.txt");
+         *     return Credential.basic("myaccount", password);
+         *
+         *   } catch (IOException ex) {
+         *     throw new CredentialRetrievalException("Failed to load password", ex);
+         *   }
+         * })
+         * }</pre>
+         *
+         * @param credentialRetriever the {@link CredentialRetriever} to add
+         * @return this
+         */
+        public RegistryImage addCredentialRetriever(CredentialRetriever credentialRetriever)
+        {
+            credentialRetrievers.add(credentialRetriever);
+            return this;
+        }
 
-  private readonly ImageReference imageReference;
-  private readonly IList<CredentialRetriever> credentialRetrievers = new List<CredentialRetriever>();
+        public ImageReference getImageReference()
+        {
+            return imageReference;
+        }
 
-  /** Instantiate with {@link #named}. */
-  private RegistryImage(ImageReference imageReference) {
-    this.imageReference = imageReference;
-  }
-
-  /**
-   * Adds a username-password credential to use to push/pull the image. This is a shorthand for
-   * {@code addCredentialRetriever(() => Optional.of(Credential.basic(username, password)))}.
-   *
-   * @param username the username
-   * @param password the password
-   * @return this
-   */
-  public RegistryImage addCredential(string username, string password) {
-    addCredentialRetriever(() => Optional.of(Credential.from(username, password)));
-    return this;
-  }
-
-  /**
-   * Adds {@link CredentialRetriever} to fetch push/pull credentials for the image. Credential
-   * retrievers are attempted in the order in which they are specified until credentials are
-   * successfully retrieved.
-   *
-   * <p>Example usage:
-   *
-   * <pre>{@code
-   * .addCredentialRetriever(() => {
-   *   if (!Files.exists("secret.txt") {
-   *     return Optional.empty();
-   *   }
-   *   try {
-   *     string password = fetchPasswordFromFile("secret.txt");
-   *     return Credential.basic("myaccount", password);
-   *
-   *   } catch (IOException ex) {
-   *     throw new CredentialRetrievalException("Failed to load password", ex);
-   *   }
-   * })
-   * }</pre>
-   *
-   * @param credentialRetriever the {@link CredentialRetriever} to add
-   * @return this
-   */
-  public RegistryImage addCredentialRetriever(CredentialRetriever credentialRetriever) {
-    credentialRetrievers.add(credentialRetriever);
-    return this;
-  }
-
-  public ImageReference getImageReference() {
-    return imageReference;
-  }
-
-  public IList<CredentialRetriever> getCredentialRetrievers() {
-    return credentialRetrievers;
-  }
-}
+        public IList<CredentialRetriever> getCredentialRetrievers()
+        {
+            return credentialRetrievers;
+        }
+    }
 }

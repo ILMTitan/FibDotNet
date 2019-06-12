@@ -18,7 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-    internal class IllegalAccessException:Exception
+    internal class IllegalAccessException : Exception
     {
         public IllegalAccessException() : base()
         {

@@ -17,15 +17,14 @@
 using Jib.Net.Core.FileSystem;
 using System;
 
-namespace com.google.cloud.tools.jib.registry.credentials {
-
-
-/** Thrown because the requested credential helper CLI does not exist. */
-public class CredentialHelperNotFoundException : CredentialRetrievalException {
-
-  public CredentialHelperNotFoundException(SystemPath credentialHelper, Exception cause) : base("The system does not have " + credentialHelper + " CLI", cause) {
-    
-  }
+namespace com.google.cloud.tools.jib.registry.credentials
+{
+    /** Thrown because the requested credential helper CLI does not exist. */
+    public class CredentialHelperNotFoundException : CredentialRetrievalException
+    {
+        public CredentialHelperNotFoundException(SystemPath credentialHelper, Exception cause) : base("The system does not have " + credentialHelper + " CLI", cause)
+        {
+        }
 
         public CredentialHelperNotFoundException(Exception cause) : base(cause)
         {

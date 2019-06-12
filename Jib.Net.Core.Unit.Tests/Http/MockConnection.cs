@@ -18,29 +18,26 @@ using Jib.Net.Core.Global;
 using System;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.http {
+namespace com.google.cloud.tools.jib.http
+{
+    /**
+     * Mock {@link Connection} used for testing. Normally, you would use {@link
+     * org.mockito.Mockito#mock}; this class is intended to examine the {@link Request) object by
+     * calling its non-public package-protected methods.
+     */
+    public class MockConnection : Connection
+    {
+        private readonly Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier;
 
+        public MockConnection(Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier) : base(
+              new UriBuilder("ftp://non-exisiting.example.url.ever").toURL())
+        {
+            this.responseSupplier = responseSupplier;
+        }
 
-
-
-
-/**
- * Mock {@link Connection} used for testing. Normally, you would use {@link
- * org.mockito.Mockito#mock}; this class is intended to examine the {@link Request) object by
- * calling its non-public package-protected methods.
- */
-public class MockConnection : Connection {
-
-  private readonly Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier;
-
-  public MockConnection(Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier) : base(
-        new UriBuilder("ftp://non-exisiting.example.url.ever").toURL()) {
-    
-    this.responseSupplier = responseSupplier;
-  }
-
-  public HttpResponseMessage send(string httpMethod, HttpRequestMessage request) {
-    return responseSupplier.apply(httpMethod, request);
-  }
+        public HttpResponseMessage send(string httpMethod, HttpRequestMessage request)
+        {
+            return responseSupplier.apply(httpMethod, request);
+        }
     }
 }

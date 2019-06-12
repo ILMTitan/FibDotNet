@@ -22,19 +22,11 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using System;
 
-namespace com.google.cloud.tools.jib.builder.steps {
-
-
-
-
-
-
-
-
-
-/** Used to record the results of a build. */
-public class BuildResult {
-
+namespace com.google.cloud.tools.jib.builder.steps
+{
+    /** Used to record the results of a build. */
+    public class BuildResult
+    {
         /**
          * Gets a {@link BuildResult} from an {@link Image}.
          *
@@ -47,49 +39,57 @@ public class BuildResult {
         {
             return fromImage(image, new Class<BuildableManifestTemplate>(targetFormat));
         }
-  public static BuildResult fromImage(Image image, IClass<BuildableManifestTemplate> targetFormat)
-      {
-    ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
-    BlobDescriptor containerConfigurationBlobDescriptor =
-        Digests.computeDigest(imageToJsonTranslator.getContainerConfiguration());
-    BuildableManifestTemplate manifestTemplate =
-        imageToJsonTranslator.getManifestTemplate(
-            targetFormat, containerConfigurationBlobDescriptor);
-    DescriptorDigest imageDigest = Digests.computeJsonDigest(manifestTemplate);
-    DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
-    return new BuildResult(imageDigest, imageId);
-  }
 
-  private readonly DescriptorDigest imageDigest;
-  private readonly DescriptorDigest imageId;
+        public static BuildResult fromImage(Image image, IClass<BuildableManifestTemplate> targetFormat)
+        {
+            ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
+            BlobDescriptor containerConfigurationBlobDescriptor =
+                Digests.computeDigest(imageToJsonTranslator.getContainerConfiguration());
+            BuildableManifestTemplate manifestTemplate =
+                imageToJsonTranslator.getManifestTemplate(
+                    targetFormat, containerConfigurationBlobDescriptor);
+            DescriptorDigest imageDigest = Digests.computeJsonDigest(manifestTemplate);
+            DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
+            return new BuildResult(imageDigest, imageId);
+        }
 
-  public BuildResult(DescriptorDigest imageDigest, DescriptorDigest imageId) {
-    this.imageDigest = imageDigest;
-    this.imageId = imageId;
-  }
+        private readonly DescriptorDigest imageDigest;
+        private readonly DescriptorDigest imageId;
 
-  public DescriptorDigest getImageDigest() {
-    return imageDigest;
-  }
+        public BuildResult(DescriptorDigest imageDigest, DescriptorDigest imageId)
+        {
+            this.imageDigest = imageDigest;
+            this.imageId = imageId;
+        }
 
-  public DescriptorDigest getImageId() {
-    return imageId;
-  }
+        public DescriptorDigest getImageDigest()
+        {
+            return imageDigest;
+        }
 
-  public override int GetHashCode() {
-    return Objects.hash(imageDigest, imageId);
-  }
+        public DescriptorDigest getImageId()
+        {
+            return imageId;
+        }
 
-  public override bool Equals(object other) {
-    if (this == other) {
-      return true;
+        public override int GetHashCode()
+        {
+            return Objects.hash(imageDigest, imageId);
+        }
+
+        public override bool Equals(object other)
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            if (!(other is BuildResult))
+            {
+                return false;
+            }
+            BuildResult otherBuildResult = (BuildResult)other;
+            return imageDigest.Equals(otherBuildResult.imageDigest)
+                && imageId.Equals(otherBuildResult.imageId);
+        }
     }
-    if (!(other is BuildResult)) {
-      return false;
-    }
-    BuildResult otherBuildResult = (BuildResult) other;
-    return imageDigest.Equals(otherBuildResult.imageDigest)
-        && imageId.Equals(otherBuildResult.imageId);
-  }
-}
 }

@@ -17,6 +17,7 @@
 namespace Jib.Net.Core
 {
     public delegate T Supplier<T>();
+
     public static class SupplierExtensions
     {
         public static T get<T>(this Supplier<T> s)

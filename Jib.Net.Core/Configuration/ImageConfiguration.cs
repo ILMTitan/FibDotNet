@@ -19,87 +19,92 @@ using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration {
+namespace com.google.cloud.tools.jib.configuration
+{
+    /** Immutable configuration options for an image reference with credentials. */
+    public sealed class ImageConfiguration
+    {
+        /** Builder for instantiating an {@link ImageConfiguration}. */
+        public class Builder
+        {
+            private ImageReference imageReference;
+            private ImmutableArray<CredentialRetriever> credentialRetrievers = ImmutableArray.Create<CredentialRetriever>();
 
+            /**
+             * Sets the providers for registry credentials. The order determines the priority in which the
+             * retrieval methods are attempted.
+             *
+             * @param credentialRetrievers the list of {@link CredentialRetriever}s
+             * @return this
+             */
+            public Builder setCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers)
+            {
+                Preconditions.checkArgument(
+                    !credentialRetrievers.contains(null), "credential retriever list contains null elements");
+                this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);
+                return this;
+            }
 
+            /**
+             * Builds the {@link ImageConfiguration}.
+             *
+             * @return the corresponding {@link ImageConfiguration}
+             */
+            public ImageConfiguration build()
+            {
+                return new ImageConfiguration(imageReference, credentialRetrievers);
+            }
 
+            public Builder(ImageReference imageReference)
+            {
+                this.imageReference = imageReference;
+            }
+        }
 
+        /**
+         * Constructs a builder for an {@link ImageConfiguration}.
+         *
+         * @param imageReference the image reference, which is a required field
+         * @return the builder
+         */
+        public static Builder builder(ImageReference imageReference)
+        {
+            return new Builder(imageReference);
+        }
 
+        private readonly ImageReference image;
+        private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
 
-/** Immutable configuration options for an image reference with credentials. */
-public class ImageConfiguration {
+        private ImageConfiguration(
+            ImageReference image, ImmutableArray<CredentialRetriever> credentialRetrievers)
+        {
+            this.image = image;
+            this.credentialRetrievers = credentialRetrievers;
+        }
 
-  /** Builder for instantiating an {@link ImageConfiguration}. */
-  public class Builder {
+        public ImageReference getImage()
+        {
+            return image;
+        }
 
-    private ImageReference imageReference;
-    private ImmutableArray<CredentialRetriever> credentialRetrievers = ImmutableArray.Create<CredentialRetriever>();
+        public string getImageRegistry()
+        {
+            return image.getRegistry();
+        }
 
-    /**
-     * Sets the providers for registry credentials. The order determines the priority in which the
-     * retrieval methods are attempted.
-     *
-     * @param credentialRetrievers the list of {@link CredentialRetriever}s
-     * @return this
-     */
-    public Builder setCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers) {
-      Preconditions.checkArgument(
-          !credentialRetrievers.contains(null), "credential retriever list contains null elements");
-      this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);
-      return this;
+        public string getImageRepository()
+        {
+            return image.getRepository();
+        }
+
+        public string getImageTag()
+        {
+            return image.getTag();
+        }
+
+        public ImmutableArray<CredentialRetriever> getCredentialRetrievers()
+        {
+            return credentialRetrievers;
+        }
     }
-
-    /**
-     * Builds the {@link ImageConfiguration}.
-     *
-     * @return the corresponding {@link ImageConfiguration}
-     */
-    public ImageConfiguration build() {
-      return new ImageConfiguration(imageReference, credentialRetrievers);
-    }
-
-    public Builder(ImageReference imageReference) {
-      this.imageReference = imageReference;
-    }
-  }
-
-  /**
-   * Constructs a builder for an {@link ImageConfiguration}.
-   *
-   * @param imageReference the image reference, which is a required field
-   * @return the builder
-   */
-  public static Builder builder(ImageReference imageReference) {
-    return new Builder(imageReference);
-  }
-
-  private readonly ImageReference image;
-  private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
-
-  private ImageConfiguration(
-      ImageReference image, ImmutableArray<CredentialRetriever> credentialRetrievers) {
-    this.image = image;
-    this.credentialRetrievers = credentialRetrievers;
-  }
-
-  public ImageReference getImage() {
-    return image;
-  }
-
-  public string getImageRegistry() {
-    return image.getRegistry();
-  }
-
-  public string getImageRepository() {
-    return image.getRepository();
-  }
-
-  public string getImageTag() {
-    return image.getTag();
-  }
-
-  public ImmutableArray<CredentialRetriever> getCredentialRetrievers() {
-    return credentialRetrievers;
-  }
-}
 }

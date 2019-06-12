@@ -21,67 +21,66 @@ using Moq;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.cache {
+namespace com.google.cloud.tools.jib.cache
+{
+    /** Tests for {@link CachedLayer}. */
+    [RunWith(typeof(MockitoJUnitRunner))]
+    public class CachedLayerTest
+    {
+        private DescriptorDigest mockLayerDigest = Mock.Of<DescriptorDigest>();
+        private DescriptorDigest mockLayerDiffId = Mock.Of<DescriptorDigest>();
 
+        [Test]
+        public void testBuilder_fail()
+        {
+            try
+            {
+                CachedLayer.builder().build();
+                Assert.Fail("missing required");
+            }
+            catch (NullReferenceException ex)
+            {
+                StringAssert.Contains(ex.getMessage(), "layerDigest")
+          ;
+            }
 
+            try
+            {
+                CachedLayer.builder().setLayerDigest(mockLayerDigest).build();
+                Assert.Fail("missing required");
+            }
+            catch (NullReferenceException ex)
+            {
+                StringAssert.Contains(ex.getMessage(), "layerDiffId");
+            }
 
+            try
+            {
+                CachedLayer.builder().setLayerDigest(mockLayerDigest).setLayerDiffId(mockLayerDiffId).build();
+                Assert.Fail("missing required");
+            }
+            catch (NullReferenceException ex)
+            {
+                StringAssert.Contains(ex.getMessage(), "layerBlob");
+            }
+        }
 
-
-
-
-
-
-
-/** Tests for {@link CachedLayer}. */
-[RunWith(typeof(MockitoJUnitRunner))]
-public class CachedLayerTest {
-
-  private DescriptorDigest mockLayerDigest = Mock.Of<DescriptorDigest>();
-  private DescriptorDigest mockLayerDiffId = Mock.Of<DescriptorDigest>();
-
-  [Test]
-  public void testBuilder_fail() {
-    try {
-      CachedLayer.builder().build();
-      Assert.Fail("missing required");
-
-    } catch (NullReferenceException ex) {
-      StringAssert.Contains(ex.getMessage(), "layerDigest")
-;
+        [Test]
+        public void testBuilder_pass()
+        {
+            CachedLayer.Builder cachedLayerBuilder =
+                CachedLayer.builder()
+                    .setLayerDigest(mockLayerDigest)
+                    .setLayerDiffId(mockLayerDiffId)
+                    .setLayerSize(1337);
+            Assert.IsFalse(cachedLayerBuilder.hasLayerBlob());
+            cachedLayerBuilder.setLayerBlob(Blobs.from("layerBlob"));
+            Assert.IsTrue(cachedLayerBuilder.hasLayerBlob());
+            CachedLayer cachedLayer = cachedLayerBuilder.build();
+            Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
+            Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
+            Assert.AreEqual(1337, cachedLayer.getSize());
+            Assert.AreEqual("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
+        }
     }
-
-    try {
-      CachedLayer.builder().setLayerDigest(mockLayerDigest).build();
-      Assert.Fail("missing required");
-
-    } catch (NullReferenceException ex) {
-      StringAssert.Contains(ex.getMessage(), "layerDiffId");
-    }
-
-    try {
-      CachedLayer.builder().setLayerDigest(mockLayerDigest).setLayerDiffId(mockLayerDiffId).build();
-      Assert.Fail("missing required");
-
-    } catch (NullReferenceException ex) {
-      StringAssert.Contains(ex.getMessage(), "layerBlob");
-    }
-  }
-
-  [Test]
-  public void testBuilder_pass() {
-    CachedLayer.Builder cachedLayerBuilder =
-        CachedLayer.builder()
-            .setLayerDigest(mockLayerDigest)
-            .setLayerDiffId(mockLayerDiffId)
-            .setLayerSize(1337);
-    Assert.IsFalse(cachedLayerBuilder.hasLayerBlob());
-    cachedLayerBuilder.setLayerBlob(Blobs.from("layerBlob"));
-    Assert.IsTrue(cachedLayerBuilder.hasLayerBlob());
-    CachedLayer cachedLayer = cachedLayerBuilder.build();
-    Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
-    Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
-    Assert.AreEqual(1337, cachedLayer.getSize());
-    Assert.AreEqual("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
-  }
-}
 }

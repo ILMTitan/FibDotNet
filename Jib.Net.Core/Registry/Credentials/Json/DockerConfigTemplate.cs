@@ -19,98 +19,101 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.registry.credentials.json {
+namespace com.google.cloud.tools.jib.registry.credentials.json
+{
+    /**
+     * Template for a Docker config file.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * {
+     *   "auths": {
+     *     "registry": {
+     *       "auth": "username:password in base64"
+     *     },
+     *     "anotherregistry": {},
+     *     ...
+     *   },
+     *   "credsStore": "credential helper name",
+     *   "credHelpers": {
+     *     "registry": "credential helper name",
+     *     "anotherregistry": "another credential helper name",
+     *     ...
+     *   }
+     * }
+     * }</pre>
+     *
+     * If an {@code auth} is defined for a registry, that is a valid {@code Basic} authorization to use
+     * for that registry.
+     *
+     * <p>If {@code credsStore} is defined, is a credential helper that stores authorizations for all
+     * registries listed under {@code auths}.
+     *
+     * <p>Each entry in {@code credHelpers} is a mapping from a registry to a credential helper that
+     * stores the authorization for that registry.
+     *
+     * @see <a
+     *     href="https://www.projectatomic.io/blog/2016/03/docker-credentials-store/">https://www.projectatomic.io/blog/2016/03/docker-credentials-store/</a>
+     */
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+    public class DockerConfigTemplate : JsonTemplate
+    {
+        /** Template for an {@code auth} defined for a registry under {@code auths}. */
+        [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+        public class AuthTemplate : JsonTemplate
+        {
+            public string auth;
 
+            public string getAuth()
+            {
+                return auth;
+            }
+        }
 
+        /** Maps from registry to its {@link AuthTemplate}. */
+        private readonly IDictionary<string, AuthTemplate> auths = new Dictionary<string, AuthTemplate>();
 
+        private string credsStore;
 
+        /** Maps from registry to credential helper name. */
+        private readonly IDictionary<string, string> credHelpers = new Dictionary<string, string>();
 
+        public IDictionary<string, AuthTemplate> getAuths()
+        {
+            return auths;
+        }
 
+        public string getCredsStore()
+        {
+            return credsStore;
+        }
 
-/**
- * Template for a Docker config file.
- *
- * <p>Example:
- *
- * <pre>{@code
- * {
- *   "auths": {
- *     "registry": {
- *       "auth": "username:password in base64"
- *     },
- *     "anotherregistry": {},
- *     ...
- *   },
- *   "credsStore": "credential helper name",
- *   "credHelpers": {
- *     "registry": "credential helper name",
- *     "anotherregistry": "another credential helper name",
- *     ...
- *   }
- * }
- * }</pre>
- *
- * If an {@code auth} is defined for a registry, that is a valid {@code Basic} authorization to use
- * for that registry.
- *
- * <p>If {@code credsStore} is defined, is a credential helper that stores authorizations for all
- * registries listed under {@code auths}.
- *
- * <p>Each entry in {@code credHelpers} is a mapping from a registry to a credential helper that
- * stores the authorization for that registry.
- *
- * @see <a
- *     href="https://www.projectatomic.io/blog/2016/03/docker-credentials-store/">https://www.projectatomic.io/blog/2016/03/docker-credentials-store/</a>
- */
-[JsonObject(ItemNullValueHandling =NullValueHandling.Ignore)]
-public class DockerConfigTemplate : JsonTemplate {
+        public IDictionary<string, string> getCredHelpers()
+        {
+            return credHelpers;
+        }
 
-  /** Template for an {@code auth} defined for a registry under {@code auths}. */
-  [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-  public class AuthTemplate : JsonTemplate {
+        private DockerConfigTemplate addAuth(string registry, string auth)
+        {
+            AuthTemplate authTemplate = new AuthTemplate
+            {
+                auth = auth
+            };
+            auths.put(registry, authTemplate);
+            return this;
+        }
 
-    public string auth;
+        private DockerConfigTemplate setCredsStore(string credsStore)
+        {
+            this.credsStore = credsStore;
+            return this;
+        }
 
-    public string getAuth() {
-      return auth;
+        private DockerConfigTemplate addCredHelper(string registry, string credHelper)
+        {
+            credHelpers.put(registry, credHelper);
+            return this;
+        }
     }
-  }
-
-  /** Maps from registry to its {@link AuthTemplate}. */
-  private readonly IDictionary<string, AuthTemplate> auths = new Dictionary<string, AuthTemplate>();
-
-  private string credsStore;
-
-  /** Maps from registry to credential helper name. */
-  private readonly IDictionary<string, string> credHelpers = new Dictionary<string, string>();
-
-  public IDictionary<string, AuthTemplate> getAuths() {
-    return auths;
-  }
-
-  public string getCredsStore() {
-    return credsStore;
-  }
-
-  public IDictionary<string, string> getCredHelpers() {
-    return credHelpers;
-  }
-
-  DockerConfigTemplate addAuth(string registry, string auth) {
-    AuthTemplate authTemplate = new AuthTemplate();
-    authTemplate.auth = auth;
-    auths.put(registry, authTemplate);
-    return this;
-  }
-
-  DockerConfigTemplate setCredsStore(string credsStore) {
-    this.credsStore = credsStore;
-    return this;
-  }
-
-  DockerConfigTemplate addCredHelper(string registry, string credHelper) {
-    credHelpers.put(registry, credHelper);
-    return this;
-  }
-}
 }

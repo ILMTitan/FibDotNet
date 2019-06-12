@@ -17,30 +17,31 @@
 using System;
 using Jib.Net.Core.FileSystem;
 
-namespace com.google.cloud.tools.jib.api {
-// TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
+namespace com.google.cloud.tools.jib.api
+{
+    // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
+    /**
+     * Builds to a tarball archive.
+     *
+     * <p>Usage example:
+     *
+     * <pre>{@code
+     * TarImage tarImage = TarImage.named("myimage")
+     *                             .saveTo(Paths.get("image.tar"));
+     * }</pre>
+     */
+    public sealed class TarImage
+    {
+        /** Finishes constructing a {@link TarImage}. */
+        public class Builder
+        {
+            private readonly ImageReference imageReference;
 
-/**
- * Builds to a tarball archive.
- *
- * <p>Usage example:
- *
- * <pre>{@code
- * TarImage tarImage = TarImage.named("myimage")
- *                             .saveTo(Paths.get("image.tar"));
- * }</pre>
- */
-public class TarImage {
-
-  /** Finishes constructing a {@link TarImage}. */
-  public class Builder {
-
-    private readonly ImageReference imageReference;
-
-    public Builder(ImageReference imageReference) {
-      this.imageReference = imageReference;
-    }
+            public Builder(ImageReference imageReference)
+            {
+                this.imageReference = imageReference;
+            }
 
             public TarImage saveTo(object p)
             {
@@ -53,53 +54,59 @@ public class TarImage {
              * @param outputFile the output file
              * @return a new {@link TarImage}
              */
-            public TarImage saveTo(SystemPath outputFile) {
-      return new TarImage(imageReference, outputFile);
+            public TarImage saveTo(SystemPath outputFile)
+            {
+                return new TarImage(imageReference, outputFile);
+            }
+        }
+
+        /**
+         * Configures the output tarball archive with an image reference. This image reference will be the
+         * name of the image if loaded into the Docker daemon.
+         *
+         * @param imageReference the image reference
+         * @return a {@link Builder} to finish constructing a new {@link TarImage}
+         */
+        public static Builder named(ImageReference imageReference)
+        {
+            return new Builder(imageReference);
+        }
+
+        /**
+         * Configures the output tarball archive with an image reference to set as its tag.
+         *
+         * @param imageReference the image reference
+         * @return a {@link Builder} to finish constructing a new {@link TarImage}
+         * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
+         */
+        public static Builder named(string imageReference)
+        {
+            return named(ImageReference.parse(imageReference));
+        }
+
+        private readonly ImageReference imageReference;
+        private readonly SystemPath outputFile;
+
+        /** Instantiate with {@link #named}. */
+        private TarImage(ImageReference imageReference, SystemPath outputFile)
+        {
+            this.imageReference = imageReference;
+            this.outputFile = outputFile;
+        }
+
+        /**
+         * Gets the output file to save the tarball archive to.
+         *
+         * @return the output file
+         */
+        public SystemPath getOutputFile()
+        {
+            return outputFile;
+        }
+
+        public ImageReference getImageReference()
+        {
+            return imageReference;
+        }
     }
-  }
-
-  /**
-   * Configures the output tarball archive with an image reference. This image reference will be the
-   * name of the image if loaded into the Docker daemon.
-   *
-   * @param imageReference the image reference
-   * @return a {@link Builder} to finish constructing a new {@link TarImage}
-   */
-  public static Builder named(ImageReference imageReference) {
-    return new Builder(imageReference);
-  }
-
-  /**
-   * Configures the output tarball archive with an image reference to set as its tag.
-   *
-   * @param imageReference the image reference
-   * @return a {@link Builder} to finish constructing a new {@link TarImage}
-   * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
-   */
-  public static Builder named(string imageReference) {
-    return named(ImageReference.parse(imageReference));
-  }
-
-  private readonly ImageReference imageReference;
-  private readonly SystemPath outputFile;
-
-  /** Instantiate with {@link #named}. */
-  private TarImage(ImageReference imageReference, SystemPath outputFile) {
-    this.imageReference = imageReference;
-    this.outputFile = outputFile;
-  }
-
-  /**
-   * Gets the output file to save the tarball archive to.
-   *
-   * @return the output file
-   */
-  public SystemPath getOutputFile() {
-    return outputFile;
-  }
-
-  public ImageReference getImageReference() {
-    return imageReference;
-  }
-}
 }

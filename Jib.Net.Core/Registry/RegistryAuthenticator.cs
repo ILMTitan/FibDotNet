@@ -29,7 +29,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
@@ -44,199 +45,201 @@ namespace com.google.cloud.tools.jib.registry {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Authenticates push/pull access with a registry service.
- *
- * @see <a
- *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
- */
-public class RegistryAuthenticator {
-
-  // TODO: Replace with a WWW-Authenticate header parser.
-  /**
-   * Instantiates from parsing a {@code WWW-Authenticate} header.
-   *
-   * @param authenticationMethod the {@code WWW-Authenticate} header value
-   * @param registryEndpointRequestProperties the registry request properties
-   * @param userAgent the {@code User-Agent} header value to use in later authentication calls
-   * @return a new {@link RegistryAuthenticator} for authenticating with the registry service
-   * @throws RegistryAuthenticationFailedException if authentication fails
-   * @see <a
-   *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
-   */
-  public static RegistryAuthenticator fromAuthenticationMethod(
-      string authenticationMethod,
-      RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      string userAgent)
-      {
-    // If the authentication method starts with 'basic ' (case insensitive), no registry
-    // authentication is needed.
-    if (authenticationMethod.matches("^(?i)(basic) .*")) {
-      return null;
-    }
-
-    // Checks that the authentication method starts with 'bearer ' (case insensitive).
-    if (!authenticationMethod.matches("^(?i)(bearer) .*")) {
-      throw newRegistryAuthenticationFailedException(
-          registryEndpointRequestProperties.getServerUrl(),
-          registryEndpointRequestProperties.getImageName(),
-          authenticationMethod,
-          "Bearer");
-    }
-
-    Regex realmPattern = new Regex("realm=\"(.*?)\"");
-    Match realmMatcher = realmPattern.matcher(authenticationMethod);
-    if (!realmMatcher.find()) {
-      throw newRegistryAuthenticationFailedException(
-          registryEndpointRequestProperties.getServerUrl(),
-          registryEndpointRequestProperties.getImageName(),
-          authenticationMethod,
-          "realm");
-    }
-    string realm = realmMatcher.group(1);
-
-    Regex servicePattern = new Regex("service=\"(.*?)\"");
-    Match serviceMatcher = servicePattern.matcher(authenticationMethod);
-    // use the provided registry location when missing service (e.g., for OpenShift)
-    string service =
-        serviceMatcher.find()
-            ? serviceMatcher.group(1)
-            : registryEndpointRequestProperties.getServerUrl();
-
-    return new RegistryAuthenticator(realm, service, registryEndpointRequestProperties, userAgent);
-  }
-
-  private static RegistryAuthenticationFailedException newRegistryAuthenticationFailedException(
-      string registry, string repository, string authenticationMethod, string authParam) {
-    return new RegistryAuthenticationFailedException(
-        registry,
-        repository,
-        "'"
-            + authParam
-            + "' was not found in the 'WWW-Authenticate' header, tried to parse: "
-            + authenticationMethod);
-  }
-
-  /** Template for the authentication response JSON. */
-  [JsonIgnoreProperties(ignoreUnknown = true)]
-  private class AuthenticationResponseTemplate : JsonTemplate  {
-            [JsonProperty]
-    public string token { get; }
 
     /**
-     * {@code access_token} is accepted as an alias for {@code token}.
+     * Authenticates push/pull access with a registry service.
      *
      * @see <a
-     *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
+     *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
      */
-     [JsonProperty]
-    public string access_token { get; }
+    public sealed class RegistryAuthenticator
+    {
+        // TODO: Replace with a WWW-Authenticate header parser.
+        /**
+         * Instantiates from parsing a {@code WWW-Authenticate} header.
+         *
+         * @param authenticationMethod the {@code WWW-Authenticate} header value
+         * @param registryEndpointRequestProperties the registry request properties
+         * @param userAgent the {@code User-Agent} header value to use in later authentication calls
+         * @return a new {@link RegistryAuthenticator} for authenticating with the registry service
+         * @throws RegistryAuthenticationFailedException if authentication fails
+         * @see <a
+         *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
+         */
+        public static RegistryAuthenticator fromAuthenticationMethod(
+            string authenticationMethod,
+            RegistryEndpointRequestProperties registryEndpointRequestProperties,
+            string userAgent)
+        {
+            // If the authentication method starts with 'basic ' (case insensitive), no registry
+            // authentication is needed.
+            if (authenticationMethod.matches("^(?i)(basic) .*"))
+            {
+                return null;
+            }
 
-    /** @return {@link #token} if not null, or {@link #access_token} */
-    public string getToken() {
-      if (token != null) {
-        return token;
-      }
-      return access_token;
-    }
-  }
+            // Checks that the authentication method starts with 'bearer ' (case insensitive).
+            if (!authenticationMethod.matches("^(?i)(bearer) .*"))
+            {
+                throw newRegistryAuthenticationFailedException(
+                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getImageName(),
+                    authenticationMethod,
+                    "Bearer");
+            }
 
-  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private readonly string realm;
-  private readonly string service;
-  private readonly string userAgent;
+            Regex realmPattern = new Regex("realm=\"(.*?)\"");
+            Match realmMatcher = realmPattern.matcher(authenticationMethod);
+            if (!realmMatcher.find())
+            {
+                throw newRegistryAuthenticationFailedException(
+                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getImageName(),
+                    authenticationMethod,
+                    "realm");
+            }
+            string realm = realmMatcher.group(1);
 
-  RegistryAuthenticator(
-      string realm,
-      string service,
-      RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      string userAgent) {
-    this.realm = realm;
-    this.service = service;
-    this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-    this.userAgent = userAgent;
-  }
+            Regex servicePattern = new Regex("service=\"(.*?)\"");
+            Match serviceMatcher = servicePattern.matcher(authenticationMethod);
+            // use the provided registry location when missing service (e.g., for OpenShift)
+            string service =
+                serviceMatcher.find()
+                    ? serviceMatcher.group(1)
+                    : registryEndpointRequestProperties.getServerUrl();
 
-  /**
-   * Authenticates permissions to pull.
-   *
-   * @param credential the credential used to authenticate
-   * @return an {@code Authorization} authenticating the pull
-   * @throws RegistryAuthenticationFailedException if authentication fails
-   */
-  public Authorization authenticatePull(Credential credential)
-      {
-    return authenticate(credential, "pull");
-  }
+            return new RegistryAuthenticator(realm, service, registryEndpointRequestProperties, userAgent);
+        }
 
-  /**
-   * Authenticates permission to pull and push.
-   *
-   * @param credential the credential used to authenticate
-   * @return an {@code Authorization} authenticating the push
-   * @throws RegistryAuthenticationFailedException if authentication fails
-   */
-  public Authorization authenticatePush(Credential credential)
-      {
-    return authenticate(credential, "pull,push");
-  }
+        private static RegistryAuthenticationFailedException newRegistryAuthenticationFailedException(
+            string registry, string repository, string authenticationMethod, string authParam)
+        {
+            return new RegistryAuthenticationFailedException(
+                registry,
+                repository,
+                "'"
+                    + authParam
+                    + "' was not found in the 'WWW-Authenticate' header, tried to parse: "
+                    + authenticationMethod);
+        }
 
-  string getServiceScopeRequestParameters(string scope) {
-    return "service="
-        + service
-        + "&scope=repository:"
-        + registryEndpointRequestProperties.getImageName()
-        + ":"
-        + scope;
-  }
+        /** Template for the authentication response JSON. */
+        [JsonIgnoreProperties(ignoreUnknown = true)]
+        private class AuthenticationResponseTemplate : JsonTemplate
+        {
+            [JsonProperty]
+            public string token { get; }
 
-  public Uri getAuthenticationUrl(Credential credential, string scope)
-      {
-    return isOAuth2Auth(credential)
-        ? new Uri(realm) // Required parameters will be sent via POST .
-        : new Uri(realm + "?" + getServiceScopeRequestParameters(scope));
-  }
+            /**
+             * {@code access_token} is accepted as an alias for {@code token}.
+             *
+             * @see <a
+             *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
+             */
+            [JsonProperty]
+            public string access_token { get; }
 
-  public string getAuthRequestParameters(Credential credential, string scope) {
-    string serviceScope = getServiceScopeRequestParameters(scope);
-    return isOAuth2Auth(credential)
-        ? serviceScope
-            // https://github.com/GoogleContainerTools/jib/pull/1545
-            + "&client_id=jib.da031fe481a93ac107a95a96462358f9"
-            + "&grant_type=refresh_token&refresh_token="
-            // If OAuth2, credential.getPassword() is a refresh token.
-            + Verify.verifyNotNull(credential).getPassword()
-        : serviceScope;
-  }
+            /** @return {@link #token} if not null, or {@link #access_token} */
+            public string getToken()
+            {
+                if (token != null)
+                {
+                    return token;
+                }
+                return access_token;
+            }
+        }
 
-  public bool isOAuth2Auth(Credential credential) {
-    return credential != null && credential.isOAuth2RefreshToken();
-  }
+        private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+        private readonly string realm;
+        private readonly string service;
+        private readonly string userAgent;
 
-  /**
-   * Sends the authentication request and retrieves the Bearer authorization token.
-   *
-   * @param credential the credential used to authenticate
-   * @param scope the scope of permissions to authenticate for
-   * @return the {@link Authorization} response
-   * @throws RegistryAuthenticationFailedException if authentication fails
-   * @see <a
-   *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
-   */
-  private Authorization authenticate(Credential credential, string scope)
-      {
-            try {
+        private RegistryAuthenticator(
+            string realm,
+            string service,
+            RegistryEndpointRequestProperties registryEndpointRequestProperties,
+            string userAgent)
+        {
+            this.realm = realm;
+            this.service = service;
+            this.registryEndpointRequestProperties = registryEndpointRequestProperties;
+            this.userAgent = userAgent;
+        }
+
+        /**
+         * Authenticates permissions to pull.
+         *
+         * @param credential the credential used to authenticate
+         * @return an {@code Authorization} authenticating the pull
+         * @throws RegistryAuthenticationFailedException if authentication fails
+         */
+        public Authorization authenticatePull(Credential credential)
+        {
+            return authenticate(credential, "pull");
+        }
+
+        /**
+         * Authenticates permission to pull and push.
+         *
+         * @param credential the credential used to authenticate
+         * @return an {@code Authorization} authenticating the push
+         * @throws RegistryAuthenticationFailedException if authentication fails
+         */
+        public Authorization authenticatePush(Credential credential)
+        {
+            return authenticate(credential, "pull,push");
+        }
+
+        private string getServiceScopeRequestParameters(string scope)
+        {
+            return "service="
+                + service
+                + "&scope=repository:"
+                + registryEndpointRequestProperties.getImageName()
+                + ":"
+                + scope;
+        }
+
+        public Uri getAuthenticationUrl(Credential credential, string scope)
+        {
+            return isOAuth2Auth(credential)
+                ? new Uri(realm) // Required parameters will be sent via POST .
+                : new Uri(realm + "?" + getServiceScopeRequestParameters(scope));
+        }
+
+        public string getAuthRequestParameters(Credential credential, string scope)
+        {
+            string serviceScope = getServiceScopeRequestParameters(scope);
+            return isOAuth2Auth(credential)
+                ? serviceScope
+                    // https://github.com/GoogleContainerTools/jib/pull/1545
+                    + "&client_id=jib.da031fe481a93ac107a95a96462358f9"
+                    + "&grant_type=refresh_token&refresh_token="
+                    // If OAuth2, credential.getPassword() is a refresh token.
+                    + Verify.verifyNotNull(credential).getPassword()
+                : serviceScope;
+        }
+
+        public bool isOAuth2Auth(Credential credential)
+        {
+            return credential != null && credential.isOAuth2RefreshToken();
+        }
+
+        /**
+         * Sends the authentication request and retrieves the Bearer authorization token.
+         *
+         * @param credential the credential used to authenticate
+         * @param scope the scope of permissions to authenticate for
+         * @return the {@link Authorization} response
+         * @throws RegistryAuthenticationFailedException if authentication fails
+         * @see <a
+         *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
+         */
+        private Authorization authenticate(Credential credential, string scope)
+        {
+            try
+            {
                 using (Connection connection =
                     Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope)))
                 {
@@ -253,9 +256,12 @@ public class RegistryAuthenticator {
                         Authorization authorization = Authorization.fromBasicCredentials(credential.getUsername(), credential.getPassword());
                         request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
                     }
-                    if (isOAuth2Auth(credential)) {
+                    if (isOAuth2Auth(credential))
+                    {
                         request.Method = HttpMethod.Post;
-                    } else {
+                    }
+                    else
+                    {
                         request.Method = HttpMethod.Get;
                     }
 
@@ -278,12 +284,14 @@ public class RegistryAuthenticator {
                     }
                     return Authorization.fromBearerToken(responseJson.getToken());
                 }
-    } catch (IOException ex) {
-      throw new RegistryAuthenticationFailedException(
-          registryEndpointRequestProperties.getServerUrl(),
-          registryEndpointRequestProperties.getImageName(),
-          ex);
+            }
+            catch (IOException ex)
+            {
+                throw new RegistryAuthenticationFailedException(
+                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getImageName(),
+                    ex);
+            }
+        }
     }
-  }
-}
 }

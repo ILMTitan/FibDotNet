@@ -19,47 +19,45 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.docker.json {
+namespace com.google.cloud.tools.jib.docker.json
+{
+    /**
+     * JSON Template for a loadable Docker Manifest entry. The repoTags property requires a tag; i.e. if
+     * a tag is missing, it explicitly should use "latest".
+     *
+     * <p>Note that this is a template for a single Manifest entry, while the entire Docker Manifest
+     * should be {@code List<DockerLoadManifestEntryTemplate>}.
+     *
+     * <p>Example manifest entry JSON:
+     *
+     * <pre>{@code
+     * {
+     *   "Config":"config.json",
+     *   "RepoTags":["repository:tag"]
+     *   "Layers": [
+     *     "eb05f3dbdb543cc610527248690575bacbbcebabe6ecf665b189cf18b541e3ca.tar.gz",
+     *     "ba7c544469e514f1a9a4dec59ab640540d50992b288adbb34a1a63c45bf19a24.tar.gz",
+     *     "15705ab016593987662839b40f5a22fd1032996c90808d4a1371eb46974017d5.tar.gz"
+     *   ]
+     * }
+     * }</pre>
+     *
+     * @see <a href="https://github.com/moby/moby/blob/master/image/tarexport/load.go">Docker load
+     *     source</a>
+     */
+    public class DockerLoadManifestEntryTemplate : JsonTemplate
+    {
+        private List<string> repoTags = Collections.singletonList<string>(null);
+        private readonly IList<string> layers = new List<string>();
 
+        public void setRepoTags(string repoTags)
+        {
+            this.repoTags = Collections.singletonList(repoTags);
+        }
 
-
-
-
-/**
- * JSON Template for a loadable Docker Manifest entry. The repoTags property requires a tag; i.e. if
- * a tag is missing, it explicitly should use "latest".
- *
- * <p>Note that this is a template for a single Manifest entry, while the entire Docker Manifest
- * should be {@code List<DockerLoadManifestEntryTemplate>}.
- *
- * <p>Example manifest entry JSON:
- *
- * <pre>{@code
- * {
- *   "Config":"config.json",
- *   "RepoTags":["repository:tag"]
- *   "Layers": [
- *     "eb05f3dbdb543cc610527248690575bacbbcebabe6ecf665b189cf18b541e3ca.tar.gz",
- *     "ba7c544469e514f1a9a4dec59ab640540d50992b288adbb34a1a63c45bf19a24.tar.gz",
- *     "15705ab016593987662839b40f5a22fd1032996c90808d4a1371eb46974017d5.tar.gz"
- *   ]
- * }
- * }</pre>
- *
- * @see <a href="https://github.com/moby/moby/blob/master/image/tarexport/load.go">Docker load
- *     source</a>
- */
-public class DockerLoadManifestEntryTemplate : JsonTemplate {
-
-  private List<string> repoTags = Collections.singletonList<string>(null);
-  private readonly IList<string> layers = new List<string>();
-
-  public void setRepoTags(string repoTags) {
-    this.repoTags = Collections.singletonList(repoTags);
-  }
-
-  public void addLayerFile(string layer) {
-    layers.add(layer);
-  }
-}
+        public void addLayerFile(string layer)
+        {
+            layers.add(layer);
+        }
+    }
 }

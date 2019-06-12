@@ -20,12 +20,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
     /**
      * Parent class for image manifest JSON templates that can be built.
      *

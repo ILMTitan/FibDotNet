@@ -20,9 +20,10 @@ using com.google.cloud.tools.jib.@event.progress;
 namespace Jib.Net.Core.Api
 {
     public delegate void Consumer<E>(E input);
+
     public static class ConsuerExtensions
     {
-        public static void accept<E>(this Consumer<E> c , E update)
+        public static void accept<E>(this Consumer<E> c, E update)
         {
             c(update);
         }

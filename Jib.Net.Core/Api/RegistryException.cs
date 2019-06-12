@@ -17,20 +17,20 @@
 using System;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.api {
-
-
-/** Thrown when interacting with a registry. */
-public class RegistryException : Exception {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Thrown when interacting with a registry. */
+    public class RegistryException : Exception
+    {
         private HttpResponseMessage cause;
 
-        public RegistryException(string message, Exception cause) : base(message, cause) {
-    
-  }
+        public RegistryException(string message, Exception cause) : base(message, cause)
+        {
+        }
 
-  public RegistryException(string message) : base(message) {
-    
-  }
+        public RegistryException(string message) : base(message)
+        {
+        }
 
         public RegistryException(string message, HttpResponseMessage cause) : this(message)
         {

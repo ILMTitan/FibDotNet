@@ -21,77 +21,70 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.json {
+namespace com.google.cloud.tools.jib.json
+{
 
 
 
 
 
 
+    // TODO: Add JsonFactory for HTTP response parsing.
+    /**
+     * Helper class for serializing and deserializing JSON.
+     *
+     * <p>The interface uses Jackson as the JSON parser. Some useful annotations to include on classes
+     * used as templates for JSON are:
+     *
+     * <p>{@code @JsonInclude(JsonInclude.Include.NON_NULL)}
+     *
+     * <ul>
+     *   <li>Does not serialize fields that are {@code null}.
+     * </ul>
+     *
+     * {@code @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)}
+     *
+     * <ul>
+     *   <li>Fields that are private are also accessible for serialization/deserialization.
+     * </ul>
+     *
+     * @see <a href="https://github.com/FasterXML/jackson">https://github.com/FasterXML/jackson</a>
+     */
+    public static class JsonTemplateMapper
+    {
+        private static readonly ObjectMapper objectMapper = new ObjectMapper();
 
-
-
-
-
-
-
-
-
-
-// TODO: Add JsonFactory for HTTP response parsing.
-/**
- * Helper class for serializing and deserializing JSON.
- *
- * <p>The interface uses Jackson as the JSON parser. Some useful annotations to include on classes
- * used as templates for JSON are:
- *
- * <p>{@code @JsonInclude(JsonInclude.Include.NON_NULL)}
- *
- * <ul>
- *   <li>Does not serialize fields that are {@code null}.
- * </ul>
- *
- * {@code @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)}
- *
- * <ul>
- *   <li>Fields that are private are also accessible for serialization/deserialization.
- * </ul>
- *
- * @see <a href="https://github.com/FasterXML/jackson">https://github.com/FasterXML/jackson</a>
- */
-public static class JsonTemplateMapper {
-
-  private static readonly ObjectMapper objectMapper = new ObjectMapper();
-
-  /**
-   * Deserializes a JSON file via a JSON object template.
-   *
-   * @param <T> child type of {@link JsonTemplate}
-   * @param jsonFile a file containing a JSON string
-   * @param templateClass the template to deserialize the string to
-   * @return the template filled with the values parsed from {@code jsonFile}
-   * @throws IOException if an error occurred during reading the file or parsing the JSON
-   */
-  public static T readJsonFromFile<T>(SystemPath jsonFile) where T : JsonTemplate {
+        /**
+         * Deserializes a JSON file via a JSON object template.
+         *
+         * @param <T> child type of {@link JsonTemplate}
+         * @param jsonFile a file containing a JSON string
+         * @param templateClass the template to deserialize the string to
+         * @return the template filled with the values parsed from {@code jsonFile}
+         * @throws IOException if an error occurred during reading the file or parsing the JSON
+         */
+        public static T readJsonFromFile<T>(SystemPath jsonFile) where T : JsonTemplate
+        {
             using (StreamReader reader = jsonFile.toFile().OpenText())
             {
                 return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
             }
-  }
+        }
 
-  /**
-   * Deserializes a JSON file via a JSON object template with a shared lock on the file
-   *
-   * @param <T> child type of {@link JsonTemplate}
-   * @param jsonFile a file containing a JSON string
-   * @param templateClass the template to deserialize the string to
-   * @return the template filled with the values parsed from {@code jsonFile}
-   * @throws IOException if an error occurred during reading the file or parsing the JSON
-   */
-  public static T readJsonFromFileWithLock<T>(
-      SystemPath jsonFile) where T : JsonTemplate {
+        /**
+         * Deserializes a JSON file via a JSON object template with a shared lock on the file
+         *
+         * @param <T> child type of {@link JsonTemplate}
+         * @param jsonFile a file containing a JSON string
+         * @param templateClass the template to deserialize the string to
+         * @return the template filled with the values parsed from {@code jsonFile}
+         * @throws IOException if an error occurred during reading the file or parsing the JSON
+         */
+        public static T readJsonFromFileWithLock<T>(
+            SystemPath jsonFile) where T : JsonTemplate
+        {
             return readJsonFromFile<T>(jsonFile);
-  }
+        }
 
         /**
          * Deserializes a JSON object from a JSON string.
@@ -113,18 +106,19 @@ public static class JsonTemplateMapper {
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static List<T> readListOfJson<T>(string jsonString) where T : JsonTemplate {
+        public static List<T> readListOfJson<T>(string jsonString) where T : JsonTemplate
+        {
             return JsonConvert.DeserializeObject<List<T>>(jsonString);
-  }
+        }
 
-  public static string toUtf8String(JsonTemplate template)
-      {
-    return toUtf8String((object) template);
-  }
+        public static string toUtf8String(JsonTemplate template)
+        {
+            return toUtf8String((object)template);
+        }
 
-  public static string toUtf8String(IReadOnlyList<JsonTemplate> templates)
-      {
-    return toUtf8String((object) templates);
+        public static string toUtf8String(IReadOnlyList<JsonTemplate> templates)
+        {
+            return toUtf8String((object)templates);
         }
 
         public static string toUtf8String(IList<JsonTemplate> templates)
@@ -133,34 +127,34 @@ public static class JsonTemplateMapper {
         }
 
         public static byte[] toByteArray(JsonTemplate template)
-      {
-    return toByteArray((object) template);
-  }
+        {
+            return toByteArray((object)template);
+        }
 
-  public static byte[] toByteArray(IEnumerable<JsonTemplate> templates)
-      {
-    return toByteArray((object) templates);
-  }
+        public static byte[] toByteArray(IEnumerable<JsonTemplate> templates)
+        {
+            return toByteArray((object)templates);
+        }
 
-  public static void writeTo(JsonTemplate template, Stream @out)
-      {
-    writeTo((object) template, @out);
-  }
+        public static void writeTo(JsonTemplate template, Stream @out)
+        {
+            writeTo((object)template, @out);
+        }
 
-  public static void writeTo(IReadOnlyList< JsonTemplate> templates, Stream @out)
-      {
-    writeTo((object) templates, @out);
-  }
+        public static void writeTo(IReadOnlyList<JsonTemplate> templates, Stream @out)
+        {
+            writeTo((object)templates, @out);
+        }
 
-  private static string toUtf8String(object template)
-      {
-    return StandardCharsets.UTF_8.GetString(toByteArray(template));
-  }
+        private static string toUtf8String(object template)
+        {
+            return StandardCharsets.UTF_8.GetString(toByteArray(template));
+        }
 
-  private static byte[] toByteArray(object template)
-      {
+        private static byte[] toByteArray(object template)
+        {
             return StandardCharsets.UTF_8.GetBytes(JsonConvert.SerializeObject(template));
-  }
+        }
 
         private static void writeTo(object template, Stream @out)
         {
@@ -170,5 +164,5 @@ public static class JsonTemplateMapper {
                 writer.Write(jsonString);
             }
         }
-}
+    }
 }

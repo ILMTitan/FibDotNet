@@ -17,21 +17,19 @@
 using com.google.cloud.tools.jib.api;
 using System;
 
-namespace com.google.cloud.tools.jib.global {
-
-
-
-
-/** Names of system properties defined/used by Jib. */
-public class JibSystemProperties {
+namespace com.google.cloud.tools.jib.global
+{
+    /** Names of system properties defined/used by Jib. */
+    public sealed class JibSystemProperties
+    {
         private const int defaultTimeoutMills = 20000;
         public static readonly string HTTP_TIMEOUT = "jib.httpTimeout";
 
-  public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
+        public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
 
-  private static readonly string SERIALIZE = "jibSerialize";
+        private static readonly string SERIALIZE = "jibSerialize";
 
-  private static readonly string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
+        private static readonly string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
 
         /**
          * Gets the HTTP connection/read timeouts for registry interactions in milliseconds. This is
@@ -40,7 +38,8 @@ public class JibSystemProperties {
          *
          * @return the HTTP connection/read timeouts for registry interactions in milliseconds
          */
-        public static int getHttpTimeout() {
+        public static int getHttpTimeout()
+        {
             if (int.TryParse(Environment.GetEnvironmentVariable(HTTP_TIMEOUT), out int timeoutMills)
                 )
             { return timeoutMills; }
@@ -50,21 +49,23 @@ public class JibSystemProperties {
             }
         }
 
-  /**
-   * Gets whether or not to serialize Jib's execution. This is defined by the {@code jibSerialize}
-   * system property.
-   *
-   * @return {@code true} if Jib's execution should be serialized, {@code false} if not
-   */
-  public static bool isSerializedExecutionEnabled() {
-            if(bool.TryParse(Environment.GetEnvironmentVariable(SERIALIZE), out bool serialize))
+        /**
+         * Gets whether or not to serialize Jib's execution. This is defined by the {@code jibSerialize}
+         * system property.
+         *
+         * @return {@code true} if Jib's execution should be serialized, {@code false} if not
+         */
+        public static bool isSerializedExecutionEnabled()
+        {
+            if (bool.TryParse(Environment.GetEnvironmentVariable(SERIALIZE), out bool serialize))
             {
                 return serialize;
-            } else
+            }
+            else
             {
                 return false;
             }
-  }
+        }
 
         /**
          * Gets whether or not to allow sending authentication information over insecure HTTP connections.
@@ -85,58 +86,69 @@ public class JibSystemProperties {
             }
         }
 
-  /**
-   * Gets whether or not to enable the User-Agent header. This is defined by the {@code
-   * _JIB_DISABLE_USER_AGENT} system property.
-   *
-   * @return {@code true} if the User-Agent header is enabled, {@code false} if not
-   */
-  public static bool isUserAgentEnabled() {
-    return Strings.isNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
-  }
+        /**
+         * Gets whether or not to enable the User-Agent header. This is defined by the {@code
+         * _JIB_DISABLE_USER_AGENT} system property.
+         *
+         * @return {@code true} if the User-Agent header is enabled, {@code false} if not
+         */
+        public static bool isUserAgentEnabled()
+        {
+            return Strings.isNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
+        }
 
-  /**
-   * Checks the {@code jib.httpTimeout} system property for invalid (non-integer or negative)
-   * values.
-   *
-   * @throws NumberFormatException if invalid values
-   */
-  public static void checkHttpTimeoutProperty() {
-    checkNumericSystemProperty(HTTP_TIMEOUT, Range.atLeast(0));
-  }
+        /**
+         * Checks the {@code jib.httpTimeout} system property for invalid (non-integer or negative)
+         * values.
+         *
+         * @throws NumberFormatException if invalid values
+         */
+        public static void checkHttpTimeoutProperty()
+        {
+            checkNumericSystemProperty(HTTP_TIMEOUT, Range.atLeast(0));
+        }
 
-  /**
-   * Checks if {@code http.proxyPort} and {@code https.proxyPort} system properties are in the
-   * [0..65535] range when set.
-   *
-   * @throws NumberFormatException if invalid values
-   */
-  public static void checkProxyPortProperty() {
-    checkNumericSystemProperty("http.proxyPort", Range.closed(0, 65535));
-    checkNumericSystemProperty("https.proxyPort", Range.closed(0, 65535));
-  }
+        /**
+         * Checks if {@code http.proxyPort} and {@code https.proxyPort} system properties are in the
+         * [0..65535] range when set.
+         *
+         * @throws NumberFormatException if invalid values
+         */
+        public static void checkProxyPortProperty()
+        {
+            checkNumericSystemProperty("http.proxyPort", Range.closed(0, 65535));
+            checkNumericSystemProperty("https.proxyPort", Range.closed(0, 65535));
+        }
 
-  private static void checkNumericSystemProperty(string property, Range<int> validRange) {
-    string value = Environment.GetEnvironmentVariable(property);
-    if (value == null) {
-      return;
+        private static void checkNumericSystemProperty(string property, Range<int> validRange)
+        {
+            string value = Environment.GetEnvironmentVariable(property);
+            if (value == null)
+            {
+                return;
+            }
+
+            int parsed;
+            try
+            {
+                parsed = int.Parse(value);
+            }
+            catch (FormatException ex)
+            {
+                throw new FormatException(property + " must be an integer: " + value, ex);
+            }
+            if (validRange.hasLowerBound() && validRange.lowerEndpoint() > parsed)
+            {
+                throw new FormatException(
+                    property + " cannot be less than " + validRange.lowerEndpoint() + ": " + value);
+            }
+            else if (validRange.hasUpperBound() && validRange.upperEndpoint() < parsed)
+            {
+                throw new FormatException(
+                    property + " cannot be greater than " + validRange.upperEndpoint() + ": " + value);
+            }
+        }
+
+        private JibSystemProperties() { }
     }
-
-    int parsed;
-    try {
-      parsed = int.Parse(value);
-    } catch (FormatException ex) {
-      throw new FormatException(property + " must be an integer: " + value, ex);
-    }
-    if (validRange.hasLowerBound() && validRange.lowerEndpoint() > parsed) {
-      throw new FormatException(
-          property + " cannot be less than " + validRange.lowerEndpoint() + ": " + value);
-    } else if (validRange.hasUpperBound() && validRange.upperEndpoint() < parsed) {
-      throw new FormatException(
-          property + " cannot be greater than " + validRange.upperEndpoint() + ": " + value);
-    }
-  }
-
-  private JibSystemProperties() {}
-}
 }

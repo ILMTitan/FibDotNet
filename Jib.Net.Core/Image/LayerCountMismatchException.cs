@@ -16,14 +16,14 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.image {
-
-/** Exception thrown when the number of layers found did not match expectations. */
-public class LayerCountMismatchException : Exception {
-
-  public LayerCountMismatchException(string message) : base(message) {
-    
-  }
+namespace com.google.cloud.tools.jib.image
+{
+    /** Exception thrown when the number of layers found did not match expectations. */
+    public class LayerCountMismatchException : Exception
+    {
+        public LayerCountMismatchException(string message) : base(message)
+        {
+        }
 
         public LayerCountMismatchException() : base()
         {

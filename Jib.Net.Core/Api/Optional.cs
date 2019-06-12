@@ -20,9 +20,8 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core;
 using Jib.Net.Core.FileSystem;
 
-namespace com.google.cloud.tools.jib.api {
-
-
+namespace com.google.cloud.tools.jib.api
+{
     public struct Optional<T>
     {
         public bool isPresent()
@@ -65,6 +64,7 @@ namespace com.google.cloud.tools.jib.api {
             throw new NotImplementedException();
         }
     }
+
     public static class Optional
     {
         public static Optional<T> of<T>(T credential)
@@ -92,13 +92,14 @@ namespace com.google.cloud.tools.jib.api {
             if (o.isPresent())
             {
                 return o.get();
-            } else
+            }
+            else
             {
                 return defaultValue;
             }
         }
 
-        public static T? asNullable<T>(this Optional<T> o) where T:struct
+        public static T? asNullable<T>(this Optional<T> o) where T : struct
         {
             throw new NotImplementedException();
         }

@@ -20,93 +20,98 @@ using System;
 using System.Net.Http;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Builds a {@link RegistryErrorException} with multiple causes. */
+    public class RegistryErrorExceptionBuilder
+    {
+        private readonly HttpResponseMessage cause;
+        private readonly StringBuilder errorMessageBuilder = new StringBuilder();
 
+        private bool firstErrorReason = true;
 
+        /**
+         * Gets the reason for certain errors.
+         *
+         * @param errorCodeString string form of {@link ErrorCodes}
+         * @param message the original received error message, which may or may not be used depending on
+         *     the {@code errorCode}
+         */
+        private static string getReason(string errorCodeString, string message)
+        {
+            if (message == null)
+            {
+                message = "no details";
+            }
 
+            if (!Enum.TryParse<ErrorCodes>(errorCodeString, true, out var errorCode))
+            {
+                // Unknown errorCodeString
+                return "unknown: " + message;
+            }
 
-/** Builds a {@link RegistryErrorException} with multiple causes. */
-public class RegistryErrorExceptionBuilder {
+            if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.BLOB_UNKNOWN)
+            {
+                return message + " (something went wrong)";
+            }
+            else if (errorCode == ErrorCodes.MANIFEST_UNKNOWN
+              || errorCode == ErrorCodes.TAG_INVALID
+              || errorCode == ErrorCodes.MANIFEST_UNVERIFIED)
+            {
+                return message;
+            }
+            else
+            {
+                return "other: " + message;
+            }
+        }
 
-  private readonly HttpResponseMessage cause;
-  private readonly StringBuilder errorMessageBuilder = new StringBuilder();
+        /** @param method the registry method that errored */
+        public RegistryErrorExceptionBuilder(string method, HttpResponseMessage cause)
+        {
+            this.cause = cause;
 
-  private bool firstErrorReason = true;
+            errorMessageBuilder.append("Tried to ");
+            errorMessageBuilder.append(method);
+            errorMessageBuilder.append(" but failed because: ");
+        }
 
-  /**
-   * Gets the reason for certain errors.
-   *
-   * @param errorCodeString string form of {@link ErrorCodes}
-   * @param message the original received error message, which may or may not be used depending on
-   *     the {@code errorCode}
-   */
-  private static string getReason(string errorCodeString, string message) {
-    if (message == null) {
-      message = "no details";
+        /** @param method the registry method that errored */
+        public RegistryErrorExceptionBuilder(string method) : this(method, null)
+        {
+        }
+
+        // TODO: Don't use a JsonTemplate as a data object to pass around.
+        /**
+         * Builds an entry to the error reasons from an {@link ErrorEntryTemplate}.
+         *
+         * @param errorEntry the {@link ErrorEntryTemplate} to add
+         */
+        public RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry)
+        {
+            string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
+            addReason(reason);
+            return this;
+        }
+
+        /** Adds an entry to the error reasons. */
+        public RegistryErrorExceptionBuilder addReason(string reason)
+        {
+            if (!firstErrorReason)
+            {
+                errorMessageBuilder.append(", ");
+            }
+            errorMessageBuilder.append(reason);
+            firstErrorReason = false;
+            return this;
+        }
+
+        public RegistryErrorException build()
+        {
+            // Provides a feedback channel.
+            errorMessageBuilder.append(
+                " | If this is a bug, please file an issue at " + ProjectInfo.GITHUB_NEW_ISSUE_URL);
+            return new RegistryErrorException(errorMessageBuilder.toString(), cause);
+        }
     }
-
-      if (!Enum.TryParse<ErrorCodes>(errorCodeString, true, out var errorCode))
-                {
-                    // Unknown errorCodeString
-                    return "unknown: " + message;
-                }
-
-                
-
-      if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.BLOB_UNKNOWN) {
-        return message + " (something went wrong)";
-
-      } else if (errorCode == ErrorCodes.MANIFEST_UNKNOWN
-          || errorCode == ErrorCodes.TAG_INVALID
-          || errorCode == ErrorCodes.MANIFEST_UNVERIFIED) {
-        return message;
-
-      } else {
-        return "other: " + message;
-      }
-  }
-
-  /** @param method the registry method that errored */
-  public RegistryErrorExceptionBuilder(string method, HttpResponseMessage cause) {
-    this.cause = cause;
-
-    errorMessageBuilder.append("Tried to ");
-    errorMessageBuilder.append(method);
-    errorMessageBuilder.append(" but failed because: ");
-  }
-
-  /** @param method the registry method that errored */
-  public RegistryErrorExceptionBuilder(string method) : this(method, null) {
-    
-  }
-
-  // TODO: Don't use a JsonTemplate as a data object to pass around.
-  /**
-   * Builds an entry to the error reasons from an {@link ErrorEntryTemplate}.
-   *
-   * @param errorEntry the {@link ErrorEntryTemplate} to add
-   */
-  public RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry) {
-    string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
-    addReason(reason);
-    return this;
-  }
-
-  /** Adds an entry to the error reasons. */
-  public RegistryErrorExceptionBuilder addReason(string reason) {
-    if (!firstErrorReason) {
-      errorMessageBuilder.append(", ");
-    }
-    errorMessageBuilder.append(reason);
-    firstErrorReason = false;
-    return this;
-  }
-
-  public RegistryErrorException build() {
-    // Provides a feedback channel.
-    errorMessageBuilder.append(
-        " | If this is a bug, please file an issue at " + ProjectInfo.GITHUB_NEW_ISSUE_URL);
-    return new RegistryErrorException(errorMessageBuilder.toString(), cause);
-  }
-}
 }

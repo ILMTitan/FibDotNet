@@ -29,16 +29,6 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
 
-
-
-
-
-
-
-
-
-
-
     /**
      * Runs steps for building an image.
      *
@@ -46,215 +36,232 @@ namespace com.google.cloud.tools.jib.builder.steps
      * that order matters, so make sure that steps are run before other steps that depend on them. Wait
      * on the last step by calling the respective {@code wait...} methods.
      */
-    public class StepsRunner {
+    public sealed class StepsRunner
+    {
+        /** Holds the individual steps. */
+        private class Steps
+        {
+            public RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
+            public AuthenticatePushStep authenticatePushStep;
+            public PullBaseImageStep pullBaseImageStep;
+            public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
 
-  /** Holds the individual steps. */
-  private class Steps {
+            public ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
 
-    public RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
-    public AuthenticatePushStep authenticatePushStep;
-    public PullBaseImageStep pullBaseImageStep;
-    public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-
-    public ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-
-    public PushLayersStep pushBaseImageLayersStep;
-    public PushLayersStep pushApplicationLayersStep;
+            public PushLayersStep pushBaseImageLayersStep;
+            public PushLayersStep pushApplicationLayersStep;
             public BuildImageStep buildImageStep;
             public PushContainerConfigurationStep pushContainerConfigurationStep;
 
-    public AsyncStep<BuildResult> finalStep;
-  }
+            public AsyncStep<BuildResult> finalStep;
+        }
 
-  /**
-   * Starts building the steps to run.
-   *
-   * @param buildConfiguration the {@link BuildConfiguration}
-   * @return a new {@link StepsRunner}
-   */
-  public static StepsRunner begin(BuildConfiguration buildConfiguration) {
-    return new StepsRunner(buildConfiguration);
-  }
-
-  private readonly Steps steps = new Steps();
-
-  private readonly BuildConfiguration buildConfiguration;
-
-  /** Runnable to run all the steps. */
-  private Runnable stepsRunnable = () => {};
-
-  /** The total number of steps added. */
-  private int stepsCount = 0;
-
-  private string rootProgressAllocationDescription;
-  private ProgressEventDispatcher rootProgressEventDispatcher;
-
-  private StepsRunner(
-      BuildConfiguration buildConfiguration)
+        /**
+         * Starts building the steps to run.
+         *
+         * @param buildConfiguration the {@link BuildConfiguration}
+         * @return a new {@link StepsRunner}
+         */
+        public static StepsRunner begin(BuildConfiguration buildConfiguration)
         {
-    this.buildConfiguration = buildConfiguration;
-  }
+            return new StepsRunner(buildConfiguration);
+        }
 
-  public StepsRunner retrieveTargetRegistryCredentials() {
-    return enqueueStep(
-        () =>
-            steps.retrieveTargetRegistryCredentialsStep =
-                RetrieveRegistryCredentialsStep.forTargetImage(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
-  }
+        private readonly Steps steps = new Steps();
 
-  public StepsRunner authenticatePush() {
-    return enqueueStep(
-        () =>
-            steps.authenticatePushStep =
-                new AuthenticatePushStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.retrieveTargetRegistryCredentialsStep)));
-  }
+        private readonly BuildConfiguration buildConfiguration;
 
-  public StepsRunner pullBaseImage() {
-    return enqueueStep(
-        () =>
-            steps.pullBaseImageStep =
-                new PullBaseImageStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
-  }
+        /** Runnable to run all the steps. */
+        private Runnable stepsRunnable = () => { };
 
-  public StepsRunner pullAndCacheBaseImageLayers() {
-    return enqueueStep(
-        () =>
-            steps.pullAndCacheBaseImageLayersStep =
-                new PullAndCacheBaseImageLayersStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.pullBaseImageStep)));
-  }
+        /** The total number of steps added. */
+        private int stepsCount = 0;
 
-  public StepsRunner pushBaseImageLayers() {
-    return enqueueStep(
-        () =>
-            steps.pushBaseImageLayersStep =
-                new PushLayersStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.authenticatePushStep),
-                    Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep)));
-  }
+        private string rootProgressAllocationDescription;
+        private ProgressEventDispatcher rootProgressEventDispatcher;
 
-  public StepsRunner buildAndCacheApplicationLayers() {
-    return enqueueStep(
-        () =>
-            steps.buildAndCacheApplicationLayerSteps =
-                BuildAndCacheApplicationLayerStep.makeList(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
-  }
+        private StepsRunner(
+            BuildConfiguration buildConfiguration)
+        {
+            this.buildConfiguration = buildConfiguration;
+        }
 
-  public StepsRunner buildImage() {
-    return enqueueStep(
-        () =>
-            steps.buildImageStep =
-                new BuildImageStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.pullBaseImageStep),
-                    Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                    Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps)));
-  }
+        public StepsRunner retrieveTargetRegistryCredentials()
+        {
+            return enqueueStep(
+                () =>
+                    steps.retrieveTargetRegistryCredentialsStep =
+                        RetrieveRegistryCredentialsStep.forTargetImage(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+        }
 
-  public StepsRunner pushContainerConfiguration() {
-    return enqueueStep(
-        () =>
-            steps.pushContainerConfigurationStep =
-                new PushContainerConfigurationStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.authenticatePushStep),
-                    Preconditions.checkNotNull(steps.buildImageStep)));
-  }
+        public StepsRunner authenticatePush()
+        {
+            return enqueueStep(
+                () =>
+                    steps.authenticatePushStep =
+                        new AuthenticatePushStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.retrieveTargetRegistryCredentialsStep)));
+        }
 
-  public StepsRunner pushApplicationLayers() {
-    return enqueueStep(
-        () =>
-            steps.pushApplicationLayersStep =
-                new PushLayersStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.authenticatePushStep),
-                    AsyncSteps.immediate(
-                        Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps))));
-  }
+        public StepsRunner pullBaseImage()
+        {
+            return enqueueStep(
+                () =>
+                    steps.pullBaseImageStep =
+                        new PullBaseImageStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+        }
 
-  public StepsRunner pushImage() {
-    rootProgressAllocationDescription = "building image to registry";
+        public StepsRunner pullAndCacheBaseImageLayers()
+        {
+            return enqueueStep(
+                () =>
+                    steps.pullAndCacheBaseImageLayersStep =
+                        new PullAndCacheBaseImageLayersStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.pullBaseImageStep)));
+        }
 
-    return enqueueStep(
-        () =>
-            steps.finalStep =
-                new PushImageStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    Preconditions.checkNotNull(steps.authenticatePushStep),
-                    Preconditions.checkNotNull(steps.pushBaseImageLayersStep),
-                    Preconditions.checkNotNull(steps.pushApplicationLayersStep),
-                    Preconditions.checkNotNull(steps.pushContainerConfigurationStep),
-                    Preconditions.checkNotNull(steps.buildImageStep)));
-  }
+        public StepsRunner pushBaseImageLayers()
+        {
+            return enqueueStep(
+                () =>
+                    steps.pushBaseImageLayersStep =
+                        new PushLayersStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.authenticatePushStep),
+                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep)));
+        }
 
-  public StepsRunner loadDocker(DockerClient dockerClient) {
-    rootProgressAllocationDescription = "building image to Docker daemon";
+        public StepsRunner buildAndCacheApplicationLayers()
+        {
+            return enqueueStep(
+                () =>
+                    steps.buildAndCacheApplicationLayerSteps =
+                        BuildAndCacheApplicationLayerStep.makeList(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+        }
 
-    return enqueueStep(
-        () =>
-            steps.finalStep =
-                new LoadDockerStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    dockerClient,
-                    Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                    Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
-                    Preconditions.checkNotNull(steps.buildImageStep)));
-  }
+        public StepsRunner buildImage()
+        {
+            return enqueueStep(
+                () =>
+                    steps.buildImageStep =
+                        new BuildImageStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.pullBaseImageStep),
+                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps)));
+        }
 
-  public StepsRunner writeTarFile(SystemPath outputPath) {
-    rootProgressAllocationDescription = "building image to tar file";
+        public StepsRunner pushContainerConfiguration()
+        {
+            return enqueueStep(
+                () =>
+                    steps.pushContainerConfigurationStep =
+                        new PushContainerConfigurationStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.authenticatePushStep),
+                            Preconditions.checkNotNull(steps.buildImageStep)));
+        }
 
-    return enqueueStep(
-        () =>
-            steps.finalStep =
-                new WriteTarFileStep(
-                    buildConfiguration,
-                    Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                    outputPath,
-                    Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                    Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
-                    Preconditions.checkNotNull(steps.buildImageStep)));
-  }
+        public StepsRunner pushApplicationLayers()
+        {
+            return enqueueStep(
+                () =>
+                    steps.pushApplicationLayersStep =
+                        new PushLayersStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.authenticatePushStep),
+                            AsyncSteps.immediate(
+                                Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps))));
+        }
 
-  public BuildResult run() {
-    Preconditions.checkNotNull(rootProgressAllocationDescription);
+        public StepsRunner pushImage()
+        {
+            rootProgressAllocationDescription = "building image to registry";
 
-    using (ProgressEventDispatcher progressEventDispatcher =
-        ProgressEventDispatcher.newRoot(
-            buildConfiguration.getEventHandlers(), rootProgressAllocationDescription, stepsCount)) {
-      rootProgressEventDispatcher = progressEventDispatcher;
-      stepsRunnable.run();
-      return Preconditions.checkNotNull(steps.finalStep).getFuture().get();
+            return enqueueStep(
+                () =>
+                    steps.finalStep =
+                        new PushImageStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.checkNotNull(steps.authenticatePushStep),
+                            Preconditions.checkNotNull(steps.pushBaseImageLayersStep),
+                            Preconditions.checkNotNull(steps.pushApplicationLayersStep),
+                            Preconditions.checkNotNull(steps.pushContainerConfigurationStep),
+                            Preconditions.checkNotNull(steps.buildImageStep)));
+        }
+
+        public StepsRunner loadDocker(DockerClient dockerClient)
+        {
+            rootProgressAllocationDescription = "building image to Docker daemon";
+
+            return enqueueStep(
+                () =>
+                    steps.finalStep =
+                        new LoadDockerStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            dockerClient,
+                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
+                            Preconditions.checkNotNull(steps.buildImageStep)));
+        }
+
+        public StepsRunner writeTarFile(SystemPath outputPath)
+        {
+            rootProgressAllocationDescription = "building image to tar file";
+
+            return enqueueStep(
+                () =>
+                    steps.finalStep =
+                        new WriteTarFileStep(
+                            buildConfiguration,
+                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            outputPath,
+                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
+                            Preconditions.checkNotNull(steps.buildImageStep)));
+        }
+
+        public BuildResult run()
+        {
+            Preconditions.checkNotNull(rootProgressAllocationDescription);
+
+            using (ProgressEventDispatcher progressEventDispatcher =
+                ProgressEventDispatcher.newRoot(
+                    buildConfiguration.getEventHandlers(), rootProgressAllocationDescription, stepsCount))
+            {
+                rootProgressEventDispatcher = progressEventDispatcher;
+                stepsRunnable.run();
+                return Preconditions.checkNotNull(steps.finalStep).getFuture().get();
+            }
+        }
+
+        private StepsRunner enqueueStep(Runnable stepRunnable)
+        {
+            Runnable previousStepsRunnable = stepsRunnable;
+            stepsRunnable =
+                () =>
+                {
+                    previousStepsRunnable.run();
+                    stepRunnable.run();
+                };
+            stepsCount++;
+            return this;
+        }
     }
-  }
-
-  private StepsRunner enqueueStep(Runnable stepRunnable) {
-    Runnable previousStepsRunnable = stepsRunnable;
-    stepsRunnable =
-        () => {
-          previousStepsRunnable.run();
-          stepRunnable.run();
-        };
-    stepsCount++;
-    return this;
-  }
-}
 }

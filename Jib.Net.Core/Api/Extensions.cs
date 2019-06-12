@@ -45,133 +45,168 @@ namespace Jib.Net.Core.Global
         {
             return d;
         }
+
         public static int lastIndexOf(this string s, char c)
         {
             return s.LastIndexOf(c);
         }
-        public static  int lastIndexOf(this string s, string substring)
+
+        public static int lastIndexOf(this string s, string substring)
         {
             return s.LastIndexOf(substring);
         }
+
         public static void setLocation(this HttpResponseHeaders h, string location)
         {
             h.Location = new Uri(location);
         }
+
         public static string parseAsString(this HttpResponseMessage m)
         {
             return m.Content.ReadAsStringAsync().Result;
         }
-        public static void writeTo(this BlobHttpContent c, Stream s) {
+
+        public static void writeTo(this BlobHttpContent c, Stream s)
+        {
             c.CopyToAsync(s).Wait();
         }
-        public static string name(this ErrorCodes e){
+
+        public static string name(this ErrorCodes e)
+        {
             return e.ToString("G");
         }
+
         public static bool isDone(this Task t)
         {
             return t.IsCompleted;
         }
+
         public static bool containsKey<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key)
         {
             return d.ContainsKey(key);
         }
+
         public static int intValue(this int? i)
         {
             return i.GetValueOrDefault();
         }
+
         public static long longValue(this long? l)
         {
             return l.GetValueOrDefault();
         }
+
         public static long longValue(this long l)
         {
             return l;
         }
+
         public static bool isEmpty<T>(this Queue<T> queue)
         {
             return queue.Count == 0;
         }
+
         public static bool offer<T>(this Queue<T> queue, T item)
         {
             queue.Enqueue(item);
             return true;
         }
+
         public static DateTime getLastModifiedDate(this TarEntry e)
         {
             return e.TarHeader.ModTime;
         }
+
         public static DateTime getModTime(this TarEntry e)
         {
             return e.ModTime;
         }
+
         public static bool isDirectory(this TarEntry e)
         {
             return e.IsDirectory;
         }
+
         public static char[] toCharArray(this string s)
         {
             return s.ToCharArray();
         }
+
         public static int release(this SemaphoreSlim s)
         {
             return s.Release();
         }
+
         public static void acquire(this SemaphoreSlim s)
         {
             s.Wait();
         }
+
         public static void write(this Stream s, byte[] buffer, int offset, int count)
         {
             s.Write(buffer, offset, count);
         }
+
         public static void write(this Stream s, byte b)
         {
             s.WriteByte(b);
         }
+
         public static T remove<T>(this Queue<T> queue)
         {
             return queue.Dequeue();
         }
+
         public static void add<T>(this Queue<T> queue, T value)
         {
             queue.Enqueue(value);
         }
+
         public static string getPath(this FileSystemInfo info)
         {
             return info.FullName;
         }
+
         public static TarEntry getNextEntry(this TarInputStream i)
         {
             return i.GetNextEntry();
         }
+
         public static TarEntry getNextTarEntry(this TarInputStream i)
         {
             return i.GetNextEntry();
         }
+
         public static Instant plusSeconds(this Instant i, int seconds)
         {
             return i + Duration.FromSeconds(seconds);
         }
+
         public static T poll<T>(this Queue<T> q)
         {
             return q.Dequeue();
         }
+
         public static Instant plusNanos(this Instant i, int nanos)
         {
             return i.PlusNanoseconds(nanos);
         }
+
         public static Instant plusMillis(this Instant i, int mills)
         {
             return i + Duration.FromMilliseconds(mills);
         }
+
         public static IList<T> asList<T>(this IEnumerable<T> e)
         {
             return e.ToList();
         }
+
         public static int groupCount(this Match m)
         {
             return m.Groups.Count;
         }
+
         public static TValue getOrDefault<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dic, TKey key, TValue defaultValue)
         {
             if (dic.TryGetValue(key, out var value))
@@ -183,87 +218,109 @@ namespace Jib.Net.Core.Global
                 return defaultValue;
             }
         }
+
         public static bool contains<T>(this ISet<T> set, T value)
         {
             return set.Contains(value);
         }
+
         public static void run(this Action a)
         {
             a();
         }
+
         public static Uri getRequestUrl(this HttpResponseMessage message)
         {
             return message.RequestMessage.RequestUri;
         }
+
         public static T get<T>(this Task<T> task)
         {
             return task.Result;
         }
-        public static int size<T>(this ImmutableArray<T> l) {
+
+        public static int size<T>(this ImmutableArray<T> l)
+        {
             return l.Length;
         }
+
         public static void setSize(this TarEntry e, long size)
         {
             e.TarHeader.Size = size;
         }
+
         public static SystemPath toPath(this FileSystemInfo fileInfo)
         {
             return new SystemPath(fileInfo);
         }
+
         public static FileInfo getFile(this TarEntry e)
         {
             return new FileInfo(e.File);
         }
+
         public static bool isFile(this TarEntry e)
         {
             return File.Exists(e.File);
         }
+
         public static void closeArchiveEntry(this TarOutputStream s)
         {
             s.CloseEntry();
         }
+
         public static void putArchiveEntry(this TarOutputStream s, TarEntry e)
         {
             s.PutNextEntry(e);
         }
+
         public static Uri getLocation(this HttpResponseHeaders h)
         {
             return h.Location;
         }
+
         public static Uri toURL(this UriBuilder b)
         {
             return b.Uri;
         }
+
         public static void setScheme(this UriBuilder b, string scheme)
         {
             b.Scheme = scheme;
         }
+
         public static int getPort(this Uri uri)
         {
             return uri.Port;
         }
+
         public static string toLowerCase(this string s, CultureInfo ci)
         {
             return s.ToLower(ci);
         }
+
         public static void setUserAgent(this HttpRequestHeaders h, string input)
         {
             h.UserAgent.Clear();
             h.UserAgent.Add(ProductInfoHeaderValue.Parse(input));
         }
+
         public static void setAuthorization(this HttpRequestHeaders h, string input)
         {
             h.Authorization = AuthenticationHeaderValue.Parse(input);
         }
+
         public static void setAccept(this HttpRequestHeaders h, string input)
         {
             h.Accept.Clear();
             h.Accept.ParseAdd(input);
         }
+
         public static Stream getBody(this HttpResponseMessage m)
         {
             return m.Content.ReadAsStreamAsync().Result;
         }
+
         public static IList<string> getHeader(this HttpResponseMessage m, string name)
         {
             return m.Headers.GetValues(name).ToList();
@@ -273,10 +330,12 @@ namespace Jib.Net.Core.Global
         {
             return array[index];
         }
+
         public static T get<T>(this IReadOnlyList<T> c, int index)
         {
             return c[index];
         }
+
         public static T get<T>(this List<T> c, int index)
         {
             return c[index];
@@ -286,25 +345,32 @@ namespace Jib.Net.Core.Global
         {
             return c.Count;
         }
+
         public static int size<TKey, TValue>(this ImmutableDictionary<TKey, TValue> d)
         {
             return d.Count;
         }
-        public static int size<T>(this IReadOnlyCollection<T> c) {
+
+        public static int size<T>(this IReadOnlyCollection<T> c)
+        {
             return c.Count;
         }
+
         public static void deleteOnExit(this FileSystemInfo i)
         {
             throw new NotImplementedException();
         }
+
         public static void close(this IDisposable d)
         {
             d.Dispose();
         }
+
         public static string replace(this string s, char oldValue, char newValue)
         {
             return s.Replace(oldValue, newValue);
         }
+
         public static string replace(this string s, string oldValue, string newValue)
         {
             return s.Replace(oldValue, newValue);
@@ -314,156 +380,197 @@ namespace Jib.Net.Core.Global
         {
             return s.ToArray();
         }
+
         public static void setGroupName(this TarEntry e, string name)
         {
             e.TarHeader.GroupName = name;
         }
+
         public static void setUserName(this TarEntry e, string name)
         {
             e.TarHeader.UserName = name;
         }
+
         public static void setUserId(this TarEntry e, int userId)
         {
             e.TarHeader.UserId = userId;
         }
+
         public static void setGroupId(this TarEntry e, int groupId)
         {
             e.TarHeader.GroupId = groupId;
         }
+
         public static void setMode(this TarEntry e, int mode)
         {
             e.TarHeader.Mode = mode;
         }
+
         public static int getMode(this TarEntry e)
         {
             return e.TarHeader.Mode;
         }
+
         public static void sort<T>(this List<T> l, IComparer<T> o)
         {
             l.Sort(o);
         }
+
         public static void setModTime(this TarEntry e, long mills)
         {
             e.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(mills).DateTime;
         }
+
         public static long toEpochMilli(this Instant i)
         {
             return i.ToUnixTimeMilliseconds();
         }
+
         public static string getName(this TarEntry e)
         {
             return e.Name;
         }
+
         public static Class<T> getClass<T>(this T o)
         {
             return o.GetType();
         }
+
         public static bool isEmpty<T>(this ImmutableArray<T> c)
         {
             return c.Length == 0;
         }
+
         public static bool isEmpty<T>(this ICollection<T> c)
         {
             return c.Count == 0;
         }
+
         public static long toNanos(this Duration d)
         {
             return (long)d.TotalNanoseconds;
         }
+
         public static TResult collect<T, TResult>(this IEnumerable<T> e, Func<IEnumerable<T>, TResult> f)
         {
             return f(e);
         }
-        public static bool noneMatch<T>(this IEnumerable<T> e, Func<T, bool> predicate) {
+
+        public static bool noneMatch<T>(this IEnumerable<T> e, Func<T, bool> predicate)
+        {
             return !e.Any(predicate);
         }
+
         public static string getContent(this HttpResponseMessage message)
         {
             return message.Content.ReadAsStringAsync().Result;
         }
+
         public static long? getContentLength(this HttpResponseMessage message)
         {
             return message.Content.Headers.ContentLength;
         }
+
         public static bool find(this Match m)
         {
             return m.Success;
         }
+
         public static HttpHeaderValueCollection<AuthenticationHeaderValue> getAuthenticate(this HttpResponseHeaders headers)
         {
             return headers.WwwAuthenticate;
         }
+
         public static HttpResponseHeaders getHeaders(this HttpResponseMessage message)
         {
             return message.Headers;
         }
+
         public static HttpStatusCode getStatusCode(this HttpResponseMessage message)
         {
             return message.StatusCode;
         }
+
         public static bool contains(this string s, string value)
         {
             return s.Contains(value);
         }
+
         public static void write(this Stream s, byte[] bytes)
         {
             s.write(bytes);
         }
+
         public static int indexOf(this string s, string substring)
         {
             return s.IndexOf(substring);
         }
+
         public static int indexOf(this string s, char c)
         {
             return s.IndexOf(c);
         }
+
         public static string substring(this string s, int startIndex, int length)
         {
             return s.Substring(startIndex, length);
         }
+
         public static StringBuilder append(this StringBuilder b, object value)
         {
             return b.Append(value);
         }
+
         public static string getProtocol(this Uri uri)
         {
             return uri.Scheme;
         }
+
         public static bool startsWith(this string s, string prefix)
         {
             return s.StartsWith(prefix);
         }
+
         public static bool equals(this object o, object other)
         {
             return o.Equals(other);
         }
-        public static TValue getValue<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp) {
+
+        public static TValue getValue<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp)
+        {
             return kvp.Value;
         }
+
         public static TKey getKey<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp)
         {
             return kvp.Key;
         }
+
         public static bool test<T>(this Predicate<T> p, T value)
         {
             return p(value);
         }
+
         public static Optional<T> findFirst<T>(this IEnumerable<Optional<T>> e)
         {
             return e.FirstOrDefault();
         }
+
         public static Optional<T> findFirst<T>(this IEnumerable<T> e)
         {
             return e.Select(Optional.of).FirstOrDefault();
         }
+
         public static IDictionary<TKey, TValue> entrySet<TKey, TValue>(this IDictionary<TKey, TValue> d)
         {
             return d;
         }
+
         public static bool endsWith(this string s, string suffix)
         {
             return s.EndsWith(suffix);
         }
+
         public static string trim(this string s)
         {
             return s.Trim();
@@ -473,42 +580,52 @@ namespace Jib.Net.Core.Global
         {
             return string.IsNullOrEmpty(s);
         }
+
         public static T computeIfAbsent<TKey, T>(this ConcurrentDictionary<TKey, T> d, TKey key, Func<TKey, T> f)
         {
             return d.GetOrAdd(key, f);
         }
+
         public static bool accept<T>(this Predicate<T> p, T value)
         {
             return p(value);
         }
+
         public static Func<T, bool> and<T>(this Func<T, bool> first, Func<T, bool> second)
         {
             return i => first(i) && second(i);
         }
+
         public static Predicate<T> and<T>(this Predicate<T> first, Predicate<T> second)
         {
             return i => first(i) && second(i);
         }
+
         public static bool isAfter(this Instant i, Instant other)
         {
             return i > other;
         }
+
         public static Instant plus(this Instant start, Duration end)
         {
             return start + end;
         }
+
         public static void remove<T>(this ICollection<T> c, T item)
         {
             c.Remove(item);
         }
+
         public static TValue get<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key)
         {
             return d[key];
         }
+
         public static IEnumerable<T> stream<T>(this IEnumerable<T> e)
         {
             return e;
         }
+
         public static IEnumerable<T> filter<T>(this IEnumerable<T> e, Func<T, bool> predicate)
         {
             return e.Where(predicate);
@@ -528,10 +645,12 @@ namespace Jib.Net.Core.Global
         {
             a(arg1, arg2);
         }
+
         public static TResult apply<T, TResult>(this Func<T, TResult> f, T input)
         {
             return f(input);
         }
+
         public static void put<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key, TValue value)
         {
             d.Add(key, value);
@@ -544,19 +663,23 @@ namespace Jib.Net.Core.Global
                 d.Add(k, v);
             }
         }
+
         public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)
         {
             key = kvp.Key;
             value = kvp.Value;
         }
+
         public static ICollection<TValue> values<TKey, TValue>(this IDictionary<TKey, TValue> d)
         {
             return d.Values;
         }
+
         public static ICollection<TKey> keySet<TKey, TValues>(this IDictionary<TKey, TValues> d)
         {
             return d.Keys;
         }
+
         public static T remove<T>(this IList<T> c, int i)
         {
             var temp = c[i];
@@ -568,10 +691,12 @@ namespace Jib.Net.Core.Global
         {
             return l[i];
         }
+
         public static int compareTo<T>(this IComparable<T> comparable, T other)
         {
             return comparable.CompareTo(other);
         }
+
         public static Instant toInstant(this DateTime d)
         {
             return Instant.FromDateTimeUtc(d);
@@ -586,13 +711,15 @@ namespace Jib.Net.Core.Global
         {
             return c.GetCurrentInstant();
         }
+
         public static void add<T>(this ICollection<T> set, T value)
         {
             set.Add(value);
         }
+
         public static TCollection add<TCollection, T>(this TCollection set, params T[] values) where TCollection : ICollection<T>
         {
-            foreach(T v in values)
+            foreach (T v in values)
             {
                 set.Add(v);
             }
@@ -693,7 +820,7 @@ namespace Jib.Net.Core.Global
         {
             return e.InnerException;
         }
-        
+
         public static bool isEmpty<T>(this IImmutableList<T> l)
         {
             return l.Count == 0;
@@ -722,14 +849,15 @@ namespace Jib.Net.Core.Global
 
         public static void addAll<T>(this IList<T> l, IEnumerable<T> values)
         {
-            foreach(T value in values)
+            foreach (T value in values)
             {
                 l.Add(value);
             }
         }
 
-        public static void forEach<T>(this IEnumerable<T> l, Action<T> a) {
-            foreach(T i in l)
+        public static void forEach<T>(this IEnumerable<T> l, Action<T> a)
+        {
+            foreach (T i in l)
             {
                 a(i);
             }
@@ -743,7 +871,8 @@ namespace Jib.Net.Core.Global
             }
         }
 
-        public static byte[] getBytes(this string s, Encoding encoding) {
+        public static byte[] getBytes(this string s, Encoding encoding)
+        {
             return encoding.GetBytes(s);
         }
     }

@@ -19,30 +19,27 @@ using System;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
     /** Thrown if the the cache was found to be corrupted. */
-    public class CacheCorruptedException : Exception {
+    public class CacheCorruptedException : Exception
+    {
+        public CacheCorruptedException(SystemPath cacheDirectory, string message, Exception cause)
+                  : base(
+                        $"{message}. " +
+                        $"You may need to clear the cache by deleting the '{cacheDirectory}' directory " +
+                        $"(if this is a bug, please file an issue at {ProjectInfo.GITHUB_NEW_ISSUE_URL})",
+                        cause)
+        {
+        }
 
-  public CacheCorruptedException(SystemPath cacheDirectory, string message, Exception cause) 
-            : base(
-                  $"{message}. " +
-                  $"You may need to clear the cache by deleting the '{cacheDirectory}' directory " +
-                  $"(if this is a bug, please file an issue at {ProjectInfo.GITHUB_NEW_ISSUE_URL})",
-                  cause) {
-    
-  }
-
-  public CacheCorruptedException(SystemPath cacheDirectory, string message) : base(
-        message
-            + ". You may need to clear the cache by deleting the '"
-            + cacheDirectory
-            + "' directory (if this is a bug, please file an issue at "
-            + ProjectInfo.GITHUB_NEW_ISSUE_URL
-            + ")") {
-    
-  }
+        public CacheCorruptedException(SystemPath cacheDirectory, string message) : base(
+              message
+                  + ". You may need to clear the cache by deleting the '"
+                  + cacheDirectory
+                  + "' directory (if this is a bug, please file an issue at "
+                  + ProjectInfo.GITHUB_NEW_ISSUE_URL
+                  + ")")
+        {
+        }
 
         public CacheCorruptedException() : base()
         {

@@ -26,7 +26,8 @@ namespace Jib.Net.Core.Global
         {
             throw new NotImplementedException();
         }
-        internal static void checkState(bool v,string message)
+
+        internal static void checkState(bool v, string message)
         {
             throw new NotImplementedException();
         }

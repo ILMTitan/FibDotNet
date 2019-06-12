@@ -17,19 +17,17 @@
 using com.google.cloud.tools.jib.api;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-
-/**
- * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link
- * ErrorCodes}.
- */
-public class RegistryErrorException :RegistryException {
-
-  public RegistryErrorException(string message, HttpResponseMessage cause) : base(message, cause) {
-    
-  }
+namespace com.google.cloud.tools.jib.registry
+{
+    /**
+     * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link
+     * ErrorCodes}.
+     */
+    public class RegistryErrorException : RegistryException
+    {
+        public RegistryErrorException(string message, HttpResponseMessage cause) : base(message, cause)
+        {
+        }
 
         public RegistryErrorException(string message, System.Exception cause) : base(message, cause)
         {

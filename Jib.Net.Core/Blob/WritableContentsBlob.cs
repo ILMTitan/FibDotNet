@@ -20,21 +20,19 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
     /** A {@link Blob} that holds {@link WritableContents}. */
-    class WritableContentsBlob : Blob {
-  private readonly WritableContents writableContents;
+    internal class WritableContentsBlob : Blob
+    {
+        private readonly WritableContents writableContents;
 
-  public WritableContentsBlob(WritableContents writableContents) {
-    this.writableContents = writableContents;
-  }
+        public WritableContentsBlob(WritableContents writableContents)
+        {
+            this.writableContents = writableContents;
+        }
 
-  public BlobDescriptor writeTo(Stream outputStream) {
-    return Digests.computeDigest(writableContents, outputStream);
-  }
-}
+        public BlobDescriptor writeTo(Stream outputStream)
+        {
+            return Digests.computeDigest(writableContents, outputStream);
+        }
+    }
 }

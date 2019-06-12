@@ -21,43 +21,38 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
 
 
+    /** Creates and deletes lock files. */
+    public sealed class LockFile : IDisposable
+    {
+        private readonly Stream outputStream;
 
+        private LockFile(Stream outputStream)
+        {
+            this.outputStream = outputStream;
+        }
 
-
-
-
-
-
-
-
-
-/** Creates and deletes lock files. */
-public class LockFile : IDisposable {
-  private readonly Stream outputStream;
-
-  private LockFile(Stream outputStream) {
-    this.outputStream = outputStream;
-  }
-
-  /**
-   * Creates a lock file.
-   *
-   * @param lockFile the path of the lock file
-   * @return a new {@link LockFile} that can be released later
-   * @throws IOException if creating the lock file fails
-   */
-  public static LockFile @lock(SystemPath lockFile) {
-    Files.createDirectories(lockFile.getParent());
+        /**
+         * Creates a lock file.
+         *
+         * @param lockFile the path of the lock file
+         * @return a new {@link LockFile} that can be released later
+         * @throws IOException if creating the lock file fails
+         */
+        public static LockFile @lock(SystemPath lockFile)
+        {
+            Files.createDirectories(lockFile.getParent());
             return new LockFile(lockFile.toFile().Create());
-  }
+        }
 
-  /** Releases the lock file. */
+        /** Releases the lock file. */
 
-  public void Dispose() {
-      outputStream.Dispose();
-  }
-}
+        public void Dispose()
+        {
+            outputStream.Dispose();
+        }
+    }
 }

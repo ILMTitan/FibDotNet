@@ -22,26 +22,23 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
-
-
     /** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
-    class StringBlob : Blob {
-  private readonly string content;
+    internal class StringBlob : Blob
+    {
+        private readonly string content;
 
-  public StringBlob(string content) {
-    this.content = content;
-  }
+        public StringBlob(string content)
+        {
+            this.content = content;
+        }
 
-  public BlobDescriptor writeTo(Stream outputStream) {
-    using (Stream stringIn =
-        new MemoryStream(content.getBytes(StandardCharsets.UTF_8))) {
-      return Digests.computeDigest(stringIn, outputStream);
+        public BlobDescriptor writeTo(Stream outputStream)
+        {
+            using (Stream stringIn =
+                new MemoryStream(content.getBytes(StandardCharsets.UTF_8)))
+            {
+                return Digests.computeDigest(stringIn, outputStream);
+            }
+        }
     }
-  }
-}
 }

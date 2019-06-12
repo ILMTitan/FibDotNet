@@ -16,20 +16,19 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.api {
-
-
-/**
- * Throw when attempting to access an insecure registry when only secure connections are allowed.
- */
-public class InsecureRegistryException : RegistryException {
-
-  public InsecureRegistryException(Uri insecureUrl) : base(
-        "Failed to verify the server at "
-            + insecureUrl
-            + " because only secure connections are allowed.") {
-    
-  }
+namespace com.google.cloud.tools.jib.api
+{
+    /**
+     * Throw when attempting to access an insecure registry when only secure connections are allowed.
+     */
+    public class InsecureRegistryException : RegistryException
+    {
+        public InsecureRegistryException(Uri insecureUrl) : base(
+              "Failed to verify the server at "
+                  + insecureUrl
+                  + " because only secure connections are allowed.")
+        {
+        }
 
         public InsecureRegistryException(string message, Exception cause) : base(message, cause)
         {

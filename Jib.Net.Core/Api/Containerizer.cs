@@ -29,9 +29,8 @@ using System.IO;
 namespace Jib.Net.Core.Api
 {
     /** Configures how to containerize. */
-    public class Containerizer
+    public sealed class Containerizer
     {
-
         /**
          * The default directory for caching the base image layers, in {@code [user cache
          * home]/google-cloud-tools-java/jib}.
@@ -188,6 +187,7 @@ namespace Jib.Net.Core.Api
             baseImageLayersCacheDirectory = cacheDirectory;
             return this;
         }
+
         /**
          * Sets the directory to use for caching application layers. This cache can be shared between
          * multiple images. If not set, a temporary directory will be used as the application layers
@@ -201,6 +201,7 @@ namespace Jib.Net.Core.Api
             applicationLayersCacheDirectory = cacheDirectory;
             return this;
         }
+
         public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : JibEvent
         {
             return addEventHandler(je =>
@@ -289,7 +290,6 @@ namespace Jib.Net.Core.Api
                     SystemPath temporaryDirectory = Files.createTempDirectory(null);
                     temporaryDirectory.toFile().deleteOnExit();
                     applicationLayersCacheDirectory = temporaryDirectory;
-
                 }
                 catch (IOException ex)
                 {

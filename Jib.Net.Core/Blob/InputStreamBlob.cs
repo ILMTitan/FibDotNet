@@ -21,40 +21,37 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
     /** A {@link Blob} that holds an {@link InputStream}. */
-    class InputStreamBlob : Blob
+    internal class InputStreamBlob : Blob
     {
-  private readonly Stream inputStream;
+        private readonly Stream inputStream;
 
-  /** Indicates if the {@link Blob} has already been written or not. */
-  private bool isWritten = false;
+        /** Indicates if the {@link Blob} has already been written or not. */
+        private bool isWritten = false;
 
-  public InputStreamBlob(Stream inputStream) {
-    this.inputStream = inputStream;
-  }
+        public InputStreamBlob(Stream inputStream)
+        {
+            this.inputStream = inputStream;
+        }
 
-  public BlobDescriptor writeTo(Stream outputStream) {
-    // Cannot rewrite.
-    if (isWritten) {
-      throw new InvalidOperationException("Cannot rewrite Blob backed by an InputStream");
-    }
+        public BlobDescriptor writeTo(Stream outputStream)
+        {
+            // Cannot rewrite.
+            if (isWritten)
+            {
+                throw new InvalidOperationException("Cannot rewrite Blob backed by an InputStream");
+            }
             try
             {
                 using (Stream inputStream = this.inputStream)
                 {
                     return Digests.computeDigest(inputStream, outputStream);
-
                 }
             }
             finally
             {
                 isWritten = true;
             }
-  }
-}
+        }
+    }
 }

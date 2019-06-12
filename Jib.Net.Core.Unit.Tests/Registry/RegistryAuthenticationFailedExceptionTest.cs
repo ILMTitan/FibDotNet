@@ -19,36 +19,35 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Tests for {@link RegistryAuthenticationFailedException}. */
+    public class RegistryAuthenticationFailedExceptionTest
+    {
+        [Test]
+        public void testRegistryAuthenticationFailedException_message()
+        {
+            RegistryAuthenticationFailedException exception =
+                new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
+            Assert.AreEqual("serverUrl", exception.getServerUrl());
+            Assert.AreEqual("imageName", exception.getImageName());
+            Assert.AreEqual(
+                "Failed to authenticate with registry serverUrl/imageName because: message",
+                exception.getMessage());
+        }
 
-
-
-
-/** Tests for {@link RegistryAuthenticationFailedException}. */
-public class RegistryAuthenticationFailedExceptionTest {
-
-  [Test]
-  public void testRegistryAuthenticationFailedException_message() {
-    RegistryAuthenticationFailedException exception =
-        new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
-    Assert.AreEqual("serverUrl", exception.getServerUrl());
-    Assert.AreEqual("imageName", exception.getImageName());
-    Assert.AreEqual(
-        "Failed to authenticate with registry serverUrl/imageName because: message",
-        exception.getMessage());
-  }
-
-  [Test]
-  public void testRegistryAuthenticationFailedException_exception() {
-    Exception cause = new Exception("message");
-    RegistryAuthenticationFailedException exception =
-        new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
-    Assert.AreEqual("serverUrl", exception.getServerUrl());
-    Assert.AreEqual("imageName", exception.getImageName());
-    Assert.AreSame(cause, exception.getCause());
-    Assert.AreEqual(
-        "Failed to authenticate with registry serverUrl/imageName because: message",
-        exception.getMessage());
-  }
-}
+        [Test]
+        public void testRegistryAuthenticationFailedException_exception()
+        {
+            Exception cause = new Exception("message");
+            RegistryAuthenticationFailedException exception =
+                new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
+            Assert.AreEqual("serverUrl", exception.getServerUrl());
+            Assert.AreEqual("imageName", exception.getImageName());
+            Assert.AreSame(cause, exception.getCause());
+            Assert.AreEqual(
+                "Failed to authenticate with registry serverUrl/imageName because: message",
+                exception.getMessage());
+        }
+    }
 }

@@ -20,98 +20,105 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.cache {
+namespace com.google.cloud.tools.jib.cache
+{
+    /** Default implementation of {@link CachedLayer}. */
+    public sealed class CachedLayer : Layer
+    {
+        /** Builds a {@link CachedLayer}. */
+        public class Builder
+        {
+            private DescriptorDigest layerDigest;
+            private DescriptorDigest layerDiffId;
+            private long layerSize = -1;
+            private Blob layerBlob;
 
+            public Builder() { }
 
+            public Builder setLayerDigest(DescriptorDigest layerDigest)
+            {
+                this.layerDigest = layerDigest;
+                return this;
+            }
 
+            public Builder setLayerDiffId(DescriptorDigest layerDiffId)
+            {
+                this.layerDiffId = layerDiffId;
+                return this;
+            }
 
+            public Builder setLayerSize(long layerSize)
+            {
+                this.layerSize = layerSize;
+                return this;
+            }
 
+            public Builder setLayerBlob(Blob layerBlob)
+            {
+                this.layerBlob = layerBlob;
+                return this;
+            }
 
+            public bool hasLayerBlob()
+            {
+                return layerBlob != null;
+            }
 
-/** Default implementation of {@link CachedLayer}. */
-public class CachedLayer : Layer {
+            public CachedLayer build()
+            {
+                return new CachedLayer(
+                    Preconditions.checkNotNull(layerDigest, "layerDigest required"),
+                    Preconditions.checkNotNull(layerDiffId, "layerDiffId required"),
+                    layerSize,
+                    Preconditions.checkNotNull(layerBlob, "layerBlob required"));
+            }
+        }
 
-  /** Builds a {@link CachedLayer}. */
-  public class Builder {
+        /**
+         * Creates a new {@link Builder} for a {@link CachedLayer}.
+         *
+         * @return the new {@link Builder}
+         */
+        public static Builder builder()
+        {
+            return new Builder();
+        }
 
-    private DescriptorDigest layerDigest;
-    private DescriptorDigest layerDiffId;
-    private long layerSize = -1;
-    private Blob layerBlob;
+        private readonly DescriptorDigest layerDiffId;
+        private readonly BlobDescriptor blobDescriptor;
+        private readonly Blob layerBlob;
 
-    public Builder() {}
+        private CachedLayer(
+            DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, Blob layerBlob)
+        {
+            this.layerDiffId = layerDiffId;
+            this.layerBlob = layerBlob;
+            this.blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
+        }
 
-    public Builder setLayerDigest(DescriptorDigest layerDigest) {
-      this.layerDigest = layerDigest;
-      return this;
+        public DescriptorDigest getDigest()
+        {
+            return blobDescriptor.getDigest();
+        }
+
+        public long getSize()
+        {
+            return blobDescriptor.getSize();
+        }
+
+        public DescriptorDigest getDiffId()
+        {
+            return layerDiffId;
+        }
+
+        public Blob getBlob()
+        {
+            return layerBlob;
+        }
+
+        public BlobDescriptor getBlobDescriptor()
+        {
+            return blobDescriptor;
+        }
     }
-
-    public Builder setLayerDiffId(DescriptorDigest layerDiffId) {
-      this.layerDiffId = layerDiffId;
-      return this;
-    }
-
-    public Builder setLayerSize(long layerSize) {
-      this.layerSize = layerSize;
-      return this;
-    }
-
-    public Builder setLayerBlob(Blob layerBlob) {
-      this.layerBlob = layerBlob;
-      return this;
-    }
-
-    public bool hasLayerBlob() {
-      return layerBlob != null;
-    }
-
-    public CachedLayer build() {
-      return new CachedLayer(
-          Preconditions.checkNotNull(layerDigest, "layerDigest required"),
-          Preconditions.checkNotNull(layerDiffId, "layerDiffId required"),
-          layerSize,
-          Preconditions.checkNotNull(layerBlob, "layerBlob required"));
-    }
-  }
-
-  /**
-   * Creates a new {@link Builder} for a {@link CachedLayer}.
-   *
-   * @return the new {@link Builder}
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  private readonly DescriptorDigest layerDiffId;
-  private readonly BlobDescriptor blobDescriptor;
-  private readonly Blob layerBlob;
-
-  private CachedLayer(
-      DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, Blob layerBlob) {
-    this.layerDiffId = layerDiffId;
-    this.layerBlob = layerBlob;
-    this.blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
-  }
-
-  public DescriptorDigest getDigest() {
-    return blobDescriptor.getDigest();
-  }
-
-  public long getSize() {
-    return blobDescriptor.getSize();
-  }
-
-  public DescriptorDigest getDiffId() {
-    return layerDiffId;
-  }
-
-  public Blob getBlob() {
-    return layerBlob;
-  }
-
-  public BlobDescriptor getBlobDescriptor() {
-    return blobDescriptor;
-  }
-}
 }

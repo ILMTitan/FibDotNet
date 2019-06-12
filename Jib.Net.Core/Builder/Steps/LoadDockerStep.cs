@@ -23,7 +23,8 @@ using Jib.Net.Core.Global;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -31,94 +32,89 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
+    /** Adds image layers to a tarball and loads into Docker daemon. */
+    internal class LoadDockerStep : AsyncStep<BuildResult>
+    {
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
+        private readonly DockerClient dockerClient;
 
+        private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
+        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+        private readonly BuildImageStep buildImageStep;
 
+        private readonly Task<BuildResult> listenableFuture;
 
-
-
-
-
-
-
-/** Adds image layers to a tarball and loads into Docker daemon. */
-class LoadDockerStep : AsyncStep<BuildResult> {
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-
-  private readonly DockerClient dockerClient;
-
-  private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-  private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
-  private readonly BuildImageStep buildImageStep;
-
-  private readonly Task<BuildResult> listenableFuture;
-
-  public LoadDockerStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      DockerClient dockerClient,
-      PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-      ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
-      BuildImageStep buildImageStep)
+        public LoadDockerStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            DockerClient dockerClient,
+            PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
+            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+            BuildImageStep buildImageStep)
         {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.dockerClient = dockerClient;
-    this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-    this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
-    this.buildImageStep = buildImageStep;
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.dockerClient = dockerClient;
+            this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
+            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+            this.buildImageStep = buildImageStep;
 
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(pullAndCacheBaseImageLayersStep)
-            .addStep(buildImageStep)
-            .whenAllSucceed(this);
-  }
-
-  public Task<BuildResult> getFuture() {
-    return listenableFuture;
-  }
-
-  public BuildResult call() {
-    return AsyncDependencies.@using()
-        .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
-        .addSteps(buildAndCacheApplicationLayerSteps)
-        .addStep(NonBlockingSteps.get(buildImageStep))
-        .whenAllSucceed(this.afterPushBaseImageLayerFuturesFuture)
-        .get();
-  }
-
-  private BuildResult afterPushBaseImageLayerFuturesFuture()
-      {
-    buildConfiguration
-        .getEventHandlers()
-        .dispatch(LogEvent.progress("Loading to Docker daemon..."));
-
-    using (ProgressEventDispatcher ignored =
-        progressEventDispatcherFactory.create("loading to Docker daemon", 1)) {
-      Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
-      ImageReference targetImageReference =
-          buildConfiguration.getTargetImageConfiguration().getImage();
-
-      // Load the image to docker daemon.
-      buildConfiguration
-          .getEventHandlers()
-          .dispatch(
-              LogEvent.debug(dockerClient.load(new ImageTarball(image, targetImageReference))));
-
-      // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
-      foreach (string tag in buildConfiguration.getAllTargetImageTags())
-      {
-        if (tag.Equals(targetImageReference.getTag())) {
-          continue;
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(pullAndCacheBaseImageLayersStep)
+                    .addStep(buildImageStep)
+                    .whenAllSucceed(this);
         }
 
-        dockerClient.tag(targetImageReference, targetImageReference.withTag(tag));
-      }
+        public Task<BuildResult> getFuture()
+        {
+            return listenableFuture;
+        }
 
-      return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+        public BuildResult call()
+        {
+            return AsyncDependencies.@using()
+                .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+                .addSteps(buildAndCacheApplicationLayerSteps)
+                .addStep(NonBlockingSteps.get(buildImageStep))
+                .whenAllSucceed(this.afterPushBaseImageLayerFuturesFuture)
+                .get();
+        }
+
+        private BuildResult afterPushBaseImageLayerFuturesFuture()
+        {
+            buildConfiguration
+                .getEventHandlers()
+                .dispatch(LogEvent.progress("Loading to Docker daemon..."));
+
+            using (ProgressEventDispatcher ignored =
+                progressEventDispatcherFactory.create("loading to Docker daemon", 1))
+            {
+                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+                ImageReference targetImageReference =
+                    buildConfiguration.getTargetImageConfiguration().getImage();
+
+                // Load the image to docker daemon.
+                buildConfiguration
+                    .getEventHandlers()
+                    .dispatch(
+                        LogEvent.debug(dockerClient.load(new ImageTarball(image, targetImageReference))));
+
+                // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
+                foreach (string tag in buildConfiguration.getAllTargetImageTags())
+                {
+                    if (tag.Equals(targetImageReference.getTag()))
+                    {
+                        continue;
+                    }
+
+                    dockerClient.tag(targetImageReference, targetImageReference.withTag(tag));
+                }
+
+                return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+            }
+        }
     }
-  }
-}
 }

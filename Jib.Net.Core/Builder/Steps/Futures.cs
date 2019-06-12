@@ -28,6 +28,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             throw new NotImplementedException();
         }
+
         public static AsyncDependencies whenAllSucceed<T>(IEnumerable<Task<T>> tasks)
         {
             throw new NotImplementedException();

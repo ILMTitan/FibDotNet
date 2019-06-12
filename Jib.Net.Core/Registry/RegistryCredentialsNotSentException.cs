@@ -16,26 +16,25 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-/** Thrown when registry request was unauthorized because credentials weren't sent. */
-public class RegistryCredentialsNotSentException : RegistryException {
-
-  /**
-   * Identifies the image registry and repository that denied access.
-   *
-   * @param registry the image registry
-   * @param repository the image repository
-   */
-  public RegistryCredentialsNotSentException(string registry, string repository) : base(
-        "Required credentials for "
-            + registry
-            + "/"
-            + repository
-            + " were not sent because the connection was over HTTP") {
-    
-  }
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Thrown when registry request was unauthorized because credentials weren't sent. */
+    public class RegistryCredentialsNotSentException : RegistryException
+    {
+        /**
+         * Identifies the image registry and repository that denied access.
+         *
+         * @param registry the image registry
+         * @param repository the image repository
+         */
+        public RegistryCredentialsNotSentException(string registry, string repository) : base(
+              "Required credentials for "
+                  + registry
+                  + "/"
+                  + repository
+                  + " were not sent because the connection was over HTTP")
+        {
+        }
 
         public RegistryCredentialsNotSentException(string message, System.Exception cause) : base(message, cause)
         {

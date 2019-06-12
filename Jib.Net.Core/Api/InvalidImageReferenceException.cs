@@ -16,17 +16,17 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Thrown when attempting to parse an invalid image reference. */
+    public class InvalidImageReferenceException : Exception
+    {
+        private readonly string reference;
 
-/** Thrown when attempting to parse an invalid image reference. */
-public class InvalidImageReferenceException : Exception {
-
-  private readonly string reference;
-
-  public InvalidImageReferenceException(string reference) : base("Invalid image reference: " + reference) {
-    
-    this.reference = reference;
-  }
+        public InvalidImageReferenceException(string reference) : base("Invalid image reference: " + reference)
+        {
+            this.reference = reference;
+        }
 
         public InvalidImageReferenceException() : base()
         {
@@ -36,8 +36,9 @@ public class InvalidImageReferenceException : Exception {
         {
         }
 
-        public string getInvalidReference() {
-    return reference;
-  }
-}
+        public string getInvalidReference()
+        {
+            return reference;
+        }
+    }
 }

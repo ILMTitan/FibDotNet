@@ -24,7 +24,8 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.blob {
+namespace com.google.cloud.tools.jib.blob
+{
 
 
 
@@ -32,63 +33,58 @@ namespace com.google.cloud.tools.jib.blob {
 
 
 
+    /** Tests for {@link Blob}. */
+    public class BlobTest
+    {
+        [Test]
+        public void testFromInputStream()
+        {
+            const string expected = "crepecake";
+            Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
+            verifyBlobWriteTo(expected, Blobs.from(inputStream));
+        }
 
+        [Test]
+        public void testFromFile()
+        {
+            SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
+            string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
+            verifyBlobWriteTo(expected, Blobs.from(fileA));
+        }
 
+        [Test]
+        public void testFromString()
+        {
+            const string expected = "crepecake";
+            verifyBlobWriteTo(expected, Blobs.from(expected));
+        }
 
+        [Test]
+        public void testFromWritableContents()
+        {
+            const string expected = "crepecake";
 
+            WritableContents writableContents =
+                outputStream => outputStream.write(expected.getBytes(StandardCharsets.UTF_8));
 
+            verifyBlobWriteTo(expected, Blobs.from(writableContents));
+        }
 
+        /** Checks that the {@link Blob} streams the expected string. */
+        private void verifyBlobWriteTo(string expected, Blob blob)
+        {
+            Stream outputStream = new MemoryStream();
+            BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
 
+            string output = outputStream.toString();
+            Assert.AreEqual(expected, output);
 
+            byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
+            Assert.AreEqual(expectedBytes.Length, blobDescriptor.getSize());
 
-
-/** Tests for {@link Blob}. */
-public class BlobTest {
-
-  [Test]
-  public void testFromInputStream() {
-    string expected = "crepecake";
-    Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
-    verifyBlobWriteTo(expected, Blobs.from(inputStream));
-  }
-
-  [Test]
-  public void testFromFile() {
-    SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-    string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
-    verifyBlobWriteTo(expected, Blobs.from(fileA));
-  }
-
-  [Test]
-  public void testFromString() {
-    string expected = "crepecake";
-    verifyBlobWriteTo(expected, Blobs.from(expected));
-  }
-
-  [Test]
-  public void testFromWritableContents() {
-    string expected = "crepecake";
-
-    WritableContents writableContents =
-        outputStream => outputStream.write(expected.getBytes(StandardCharsets.UTF_8));
-
-    verifyBlobWriteTo(expected, Blobs.from(writableContents));
-  }
-
-  /** Checks that the {@link Blob} streams the expected string. */
-  private void verifyBlobWriteTo(string expected, Blob blob) {
-    Stream outputStream = new MemoryStream();
-    BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
-
-    string output = outputStream.toString();
-    Assert.AreEqual(expected, output);
-
-    byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
-    Assert.AreEqual(expectedBytes.Length, blobDescriptor.getSize());
-
-    DescriptorDigest expectedDigest =
-        Digests.computeDigest(new MemoryStream(expectedBytes)).getDigest();
-    Assert.AreEqual(expectedDigest, blobDescriptor.getDigest());
-  }
-}
+            DescriptorDigest expectedDigest =
+                Digests.computeDigest(new MemoryStream(expectedBytes)).getDigest();
+            Assert.AreEqual(expectedDigest, blobDescriptor.getDigest());
+        }
+    }
 }

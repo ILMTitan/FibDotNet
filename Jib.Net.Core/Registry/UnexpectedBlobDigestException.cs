@@ -16,15 +16,14 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.registry {
-
-
-/** Thrown when a pulled BLOB did not have the same digest as requested. */
-class UnexpectedBlobDigestException : RegistryException {
-
-  public UnexpectedBlobDigestException(string message) : base(message) {
-    
-  }
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Thrown when a pulled BLOB did not have the same digest as requested. */
+    internal class UnexpectedBlobDigestException : RegistryException
+    {
+        public UnexpectedBlobDigestException(string message) : base(message)
+        {
+        }
 
         public UnexpectedBlobDigestException(string message, System.Exception cause) : base(message, cause)
         {

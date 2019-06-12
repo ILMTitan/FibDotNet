@@ -21,80 +21,76 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
 
 
+    /** Tests for {@link DirectoryWalker}. */
+    public class DirectoryWalkerTest
+    {
+        private readonly ISet<SystemPath> walkedPaths = new HashSet<SystemPath>();
+        private readonly PathConsumer addToWalkedPaths;
 
+        private SystemPath testDir;
 
-
-
-
-
-
-
-
-
-/** Tests for {@link DirectoryWalker}. */
-public class DirectoryWalkerTest {
-
-  private readonly ISet<SystemPath> walkedPaths = new HashSet<SystemPath>();
-  private readonly PathConsumer addToWalkedPaths;
-
-  private SystemPath testDir;
         public DirectoryWalkerTest()
         {
             addToWalkedPaths = walkedPaths.add;
         }
 
-  [SetUp]
-  public void setUp() {
-    testDir = Paths.get(Resources.getResource("core/layer").toURI());
-  }
+        [SetUp]
+        public void setUp()
+        {
+            testDir = Paths.get(Resources.getResource("core/layer").toURI());
+        }
 
-  [Test]
-  public void testWalk() {
-    new DirectoryWalker(testDir).walk(addToWalkedPaths);
+        [Test]
+        public void testWalk()
+        {
+            new DirectoryWalker(testDir).walk(addToWalkedPaths);
 
-    ISet<SystemPath> expectedPaths =
-        new HashSet<SystemPath>(
-            Arrays.asList(
-                testDir,
-                testDir.resolve("a"),
-                testDir.resolve("a").resolve("b"),
-                testDir.resolve("a").resolve("b").resolve("bar"),
-                testDir.resolve("c"),
-                testDir.resolve("c").resolve("cat"),
-                testDir.resolve("foo")));
-    Assert.AreEqual(expectedPaths, walkedPaths);
-  }
+            ISet<SystemPath> expectedPaths =
+                new HashSet<SystemPath>(
+                    Arrays.asList(
+                        testDir,
+                        testDir.resolve("a"),
+                        testDir.resolve("a").resolve("b"),
+                        testDir.resolve("a").resolve("b").resolve("bar"),
+                        testDir.resolve("c"),
+                        testDir.resolve("c").resolve("cat"),
+                        testDir.resolve("foo")));
+            Assert.AreEqual(expectedPaths, walkedPaths);
+        }
 
-  [Test]
-  public void testWalk_withFilter() {
-    // Filters to immediate subdirectories of testDir, and foo.
-    new DirectoryWalker(testDir)
-        .filter(path => path.getParent().Equals(testDir))
-        .filter(path => !path.endsWith("foo"))
-        .walk(addToWalkedPaths);
+        [Test]
+        public void testWalk_withFilter()
+        {
+            // Filters to immediate subdirectories of testDir, and foo.
+            new DirectoryWalker(testDir)
+                .filter(path => path.getParent().Equals(testDir))
+                .filter(path => !path.endsWith("foo"))
+                .walk(addToWalkedPaths);
 
-    ISet<SystemPath> expectedPaths =
-        new HashSet<SystemPath>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
-    Assert.AreEqual(expectedPaths, walkedPaths);
-  }
+            ISet<SystemPath> expectedPaths =
+                new HashSet<SystemPath>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
+            Assert.AreEqual(expectedPaths, walkedPaths);
+        }
 
-  [Test]
-  public void testWalk_withFilterRoot() {
-    new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
+        [Test]
+        public void testWalk_withFilterRoot()
+        {
+            new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
 
-    ISet<SystemPath> expectedPaths =
-        new HashSet<SystemPath>(
-            Arrays.asList(
-                testDir.resolve("a"),
-                testDir.resolve("a").resolve("b"),
-                testDir.resolve("a").resolve("b").resolve("bar"),
-                testDir.resolve("c"),
-                testDir.resolve("c").resolve("cat"),
-                testDir.resolve("foo")));
-    Assert.AreEqual(expectedPaths, walkedPaths);
-  }
-}
+            ISet<SystemPath> expectedPaths =
+                new HashSet<SystemPath>(
+                    Arrays.asList(
+                        testDir.resolve("a"),
+                        testDir.resolve("a").resolve("b"),
+                        testDir.resolve("a").resolve("b").resolve("bar"),
+                        testDir.resolve("c"),
+                        testDir.resolve("c").resolve("cat"),
+                        testDir.resolve("foo")));
+            Assert.AreEqual(expectedPaths, walkedPaths);
+        }
+    }
 }

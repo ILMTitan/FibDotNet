@@ -18,14 +18,13 @@ using com.google.cloud.tools.jib.registry;
 using System;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.api {
-
-
-/** Thrown when a registry request was unauthorized and therefore authentication is needed. */
-public class RegistryUnauthorizedException : RegistryException {
-
-  private readonly string registry;
-  private readonly string repository;
+namespace com.google.cloud.tools.jib.api
+{
+    /** Thrown when a registry request was unauthorized and therefore authentication is needed. */
+    public class RegistryUnauthorizedException : RegistryException
+    {
+        private readonly string registry;
+        private readonly string repository;
 
         public HttpResponseMessage Cause { get; }
 
@@ -37,10 +36,10 @@ public class RegistryUnauthorizedException : RegistryException {
          * @param cause the cause
          */
         public RegistryUnauthorizedException(
-      string registry, string repository, HttpResponseMessage cause) : base("Unauthorized for " + registry + "/" + repository) {
-    
-    this.registry = registry;
-    this.repository = repository;
+      string registry, string repository, HttpResponseMessage cause) : base("Unauthorized for " + registry + "/" + repository)
+        {
+            this.registry = registry;
+            this.repository = repository;
             Cause = cause;
         }
 
@@ -54,7 +53,6 @@ public class RegistryUnauthorizedException : RegistryException {
         public RegistryUnauthorizedException(
       string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository)
         {
-
             this.registry = registry;
             this.repository = repository;
             Cause = cause.Cause;
@@ -76,21 +74,25 @@ public class RegistryUnauthorizedException : RegistryException {
         {
         }
 
-        public string getRegistry() {
-    return registry;
-  }
+        public string getRegistry()
+        {
+            return registry;
+        }
 
-  public string getRepository() {
-    return repository;
-  }
+        public string getRepository()
+        {
+            return repository;
+        }
 
-  public string getImageReference() {
-    return registry + "/" + repository;
-  }
+        public string getImageReference()
+        {
+            return registry + "/" + repository;
+        }
 
-  public HttpResponseMessage getHttpResponse() {
+        public HttpResponseMessage getHttpResponse()
+        {
             return Cause;
-  }
+        }
 
         internal object getHttpResponseException()
         {

@@ -22,7 +22,8 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
@@ -31,64 +32,56 @@ namespace com.google.cloud.tools.jib.builder.steps {
 
 
 
-
-
-
-
-
-
-
-
-
-
-/**
- * Authenticates push to a target registry using Docker Token Authentication.
- *
- * @see <a
- *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
- */
-class AuthenticatePushStep : AsyncStep<Authorization>
+    /**
+     * Authenticates push to a target registry using Docker Token Authentication.
+     *
+     * @see <a
+     *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
+     */
+    internal class AuthenticatePushStep : AsyncStep<Authorization>
     {
-  private static readonly string DESCRIPTION = "Authenticating with push to {0}";
+        private static readonly string DESCRIPTION = "Authenticating with push to {0}";
 
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
-  private readonly RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
+        private readonly RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep;
 
-  private readonly Task<Authorization> listenableFuture;
+        private readonly Task<Authorization> listenableFuture;
 
-  public AuthenticatePushStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep)
+        public AuthenticatePushStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            RetrieveRegistryCredentialsStep retrieveTargetRegistryCredentialsStep)
         {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
 
-    listenableFuture =
-        AsyncDependencies.@using()
-            .addStep(retrieveTargetRegistryCredentialsStep)
-            .whenAllSucceed(this);
-  }
+            listenableFuture =
+                AsyncDependencies.@using()
+                    .addStep(retrieveTargetRegistryCredentialsStep)
+                    .whenAllSucceed(this);
+        }
 
-  public Task<Authorization> getFuture() {
-    return listenableFuture;
-  }
+        public Task<Authorization> getFuture()
+        {
+            return listenableFuture;
+        }
 
-  public Authorization call() {
-    Credential registryCredential = NonBlockingSteps.get(retrieveTargetRegistryCredentialsStep);
+        public Authorization call()
+        {
+            Credential registryCredential = NonBlockingSteps.get(retrieveTargetRegistryCredentialsStep);
 
-    string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
-            try {
+            string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
+            try
+            {
                 using (ProgressEventDispatcher ignored =
                         progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
                 using (TimerEventDispatcher ignored2 =
                         new TimerEventDispatcher(
                             buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, registry)))
                 {
-
                     RegistryAuthenticator registryAuthenticator =
                         buildConfiguration
                             .newTargetImageRegistryClientFactory()
@@ -99,14 +92,16 @@ class AuthenticatePushStep : AsyncStep<Authorization>
                         return registryAuthenticator.authenticatePush(registryCredential);
                     }
                 }
-    } catch (InsecureRegistryException) {
-      // Cannot skip certificate validation or use HTTP; fall through.
-    }
+            }
+            catch (InsecureRegistryException)
+            {
+                // Cannot skip certificate validation or use HTTP; fall through.
+            }
 
-    return (registryCredential == null || registryCredential.isOAuth2RefreshToken())
-        ? null
-        : Authorization.fromBasicCredentials(
-            registryCredential.getUsername(), registryCredential.getPassword());
-  }
-}
+            return (registryCredential == null || registryCredential.isOAuth2RefreshToken())
+                ? null
+                : Authorization.fromBasicCredentials(
+                    registryCredential.getUsername(), registryCredential.getPassword());
+        }
+    }
 }

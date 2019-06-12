@@ -14,11 +14,11 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
-
-/**
- * Type for events dispatched by Jib Core. Implementation classes should <b>not</b> inherit from
- * each other.
- */
-public interface JibEvent {}
+namespace com.google.cloud.tools.jib.api
+{
+    /**
+     * Type for events dispatched by Jib Core. Implementation classes should <b>not</b> inherit from
+     * each other.
+     */
+    public interface JibEvent { }
 }

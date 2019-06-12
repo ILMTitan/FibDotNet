@@ -18,31 +18,26 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Integration tests for {@link AuthenticationMethodRetriever}. */
+    public class AuthenticationMethodRetrieverIntegrationTest
+    {
+        [Test]
+        public void testGetRegistryAuthenticator()
+        {
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
+                    .newRegistryClient();
+            RegistryAuthenticator registryAuthenticator = registryClient.getRegistryAuthenticator();
+            Assert.IsNotNull(registryAuthenticator);
+            Authorization authorization = registryAuthenticator.authenticatePull(null);
 
-
-
-
-
-
-
-/** Integration tests for {@link AuthenticationMethodRetriever}. */
-public class AuthenticationMethodRetrieverIntegrationTest {
-
-  [Test]
-  public void testGetRegistryAuthenticator() {
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
-            .newRegistryClient();
-    RegistryAuthenticator registryAuthenticator = registryClient.getRegistryAuthenticator();
-    Assert.IsNotNull(registryAuthenticator);
-    Authorization authorization = registryAuthenticator.authenticatePull(null);
-
-    RegistryClient authorizedRegistryClient =
-        RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
-            .setAuthorization(authorization)
-            .newRegistryClient();
-    authorizedRegistryClient.pullManifest("latest");
-  }
-}
+            RegistryClient authorizedRegistryClient =
+                RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
+                    .setAuthorization(authorization)
+                    .newRegistryClient();
+            authorizedRegistryClient.pullManifest("latest");
+        }
+    }
 }

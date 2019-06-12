@@ -18,7 +18,7 @@ using System;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-    internal class InstantiationException:Exception
+    internal class InstantiationException : Exception
     {
         public InstantiationException() : base()
         {

@@ -18,44 +18,45 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image {
+namespace com.google.cloud.tools.jib.image
+{
+    /**
+     * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
+     * layer with its digest, size, and diff ID.
+     */
+    public class ReferenceLayer : Layer
+    {
+        /** The {@link BlobDescriptor} of the compressed layer content. */
+        private readonly BlobDescriptor blobDescriptor;
 
+        /** The digest of the uncompressed layer content. */
+        private readonly DescriptorDigest diffId;
 
+        /**
+         * Instantiate with a {@link BlobDescriptor} and diff ID.
+         *
+         * @param blobDescriptor the blob descriptor
+         * @param diffId the diff ID
+         */
+        public ReferenceLayer(BlobDescriptor blobDescriptor, DescriptorDigest diffId)
+        {
+            this.blobDescriptor = blobDescriptor;
+            this.diffId = diffId;
+        }
 
+        public Blob getBlob()
+        {
+            throw new LayerPropertyNotFoundException("Blob not available for reference layer");
+        }
 
-/**
- * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
- * layer with its digest, size, and diff ID.
- */
-public class ReferenceLayer : Layer {
+        public BlobDescriptor getBlobDescriptor()
+        {
+            return blobDescriptor;
+        }
 
-  /** The {@link BlobDescriptor} of the compressed layer content. */
-  private readonly BlobDescriptor blobDescriptor;
-
-  /** The digest of the uncompressed layer content. */
-  private readonly DescriptorDigest diffId;
-
-  /**
-   * Instantiate with a {@link BlobDescriptor} and diff ID.
-   *
-   * @param blobDescriptor the blob descriptor
-   * @param diffId the diff ID
-   */
-  public ReferenceLayer(BlobDescriptor blobDescriptor, DescriptorDigest diffId) {
-    this.blobDescriptor = blobDescriptor;
-    this.diffId = diffId;
-  }
-
-  public Blob getBlob() {
-    throw new LayerPropertyNotFoundException("Blob not available for reference layer");
-  }
-
-  public BlobDescriptor getBlobDescriptor() {
-    return blobDescriptor;
-  }
-
-  public DescriptorDigest getDiffId() {
-    return diffId;
-  }
-}
+        public DescriptorDigest getDiffId()
+        {
+            return diffId;
+        }
+    }
 }

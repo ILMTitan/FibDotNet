@@ -21,106 +21,100 @@ using Jib.Net.Core;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps {
+namespace com.google.cloud.tools.jib.builder.steps
+{
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-/** Attempts to retrieve registry credentials. */
-public class RetrieveRegistryCredentialsStep : AsyncStep<Credential> {
-  private static string makeDescription(string registry) {
-    return "Retrieving registry credentials for " + registry;
-  }
-
-  /** Retrieves credentials for the base image. */
-  public static RetrieveRegistryCredentialsStep forBaseImage(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
-        {
-    return new RetrieveRegistryCredentialsStep(
-        buildConfiguration,
-        progressEventDispatcherFactory,
-        buildConfiguration.getBaseImageConfiguration().getImageRegistry(),
-        buildConfiguration.getBaseImageConfiguration().getCredentialRetrievers());
-  }
-
-  /** Retrieves credentials for the target image. */
-  public static RetrieveRegistryCredentialsStep forTargetImage(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory)
-        {
-    return new RetrieveRegistryCredentialsStep(
-        buildConfiguration,
-        progressEventDispatcherFactory,
-        buildConfiguration.getTargetImageConfiguration().getImageRegistry(),
-        buildConfiguration.getTargetImageConfiguration().getCredentialRetrievers());
-  }
-
-  private readonly BuildConfiguration buildConfiguration;
-  private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-
-  private readonly string registry;
-  private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
-
-  private readonly Task<Credential> listenableFuture;
-
-  RetrieveRegistryCredentialsStep(
-      BuildConfiguration buildConfiguration,
-      ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-      string registry,
-      ImmutableArray<CredentialRetriever> credentialRetrievers)
-        {
-    this.buildConfiguration = buildConfiguration;
-    this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-    this.registry = registry;
-    this.credentialRetrievers = credentialRetrievers;
-            listenableFuture = Task.Run(call);
-  }
-
-  public Task<Credential> getFuture() {
-    return listenableFuture;
-  }
-
-  public Credential call() {
-    string description = makeDescription(registry);
-
-    buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
-
-    using(ProgressEventDispatcher ignored =
-            progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
-
-    using(TimerEventDispatcher ignored2 =
-            new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
-
+    /** Attempts to retrieve registry credentials. */
+    public sealed class RetrieveRegistryCredentialsStep : AsyncStep<Credential>
     {
-
-      foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
-      {
-        Optional<Credential> optionalCredential = credentialRetriever.retrieve();
-        if (optionalCredential.isPresent()) {
-          return optionalCredential.get();
+        private static string makeDescription(string registry)
+        {
+            return "Retrieving registry credentials for " + registry;
         }
-      }
 
-      // If no credentials found, give an info (not warning because in most cases, the base image is
-      // public and does not need extra credentials) and return null.
-      buildConfiguration
-          .getEventHandlers()
-          .dispatch(LogEvent.info("No credentials could be retrieved for registry " + registry));
-      return null;
+        /** Retrieves credentials for the base image. */
+        public static RetrieveRegistryCredentialsStep forBaseImage(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
+            return new RetrieveRegistryCredentialsStep(
+                buildConfiguration,
+                progressEventDispatcherFactory,
+                buildConfiguration.getBaseImageConfiguration().getImageRegistry(),
+                buildConfiguration.getBaseImageConfiguration().getCredentialRetrievers());
+        }
+
+        /** Retrieves credentials for the target image. */
+        public static RetrieveRegistryCredentialsStep forTargetImage(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory)
+        {
+            return new RetrieveRegistryCredentialsStep(
+                buildConfiguration,
+                progressEventDispatcherFactory,
+                buildConfiguration.getTargetImageConfiguration().getImageRegistry(),
+                buildConfiguration.getTargetImageConfiguration().getCredentialRetrievers());
+        }
+
+        private readonly BuildConfiguration buildConfiguration;
+        private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
+
+        private readonly string registry;
+        private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
+
+        private readonly Task<Credential> listenableFuture;
+
+        private RetrieveRegistryCredentialsStep(
+            BuildConfiguration buildConfiguration,
+            ProgressEventDispatcher.Factory progressEventDispatcherFactory,
+            string registry,
+            ImmutableArray<CredentialRetriever> credentialRetrievers)
+        {
+            this.buildConfiguration = buildConfiguration;
+            this.progressEventDispatcherFactory = progressEventDispatcherFactory;
+            this.registry = registry;
+            this.credentialRetrievers = credentialRetrievers;
+            listenableFuture = Task.Run(call);
+        }
+
+        public Task<Credential> getFuture()
+        {
+            return listenableFuture;
+        }
+
+        public Credential call()
+        {
+            string description = makeDescription(registry);
+
+            buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
+
+            using (ProgressEventDispatcher ignored =
+                    progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
+            using (TimerEventDispatcher ignored2 =
+                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
+
+            {
+                foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
+                {
+                    Optional<Credential> optionalCredential = credentialRetriever.retrieve();
+                    if (optionalCredential.isPresent())
+                    {
+                        return optionalCredential.get();
+                    }
+                }
+
+                // If no credentials found, give an info (not warning because in most cases, the base image is
+                // public and does not need extra credentials) and return null.
+                buildConfiguration
+                    .getEventHandlers()
+                    .dispatch(LogEvent.info("No credentials could be retrieved for registry " + registry));
+                return null;
+            }
+        }
     }
-  }
-}
 }

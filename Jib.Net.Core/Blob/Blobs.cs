@@ -23,67 +23,66 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
-
-
-
     /** Static methods for {@link Blob}. */
-    public class Blobs {
+    public sealed class Blobs
+    {
+        public static Blob from(Stream inputStream)
+        {
+            return new InputStreamBlob(inputStream);
+        }
 
-  public static Blob from(Stream inputStream) {
-    return new InputStreamBlob(inputStream);
-  }
+        public static Blob from(SystemPath file)
+        {
+            return new FileBlob(file);
+        }
 
-  public static Blob from(SystemPath file) {
-    return new FileBlob(file);
-  }
+        public static Blob from(JsonTemplate template)
+        {
+            return new JsonBlob(template);
+        }
 
-  public static Blob from(JsonTemplate template) {
-    return new JsonBlob(template);
-  }
+        /**
+         * Creates a {@link StringBlob} with UTF-8 encoding.
+         *
+         * @param content the string to create the blob from
+         * @return the {@link StringBlob}
+         */
+        public static Blob from(string content)
+        {
+            return new StringBlob(content);
+        }
 
-  /**
-   * Creates a {@link StringBlob} with UTF-8 encoding.
-   *
-   * @param content the string to create the blob from
-   * @return the {@link StringBlob}
-   */
-  public static Blob from(string content) {
-    return new StringBlob(content);
-  }
+        public static Blob from(WritableContents writable)
+        {
+            return new WritableContentsBlob(writable);
+        }
 
-  public static Blob from(WritableContents writable) {
-    return new WritableContentsBlob(writable);
-  }
+        /**
+         * Writes the BLOB to a string with UTF-8 decoding.
+         *
+         * @param blob the BLOB to write
+         * @return the BLOB contents as a string
+         * @throws IOException if writing out the BLOB contents fails
+         */
+        public static string writeToString(Blob blob)
+        {
+            return StandardCharsets.UTF_8.GetString(writeToByteArray(blob));
+        }
 
-  /**
-   * Writes the BLOB to a string with UTF-8 decoding.
-   *
-   * @param blob the BLOB to write
-   * @return the BLOB contents as a string
-   * @throws IOException if writing out the BLOB contents fails
-   */
-  public static string writeToString(Blob blob) {
-    return StandardCharsets.UTF_8.GetString(writeToByteArray(blob));
-  }
+        /**
+         * Writes the BLOB to a byte array.
+         *
+         * @param blob the BLOB to write
+         * @return the BLOB contents as a byte array
+         * @throws IOException if writing out the BLOB contents fails
+         */
+        public static byte[] writeToByteArray(Blob blob)
+        {
+            MemoryStream byteArrayOutputStream = new MemoryStream();
+            blob.writeTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        }
 
-  /**
-   * Writes the BLOB to a byte array.
-   *
-   * @param blob the BLOB to write
-   * @return the BLOB contents as a byte array
-   * @throws IOException if writing out the BLOB contents fails
-   */
-  public static byte[] writeToByteArray(Blob blob) {
-    MemoryStream byteArrayOutputStream = new MemoryStream();
-    blob.writeTo(byteArrayOutputStream);
-    return byteArrayOutputStream.toByteArray();
-  }
-
-  private Blobs() {}
-}
+        private Blobs() { }
+    }
 }

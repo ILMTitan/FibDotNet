@@ -20,68 +20,68 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
 
 
-
-
-
-
-
-
-
-
-
-
-/** Static methods for operating on the filesystem. */
-public class FileOperations {
-
-  /**
-   * Copies {@code sourceFiles} to the {@code destDir} directory.
-   *
-   * @param sourceFiles the list of source files.
-   * @param destDir the directory to copy the files to.
-   * @throws IOException if the copy fails.
-   */
-  public static void copy(ImmutableArray<SystemPath> sourceFiles, SystemPath destDir) {
-    foreach (SystemPath sourceFile in sourceFiles)
+    /** Static methods for operating on the filesystem. */
+    public sealed class FileOperations
     {
-      PathConsumer copyPathConsumer =
-          path => {
-            // Creates the same path in the destDir.
-            SystemPath destPath = destDir.resolve(sourceFile.getParent().relativize(path));
-            if (Files.isDirectory(path)) {
-              Files.createDirectories(destPath);
-            } else {
-              Files.copy(path, destPath);
+        /**
+         * Copies {@code sourceFiles} to the {@code destDir} directory.
+         *
+         * @param sourceFiles the list of source files.
+         * @param destDir the directory to copy the files to.
+         * @throws IOException if the copy fails.
+         */
+        public static void copy(ImmutableArray<SystemPath> sourceFiles, SystemPath destDir)
+        {
+            foreach (SystemPath sourceFile in sourceFiles)
+            {
+                PathConsumer copyPathConsumer =
+                    path =>
+                    {
+              // Creates the same path in the destDir.
+              SystemPath destPath = destDir.resolve(sourceFile.getParent().relativize(path));
+                        if (Files.isDirectory(path))
+                        {
+                            Files.createDirectories(destPath);
+                        }
+                        else
+                        {
+                            Files.copy(path, destPath);
+                        }
+                    };
+
+                if (Files.isDirectory(sourceFile))
+                {
+                    new DirectoryWalker(sourceFile).walk(copyPathConsumer);
+                }
+                else
+                {
+                    copyPathConsumer.accept(sourceFile);
+                }
             }
-          };
+        }
 
-      if (Files.isDirectory(sourceFile)) {
-        new DirectoryWalker(sourceFile).walk(copyPathConsumer);
-      } else {
-        copyPathConsumer.accept(sourceFile);
-      }
+        /**
+         * Acquires an exclusive {@link FileLock} on the {@code file} and opens an {@link OutputStream} to
+         * write to it. The file will be created if it does not exist, or truncated to length 0 if it does
+         * exist. The {@link OutputStream} must be closed to release the lock.
+         *
+         * <p>The locking mechanism should not be used as a concurrency management feature. Rather, this
+         * should be used as a way to prevent concurrent writes to {@code file}. Concurrent attempts to
+         * lock {@code file} will result in {@link OverlappingFileLockException}s.
+         *
+         * @param file the file to write to
+         * @return an {@link OutputStream} that writes to the file
+         * @throws IOException if an I/O exception occurs
+         */
+        public static Stream newLockingOutputStream(SystemPath file)
+        {
+            return file.toFile().Create();
+        }
+
+        private FileOperations() { }
     }
-  }
-
-  /**
-   * Acquires an exclusive {@link FileLock} on the {@code file} and opens an {@link OutputStream} to
-   * write to it. The file will be created if it does not exist, or truncated to length 0 if it does
-   * exist. The {@link OutputStream} must be closed to release the lock.
-   *
-   * <p>The locking mechanism should not be used as a concurrency management feature. Rather, this
-   * should be used as a way to prevent concurrent writes to {@code file}. Concurrent attempts to
-   * lock {@code file} will result in {@link OverlappingFileLockException}s.
-   *
-   * @param file the file to write to
-   * @return an {@link OutputStream} that writes to the file
-   * @throws IOException if an I/O exception occurs
-   */
-  public static Stream newLockingOutputStream(SystemPath file) {
-    return file.toFile().Create();
-  }
-
-  private FileOperations() {}
-}
 }

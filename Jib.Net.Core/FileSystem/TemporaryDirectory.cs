@@ -19,51 +19,50 @@ using Jib.Net.Core.FileSystem;
 using System;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem {
+namespace com.google.cloud.tools.jib.filesystem
+{
+    /**
+     * A temporary directory that tries to delete itself upon close. Note that deletion is <b>NOT</b>
+     * guaranteed.
+     */
+    public class TemporaryDirectory : IDisposable
+    {
+        private readonly SystemPath temporaryDirectory;
 
+        /**
+         * Creates a new temporary directory under an existing {@code parentDirectory}.
+         *
+         * @param parentDirectory the directory to create the temporary directory within
+         * @throws IOException if an I/O exception occurs
+         */
+        public TemporaryDirectory(SystemPath parentDirectory)
+        {
+            temporaryDirectory = Files.createTempDirectory(parentDirectory, null);
+        }
 
+        /**
+         * Gets the temporary directory.
+         *
+         * @return the temporary directory.
+         */
+        public SystemPath getDirectory()
+        {
+            return temporaryDirectory;
+        }
 
-
-
-
-
-
-
-/**
- * A temporary directory that tries to delete itself upon close. Note that deletion is <b>NOT</b>
- * guaranteed.
- */
-public class TemporaryDirectory : IDisposable {
-
-  private readonly SystemPath temporaryDirectory;
-
-  /**
-   * Creates a new temporary directory under an existing {@code parentDirectory}.
-   *
-   * @param parentDirectory the directory to create the temporary directory within
-   * @throws IOException if an I/O exception occurs
-   */
-  public TemporaryDirectory(SystemPath parentDirectory) {
-    temporaryDirectory = Files.createTempDirectory(parentDirectory, null);
-  }
-
-  /**
-   * Gets the temporary directory.
-   *
-   * @return the temporary directory.
-   */
-  public SystemPath getDirectory() {
-    return temporaryDirectory;
-  }
-
-  public void Dispose() {
-    if (Files.exists(temporaryDirectory)) {
-      try {
-        MoreFiles.deleteRecursively(temporaryDirectory, RecursiveDeleteOption.ALLOW_INSECURE);
-      } catch (IOException) {
-        // TODO log error; deletion is best-effort
-      }
+        public void Dispose()
+        {
+            if (Files.exists(temporaryDirectory))
+            {
+                try
+                {
+                    MoreFiles.deleteRecursively(temporaryDirectory, RecursiveDeleteOption.ALLOW_INSECURE);
+                }
+                catch (IOException)
+                {
+                    // TODO log error; deletion is best-effort
+                }
+            }
+        }
     }
-  }
-}
 }

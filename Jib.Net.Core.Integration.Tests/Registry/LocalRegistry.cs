@@ -26,11 +26,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
     /** Runs a local registry. */
     public class LocalRegistry
     {
-
         private readonly string containerName = "registry-" + new Guid();
         private readonly int port;
         private readonly string username;
@@ -38,134 +38,154 @@ namespace com.google.cloud.tools.jib.registry {
 
         public LocalRegistry(int port) : this(port, null, null) { }
 
-        public LocalRegistry(int port, string username, string password) {
+        public LocalRegistry(int port, string username, string password)
+        {
             this.port = port;
             this.username = username;
             this.password = password;
         }
 
-  /** Starts the local registry. */
+        /** Starts the local registry. */
 
-  protected void before() {
-    start();
-  }
+        protected void before()
+        {
+            start();
+        }
 
-  protected void after() {
-    stop();
-  }
+        protected void after()
+        {
+            stop();
+        }
 
-  /** Starts the registry */
-  public void start() {
+        /** Starts the registry */
+        public void start()
+        {
             // Runs the Docker registry.
             string[] dockerTokens = new[] {
                 "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName };
-    if (username != null && password != null) {
-      // Generate the htpasswd file to store credentials
-      string credentialString =
-          new Command(
-                  "docker",
-                  "run",
-                  "--rm",
-                  "--entrypoint",
-                  "htpasswd",
-                  "registry:2",
-                  "-Bbn",
-                  username,
-                  password)
-              .run();
-      // Creates the temporary directory in /tmp since that is one of the default directories
-      // mounted into Docker.
-      // See: https://docs.docker.com/docker-for-mac/osxfs
-      SystemPath tempFolder = Files.createTempDirectory(Paths.get("/tmp"), "");
-      Files.write(
-          tempFolder.resolve("htpasswd"), credentialString.getBytes(StandardCharsets.UTF_8));
+            if (username != null && password != null)
+            {
+                // Generate the htpasswd file to store credentials
+                string credentialString =
+                    new Command(
+                            "docker",
+                            "run",
+                            "--rm",
+                            "--entrypoint",
+                            "htpasswd",
+                            "registry:2",
+                            "-Bbn",
+                            username,
+                            password)
+                        .run();
+                // Creates the temporary directory in /tmp since that is one of the default directories
+                // mounted into Docker.
+                // See: https://docs.docker.com/docker-for-mac/osxfs
+                SystemPath tempFolder = Files.createTempDirectory(Paths.get("/tmp"), "");
+                Files.write(
+                    tempFolder.resolve("htpasswd"), credentialString.getBytes(StandardCharsets.UTF_8));
 
-      // Run the Docker registry
-      dockerTokens.addAll(
-          Arrays.asList(
-              "-v",
-              // Volume mount used for storing credentials
-              tempFolder + ":/auth",
-              "-e",
-              "REGISTRY_AUTH=htpasswd",
-              "-e",
-              "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
-              "-e",
-              "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
-    }
-    dockerTokens.add("registry:2");
-    new Command(dockerTokens).run();
-    waitUntilReady();
-  }
-
-  /** Stops the registry. */
-  public void stop() {
-    try {
-      logout();
-      new Command("docker", "stop", containerName).run();
-
-    } catch (Exception ex) when (ex is OperationCanceledException || ex is IOException) {
-      throw new Exception("Could not stop local registry fully: " + containerName, ex);
-    }
-  }
-
-  /**
-   * Pulls an image.
-   *
-   * @param from the image reference to pull
-   * @throws IOException if the pull command fails
-   * @throws InterruptedException if the pull command is interrupted
-   */
-  public void pull(string from) {
-    login();
-    new Command("docker", "pull", from).run();
-    logout();
-  }
-
-  /**
-   * Pulls an image and pushes it to the local registry under a new tag.
-   *
-   * @param from the image reference to pull
-   * @param to the new location of the image (i.e. {@code localhost:[port]/[to]}
-   * @throws IOException if the commands fail
-   * @throws InterruptedException if the commands are interrupted
-   */
-  public void pullAndPushToLocal(string from, string to) {
-    login();
-    new Command("docker", "pull", from).run();
-    new Command("docker", "tag", from, "localhost:" + port + "/" + to).run();
-    new Command("docker", "push", "localhost:" + port + "/" + to).run();
-    logout();
-  }
-
-  private void login() {
-    if (username != null && password != null) {
-      new Command("docker", "login", "localhost:" + port, "-u", username, "--password-stdin")
-          .run(password.getBytes(StandardCharsets.UTF_8));
-    }
-  }
-
-  private void logout() {
-    if (username != null && password != null) {
-      new Command("docker", "logout", "localhost:" + port).run();
-    }
-  }
-
-  private void waitUntilReady() {
-    Uri queryUrl = new Uri("http://localhost:" + port + "/v2/_catalog");
-
-    for (int i = 0; i < 40; i++) {
-      try {
-var client =                    new HttpClient();
-                    var message = client.GetAsync(queryUrl).Result;
-        var code = message.StatusCode;
-        if (code == HttpStatusCode.OK|| code == HttpStatusCode.Unauthorized) {
-          return;
+                // Run the Docker registry
+                dockerTokens.addAll(
+                    Arrays.asList(
+                        "-v",
+                        // Volume mount used for storing credentials
+                        tempFolder + ":/auth",
+                        "-e",
+                        "REGISTRY_AUTH=htpasswd",
+                        "-e",
+                        "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
+                        "-e",
+                        "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
+            }
+            dockerTokens.add("registry:2");
+            new Command(dockerTokens).run();
+            waitUntilReady();
         }
-      } catch (IOException) {
-      }
-      Thread.Sleep(250);
+
+        /** Stops the registry. */
+        public void stop()
+        {
+            try
+            {
+                logout();
+                new Command("docker", "stop", containerName).run();
+            }
+            catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
+            {
+                throw new Exception("Could not stop local registry fully: " + containerName, ex);
+            }
+        }
+
+        /**
+         * Pulls an image.
+         *
+         * @param from the image reference to pull
+         * @throws IOException if the pull command fails
+         * @throws InterruptedException if the pull command is interrupted
+         */
+        public void pull(string from)
+        {
+            login();
+            new Command("docker", "pull", from).run();
+            logout();
+        }
+
+        /**
+         * Pulls an image and pushes it to the local registry under a new tag.
+         *
+         * @param from the image reference to pull
+         * @param to the new location of the image (i.e. {@code localhost:[port]/[to]}
+         * @throws IOException if the commands fail
+         * @throws InterruptedException if the commands are interrupted
+         */
+        public void pullAndPushToLocal(string from, string to)
+        {
+            login();
+            new Command("docker", "pull", from).run();
+            new Command("docker", "tag", from, "localhost:" + port + "/" + to).run();
+            new Command("docker", "push", "localhost:" + port + "/" + to).run();
+            logout();
+        }
+
+        private void login()
+        {
+            if (username != null && password != null)
+            {
+                new Command("docker", "login", "localhost:" + port, "-u", username, "--password-stdin")
+                    .run(password.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        private void logout()
+        {
+            if (username != null && password != null)
+            {
+                new Command("docker", "logout", "localhost:" + port).run();
+            }
+        }
+
+        private void waitUntilReady()
+        {
+            Uri queryUrl = new Uri("http://localhost:" + port + "/v2/_catalog");
+
+            for (int i = 0; i < 40; i++)
+            {
+                try
+                {
+                    var client = new HttpClient();
+                    var message = client.GetAsync(queryUrl).Result;
+                    var code = message.StatusCode;
+                    if (code == HttpStatusCode.OK || code == HttpStatusCode.Unauthorized)
+                    {
+                        return;
+                    }
+                }
+                catch (IOException)
+                {
+                }
+                Thread.Sleep(250);
+            }
+        }
     }
-  }
-}
 }

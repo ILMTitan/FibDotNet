@@ -28,7 +28,7 @@ namespace Jib.Net.Core.Api
      *
      * <p>This class is immutable and thread-safe.
      */
-    public class AbsoluteUnixPath
+    public sealed class AbsoluteUnixPath
     {
         /**
          * Gets a new {@link AbsoluteUnixPath} from a Unix-style path string. The path must begin with a
@@ -158,5 +158,4 @@ namespace Jib.Net.Core.Api
             return unixPath.GetHashCode();
         }
     }
-
 }

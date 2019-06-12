@@ -20,68 +20,68 @@ using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 
-namespace com.google.cloud.tools.jib.@event.progress {
-
-
-
-
-
-
-
-/**
- * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
- * period of time are merged into a single later call with the value accumulated up to that point.
- */
-public class ThrottledAccumulatingConsumer : IDisposable {
+namespace com.google.cloud.tools.jib.@event.progress
+{
+    /**
+     * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
+     * period of time are merged into a single later call with the value accumulated up to that point.
+     */
+    public class ThrottledAccumulatingConsumer : IDisposable
+    {
         public static implicit operator Consumer<long>(ThrottledAccumulatingConsumer c)
         {
             return c.accept;
         }
-  private readonly Consumer<long> consumer;
 
-  /** Delay between each call to the underlying {@link #accept}. */
-  private readonly Duration delayBetweenCallbacks;
+        private readonly Consumer<long> consumer;
 
-  /** Last time the underlying {@link #accept} was called. */
-  private Instant previousCallback;
+        /** Delay between each call to the underlying {@link #accept}. */
+        private readonly Duration delayBetweenCallbacks;
 
-  /** "Clock" that returns the current {@link Instant}. */
-  private readonly Supplier<Instant> getNow;
+        /** Last time the underlying {@link #accept} was called. */
+        private Instant previousCallback;
 
-  private long valueSoFar;
+        /** "Clock" that returns the current {@link Instant}. */
+        private readonly Supplier<Instant> getNow;
 
-  /**
-   * Wraps a consumer with the delay of 100 ms.
-   *
-   * @param callback {@link Consumer} callback to wrap
-   */
-  public ThrottledAccumulatingConsumer(Consumer<long> callback) : this(callback, Duration.FromMilliseconds(100), SystemClock.Instance.GetCurrentInstant) {
-    
-  }
+        private long valueSoFar;
 
-  public ThrottledAccumulatingConsumer(
-      Consumer<long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow) {
-    this.consumer = consumer;
-    this.delayBetweenCallbacks = delayBetweenCallbacks;
-    this.getNow = getNow;
+        /**
+         * Wraps a consumer with the delay of 100 ms.
+         *
+         * @param callback {@link Consumer} callback to wrap
+         */
+        public ThrottledAccumulatingConsumer(Consumer<long> callback) : this(callback, Duration.FromMilliseconds(100), SystemClock.Instance.GetCurrentInstant)
+        {
+        }
 
-    previousCallback = getNow.get();
-  }
+        public ThrottledAccumulatingConsumer(
+            Consumer<long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow)
+        {
+            this.consumer = consumer;
+            this.delayBetweenCallbacks = delayBetweenCallbacks;
+            this.getNow = getNow;
 
-  public void accept(long value) {
+            previousCallback = getNow.get();
+        }
+
+        public void accept(long value)
+        {
             valueSoFar += value;
 
-    Instant now = getNow.get();
-    Instant nextFireTime = previousCallback.plus(delayBetweenCallbacks);
-    if (now.isAfter(nextFireTime)) {
-      consumer.accept(valueSoFar);
-      previousCallback = now;
-      valueSoFar = 0;
-    }
-  }
+            Instant now = getNow.get();
+            Instant nextFireTime = previousCallback.plus(delayBetweenCallbacks);
+            if (now.isAfter(nextFireTime))
+            {
+                consumer.accept(valueSoFar);
+                previousCallback = now;
+                valueSoFar = 0;
+            }
+        }
 
-  public void Dispose() {
-      consumer.accept(valueSoFar);
-  }
-}
+        public void Dispose()
+        {
+            consumer.accept(valueSoFar);
+        }
+    }
 }

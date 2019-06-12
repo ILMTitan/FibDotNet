@@ -24,103 +24,109 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
 
 
 
+    /**
+     * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
+     * exists.
+     */
+    internal class BlobChecker : RegistryEndpointProvider<BlobDescriptor>
+    {
+        private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
+        private readonly DescriptorDigest blobDigest;
 
-
-
-
-
-
-
-
-
-
-/**
- * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
- * exists.
- */
-class BlobChecker : RegistryEndpointProvider<BlobDescriptor> {
-  private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-  private readonly DescriptorDigest blobDigest;
-
-  public BlobChecker(
-      RegistryEndpointRequestProperties registryEndpointRequestProperties,
-      DescriptorDigest blobDigest) {
-    this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-    this.blobDigest = blobDigest;
-  }
+        public BlobChecker(
+            RegistryEndpointRequestProperties registryEndpointRequestProperties,
+            DescriptorDigest blobDigest)
+        {
+            this.registryEndpointRequestProperties = registryEndpointRequestProperties;
+            this.blobDigest = blobDigest;
+        }
 
         /** @return the BLOB's content descriptor */
 
-        public BlobDescriptor handleResponse(HttpResponseMessage response) {
+        public BlobDescriptor handleResponse(HttpResponseMessage response)
+        {
             if (response.IsSuccessStatusCode)
             {
                 return handleResponseSuccess(response);
-            } else
+            }
+            else
             {
                 return handleHttpResponseException(response);
             }
         }
-        public BlobDescriptor handleResponseSuccess(HttpResponseMessage response) { 
-    long? contentLength = response.getContentLength();
-    if (contentLength < 0 || contentLength == null) {
-      throw new RegistryErrorExceptionBuilder(getActionDescription())
-          .addReason("Did not receive Content-Length header")
-          .build();
+
+        public BlobDescriptor handleResponseSuccess(HttpResponseMessage response)
+        {
+            long? contentLength = response.getContentLength();
+            if (contentLength < 0 || contentLength == null)
+            {
+                throw new RegistryErrorExceptionBuilder(getActionDescription())
+                    .addReason("Did not receive Content-Length header")
+                    .build();
+            }
+
+            return new BlobDescriptor(contentLength.GetValueOrDefault(), blobDigest);
+        }
+
+        public BlobDescriptor handleHttpResponseException(HttpResponseMessage httpResponse)
+        {
+            if (httpResponse.getStatusCode() != HttpStatusCode.NotFound)
+            {
+                throw new HttpResponseException(httpResponse);
+            }
+
+            // Finds a BLOB_UNKNOWN error response code.
+            if (httpResponse.getContent() == null)
+            {
+                // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
+                // be null, even for HEAD requests.
+                return null;
+            }
+
+            ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponse);
+            if (errorCode == ErrorCodes.BLOB_UNKNOWN)
+            {
+                return null;
+            }
+
+            // BLOB_UNKNOWN was not found as a error response code.
+            throw new HttpResponseException(httpResponse);
+        }
+
+        public Uri getApiRoute(string apiRouteBase)
+        {
+            return new Uri(
+                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
+        }
+
+        public BlobHttpContent getContent()
+        {
+            return null;
+        }
+
+        public IList<string> getAccept()
+        {
+            return Collections.emptyList<string>();
+        }
+
+        public HttpMethod getHttpMethod()
+        {
+            return HttpMethod.Head;
+        }
+
+        public string getActionDescription()
+        {
+            return "check BLOB exists for "
+                + registryEndpointRequestProperties.getServerUrl()
+                + "/"
+                + registryEndpointRequestProperties.getImageName()
+                + " with digest "
+                + blobDigest;
+        }
     }
-
-    return new BlobDescriptor(contentLength.GetValueOrDefault(), blobDigest);
-  }
-
-  public BlobDescriptor handleHttpResponseException(HttpResponseMessage httpResponse)
-      {
-    if (httpResponse.getStatusCode() != HttpStatusCode.NotFound) {
-      throw new HttpResponseException(httpResponse);
-    }
-
-    // Finds a BLOB_UNKNOWN error response code.
-    if (httpResponse.getContent() == null) {
-      // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
-      // be null, even for HEAD requests.
-      return null;
-    }
-
-    ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponse);
-    if (errorCode == ErrorCodes.BLOB_UNKNOWN) {
-      return null;
-    }
-
-    // BLOB_UNKNOWN was not found as a error response code.
-    throw new HttpResponseException(httpResponse);
-  }
-
-  public Uri getApiRoute(string apiRouteBase) {
-    return new Uri(
-        apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
-  }
-
-  public BlobHttpContent getContent() {
-    return null;
-  }
-
-  public IList<string> getAccept() {
-    return Collections.emptyList<string>();
-  }
-
-  public HttpMethod getHttpMethod() {
-    return HttpMethod.Head;
-  }
-
-  public string getActionDescription() {
-    return "check BLOB exists for "
-        + registryEndpointRequestProperties.getServerUrl()
-        + "/"
-        + registryEndpointRequestProperties.getImageName()
-        + " with digest "
-        + blobDigest;
-  }
-}
 }

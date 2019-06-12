@@ -21,49 +21,41 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry {
+namespace com.google.cloud.tools.jib.registry
+{
+    /** Integration tests for {@link BlobChecker}. */
+    public class BlobCheckerIntegrationTest
+    {
+        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
+        [Test]
+        public void testCheck_exists()
+        {
+            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient();
+            V22ManifestTemplate manifestTemplate =
+                registryClient.pullManifest<V22ManifestTemplate>("latest");
+            DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
 
+            Assert.AreEqual(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
+        }
 
+        [Test]
+        public void testCheck_doesNotExist()
+        {
+            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            RegistryClient registryClient =
+                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .setAllowInsecureRegistries(true)
+                    .newRegistryClient();
+            DescriptorDigest fakeBlobDigest =
+                DescriptorDigest.fromHash(
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-
-
-
-
-
-
-/** Integration tests for {@link BlobChecker}. */
-public class BlobCheckerIntegrationTest {
-
-  [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
-
-  [Test]
-  public void testCheck_exists() {
-    localRegistry.pullAndPushToLocal("busybox", "busybox");
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient();
-    V22ManifestTemplate manifestTemplate =
-        registryClient.pullManifest< V22ManifestTemplate>("latest");
-    DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
-
-    Assert.AreEqual(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
-  }
-
-  [Test]
-  public void testCheck_doesNotExist()
-      {
-    localRegistry.pullAndPushToLocal("busybox", "busybox");
-    RegistryClient registryClient =
-        RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-            .setAllowInsecureRegistries(true)
-            .newRegistryClient();
-    DescriptorDigest fakeBlobDigest =
-        DescriptorDigest.fromHash(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-    Assert.IsNull(registryClient.checkBlob(fakeBlobDigest));
-  }
-}
+            Assert.IsNull(registryClient.checkBlob(fakeBlobDigest));
+        }
+    }
 }

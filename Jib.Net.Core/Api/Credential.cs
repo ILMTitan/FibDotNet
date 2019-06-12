@@ -14,78 +14,88 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api {
+namespace com.google.cloud.tools.jib.api
+{
+    /** Holds credentials (username and password). */
+    public sealed class Credential
+    {
+        // If the username is set to <token>, the secret would be a refresh token.
+        // https://github.com/docker/cli/blob/master/docs/reference/commandline/login.md#credential-helper-protocol
+        private static readonly string OAUTH2_TOKEN_USER_NAME = "<token>";
 
+        /**
+         * Gets a {@link Credential} configured with a username and password.
+         *
+         * @param username the username
+         * @param password the password
+         * @return a new {@link Credential}
+         */
+        public static Credential from(string username, string password)
+        {
+            return new Credential(username, password);
+        }
 
-/** Holds credentials (username and password). */
-public class Credential {
-  // If the username is set to <token>, the secret would be a refresh token.
-  // https://github.com/docker/cli/blob/master/docs/reference/commandline/login.md#credential-helper-protocol
-  private static readonly string OAUTH2_TOKEN_USER_NAME = "<token>";
+        private readonly string username;
+        private readonly string password;
 
-  /**
-   * Gets a {@link Credential} configured with a username and password.
-   *
-   * @param username the username
-   * @param password the password
-   * @return a new {@link Credential}
-   */
-  public static Credential from(string username, string password) {
-    return new Credential(username, password);
-  }
+        private Credential(string username, string password)
+        {
+            this.username = username;
+            this.password = password;
+        }
 
-  private readonly string username;
-  private readonly string password;
+        /**
+         * Gets the username.
+         *
+         * @return the username
+         */
+        public string getUsername()
+        {
+            return username;
+        }
 
-  private Credential(string username, string password) {
-    this.username = username;
-    this.password = password;
-  }
+        /**
+         * Gets the password.
+         *
+         * @return the password
+         */
+        public string getPassword()
+        {
+            return password;
+        }
 
-  /**
-   * Gets the username.
-   *
-   * @return the username
-   */
-  public string getUsername() {
-    return username;
-  }
+        /**
+         * Check whether this credential is an OAuth 2.0 refresh token.
+         *
+         * @return true if this credential is an OAuth 2.0 refresh token.
+         */
+        public bool isOAuth2RefreshToken()
+        {
+            return OAUTH2_TOKEN_USER_NAME.Equals(this.username);
+        }
 
-  /**
-   * Gets the password.
-   *
-   * @return the password
-   */
-  public string getPassword() {
-    return password;
-  }
+        public override bool Equals(object other)
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            if (!(other is Credential))
+            {
+                return false;
+            }
+            Credential otherCredential = (Credential)other;
+            return username.Equals(otherCredential.username) && password.Equals(otherCredential.password);
+        }
 
-  /**
-   * Check whether this credential is an OAuth 2.0 refresh token.
-   *
-   * @return true if this credential is an OAuth 2.0 refresh token.
-   */
-  public bool isOAuth2RefreshToken() {
-    return OAUTH2_TOKEN_USER_NAME.Equals(this.username);
-  }
+        public override int GetHashCode()
+        {
+            return Objects.hash(username, password);
+        }
 
-  public override bool Equals(object other) {
-    if (this == other) {
-      return true;
+        public override string ToString()
+        {
+            return username + ":" + password;
+        }
     }
-    if (!(other is Credential)) {
-      return false;
-    }
-    Credential otherCredential = (Credential) other;
-    return username.Equals(otherCredential.username) && password.Equals(otherCredential.password);
-  }
-
-  public override int GetHashCode() {
-    return Objects.hash(username, password);
-  }
-
-  public override string ToString() {
-    return username + ":" + password;
-  }
-}
 }

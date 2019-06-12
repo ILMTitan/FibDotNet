@@ -25,7 +25,8 @@ namespace com.google.cloud.tools.jib.json
         public Visibility setterVisibility;
         public Visibility creatorVisibility;
 
-        public enum Visibility {
+        public enum Visibility
+        {
             ANY,
             NONE
         }
