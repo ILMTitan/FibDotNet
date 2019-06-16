@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.configuration
         /** Builder for instantiating an {@link ImageConfiguration}. */
         public class Builder
         {
-            private ImageReference imageReference;
+            private IImageReference imageReference;
             private ImmutableArray<CredentialRetriever> credentialRetrievers = ImmutableArray.Create<CredentialRetriever>();
 
             /**
@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.configuration
                 return new ImageConfiguration(imageReference, credentialRetrievers);
             }
 
-            public Builder(ImageReference imageReference)
+            public Builder(IImageReference imageReference)
             {
                 this.imageReference = imageReference;
             }
@@ -67,22 +67,22 @@ namespace com.google.cloud.tools.jib.configuration
          * @param imageReference the image reference, which is a required field
          * @return the builder
          */
-        public static Builder builder(ImageReference imageReference)
+        public static Builder builder(IImageReference imageReference)
         {
             return new Builder(imageReference);
         }
 
-        private readonly ImageReference image;
+        private readonly IImageReference image;
         private readonly ImmutableArray<CredentialRetriever> credentialRetrievers;
 
         private ImageConfiguration(
-            ImageReference image, ImmutableArray<CredentialRetriever> credentialRetrievers)
+            IImageReference image, ImmutableArray<CredentialRetriever> credentialRetrievers)
         {
             this.image = image;
             this.credentialRetrievers = credentialRetrievers;
         }
 
-        public ImageReference getImage()
+        public IImageReference getImage()
         {
             return image;
         }

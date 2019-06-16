@@ -16,23 +16,33 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 
 namespace com.google.cloud.tools.jib.configuration
 {
-    public class EventHandlers
+    public class EventHandlers : IEventHandlers
     {
-        public static EventHandlers NONE { get; internal set; }
+        public static EventHandlers NONE = new Builder().build();
+        private ImmutableArray<Action<JibEvent>> handlers;
+
+        public EventHandlers(ImmutableArray<Action<JibEvent>> handlers)
+        {
+            this.handlers = handlers;
+        }
 
         public void dispatch(JibEvent @event)
         {
-            throw new NotImplementedException();
+            foreach (var handler in handlers)
+            {
+                handler(@event);
+            }
         }
 
         public static Builder builder()
         {
-            throw new NotImplementedException();
+            return new Builder();
         }
 
         public class Builder
@@ -58,7 +68,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public EventHandlers build()
             {
-                throw new NotImplementedException();
+                return new EventHandlers(handlers.ToImmutableArray());
             }
         }
 

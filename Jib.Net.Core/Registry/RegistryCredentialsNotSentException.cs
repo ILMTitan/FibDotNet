@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using System;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -33,22 +34,6 @@ namespace com.google.cloud.tools.jib.registry
                   + "/"
                   + repository
                   + " were not sent because the connection was over HTTP")
-        {
-        }
-
-        public RegistryCredentialsNotSentException(string message, System.Exception cause) : base(message, cause)
-        {
-        }
-
-        public RegistryCredentialsNotSentException(string message) : base(message)
-        {
-        }
-
-        public RegistryCredentialsNotSentException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public RegistryCredentialsNotSentException() : base()
         {
         }
     }

@@ -15,14 +15,16 @@
  */
 
 using System;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
     internal class AtomicInteger
     {
+        int i;
         internal int getAndIncrement()
         {
-            throw new NotImplementedException();
+            return Interlocked.Increment(ref i) - 1;
         }
     }
 }

@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
@@ -40,7 +41,7 @@ namespace com.google.cloud.tools.jib.image
     public class ImageTest
     {
         private Layer mockLayer = Mock.Of<Layer>();
-        private DescriptorDigest mockDescriptorDigest = Mock.Of<DescriptorDigest>();
+        private DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
 
         [SetUp]
         public void setUp()
@@ -52,7 +53,7 @@ namespace com.google.cloud.tools.jib.image
         public void test_smokeTest()
         {
             Image image =
-                Image.builder(typeof(V22ManifestTemplate))
+                Image.builder(ManifestFormat.V22)
                     .setCreated(Instant.FromUnixTimeSeconds(10000))
                     .addEnvironmentVariable("crepecake", "is great")
                     .addEnvironmentVariable("VARIABLE", "VALUE")
@@ -66,7 +67,7 @@ namespace com.google.cloud.tools.jib.image
                     .addLayer(mockLayer)
                     .build();
 
-            Assert.AreEqual(typeof(V22ManifestTemplate), image.getImageFormat());
+            Assert.AreEqual(ManifestFormat.V22, image.getImageFormat());
             Assert.AreEqual(
                 mockDescriptorDigest, image.getLayers().get(0).getBlobDescriptor().getDigest());
             Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.getCreated());
@@ -84,7 +85,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void testDefaults()
         {
-            Image image = Image.builder(typeof(V22ManifestTemplate)).build();
+            Image image = Image.builder(ManifestFormat.V22).build();
             Assert.AreEqual("amd64", image.getArchitecture());
             Assert.AreEqual("linux", image.getOs());
             Assert.AreEqual(Collections.emptyList<Layer>(), image.getLayers());
@@ -95,7 +96,7 @@ namespace com.google.cloud.tools.jib.image
         public void testOsArch()
         {
             Image image =
-                Image.builder(typeof(V22ManifestTemplate)).setArchitecture("wasm").setOs("js").build();
+                Image.builder(ManifestFormat.V22).setArchitecture("wasm").setOs("js").build();
             Assert.AreEqual("wasm", image.getArchitecture());
             Assert.AreEqual("js", image.getOs());
         }

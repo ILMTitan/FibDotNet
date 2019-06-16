@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.api
     {
         public static bool isNullOrEmpty(string registry)
         {
-            throw new NotImplementedException();
+            return string.IsNullOrEmpty(registry);
         }
     }
 }

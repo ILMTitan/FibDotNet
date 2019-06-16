@@ -15,12 +15,13 @@
  */
 
 using System;
+using System.IO;
 using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
     [Serializable]
-    internal class ConnectException : Exception
+    internal class ConnectException : IOException
     {
         public ConnectException()
         {
@@ -35,6 +36,10 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         protected ConnectException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        public ConnectException(string message, int hresult) : base(message, hresult)
         {
         }
     }

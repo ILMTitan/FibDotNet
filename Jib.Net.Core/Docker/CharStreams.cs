@@ -21,9 +21,9 @@ namespace com.google.cloud.tools.jib.docker
 {
     internal static class CharStreams
     {
-        internal static string toString(StreamReader stderr)
+        internal static string toString(TextReader reader)
         {
-            throw new NotImplementedException();
+            return reader.ReadToEnd();
         }
     }
 }

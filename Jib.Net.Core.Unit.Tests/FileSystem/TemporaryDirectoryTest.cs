@@ -20,6 +20,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -32,7 +33,17 @@ namespace com.google.cloud.tools.jib.filesystem
             SystemPath testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
             new DirectoryWalker(testFilesDirectory)
                 .filterRoot()
-                .walk(path => Files.copy(path, directory.resolve(testFilesDirectory.relativize(path))));
+                .walk(path =>
+                {
+                    if (File.Exists(path))
+                    {
+                        Files.copy(path, directory.resolve(testFilesDirectory.relativize(path)));
+                    }
+                    else if (Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(directory.resolve(testFilesDirectory.relativize(path)));
+                    }
+                });
         }
 
         [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();

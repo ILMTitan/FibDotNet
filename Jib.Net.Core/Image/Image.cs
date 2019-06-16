@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.image
         /** Builds the immutable {@link Image}. */
         public class Builder
         {
-            private readonly IClass<ManifestTemplate> imageFormat;
+            private readonly ManifestFormat imageFormat;
             private readonly ImageLayers.Builder imageLayersBuilder = ImageLayers.builder();
             private readonly ImmutableArray<HistoryEntry>.Builder historyBuilder = ImmutableArray.CreateBuilder<HistoryEntry>();
 
@@ -52,13 +52,13 @@ namespace com.google.cloud.tools.jib.image
             private Instant created;
             private string architecture = "amd64";
             private string os = "linux";
-            private ImmutableArray<string> entrypoint;
-            private ImmutableArray<string> programArguments;
+            private ImmutableArray<string>? entrypoint;
+            private ImmutableArray<string>? programArguments;
             private DockerHealthCheck healthCheck;
             private string workingDirectory;
             private string user;
 
-            public Builder(IClass<ManifestTemplate> imageFormat)
+            public Builder(ManifestFormat imageFormat)
             {
                 this.imageFormat = imageFormat;
             }
@@ -135,7 +135,7 @@ namespace com.google.cloud.tools.jib.image
              */
             public Builder setEntrypoint(IList<string> entrypoint)
             {
-                this.entrypoint = (entrypoint == null) ? ImmutableArray<string>.Empty : ImmutableArray.CreateRange(entrypoint);
+                this.entrypoint = entrypoint?.ToImmutableArray();
                 return this;
             }
 
@@ -159,8 +159,7 @@ namespace com.google.cloud.tools.jib.image
              */
             public Builder setProgramArguments(IList<string> programArguments)
             {
-                this.programArguments =
-                    (programArguments == null) ? ImmutableArray<string>.Empty : ImmutableArray.CreateRange(programArguments);
+                this.programArguments = programArguments?.ToImmutableArray();
                 return this;
             }
 
@@ -292,18 +291,13 @@ namespace com.google.cloud.tools.jib.image
             }
         }
 
-        public static Builder builder(Type imageFormat)
-        {
-            return new Builder(new Class<ManifestTemplate>(imageFormat));
-        }
-
-        public static Builder builder(IClass<ManifestTemplate> imageFormat)
+        public static Builder builder(ManifestFormat imageFormat)
         {
             return new Builder(imageFormat);
         }
 
         /** The image format. */
-        private readonly IClass<ManifestTemplate> imageFormat;
+        private readonly ManifestFormat imageFormat;
 
         /** The image creation time. */
         private readonly Instant? created;
@@ -348,15 +342,15 @@ namespace com.google.cloud.tools.jib.image
         private readonly string user;
 
         private Image(
-            IClass<ManifestTemplate> imageFormat,
+            ManifestFormat imageFormat,
             Instant created,
             string architecture,
             string os,
             ImageLayers layers,
             ImmutableArray<HistoryEntry> history,
             ImmutableDictionary<string, string> environment,
-            ImmutableArray<string> entrypoint,
-            ImmutableArray<string> programArguments,
+            ImmutableArray<string>? entrypoint,
+            ImmutableArray<string>? programArguments,
             DockerHealthCheck healthCheck,
             ImmutableHashSet<Port> exposedPorts,
             ImmutableHashSet<AbsoluteUnixPath> volumes,
@@ -381,7 +375,7 @@ namespace com.google.cloud.tools.jib.image
             this.user = user;
         }
 
-        public IClass<ManifestTemplate> getImageFormat()
+        public ManifestFormat getImageFormat()
         {
             return this.imageFormat;
         }

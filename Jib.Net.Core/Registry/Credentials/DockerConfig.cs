@@ -24,7 +24,7 @@ using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTe
 namespace com.google.cloud.tools.jib.registry.credentials
 {
     /** Handles getting useful information from a {@link DockerConfigTemplate}. */
-    public class DockerConfig
+    public class DockerConfig : IDockerConfig
     {
         /**
          * Returns the first entry matching the given key predicates (short-circuiting in the order of
@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the {@link DockerCredentialHelper} or {@code null} if none is found for the given
          *     registry
          */
-        public DockerCredentialHelper getCredentialHelperFor(string registry)
+        public IDockerCredentialHelper getCredentialHelperFor(string registry)
         {
             IList<Func<string, bool>> registryMatchers = getRegistryMatchersFor(registry);
 

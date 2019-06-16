@@ -19,6 +19,8 @@ using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NodaTime;
 using System;
 using System.Collections.Generic;
@@ -53,45 +55,46 @@ namespace com.google.cloud.tools.jib.cache
      * ]
      * }</pre>
      */
-    internal sealed class LayerEntriesSelector
+    internal static class LayerEntriesSelector
     {
         /** Serialized form of a {@link LayerEntry}. */
-
-        public class LayerEntryTemplate : JsonTemplate, IComparable<LayerEntryTemplate>
+               [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        public class LayerEntryTemplate : IComparable<LayerEntryTemplate>
         {
-            private readonly string sourceFile;
-            private readonly string extractionPath;
-            private readonly Instant lastModifiedTime;
-            private readonly string permissions;
+            public string SourceFile { get; }
+            public string ExtractionPath { get; }
+            [JsonConverter(typeof(InstantConverter))]
+            public Instant LastModifiedTime { get; }
+            public string Permissions { get; }
 
             public LayerEntryTemplate(LayerEntry layerEntry)
             {
-                sourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
-                extractionPath = layerEntry.getExtractionPath().toString();
-                lastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile()).toInstant();
-                permissions = layerEntry.getPermissions().toOctalString();
+                SourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
+                ExtractionPath = layerEntry.getExtractionPath().toString();
+                LastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile());
+                Permissions = layerEntry.getPermissions().toOctalString();
             }
 
             public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate)
             {
-                int sourceFileComparison = sourceFile.compareTo(otherLayerEntryTemplate.sourceFile);
+                int sourceFileComparison = SourceFile.compareTo(otherLayerEntryTemplate.SourceFile);
                 if (sourceFileComparison != 0)
                 {
                     return sourceFileComparison;
                 }
                 int extractionPathComparison =
-                    extractionPath.compareTo(otherLayerEntryTemplate.extractionPath);
+                    ExtractionPath.compareTo(otherLayerEntryTemplate.ExtractionPath);
                 if (extractionPathComparison != 0)
                 {
                     return extractionPathComparison;
                 }
                 int lastModifiedTimeComparison =
-                    lastModifiedTime.compareTo(otherLayerEntryTemplate.lastModifiedTime);
+                    LastModifiedTime.compareTo(otherLayerEntryTemplate.LastModifiedTime);
                 if (lastModifiedTimeComparison != 0)
                 {
                     return lastModifiedTimeComparison;
                 }
-                return permissions.compareTo(otherLayerEntryTemplate.permissions);
+                return Permissions.compareTo(otherLayerEntryTemplate.Permissions);
             }
 
             public override bool Equals(object other)
@@ -105,15 +108,20 @@ namespace com.google.cloud.tools.jib.cache
                     return false;
                 }
                 LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate)other;
-                return sourceFile.Equals(otherLayerEntryTemplate.sourceFile)
-                    && extractionPath.Equals(otherLayerEntryTemplate.extractionPath)
-                    && lastModifiedTime.Equals(otherLayerEntryTemplate.lastModifiedTime)
-                    && permissions.Equals(otherLayerEntryTemplate.permissions);
+                return SourceFile.Equals(otherLayerEntryTemplate.SourceFile)
+                    && ExtractionPath.Equals(otherLayerEntryTemplate.ExtractionPath)
+                    && LastModifiedTime.Equals(otherLayerEntryTemplate.LastModifiedTime)
+                    && Permissions.Equals(otherLayerEntryTemplate.Permissions);
             }
 
             public override int GetHashCode()
             {
-                return Objects.hash(sourceFile, extractionPath, lastModifiedTime, permissions);
+                return Objects.hash(SourceFile, ExtractionPath, LastModifiedTime, Permissions);
+            }
+
+            public override string ToString()
+            {
+                return $"{SourceFile} => {ExtractionPath}";
             }
         }
 
@@ -149,7 +157,5 @@ namespace com.google.cloud.tools.jib.cache
         {
             return Digests.computeJsonDigest(toSortedJsonTemplates(layerEntries));
         }
-
-        private LayerEntriesSelector() { }
     }
 }

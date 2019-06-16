@@ -29,21 +29,5 @@ namespace com.google.cloud.tools.jib.api
                   + " because only secure connections are allowed.")
         {
         }
-
-        public InsecureRegistryException(string message, Exception cause) : base(message, cause)
-        {
-        }
-
-        public InsecureRegistryException(string message) : base(message)
-        {
-        }
-
-        public InsecureRegistryException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public InsecureRegistryException() : base()
-        {
-        }
     }
 }

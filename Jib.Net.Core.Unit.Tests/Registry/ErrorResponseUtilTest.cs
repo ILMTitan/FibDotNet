@@ -27,13 +27,12 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetErrorCode_knownErrorCode()
         {
-            HttpResponseMessage httpResponseException =
-                new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-                    .setContent(
-                        "{\"errors\":[{\"code\":\"MANIFEST_INVALID\",\"message\":\"manifest invalid\",\"detail\":{}}]}")
-                    .build();
+            HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"errors\":[{\"code\":\"MANIFEST_INVALID\",\"message\":\"manifest invalid\",\"detail\":{}}]}")
+            };
 
-            Assert.AreSame(
+            Assert.AreEqual(
                 ErrorCodes.MANIFEST_INVALID, ErrorResponseUtil.getErrorCode(httpResponseException));
         }
 
@@ -41,11 +40,12 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetErrorCode_unknownErrorCode()
         {
-            HttpResponseMessage httpResponseException =
-        new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-            .setContent(
+            HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(
                 "{\"errors\":[{\"code\":\"INVALID_ERROR_CODE\",\"message\":\"invalid code\",\"detail\":{}}]}")
-            .build();
+            };
+
             try
             {
                 ErrorResponseUtil.getErrorCode(httpResponseException);
@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreSame(httpResponseException, ex);
+                Assert.AreSame(httpResponseException, ex.Cause);
             }
         }
 
@@ -61,14 +61,15 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetErrorCode_multipleErrors()
         {
-            HttpResponseMessage httpResponseException =
-        new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-            .setContent(
+            HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(
                 "{\"errors\":["
                     + "{\"code\":\"MANIFEST_INVALID\",\"message\":\"message 1\",\"detail\":{}},"
                     + "{\"code\":\"TAG_INVALID\",\"message\":\"message 2\",\"detail\":{}}"
                     + "]}")
-            .build();
+            };
+
             try
             {
                 ErrorResponseUtil.getErrorCode(httpResponseException);
@@ -76,7 +77,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreSame(httpResponseException, ex);
+                Assert.AreSame(httpResponseException, ex.Cause);
             }
         }
 
@@ -84,10 +85,10 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetErrorCode_invalidErrorObject()
         {
-            HttpResponseMessage httpResponseException =
-        new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-            .setContent("{\"type\":\"other\",\"message\":\"some other object\"}")
-            .build();
+            HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"type\":\"other\",\"message\":\"some other object\"}")
+            };
             try
             {
                 ErrorResponseUtil.getErrorCode(httpResponseException);
@@ -95,7 +96,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreSame(httpResponseException, ex);
+                Assert.AreSame(httpResponseException, ex.Cause);
             }
         }
     }

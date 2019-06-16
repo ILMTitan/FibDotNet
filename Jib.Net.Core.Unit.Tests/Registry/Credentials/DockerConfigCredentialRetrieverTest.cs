@@ -38,8 +38,8 @@ namespace com.google.cloud.tools.jib.registry.credentials
     {
         private static readonly Credential FAKE_CREDENTIAL = Credential.from("username", "password");
 
-        private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
-        private DockerConfig mockDockerConfig = Mock.Of<DockerConfig>();
+        private IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
+        private IDockerConfig mockDockerConfig = Mock.Of<IDockerConfig>();
         private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
 
         private SystemPath dockerConfigFile;
@@ -129,9 +129,9 @@ namespace com.google.cloud.tools.jib.registry.credentials
             new DockerConfigCredentialRetriever("another registry", dockerConfigFile)
                 .retrieve(mockDockerConfig, mockLogger);
 
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("The system does not have docker-credential-path CLI")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.warn("The system does not have docker-credential-path CLI")));
 
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.warn("  Caused by: cause")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.warn("  Caused by: cause")));
         }
 
         [Test]

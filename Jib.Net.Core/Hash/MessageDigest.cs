@@ -15,19 +15,52 @@
  */
 
 using System;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.hash
 {
     public class MessageDigest
     {
-        internal static MessageDigest getInstance(string sHA_256_ALGORITHM)
+        private readonly HashAlgorithm hashAlgorithm;
+        private readonly Lazy<byte[]> hashLazy;
+
+        public MessageDigest(HashAlgorithm hashAlgorithm)
         {
-            throw new NotImplementedException();
+            this.hashAlgorithm = hashAlgorithm;
+            hashLazy = new Lazy<byte[]>(ComputeHash);
+        }
+
+        internal static MessageDigest getInstance(string algorithmName)
+        {
+            switch (algorithmName)
+            {
+                case CountingDigestOutputStream.SHA_256_ALGORITHM:
+                    return new MessageDigest(SHA256.Create());
+                default:
+                    throw new ArgumentException($"unknown name {algorithmName}", nameof(algorithmName));
+            }
         }
 
         internal byte[] digest()
         {
-            throw new NotImplementedException();
+            return hashLazy.Value;
+        }
+
+        private byte[] ComputeHash()
+        {
+            hashAlgorithm.TransformFinalBlock(new byte[0], 0, 0);
+            return hashAlgorithm.Hash;
+        }
+
+        internal int TransformBlock(
+            byte[] inputBuffer,
+            int inputOffset,
+            int inputCount,
+            byte[] outputBuffer,
+            int outputOffset)
+        {
+            return hashAlgorithm.TransformBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
     }
 }

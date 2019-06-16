@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .addStep(pushBaseImageLayersStep)
                     .addStep(pushApplicationLayersStep)
                     .addStep(pushContainerConfigurationStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<BuildResult> getFuture()

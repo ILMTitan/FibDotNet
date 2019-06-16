@@ -123,15 +123,20 @@ namespace com.google.cloud.tools.jib.api
                 return false;
             }
             LayerEntry otherLayerEntry = (LayerEntry)other;
-            return sourceFile.Equals(otherLayerEntry.sourceFile)
-                && extractionPath.Equals(otherLayerEntry.extractionPath)
-                && Objects.Equals(permissions, otherLayerEntry.permissions)
-                && Objects.Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
+            return Equals(sourceFile, otherLayerEntry.sourceFile)
+                && Equals(extractionPath,otherLayerEntry.extractionPath)
+                && Equals(permissions, otherLayerEntry.permissions)
+                && Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
         }
 
         public override int GetHashCode()
         {
             return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
+        }
+
+        public override string ToString()
+        {
+            return $"{sourceFile} => {extractionPath}";
         }
     }
 }

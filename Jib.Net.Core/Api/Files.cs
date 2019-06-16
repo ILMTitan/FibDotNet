@@ -17,125 +17,176 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.FileSystem;
+using NodaTime;
 
 namespace Jib.Net.Core.Api
 {
     public static class Files
     {
-        internal static SystemPath createTempDirectory(object p, object x)
+        internal static SystemPath createTempDirectory(SystemPath basePath, string name)
         {
-            throw new NotImplementedException();
+            return createTempDirectory(basePath.ToString(), name);
+        }
+        internal static SystemPath createTempDirectory(string basePath, string name)
+        {
+            string newPath;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                newPath = Path.Combine(basePath, Path.GetRandomFileName());
+            }
+            else
+            {
+                newPath = Path.Combine(basePath, name);
+            }
+            Directory.CreateDirectory(newPath);
+            return new SystemPath(newPath);
         }
 
-        internal static SystemPath createTempDirectory(object p)
+        internal static SystemPath createTempDirectory(string p)
         {
-            throw new NotImplementedException();
+            return createTempDirectory(Path.GetTempPath(), p);
         }
 
         internal static bool isDirectory(SystemPath sourceFile)
         {
-            throw new NotImplementedException();
+            return Directory.Exists(sourceFile.ToString());
         }
 
-        public static void copy(SystemPath systemPath1, SystemPath systemPath2)
+        public static void copy(SystemPath source, SystemPath destination)
         {
-            throw new NotImplementedException();
+                File.Copy(source, destination);
         }
 
-        public static SystemPath createDirectories(SystemPath imageDirectory)
+        public static SystemPath createDirectories(SystemPath directory)
         {
-            throw new NotImplementedException();
+            return new SystemPath(Directory.CreateDirectory(directory.ToString()));
         }
 
         public static IEnumerable<SystemPath> list(SystemPath sourceFile)
         {
-            throw new NotImplementedException();
+            foreach(var entry in sourceFile.toDirectory().EnumerateFileSystemInfos())
+            {
+                yield return new SystemPath(entry);
+            }
         }
 
-        internal static DateTime getLastModifiedTime(SystemPath systemPath)
+        internal static Instant getLastModifiedTime(SystemPath systemPath)
         {
-            throw new NotImplementedException();
+            return Instant.FromDateTimeUtc(File.GetLastWriteTimeUtc(systemPath.ToString()));
         }
 
         internal static IEnumerable<SystemPath> walk(SystemPath rootDir)
         {
-            throw new NotImplementedException();
+            Stack<SystemPath> pathStack = new Stack<SystemPath>();
+            pathStack.Push(rootDir);
+            while (pathStack.Count > 0)
+            {
+                SystemPath currentPath = pathStack.Pop();
+                yield return currentPath;
+                if (Directory.Exists(currentPath))
+                {
+                    foreach (var path in Directory.EnumerateFileSystemEntries(currentPath))
+                    {
+                        pathStack.Push(new SystemPath(path));
+                    }
+                }
+            }
         }
 
-        internal static byte[] readAllBytes(SystemPath expectedFile)
+        internal static byte[] readAllBytes(SystemPath file)
         {
-            throw new NotImplementedException();
+            return File.ReadAllBytes(file.ToString());
         }
 
-        public static bool exists(SystemPath temporaryDirectory)
+        public static bool exists(SystemPath path)
         {
-            throw new NotImplementedException();
+            return File.Exists(path.ToString()) || Directory.Exists(path.ToString());
         }
 
-        internal static Stream newInputStream(SystemPath jsonFile)
+        internal static Stream newInputStream(SystemPath file)
         {
-            throw new NotImplementedException();
+            return File.OpenRead(file.ToString());
         }
 
         internal static void move(SystemPath source, SystemPath destination)
         {
-            throw new NotImplementedException();
+            Directory.Move(source, destination);
         }
 
-        internal static SystemPath createTempFile(SystemPath systemPath, object p1, object p2)
+        internal static TemporaryFile createTempFile(SystemPath systemPath, object p1, object p2)
         {
-            throw new NotImplementedException();
+            return new TemporaryFile(systemPath.resolve(Path.GetRandomFileName()));
         }
 
-        public static Stream newOutputStream(SystemPath temporaryFile)
+        public static Stream newOutputStream(SystemPath path)
         {
-            throw new NotImplementedException();
+            return File.OpenWrite(path);
         }
 
-        internal static void move(SystemPath temporarySelectorFile, SystemPath selectorFile, StandardCopyOption aTOMIC_MOVE, StandardCopyOption rEPLACE_EXISTING)
+        internal static void move(SystemPath source, SystemPath destination, StandardCopyOption copyOption)
         {
-            throw new NotImplementedException();
+            try
+            {
+                File.Move(source, destination);
+            }
+            catch (IOException)
+            {
+                if (File.Exists(destination) && copyOption.HasFlag(StandardCopyOption.REPLACE_EXISTING))
+                {
+                    var backupPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                    File.Replace(source, destination, backupPath);
+                    if (File.Exists(backupPath))
+                    {
+                        File.Delete(backupPath);
+                    }
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
-        public static SystemPath createDirectory(SystemPath systemPath)
+        public static SystemPath createDirectory(SystemPath path)
         {
-            throw new NotImplementedException();
+            return new SystemPath(Directory.CreateDirectory(path));
         }
 
-        internal static bool? deleteIfExists(SystemPath file)
+        internal static void deleteIfExists(SystemPath file)
         {
-            throw new NotImplementedException();
+            File.Delete(file);
         }
 
-        internal static void move(SystemPath temporaryFile, SystemPath destination, StandardCopyOption rEPLACE_EXISTING)
+        internal static TemporaryFile createTempFile(object p1, object p2)
         {
-            throw new NotImplementedException();
+            TemporaryFile temporaryFile = new TemporaryFile();
+            File.Create(temporaryFile.Path).Dispose();
+            return temporaryFile;
         }
 
-        internal static SystemPath createTempFile(object p1, object p2)
+        internal static long size(SystemPath path)
         {
-            throw new NotImplementedException();
+            return new FileInfo(path).Length;
         }
 
-        internal static long size(SystemPath fileInLayerDirectory)
+        public static SystemPath createFile(SystemPath path)
         {
-            throw new NotImplementedException();
+            File.Create(path).Dispose();
+            return path;
         }
 
-        public static SystemPath createFile(SystemPath systemPath)
+        public static SystemPath write(SystemPath path, byte[] bytes)
         {
-            throw new NotImplementedException();
+            File.WriteAllBytes(path, bytes);
+            return path;
         }
 
-        public static SystemPath write(SystemPath selectorFile, byte[] v)
+        public static void setLastModifiedTime(SystemPath path, DateTime newWriteTime)
         {
-            throw new NotImplementedException();
-        }
-
-        public static void setLastModifiedTime(SystemPath systemPath, object p)
-        {
-            throw new NotImplementedException();
+            new FileInfo(path).LastWriteTimeUtc = newWriteTime;
         }
     }
 }

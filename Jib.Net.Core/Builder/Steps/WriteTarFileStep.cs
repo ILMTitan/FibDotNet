@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
@@ -23,6 +24,7 @@ using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
@@ -46,7 +48,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly SystemPath outputPath;
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -56,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             SystemPath outputPath,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;
@@ -70,7 +72,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullAndCacheBaseImageLayersStep)
                     .addStep(buildImageStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<BuildResult> getFuture()

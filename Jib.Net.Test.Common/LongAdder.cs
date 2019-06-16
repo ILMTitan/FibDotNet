@@ -15,19 +15,21 @@
  */
 
 using System;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.registry
 {
     public class LongAdder
     {
+        private long value = 0;
         public void add(long byteCount)
         {
-            throw new NotImplementedException();
+            Interlocked.Add(ref value, byteCount);
         }
 
-        public double sum()
+        public long sum()
         {
-            throw new NotImplementedException();
+            return Interlocked.Read(ref value);
         }
     }
 }

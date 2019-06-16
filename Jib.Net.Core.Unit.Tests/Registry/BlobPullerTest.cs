@@ -81,11 +81,10 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
             blobContent.Position = 0;
 
-            HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns((long)"some BLOB content".length());
-
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
-
+            HttpResponseMessage mockResponse = new HttpResponseMessage()
+            {
+                Content = new StringContent("some BLOB content")
+            };
             LongAdder byteCount = new LongAdder();
             BlobPuller blobPuller =
                 new BlobPuller(
@@ -105,13 +104,14 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse_unexpectedDigest()
         {
-            MemoryStream blobContent =
-        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
             DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
             blobContent.Position = 0;
 
-            HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(blobContent);
+            HttpResponseMessage mockResponse = new HttpResponseMessage()
+            {
+                Content = new StringContent("some BLOB content")
+            };
 
             try
             {
@@ -149,7 +149,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetHttpMethod()
         {
-            Assert.AreEqual("GET", testBlobPuller.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Get, testBlobPuller.getHttpMethod());
         }
 
         [Test]

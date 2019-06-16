@@ -16,6 +16,7 @@
 
 using System;
 using Jib.Net.Core.Api;
+using Newtonsoft.Json;
 
 namespace com.google.cloud.tools.jib.json
 {
@@ -25,9 +26,9 @@ namespace com.google.cloud.tools.jib.json
         {
         }
 
-        internal T readValue<T>(object p) where T : JsonTemplate
+        internal T readValue<T>(string jsonString)
         {
-            throw new NotImplementedException();
+            return JsonConvert.DeserializeObject<T>(jsonString);
         }
     }
 }

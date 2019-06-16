@@ -25,6 +25,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
+using System.IO.Compression;
 
 namespace com.google.cloud.tools.jib.tar
 {
@@ -47,11 +48,12 @@ namespace com.google.cloud.tools.jib.tar
         private SystemPath directoryA;
         private byte[] fileAContents;
         private byte[] fileBContents;
-        private TarStreamBuilder testTarStreamBuilder = new TarStreamBuilder();
+        private TarStreamBuilder testTarStreamBuilder;
 
         [SetUp]
         public void setup()
         {
+            testTarStreamBuilder = new TarStreamBuilder();
             // Gets the test resource files.
             fileA = Paths.get(Resources.getResource("core/fileA").toURI());
             fileB = Paths.get(Resources.getResource("core/fileB").toURI());
@@ -113,13 +115,13 @@ namespace com.google.cloud.tools.jib.tar
 
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
-            Stream compressorStream = new GZipOutputStream(tarByteOutputStream);
+            Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
             testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
                 new MemoryStream(tarByteOutputStream.toByteArray());
-            Stream tarByteInputStream = new GZipInputStream(byteArrayInputStream);
+            Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
 
             // Verify multi-byte characters are written/read correctly
@@ -148,7 +150,7 @@ namespace com.google.cloud.tools.jib.tar
             testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.toFile(), "some/path/to/resourceFileA"));
             testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
             testTarStreamBuilder.addTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(
                     fileA.toFile(),
@@ -162,7 +164,7 @@ namespace com.google.cloud.tools.jib.tar
             testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
             testTarStreamBuilder.addByteEntry(fileBContents, "crepecake");
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
             testTarStreamBuilder.addByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
@@ -175,7 +177,7 @@ namespace com.google.cloud.tools.jib.tar
             testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
             testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
             testTarStreamBuilder.addByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
@@ -186,13 +188,13 @@ namespace com.google.cloud.tools.jib.tar
         {
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
-            Stream compressorStream = new GZipOutputStream(tarByteOutputStream);
+            Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
             testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
                 new MemoryStream(tarByteOutputStream.toByteArray());
-            Stream tarByteInputStream = new GZipInputStream(byteArrayInputStream);
+            Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
             verifyTarArchive(tarArchiveInputStream);
         }

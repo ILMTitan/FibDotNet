@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.builder.steps
     [RunWith(typeof(MockitoJUnitRunner))]
     public class RetrieveRegistryCredentialsStepTest
     {
-        private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
+        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         [Test]
         public void testCall_retrieved()

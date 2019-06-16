@@ -127,5 +127,10 @@ namespace com.google.cloud.tools.jib.@event.progress
         {
             return fractionOfRoot;
         }
+
+        public override string ToString()
+        {
+            return this.description;
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
     /** Builds and caches application layers. */
-    public sealed class BuildAndCacheApplicationLayerStep : AsyncStep<CachedLayer>
+    public sealed class BuildAndCacheApplicationLayerStep : AsyncStep<ICachedLayer>
     {
         private static readonly string DESCRIPTION = "Building application layers";
 
@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * classes layers. Optionally adds an extra layer if configured to do so.
          */
         public static ImmutableArray<BuildAndCacheApplicationLayerStep> makeList(
-            BuildConfiguration buildConfiguration,
+            IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
             int layerCount = buildConfiguration.getLayerConfigurations().size();
@@ -73,22 +73,20 @@ namespace com.google.cloud.tools.jib.builder.steps
                             layerConfiguration.getName(),
                             layerConfiguration));
                 }
-                ImmutableArray<BuildAndCacheApplicationLayerStep> steps =
-                    buildAndCacheApplicationLayerSteps.build();
-                return steps;
+                return buildAndCacheApplicationLayerSteps.build();
             }
         }
 
-        private readonly BuildConfiguration buildConfiguration;
+        private readonly IBuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
         private readonly string layerType;
         private readonly LayerConfiguration layerConfiguration;
 
-        private readonly Task<CachedLayer> listenableFuture;
+        private readonly Task<ICachedLayer> listenableFuture;
 
         private BuildAndCacheApplicationLayerStep(
-            BuildConfiguration buildConfiguration,
+            IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             string layerType,
             LayerConfiguration layerConfiguration)
@@ -101,12 +99,12 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture = Task.Run(call);
         }
 
-        public Task<CachedLayer> getFuture()
+        public Task<ICachedLayer> getFuture()
         {
             return listenableFuture;
         }
 
-        public CachedLayer call()
+        public ICachedLayer call()
         {
             string description = "Building " + layerType + " layer";
 
@@ -125,7 +123,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     cache.retrieve(layerConfiguration.getLayerEntries());
                 if (optionalCachedLayer.isPresent())
                 {
-                    return optionalCachedLayer.get();
+                    return new CachedLayerWithType(optionalCachedLayer.get(), getLayerType());
                 }
 
                 Blob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
@@ -136,7 +134,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .getEventHandlers()
                     .dispatch(LogEvent.debug(description + " built " + cachedLayer.getDigest()));
 
-                return cachedLayer;
+                return new CachedLayerWithType(cachedLayer, getLayerType());
             }
         }
 

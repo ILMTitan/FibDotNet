@@ -20,6 +20,7 @@ using Jib.Net.Core.FileSystem;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.json
 {
@@ -63,7 +64,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonFile}
          * @throws IOException if an error occurred during reading the file or parsing the JSON
          */
-        public static T readJsonFromFile<T>(SystemPath jsonFile) where T : JsonTemplate
+        public static T readJsonFromFile<T>(SystemPath jsonFile)
         {
             using (StreamReader reader = jsonFile.toFile().OpenText())
             {
@@ -80,8 +81,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonFile}
          * @throws IOException if an error occurred during reading the file or parsing the JSON
          */
-        public static T readJsonFromFileWithLock<T>(
-            SystemPath jsonFile) where T : JsonTemplate
+        public static T readJsonFromFileWithLock<T>(SystemPath jsonFile)
         {
             return readJsonFromFile<T>(jsonFile);
         }
@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static T readJson<T>(string jsonString) where T : JsonTemplate => objectMapper.readValue<T>(jsonString);
+        public static T readJson<T>(string jsonString) => objectMapper.readValue<T>(jsonString);
 
         /**
          * Deserializes a JSON object list from a JSON string.
@@ -106,63 +106,27 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static List<T> readListOfJson<T>(string jsonString) where T : JsonTemplate
+        public static List<T> readListOfJson<T>(string jsonString)
         {
             return JsonConvert.DeserializeObject<List<T>>(jsonString);
         }
 
-        public static string toUtf8String(JsonTemplate template)
-        {
-            return toUtf8String((object)template);
-        }
-
-        public static string toUtf8String(IReadOnlyList<JsonTemplate> templates)
-        {
-            return toUtf8String((object)templates);
-        }
-
-        public static string toUtf8String(IList<JsonTemplate> templates)
-        {
-            return toUtf8String((object)templates);
-        }
-
-        public static byte[] toByteArray(JsonTemplate template)
-        {
-            return toByteArray((object)template);
-        }
-
-        public static byte[] toByteArray(IEnumerable<JsonTemplate> templates)
-        {
-            return toByteArray((object)templates);
-        }
-
-        public static void writeTo(JsonTemplate template, Stream @out)
-        {
-            writeTo((object)template, @out);
-        }
-
-        public static void writeTo(IReadOnlyList<JsonTemplate> templates, Stream @out)
-        {
-            writeTo((object)templates, @out);
-        }
-
-        private static string toUtf8String(object template)
+        public static string toUtf8String(object template)
         {
             return StandardCharsets.UTF_8.GetString(toByteArray(template));
         }
 
-        private static byte[] toByteArray(object template)
+        public static byte[] toByteArray(object template)
         {
             return StandardCharsets.UTF_8.GetBytes(JsonConvert.SerializeObject(template));
         }
 
-        private static void writeTo(object template, Stream @out)
+        public static void writeTo(object template, Stream @out)
         {
             var jsonString = JsonConvert.SerializeObject(template);
-            using (var writer = new StreamWriter(@out))
-            {
+            var writer = new StreamWriter(@out);
                 writer.Write(jsonString);
-            }
+            writer.Flush();
         }
     }
 }

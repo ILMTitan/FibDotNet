@@ -19,7 +19,9 @@ using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -75,100 +77,101 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
      *     Schema 2</a>
      */
-    [JsonIgnoreProperties(ignoreUnknown = true)]
-    public class ContainerConfigurationTemplate : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class ContainerConfigurationTemplate
     {
         /** ISO-8601 formatted combined date and time at which the image was created. */
-        private string created;
+        public string Created { get; set; }
 
         /** The CPU architecture to run the binaries in this container. */
-        private string architecture = "amd64";
+        public string Architecture { get; set; } = "amd64";
 
         /** The operating system to run the container on. */
-        private string os = "linux";
+        public string Os { get; set; } = "linux";
 
         /** Execution parameters that should be used as a base when running the container. */
-        private readonly ConfigurationObjectTemplate config = new ConfigurationObjectTemplate();
+        public ConfigurationObjectTemplate Config { get; } = new ConfigurationObjectTemplate();
 
         /** Describes the history of each layer. */
-        private readonly IList<HistoryEntry> history = new List<HistoryEntry>();
+        public IList<HistoryEntry> History { get; } = new List<HistoryEntry>();
 
         /** Layer content digests that are used to build the container filesystem. */
-        private readonly RootFilesystemObjectTemplate rootfs = new RootFilesystemObjectTemplate();
+        public RootFilesystemObjectTemplate Rootfs { get; } = new RootFilesystemObjectTemplate();
 
         /** Template for inner JSON object representing the configuration for running the container. */
-        [JsonIgnoreProperties(ignoreUnknown = true)]
-        private class ConfigurationObjectTemplate : JsonTemplate
+        [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+        public class ConfigurationObjectTemplate
         {
             /** Environment variables in the format {@code VARNAME=VARVALUE}. */
-            public IList<string> Env;
+            public IList<string> Env { get; set; }
 
             /** Command to run when container starts. */
-            public IList<string> Entrypoint;
+            public IList<string> Entrypoint { get; set; }
 
             /** Arguments to pass into main. */
-            public IList<string> Cmd;
+            public IList<string> Cmd { get; set; }
 
             /** Healthcheck. */
-            public HealthCheckObjectTemplate Healthcheck;
+            public HealthCheckObjectTemplate Healthcheck { get; set; }
 
             /** Network ports the container exposes. */
-            public IDictionary<string, IDictionary<object, object>> ExposedPorts;
+            public IDictionary<string, IDictionary<object, object>> ExposedPorts { get; set; }
 
             /** Labels. */
-            public IDictionary<string, string> Labels;
+            public ImmutableSortedDictionary<string, string> Labels { get; set; }
 
             /** Working directory. */
-            public string WorkingDir;
+            public string WorkingDir { get; set; }
 
             /** User. */
-            public string User;
+            public string User { get; set; }
 
             /** Volumes */
-            public IDictionary<string, IDictionary<object, object>> Volumes;
+            public ImmutableSortedDictionary<string, IDictionary<object, object>> Volumes { get; set; }
         }
 
         /** Template for inner JSON object representing the healthcheck configuration. */
-        private class HealthCheckObjectTemplate : JsonTemplate
+        [JsonObject]
+        public class HealthCheckObjectTemplate
         {
             /** The test to perform to check that the container is healthy. */
-            public IList<string> Test;
+            public IList<string> Test { get; set; }
 
             /** Number of nanoseconds to wait between probe attempts. */
-            public long Interval;
+            public long Interval { get; set; }
 
             /** Number of nanoseconds to wait before considering the check to have hung. */
-            public long Timeout;
+            public long Timeout { get; set; }
 
             /**
              * Number of nanoseconds to wait for the container to initialize before starting health-retries.
              */
-            public long StartPeriod;
+            public long StartPeriod { get; set; }
 
             /** The number of consecutive failures needed to consider the container as unhealthy. */
-            public int? Retries;
+            public int? Retries { get; set; }
         }
 
         /**
          * Template for inner JSON object representing the filesystem changesets used to build the
          * container filesystem.
          */
-        private class RootFilesystemObjectTemplate : JsonTemplate
+        [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+        public class RootFilesystemObjectTemplate
         {
             /** The type must always be {@code "layers"}. */
-            [JsonProperty]
-            public string type => "layers";
+            public string Type => "layers";
 
             /**
              * The in-order list of layer content digests (hashes of the uncompressed partial filesystem
              * changeset).
              */
-            public readonly IList<DescriptorDigest> diff_ids = new List<DescriptorDigest>();
+            public IList<DescriptorDigest> DiffIds { get; } = new List<DescriptorDigest>();
         }
 
         public void setCreated(string created)
         {
-            this.created = created;
+            Created = created;
         }
 
         /**
@@ -180,7 +183,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public void setArchitecture(string architecture)
         {
-            this.architecture = architecture;
+            Architecture = architecture;
         }
 
         /**
@@ -192,117 +195,117 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public void setOs(string os)
         {
-            this.os = os;
+            Os = os;
         }
 
         public void setContainerEnvironment(IList<string> environment)
         {
-            config.Env = environment;
+            Config.Env = environment;
         }
 
         public void setContainerEntrypoint(IList<string> command)
         {
-            config.Entrypoint = command;
+            Config.Entrypoint = command;
         }
 
         public void setContainerCmd(IList<string> cmd)
         {
-            config.Cmd = cmd;
+            Config.Cmd = cmd;
         }
 
         public void setContainerHealthCheckTest(IList<string> test)
         {
-            if (config.Healthcheck == null)
+            if (Config.Healthcheck == null)
             {
-                config.Healthcheck = new HealthCheckObjectTemplate();
+                Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(config.Healthcheck).Test = test;
+            Preconditions.checkNotNull(Config.Healthcheck).Test = test;
         }
 
         public void setContainerHealthCheckInterval(long interval)
         {
-            if (config.Healthcheck == null)
+            if (Config.Healthcheck == null)
             {
-                config.Healthcheck = new HealthCheckObjectTemplate();
+                Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(config.Healthcheck).Interval = interval;
+            Preconditions.checkNotNull(Config.Healthcheck).Interval = interval;
         }
 
         public void setContainerHealthCheckTimeout(long timeout)
         {
-            if (config.Healthcheck == null)
+            if (Config.Healthcheck == null)
             {
-                config.Healthcheck = new HealthCheckObjectTemplate();
+                Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(config.Healthcheck).Timeout = timeout;
+            Preconditions.checkNotNull(Config.Healthcheck).Timeout = timeout;
         }
 
         public void setContainerHealthCheckStartPeriod(long startPeriod)
         {
-            if (config.Healthcheck == null)
+            if (Config.Healthcheck == null)
             {
-                config.Healthcheck = new HealthCheckObjectTemplate();
+                Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(config.Healthcheck).StartPeriod = startPeriod;
+            Preconditions.checkNotNull(Config.Healthcheck).StartPeriod = startPeriod;
         }
 
         public void setContainerHealthCheckRetries(int? retries)
         {
-            if (config.Healthcheck == null)
+            if (Config.Healthcheck == null)
             {
-                config.Healthcheck = new HealthCheckObjectTemplate();
+                Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(config.Healthcheck).Retries = retries;
+            Preconditions.checkNotNull(Config.Healthcheck).Retries = retries;
         }
 
         public void setContainerExposedPorts(IDictionary<string, IDictionary<object, object>> exposedPorts)
         {
-            config.ExposedPorts = exposedPorts;
+            Config.ExposedPorts = exposedPorts;
         }
 
         public void setContainerLabels(IDictionary<string, string> labels)
         {
-            config.Labels = labels;
+            Config.Labels = labels.ToImmutableSortedDictionary();
         }
 
         public void setContainerWorkingDir(string workingDirectory)
         {
-            config.WorkingDir = workingDirectory;
+            Config.WorkingDir = workingDirectory;
         }
 
         public void setContainerUser(string user)
         {
-            config.User = user;
+            Config.User = user;
         }
 
         public void setContainerVolumes(IDictionary<string, IDictionary<object, object>> volumes)
         {
-            config.Volumes = volumes;
+            Config.Volumes = volumes.ToImmutableSortedDictionary();
         }
 
         public void addLayerDiffId(DescriptorDigest diffId)
         {
-            rootfs.diff_ids.add(diffId);
+            Rootfs.DiffIds.add(diffId);
         }
 
         public void addHistoryEntry(HistoryEntry historyEntry)
         {
-            history.add(historyEntry);
+            History.add(historyEntry);
         }
 
         public IList<DescriptorDigest> getDiffIds()
         {
-            return rootfs.diff_ids;
+            return Rootfs.DiffIds;
         }
 
         public IList<HistoryEntry> getHistory()
         {
-            return history;
+            return History;
         }
 
         public string getCreated()
         {
-            return created;
+            return Created;
         }
 
         /**
@@ -314,7 +317,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public string getArchitecture()
         {
-            return architecture;
+            return Architecture;
         }
 
         /**
@@ -326,77 +329,77 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public string getOs()
         {
-            return os;
+            return Os;
         }
 
         public IList<string> getContainerEnvironment()
         {
-            return config.Env;
+            return Config.Env;
         }
 
         public IList<string> getContainerEntrypoint()
         {
-            return config.Entrypoint;
+            return Config.Entrypoint;
         }
 
         public IList<string> getContainerCmd()
         {
-            return config.Cmd;
+            return Config.Cmd;
         }
 
         public IList<string> getContainerHealthTest()
         {
-            return config.Healthcheck?.Test;
+            return Config.Healthcheck?.Test;
         }
 
         public long? getContainerHealthInterval()
         {
-            return config.Healthcheck?.Interval;
+            return Config.Healthcheck?.Interval;
         }
 
         public long? getContainerHealthTimeout()
         {
-            return config.Healthcheck?.Timeout;
+            return Config.Healthcheck?.Timeout;
         }
 
         public long? getContainerHealthStartPeriod()
         {
-            return config.Healthcheck?.StartPeriod;
+            return Config.Healthcheck?.StartPeriod;
         }
 
         public int? getContainerHealthRetries()
         {
-            return config.Healthcheck?.Retries;
+            return Config.Healthcheck?.Retries;
         }
 
         public IDictionary<string, IDictionary<object, object>> getContainerExposedPorts()
         {
-            return config.ExposedPorts;
+            return Config.ExposedPorts;
         }
 
         public IDictionary<string, string> getContainerLabels()
         {
-            return config.Labels;
+            return Config.Labels;
         }
 
         public string getContainerWorkingDir()
         {
-            return config.WorkingDir;
+            return Config.WorkingDir;
         }
 
         public string getContainerUser()
         {
-            return config.User;
+            return Config.User;
         }
 
         public IDictionary<string, IDictionary<object, object>> getContainerVolumes()
         {
-            return config.Volumes;
+            return Config.Volumes;
         }
 
         public DescriptorDigest getLayerDiffId(int index)
         {
-            return rootfs.diff_ids.get(index);
+            return Rootfs.DiffIds.get(index);
         }
     }
 }

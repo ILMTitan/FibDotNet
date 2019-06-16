@@ -61,8 +61,7 @@ namespace com.google.cloud.tools.jib.registry
     [RunWith(typeof(MockitoJUnitRunner))]
     public class ManifestPusherTest
     {
-        private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-        private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
+        private IEventHandlers mockEventHandlers;
 
         private SystemPath v22manifestJsonFile;
         private V22ManifestTemplate fakeManifestTemplate;
@@ -71,6 +70,7 @@ namespace com.google.cloud.tools.jib.registry
         [SetUp]
         public void setUp()
         {
+            mockEventHandlers = Mock.Of<IEventHandlers>();
             v22manifestJsonFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
             fakeManifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(v22manifestJsonFile);
@@ -103,7 +103,10 @@ namespace com.google.cloud.tools.jib.registry
         public void testHandleResponse_valid()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Docker-Content-Digest")).Returns(Collections.singletonList(expectedDigest.toString()));
+            HttpResponseMessage mockResponse = new HttpResponseMessage
+            {
+                Headers = { { "Docker-Content-Digest", Collections.singletonList(expectedDigest.toString()) } }
+            };
 
             Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
         }
@@ -112,7 +115,10 @@ namespace com.google.cloud.tools.jib.registry
         public void testHandleResponse_noDigest()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Docker-Content-Digest")).Returns(Collections.emptyList<string>());
+            HttpResponseMessage mockResponse = new HttpResponseMessage
+            {
+                Headers = { { "Docker-Content-Digest", Collections.emptyList<string>() } }
+            };
 
             Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
@@ -122,7 +128,10 @@ namespace com.google.cloud.tools.jib.registry
         public void testHandleResponse_multipleDigests()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Docker-Content-Digest")).Returns(Arrays.asList("too", "many"));
+            HttpResponseMessage mockResponse = new HttpResponseMessage
+            {
+                Headers = { { "Docker-Content-Digest", Arrays.asList("too", "many") } }
+            };
 
             Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
@@ -133,7 +142,10 @@ namespace com.google.cloud.tools.jib.registry
         public void testHandleResponse_invalidDigest()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Docker-Content-Digest")).Returns(Collections.singletonList("not valid"));
+            HttpResponseMessage mockResponse = new HttpResponseMessage
+            {
+                Headers = { { "Docker-Content-Digest", Collections.singletonList("not valid") } }
+            };
 
             Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
@@ -151,7 +163,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetHttpMethod()
         {
-            Assert.AreEqual("PUT", testManifestPusher.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Put, testManifestPusher.getHttpMethod());
         }
 
         [Test]
@@ -172,13 +184,12 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleHttpResponseException_dockerRegistry_tagInvalid()
         {
-            HttpResponseMessage exception =
-                new HttpResponseException.Builder(
-                        HttpStatusCode.BadRequest)
-                    .setContent(
-                        "{\"errors\":[{\"code\":\"TAG_INVALID\","
+            HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"errors\":[{\"code\":\"TAG_INVALID\","
                             + "\"message\":\"manifest tag did not match URI\"}]}")
-                    .build();
+            };
+
             try
             {
                 testManifestPusher.handleHttpResponseException(exception);
@@ -186,10 +197,10 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(),
+                Assert.That(
+                    ex.getMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
-                            + "Docker Image Manifest Version 2, Schema 2");
+                            + "Docker Image Manifest Version 2, Schema 2"));
             }
         }
 
@@ -197,12 +208,12 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleHttpResponseException_dockerRegistry_manifestInvalid()
         {
-            HttpResponseMessage exception =
-        new HttpResponseException.Builder(HttpStatusCode.BadRequest)
-            .setContent(
-                "{\"errors\":[{\"code\":\"MANIFEST_INVALID\","
-                    + "\"message\":\"manifest invalid\",\"detail\":{}}]}")
-            .build();
+            HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent("{\"errors\":[{\"code\":\"MANIFEST_INVALID\"," +
+                    "\"message\":\"manifest invalid\",\"detail\":{}}]}")
+            };
+
             try
             {
                 testManifestPusher.handleHttpResponseException(exception);
@@ -210,10 +221,10 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(),
+                Assert.That(
+                    ex.getMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
-                            + "Docker Image Manifest Version 2, Schema 2");
+                            + "Docker Image Manifest Version 2, Schema 2"));
             }
         }
 
@@ -221,13 +232,13 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleHttpResponseException_quayIo()
         {
-            HttpResponseMessage exception =
-        new HttpResponseException.Builder(HttpStatusCode.UnsupportedMediaType)
-            .setContent(
-                "{\"errors\":[{\"code\":\"MANIFEST_INVALID\","
+            HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.UnsupportedMediaType)
+            {
+                Content = new StringContent("{\"errors\":[{\"code\":\"MANIFEST_INVALID\","
                     + "\"detail\":{\"message\":\"manifest schema version not supported\"},"
                     + "\"message\":\"manifest invalid\"}]}")
-            .build();
+            };
+
             try
             {
                 testManifestPusher.handleHttpResponseException(exception);
@@ -235,20 +246,21 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(),
+                Assert.That(
+                    ex.getMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
-                            + "Docker Image Manifest Version 2, Schema 2");
+                            + "Docker Image Manifest Version 2, Schema 2"));
             }
         }
 
         [Test]
         public void testHandleHttpResponseException_otherError()
         {
-            HttpResponseMessage exception =
-        new HttpResponseException.Builder(HttpStatusCode.Unauthorized)
-            .setContent("{\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"Unauthorized\"]}}")
-            .build();
+            HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                Content = new StringContent("{\"errors\":[{\"code\":\"UNAUTHORIZED\",\"message\":\"Unauthorized\"]}}")
+            };
+
             try
             {
                 testManifestPusher.handleHttpResponseException(exception);
@@ -256,7 +268,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreSame(exception, ex);
+                Assert.AreSame(exception, ex.Cause);
             }
         }
     }

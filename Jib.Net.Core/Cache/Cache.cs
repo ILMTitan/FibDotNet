@@ -67,7 +67,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          */
         public void writeMetadata(
-            ImageReference imageReference,
+            IImageReference imageReference,
             BuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate)
         {
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param manifestTemplate the V2.1 manifest
          * @throws IOException if an I/O exception occurs
          */
-        public void writeMetadata(ImageReference imageReference, V21ManifestTemplate manifestTemplate)
+        public void writeMetadata(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
         {
             cacheStorageWriter.writeMetadata(imageReference, manifestTemplate);
         }
@@ -125,7 +125,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Optional<ManifestAndConfig> retrieveMetadata(ImageReference imageReference)
+        public Optional<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
         {
             return cacheStorageReader.retrieveMetadata(imageReference);
         }

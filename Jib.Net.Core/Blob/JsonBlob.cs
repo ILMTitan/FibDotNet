@@ -24,9 +24,9 @@ namespace com.google.cloud.tools.jib.blob
     /** A {@link Blob} that holds {@link JsonTemplate}. */
     internal class JsonBlob : Blob
     {
-        private readonly JsonTemplate template;
+        private readonly object template;
 
-        public JsonBlob(JsonTemplate template)
+        public JsonBlob(object template)
         {
             this.template = template;
         }

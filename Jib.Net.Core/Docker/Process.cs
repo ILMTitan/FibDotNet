@@ -15,30 +15,44 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.docker
 {
-    public class Process
+    public class Process : IProcess
     {
+        private System.Diagnostics.Process process;
+
+        public Process(System.Diagnostics.Process process)
+        {
+            this.process = process;
+        }
+
         public Stream getOutputStream()
         {
-            throw new NotImplementedException();
+            return process.StandardInput.BaseStream;
         }
 
-        internal Stream getErrorStream()
+        public Stream getErrorStream()
         {
-            throw new NotImplementedException();
+            return process.StandardError.BaseStream;
         }
 
-        internal Stream getInputStream()
+        public TextReader GetErrorReader()
         {
-            throw new NotImplementedException();
+            return process.StandardError;
+        }
+
+        public Stream getInputStream()
+        {
+            return process.StandardOutput.BaseStream;
         }
 
         public int waitFor()
         {
-            throw new NotImplementedException();
+            process.WaitForExit();
+            return process.ExitCode;
         }
     }
 }

@@ -109,8 +109,8 @@ namespace com.google.cloud.tools.jib.cache
             }
             catch (CacheCorruptedException ex)
             {
-                StringAssert.StartsWith(
-                    ex.getMessage(), "Found non-digest file in layers directory");
+                Assert.That(
+                    ex.getMessage(),Does.StartWith("Found non-digest file in layers directory"));
                 Assert.IsInstanceOf<DigestException>(ex.getCause());
             }
         }
@@ -205,12 +205,12 @@ namespace com.google.cloud.tools.jib.cache
             }
             catch (CacheCorruptedException ex)
             {
-                StringAssert.StartsWith(
-                    ex.getMessage(),
+                Assert.That(
+                    ex.getMessage(), Does.StartWith(
                         "Multiple layer files found for layer with digest "
                             + layerDigest.getHash()
                             + " in directory: "
-                            + cacheStorageFiles.getLayerDirectory(layerDigest));
+                            + cacheStorageFiles.getLayerDirectory(layerDigest)));
             }
         }
 
@@ -234,11 +234,12 @@ namespace com.google.cloud.tools.jib.cache
             }
             catch (CacheCorruptedException ex)
             {
-                StringAssert.StartsWith(
+                Assert.That(
                     ex.getMessage(),
+                    Does.StartWith(
                         "Expected valid layer digest as contents of selector file `"
                             + selectorFile
-                            + "` for selector `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, but got: not a valid layer digest");
+                            + "` for selector `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, but got: not a valid layer digest"));
             }
         }
 

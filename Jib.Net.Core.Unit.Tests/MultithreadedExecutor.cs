@@ -48,8 +48,9 @@ namespace com.google.cloud.tools.jib
 
         public void invokeAll(IEnumerable<Action> callables)
         {
-            List<Task> futures =
-                        callables.Select(c => Task.Run(() => c())).ToList();
+            Task[] futures =
+                        callables.Select(c => Task.Run(() => c())).ToArray();
+            Task.WaitAll(futures);
 
             foreach (Task future in futures)
             {
@@ -59,9 +60,10 @@ namespace com.google.cloud.tools.jib
 
         public List<E> invokeAll<E>(IEnumerable<Callable<E>> callables)
         {
-            List<Task<E>> futures =
-                        callables.Select(c => Task.Run(() => c())).ToList();
+            Task<E>[] futures =
+                        callables.Select(c => Task.Run(() => c())).ToArray();
 
+            Task.WaitAll(futures);
             List<E> returnValues = new List<E>();
             foreach (Task<E> future in futures)
             {

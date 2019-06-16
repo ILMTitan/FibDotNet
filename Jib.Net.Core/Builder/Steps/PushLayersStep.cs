@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly AuthenticatePushStep authenticatePushStep;
 
-        private readonly AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
+        private readonly AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>>
             cachedLayerStep;
 
         private readonly Task<ImmutableArray<AsyncStep<PushBlobStep>>> listenableFuture;
@@ -48,8 +48,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             AuthenticatePushStep authenticatePushStep,
-            AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
-                cachedLayerStep)
+            AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> cachedLayerStep)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
@@ -59,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(cachedLayerStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<ImmutableArray<AsyncStep<PushBlobStep>>> getFuture()
@@ -72,7 +71,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
-                IReadOnlyList<AsyncStep<CachedLayer>> cachedLayers =
+                IReadOnlyList<AsyncStep<ICachedLayer>> cachedLayers =
                     NonBlockingSteps.get(cachedLayerStep);
 
                 using (ProgressEventDispatcher progressEventDispatcher =

@@ -15,15 +15,16 @@
  */
 
 using System;
+using System.IO;
 using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
     internal static class MoreFiles
     {
-        internal static void deleteRecursively(SystemPath temporaryDirectory, object aLLOW_INSECURE)
+        internal static void deleteRecursively(SystemPath directory, object aLLOW_INSECURE)
         {
-            throw new NotImplementedException();
+            Directory.Delete(directory, true);
         }
     }
 }

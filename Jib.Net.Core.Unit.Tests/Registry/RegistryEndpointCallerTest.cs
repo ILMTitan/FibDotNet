@@ -26,11 +26,13 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
 namespace com.google.cloud.tools.jib.registry
@@ -96,8 +98,14 @@ namespace com.google.cloud.tools.jib.registry
 
             public string handleResponse(HttpResponseMessage response)
             {
-                return CharStreams.toString(
-                    new StreamReader(response.getBody(), StandardCharsets.UTF_8));
+                if (response.IsSuccessStatusCode)
+                {
+                    return CharStreams.toString(
+                        new StreamReader(response.getBody(), StandardCharsets.UTF_8));
+                } else
+                {
+                    throw new HttpResponseException(response);
+                }
             }
 
             public string getActionDescription()
@@ -109,7 +117,7 @@ namespace com.google.cloud.tools.jib.registry
         private static HttpResponseMessage mockHttpResponse(HttpStatusCode statusCode, Action<HttpResponseHeaders> setHeadersAction)
         {
             HttpResponseMessage mock = new HttpResponseMessage(statusCode);
-            setHeadersAction(mock.Headers);
+            setHeadersAction?.Invoke(mock.Headers);
 
             return mock;
         }
@@ -120,25 +128,33 @@ namespace com.google.cloud.tools.jib.registry
             return mockHttpResponse(code307, h => h.setLocation(redirectLocation));
         }
 
-        private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
-        private Connection mockConnection = Mock.Of<Connection>();
-        private Connection mockInsecureConnection = Mock.Of<Connection>();
-        private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-        private Func<Uri, Connection> mockConnectionFactory = Mock.Of<Func<Uri, Connection>>();
-        private Func<Uri, Connection> mockInsecureConnectionFactory = Mock.Of<Func<Uri, Connection>>();
+        private IEventHandlers mockEventHandlers;
+        private IConnection mockConnection;
+        private IConnection mockInsecureConnection;
+        private HttpResponseMessage mockResponse;
+        private Func<Uri, IConnection> mockConnectionFactory;
+        private Func<Uri, IConnection> mockInsecureConnectionFactory;
 
         private RegistryEndpointCaller<string> secureEndpointCaller;
 
         [SetUp]
         public void setUp()
         {
+            mockEventHandlers = Mock.Of<IEventHandlers>();
+            mockConnection = Mock.Of<IConnection>();
+            mockInsecureConnection = Mock.Of<IConnection>();
+            mockConnectionFactory = Mock.Of<Func<Uri, IConnection>>();
+            mockInsecureConnectionFactory = Mock.Of<Func<Uri, IConnection>>();
             secureEndpointCaller = createRegistryEndpointCaller(false, -1);
 
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
+            Mock.Get(mockConnectionFactory).Setup(m => m(It.IsAny<Uri>())).Returns(mockConnection);
 
-            Mock.Get(mockInsecureConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockInsecureConnection);
+            Mock.Get(mockInsecureConnectionFactory).Setup(m => m(It.IsAny<Uri>())).Returns(mockInsecureConnection);
 
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(new MemoryStream("body".getBytes(StandardCharsets.UTF_8)));
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StringContent("body")
+            };
         }
 
         [TearDown]
@@ -152,7 +168,7 @@ namespace com.google.cloud.tools.jib.registry
         public void testCall_secureCallerOnUnverifiableServer()
         {
             Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // unverifiable HTTPS server
+                .Throws(new HttpRequestException("", new AuthenticationException())); // unverifiable HTTPS server
 
             try
             {
@@ -162,7 +178,7 @@ namespace com.google.cloud.tools.jib.registry
             catch (InsecureRegistryException ex)
             {
                 Assert.AreEqual(
-                    "Failed to verify the server at https://apiRouteBase/api because only secure connections are allowed.",
+                    "Failed to verify the server at https://apiroutebase/api because only secure connections are allowed.",
                     ex.getMessage());
             }
         }
@@ -171,94 +187,73 @@ namespace com.google.cloud.tools.jib.registry
         public void testCall_insecureCallerOnUnverifiableServer()
         {
             Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // unverifiable HTTPS server
+                .Throws(new HttpRequestException("", new AuthenticationException())); // unverifiable HTTPS server
 
             Mock.Get(mockInsecureConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>())).Returns(mockResponse); // OK with non-verifying connection
 
             RegistryEndpointCaller<string> insecureCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", insecureCaller.call());
 
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
 
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(0));
-
-            Mock.Get(mockInsecureConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
-
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(1));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
+            Mock.Get(mockConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
+            Mock.Get(mockInsecureConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
 
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.info(
-                        "Cannot verify server at https://apiRouteBase/api. Attempting again with no TLS verification.")));
+                        "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
         }
 
         [Test]
         public void testCall_insecureCallerOnHttpServer()
         {
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-            .Returns(mockResponse);
-            Mock.Get(mockInsecureConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
+            Mock.Get(mockConnection)
+                .Setup(c =>
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
+            Mock.Get(mockConnection)
+                .Setup(c =>
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://apiroutebase:80/api")))))
+                .Returns(mockResponse);
+            Mock.Get(mockInsecureConnection).Setup(c => c.send(It.IsAny<HttpRequestMessage>()))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", insecureEndpointCaller.call());
 
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()), Times.Exactly(2));
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(0));
-            Assert.AreEqual(new Uri("http://apiRouteBase/api"), urlCaptor.getAllValues().get(1));
-
-            Mock.Get(mockInsecureConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
-
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(2));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
+            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+                    LogEvent.info(
+                        "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
 
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.info(
-                        "Cannot verify server at https://apiRouteBase/api. Attempting again with no TLS verification.")));
-
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
-                    LogEvent.info(
-                        "Failed to connect to https://apiRouteBase/api over HTTPS. Attempting again with HTTP: http://apiRouteBase/api")));
+                        "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }
 
         [Test]
         public void testCall_insecureCallerOnHttpServerAndNoPortSpecified()
         {
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<ConnectException>()); // server is not listening on 443
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
+                .Throws(new ConnectException()); // server is not listening on 443
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-        .Returns(mockResponse); // respond when connected through 80
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(It.Is<HttpRequestMessage>(m=>m.RequestUri.Equals(new Uri("http://apiroutebase/api")))))
+                .Returns(mockResponse); // respond when connected through 80
 
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", insecureEndpointCaller.call());
 
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()), Times.Exactly(2));
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(0));
-            Assert.AreEqual(new Uri("http://apiRouteBase/api"), urlCaptor.getAllValues().get(1));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
-
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.info(
-                        "Failed to connect to https://apiRouteBase/api over HTTPS. Attempting again with HTTP: http://apiRouteBase/api")));
+                        "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }
 
         [Test]
         public void testCall_secureCallerOnNonListeningServerAndNoPortSpecified()
         {
+            ConnectException expectedException = new ConnectException();
             Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<ConnectException>()); // server is not listening on 443
+                .Throws(expectedException); // server is not listening on 443
 
             try
             {
@@ -267,23 +262,18 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (ConnectException ex)
             {
-                Assert.IsNull(ex.getMessage());
+                Assert.AreEqual(expectedException, ex);
             }
 
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
-
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(0));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
+            Mock.Get(mockConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
         }
 
         [Test]
         public void testCall_insecureCallerOnNonListeningServerAndPortSpecified()
         {
+            ConnectException expectedException = new ConnectException();
             Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<ConnectException>()); // server is not listening on 5000
+                .Throws(expectedException); // server is not listening on 5000
 
             RegistryEndpointCaller<string> insecureEndpointCaller =
                 createRegistryEndpointCaller(true, 5000);
@@ -294,23 +284,15 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (ConnectException ex)
             {
-                Assert.IsNull(ex.getMessage());
+                Assert.AreEqual(expectedException, ex);
             }
-
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
-
-            Assert.AreEqual(new Uri("https://apiRouteBase:5000/api"), urlCaptor.getAllValues().get(0));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
         }
 
         [Test]
         public void testCall_noHttpResponse()
         {
             NoHttpResponseException mockNoHttpResponseException =
-                Mock.Of<NoHttpResponseException>();
+                new NoHttpResponseException();
             Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>())).Throws(mockNoHttpResponseException);
 
             try
@@ -337,17 +319,21 @@ namespace com.google.cloud.tools.jib.registry
             HttpResponseMessage unauthroizedResponse =
                 mockHttpResponse(HttpStatusCode.Unauthorized, null);
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
+            Mock.Get(mockConnection)
+                .Setup(c =>
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
+            Mock.Get(mockConnection)
+                .Setup(c =>
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://apiroutebase:80/api")))))
+                .Returns(redirectResponse); // redirect to HTTP
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(new HttpResponseException(redirectResponse)); // redirect to HTTP
-
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(new HttpResponseException(unauthroizedResponse)); // final response
-            Mock.Get(mockInsecureConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://newlocation")))))
+                .Returns(unauthroizedResponse); // final response
+            Mock.Get(mockInsecureConnection).Setup(c => c.send(It.IsAny<HttpRequestMessage>()))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             try
@@ -368,41 +354,33 @@ namespace com.google.cloud.tools.jib.registry
         {
             HttpResponseMessage redirectResponse = mockRedirectHttpResponse("http://newlocation");
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
+            Mock.Get(mockConnection)
+                .Setup(c => 
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
+            Mock.Get(mockConnection)
+                .Setup(c =>
+                    c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://apiroutebase/api")))))
                 .Throws(new HttpResponseException(redirectResponse)); // redirect to HTTP
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://newlocation")))))
                 .Returns(mockResponse); // final response
-            Mock.Get(mockInsecureConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-                .Throws(Mock.Of<SSLPeerUnverifiedException>()); // server is not HTTPS
+            Mock.Get(mockInsecureConnection).Setup(c => c.send(It.IsAny<HttpRequestMessage>()))
+                .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
             Environment.SetEnvironmentVariable(JibSystemProperties.SEND_CREDENTIALS_OVER_HTTP, "true");
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", insecureEndpointCaller.call());
 
-            ArgumentCaptor<Uri> urlCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlCaptor.capture()), Times.Exactly(3));
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(0));
-            Assert.AreEqual(new Uri("http://apiRouteBase/api"), urlCaptor.getAllValues().get(1));
-            Assert.AreEqual(new Uri("http://newlocation"), urlCaptor.getAllValues().get(2));
-
-            Mock.Get(mockInsecureConnectionFactory).Verify(m => m.apply(urlCaptor.capture()));
-
-            Assert.AreEqual(new Uri("https://apiRouteBase/api"), urlCaptor.getAllValues().get(3));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
+            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+                    LogEvent.info(
+                        "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
 
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.info(
-                        "Cannot verify server at https://apiRouteBase/api. Attempting again with no TLS verification.")));
-
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
-                    LogEvent.info(
-                        "Failed to connect to https://apiRouteBase/api over HTTPS. Attempting again with HTTP: http://apiRouteBase/api")));
+                        "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }
 
         [Test]
@@ -488,113 +466,44 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHttpTimeout_propertyNotSet()
-        {
-            MockConnection mockConnection = new MockConnection((httpMethod, request) => mockResponse);
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
-
-            Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT));
-            secureEndpointCaller.call();
-
-            // We fall back to the default timeout:
-            // https://github.com/GoogleContainerTools/jib/pull/656#discussion_r203562639
-            Assert.AreEqual(20000, mockConnection.getRequestedHttpTimeout().intValue());
-        }
-
-        [Test]
-        public void testHttpTimeout_stringValue()
-        {
-            MockConnection mockConnection = new MockConnection((httpMethod, request) => mockResponse);
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
-
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "random string");
-            secureEndpointCaller.call();
-
-            Assert.AreEqual(20000, mockConnection.getRequestedHttpTimeout().intValue());
-        }
-
-        [Test]
-        public void testHttpTimeout_negativeValue()
-        {
-            MockConnection mockConnection = new MockConnection((httpMethod, request) => mockResponse);
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
-
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "-1");
-            secureEndpointCaller.call();
-
-            // We let the negative value pass through:
-            // https://github.com/GoogleContainerTools/jib/pull/656#discussion_r203562639
-            Assert.AreEqual(-1, mockConnection.getRequestedHttpTimeout());
-        }
-
-        [Test]
-        public void testHttpTimeout_0accepted()
-        {
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "0");
-
-            MockConnection mockConnection = new MockConnection((httpMethod, request) => mockResponse);
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
-
-            secureEndpointCaller.call();
-
-            Assert.AreEqual(0, mockConnection.getRequestedHttpTimeout());
-        }
-
-        [Test]
-        public void testHttpTimeout()
-        {
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "7593");
-
-            MockConnection mockConnection = new MockConnection((httpMethod, request) => mockResponse);
-            Mock.Get(mockConnectionFactory).Setup(m => m.apply(It.IsAny<Uri>())).Returns(mockConnection);
-
-            secureEndpointCaller.call();
-
-            Assert.AreEqual(7593, mockConnection.getRequestedHttpTimeout());
-        }
-
-        [Test]
         public void testIsBrokenPipe_notBrokenPipe()
         {
             Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(new IOException()));
             Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(new SocketException()));
-            Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(new SSLException("mock")));
+            Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(new AuthenticationException("mock")));
+            Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(new HttpRequestException("mock")));
         }
 
         [Test]
         public void testIsBrokenPipe_brokenPipe()
         {
-            Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(new IOException("cool broken pipe !")));
+            Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(new Win32Exception(RegistryEndpointCaller.ERROR_BROKEN_PIPE)));
             Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(new SocketException(RegistryEndpointCaller.ERROR_BROKEN_PIPE)));
-            Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(new SSLException("calm BrOkEn PiPe")));
+            Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(
+                new HttpRequestException("mock", new SocketException(RegistryEndpointCaller.ERROR_BROKEN_PIPE))));
         }
 
         [Test]
         public void testIsBrokenPipe_nestedBrokenPipe()
         {
-            IOException exception = new IOException("", new SSLException("", new SocketException(RegistryEndpointCaller.ERROR_BROKEN_PIPE)));
+            IOException exception = new IOException(
+                "",
+                new AuthenticationException("", new SocketException(RegistryEndpointCaller.ERROR_BROKEN_PIPE)));
             Assert.IsTrue(RegistryEndpointCaller.isBrokenPipe(exception));
-        }
-
-        [Test]
-        public void testIsBrokenPipe_terminatesWhenCauseIsOriginal()
-        {
-            IOException exception = Mock.Of<IOException>();
-            Mock.Get(exception).Setup(e => e.getCause()).Returns(exception);
-
-            Assert.IsFalse(RegistryEndpointCaller.isBrokenPipe(exception));
         }
 
         [Test]
         public void testNewRegistryErrorException_jsonErrorOutput()
         {
-            HttpResponseException httpException = Mock.Of<HttpResponseException>();
-            Mock.Get(httpException).Setup(h => h.getContent()).Returns(new StringContent(
-                    "{\"errors\": [{\"code\": \"MANIFEST_UNKNOWN\", \"message\": \"manifest unknown\"}]}"));
+            HttpResponseException httpException = new HttpResponseException(new HttpResponseMessage
+            {
+                Content = new StringContent(
+                    "{\"errors\": [{\"code\": \"MANIFEST_UNKNOWN\", \"message\": \"manifest unknown\"}]}")
+            });
 
             RegistryErrorException registryException =
                 secureEndpointCaller.newRegistryErrorException(httpException);
-            Assert.AreSame(httpException, registryException.getCause());
+            Assert.AreSame(httpException.Cause, registryException.Cause);
             Assert.AreEqual(
                 "Tried to actionDescription but failed because: manifest unknown | If this is a bug, "
                     + "please file an issue at https://github.com/GoogleContainerTools/jib/issues/new",
@@ -604,15 +513,14 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testNewRegistryErrorException_nonJsonErrorOutput()
         {
-            HttpResponseException httpException = Mock.Of<HttpResponseException>();
-            // Registry returning non-structured error output
-            Mock.Get(httpException).Setup(h => h.getContent()).Returns(new StringContent(">>>>> (404) page not found <<<<<"));
-
-            Mock.Get(httpException).Setup(h => h.getStatusCode()).Returns((HttpStatusCode)404);
+            HttpResponseException httpException = new HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(">>>>> (404) page not found <<<<<")
+            });
 
             RegistryErrorException registryException =
                 secureEndpointCaller.newRegistryErrorException(httpException);
-            Assert.AreSame(httpException, registryException.getCause());
+            Assert.AreSame(httpException.Cause, registryException.Cause);
             Assert.AreEqual(
                 "Tried to actionDescription but failed because: registry returned error code 404; "
                     + "possible causes include invalid or wrong reference. Actual error output follows:\n"
@@ -629,9 +537,8 @@ namespace com.google.cloud.tools.jib.registry
         private void verifyThrowsRegistryUnauthorizedException(HttpStatusCode httpStatusCode)
         {
             HttpResponseMessage httpResponse = mockHttpResponse(httpStatusCode, null);
-            HttpResponseException httpResponseException = new HttpResponseException(httpResponse);
 
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>())).Throws(httpResponseException);
+            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>())).Returns(httpResponse);
 
             try
             {
@@ -642,7 +549,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 Assert.AreEqual("serverUrl", ex.getRegistry());
                 Assert.AreEqual("imageName", ex.getRepository());
-                Assert.AreSame(httpResponseException, ex.getHttpResponseException());
+                Assert.AreSame(httpResponse, ex.Cause);
             }
         }
 
@@ -653,7 +560,7 @@ namespace com.google.cloud.tools.jib.registry
         private void verifyThrowsRegistryErrorException(HttpStatusCode httpStatusCode)
         {
             HttpResponseMessage errorResponse = mockHttpResponse(httpStatusCode, null);
-            Mock.Get(errorResponse).Setup(e => e.parseAsString()).Returns("{\"errors\":[{\"code\":\"code\",\"message\":\"message\"}]}");
+            errorResponse.Content = new StringContent("{\"errors\":[{\"code\":\"code\",\"message\":\"message\"}]}");
 
             HttpResponseException httpResponseException = new HttpResponseException(errorResponse);
 
@@ -666,9 +573,9 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(),
-                        "Tried to actionDescription but failed because: unknown: message");
+                Assert.That(
+                    ex.getMessage(), Does.Contain(
+                        "Tried to actionDescription but failed because: unknown: message"));
             }
         }
 
@@ -684,23 +591,20 @@ namespace com.google.cloud.tools.jib.registry
 
             // Has mockConnection.send throw first, then succeed.
             HttpResponseException redirectException = new HttpResponseException(redirectResponse);
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(
+                    It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
                 .Throws(redirectException);
-            Mock.Get(mockConnection).Setup(m => m.send(It.IsAny<HttpRequestMessage>()))
-
+            Mock.Get(mockConnection)
+                .Setup(c => c.send(
+                    It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://newlocation")))))
                 .Returns(mockResponse);
 
             Assert.AreEqual("body", secureEndpointCaller.call());
 
             // Checks that the Uri was changed to the new location.
-            ArgumentCaptor<Uri> urlArgumentCaptor = ArgumentCaptor.forClass<Uri>();
-            Mock.Get(mockConnectionFactory).Verify(m => m.apply(urlArgumentCaptor.capture()), Times.Exactly(2));
-            Assert.AreEqual(
-                new Uri("https://apiRouteBase/api"), urlArgumentCaptor.getAllValues().get(0));
-            Assert.AreEqual(new Uri("https://newlocation"), urlArgumentCaptor.getAllValues().get(1));
-
-            Mock.Get(mockConnectionFactory).VerifyNoOtherCalls();
-            Mock.Get(mockInsecureConnectionFactory).VerifyNoOtherCalls();
+            Mock.Get(mockConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
+            Mock.Get(mockConnectionFactory).Verify(m => m(new Uri("https://newlocation")));
         }
 
         private RegistryEndpointCaller<string> createRegistryEndpointCaller(
@@ -709,7 +613,7 @@ namespace com.google.cloud.tools.jib.registry
             return new RegistryEndpointCaller<string>(
                 mockEventHandlers,
                 "userAgent",
-                (port == -1) ? "apiRouteBase" : ("apiRouteBase:" + port),
+                (port == -1) ? "apiroutebase" : ("apiroutebase:" + port),
                 new TestRegistryEndpointProvider(),
                 Authorization.fromBasicToken("token"),
                 new RegistryEndpointRequestProperties("serverUrl", "imageName"),

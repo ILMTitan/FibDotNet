@@ -19,11 +19,54 @@ using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using System;
 
 namespace com.google.cloud.tools.jib.cache
 {
+    public class CachedLayerWithType : ICachedLayer
+    {
+        private string layerType;
+
+        public CachedLayerWithType(ICachedLayer cachedLayer, string layerType)
+        {
+            CachedLayer = cachedLayer;
+            this.layerType = layerType;
+        }
+
+        public ICachedLayer CachedLayer { get; set; }
+
+        public Blob getBlob()
+        {
+            return CachedLayer.getBlob();
+        }
+
+        public BlobDescriptor getBlobDescriptor()
+        {
+            return CachedLayer.getBlobDescriptor();
+        }
+
+        public DescriptorDigest getDiffId()
+        {
+            return CachedLayer.getDiffId();
+        }
+
+        public DescriptorDigest getDigest()
+        {
+            return CachedLayer.getDigest();
+        }
+
+        public long getSize()
+        {
+            return CachedLayer.getSize();
+        }
+
+        public string getLayerType()
+        {
+            return layerType;
+        }
+    }
     /** Default implementation of {@link CachedLayer}. */
-    public sealed class CachedLayer : Layer
+    public class CachedLayer : Layer, ICachedLayer
     {
         /** Builds a {@link CachedLayer}. */
         public class Builder
@@ -119,6 +162,11 @@ namespace com.google.cloud.tools.jib.cache
         public BlobDescriptor getBlobDescriptor()
         {
             return blobDescriptor;
+        }
+
+        public string getLayerType()
+        {
+            throw new NotImplementedException();
         }
     }
 }

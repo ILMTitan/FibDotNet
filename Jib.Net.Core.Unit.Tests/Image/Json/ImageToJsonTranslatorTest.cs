@@ -59,14 +59,9 @@ namespace com.google.cloud.tools.jib.image.json
     public class ImageToJsonTranslatorTest
     {
         private ImageToJsonTranslator imageToJsonTranslator;
-        private static DescriptorDigest fakeDigest = DescriptorDigest.fromHash(new string('a', 32));
+        //private static DescriptorDigest fakeDigest = DescriptorDigest.fromHash(new string('a', 64));
 
-        private void setUp(Type t)
-        {
-            setUp(new Class<BuildableManifestTemplate>(t));
-        }
-
-        private void setUp(IClass<BuildableManifestTemplate> imageFormat)
+        private void setUp(ManifestFormat imageFormat)
         {
             Image.Builder testImageBuilder =
                 Image.builder(imageFormat)
@@ -97,7 +92,7 @@ namespace com.google.cloud.tools.jib.image.json
                 DescriptorDigest.fromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
             testImageBuilder.addLayer(
-                new FakeLayer());
+                new FakeLayer(fakeDigest));
             testImageBuilder.addHistory(
                 HistoryEntry.builder()
                     .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
@@ -116,6 +111,13 @@ namespace com.google.cloud.tools.jib.image.json
 
         private class FakeLayer : Layer
         {
+            private DescriptorDigest fakeDigest;
+
+            public FakeLayer(DescriptorDigest fakeDigest)
+            {
+                this.fakeDigest = fakeDigest;
+            }
+
             public Blob getBlob()
             {
                 return Blobs.from("ignored");
@@ -135,14 +137,14 @@ namespace com.google.cloud.tools.jib.image.json
         [Test]
         public void testGetContainerConfiguration()
         {
-            setUp(typeof(V22ManifestTemplate));
+            setUp(ManifestFormat.V22);
 
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the container configuration and writes the JSON string.
-            JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
+            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
         }
@@ -150,15 +152,15 @@ namespace com.google.cloud.tools.jib.image.json
         [Test]
         public void testGetManifest_v22()
         {
-            setUp(typeof(V22ManifestTemplate));
-            testGetManifest(typeof(V22ManifestTemplate), "core/json/translated_v22manifest.json");
+            setUp(ManifestFormat.V22);
+            testGetManifest(ManifestFormat.V22, "core/json/translated_v22manifest.json");
         }
 
         [Test]
         public void testGetManifest_oci()
         {
-            setUp(typeof(OCIManifestTemplate));
-            testGetManifest(typeof(OCIManifestTemplate), "core/json/translated_ocimanifest.json");
+            setUp(ManifestFormat.OCI);
+            testGetManifest(ManifestFormat.OCI, "core/json/translated_ocimanifest.json");
         }
 
         [Test]
@@ -195,26 +197,21 @@ namespace com.google.cloud.tools.jib.image.json
         {
             ImmutableDictionary<string, string> input = ImmutableDic.of("NAME1", "VALUE1", "NAME2", "VALUE2");
             ImmutableArray<string> expected = ImmutableArray.Create("NAME1=VALUE1", "NAME2=VALUE2");
-            Assert.AreEqual(expected, ImageToJsonTranslator.environmentMapToList(input));
-        }
-
-        private void testGetManifest(Type t, string translatedJsonFilename)
-        {
-            testGetManifest<BuildableManifestTemplate>(new Class<BuildableManifestTemplate>(t), translatedJsonFilename);
+            CollectionAssert.AreEqual(expected, ImageToJsonTranslator.environmentMapToList(input));
         }
 
         /** Tests translation of image to {@link BuildableManifestTemplate}. */
-        private void testGetManifest<T>(
-            IClass<T> manifestTemplateClass, string translatedJsonFilename) where T : BuildableManifestTemplate
+        private void testGetManifest(
+            ManifestFormat manifestTemplateClass, string translatedJsonFilename) 
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the manifest and writes the JSON string.
-            JsonTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
+            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
             BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
-            T manifestTemplate =
+            BuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));

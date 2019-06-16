@@ -16,7 +16,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.hash
 {
@@ -24,12 +26,21 @@ namespace com.google.cloud.tools.jib.hash
     {
         internal static void copy(Stream inStream, Stream contentsOut)
         {
-            throw new NotImplementedException();
+            inStream.CopyTo(contentsOut);
         }
 
         internal static byte[] toByteArray(Stream stream)
         {
-            throw new NotImplementedException();
+            return ReadBytes(stream).ToArray();
+
+            IEnumerable<byte> ReadBytes(Stream s)
+            {
+                int b;
+                while((b = s.ReadByte()) >= 0)
+                {
+                    yield return (byte)b;
+                }
+            }
         }
     }
 }

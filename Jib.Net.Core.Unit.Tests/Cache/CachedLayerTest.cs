@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -27,8 +28,8 @@ namespace com.google.cloud.tools.jib.cache
     [RunWith(typeof(MockitoJUnitRunner))]
     public class CachedLayerTest
     {
-        private DescriptorDigest mockLayerDigest = Mock.Of<DescriptorDigest>();
-        private DescriptorDigest mockLayerDiffId = Mock.Of<DescriptorDigest>();
+        private DescriptorDigest mockLayerDigest = DescriptorDigest.fromHash(new string('a', 64));
+        private DescriptorDigest mockLayerDiffId = DescriptorDigest.fromHash(new string('b', 64));
 
         [Test]
         public void testBuilder_fail()
@@ -38,10 +39,9 @@ namespace com.google.cloud.tools.jib.cache
                 CachedLayer.builder().build();
                 Assert.Fail("missing required");
             }
-            catch (NullReferenceException ex)
+            catch (ArgumentNullException ex)
             {
-                StringAssert.Contains(ex.getMessage(), "layerDigest")
-          ;
+                Assert.That(ex.getMessage(), Does.Contain("layerDigest"));
             }
 
             try
@@ -49,9 +49,9 @@ namespace com.google.cloud.tools.jib.cache
                 CachedLayer.builder().setLayerDigest(mockLayerDigest).build();
                 Assert.Fail("missing required");
             }
-            catch (NullReferenceException ex)
+            catch (ArgumentNullException ex)
             {
-                StringAssert.Contains(ex.getMessage(), "layerDiffId");
+                Assert.That(ex.getMessage(), Does.Contain("layerDiffId"));
             }
 
             try
@@ -59,9 +59,9 @@ namespace com.google.cloud.tools.jib.cache
                 CachedLayer.builder().setLayerDigest(mockLayerDigest).setLayerDiffId(mockLayerDiffId).build();
                 Assert.Fail("missing required");
             }
-            catch (NullReferenceException ex)
+            catch (ArgumentNullException ex)
             {
-                StringAssert.Contains(ex.getMessage(), "layerBlob");
+                Assert.That(ex.getMessage(), Does.Contain("layerBlob"));
             }
         }
 

@@ -29,8 +29,8 @@ namespace com.google.cloud.tools.jib.registry
     [RunWith(typeof(MockitoJUnitRunner))]
     public class RegistryClientTest
     {
-        private EventHandlers eventHandlers = Mock.Of<EventHandlers>();
-        private Authorization mockAuthorization = Mock.Of<Authorization>();
+        private IEventHandlers eventHandlers = Mock.Of<IEventHandlers>();
+        private Authorization mockAuthorization = Authorization.fromBasicCredentials("username", "password");
 
         private RegistryClient.Factory testRegistryClientFactory;
 

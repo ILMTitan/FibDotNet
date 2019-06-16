@@ -70,6 +70,22 @@ namespace com.google.cloud.tools.jib.@event.progress
             {
                 return index - otherIndexedRemainingUnits.index;
             }
+
+            public override bool Equals(object obj)
+            {
+                return obj is IndexedRemainingUnits units &&
+                       index == units.index;
+            }
+
+            public override int GetHashCode()
+            {
+                return -1982729373 + index.GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return $"{allocation}: {remainingUnits}";
+            }
         }
 
         /**
@@ -92,17 +108,9 @@ namespace com.google.cloud.tools.jib.@event.progress
         public bool updateProgress(Allocation allocation, long units)
         {
             IndexedRemainingUnits newValue = new IndexedRemainingUnits(allocation);
-            var finalValue = completionMap.AddOrUpdate(
-        allocation, newValue,
-            (_, indexedRemainingUnits) =>
-            {
-                if (units != 0)
-                {
-                    updateIndexedRemainingUnits(indexedRemainingUnits, units);
-                }
-                return indexedRemainingUnits;
-            });
-            return newValue == finalValue;
+            var finalValue = completionMap.GetOrAdd(allocation, newValue);
+                updateIndexedRemainingUnits(finalValue, units);
+            return newValue == finalValue || units != 0;
         }
 
         /**
@@ -138,6 +146,11 @@ namespace com.google.cloud.tools.jib.@event.progress
         private void updateIndexedRemainingUnits(
             IndexedRemainingUnits indexedRemainingUnits, long units)
         {
+            if(units == 0)
+            {
+                return;
+            }
+
             Allocation allocation = indexedRemainingUnits.allocation;
 
             long newUnits = indexedRemainingUnits.remainingUnits.addAndGet(-units);

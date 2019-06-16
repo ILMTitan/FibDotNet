@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(buildImageStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<AsyncStep<PushBlobStep>> getFuture()
@@ -88,7 +88,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
-                JsonTemplate containerConfiguration =
+                ContainerConfigurationTemplate containerConfiguration =
                     new ImageToJsonTranslator(image).getContainerConfiguration();
                 BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
 
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     progressEventDispatcher.newChildProducer(),
                     authenticatePushStep,
                     blobDescriptor,
-                    Blobs.from(containerConfiguration));
+                    Blobs.fromJson(containerConfiguration));
             }
         }
     }

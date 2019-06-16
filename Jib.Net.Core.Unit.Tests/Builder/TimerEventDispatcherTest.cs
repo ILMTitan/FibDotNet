@@ -45,20 +45,20 @@ namespace com.google.cloud.tools.jib.builder
             EventHandlers eventHandlers =
                 EventHandlers.builder().add<TimerEvent>(timerEventQueue.Enqueue).build();
 
-            Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0));
 
             using (TimerEventDispatcher parentTimerEventDispatcher =
                 new TimerEventDispatcher(eventHandlers, "description", mockClock, null))
             {
-                Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1));
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1));
 
                 parentTimerEventDispatcher.lap();
-                Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1).plusNanos(1));
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1).plusNanos(1));
 
                 using (TimerEventDispatcher ignored =
                     parentTimerEventDispatcher.subTimer("child description"))
                 {
-                    Mock.Get(mockClock).Setup(m => m.instant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(2));
+                    Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(2));
 
                     // Laps on close.
                 }
@@ -138,8 +138,8 @@ namespace com.google.cloud.tools.jib.builder
         private void verifyStateFirstLap(TimerEvent timerEvent, State expectedState)
         {
             Assert.AreEqual(expectedState, timerEvent.getState());
-            Assert.IsTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
-            Assert.AreEqual(0, timerEvent.getElapsed().compareTo(timerEvent.getDuration()));
+            Assert.IsTrue(timerEvent.getDuration()> Duration.Zero, timerEvent.getDuration().ToString());
+            Assert.AreEqual(timerEvent.getElapsed(), timerEvent.getDuration());
         }
 
         /**

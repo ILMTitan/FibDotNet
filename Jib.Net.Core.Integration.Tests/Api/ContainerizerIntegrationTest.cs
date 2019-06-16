@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.api
 
         private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-        public static ImmutableArray<LayerConfiguration> fakeLayerConfigurations;
+        public static ImmutableArray<ILayerConfiguration> fakeLayerConfigurations;
 
         [OneTimeSetUp]
         public static void setUp()
@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.api
          * Lists the files in the {@code resourcePath} resources directory and builds a {@link
          * LayerConfiguration} from those files.
          */
-        private static LayerConfiguration makeLayerConfiguration(
+        private static ILayerConfiguration makeLayerConfiguration(
             string resourcePath, string pathInContainer)
         {
             IEnumerable<SystemPath> fileStream =

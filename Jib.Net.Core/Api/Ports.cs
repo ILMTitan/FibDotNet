@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * <p>Example matches: 100, 200-210, 1000/tcp, 2000/udp, 500-600/tcp
          */
-        private static readonly Regex portPattern = new Regex("(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?");
+        private static readonly Regex portPattern = new Regex("^(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?$");
 
         /**
          * Converts/validates a list of strings representing port ranges to an expanded list of {@link

@@ -41,11 +41,10 @@ namespace com.google.cloud.tools.jib.configuration
 
 
     /** Immutable configuration options for the builder process. */
-    public sealed class BuildConfiguration
+    public sealed class BuildConfiguration : IBuildConfiguration
     {
         /** The default target format of the container manifest. */
-        private static readonly Class<BuildableManifestTemplate> DEFAULT_TARGET_FORMAT =
-            typeof(V22ManifestTemplate);
+        private static readonly ManifestFormat DEFAULT_TARGET_FORMAT = ManifestFormat.V22;
 
         /** The default tool identifier. */
         private static readonly string DEFAULT_TOOL_NAME = "jib";
@@ -62,10 +61,10 @@ namespace com.google.cloud.tools.jib.configuration
             private SystemPath baseImageLayersCacheDirectory;
             private bool allowInsecureRegistries = false;
             private bool offline = false;
-            private ImmutableArray<LayerConfiguration> layerConfigurations = ImmutableArray.Create<LayerConfiguration>();
-            private Class<BuildableManifestTemplate> targetFormat = DEFAULT_TARGET_FORMAT;
+            private ImmutableArray<ILayerConfiguration> layerConfigurations = ImmutableArray.Create<ILayerConfiguration>();
+            private ManifestFormat targetFormat = DEFAULT_TARGET_FORMAT;
             private string toolName = DEFAULT_TOOL_NAME;
-            private EventHandlers eventHandlers = EventHandlers.NONE;
+            private IEventHandlers eventHandlers = EventHandlers.NONE;
 
             public Builder() { }
 
@@ -152,8 +151,8 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 this.targetFormat =
                     targetFormat == ImageFormat.Docker
-                        ? typeof(V22ManifestTemplate)
-                        : typeof(OCIManifestTemplate);
+                        ? ManifestFormat.V22
+                        : ManifestFormat.OCI;
                 return this;
             }
 
@@ -187,7 +186,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param layerConfigurations the configurations for the layers
              * @return this
              */
-            public Builder setLayerConfigurations(IList<LayerConfiguration> layerConfigurations)
+            public Builder setLayerConfigurations(IList<ILayerConfiguration> layerConfigurations)
             {
                 this.layerConfigurations = ImmutableArray.CreateRange(layerConfigurations);
                 return this;
@@ -211,7 +210,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param eventHandlers the {@link EventHandlers}
              * @return this
              */
-            public Builder setEventHandlers(EventHandlers eventHandlers)
+            public Builder setEventHandlers(IEventHandlers eventHandlers)
             {
                 this.eventHandlers = eventHandlers;
                 return this;
@@ -284,7 +283,7 @@ namespace com.google.cloud.tools.jib.configuration
                         {
                             errorMessage.add(missingField);
                         }
-                        throw new InvalidOperationException(errorMessage.toString());
+                        throw new InvalidOperationException(errorMessage.ToString());
                 }
             }
 
@@ -315,12 +314,12 @@ namespace com.google.cloud.tools.jib.configuration
         private readonly ContainerConfiguration containerConfiguration;
         private readonly Cache baseImageLayersCache;
         private readonly Cache applicationLayersCache;
-        private Class<BuildableManifestTemplate> targetFormat;
+        private ManifestFormat targetFormat;
         private readonly bool allowInsecureRegistries;
         private readonly bool offline;
-        private readonly ImmutableArray<LayerConfiguration> layerConfigurations;
+        private readonly ImmutableArray<ILayerConfiguration> layerConfigurations;
         private readonly string toolName;
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
         public Consumer<JibEvent> JibEvents;
 
         /** Instantiate with {@link #builder}. */
@@ -331,12 +330,12 @@ namespace com.google.cloud.tools.jib.configuration
             ContainerConfiguration containerConfiguration,
             Cache baseImageLayersCache,
             Cache applicationLayersCache,
-            Class<BuildableManifestTemplate> targetFormat,
+            ManifestFormat targetFormat,
             bool allowInsecureRegistries,
             bool offline,
-            ImmutableArray<LayerConfiguration> layerConfigurations,
+            ImmutableArray<ILayerConfiguration> layerConfigurations,
             string toolName,
-            EventHandlers eventHandlers)
+            IEventHandlers eventHandlers)
         {
             this.baseImageConfiguration = baseImageConfiguration;
             this.targetImageConfiguration = targetImageConfiguration;
@@ -370,12 +369,12 @@ namespace com.google.cloud.tools.jib.configuration
             return allTargetImageTags.build();
         }
 
-        public ContainerConfiguration getContainerConfiguration()
+        public IContainerConfiguration getContainerConfiguration()
         {
             return containerConfiguration;
         }
 
-        public IClass<BuildableManifestTemplate> getTargetFormat()
+        public ManifestFormat getTargetFormat()
         {
             return targetFormat;
         }
@@ -385,7 +384,7 @@ namespace com.google.cloud.tools.jib.configuration
             return toolName;
         }
 
-        public EventHandlers getEventHandlers()
+        public IEventHandlers getEventHandlers()
         {
             return eventHandlers;
         }
@@ -436,7 +435,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the list of layer configurations
          */
-        public ImmutableArray<LayerConfiguration> getLayerConfigurations()
+        public ImmutableArray<ILayerConfiguration> getLayerConfigurations()
         {
             return layerConfigurations;
         }

@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testGet()
         {
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 ImmutableArray.Create("some", "relative", "path"),
                 RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
         }

@@ -23,6 +23,7 @@ using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -67,41 +68,41 @@ namespace com.google.cloud.tools.jib.registry
          *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
          */
         public static RegistryAuthenticator fromAuthenticationMethod(
-            string authenticationMethod,
+            AuthenticationHeaderValue authenticationMethod,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             string userAgent)
         {
             // If the authentication method starts with 'basic ' (case insensitive), no registry
             // authentication is needed.
-            if (authenticationMethod.matches("^(?i)(basic) .*"))
+            if (authenticationMethod.Scheme.matches("^(?i)(basic)"))
             {
                 return null;
             }
 
             // Checks that the authentication method starts with 'bearer ' (case insensitive).
-            if (!authenticationMethod.matches("^(?i)(bearer) .*"))
+            if (!authenticationMethod.Scheme.matches("^(?i)(bearer)"))
             {
                 throw newRegistryAuthenticationFailedException(
                     registryEndpointRequestProperties.getServerUrl(),
                     registryEndpointRequestProperties.getImageName(),
-                    authenticationMethod,
+                    authenticationMethod.Scheme,
                     "Bearer");
             }
 
             Regex realmPattern = new Regex("realm=\"(.*?)\"");
-            Match realmMatcher = realmPattern.matcher(authenticationMethod);
+            Match realmMatcher = realmPattern.matcher(authenticationMethod.Parameter);
             if (!realmMatcher.find())
             {
                 throw newRegistryAuthenticationFailedException(
                     registryEndpointRequestProperties.getServerUrl(),
                     registryEndpointRequestProperties.getImageName(),
-                    authenticationMethod,
+                    authenticationMethod.Parameter,
                     "realm");
             }
             string realm = realmMatcher.group(1);
 
             Regex servicePattern = new Regex("service=\"(.*?)\"");
-            Match serviceMatcher = servicePattern.matcher(authenticationMethod);
+            Match serviceMatcher = servicePattern.matcher(authenticationMethod.Parameter);
             // use the provided registry location when missing service (e.g., for OpenShift)
             string service =
                 serviceMatcher.find()
@@ -124,11 +125,11 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         /** Template for the authentication response JSON. */
-        [JsonIgnoreProperties(ignoreUnknown = true)]
-        private class AuthenticationResponseTemplate : JsonTemplate
+        [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
+        private class AuthenticationResponseTemplate
         {
             [JsonProperty]
-            public string token { get; }
+            public string Token { get; }
 
             /**
              * {@code access_token} is accepted as an alias for {@code token}.
@@ -137,16 +138,16 @@ namespace com.google.cloud.tools.jib.registry
              *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
              */
             [JsonProperty]
-            public string access_token { get; }
+            public string AccessToken { get; }
 
             /** @return {@link #token} if not null, or {@link #access_token} */
             public string getToken()
             {
-                if (token != null)
+                if (Token != null)
                 {
-                    return token;
+                    return Token;
                 }
-                return access_token;
+                return AccessToken;
             }
         }
 
@@ -203,9 +204,17 @@ namespace com.google.cloud.tools.jib.registry
 
         public Uri getAuthenticationUrl(Credential credential, string scope)
         {
-            return isOAuth2Auth(credential)
-                ? new Uri(realm) // Required parameters will be sent via POST .
-                : new Uri(realm + "?" + getServiceScopeRequestParameters(scope));
+            if (isOAuth2Auth(credential))
+            {
+                return new Uri(realm);
+            }
+            else
+            {
+                return new UriBuilder(realm)
+                {
+                    Query = "?" + getServiceScopeRequestParameters(scope)
+                }.Uri;
+            }
         }
 
         public string getAuthRequestParameters(Credential credential, string scope)
@@ -285,7 +294,7 @@ namespace com.google.cloud.tools.jib.registry
                     return Authorization.fromBearerToken(responseJson.getToken());
                 }
             }
-            catch (IOException ex)
+            catch (Exception ex) when (ex is IOException || ex is JsonException)
             {
                 throw new RegistryAuthenticationFailedException(
                     registryEndpointRequestProperties.getServerUrl(),

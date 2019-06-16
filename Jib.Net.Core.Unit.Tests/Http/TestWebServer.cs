@@ -15,9 +15,12 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +29,7 @@ using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -46,7 +50,7 @@ namespace com.google.cloud.tools.jib.http
     {
         private readonly bool https;
         private readonly TcpListener serverSocket;
-        private readonly object serveTask;
+        private readonly Task serveTask;
         private readonly SemaphoreSlim threadStarted = new SemaphoreSlim(0);
         private readonly StringBuilder inputRead = new StringBuilder();
 
@@ -57,15 +61,19 @@ namespace com.google.cloud.tools.jib.http
             serveTask = serve200();
             threadStarted.acquire();
         }
-
-        public string getEndpoint()
+        public string GetAddressAndPort()
         {
-            var host = serverSocket.LocalEndpoint as IPEndPoint;
-            return (https ? "https" : "http") + "://" + host.Address + ":" + host.Port;
+            var host = serverSocket.LocalEndpoint;
+            return host.ToString();
         }
 
         public void Dispose()
         {
+            if (serveTask.IsFaulted)
+            {
+                TestContext.Out.WriteLine("-----------------Server Error---------------");
+                TestContext.Out.WriteLine(serveTask.Exception);
+            }
             serverSocket.Stop();
         }
 
@@ -78,25 +86,38 @@ namespace com.google.cloud.tools.jib.http
         {
             threadStarted.release();
             serverSocket.Start();
-            using (var socket = await serverSocket.AcceptTcpClientAsync())
+            using (var socket = await serverSocket.AcceptTcpClientAsync().ConfigureAwait(false))
             {
-                Stream @in = socket.GetStream();
-                TextReader reader = new StreamReader(@in, StandardCharsets.UTF_8);
-                for (string line = await reader.ReadLineAsync();
-                    line != null && !line.isEmpty(); // An empty line marks the end of an HTTP request.
-                    line = await reader.ReadLineAsync())
-                {
-                    inputRead.append(line + "\n");
-                }
+                socket.NoDelay = true;
+                Stream socketStream;
 
+                if (https)
+                {
+                    var sslStream = new SslStream(socket.GetStream(), true);
+                    SystemPath certFile = Resources.getResource("localhost.2.pfx");
+                    X509Certificate2 serverCertificate = new X509Certificate2(certFile, "password");
+
+                    await sslStream.AuthenticateAsServerAsync(serverCertificate, false, false).ConfigureAwait(false);
+                    socketStream = sslStream;
+                }
+                else
+                {
+                    socketStream = socket.GetStream();
+                }
+                TextReader reader = new StreamReader(socketStream);
+                string line;
+                while (!string.IsNullOrWhiteSpace(line = await reader.ReadLineAsync().ConfigureAwait(false)))
+                {
+                    inputRead.AppendLine(line);
+                }
                 const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
-                socket.GetStream().write(response.getBytes(StandardCharsets.UTF_8));
+                await socketStream.WriteAsync(response.getBytes(StandardCharsets.UTF_8)).ConfigureAwait(false);
             }
         }
 
         public string getInputRead()
         {
-            return inputRead.toString();
+            return inputRead.ToString();
         }
     }
 }

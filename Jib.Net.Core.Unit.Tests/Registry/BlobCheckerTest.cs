@@ -25,6 +25,7 @@ using NUnit.Framework;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -43,8 +44,6 @@ namespace com.google.cloud.tools.jib.registry
     [RunWith(typeof(MockitoJUnitRunner))]
     public class BlobCheckerTest
     {
-        private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
-
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
             new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
 
@@ -63,11 +62,14 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse()
         {
-            Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns(0L);
+            HttpResponseMessage mockHttpResponseException = new HttpResponseMessage()
+            {
+                Content = new StringContent("")
+            };
 
             BlobDescriptor expectedBlobDescriptor = new BlobDescriptor(0, fakeDigest);
 
-            BlobDescriptor blobDescriptor = testBlobChecker.handleResponse(mockResponse);
+            BlobDescriptor blobDescriptor = testBlobChecker.handleResponse(mockHttpResponseException);
 
             Assert.AreEqual(expectedBlobDescriptor, blobDescriptor);
         }
@@ -75,7 +77,16 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse_noContentLength()
         {
-            Mock.Get(mockResponse).Setup(m => m.getContentLength()).Returns(-1L);
+            HttpResponseMessage mockResponse = new HttpResponseMessage()
+            {
+                Content = new StringContent("")
+                {
+                    Headers =
+                    {
+                        ContentLength = null
+                    }
+                }
+            };
 
             try
             {
@@ -84,21 +95,22 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(), "Did not receive Content-Length header");
+                Assert.That(
+                    ex.getMessage(), Does.Contain("Did not receive Content-Length header"));
             }
         }
 
         [Test]
         public void testHandleHttpResponseException()
         {
-            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
 
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"));
-            Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+            HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+            };
 
             BlobDescriptor blobDescriptor =
                 testBlobChecker.handleHttpResponseException(mockHttpResponseException);
@@ -109,14 +121,15 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleHttpResponseException_hasOtherErrors()
         {
-            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
 
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"))
                     .addError(new ErrorEntryTemplate(ErrorCodes.MANIFEST_UNKNOWN.name(), "some message"));
-            Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+            HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+            };
 
             try
             {
@@ -125,18 +138,18 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreEqual(mockHttpResponseException, ex);
+                Assert.AreEqual(mockHttpResponseException, ex.Cause);
             }
         }
 
         [Test]
         public void testHandleHttpResponseException_notBlobUnknown()
         {
-            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.NotFound);
-
             ErrorResponseTemplate emptyErrorResponseTemplate = new ErrorResponseTemplate();
-            Mock.Get(mockHttpResponseException).Setup(m => m.getContent()).Returns(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate));
+            HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+            };
 
             try
             {
@@ -145,16 +158,15 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreEqual(mockHttpResponseException, ex);
+                Assert.AreEqual(mockHttpResponseException, ex.Cause);
             }
         }
 
         [Test]
         public void testHandleHttpResponseException_invalidStatusCode()
         {
-            HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
-            Mock.Get(mockHttpResponseException).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)(-1));
 
+                HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             try
             {
                 testBlobChecker.handleHttpResponseException(mockHttpResponseException);
@@ -162,7 +174,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreEqual(mockHttpResponseException, ex);
+                Assert.AreEqual(mockHttpResponseException, ex.Cause);
             }
         }
 
@@ -197,7 +209,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetHttpMethod()
         {
-            Assert.AreEqual("HEAD", testBlobChecker.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Head, testBlobChecker.getHttpMethod());
         }
     }
 }

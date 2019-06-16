@@ -24,7 +24,10 @@ namespace Jib.Net.Core.Global
     {
         internal static void checkState(bool v)
         {
-            throw new NotImplementedException();
+            if (!v)
+            {
+                throw new ArgumentException();
+            }
         }
 
         internal static void checkState(bool v, string message)
@@ -34,22 +37,33 @@ namespace Jib.Net.Core.Global
 
         internal static void checkArgument(bool v1)
         {
-            throw new NotImplementedException();
+            if (!v1)
+            {
+                throw new ArgumentException();
+            }
         }
 
-        internal static void checkArgument(bool v1, string v2, params object[] values)
+        internal static void checkArgument(bool isValid, string messageFormat, params object[] values)
         {
-            throw new NotImplementedException();
+            if (!isValid)
+            {
+                throw new ArgumentException(string.Format(messageFormat, values));
+            }
         }
 
-        internal static T checkNotNull<T>(T rootProgressAllocationDescription, string v)
+        internal static T checkNotNull<T>(T value, string message) where T : class
         {
-            throw new NotImplementedException();
+            return value ?? throw new ArgumentNullException(message, nameof(value));
         }
 
-        internal static T checkNotNull<T>(T contentDescriptorTemplate)
+        internal static T checkNotNull<T>(T value) where T : class
         {
-            throw new NotImplementedException();
+            return value ?? throw new ArgumentNullException();
+        }
+
+        internal static T checkNotNull<T>(T? value) where T: struct
+        {
+            return value ?? throw new ArgumentNullException();
         }
     }
 }

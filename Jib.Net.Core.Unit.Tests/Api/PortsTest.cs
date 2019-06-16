@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.api
                 try
                 {
                     Ports.parse(Collections.singletonList(input));
-                    Assert.Fail();
+                    Assert.Fail(input);
                 }
                 catch (FormatException ex)
                 {

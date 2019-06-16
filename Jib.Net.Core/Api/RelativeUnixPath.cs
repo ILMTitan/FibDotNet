@@ -15,8 +15,12 @@
  */
 
 using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -59,6 +63,11 @@ namespace com.google.cloud.tools.jib.api
         public ImmutableArray<string> getRelativePathComponents()
         {
             return pathComponents;
+        }
+
+        public override string ToString()
+        {
+            return Path.Combine(pathComponents.ToArray());
         }
     }
 }

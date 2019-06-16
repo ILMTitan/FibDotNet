@@ -15,32 +15,34 @@
  */
 
 using com.google.cloud.tools.jib.json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace com.google.cloud.tools.jib.registry.json
 {
     // TODO: Should include detail field as well - need to have custom parser
-    [JsonIgnoreProperties(ignoreUnknown = true)]
-    public class ErrorEntryTemplate : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class ErrorEntryTemplate 
     {
-        private string code;
-        private string message;
+        public string Code { get; }
+        public string Message { get; }
 
         public ErrorEntryTemplate(string code, string message)
         {
-            this.code = code;
-            this.message = message;
+            this.Code = code;
+            this.Message = message;
         }
 
         private ErrorEntryTemplate() { }
 
         public string getCode()
         {
-            return code;
+            return Code;
         }
 
         public string getMessage()
         {
-            return message;
+            return Message;
         }
     }
 }

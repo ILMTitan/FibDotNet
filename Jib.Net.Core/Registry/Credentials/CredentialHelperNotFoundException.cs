@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
         }
 
-        protected CredentialHelperNotFoundException(string message, Exception cause) : base(message, cause)
+        public CredentialHelperNotFoundException(string message, Exception cause) : base(message, cause)
         {
         }
 

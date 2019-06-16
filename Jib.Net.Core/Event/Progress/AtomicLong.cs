@@ -15,26 +15,32 @@
  */
 
 using System;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
     public class AtomicLong
     {
-        private long v;
+        private long l;
 
-        public AtomicLong(long v)
+        public AtomicLong(long initalValue)
         {
-            this.v = v;
+            l = initalValue;
         }
 
-        internal int get()
+        internal long get()
         {
-            throw new NotImplementedException();
+            return Interlocked.Read(ref l);
         }
 
-        internal long addAndGet(long v)
+        internal long addAndGet(long value)
         {
-            throw new NotImplementedException();
+            return Interlocked.Add(ref l, value);
+        }
+
+        public override string ToString()
+        {
+            return get().ToString();
         }
     }
 }

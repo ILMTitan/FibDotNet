@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.api
      * @see <a
      *     href="https://docs.docker.com/engine/reference/commandline/tag/#extended-description">https://docs.docker.com/engine/reference/commandline/tag/#extended-description</a>
      */
-    public sealed class ImageReference
+    public sealed class ImageReference : IImageReference
     {
         private static readonly string DOCKER_HUB_REGISTRY = "registry-1.docker.io";
         private static readonly string DEFAULT_TAG = "latest";

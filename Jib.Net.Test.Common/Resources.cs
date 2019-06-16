@@ -25,7 +25,7 @@ namespace com.google.cloud.tools.jib.builder.steps
     {
         public static SystemPath getResource(string resourcePath)
         {
-            return Paths.get(TestContext.CurrentContext.TestDirectory, resourcePath);
+            return Paths.get(TestContext.CurrentContext.TestDirectory, "Resources", resourcePath);
         }
     }
 }

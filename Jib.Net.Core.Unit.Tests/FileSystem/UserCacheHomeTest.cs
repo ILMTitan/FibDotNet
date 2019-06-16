@@ -22,7 +22,9 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -34,49 +36,64 @@ namespace com.google.cloud.tools.jib.filesystem
     /** Tests for {@link UserCacheHome}. */
     public class UserCacheHomeTest
     {
-        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
+        public TemporaryFolder temporaryFolder;
 
         private string fakeCacheHome;
+        private IEnvironment mockEnvironment;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            temporaryFolder = new TemporaryFolder();
+        }
+
+        [OneTimeTearDown]
+        public void OneTImeTearDown()
+        {
+            temporaryFolder.Dispose();
+        }
 
         [SetUp]
         public void setUp()
         {
             fakeCacheHome = temporaryFolder.newFolder().getPath();
+            mockEnvironment = Mock.Of<IEnvironment>();
+            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(It.IsAny<OSPlatform>())).Returns(false);
         }
 
         [Test]
         public void testGetCacheHome_hasXdgCacheHome()
         {
-            IDictionary<string, string> fakeEnvironment = ImmutableDic.of("XDG_CACHE_HOME", fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e =>e.GetEnvironmentVariable("XDG_CACHE_HOME")).Returns(fakeCacheHome);
 
             Assert.AreEqual(
                 Paths.get(fakeCacheHome),
-                UserCacheHome.getCacheHome());
+                UserCacheHome.getCacheHome(mockEnvironment));
         }
 
         [Test]
         public void testGetCacheHome_linux()
         {
-            Properties fakeProperties = new Properties();
-            fakeProperties.setProperty("user.home", fakeCacheHome);
-            fakeProperties.setProperty("os.name", "os is LiNuX");
+            Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                .Returns(fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Linux)).Returns(true);
 
             Assert.AreEqual(
                 Paths.get(fakeCacheHome, ".cache"),
-                UserCacheHome.getCacheHome());
+                UserCacheHome.getCacheHome(mockEnvironment));
         }
 
         [Test]
         public void testGetCacheHome_windows()
         {
-            Properties fakeProperties = new Properties();
-            fakeProperties.setProperty("user.home", "nonexistent");
-            fakeProperties.setProperty("os.name", "os is WiNdOwS");
-
-            IDictionary<string, string> fakeEnvironment = ImmutableDic.of("LOCALAPPDATA", fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                .Returns("nonexistent");
+            Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.LocalApplicationData))
+                .Returns(fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Windows)).Returns(true);
 
             Assert.AreEqual(
-                Paths.get(fakeCacheHome), UserCacheHome.getCacheHome());
+                Paths.get(fakeCacheHome), UserCacheHome.getCacheHome(mockEnvironment));
         }
 
         [Test]
@@ -85,13 +102,13 @@ namespace com.google.cloud.tools.jib.filesystem
             SystemPath libraryApplicationSupport = Paths.get(fakeCacheHome, "Library", "Application Support");
             Files.createDirectories(libraryApplicationSupport);
 
-            Properties fakeProperties = new Properties();
-            fakeProperties.setProperty("user.home", fakeCacheHome);
-            fakeProperties.setProperty("os.name", "os is mAc or DaRwIn");
+            Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
+                .Returns(fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.OSX)).Returns(true);
 
             Assert.AreEqual(
                 libraryApplicationSupport,
-                UserCacheHome.getCacheHome());
+                UserCacheHome.getCacheHome(mockEnvironment));
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2018 Google LLC.
+ * Copyright 2017 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,19 +15,21 @@
  */
 
 using System;
-using System.Net.Http;
+using Newtonsoft.Json;
 
-namespace Request
+namespace Jib.Net.Core.Api
 {
-    internal class Builder
+    internal class DescriptorDigestConverter : JsonConverter<DescriptorDigest>
     {
-        public Builder()
+        public override DescriptorDigest ReadJson(JsonReader reader, Type objectType, DescriptorDigest existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+            var stringValue = serializer.Deserialize<string>(reader);
+            return DescriptorDigest.fromDigest(stringValue);
         }
 
-        internal HttpRequestMessage build()
+        public override void WriteJson(JsonWriter writer, DescriptorDigest value, JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(writer, value.ToString());
         }
     }
 }

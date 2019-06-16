@@ -16,14 +16,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.registry
 {
     internal static class Sets
     {
-        internal static ISet<string> newHashSet(string v1, string v2, string v3, string v4)
+        internal static ISet<T> newHashSet<T>(params T[] v)
         {
-            throw new NotImplementedException();
+            return v.ToHashSet();
         }
     }
 }

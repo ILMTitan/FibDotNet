@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
@@ -25,7 +26,7 @@ using System;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Used to record the results of a build. */
-    public class BuildResult
+    public class BuildResult : IBuildResult
     {
         /**
          * Gets a {@link BuildResult} from an {@link Image}.
@@ -35,12 +36,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @return a new {@link BuildResult} with the image's digest and id
          * @throws IOException if writing the digest or container configuration fails
          */
-        public static BuildResult fromImage(Image image, Type targetFormat)
-        {
-            return fromImage(image, new Class<BuildableManifestTemplate>(targetFormat));
-        }
-
-        public static BuildResult fromImage(Image image, IClass<BuildableManifestTemplate> targetFormat)
+        public static BuildResult fromImage(Image image, ManifestFormat targetFormat)
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
             BlobDescriptor containerConfigurationBlobDescriptor =

@@ -113,7 +113,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public void testLayerEntryTemplate_compareTo()
         {
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 toLayerEntryTemplates(inOrderLayerEntries),
                 ImmutableArray.CreateRange(toLayerEntryTemplates(outOfOrderLayerEntries).sorted()));
         }
@@ -129,7 +129,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public void testGenerateSelector_empty()
         {
-            DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create<JsonTemplate>());
+            DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create<object>());
             Assert.AreEqual(
                 expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create<LayerEntry>()));
         }

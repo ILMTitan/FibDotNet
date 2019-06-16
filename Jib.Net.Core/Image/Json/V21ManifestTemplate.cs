@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
 
@@ -57,49 +58,56 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-1/">Image Manifest Version 2,
      *     Schema 1</a>
      */
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class V21ManifestTemplate : ManifestTemplate
     {
         public static readonly string MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v1+json";
 
-        private readonly int schemaVersion = 1;
+        public int SchemaVersion { get; } = 1;
 
         /** The list of layer references. */
-        private readonly IList<LayerObjectTemplate> fsLayers = new List<LayerObjectTemplate>();
+        public IList<LayerObjectTemplate> FsLayers { get; } = new List<LayerObjectTemplate>();
 
-        private readonly IList<HistoryObjectTemplate> history = new List<HistoryObjectTemplate>();
+        public IList<HistoryObjectTemplate> History { get; } = new List<HistoryObjectTemplate>();
 
         /**
          * Template for inner JSON object representing a layer as part of the list of layer references.
          */
-
-        public class LayerObjectTemplate : JsonTemplate
+         [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        public class LayerObjectTemplate
         {
-            public DescriptorDigest blobSum;
+            public DescriptorDigest BlobSum { get; set; }
 
             public DescriptorDigest getDigest()
             {
-                return blobSum;
+                return BlobSum;
             }
         }
 
         /** Template for inner JSON object representing history for a layer. */
-        private class HistoryObjectTemplate : JsonTemplate
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        public class HistoryObjectTemplate
         {
             // The value is basically free-form; they may be structured differently in practice, e.g.,
             // {"architecture": "amd64", "config": {"User": "1001", ...}, "parent": ...}
             // {"id": ..., "container_config": {"Cmd":[""]}}
-            [JsonProperty]
-            public string v1Compatibility { get; }
+            public string V1Compatibility { get; }
+
+            [JsonConstructor]
+            public HistoryObjectTemplate(string v1Compatibility)
+            {
+                V1Compatibility = v1Compatibility;
+            }
         }
 
         public List<DescriptorDigest> getLayerDigests()
         {
             List<DescriptorDigest> layerDigests = new List<DescriptorDigest>();
 
-            foreach (LayerObjectTemplate layerObjectTemplate in fsLayers)
+            foreach (LayerObjectTemplate layerObjectTemplate in FsLayers)
 
             {
-                layerDigests.add(layerObjectTemplate.blobSum);
+                layerDigests.add(layerObjectTemplate.BlobSum);
             }
 
             return layerDigests;
@@ -107,12 +115,12 @@ namespace com.google.cloud.tools.jib.image.json
 
         public int getSchemaVersion()
         {
-            return schemaVersion;
+            return SchemaVersion;
         }
 
         public IReadOnlyList<LayerObjectTemplate> getFsLayers()
         {
-            return Collections.unmodifiableList(fsLayers);
+            return Collections.unmodifiableList(FsLayers);
         }
 
         /**
@@ -126,11 +134,11 @@ namespace com.google.cloud.tools.jib.image.json
         {
             try
             {
-                if (history.isEmpty())
+                if (History.isEmpty())
                 {
                     return Optional.empty<ContainerConfigurationTemplate>();
                 }
-                string v1Compatibility = history.get(0).v1Compatibility;
+                string v1Compatibility = History.get(0).V1Compatibility;
                 if (v1Compatibility == null)
                 {
                     return Optional.empty<ContainerConfigurationTemplate>();

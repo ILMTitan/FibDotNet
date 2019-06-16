@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.blob
             return new FileBlob(file);
         }
 
-        public static Blob from(JsonTemplate template)
+        public static Blob fromJson(object template)
         {
             return new JsonBlob(template);
         }

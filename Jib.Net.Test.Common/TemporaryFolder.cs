@@ -20,26 +20,38 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    public class TemporaryFolder
+    public class TemporaryFolder:IDisposable
     {
+        private DirectoryInfo directory;
+
+        public TemporaryFolder()
+        {
+            directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+        }
         public DirectoryInfo newFolder()
         {
-            throw new NotImplementedException();
+            return directory.CreateSubdirectory(Path.GetRandomFileName());
         }
 
         public FileInfo newFile()
-        {
-            throw new NotImplementedException();
+        { var fileInfo = new FileInfo(Path.Combine(directory.FullName, Path.GetRandomFileName()));
+            fileInfo.Create().Dispose();
+            return fileInfo;
         }
 
         public DirectoryInfo getRoot()
         {
-            throw new NotImplementedException();
+            return directory;
         }
 
-        public DirectoryInfo newFolder(string v)
+        public DirectoryInfo newFolder(string folderName)
         {
-            throw new NotImplementedException();
+            return directory.CreateSubdirectory(folderName);
+        }
+
+        public void Dispose()
+        {
+            directory.Delete(true);
         }
     }
 }

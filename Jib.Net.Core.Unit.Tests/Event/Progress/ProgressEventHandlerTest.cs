@@ -30,32 +30,35 @@ namespace com.google.cloud.tools.jib.@event.progress
     /** Tests for {@link ProgressEventHandler}. */
     public class ProgressEventHandlerTest
     {
-        /** {@link Allocation} tree for testing. */
-        private class AllocationTree
-        {
             /** The root node. */
-            public static readonly Allocation root = Allocation.newRoot("root", 2);
+            private Allocation root;
 
-            /** First child of the root node. */
-            public static readonly Allocation child1 = root.newChild("child1", 1);
+        /** First child of the root node. */
+        private Allocation child1;
 
-            /** Child of the first child of the root node. */
-            public static readonly Allocation child1Child = child1.newChild("child1Child", 100);
+        /** Child of the first child of the root node. */
+        private Allocation child1Child;
 
-            /** Second child of the root node. */
-            public static readonly Allocation child2 = root.newChild("child2", 200);
-
-            private AllocationTree() { }
-        }
+        /** Second child of the root node. */
+        private Allocation child2;
 
         private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
+
+        [SetUp]
+        public void SetUp()
+        {
+            root = Allocation.newRoot("root", 2);
+            child1 = root.newChild("child1", 1);
+            child1Child = child1.newChild("child1Child", 100);
+            child2 = root.newChild("child2", 200);
+        }
 
         [Test]
         public void testAccept()
         {
             using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor())
             {
-                DoubleAccumulator maxProgress = new DoubleAccumulator(Double.MaxValue, 0);
+                DoubleAccumulator maxProgress = new DoubleAccumulator(double.MaxValue, 0);
 
                 ProgressEventHandler progressEventHandler =
                     new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
@@ -66,17 +69,17 @@ namespace com.google.cloud.tools.jib.@event.progress
                 multithreadedExecutor.invoke(
                     () =>
                     {
-                        eventHandlers.dispatch(new ProgressEvent(AllocationTree.root, 0L));
+                        eventHandlers.dispatch(new ProgressEvent(root, 0L));
                     });
                 multithreadedExecutor.invoke(
                     () =>
                     {
-                        eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
+                        eventHandlers.dispatch(new ProgressEvent(child1, 0L));
                     });
                 multithreadedExecutor.invoke(
                     () =>
                     {
-                        eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 0L));
+                        eventHandlers.dispatch(new ProgressEvent(child1Child, 0L));
                     });
                 Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
@@ -87,14 +90,14 @@ namespace com.google.cloud.tools.jib.@event.progress
                         50,
                         () =>
                         {
-                            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 1L));
+                            eventHandlers.dispatch(new ProgressEvent(child1Child, 1L));
                         }));
                 callables.addAll(
                     Collections.nCopies<Action>(
                         100,
                         () =>
                         {
-                            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 1L));
+                            eventHandlers.dispatch(new ProgressEvent(child2, 1L));
                         }));
 
                 multithreadedExecutor.invokeAll(callables);
@@ -108,7 +111,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                         100,
                         () =>
                         {
-                            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 0L));
+                            eventHandlers.dispatch(new ProgressEvent(child1, 0L));
                         }));
                 Assert.AreEqual(
                     1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);

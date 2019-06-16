@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.http
      * }
      * }</pre>
      */
-    public class Connection : IDisposable
+    public class Connection : IDisposable, IConnection
     {
         /**
          * Returns a factory for {@link Connection}.
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.http
         {
             // Do not use {@link NetHttpTransport}. See {@link getConnectionFactory} for details.
 
-            return url => new Connection(url);
+            return url => new Connection(url, true);
         }
 
         /** The Uri to send the request to. */
@@ -85,10 +85,31 @@ namespace com.google.cloud.tools.jib.http
          *
          * @param url the url to send the request to
          */
+        public Connection(Uri url) : this(url, false) { }
 
-        public Connection(Uri url)
+        public Connection(Uri url, bool insecure)
         {
-            client = new HttpClient() { BaseAddress = url, Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()) };
+            if (insecure)
+            {
+                HttpMessageHandler handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, sslErrors) => true
+                };
+                client = new HttpClient(handler)
+                {
+                    BaseAddress = url,
+                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
+                };
+            }
+            else
+            {
+                client = new HttpClient
+                {
+                    BaseAddress = url,
+                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
+                };
+
+            }
         }
 
         public void Dispose()
@@ -105,7 +126,7 @@ namespace com.google.cloud.tools.jib.http
          */
         public HttpResponseMessage send(HttpRequestMessage request)
         {
-            return client.SendAsync(request).Result;
+            return client.SendAsync(request).GetAwaiter().GetResult();
         }
 
         internal int? getRequestedHttpTimeout()

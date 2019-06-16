@@ -19,7 +19,7 @@ using System;
 namespace com.google.cloud.tools.jib
 {
     /** Constants relating to the Jib project. */
-    public sealed class ProjectInfo
+    public static class ProjectInfo
     {
         /** Link to the GitHub repository. */
         public static readonly string GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
@@ -29,7 +29,5 @@ namespace com.google.cloud.tools.jib
 
         /** The project version. May be {@code null} if the version cannot be determined. */
         public static readonly string VERSION = "0.0.1-alpha.1";
-
-        private ProjectInfo() { }
     }
 }

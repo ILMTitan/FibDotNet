@@ -18,17 +18,34 @@ using System;
 
 namespace Jib.Net.Core
 {
-    [Flags]
-    public enum PosixFilePermission
+    public static class PosixFilePermissionExtensions
     {
-        OTHERS_EXECUTE,
-        OTHERS_WRITE,
-        OTHERS_READ,
-        GROUP_EXECUTE,
-        GROUP_WRITE,
-        GROUP_READ,
-        OWNER_EXECUTE,
-        OWNER_WRITE,
-        OWNER_READ
+        public static string ToOctalString(this PosixFilePermission permissions)
+        {
+            return Convert.ToString((int)(permissions & PosixFilePermission.ALL), 8).PadLeft(3, '0');
+        }
+    }
+
+    [Flags]
+    public enum PosixFilePermission : int
+    {
+        NONE = 0,
+        OTHERS_EXECUTE = 1<< 0,
+        OTHERS_WRITE = 1 << 1,
+        OTHERS_READ = 1 << 2,
+        OTHERS_READ_EXECUTE = OTHERS_READ | OTHERS_EXECUTE,
+        OTHERS_ALL = OTHERS_READ | OTHERS_WRITE | OTHERS_EXECUTE,
+        GROUP_EXECUTE = 1 << 3,
+        GROUP_WRITE = 1 << 4,
+        GROUP_READ = 1 << 5,
+        GROUP_READ_EXECUTE = GROUP_READ | GROUP_EXECUTE,
+        GROUP_ALL = GROUP_READ | GROUP_WRITE | GROUP_EXECUTE,
+        OWNER_EXECUTE = 1 << 6,
+        OWNER_WRITE = 1 << 7,
+        OWNER_READ = 1 << 8,
+        OWNER_READ_EXECUTE = OWNER_READ | OWNER_EXECUTE,
+        OWNER_ALL = OWNER_READ | OWNER_WRITE | OWNER_EXECUTE,
+        ALL = OWNER_ALL | GROUP_ALL | OTHERS_ALL,
+
     }
 }

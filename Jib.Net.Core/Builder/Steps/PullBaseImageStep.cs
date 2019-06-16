@@ -114,7 +114,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public BaseImageWithAuthorization call()
         {
-            EventHandlers eventHandlers = buildConfiguration.getEventHandlers();
+            IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
             // Skip this step if this is a scratch image
             ImageConfiguration baseImageConfiguration = buildConfiguration.getBaseImageConfiguration();
             if (baseImageConfiguration.getImage().isScratch())
@@ -301,7 +301,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          */
         private Image pullBaseImageOffline()
         {
-            ImageReference baseImage = buildConfiguration.getBaseImageConfiguration().getImage();
+            IImageReference baseImage = buildConfiguration.getBaseImageConfiguration().getImage();
             Optional<ManifestAndConfig> metadata =
                 buildConfiguration.getBaseImageLayersCache().retrieveMetadata(baseImage);
             if (!metadata.isPresent())

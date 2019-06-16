@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.builder
     {
         private static readonly IClock DEFAULT_CLOCK = SystemClock.Instance;
 
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
         private readonly string description;
 
         private readonly IClock clock;
@@ -39,12 +39,12 @@ namespace com.google.cloud.tools.jib.builder
          * @param eventHandlers the {@link EventHandlers} used to dispatch the {@link TimerEvent}s
          * @param description the default description for the {@link TimerEvent}s
          */
-        public TimerEventDispatcher(EventHandlers eventHandlers, string description) : this(eventHandlers, description, DEFAULT_CLOCK, null)
+        public TimerEventDispatcher(IEventHandlers eventHandlers, string description) : this(eventHandlers, description, DEFAULT_CLOCK, null)
         {
         }
 
         public TimerEventDispatcher(
-            EventHandlers eventHandlers, string description, IClock clock, Timer parentTimer)
+            IEventHandlers eventHandlers, string description, IClock clock, Timer parentTimer)
         {
             this.eventHandlers = eventHandlers;
             this.description = description;

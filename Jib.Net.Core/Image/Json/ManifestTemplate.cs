@@ -16,13 +16,16 @@
 
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace com.google.cloud.tools.jib.image.json
 {
     /** Parent class for image manifest JSON templates. */
-    [JsonIgnoreProperties(ignoreUnknown = true)]
-    public interface ManifestTemplate : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public interface ManifestTemplate
     {
+        int SchemaVersion { get; }
         int getSchemaVersion();
     }
 }

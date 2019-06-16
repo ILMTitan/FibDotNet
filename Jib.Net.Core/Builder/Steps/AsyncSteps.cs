@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     internal static class AsyncSteps
     {
-        internal static AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>> immediate(ImmutableArray<BuildAndCacheApplicationLayerStep> immutableArray)
+        internal static AsyncStep<T> immediate<T>(T list)
         {
             throw new NotImplementedException();
         }

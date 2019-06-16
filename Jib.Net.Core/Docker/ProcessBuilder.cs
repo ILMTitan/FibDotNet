@@ -15,38 +15,57 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.docker
 {
-    public class ProcessBuilder
+    public class ProcessBuilder : IProcessBuilder
     {
-        private IList<string> dockerCommand;
-        private string v;
+        private string _args;
+        private string _cmd;
+        private readonly IDictionary<string, string> env =
+            Environment.GetEnvironmentVariables()
+                .Cast<DictionaryEntry>()
+                .ToDictionary(e => e.Key.ToString(), e => e.Value.ToString());
 
-        public ProcessBuilder(IList<string> dockerCommand)
+        public ProcessBuilder(string command, string args)
         {
-            this.dockerCommand = dockerCommand;
+            _cmd = command;
+            _args = args;
         }
 
-        public ProcessBuilder(string v)
+        public ProcessBuilder(string command)
         {
-            this.v = v;
+            _cmd = command;
         }
 
         internal IDictionary<string, string> environment()
         {
-            throw new NotImplementedException();
+            return env;
         }
 
-        public Process start()
+        public IProcess start()
         {
-            throw new NotImplementedException();
+            var startInfo = new ProcessStartInfo(_cmd, _args);
+            foreach(var kvp in env)
+            {
+                startInfo.Environment.Add(kvp.Key, kvp.Value);
+            }
+            return new Process(System.Diagnostics.Process.Start(startInfo));
         }
 
-        internal double command()
+        public string command()
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(_args))
+            {
+                return _cmd;
+            } else
+            {
+                return $"{_cmd} {_args}";
+            }
         }
     }
 }

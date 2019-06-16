@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.@event
     public class EventHandlersTest
     {
         /** Test {@link JibEvent}. */
-        private interface TestJibEvent1 : JibEvent
+        public interface TestJibEvent1 : JibEvent
         {
             string getPayload();
         }
@@ -55,25 +55,24 @@ namespace com.google.cloud.tools.jib.@event
         [Test]
         public void testAdd()
         {
-            int[] counter = new int[1];
+            TestJibEvent1 mockTestJibEvent1 = Mock.Of<TestJibEvent1>();
+            Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
+            TestJibEvent2 testJibEvent2 = new TestJibEvent2();
+
+            int counter = 0;
             EventHandlers eventHandlers =
                 EventHandlers.builder()
                     .add<TestJibEvent1>(
                         testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
                     .add<TestJibEvent2>(e => e.sayHello("Jib"))
-
-                    .add<JibEvent>(jibEvent => counter[0]++)
-
+                    .add<JibEvent>(_ => counter++)
                     .build();
 
-            TestJibEvent1 mockTestJibEvent1 = Mock.Of<TestJibEvent1>();
-            Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
+            eventHandlers.dispatch(mockTestJibEvent1);
+            eventHandlers.dispatch(testJibEvent2);
 
-            TestJibEvent2 testJibEvent2 = new TestJibEvent2();
-
-            Assert.AreEqual(2, counter[0]);
+            Assert.AreEqual(2, counter);
             Mock.Get(mockTestJibEvent1).Verify(m => m.getPayload());
-
             Mock.Get(mockTestJibEvent1).VerifyNoOtherCalls();
             testJibEvent2.assertMessageCorrect("Jib");
         }
@@ -100,13 +99,13 @@ namespace com.google.cloud.tools.jib.@event
             eventHandlers.dispatch(testJibEvent2);
             eventHandlers.dispatch(testJibEvent3);
 
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 Arrays.asList(
-                    "handled generic",
                     "handled 2 first",
                     "handled 2 second",
                     "handled generic",
-                    "handled 3"),
+                    "handled 3",
+                    "handled generic"),
                 emissions);
         }
     }

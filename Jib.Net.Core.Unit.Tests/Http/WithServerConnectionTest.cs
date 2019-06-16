@@ -21,6 +21,9 @@ using System.Net.Http;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.registry;
+using System.Net;
+using System.Threading.Tasks;
+using System.Security.Authentication;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -32,34 +35,14 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(false))
             using (Connection connection =
-                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+                    Connection.getConnectionFactory().apply(new Uri("http://" + server.GetAddressAndPort())))
             {
                 HttpResponseMessage response = connection.send(new HttpRequestMessage());
 
-                Assert.AreEqual(200, response.getStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
                     ByteStreams.toByteArray(response.getBody()));
-            }
-        }
-
-        [Test]
-        public void testErrorOnSecondSend()
-        {
-            using (TestWebServer server = new TestWebServer(false))
-            using (Connection connection =
-                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
-            {
-                connection.send(new Request.Builder().build());
-                try
-                {
-                    connection.send(new Request.Builder().build());
-                    Assert.Fail("Should fail on the second send");
-                }
-                catch (InvalidOperationException ex)
-                {
-                    Assert.AreEqual("Connection can send only one request", ex.getMessage());
-                }
             }
         }
 
@@ -68,16 +51,16 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                    Connection.getConnectionFactory().apply(new Uri(server.getEndpoint())))
+                Connection.getConnectionFactory().apply(new Uri("https://" + server.GetAddressAndPort())))
             {
                 try
                 {
-                    connection.send(new Request.Builder().build());
+                    connection.send(new HttpRequestMessage());
                     Assert.Fail("Should fail if cannot verify peer");
                 }
-                catch (SSLException ex)
+                catch (HttpRequestException ex)
                 {
-                    Assert.IsNotNull(ex.getMessage());
+                    Assert.IsInstanceOf<AuthenticationException>(ex.InnerException);
                 }
             }
         }
@@ -87,11 +70,11 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                    Connection.getInsecureConnectionFactory().apply(new Uri(server.getEndpoint())))
+                    Connection.getInsecureConnectionFactory().apply(new Uri("https://"+server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = connection.send(new Request.Builder().build());
+                HttpResponseMessage response = connection.send(new HttpRequestMessage());
 
-                Assert.AreEqual(200, response.getStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
                     ByteStreams.toByteArray(response.getBody()));

@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using System;
 using System.Net.Http;
 
 namespace com.google.cloud.tools.jib.registry
@@ -26,18 +27,6 @@ namespace com.google.cloud.tools.jib.registry
     public class RegistryErrorException : RegistryException
     {
         public RegistryErrorException(string message, HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public RegistryErrorException(string message, System.Exception cause) : base(message, cause)
-        {
-        }
-
-        public RegistryErrorException(string message) : base(message)
-        {
-        }
-
-        public RegistryErrorException() : base()
         {
         }
     }

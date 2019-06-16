@@ -17,6 +17,8 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.docker.json
@@ -45,19 +47,21 @@ namespace com.google.cloud.tools.jib.docker.json
      * @see <a href="https://github.com/moby/moby/blob/master/image/tarexport/load.go">Docker load
      *     source</a>
      */
-    public class DockerLoadManifestEntryTemplate : JsonTemplate
+     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class DockerLoadManifestEntryTemplate 
     {
-        private List<string> repoTags = Collections.singletonList<string>(null);
-        private readonly IList<string> layers = new List<string>();
+        public string Config { get; } = "config.json";
+        public List<string> RepoTags { get; set; } = Collections.singletonList<string>(null);
+        public IList<string> Layers { get; } = new List<string>();
 
         public void setRepoTags(string repoTags)
         {
-            this.repoTags = Collections.singletonList(repoTags);
+            RepoTags = Collections.singletonList(repoTags);
         }
 
         public void addLayerFile(string layer)
         {
-            layers.add(layer);
+            Layers.add(layer);
         }
     }
 }

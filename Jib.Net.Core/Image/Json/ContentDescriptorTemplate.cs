@@ -16,6 +16,9 @@
 
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -27,18 +30,18 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md">OCI
      *     Content Descriptors</a>
      */
-
-    public class ContentDescriptorTemplate : JsonTemplate, System.IEquatable<ContentDescriptorTemplate>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class ContentDescriptorTemplate : IEquatable<ContentDescriptorTemplate>
     {
-        private string mediaType;
-        private DescriptorDigest digest;
-        private long size;
+        public string MediaType { get; set; }
+        public DescriptorDigest Digest { get; set; }
+        public long Size { get; set; }
 
         public ContentDescriptorTemplate(string mediaType, long size, DescriptorDigest digest)
         {
-            this.mediaType = mediaType;
-            this.size = size;
-            this.digest = digest;
+            this.MediaType = mediaType;
+            this.Size = size;
+            this.Digest = digest;
         }
 
         /** Necessary for Jackson to create from JSON. */
@@ -46,22 +49,22 @@ namespace com.google.cloud.tools.jib.image.json
 
         public long getSize()
         {
-            return size;
+            return Size;
         }
 
         private void setSize(long size)
         {
-            this.size = size;
+            this.Size = size;
         }
 
         public DescriptorDigest getDigest()
         {
-            return digest;
+            return Digest;
         }
 
         private void setDigest(DescriptorDigest digest)
         {
-            this.digest = digest;
+            this.Digest = digest;
         }
 
         public bool Equals(ContentDescriptorTemplate other)
@@ -76,7 +79,7 @@ namespace com.google.cloud.tools.jib.image.json
             }
             else
             {
-                return digest == other.digest && mediaType == other.mediaType && size == other.size;
+                return Digest == other.Digest && MediaType == other.MediaType && Size == other.Size;
             }
         }
     }

@@ -102,7 +102,8 @@ namespace com.google.cloud.tools.jib.api
                 }
                 catch (InvalidImageReferenceException ex)
                 {
-                    StringAssert.Contains(ex.getMessage(), badImageReference);
+                    Assert.That(ex.getMessage(), Does.Contain(badImageReference))
+;
                 }
             }
         }

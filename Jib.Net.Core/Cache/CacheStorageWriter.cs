@@ -27,7 +27,9 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System;
 using System.IO;
+using System.IO.Compression;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -115,9 +117,7 @@ namespace com.google.cloud.tools.jib.cache
             using (CountingDigestOutputStream diffIdCaptureOutputStream =
                 new CountingDigestOutputStream(Stream.Null))
             {
-                using (Stream fileInputStream =
-                        new BufferedStream(Files.newInputStream(compressedFile)))
-                using (GZipInputStream decompressorStream = new GZipInputStream(fileInputStream))
+                using (GZipStream decompressorStream = new GZipStream(Files.newInputStream(compressedFile), CompressionMode.Decompress))
                 {
                     ByteStreams.copy(decompressorStream, diffIdCaptureOutputStream);
                 }
@@ -133,28 +133,18 @@ namespace com.google.cloud.tools.jib.cache
          * @param destination the destination path
          * @throws IOException if an I/O exception occurs
          */
-        public static void writeMetadata(JsonTemplate jsonTemplate, SystemPath destination)
+        public static void writeMetadata(object jsonTemplate, SystemPath destination)
         {
-            SystemPath temporaryFile = Files.createTempFile(destination.getParent(), null, null);
-            temporaryFile.toFile().deleteOnExit();
-            using (Stream outputStream = Files.newOutputStream(temporaryFile))
+            using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent(), null, null))
             {
-                JsonTemplateMapper.writeTo(jsonTemplate, outputStream);
-            }
-
-            // Attempts an atomic move first, and falls back to non-atomic if the file system does not
-            // support atomic moves.
-            try
-            {
+                using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
+                {
+                    JsonTemplateMapper.writeTo(jsonTemplate, outputStream);
+                }
                 Files.move(
-                    temporaryFile,
+                    temporaryFile.Path,
                     destination,
-                    StandardCopyOption.ATOMIC_MOVE,
                     StandardCopyOption.REPLACE_EXISTING);
-            }
-            catch (AtomicMoveNotSupportedException)
-            {
-                Files.move(temporaryFile, destination, StandardCopyOption.REPLACE_EXISTING);
             }
         }
 
@@ -192,8 +182,7 @@ namespace com.google.cloud.tools.jib.cache
                     writeCompressedLayerBlobToDirectory(compressedLayerBlob, temporaryLayerDirectory);
 
                 // Moves the temporary directory to the final location.
-                moveIfDoesNotExist(
-                    temporaryLayerDirectory, cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
+                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
@@ -242,8 +231,7 @@ namespace com.google.cloud.tools.jib.cache
                     writeUncompressedLayerBlobToDirectory(uncompressedLayerBlob, temporaryLayerDirectory);
 
                 // Moves the temporary directory to the final location.
-                moveIfDoesNotExist(
-                    temporaryLayerDirectory, cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
+                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
@@ -273,7 +261,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param containerConfiguration the container configuration
          */
         public void writeMetadata(
-            ImageReference imageReference,
+            IImageReference imageReference,
             BuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfiguration)
         {
@@ -296,7 +284,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param imageReference the image reference to store the metadata for
          * @param manifestTemplate the manifest
          */
-        public void writeMetadata(ImageReference imageReference, V21ManifestTemplate manifestTemplate)
+        public void writeMetadata(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
         {
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             Files.createDirectories(imageDirectory);
@@ -319,24 +307,25 @@ namespace com.google.cloud.tools.jib.cache
             Blob compressedLayerBlob, SystemPath layerDirectory)
         {
             // Writes the layer file to the temporary directory.
-            SystemPath temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory);
-
-            BlobDescriptor layerBlobDescriptor;
-            using (Stream fileOutputStream =
-                new BufferedStream(Files.newOutputStream(temporaryLayerFile)))
+            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory))
             {
-                layerBlobDescriptor = compressedLayerBlob.writeTo(fileOutputStream);
-            }
 
-            // Gets the diff ID.
-            DescriptorDigest layerDiffId = getDiffIdByDecompressingFile(temporaryLayerFile);
+                BlobDescriptor layerBlobDescriptor;
+                using (Stream fileOutputStream = Files.newOutputStream(temporaryLayerFile.Path))
+                {
+                    layerBlobDescriptor = compressedLayerBlob.writeTo(fileOutputStream);
+                }
 
-            // Renames the temporary layer file to the correct filename.
-            SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
-            moveIfDoesNotExist(temporaryLayerFile, layerFile);
+                // Gets the diff ID.
+                DescriptorDigest layerDiffId = getDiffIdByDecompressingFile(temporaryLayerFile.Path);
+
+                // Renames the temporary layer file to the correct filename.
+                SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
+                temporaryLayerFile.moveIfDoesNotExist( layerFile);
 
             return new WrittenLayer(
                 layerBlobDescriptor.getDigest(), layerDiffId, layerBlobDescriptor.getSize());
+            }
         }
 
         /**
@@ -350,27 +339,29 @@ namespace com.google.cloud.tools.jib.cache
         private WrittenLayer writeUncompressedLayerBlobToDirectory(
             Blob uncompressedLayerBlob, SystemPath layerDirectory)
         {
-            SystemPath temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory);
+            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory)) {
+                DescriptorDigest layerDiffId;
+                BlobDescriptor blobDescriptor;
 
-            using (CountingDigestOutputStream compressedDigestOutputStream =
-                new CountingDigestOutputStream(
-                    new BufferedStream(Files.newOutputStream(temporaryLayerFile))))
-            {
                 // Writes the layer with GZIP compression. The original bytes are captured as the layer's
                 // diff ID and the bytes outputted from the GZIP compression are captured as the layer's
                 // content descriptor.
-                GZipOutputStream compressorStream = new GZipOutputStream(compressedDigestOutputStream);
-                DescriptorDigest layerDiffId = uncompressedLayerBlob.writeTo(compressorStream).getDigest();
+                using (CountingDigestOutputStream compressedDigestOutputStream =
+                    new CountingDigestOutputStream(
+                        Files.newOutputStream(temporaryLayerFile.Path))) {
+                    using (GZipStream compressorStream = new GZipStream(compressedDigestOutputStream, CompressionMode.Compress, true))
+                    {
+                        layerDiffId = uncompressedLayerBlob.writeTo(compressorStream).getDigest();
+                    }
+                    // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
+                    blobDescriptor = compressedDigestOutputStream.computeDigest();
+                }
+                    DescriptorDigest layerDigest = blobDescriptor.getDigest();
+                    long layerSize = blobDescriptor.getSize();
 
-                // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
-                compressorStream.close();
-                BlobDescriptor blobDescriptor = compressedDigestOutputStream.computeDigest();
-                DescriptorDigest layerDigest = blobDescriptor.getDigest();
-                long layerSize = blobDescriptor.getSize();
-
-                // Renames the temporary layer file to the correct filename.
-                SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
-                moveIfDoesNotExist(temporaryLayerFile, layerFile);
+                    // Renames the temporary layer file to the correct filename.
+                    SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
+                temporaryLayerFile.moveIfDoesNotExist(layerFile);
 
                 return new WrittenLayer(layerDigest, layerDiffId, layerSize);
             }
@@ -392,26 +383,26 @@ namespace com.google.cloud.tools.jib.cache
             Files.createDirectories(selectorFile.getParent());
 
             // Writes the selector to a temporary file and then moves the file to the intended location.
-            SystemPath temporarySelectorFile = Files.createTempFile(null, null);
-            temporarySelectorFile.toFile().deleteOnExit();
-            using (Stream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile))
+            using (TemporaryFile temporarySelectorFile = Files.createTempFile(null, null))
             {
-                fileOut.write(layerDigest.getHash().getBytes(StandardCharsets.UTF_8));
-            }
+                using (Stream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile.Path))
+                {
+                    fileOut.write(layerDigest.getHash().getBytes(StandardCharsets.UTF_8));
+                }
 
-            // Attempts an atomic move first, and falls back to non-atomic if the file system does not
-            // support atomic moves.
-            try
-            {
-                Files.move(
-                    temporarySelectorFile,
-                    selectorFile,
-                    StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
-            }
-            catch (AtomicMoveNotSupportedException)
-            {
-                Files.move(temporarySelectorFile, selectorFile, StandardCopyOption.REPLACE_EXISTING);
+                // Attempts an atomic move first, and falls back to non-atomic if the file system does not
+                // support atomic moves.
+                try
+                {
+                    Files.move(
+                        temporarySelectorFile.Path,
+                        selectorFile,
+                        StandardCopyOption.REPLACE_EXISTING);
+                }
+                catch (AtomicMoveNotSupportedException)
+                {
+                    Files.move(temporarySelectorFile.Path, selectorFile, StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         }
     }
@@ -419,9 +410,10 @@ namespace com.google.cloud.tools.jib.cache
 
 namespace Jib.Net.Core
 {
+    [Flags]
     internal enum StandardCopyOption
     {
-        ATOMIC_MOVE,
-        REPLACE_EXISTING
+        ATOMIC_MOVE = 1 << 0,
+        REPLACE_EXISTING =1<<1
     }
 }

@@ -26,7 +26,18 @@ namespace com.google.cloud.tools.jib.api
         private readonly string registry;
         private readonly string repository;
 
-        public HttpResponseMessage Cause { get; }
+        /**
+         * Identifies the image registry and repository that denied access.
+         *
+         * @param registry the image registry
+         * @param repository the image repository
+         * @param cause the cause
+         */
+        public RegistryUnauthorizedException(string registry, string repository, HttpResponseMessage cause) : base("Unauthorized for " + registry + "/" + repository, cause)
+        {
+            this.registry = registry;
+            this.repository = repository;
+        }
 
         /**
          * Identifies the image registry and repository that denied access.
@@ -35,42 +46,17 @@ namespace com.google.cloud.tools.jib.api
          * @param repository the image repository
          * @param cause the cause
          */
-        public RegistryUnauthorizedException(
-      string registry, string repository, HttpResponseMessage cause) : base("Unauthorized for " + registry + "/" + repository)
+        public RegistryUnauthorizedException(string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository, cause.Cause)
         {
             this.registry = registry;
             this.repository = repository;
-            Cause = cause;
-        }
-
-        /**
-         * Identifies the image registry and repository that denied access.
-         *
-         * @param registry the image registry
-         * @param repository the image repository
-         * @param cause the cause
-         */
-        public RegistryUnauthorizedException(
-      string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository)
-        {
-            this.registry = registry;
-            this.repository = repository;
-            Cause = cause.Cause;
-        }
-
-        public RegistryUnauthorizedException(string message, System.Exception cause) : base(message, cause)
-        {
-        }
-
-        public RegistryUnauthorizedException(string message) : base(message)
-        {
         }
 
         public RegistryUnauthorizedException(string message, HttpResponseMessage cause) : base(message, cause)
         {
         }
 
-        public RegistryUnauthorizedException() : base()
+        public RegistryUnauthorizedException(HttpResponseMessage message) : base(message)
         {
         }
 
@@ -92,11 +78,6 @@ namespace com.google.cloud.tools.jib.api
         public HttpResponseMessage getHttpResponse()
         {
             return Cause;
-        }
-
-        internal object getHttpResponseException()
-        {
-            throw new NotImplementedException();
         }
     }
 }

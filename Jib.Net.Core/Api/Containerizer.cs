@@ -29,14 +29,14 @@ using System.IO;
 namespace Jib.Net.Core.Api
 {
     /** Configures how to containerize. */
-    public sealed class Containerizer
+    public sealed class Containerizer : IDisposable, IContainerizer
     {
         /**
          * The default directory for caching the base image layers, in {@code [user cache
          * home]/google-cloud-tools-java/jib}.
          */
         public static readonly SystemPath DEFAULT_BASE_CACHE_DIRECTORY =
-            UserCacheHome.getCacheHome().resolve("google-cloud-tools-java").resolve("jib");
+            UserCacheHome.getCacheHome(SystemEnvironment.Instance).resolve("google-cloud-tools-java").resolve("jib");
 
         private static readonly string DEFAULT_TOOL_NAME = "jib-core";
 
@@ -136,6 +136,7 @@ namespace Jib.Net.Core.Api
         public event Action<JibEvent> JibEvents = _ => { };
 
         private SystemPath baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
+        private TemporaryDirectory tempAppLayersCacheDir;
         private SystemPath applicationLayersCacheDirectory;
         private bool allowInsecureRegistries = false;
         private bool offline = false;
@@ -168,7 +169,7 @@ namespace Jib.Net.Core.Api
          */
         public Containerizer withAdditionalTag(string tag)
         {
-            Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '%s'", tag);
+            Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '{0}'", tag);
             additionalTags.add(tag);
             return this;
         }
@@ -287,9 +288,8 @@ namespace Jib.Net.Core.Api
                 // Uses a temporary directory if application layers cache directory is not set.
                 try
                 {
-                    SystemPath temporaryDirectory = Files.createTempDirectory(null);
-                    temporaryDirectory.toFile().deleteOnExit();
-                    applicationLayersCacheDirectory = temporaryDirectory;
+                    tempAppLayersCacheDir = new TemporaryDirectory(Path.GetTempPath());
+                    applicationLayersCacheDirectory = tempAppLayersCacheDir.getDirectory();
                 }
                 catch (IOException ex)
                 {
@@ -324,14 +324,22 @@ namespace Jib.Net.Core.Api
             return imageConfiguration;
         }
 
-        public StepsRunner createStepsRunner(BuildConfiguration buildConfiguration)
+        public IStepsRunner createStepsRunner(BuildConfiguration buildConfiguration)
         {
             return stepsRunnerFactory.apply(buildConfiguration);
         }
 
         public EventHandlers buildEventHandlers()
         {
-            throw new NotImplementedException();
+            return new EventHandlers.Builder().add<JibEvent>(e => JibEvents(e)).build();
+        }
+
+        public void Dispose()
+        {
+            if (tempAppLayersCacheDir != null)
+            {
+                tempAppLayersCacheDir.Dispose();
+            }
         }
     }
 }

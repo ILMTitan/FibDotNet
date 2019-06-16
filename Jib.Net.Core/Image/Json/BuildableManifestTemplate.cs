@@ -14,6 +14,7 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using System.Collections.Generic;
@@ -52,5 +53,6 @@ namespace com.google.cloud.tools.jib.image.json
          * @param digest the layer descriptor digest.
          */
         void addLayer(long size, DescriptorDigest digest);
+        ManifestFormat getFormat();
     }
 }

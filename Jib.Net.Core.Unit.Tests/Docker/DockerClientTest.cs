@@ -22,6 +22,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -52,9 +53,9 @@ namespace com.google.cloud.tools.jib.docker
     {
         [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-        private ProcessBuilder mockProcessBuilder = Mock.Of<ProcessBuilder>();
-        private Process mockProcess = Mock.Of<Process>();
-        private ImageTarball imageTarball = Mock.Of<ImageTarball>();
+        private IProcessBuilder mockProcessBuilder = Mock.Of<IProcessBuilder>();
+        private IProcess mockProcess = Mock.Of<IProcess>();
+        private IImageTarball imageTarball = Mock.Of<IImageTarball>();
 
         [SetUp]
         public void setUp()
@@ -102,9 +103,9 @@ namespace com.google.cloud.tools.jib.docker
         {
             DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
 
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream().write(It.IsAny<byte[]>())).Throws<IOException>();
+            Mock.Get(mockProcess).Setup(m => m.getOutputStream().Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws<IOException>();
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Returns("error");
 
             try
             {
@@ -123,9 +124,9 @@ namespace com.google.cloud.tools.jib.docker
             DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
             IOException expectedIOException = new IOException();
 
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream().write(It.IsAny<byte[]>())).Throws(expectedIOException);
+            Mock.Get(mockProcess).Setup(m => m.getOutputStream().Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws(expectedIOException);
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream().Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws<IOException>();
+            Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Throws<IOException>();
             try
             {
                 testDockerClient.load(imageTarball);
@@ -182,9 +183,12 @@ namespace com.google.cloud.tools.jib.docker
                 DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
                     .apply(Arrays.asList("sub", "command"));
 
-            Assert.AreEqual(
-                Arrays.asList("docker-executable", "sub", "command"), processBuilder.command());
-            Assert.AreEqual(Environment.GetEnvironmentVariables(), processBuilder.environment());
+            Assert.AreEqual("docker-executable sub command", processBuilder.command());
+            CollectionAssert.AreEquivalent(
+                Environment.GetEnvironmentVariables()
+                    .Cast<DictionaryEntry>()
+                    .ToDictionary(e => e.Key.ToString(), e=>e.Value.ToString()),
+                processBuilder.environment());
         }
 
         [Test]
@@ -192,14 +196,17 @@ namespace com.google.cloud.tools.jib.docker
         {
             ImmutableDictionary<string, string> environment = ImmutableDic.of("Key1", "Value1");
 
-            IDictionary<string, string> expectedEnvironment = new Dictionary<string, string>(Environment.GetEnvironmentVariables().Cast<KeyValuePair<string, string>>());
+            var expectedEnvironment = new Dictionary<string, string>(
+                Environment.GetEnvironmentVariables()
+                    .Cast<DictionaryEntry>()
+                    .Select(e => new KeyValuePair<string, string>(e.Key?.ToString(), e.Value?.ToString())));
             expectedEnvironment.putAll(environment);
 
             ProcessBuilder processBuilder =
                 DockerClient.defaultProcessBuilderFactory("docker", environment)
                     .apply(Collections.emptyList<string>());
 
-            Assert.AreEqual(expectedEnvironment, processBuilder.environment());
+            CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.environment());
         }
 
         [Test]

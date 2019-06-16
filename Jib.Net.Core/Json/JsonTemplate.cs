@@ -16,16 +16,4 @@
 
 namespace com.google.cloud.tools.jib.json
 {
-    /**
-     * All JSON templates to be used with {@link JsonTemplateMapper} must extend this class.
-     *
-     * <p>Json fields should be private fields and fields that are {@code null} will not be serialized.
-     */
-    [@JsonInclude(JsonInclude.Include.NON_NULL)]
-    [@JsonAutoDetect(
-        fieldVisibility = JsonAutoDetect.Visibility.ANY,
-        getterVisibility = JsonAutoDetect.Visibility.NONE,
-        setterVisibility = JsonAutoDetect.Visibility.NONE,
-        creatorVisibility = JsonAutoDetect.Visibility.NONE)]
-    public interface JsonTemplate { }
 }

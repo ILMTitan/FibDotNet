@@ -211,7 +211,7 @@ namespace com.google.cloud.tools.jib.image.json
                 DescriptorDigest.fromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
                 layers.get(0).getDiffId());
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 ImmutableArray.Create(
                     HistoryEntry.builder()
                         .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))

@@ -15,30 +15,32 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Jib.Net.Core.Api
 {
     internal class StringJoiner
     {
-        private string v1;
-        private string v2;
-        private string v3;
+        private readonly List<string> strings = new List<string>();
+        private readonly string joiner;
+        private readonly string prefix;
+        private readonly string postfix;
 
-        public StringJoiner(string v1, string v2, string v3)
+        public StringJoiner(string separator, string prefix, string postfix)
         {
-            this.v1 = v1;
-            this.v2 = v2;
-            this.v3 = v3;
+            this.joiner = separator;
+            this.prefix = prefix;
+            this.postfix = postfix;
         }
 
-        internal void add(string pathComponent)
+        internal void add(string value)
         {
-            throw new NotImplementedException();
+            strings.Add(value);
         }
 
-        internal string toString()
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return prefix + string.Join(joiner, strings) + postfix;
         }
     }
 }

@@ -26,6 +26,7 @@ using NodaTime;
 using NUnit.Framework;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Compression;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -57,7 +58,7 @@ namespace com.google.cloud.tools.jib.cache
             return Blobs.from(
                 outputStream =>
                 {
-                    using (GZipOutputStream compressorStream = new GZipOutputStream(outputStream))
+                    using (GZipStream compressorStream = new GZipStream(outputStream, CompressionMode.Compress, true))
                     {
                         blob.writeTo(compressorStream);
                     }
@@ -73,7 +74,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         private static Blob decompress(Blob blob)
         {
-            return Blobs.from(new GZipInputStream(new MemoryStream(Blobs.writeToByteArray(blob))));
+            return Blobs.from(new GZipStream(new MemoryStream(Blobs.writeToByteArray(blob)), CompressionMode.Decompress));
         }
 
         /**

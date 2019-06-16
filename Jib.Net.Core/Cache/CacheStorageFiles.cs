@@ -155,7 +155,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return a path in the form of {@code
          *     (jib-cache)/images/registry[!port]/repository!(tag|digest-type!digest)}
          */
-        public SystemPath getImageDirectory(ImageReference imageReference)
+        public SystemPath getImageDirectory(IImageReference imageReference)
         {
             // Replace ':' and '@' with '!' to avoid directory-naming restrictions
             string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
@@ -186,11 +186,9 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDirectory the directory in which to resolve the temporary layer file
          * @return the temporary layer file
          */
-        public SystemPath getTemporaryLayerFile(SystemPath layerDirectory)
+        public TemporaryFile getTemporaryLayerFile(SystemPath layerDirectory)
         {
-            SystemPath temporaryLayerFile = layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME);
-            temporaryLayerFile.toFile().deleteOnExit();
-            return temporaryLayerFile;
+            return new TemporaryFile(layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME));
         }
     }
 }

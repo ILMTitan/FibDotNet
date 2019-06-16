@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.docker
 
 
     /** Translates an {@link Image} to a tarball that can be loaded into Docker. */
-    public class ImageTarball
+    public class ImageTarball : IImageTarball
     {
         /** File name for the container configuration in the tarball. */
         private static readonly string CONTAINER_CONFIGURATION_JSON_FILE_NAME = "config.json";
@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.docker
 
         private readonly Image image;
 
-        private readonly ImageReference imageReference;
+        private readonly IImageReference imageReference;
 
         /**
          * Instantiate with an {@link Image}.
@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.docker
          * @param image the image to convert into a tarball
          * @param imageReference image reference to set in the manifest
          */
-        public ImageTarball(Image image, ImageReference imageReference)
+        public ImageTarball(Image image, IImageReference imageReference)
         {
             this.image = image;
             this.imageReference = imageReference;
@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.docker
             }
 
             // Adds the container configuration to the tarball.
-            JsonTemplate containerConfiguration =
+            ContainerConfigurationTemplate containerConfiguration =
                 new ImageToJsonTranslator(image).getContainerConfiguration();
             tarStreamBuilder.addByteEntry(
                 JsonTemplateMapper.toByteArray(containerConfiguration),

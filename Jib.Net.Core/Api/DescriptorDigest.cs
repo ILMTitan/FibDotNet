@@ -14,9 +14,11 @@
  * the License.
  */
 
+using System;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
 
 namespace Jib.Net.Core.Api
 {
@@ -27,14 +29,13 @@ namespace Jib.Net.Core.Api
      * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md#digests">OCI
      *     Content Descriptor Digest</a>
      */
-    [JsonSerialize(typeof(DescriptorDigestSerializer))]
-    [JsonDeserialize(typeof(DescriptorDigestDeserializer))]
+     [JsonConverter(typeof(DescriptorDigestConverter))]
     public sealed class DescriptorDigest
     {
         public static readonly int HASH_LENGTH = 64;
 
         /** Pattern matches a SHA-256 hash - 32 bytes in lowercase hexadecimal. */
-        private static readonly string HASH_REGEX = string.Format("[a-f0-9]{0:d}", HASH_LENGTH);
+        private static readonly string HASH_REGEX = $"[a-f0-9]{{{HASH_LENGTH}}}";
 
         /** The algorithm prefix for the digest string. */
         private static readonly string DIGEST_PREFIX = "sha256:";

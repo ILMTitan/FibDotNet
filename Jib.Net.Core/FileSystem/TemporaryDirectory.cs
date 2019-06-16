@@ -17,6 +17,7 @@
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
@@ -27,7 +28,7 @@ namespace com.google.cloud.tools.jib.filesystem
      */
     public class TemporaryDirectory : IDisposable
     {
-        private readonly SystemPath temporaryDirectory;
+        private readonly SystemPath path;
 
         /**
          * Creates a new temporary directory under an existing {@code parentDirectory}.
@@ -37,7 +38,18 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public TemporaryDirectory(SystemPath parentDirectory)
         {
-            temporaryDirectory = Files.createTempDirectory(parentDirectory, null);
+            path = Files.createTempDirectory(parentDirectory, null);
+        }
+
+        /**
+         * Creates a new temporary directory under an existing {@code parentDirectory}.
+         *
+         * @param parentDirectory the directory to create the temporary directory within
+         * @throws IOException if an I/O exception occurs
+         */
+        public TemporaryDirectory(string parentDirectory)
+        {
+            path = Files.createTempDirectory(parentDirectory, null);
         }
 
         /**
@@ -47,20 +59,41 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public SystemPath getDirectory()
         {
-            return temporaryDirectory;
+            return path;
         }
 
         public void Dispose()
         {
-            if (Files.exists(temporaryDirectory))
+            if (Files.exists(path))
             {
                 try
                 {
-                    MoreFiles.deleteRecursively(temporaryDirectory, RecursiveDeleteOption.ALLOW_INSECURE);
+                    MoreFiles.deleteRecursively(path, RecursiveDeleteOption.ALLOW_INSECURE);
                 }
-                catch (IOException)
+                catch (IOException e)
                 {
+                    Debug.WriteLine($"Error deleting temporary directory {path}: {e}");
                     // TODO log error; deletion is best-effort
+                }
+            }
+        }
+
+        internal void moveIfDoesNotExist(SystemPath destination)
+        {
+            if(Directory.Exists(destination) || File.Exists(destination))
+            {
+                return;
+            }
+            try
+            {
+
+                Directory.Move(path, destination);
+            }
+            catch (IOException)
+            {
+                if (!Directory.Exists(destination))
+                {
+                    throw;
                 }
             }
         }

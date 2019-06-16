@@ -20,6 +20,8 @@ using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -34,21 +36,23 @@ namespace com.google.cloud.tools.jib.json
     /** Tests for {@link JsonTemplateMapper}. */
     public class JsonTemplateMapperTest
     {
-        private class TestJson : JsonTemplate
+        [JsonObject(NamingStrategyType =typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
+        private class TestJson
         {
-            public int number;
-            public string text;
-            public DescriptorDigest digest;
-            public InnerObject innerObject;
-            public IList<InnerObject> list;
+            public int Number { get; set; }
+            public string Text { get; set; }
+            public DescriptorDigest Digest { get; set; }
+            public InnerObjectClass InnerObject { get; set; }
+            public IList<InnerObjectClass> List { get; set; }
 
-            public class InnerObject : JsonTemplate
+            [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
+            public class InnerObjectClass
             {
                 // This field has the same name as a field in the outer class, but either NOT interfere with
                 // the other.
-                public int number;
-                public List<string> texts;
-                public IList<DescriptorDigest> digests;
+                public int Number { get; set; }
+                public List<string> Texts { get; set; }
+                public IList<DescriptorDigest> Digests { get; set; }
             }
         }
 
@@ -60,16 +64,16 @@ namespace com.google.cloud.tools.jib.json
 
             TestJson testJson = new TestJson
             {
-                number = 54,
-                text = "crepecake",
-                digest =
+                Number = 54,
+                Text = "crepecake",
+                Digest =
                 DescriptorDigest.fromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                innerObject = new TestJson.InnerObject
+                InnerObject = new TestJson.InnerObjectClass
                 {
-                    number = 23,
-                    texts = Arrays.asList("first text", "second text"),
-                    digests =
+                    Number = 23,
+                    Texts = Arrays.asList("first text", "second text"),
+                    Digests =
                 Arrays.asList(
                     DescriptorDigest.fromDigest(
                         "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
@@ -78,21 +82,21 @@ namespace com.google.cloud.tools.jib.json
                 }
             };
 
-            TestJson.InnerObject innerObject1 = new TestJson.InnerObject
+            TestJson.InnerObjectClass innerObject1 = new TestJson.InnerObjectClass
             {
-                number = 42,
-                texts = Collections.emptyList<string>()
+                Number = 42,
+                Texts = Collections.emptyList<string>()
             };
-            TestJson.InnerObject innerObject2 = new TestJson.InnerObject
+            TestJson.InnerObjectClass innerObject2 = new TestJson.InnerObjectClass
             {
-                number = 99,
-                texts = Collections.singletonList("some text"),
-                digests =
+                Number = 99,
+                Texts = Collections.singletonList("some text"),
+                Digests =
                 Collections.singletonList(
                     DescriptorDigest.fromDigest(
                         "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e"))
             };
-            testJson.list = Arrays.asList(innerObject1, innerObject2);
+            testJson.List = Arrays.asList(innerObject1, innerObject2);
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(testJson));
         }
@@ -105,20 +109,20 @@ namespace com.google.cloud.tools.jib.json
             // Deserializes into a metadata JSON object.
             TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock<TestJson>(jsonFile);
 
-            Assert.AreEqual(testJson.number, 54);
-            Assert.AreEqual(testJson.text, "crepecake");
+            Assert.AreEqual(testJson.Number, 54);
+            Assert.AreEqual(testJson.Text, "crepecake");
             Assert.AreEqual(
-                testJson.digest,
+                testJson.Digest,
                     DescriptorDigest.fromDigest(
                         "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
-            Assert.IsInstanceOf<TestJson.InnerObject>(testJson.innerObject);
-            Assert.AreEqual(testJson.innerObject.number, 23);
+            Assert.IsInstanceOf<TestJson.InnerObjectClass>(testJson.InnerObject);
+            Assert.AreEqual(testJson.InnerObject.Number, 23);
 
             Assert.AreEqual(
-                testJson.innerObject.texts, Arrays.asList("first text", "second text"));
+                testJson.InnerObject.Texts, Arrays.asList("first text", "second text"));
 
             Assert.AreEqual(
-                testJson.innerObject.digests,
+                testJson.InnerObject.Digests,
                     Arrays.asList(
                         DescriptorDigest.fromDigest(
                             "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
@@ -145,16 +149,16 @@ namespace com.google.cloud.tools.jib.json
                 DescriptorDigest.fromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
 
-            Assert.AreEqual(1, json1.number);
-            Assert.AreEqual(2, json2.number);
-            Assert.AreEqual("text1", json1.text);
-            Assert.AreEqual("text2", json2.text);
-            Assert.AreEqual(digest1, json1.digest);
-            Assert.AreEqual(digest2, json2.digest);
-            Assert.AreEqual(10, json1.innerObject.number);
-            Assert.AreEqual(20, json2.innerObject.number);
-            Assert.AreEqual(2, json1.list.size());
-            Assert.IsTrue(json2.list.isEmpty());
+            Assert.AreEqual(1, json1.Number);
+            Assert.AreEqual(2, json2.Number);
+            Assert.AreEqual("text1", json1.Text);
+            Assert.AreEqual("text2", json2.Text);
+            Assert.AreEqual(digest1, json1.Digest);
+            Assert.AreEqual(digest2, json2.Digest);
+            Assert.AreEqual(10, json1.InnerObject.Number);
+            Assert.AreEqual(20, json2.InnerObject.Number);
+            Assert.AreEqual(2, json1.List.size());
+            Assert.IsTrue(json2.List.isEmpty());
         }
 
         [Test]

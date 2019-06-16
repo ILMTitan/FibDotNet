@@ -27,22 +27,25 @@ namespace com.google.cloud.tools.jib.@event.progress
     /** Tests for {@link AllocationCompletionTracker}. */
     public class AllocationCompletionTrackerTest
     {
-        /** {@link Allocation} tree for testing. */
-        private class AllocationTree
+        /** The root node. */
+        private Allocation root;
+
+        /** First child of the root node. */
+        private Allocation child1;
+
+        /** Child of the first child of the root node. */
+        private Allocation child1Child;
+
+        /** Second child of the root node. */
+        private Allocation child2;
+
+        [SetUp]
+        public void SetUp()
         {
-            /** The root node. */
-            public static readonly Allocation root = Allocation.newRoot("root", 2);
-
-            /** First child of the root node. */
-            public static readonly Allocation child1 = root.newChild("child1", 1);
-
-            /** Child of the first child of the root node. */
-            public static readonly Allocation child1Child = child1.newChild("child1Child", 100);
-
-            /** Second child of the root node. */
-            public static readonly Allocation child2 = root.newChild("child2", 200);
-
-            private AllocationTree() { }
+            root = Allocation.newRoot("root", 2);
+            child1 = root.newChild("child1", 1);
+            child1Child = child1.newChild("child1Child", 100);
+            child2 = root.newChild("child2", 200);
         }
 
         [Test]
@@ -50,47 +53,47 @@ namespace com.google.cloud.tools.jib.@event.progress
         {
             AllocationCompletionTracker allocationCompletionTracker = new AllocationCompletionTracker();
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.root, 0L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(root, 0L));
             Assert.AreEqual(
-                Collections.singletonList(AllocationTree.root),
+                Collections.singletonList(root),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child1, 0L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child1, 0L));
             Assert.AreEqual(
-                Arrays.asList(AllocationTree.root, AllocationTree.child1),
+                Arrays.asList(root, child1),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child1Child, 0L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child1Child, 0L));
             Assert.AreEqual(
-                Arrays.asList(AllocationTree.root, AllocationTree.child1, AllocationTree.child1Child),
+                Arrays.asList(root, child1, child1Child),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child1Child, 50L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child1Child, 50L));
             Assert.AreEqual(
-                Arrays.asList(AllocationTree.root, AllocationTree.child1, AllocationTree.child1Child),
+                Arrays.asList(root, child1, child1Child),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child1Child, 50L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child1Child, 50L));
             Assert.AreEqual(
-                Collections.singletonList(AllocationTree.root),
+                Collections.singletonList(root),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child2, 100L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child2, 100L));
             Assert.AreEqual(
-                Arrays.asList(AllocationTree.root, AllocationTree.child2),
+                Arrays.asList(root, child2),
                 allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsTrue(allocationCompletionTracker.updateProgress(AllocationTree.child2, 100L));
+            Assert.IsTrue(allocationCompletionTracker.updateProgress(child2, 100L));
             Assert.AreEqual(
                 Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
 
-            Assert.IsFalse(allocationCompletionTracker.updateProgress(AllocationTree.child2, 0L));
+            Assert.IsFalse(allocationCompletionTracker.updateProgress(child2, 0L));
             Assert.AreEqual(
                 Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
 
             try
             {
-                allocationCompletionTracker.updateProgress(AllocationTree.child1, 1L);
+                allocationCompletionTracker.updateProgress(child1, 1L);
                 Assert.Fail();
             }
             catch (InvalidOperationException ex)
@@ -110,17 +113,17 @@ namespace com.google.cloud.tools.jib.@event.progress
                 Assert.AreEqual(
                     true,
                     multithreadedExecutor.invoke(
-                        () => allocationCompletionTracker.updateProgress(AllocationTree.root, 0L)));
+                        () => allocationCompletionTracker.updateProgress(root, 0L)));
                 Assert.AreEqual(
                     true,
                     multithreadedExecutor.invoke(
-                        () => allocationCompletionTracker.updateProgress(AllocationTree.child1, 0L)));
+                        () => allocationCompletionTracker.updateProgress(child1, 0L)));
                 Assert.AreEqual(
                     true,
                     multithreadedExecutor.invoke(
-                        () => allocationCompletionTracker.updateProgress(AllocationTree.child1Child, 0L)));
+                        () => allocationCompletionTracker.updateProgress(child1Child, 0L)));
                 Assert.AreEqual(
-                    Arrays.asList(AllocationTree.root, AllocationTree.child1, AllocationTree.child1Child),
+                    Arrays.asList(root, child1, child1Child),
                     allocationCompletionTracker.getUnfinishedAllocations());
 
                 // Adds 50 to child1Child and 100 to child2.
@@ -128,19 +131,19 @@ namespace com.google.cloud.tools.jib.@event.progress
                 callables.addAll(
                     Collections.nCopies<Callable<bool>>(
                         50,
-                        () => allocationCompletionTracker.updateProgress(AllocationTree.child1Child, 1L)));
+                        () => allocationCompletionTracker.updateProgress(child1Child, 1L)));
                 callables.addAll(
                     Collections.nCopies<Callable<bool>>(
-                        100, () => allocationCompletionTracker.updateProgress(AllocationTree.child2, 1L)));
+                        100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
 
-                Assert.AreEqual(
+                CollectionAssert.AreEqual(
                     Collections.nCopies(150, true), multithreadedExecutor.invokeAll(callables));
                 Assert.AreEqual(
                     Arrays.asList(
-                        AllocationTree.root,
-                        AllocationTree.child1,
-                        AllocationTree.child1Child,
-                        AllocationTree.child2),
+                        root,
+                        child1,
+                        child1Child,
+                        child2),
                     allocationCompletionTracker.getUnfinishedAllocations());
 
                 // 0 progress doesn't do anything.
@@ -149,19 +152,19 @@ namespace com.google.cloud.tools.jib.@event.progress
                     multithreadedExecutor.invokeAll(
                         Collections.nCopies<Callable<bool>>(
                             100,
-                            () => allocationCompletionTracker.updateProgress(AllocationTree.child1, 0L))));
+                            () => allocationCompletionTracker.updateProgress(child1, 0L))));
                 Assert.AreEqual(
                     Arrays.asList(
-                        AllocationTree.root,
-                        AllocationTree.child1,
-                        AllocationTree.child1Child,
-                        AllocationTree.child2),
+                        root,
+                        child1,
+                        child1Child,
+                        child2),
                     allocationCompletionTracker.getUnfinishedAllocations());
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
-                Assert.AreEqual(
+                CollectionAssert.AreEqual(
                     Collections.nCopies(150, true), multithreadedExecutor.invokeAll(callables));
-                Assert.AreEqual(
+                CollectionAssert.AreEqual(
                     Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
             }
         }
@@ -170,28 +173,28 @@ namespace com.google.cloud.tools.jib.@event.progress
         public void testGetUnfinishedLeafTasks()
         {
             AllocationCompletionTracker tracker = new AllocationCompletionTracker();
-            tracker.updateProgress(AllocationTree.root, 0);
+            tracker.updateProgress(root, 0);
             Assert.AreEqual(Arrays.asList("root"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1, 0);
+            tracker.updateProgress(child1, 0);
             Assert.AreEqual(Arrays.asList("child1"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 0);
+            tracker.updateProgress(child2, 0);
             Assert.AreEqual(Arrays.asList("child1", "child2"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 0);
+            tracker.updateProgress(child1Child, 0);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 50);
+            tracker.updateProgress(child1Child, 50);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 100);
+            tracker.updateProgress(child2, 100);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 100);
+            tracker.updateProgress(child2, 100);
             Assert.AreEqual(Arrays.asList("child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 50);
+            tracker.updateProgress(child1Child, 50);
             Assert.AreEqual(Collections.emptyList<string>(), tracker.getUnfinishedLeafTasks());
         }
 
@@ -199,28 +202,28 @@ namespace com.google.cloud.tools.jib.@event.progress
         public void testGetUnfinishedLeafTasks_differentUpdateOrder()
         {
             AllocationCompletionTracker tracker = new AllocationCompletionTracker();
-            tracker.updateProgress(AllocationTree.root, 0);
+            tracker.updateProgress(root, 0);
             Assert.AreEqual(Arrays.asList("root"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 0);
+            tracker.updateProgress(child2, 0);
             Assert.AreEqual(Arrays.asList("child2"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1, 0);
+            tracker.updateProgress(child1, 0);
             Assert.AreEqual(Arrays.asList("child2", "child1"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 0);
+            tracker.updateProgress(child1Child, 0);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 50);
+            tracker.updateProgress(child1Child, 50);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 100);
+            tracker.updateProgress(child2, 100);
             Assert.AreEqual(Arrays.asList("child2", "child1Child"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child1Child, 50);
+            tracker.updateProgress(child1Child, 50);
             Assert.AreEqual(Arrays.asList("child2"), tracker.getUnfinishedLeafTasks());
 
-            tracker.updateProgress(AllocationTree.child2, 100);
+            tracker.updateProgress(child2, 100);
             Assert.AreEqual(Collections.emptyList<string>(), tracker.getUnfinishedLeafTasks());
         }
     }

@@ -15,21 +15,14 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
-namespace com.google.cloud.tools.jib.registry
+namespace com.google.cloud.tools.jib.filesystem
 {
-    internal class SSLPeerUnverifiedException : Exception
+    public interface IEnvironment
     {
-        public SSLPeerUnverifiedException() : base()
-        {
-        }
-
-        public SSLPeerUnverifiedException(string message) : base(message)
-        {
-        }
-
-        public SSLPeerUnverifiedException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+        string GetEnvironmentVariable(string variableName);
+        string GetFolderPath(Environment.SpecialFolder folder);
+        bool IsOSPlatform(OSPlatform oSX);
     }
 }

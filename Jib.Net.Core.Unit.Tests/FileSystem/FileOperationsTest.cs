@@ -91,24 +91,28 @@ namespace com.google.cloud.tools.jib.filesystem
         [Test]
         public void testNewLockingOutputStream_newFile()
         {
-            SystemPath file = Files.createTempFile("", "");
-            // Ensures file doesn't exist.
-            Assert.IsTrue(Files.deleteIfExists(file));
+            using (TemporaryFile file = Files.createTempFile("", ""))
+            {
+                // Ensures file doesn't exist.
+                Files.deleteIfExists(file.Path);
 
-            verifyWriteWithLock(file);
+                verifyWriteWithLock(file.Path);
+            }
         }
 
         [Test]
         public void testNewLockingOutputStream_existingFile()
         {
-            SystemPath file = Files.createTempFile("", "");
-            // Writes out more bytes to ensure proper truncated.
-            byte[] dataBytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            Files.write(file, dataBytes);
-            Assert.IsTrue(Files.exists(file));
-            Assert.AreEqual(10, Files.size(file));
+            using (TemporaryFile file = Files.createTempFile("", ""))
+            {
+                // Writes out more bytes to ensure proper truncated.
+                byte[] dataBytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+                Files.write(file.Path, dataBytes);
+                Assert.IsTrue(Files.exists(file.Path));
+                Assert.AreEqual(10, Files.size(file.Path));
 
-            verifyWriteWithLock(file);
+                verifyWriteWithLock(file.Path);
+            }
         }
 
         private void assertFilesEqual(SystemPath file1, SystemPath file2)

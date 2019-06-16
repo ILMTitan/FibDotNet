@@ -31,23 +31,17 @@ namespace com.google.cloud.tools.jib.hash
     // more general.
     public static class Digests
     {
-        public static DescriptorDigest computeJsonDigest(JsonTemplate template)
+        public static DescriptorDigest computeJsonDigest(object template)
         {
             return computeDigest(template, Stream.Null).getDigest();
         }
 
-        public static DescriptorDigest computeJsonDigest(IReadOnlyList<JsonTemplate> templates)
-        {
-            WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(templates, contentsOut);
-            return computeDigest(contents, Stream.Null).getDigest();
-        }
-
-        public static BlobDescriptor computeDigest(JsonTemplate template)
+        public static BlobDescriptor computeDigest(object template)
         {
             return computeDigest(template, Stream.Null);
         }
 
-        public static BlobDescriptor computeDigest(JsonTemplate template, Stream outStream)
+        public static BlobDescriptor computeDigest(object template, Stream outStream)
         {
             WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(template, contentsOut);
             return computeDigest(contents, outStream);
@@ -98,10 +92,11 @@ namespace com.google.cloud.tools.jib.hash
          */
         public static BlobDescriptor computeDigest(WritableContents contents, Stream outStream)
         {
-            CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream);
-            contents.writeTo(digestOutStream);
-            digestOutStream.Flush();
-            return digestOutStream.computeDigest();
+            using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
+            {
+                contents.writeTo(digestOutStream);
+                return digestOutStream.computeDigest();
+            }
         }
     }
 }

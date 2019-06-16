@@ -14,6 +14,7 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.events;
@@ -21,6 +22,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.builder
 {
@@ -29,11 +31,15 @@ namespace com.google.cloud.tools.jib.builder
     [RunWith(typeof(MockitoJUnitRunner))]
     public class ProgressEventDispatcherTest
     {
-        private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
+        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         [Test]
         public void testDispatch()
         {
+            var progressEvents = new List<ProgressEvent>();
+            Mock.Get(mockEventHandlers)
+                .Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
+                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 10))
             using (ProgressEventDispatcher ignored =
@@ -43,10 +49,7 @@ namespace com.google.cloud.tools.jib.builder
                 // empty
             }
 
-            ArgumentCaptor<ProgressEvent> progressEventArgumentCaptor =
-                ArgumentCaptor.forClass<ProgressEvent>();
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(progressEventArgumentCaptor.capture()), Times.Exactly(4));
-            IList<ProgressEvent> progressEvents = progressEventArgumentCaptor.getAllValues();
+            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(It.IsAny<ProgressEvent>()), Times.Exactly(4));
 
             Assert.AreSame(progressEvents.get(0).getAllocation(), progressEvents.get(3).getAllocation());
             Assert.AreSame(progressEvents.get(1).getAllocation(), progressEvents.get(2).getAllocation());
@@ -60,6 +63,9 @@ namespace com.google.cloud.tools.jib.builder
         [Test]
         public void testDispatch_safeWithtooMuchProgress()
         {
+            var progressEvents = new List<ProgressEvent>();
+            Mock.Get(mockEventHandlers).Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
+                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                 ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 10))
             {
@@ -68,10 +74,7 @@ namespace com.google.cloud.tools.jib.builder
                 progressEventDispatcher.dispatchProgress(1);
             }
 
-            ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass<ProgressEvent>();
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(eventsCaptor.capture()), Times.Exactly(4));
-            IList<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
-
+            Assert.AreEqual(4, progressEvents.Count);
             Assert.AreSame(progressEvents.get(0).getAllocation(), progressEvents.get(1).getAllocation());
             Assert.AreSame(progressEvents.get(1).getAllocation(), progressEvents.get(2).getAllocation());
             Assert.AreSame(progressEvents.get(2).getAllocation(), progressEvents.get(3).getAllocation());
@@ -87,6 +90,9 @@ namespace com.google.cloud.tools.jib.builder
         [Test]
         public void testDispatch_safeWithTooManyChildren()
         {
+            var progressEvents = new List<ProgressEvent>();
+            Mock.Get(mockEventHandlers).Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
+                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 1))
             using (ProgressEventDispatcher ignored1 =
@@ -98,10 +104,7 @@ namespace com.google.cloud.tools.jib.builder
                 // empty
             }
 
-            ArgumentCaptor<ProgressEvent> eventsCaptor = ArgumentCaptor.forClass<ProgressEvent>();
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(eventsCaptor.capture()), Times.Exactly(5));
-            IList<ProgressEvent> progressEvents = eventsCaptor.getAllValues();
-
+            Assert.AreEqual(5, progressEvents.Count);
             Assert.AreEqual(1, progressEvents.get(0).getAllocation().getAllocationUnits());
             Assert.AreEqual(5, progressEvents.get(1).getAllocation().getAllocationUnits());
             Assert.AreEqual(4, progressEvents.get(2).getAllocation().getAllocationUnits());

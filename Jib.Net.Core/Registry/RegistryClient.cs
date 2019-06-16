@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.registry
         /** Factory for creating {@link RegistryClient}s. */
         public class Factory
         {
-            private readonly EventHandlers eventHandlers;
+            private readonly IEventHandlers eventHandlers;
             private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
             private bool allowInsecureRegistries = false;
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.registry
             private Authorization authorization;
 
             public Factory(
-                EventHandlers eventHandlers,
+                IEventHandlers eventHandlers,
                 RegistryEndpointRequestProperties registryEndpointRequestProperties)
             {
                 this.eventHandlers = eventHandlers;
@@ -149,12 +149,12 @@ namespace com.google.cloud.tools.jib.registry
          * @param imageName the image/repository name (also known as, namespace)
          * @return the new {@link Factory}
          */
-        public static Factory factory(EventHandlers eventHandlers, string serverUrl, string imageName)
+        public static Factory factory(IEventHandlers eventHandlers, string serverUrl, string imageName)
         {
             return new Factory(eventHandlers, new RegistryEndpointRequestProperties(serverUrl, imageName));
         }
 
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
         private readonly Authorization authorization;
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly bool allowInsecureRegistries;
@@ -169,7 +169,7 @@ namespace com.google.cloud.tools.jib.registry
          * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
          */
         private RegistryClient(
-            EventHandlers eventHandlers,
+            IEventHandlers eventHandlers,
             Authorization authorization,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             bool allowInsecureRegistries,

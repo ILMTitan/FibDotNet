@@ -16,6 +16,8 @@
 
 using Jib.Net.Core.FileSystem;
 using System;
+using System.IO;
+using System.Linq;
 
 namespace Jib.Net.Core.Api
 {
@@ -23,7 +25,22 @@ namespace Jib.Net.Core.Api
     {
         public static SystemPath get(params string[] pathParts)
         {
-            throw new NotImplementedException();
+            return new SystemPath(
+                pathParts.Select(
+                    pathPart => pathPart.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar))
+                .ToArray());
+        }
+
+        internal static SystemPath get(Uri uri)
+        {
+            if(uri.Scheme == "file")
+            {
+                return new SystemPath(uri.AbsolutePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
+            }
+            else
+            {
+                throw new ArgumentException($"Scheme must be \"file\" but was \"{uri.Scheme}\"", nameof(uri));
+            }
         }
     }
 }

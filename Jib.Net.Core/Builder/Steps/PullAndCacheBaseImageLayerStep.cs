@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
     /** Pulls and caches a single base image layer. */
-    public class PullAndCacheBaseImageLayerStep : AsyncStep<CachedLayer>
+    public class PullAndCacheBaseImageLayerStep : AsyncStep<ICachedLayer>
     {
         private static readonly string DESCRIPTION = "Pulling base image layer {0}";
 
@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly DescriptorDigest layerDigest;
         private readonly Authorization pullAuthorization;
 
-        private readonly Task<CachedLayer> listenableFuture;
+        private readonly Task<ICachedLayer> listenableFuture;
 
         public PullAndCacheBaseImageLayerStep(
             BuildConfiguration buildConfiguration,
@@ -61,12 +61,12 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture = Task.Run(call);
         }
 
-        public Task<CachedLayer> getFuture()
+        public Task<ICachedLayer> getFuture()
         {
             return listenableFuture;
         }
 
-        public CachedLayer call()
+        public ICachedLayer call()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))

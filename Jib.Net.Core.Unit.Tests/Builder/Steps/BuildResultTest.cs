@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
@@ -66,15 +67,15 @@ namespace com.google.cloud.tools.jib.builder.steps
         [Test]
         public void testFromImage()
         {
-            Image image1 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
-            Image image2 = Image.builder(typeof(V22ManifestTemplate)).setUser("user").build();
-            Image image3 = Image.builder(typeof(V22ManifestTemplate)).setUser("anotherUser").build();
+            Image image1 = Image.builder(ManifestFormat.V22).setUser("user").build();
+            Image image2 = Image.builder(ManifestFormat.V22).setUser("user").build();
+            Image image3 = Image.builder(ManifestFormat.V22).setUser("anotherUser").build();
             Assert.AreEqual(
-                BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
-                BuildResult.fromImage(image2, typeof(V22ManifestTemplate)));
+                BuildResult.fromImage(image1, ManifestFormat.V22),
+                BuildResult.fromImage(image2, ManifestFormat.V22));
             Assert.AreNotEqual(
-                BuildResult.fromImage(image1, typeof(V22ManifestTemplate)),
-                BuildResult.fromImage(image3, typeof(V22ManifestTemplate)));
+                BuildResult.fromImage(image1, ManifestFormat.V22),
+                BuildResult.fromImage(image3, ManifestFormat.V22));
         }
     }
 }

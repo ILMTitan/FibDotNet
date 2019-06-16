@@ -15,8 +15,11 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -53,6 +56,7 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
      *     Schema 2</a>
      */
+     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class V22ManifestTemplate : BuildableManifestTemplate
     {
         /** The Docker V2.2 manifest media type. */
@@ -67,18 +71,31 @@ namespace com.google.cloud.tools.jib.image.json
         private static readonly string LAYER_MEDIA_TYPE =
             "application/vnd.docker.image.rootfs.diff.tar.gzip";
 
-        private readonly int schemaVersion = 2;
-        private readonly string mediaType = MANIFEST_MEDIA_TYPE;
+        public int SchemaVersion { get; } = 2;
+        public string MediaType { get; } = MANIFEST_MEDIA_TYPE;
 
         /** The container configuration reference. */
-        private ContentDescriptorTemplate config;
+        public ContentDescriptorTemplate Config { get; private set; }
 
         /** The list of layer references. */
-        private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
+        public List<ContentDescriptorTemplate> Layers { get; } = new List<ContentDescriptorTemplate>();
+
+        [JsonConstructor]
+        public V22ManifestTemplate(ContentDescriptorTemplate config, List<ContentDescriptorTemplate> layers)
+        {
+            Config = config;
+            Layers = layers;
+        }
+
+        public V22ManifestTemplate()
+        {
+            Config =null;
+            Layers = new List<ContentDescriptorTemplate>();
+        }
 
         public int getSchemaVersion()
         {
-            return schemaVersion;
+            return SchemaVersion;
         }
 
         public string getManifestMediaType()
@@ -88,22 +105,27 @@ namespace com.google.cloud.tools.jib.image.json
 
         public ContentDescriptorTemplate getContainerConfiguration()
         {
-            return config;
+            return Config;
         }
 
         public IReadOnlyList<ContentDescriptorTemplate> getLayers()
         {
-            return Collections.unmodifiableList(layers);
+            return Collections.unmodifiableList(Layers);
         }
 
         public void setContainerConfiguration(long size, DescriptorDigest digest)
         {
-            config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
+            Config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
         }
 
         public void addLayer(long size, DescriptorDigest digest)
         {
-            layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+            Layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+        }
+
+        public ManifestFormat getFormat()
+        {
+            return ManifestFormat.V22;
         }
     }
 }

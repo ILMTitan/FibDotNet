@@ -25,29 +25,18 @@ using System.Text;
 namespace com.google.cloud.tools.jib.hash
 {
     /** A {@link DigestOutputStream} that also keeps track of the total number of bytes written. */
-    public class CountingDigestOutputStream : DigestOutputStream
+    public class CountingDigestOutputStream : DigestStream
     {
-        private static readonly string SHA_256_ALGORITHM = "SHA-256";
+        public const string SHA_256_ALGORITHM = "SHA-256";
 
         private long bytesSoFar = 0;
 
         /**
-         * Wraps the {@code outputStream}.
+         * Wraps the {@code innerStream}.
          *
-         * @param outputStream the {@link OutputStream} to wrap.
+         * @param innerStream the {@link OutputStream} to wrap.
          */
-        public CountingDigestOutputStream(Stream outputStream) : base(outputStream, null)
-        {
-            try
-            {
-                setMessageDigest(MessageDigest.getInstance(SHA_256_ALGORITHM));
-            }
-            catch (NoSuchAlgorithmException ex)
-            {
-                throw new Exception(
-                    "SHA-256 algorithm implementation not found - might be a broken JVM", ex);
-            }
-        }
+        public CountingDigestOutputStream(Stream outputStream, bool keepOpen = false) : base(outputStream, MessageDigest.getInstance(SHA_256_ALGORITHM), keepOpen) { }
 
         /**
          * Computes the hash and returns it along with the size of the bytes written to compute the hash.
@@ -58,15 +47,16 @@ namespace com.google.cloud.tools.jib.hash
          */
         public BlobDescriptor computeDigest()
         {
+            Flush();
             try
             {
-                byte[] hashedBytes = digest.digest();
+                byte[] hashedBytes = messageDigest.digest();
 
                 // Encodes each hashed byte into 2-character hexadecimal representation.
                 StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.Length);
                 foreach (byte b in hashedBytes)
                 {
-                    stringBuilder.append($"{b:02x}");
+                    stringBuilder.append($"{b:x2}");
                 }
                 string hash = stringBuilder.toString();
 
@@ -83,7 +73,7 @@ namespace com.google.cloud.tools.jib.hash
 
         public long getCount()
         {
-            throw new NotImplementedException();
+            return bytesSoFar;
         }
 
         public override void Write(byte[] data, int offset, int length)

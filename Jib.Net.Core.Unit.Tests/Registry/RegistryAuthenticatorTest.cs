@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
+using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -38,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             registryAuthenticator =
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "Bearer realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("Bearer", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent");
         }
@@ -48,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             RegistryAuthenticator registryAuthenticator =
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "Bearer realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("Bearer", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent");
             Assert.AreEqual(
@@ -57,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
 
             registryAuthenticator =
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "bEaReR realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("bEaReR", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent");
             Assert.AreEqual(
@@ -126,19 +127,19 @@ namespace com.google.cloud.tools.jib.registry
         {
             Assert.IsNull(
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "Basic realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("Basic","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent"));
 
             Assert.IsNull(
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "BASIC realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("BASIC", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent"));
 
             Assert.IsNull(
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "bASIC realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("bASIC","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent"));
         }
@@ -149,7 +150,7 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    new AuthenticationHeaderValue("unknown", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     "user-agent");
                 Assert.Fail("Authentication method without 'Bearer ' or 'Basic ' should fail");
@@ -157,7 +158,7 @@ namespace com.google.cloud.tools.jib.registry
             catch (RegistryAuthenticationFailedException ex)
             {
                 Assert.AreEqual(
-                    "Failed to authenticate with registry someserver/someimage because: 'Bearer' was not found in the 'WWW-Authenticate' header, tried to parse: realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"",
+                    "Failed to authenticate with registry someserver/someimage because: 'Bearer' was not found in the 'WWW-Authenticate' header, tried to parse: unknown",
                     ex.getMessage());
             }
         }
@@ -167,14 +168,13 @@ namespace com.google.cloud.tools.jib.registry
         {
             try
             {
-                RegistryAuthenticator.fromAuthenticationMethod(
-                    "Bearer scope=\"somescope\"", registryEndpointRequestProperties, "user-agent");
+                RegistryAuthenticator.fromAuthenticationMethod(new AuthenticationHeaderValue("Bearer","scope=\"somescope\""), registryEndpointRequestProperties, "user-agent");
                 Assert.Fail("Authentication method without 'realm' should fail");
             }
             catch (RegistryAuthenticationFailedException ex)
             {
                 Assert.AreEqual(
-                    "Failed to authenticate with registry someserver/someimage because: 'realm' was not found in the 'WWW-Authenticate' header, tried to parse: Bearer scope=\"somescope\"",
+                    "Failed to authenticate with registry someserver/someimage because: 'realm' was not found in the 'WWW-Authenticate' header, tried to parse: scope=\"somescope\"",
                     ex.getMessage());
             }
         }
@@ -184,7 +184,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             RegistryAuthenticator registryAuthenticator =
                 RegistryAuthenticator.fromAuthenticationMethod(
-                    "Bearer realm=\"https://somerealm\"", registryEndpointRequestProperties, "user-agent");
+                    new AuthenticationHeaderValue("Bearer","realm=\"https://somerealm\""), registryEndpointRequestProperties, "user-agent");
 
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someserver&scope=repository:someimage:scope"),
@@ -200,7 +200,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     RegistryAuthenticator authenticator =
                         RegistryAuthenticator.fromAuthenticationMethod(
-                            "Bearer realm=\"" + server.getEndpoint() + "\"",
+                            new AuthenticationHeaderValue("Bearer","realm=\"" + server.GetAddressAndPort() + "\""),
                             registryEndpointRequestProperties,
                             "Competent-Agent");
                     authenticator.authenticatePush(null);
@@ -209,8 +209,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // Doesn't matter if auth fails. We only examine what we sent.
                 }
-                StringAssert.Contains(
-                    server.getInputRead(), "User-Agent: Competent-Agent");
+                Assert.That(server.getInputRead(), Does.Contain("User-Agent: Competent-Agent"));
             }
         }
     }

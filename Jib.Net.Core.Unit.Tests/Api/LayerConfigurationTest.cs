@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.api
             SystemPath testDirectory = Paths.get(Resources.getResource("core/layer").toURI()).toAbsolutePath();
             SystemPath testFile = Paths.get(Resources.getResource("core/fileA").toURI());
 
-            LayerConfiguration layerConfiguration =
+            ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
                     .addEntryRecursive(testDirectory, AbsoluteUnixPath.get("/app/layer/"))
                     .addEntryRecursive(testFile, AbsoluteUnixPath.get("/app/fileA"))
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.api
                     defaultLayerEntry(testDirectory.resolve("foo"), AbsoluteUnixPath.get("/app/layer/foo")),
                     defaultLayerEntry(testFile, AbsoluteUnixPath.get("/app/fileA")));
 
-            Assert.AreEqual(
+            CollectionAssert.AreEquivalent(
                 expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.getLayerEntries()));
         }
 
@@ -86,7 +86,7 @@ namespace com.google.cloud.tools.jib.api
                 (source, destination) =>
                     destination.toString().startsWith("/app/layer/a") ? timestamp1 : timestamp2;
 
-            LayerConfiguration layerConfiguration =
+            ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
                     .addEntryRecursive(
                         testDirectory,
@@ -136,7 +136,7 @@ namespace com.google.cloud.tools.jib.api
                         timestamp2),
                     new LayerEntry(testFile, AbsoluteUnixPath.get("/app/fileA"), permissions2, timestamp2));
 
-            Assert.AreEqual(
+            CollectionAssert.AreEquivalent(
                 expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.getLayerEntries()));
         }
     }

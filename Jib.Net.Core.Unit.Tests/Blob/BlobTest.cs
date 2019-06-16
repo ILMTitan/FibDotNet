@@ -73,10 +73,10 @@ namespace com.google.cloud.tools.jib.blob
         /** Checks that the {@link Blob} streams the expected string. */
         private void verifyBlobWriteTo(string expected, Blob blob)
         {
-            Stream outputStream = new MemoryStream();
+            MemoryStream outputStream = new MemoryStream();
             BlobDescriptor blobDescriptor = blob.writeTo(outputStream);
 
-            string output = outputStream.toString();
+            string output = StandardCharsets.UTF_8.GetString(outputStream.ToArray());
             Assert.AreEqual(expected, output);
 
             byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);

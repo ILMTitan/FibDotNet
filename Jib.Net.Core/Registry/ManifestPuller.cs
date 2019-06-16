@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +38,52 @@ namespace com.google.cloud.tools.jib.registry
 
 
 
+    internal class ManifestPuller : ManifestPuller<ManifestTemplate>
+    {
+        public ManifestPuller(RegistryEndpointRequestProperties registryEndpointRequestProperties, string imageTag) : base(registryEndpointRequestProperties, imageTag)
+        {
+        }
 
+        protected override ManifestTemplate getManifestTemplateFromJson(string jsonString)
+        {
+            var token = JToken.Parse(jsonString);
+            if (!(token is JObject obj))
+            {
+                throw new UnknownManifestFormatException("manifest was not a json object");
+            }
+            if (!obj.ContainsKey("schemaVersion"))
+            {
+                throw new UnknownManifestFormatException("Cannot find field 'schemaVersion' in manifest");
+            }
+
+            ;
+            if (!obj.TryGetValue("schemaVersion", out JToken schemaVersionToken) || schemaVersionToken.Type != JTokenType.Integer)
+            {
+                throw new UnknownManifestFormatException("`schemaVersion` field is not an integer");
+            }
+            int schemaVersion = schemaVersionToken.Value<int>();
+            if (schemaVersion == 1)
+            {
+                return JsonTemplateMapper.readJson<V21ManifestTemplate>(jsonString);
+            }
+            if (schemaVersion == 2)
+            {
+                // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
+                string mediaType = obj.Value<string>("mediaType");
+                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                {
+                    return JsonTemplateMapper.readJson<V22ManifestTemplate>(jsonString);
+                }
+                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                {
+                    return JsonTemplateMapper.readJson<OCIManifestTemplate>(jsonString);
+                }
+                throw new UnknownManifestFormatException("Unknown mediaType: " + mediaType);
+            }
+            throw new UnknownManifestFormatException(
+                "Unknown schemaVersion: " + schemaVersion + " - only 1 and 2 are supported");
+        }
+    }
     /** Pulls an image's manifest. */
     internal class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
     {
@@ -59,6 +105,16 @@ namespace com.google.cloud.tools.jib.registry
 
         public IList<string> getAccept()
         {
+            if (typeof(T) == typeof(OCIManifestTemplate)) {
+                return new[] { OCIManifestTemplate.MANIFEST_MEDIA_TYPE };
+            }
+            if(typeof(T) == typeof(V22ManifestTemplate)) {
+                return new[] { V22ManifestTemplate.MANIFEST_MEDIA_TYPE };
+            }
+            if(typeof(T) == typeof(V21ManifestTemplate))
+            {
+                return new[] { V21ManifestTemplate.MEDIA_TYPE };
+            }
             return Arrays.asList(
                 OCIManifestTemplate.MANIFEST_MEDIA_TYPE,
                 V22ManifestTemplate.MANIFEST_MEDIA_TYPE,
@@ -99,45 +155,9 @@ namespace com.google.cloud.tools.jib.registry
          * Instantiates a {@link ManifestTemplate} from a JSON string. This checks the {@code
          * schemaVersion} field of the JSON to determine which manifest version to use.
          */
-        private T getManifestTemplateFromJson(string jsonString)
+        protected virtual T getManifestTemplateFromJson(string jsonString)
         {
-            ObjectNode node = new ObjectMapper().readValue<ObjectNode>(jsonString);
-            if (!node.has("schemaVersion"))
-            {
-                throw new UnknownManifestFormatException("Cannot find field 'schemaVersion' in manifest");
-            }
-
-            if (!typeof(ManifestTemplate).IsAssignableFrom(typeof(T)))
-            {
-                return (T)JsonTemplateMapper.readJson<ManifestTemplate>(jsonString);
-            }
-
-            int schemaVersion = node.get("schemaVersion").asInt(-1);
-            if (schemaVersion == -1)
-            {
-                throw new UnknownManifestFormatException("`schemaVersion` field is not an integer");
-            }
-
-            if (schemaVersion == 1)
-            {
-                return JsonTemplateMapper.readJson<T>(jsonString);
-            }
-            if (schemaVersion == 2)
-            {
-                // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
-                string mediaType = node.get("mediaType").asText();
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
-                {
-                    return (T)JsonTemplateMapper.readJson<T>(jsonString);
-                }
-                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
-                {
-                    return (T)JsonTemplateMapper.readJson<T>(jsonString);
-                }
-                throw new UnknownManifestFormatException("Unknown mediaType: " + mediaType);
-            }
-            throw new UnknownManifestFormatException(
-                "Unknown schemaVersion: " + schemaVersion + " - only 1 and 2 are supported");
+            return JsonTemplateMapper.readJson<T>(jsonString);
         }
     }
 }

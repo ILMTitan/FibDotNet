@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
+using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker.json;
 using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
@@ -91,7 +92,7 @@ namespace com.google.cloud.tools.jib.docker
             Mock.Get(mockLayer2).Setup(m => m.getDiffId()).Returns(fakeDigestB);
 
             Image testImage =
-                Image.builder(new Class<V22ManifestTemplate>(typeof(V22ManifestTemplate))).addLayer(mockLayer1).addLayer(mockLayer2).build();
+                Image.builder(ManifestFormat.V22).addLayer(mockLayer1).addLayer(mockLayer2).build();
 
             ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 

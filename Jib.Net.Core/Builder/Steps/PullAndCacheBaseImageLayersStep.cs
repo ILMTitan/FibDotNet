@@ -33,7 +33,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
     /** Pulls and caches the base image layers. */
-    public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<AsyncStep<CachedLayer>>>
+    public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>>
     {
         private static readonly string DESCRIPTION = "Setting up base image caching";
 
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly PullBaseImageStep pullBaseImageStep;
 
-        private readonly Task<IReadOnlyList<AsyncStep<CachedLayer>>> listenableFuture;
+        private readonly Task<IReadOnlyList<AsyncStep<ICachedLayer>>> listenableFuture;
 
         public PullAndCacheBaseImageLayersStep(
             BuildConfiguration buildConfiguration,
@@ -56,15 +56,15 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(pullBaseImageStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
-        public Task<IReadOnlyList<AsyncStep<CachedLayer>>> getFuture()
+        public Task<IReadOnlyList<AsyncStep<ICachedLayer>>> getFuture()
         {
             return listenableFuture;
         }
 
-        public ImmutableArray<PullAndCacheBaseImageLayerStep> call()
+        public IReadOnlyList<AsyncStep<ICachedLayer>> call()
         {
             BaseImageWithAuthorization pullBaseImageStepResult = NonBlockingSteps.get(pullBaseImageStep);
             ImmutableArray<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
@@ -76,8 +76,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
 
             {
-                ImmutableArray<PullAndCacheBaseImageLayerStep>.Builder pullAndCacheBaseImageLayerStepsBuilder =
-                    ImmutableArray.CreateBuilder<PullAndCacheBaseImageLayerStep>();
+                ImmutableArray<AsyncStep<ICachedLayer>>.Builder pullAndCacheBaseImageLayerStepsBuilder =
+                    ImmutableArray.CreateBuilder<AsyncStep<ICachedLayer>>();
                 foreach (Layer layer in baseImageLayers)
                 {
                     pullAndCacheBaseImageLayerStepsBuilder.add(

@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.registry.credentials.json
@@ -56,63 +57,63 @@ namespace com.google.cloud.tools.jib.registry.credentials.json
      * @see <a
      *     href="https://www.projectatomic.io/blog/2016/03/docker-credentials-store/">https://www.projectatomic.io/blog/2016/03/docker-credentials-store/</a>
      */
-    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-    public class DockerConfigTemplate : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class DockerConfigTemplate
     {
         /** Template for an {@code auth} defined for a registry under {@code auths}. */
-        [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-        public class AuthTemplate : JsonTemplate
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        public class AuthTemplate
         {
-            public string auth;
+            public string Auth { get; set; }
 
             public string getAuth()
             {
-                return auth;
+                return Auth;
             }
         }
 
         /** Maps from registry to its {@link AuthTemplate}. */
-        private readonly IDictionary<string, AuthTemplate> auths = new Dictionary<string, AuthTemplate>();
+        public IDictionary<string, AuthTemplate> Auths { get; } = new Dictionary<string, AuthTemplate>();
 
-        private string credsStore;
+        public string CredsStore { get; set; }
 
         /** Maps from registry to credential helper name. */
-        private readonly IDictionary<string, string> credHelpers = new Dictionary<string, string>();
+        public IDictionary<string, string> CredHelpers { get; }= new Dictionary<string, string>();
 
         public IDictionary<string, AuthTemplate> getAuths()
         {
-            return auths;
+            return Auths;
         }
 
         public string getCredsStore()
         {
-            return credsStore;
+            return CredsStore;
         }
 
         public IDictionary<string, string> getCredHelpers()
         {
-            return credHelpers;
+            return CredHelpers;
         }
 
         private DockerConfigTemplate addAuth(string registry, string auth)
         {
             AuthTemplate authTemplate = new AuthTemplate
             {
-                auth = auth
+                Auth = auth
             };
-            auths.put(registry, authTemplate);
+            Auths.put(registry, authTemplate);
             return this;
         }
 
         private DockerConfigTemplate setCredsStore(string credsStore)
         {
-            this.credsStore = credsStore;
+            this.CredsStore = credsStore;
             return this;
         }
 
         private DockerConfigTemplate addCredHelper(string registry, string credHelper)
         {
-            credHelpers.put(registry, credHelper);
+            CredHelpers.put(registry, credHelper);
             return this;
         }
     }

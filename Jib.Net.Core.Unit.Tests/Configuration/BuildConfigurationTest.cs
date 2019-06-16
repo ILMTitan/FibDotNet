@@ -67,10 +67,10 @@ namespace com.google.cloud.tools.jib.configuration
             IDictionary<string, string> expectedEnvironment = ImmutableDic.of("key", "value");
             ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000));
             IDictionary<string, string> expectedLabels = ImmutableDic.of("key1", "value1", "key2", "value2");
-            IClass<BuildableManifestTemplate> expectedTargetFormat = new Class<OCIManifestTemplate>(typeof(OCIManifestTemplate));
+            ManifestFormat expectedTargetFormat = ManifestFormat.OCI;
             SystemPath expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
             SystemPath expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
-            IList<LayerConfiguration> expectedLayerConfigurations =
+            IList<ILayerConfiguration> expectedLayerConfigurations =
                 Collections.singletonList(
                     LayerConfiguration.builder()
                         .addEntry(Paths.get("sourceFile"), AbsoluteUnixPath.get("/path/in/container"))
@@ -190,7 +190,7 @@ namespace com.google.cloud.tools.jib.configuration
             BuildConfiguration buildConfiguration = buildConfigurationBuilder.build();
 
             Assert.AreEqual(ImmutableHashSet.Create("targettag"), buildConfiguration.getAllTargetImageTags());
-            Assert.AreEqual(typeof(V22ManifestTemplate), buildConfiguration.getTargetFormat());
+            Assert.AreEqual(ManifestFormat.V22, buildConfiguration.getTargetFormat());
             Assert.IsNotNull(buildConfigurationBuilder.getApplicationLayersCacheDirectory());
             Assert.AreEqual(
                 Paths.get("ignored"), buildConfigurationBuilder.getApplicationLayersCacheDirectory());
@@ -211,7 +211,7 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 BuildConfiguration.builder()
                     .setBaseImageConfiguration(
-                        ImageConfiguration.builder(Mock.Of<ImageReference>()).build())
+                        ImageConfiguration.builder(Mock.Of<IImageReference>()).build())
                     .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
                     .setApplicationLayersCacheDirectory(Paths.get("ignored"))
                     .build();
@@ -247,8 +247,8 @@ namespace com.google.cloud.tools.jib.configuration
             catch (InvalidOperationException ex)
             {
                 Assert.AreEqual(
-                    "base image configuration, target image configuration, base image layers cache directory, "
-                        + "application layers cache directory, and executor service are required but not set",
+                    "base image configuration, target image configuration, base image layers cache directory, and "
+                        + "application layers cache directory are required but not set",
                     ex.getMessage());
             }
         }

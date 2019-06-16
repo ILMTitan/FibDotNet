@@ -26,7 +26,7 @@ using System.Linq;
 namespace com.google.cloud.tools.jib.api
 {
     /** Configures how to build a layer in the container image. Instantiate with {@link #builder}. */
-    public sealed class LayerConfiguration
+    public sealed class LayerConfiguration : ILayerConfiguration
     {
         /** Builds a {@link LayerConfiguration}. */
         public class Builder
@@ -221,7 +221,7 @@ namespace com.google.cloud.tools.jib.api
              *
              * @return the built {@link LayerConfiguration}
              */
-            public LayerConfiguration build()
+            public ILayerConfiguration build()
             {
                 return new LayerConfiguration(name, layerEntries.build());
             }

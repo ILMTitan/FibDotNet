@@ -61,12 +61,12 @@ namespace com.google.cloud.tools.jib.registry
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
             new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
 
-        private readonly ManifestPuller<ManifestTemplate> testManifestPuller;
+        private readonly ManifestPuller testManifestPuller;
 
         public ManifestPullerTest()
         {
             testManifestPuller =
-         new ManifestPuller<ManifestTemplate>(
+         new ManifestPuller(
              fakeRegistryEndpointRequestProperties, "test-image-tag");
         }
 
@@ -76,7 +76,10 @@ namespace com.google.cloud.tools.jib.registry
             SystemPath v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
             Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
 
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(v21Manifest);
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StreamContent(v21Manifest)
+            };
 
             ManifestTemplate manifestTemplate =
                 new ManifestPuller<V21ManifestTemplate>(
@@ -91,8 +94,10 @@ namespace com.google.cloud.tools.jib.registry
         {
             SystemPath v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
             Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
-
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(v22Manifest);
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StreamContent(v22Manifest)
+            };
 
             ManifestTemplate manifestTemplate =
                 new ManifestPuller<V22ManifestTemplate>(
@@ -105,7 +110,10 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse_noSchemaVersion()
         {
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{}"));
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StringContent("{}")
+            };
 
             try
             {
@@ -121,7 +129,10 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse_invalidSchemaVersion()
         {
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{\"schemaVersion\":\"not valid\"}"));
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StringContent("{\"schemaVersion\":\"not valid\"}")
+            };
 
             try
             {
@@ -137,7 +148,10 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleResponse_unknownSchemaVersion()
         {
-            Mock.Get(mockResponse).Setup(m => m.getBody()).Returns(stringToInputStreamUtf8("{\"schemaVersion\":0}"));
+            mockResponse = new HttpResponseMessage
+            {
+                Content = new StringContent("{\"schemaVersion\":0}")
+            };
 
             try
             {
@@ -161,7 +175,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetHttpMethod()
         {
-            Assert.AreEqual("GET", testManifestPuller.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Get, testManifestPuller.getHttpMethod());
         }
 
         [Test]
@@ -188,17 +202,17 @@ namespace com.google.cloud.tools.jib.registry
                     V21ManifestTemplate.MEDIA_TYPE),
                 testManifestPuller.getAccept());
 
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 Collections.singletonList(OCIManifestTemplate.MANIFEST_MEDIA_TYPE),
                 new ManifestPuller<OCIManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 Collections.singletonList(V22ManifestTemplate.MANIFEST_MEDIA_TYPE),
                 new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
-            Assert.AreEqual(
+            CollectionAssert.AreEqual(
                 Collections.singletonList(V21ManifestTemplate.MEDIA_TYPE),
                 new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")

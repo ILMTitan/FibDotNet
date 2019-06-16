@@ -15,28 +15,33 @@
  */
 
 using System;
+using System.Linq;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
     internal class DoubleAccumulator
     {
-        private double maxValue;
-        private int v;
+        private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
+        private readonly double maxValue;
 
-        public DoubleAccumulator(double maxValue, int v)
+        public DoubleAccumulator(double maxValue, double initialValue)
         {
             this.maxValue = maxValue;
-            this.v = v;
+            values.Value = initialValue;
         }
 
-        internal void accumulate(double v)
+        internal void accumulate(double value)
         {
-            throw new NotImplementedException();
+            if(values.Value < value)
+            {
+                values.Value = value;
+            }
         }
 
         internal double get()
         {
-            throw new NotImplementedException();
+            return values.Values.Max();
         }
     }
 }

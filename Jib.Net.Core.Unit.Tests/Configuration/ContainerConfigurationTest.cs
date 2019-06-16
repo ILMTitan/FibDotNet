@@ -80,21 +80,8 @@ namespace com.google.cloud.tools.jib.configuration
                 Assert.AreEqual("volumes list contains null elements", ex.getMessage());
             }
 
-            IDictionary<string, string> nullKeyMap = new Dictionary<string, string>();
-            nullKeyMap.put(null, "value");
             IDictionary<string, string> nullValueMap = new Dictionary<string, string>();
             nullValueMap.put("key", null);
-
-            // Label keys should not be null.
-            try
-            {
-                ContainerConfiguration.builder().setLabels(nullKeyMap);
-                Assert.Fail("The IllegalArgumentException should be thrown.");
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual("labels map contains null keys", ex.getMessage());
-            }
 
             // Labels values should not be null.
             try
@@ -105,17 +92,6 @@ namespace com.google.cloud.tools.jib.configuration
             catch (ArgumentException ex)
             {
                 Assert.AreEqual("labels map contains null values", ex.getMessage());
-            }
-
-            // Environment keys should not be null.
-            try
-            {
-                ContainerConfiguration.builder().setEnvironment(nullKeyMap);
-                Assert.Fail("The IllegalArgumentException should be thrown.");
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual("environment map contains null keys", ex.getMessage());
             }
 
             // Environment values should not be null.

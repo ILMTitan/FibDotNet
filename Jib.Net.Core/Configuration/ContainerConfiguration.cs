@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.configuration
 
 
     /** Immutable configuration options for the container. */
-    public sealed class ContainerConfiguration
+    public sealed class ContainerConfiguration : IContainerConfiguration
     {
         /** The default creation time of the container (constant to ensure reproducibility by default). */
         public static readonly Instant DEFAULT_CREATION_TIME = Instant.FromUnixTimeMilliseconds(0);

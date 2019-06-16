@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -28,6 +29,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Authentication;
 using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
 namespace com.google.cloud.tools.jib.registry
@@ -70,21 +72,12 @@ namespace com.google.cloud.tools.jib.registry
             Exception exception = original;
             while (exception != null)
             {
-                string message = exception.getMessage();
-                if (message != null && message.toLowerCase(Locale.US).contains("broken pipe"))
-                {
-                    return true;
-                }
-                if (exception is Win32Exception e && e.ErrorCode == ERROR_BROKEN_PIPE)
+                if (exception is Win32Exception e && e.NativeErrorCode == ERROR_BROKEN_PIPE)
                 {
                     return true;
                 }
 
                 exception = exception.getCause();
-                if (exception == original)
-                { // just in case if there's a circular chain
-                    return false;
-                }
             }
             return false;
         }
@@ -104,7 +97,7 @@ namespace com.google.cloud.tools.jib.registry
             return "https".Equals(url.getProtocol());
         }
 
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
         private readonly Uri initialRequestUrl;
         private readonly string userAgent;
         private readonly RegistryEndpointProvider<T> registryEndpointProvider;
@@ -113,10 +106,10 @@ namespace com.google.cloud.tools.jib.registry
         private readonly bool allowInsecureRegistries;
 
         /** Makes a {@link Connection} to the specified {@link Uri}. */
-        private readonly Func<Uri, Connection> connectionFactory;
+        private readonly Func<Uri, IConnection> connectionFactory;
 
         /** Makes an insecure {@link Connection} to the specified {@link Uri}. */
-        private Func<Uri, Connection> insecureConnectionFactory;
+        private Func<Uri, IConnection> insecureConnectionFactory;
 
         /**
          * Constructs with parameters for making the request.
@@ -131,7 +124,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws MalformedURLException if the Uri generated for the endpoint is malformed
          */
         public RegistryEndpointCaller(
-            EventHandlers eventHandlers,
+            IEventHandlers eventHandlers,
             string userAgent,
             string apiRouteBase,
             RegistryEndpointProvider<T> registryEndpointProvider,
@@ -152,15 +145,15 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         public RegistryEndpointCaller(
-            EventHandlers eventHandlers,
+            IEventHandlers eventHandlers,
             string userAgent,
             string apiRouteBase,
             RegistryEndpointProvider<T> registryEndpointProvider,
             Authorization authorization,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             bool allowInsecureRegistries,
-            Func<Uri, Connection> connectionFactory,
-            Func<Uri, Connection> insecureConnectionFactory)
+            Func<Uri, IConnection> connectionFactory,
+            Func<Uri, IConnection> insecureConnectionFactory)
         {
             this.eventHandlers = eventHandlers;
             this.initialRequestUrl =
@@ -197,13 +190,13 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return call(url, connectionFactory);
             }
-            catch (SSLException)
+            catch (HttpRequestException e) when (e.InnerException is AuthenticationException)
             {
                 return handleUnverifiableServerException(url);
             }
             catch (ConnectException)
             {
-                if (allowInsecureRegistries && isHttpsProtocol(url) && url.getPort() == -1)
+                if (allowInsecureRegistries && isHttpsProtocol(url) && url.IsDefaultPort)
                 {
                     // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
                     // port 443) and we could not connect to 443. It's worth trying port 80.
@@ -227,7 +220,11 @@ namespace com.google.cloud.tools.jib.registry
                         "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
                 return call(url, getInsecureConnectionFactory());
             }
-            catch (SSLException)
+            catch (AuthenticationException)
+            {
+                return fallBackToHttp(url);
+            }
+            catch(HttpRequestException e) when (e.InnerException is AuthenticationException)
             {
                 return fallBackToHttp(url);
             }
@@ -235,15 +232,18 @@ namespace com.google.cloud.tools.jib.registry
 
         private T fallBackToHttp(Uri url)
         {
-            UriBuilder httpUrl = new UriBuilder(url) { Port = url.IsDefaultPort ? -1 : url.Port };
-            httpUrl.setScheme("http");
+            UriBuilder httpUrl = new UriBuilder(url)
+            {
+                Scheme = Uri.UriSchemeHttp,
+                Port = url.IsDefaultPort ? -1 : url.Port
+            };
             eventHandlers.dispatch(
                 LogEvent.info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
             return call(httpUrl.toURL(), connectionFactory);
         }
 
-        private Func<Uri, Connection> getInsecureConnectionFactory()
+        private Func<Uri, IConnection> getInsecureConnectionFactory()
         {
             try
             {
@@ -267,17 +267,17 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        private T call(Uri url, Func<Uri, Connection> connectionFactory)
+        private T call(Uri url, Func<Uri, IConnection> connectionFactory)
         {
             // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
             bool sendCredentials =
                 isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
             try
             {
-                using (Connection connection = connectionFactory.apply(url))
+                using (IConnection connection = connectionFactory.apply(url))
                 {
                     var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
-                    request.Headers.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
+                    request.Headers.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(userAgent)));
                     foreach (var accept in registryEndpointProvider.getAccept())
                     {
                         request.Headers.Accept.ParseAdd(accept);
@@ -287,8 +287,7 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
                     }
-                    HttpResponseMessage response =
-                        connection.send(request);
+                    HttpResponseMessage response = connection.send(request);
 
                     return registryEndpointProvider.handleResponse(response);
                 }
@@ -329,11 +328,9 @@ namespace com.google.cloud.tools.jib.registry
                                 registryEndpointRequestProperties.getImageName());
                         }
                     }
-                    else if (ex.getStatusCode()
-                          == HttpStatusCode.TemporaryRedirect
-                      || ex.getStatusCode()
-                          == HttpStatusCode.MovedPermanently
-                      || ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
+                    else if (ex.getStatusCode() == HttpStatusCode.TemporaryRedirect ||
+                        ex.getStatusCode() == HttpStatusCode.MovedPermanently ||
+                        ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
                     {
                         // 'Location' header can be relative or absolute.
                         Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
@@ -366,24 +363,23 @@ namespace com.google.cloud.tools.jib.registry
                 new RegistryErrorExceptionBuilder(
                     registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
 
+            string stringContent = httpResponseException.getContent().ReadAsStringAsync().Result;
             try
             {
                 ErrorResponseTemplate errorResponse =
                     JsonTemplateMapper.readJson<ErrorResponseTemplate>(
-                        httpResponseException.getContent().ReadAsStringAsync().Result);
+                        stringContent);
                 foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
                 {
                     registryErrorExceptionBuilder.addReason(errorEntry);
                 }
             }
-            catch (IOException)
+            catch (Exception e) when (e is IOException || e is JsonException)
             {
                 registryErrorExceptionBuilder.addReason(
-                    "registry returned error code "
-                        + httpResponseException.getStatusCode()
-                        + "; possible causes include invalid or wrong reference. Actual error output follows:\n"
-                        + httpResponseException.getContent()
-                        + "\n");
+                    $"registry returned error code {httpResponseException.getStatusCode():D}; " +
+                    $"possible causes include invalid or wrong reference. " +
+                    $"Actual error output follows:\n{stringContent}\n");
             }
 
             return registryErrorExceptionBuilder.build();

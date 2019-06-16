@@ -32,6 +32,7 @@ namespace com.google.cloud.tools.jib.http
 
         /** Number of bytes to provide to {@link #byteCountListener}. */
         private long byteCount = 0;
+        private readonly bool _leaveOpen;
 
         public override bool CanRead => underlyingOutputStream.CanRead;
 
@@ -50,10 +51,11 @@ namespace com.google.cloud.tools.jib.http
          * @param byteCountListener the byte count {@link Consumer}
          */
         public NotifyingOutputStream(
-      Stream underlyingOutputStream, Consumer<long> byteCountListener)
+      Stream underlyingOutputStream, Consumer<long> byteCountListener, bool leaveOpen = false)
         {
             this.underlyingOutputStream = underlyingOutputStream;
             this.byteCountListener = byteCountListener;
+            _leaveOpen = leaveOpen;
         }
 
         protected override void Dispose(bool disposing)
@@ -61,7 +63,10 @@ namespace com.google.cloud.tools.jib.http
             base.Dispose(disposing);
             if (disposing)
             {
-                underlyingOutputStream.Dispose();
+                if (!_leaveOpen)
+                {
+                    underlyingOutputStream.Dispose();
+                }
                 countAndCallListener(0);
             }
         }

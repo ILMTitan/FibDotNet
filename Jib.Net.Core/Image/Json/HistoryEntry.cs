@@ -29,8 +29,8 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href=https://github.com/opencontainers/image-spec/blob/master/config.md#properties>OCI
      *     image spec ({@code history} field)</a>
      */
-    [JsonIgnoreProperties(ignoreUnknown = true)]
-    public class HistoryEntry : JsonTemplate
+     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+    public class HistoryEntry
     {
         public class Builder
         {
@@ -95,26 +95,26 @@ namespace com.google.cloud.tools.jib.image.json
 
         /** The ISO-8601 formatted timestamp at which the image was created. */
         [JsonProperty("created")]
-        private string creationTimestamp;
+        public string creationTimestamp { get; set; }
 
         /** The name of the author specified when committing the image. */
         [JsonProperty("author")]
-        private string author;
+        public string author { get; set; }
 
         /** The command used to build the layer. */
         [JsonProperty("created_by")]
-        private string createdBy;
+        public string createdBy { get; set; }
 
         /** A custom message set when creating the layer. */
         [JsonProperty("comment")]
-        private string comment;
+        public string comment { get; set; }
 
         /**
          * Whether or not the entry corresponds to a layer in the container ({@code bool} to
          * make field optional).
          */
-        [JsonProperty("empty_layer")]
-        private bool emptyLayer;
+        [JsonProperty("empty_layer", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool emptyLayer { get; set; }
 
         public HistoryEntry() { }
 

@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -22,7 +23,14 @@ namespace com.google.cloud.tools.jib.api
     {
         internal static int hash(params object[] values)
         {
-            throw new NotImplementedException();
+            int nullHashValue = EqualityComparer<object>.Default.GetHashCode(null);
+            int hashValue = nullHashValue;
+            foreach(var value in values)
+            {
+                hashValue *= 31;
+                hashValue += value?.GetHashCode() ?? nullHashValue;
+            }
+            return hashValue;
         }
 
         internal static bool isNull(object arg)

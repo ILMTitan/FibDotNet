@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.image.json
      * <pre>{@code
      * ImageToJsonTranslator translator = new ImageToJsonTranslator(image);
      * Blob containerConfigurationBlob = translator.getContainerConfigurationBlob();
-     * BlobDescriptor containerConfigurationBlobDescriptor = blob.writeTo(outputStream);
+     * BlobDescriptor containerConfigurationBlobDescriptor = blob.writeTo(innerStream);
      * Blob manifestBlob = translator.getManifestBlob(containerConfigurationBlobDescriptor);
      * }</pre>
      */
@@ -98,6 +98,7 @@ namespace com.google.cloud.tools.jib.image.json
                 .entrySet()
                 .stream()
                 .map(entry => entry.getKey() + "=" + entry.getValue())
+                .sorted()
                 .collect(ImmutableArray.ToImmutableArray);
         }
 
@@ -146,7 +147,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the container configuration {@link Blob}
          */
-        public JsonTemplate getContainerConfiguration()
+        public ContainerConfigurationTemplate getContainerConfiguration()
         {
             // ISet up the JSON template.
             ContainerConfigurationTemplate template = new ContainerConfigurationTemplate();
@@ -177,7 +178,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             // Ignore healthcheck if not Docker/command is empty
             DockerHealthCheck healthCheck = image.getHealthCheck();
-            if (image.getImageFormat().Type == typeof(V22ManifestTemplate) && healthCheck != null)
+            if (image.getImageFormat()== ManifestFormat.V22 && healthCheck != null)
             {
                 template.setContainerHealthCheckTest(healthCheck.getCommand());
                 healthCheck
@@ -206,13 +207,25 @@ namespace com.google.cloud.tools.jib.image.json
          * @param containerConfigurationBlobDescriptor the container configuration descriptor.
          * @return the image contents serialized as JSON.
          */
-        public T getManifestTemplate<T>(
-            IClass<T> manifestTemplateClass, BlobDescriptor containerConfigurationBlobDescriptor)
+        public BuildableManifestTemplate getManifestTemplate(
+            ManifestFormat manifestFormat, BlobDescriptor containerConfigurationBlobDescriptor)
         {
             try
             {
+                BuildableManifestTemplate template;
                 // ISet up the JSON template.
-                T template = manifestTemplateClass.getDeclaredConstructor().newInstance();
+                switch (manifestFormat)
+                {
+                    case ManifestFormat.V22:
+                        template = new V22ManifestTemplate();
+                        break;
+                    case ManifestFormat.OCI:
+                        template = new OCIManifestTemplate();
+                        break;
+                    default:
+                        throw new ArgumentException(nameof(manifestFormat));
+
+                }
                 BuildableManifestTemplate buildableTemplate = (BuildableManifestTemplate)template;
 
                 // Adds the container configuration reference.
@@ -236,7 +249,7 @@ namespace com.google.cloud.tools.jib.image.json
               || ex is NoSuchMethodException
               || ex is InvocationTargetException)
             {
-                throw new ArgumentException(manifestTemplateClass + " cannot be instantiated", ex);
+                throw new ArgumentException(manifestFormat + " cannot be instantiated", ex);
             }
         }
     }

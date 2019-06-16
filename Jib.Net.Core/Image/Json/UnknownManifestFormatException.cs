@@ -15,6 +15,8 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using System;
+using System.Net.Http;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -25,15 +27,11 @@ namespace com.google.cloud.tools.jib.image.json
         {
         }
 
-        public UnknownManifestFormatException(string message, System.Exception cause) : base(message, cause)
+        public UnknownManifestFormatException(string message, Exception cause) : base(message, cause)
         {
         }
 
-        public UnknownManifestFormatException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public UnknownManifestFormatException() : base()
+        public UnknownManifestFormatException(string message, HttpResponseMessage cause) : base(message, cause)
         {
         }
     }

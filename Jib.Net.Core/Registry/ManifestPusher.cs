@@ -24,6 +24,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 
@@ -66,19 +67,19 @@ namespace com.google.cloud.tools.jib.registry
             {
                 message.add(receivedDigest);
             }
-            return message.toString();
+            return message.ToString();
         }
 
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly BuildableManifestTemplate manifestTemplate;
         private readonly string imageTag;
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
 
         public ManifestPusher(
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             BuildableManifestTemplate manifestTemplate,
             string imageTag,
-            EventHandlers eventHandlers)
+            IEventHandlers eventHandlers)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
             this.manifestTemplate = manifestTemplate;
@@ -90,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             // TODO: Consider giving progress on manifest push as well?
             return new BlobHttpContent(
-                Blobs.from(manifestTemplate), manifestTemplate.getManifestMediaType());
+                Blobs.fromJson(manifestTemplate), manifestTemplate.getManifestMediaType());
         }
 
         public IList<string> getAccept()
@@ -135,26 +136,31 @@ namespace com.google.cloud.tools.jib.registry
             // Checks if the image digest is as expected.
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(manifestTemplate);
 
-            IList<string> receivedDigests = response.getHeader(RESPONSE_DIGEST_HEADER);
-            if (receivedDigests.size() == 1)
+            if (response.Headers.TryGetValues(RESPONSE_DIGEST_HEADER, out var receivedDigestEnum))
             {
-                try
+                var receivedDigests = receivedDigestEnum.ToList();
+                if (receivedDigests.Count == 1)
                 {
-                    DescriptorDigest receivedDigest = DescriptorDigest.fromDigest(receivedDigests.get(0));
-                    if (expectedDigest.Equals(receivedDigest))
+                    try
                     {
-                        return expectedDigest;
+                        if (expectedDigest.Equals(DescriptorDigest.fromDigest(receivedDigests[0])))
+                        {
+                            return expectedDigest;
+                        }
+                    }
+                    catch (DigestException)
+                    {
+                        // Invalid digest.
                     }
                 }
-                catch (DigestException)
-                {
-                    // Invalid digest.
-                }
+                eventHandlers.dispatch(
+                    LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, receivedDigests)));
+                return expectedDigest;
             }
 
-            // The received digest is not as expected. Warns about this.
             eventHandlers.dispatch(
-                LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, receivedDigests)));
+                LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, new string[0])));
+            // The received digest is not as expected. Warns about this.
             return expectedDigest;
         }
 

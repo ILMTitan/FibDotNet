@@ -16,59 +16,102 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.hash
 {
-    public class DigestOutputStream : Stream
+    public class DigestStream : Stream
     {
-        private Stream outputStream;
-        private object p;
+        private Stream innerStream;
+        protected MessageDigest messageDigest;
+        private bool keepOpen;
 
-        public DigestOutputStream(Stream outputStream, object p)
+        public DigestStream(Stream innerStream, MessageDigest messageDigest, bool keepOpen = false)
         {
-            this.outputStream = outputStream;
-            this.p = p;
+            this.innerStream = innerStream;
+            this.messageDigest = messageDigest;
+            this.keepOpen = keepOpen;
+
         }
 
-        public override bool CanRead => throw new System.NotImplementedException();
+        public override bool CanRead => innerStream.CanRead;
 
-        public override bool CanSeek => throw new System.NotImplementedException();
+        public override bool CanSeek => false;
 
-        public override bool CanWrite => throw new System.NotImplementedException();
+        public override bool CanWrite => innerStream.CanWrite;
 
-        public override long Length => throw new System.NotImplementedException();
+        /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking.</exception>
+        public override long Length => throw new NotSupportedException();
 
-        public override long Position { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public MessageDigest digest => throw new NotImplementedException();
-
-        public void setMessageDigest(MessageDigest d)
+        /// <exception cref="NotSupportedException">The stream does not support seeking.</exception>
+        public override long Position
         {
-            throw new NotImplementedException();
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public void setMessageDigest(MessageDigest messageDigest)
+        {
+            this.messageDigest = messageDigest;
         }
 
         public override void Flush()
         {
-            throw new System.NotImplementedException();
+            innerStream.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new System.NotImplementedException();
+            var bytesRead = innerStream.Read(buffer, offset, count);
+            return messageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
         }
 
+        /// <exception cref="NotSupportedException">The stream does not support seeking.</exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new System.NotImplementedException();
+            throw new NotSupportedException();
         }
 
+        /// <exception cref="NotSupportedException">The stream does not support seeking.</exception>
         public override void SetLength(long value)
         {
-            throw new System.NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new System.NotImplementedException();
+            var newCount = messageDigest.TransformBlock(buffer, offset, count, buffer, offset);
+            innerStream.Write(buffer, offset, newCount);
+        }
+
+        public async override Task FlushAsync(CancellationToken cancellationToken)
+        {
+            await innerStream.FlushAsync(cancellationToken);
+        }
+
+        public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            var bytesRead = await innerStream.ReadAsync(buffer, offset, count, cancellationToken);
+            return messageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
+        }
+
+        public async override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            var newCount = messageDigest.TransformBlock(buffer, offset, count, buffer, offset);
+            await innerStream.WriteAsync(buffer, offset, newCount, cancellationToken);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                if (!keepOpen)
+                {
+                    innerStream.Dispose();
+                }
+            }
         }
     }
 }

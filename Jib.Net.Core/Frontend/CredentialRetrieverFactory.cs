@@ -36,11 +36,11 @@ namespace com.google.cloud.tools.jib.frontend
 
     /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
 
-    public delegate DockerCredentialHelper DockerCredentialHelperFactory(string registry, SystemPath credentialHelper);
+    public delegate IDockerCredentialHelper DockerCredentialHelperFactory(string registry, SystemPath credentialHelper);
 
     public static class DchfExtensions
     {
-        public static DockerCredentialHelper create(this DockerCredentialHelperFactory f, string registry, SystemPath credentialHelper)
+        public static IDockerCredentialHelper create(this DockerCredentialHelperFactory f, string registry, SystemPath credentialHelper)
         {
             return f(registry, credentialHelper);
         }
@@ -147,7 +147,7 @@ namespace com.google.cloud.tools.jib.frontend
                     logger.accept(
                         LogEvent.info(
                             "No credentials for " + imageReference.getRegistry() + " in " + credentialHelper));
-                    return Optional.empty();
+                    return Optional.empty<Credential>();
                 }
                 catch (IOException ex)
                 {
@@ -209,7 +209,7 @@ namespace com.google.cloud.tools.jib.frontend
                         throw new CredentialRetrievalException(ex);
                     }
                 }
-                return Optional.empty();
+                return Optional.empty<Credential>();
             };
         }
 
@@ -240,7 +240,7 @@ namespace com.google.cloud.tools.jib.frontend
         }
 
         public CredentialRetriever dockerConfig(
-            DockerConfigCredentialRetriever dockerConfigCredentialRetriever)
+            IDockerConfigCredentialRetriever dockerConfigCredentialRetriever)
         {
             return () =>
             {
@@ -260,7 +260,7 @@ namespace com.google.cloud.tools.jib.frontend
                 {
                     logger.accept(LogEvent.info("Unable to parse Docker config"));
                 }
-                return Optional.empty();
+                return Optional.empty<Credential>();
             };
         }
 

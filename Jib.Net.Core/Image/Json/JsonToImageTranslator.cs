@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.image.json
          * <p>Example matches: 100, 1000/tcp, 2000/udp
          */
         private static readonly Regex PORT_PATTERN =
-            new Regex("(?<portNum>\\d+)(?:/(?<protocol>tcp|udp))?");
+            new Regex("^(?<portNum>\\d+)(?:/(?<protocol>tcp|udp))?$");
 
         /**
          * Pattern used for parsing environment variables in the format {@code NAME=VALUE}. {@code NAME}
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.image.json
          * <p>Example matches: NAME=VALUE, A12345=$$$$$
          */
 
-        public static readonly Regex ENVIRONMENT_PATTERN = new Regex("(?<name>[^=]+)=(?<value>.*)");
+        public static readonly Regex ENVIRONMENT_PATTERN = new Regex("^(?<name>[^=]+)=(?<value>.*)$");
 
         /**
          * Translates {@link V21ManifestTemplate} to {@link Image}.
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public static Image toImage(V21ManifestTemplate manifestTemplate)
         {
-            Image.Builder imageBuilder = Image.builder((Class<V21ManifestTemplate>)typeof(V21ManifestTemplate));
+            Image.Builder imageBuilder = Image.builder(ManifestFormat.V21);
 
             // V21 layers are in reverse order of V22. (The first layer is the latest one.)
             foreach (DescriptorDigest digest in manifestTemplate.getLayerDigests().reverse())
@@ -130,7 +130,7 @@ namespace com.google.cloud.tools.jib.image.json
                     "Mismatch between image manifest and container configuration");
             }
 
-            Image.Builder imageBuilder = Image.builder((IClass<ManifestTemplate>)manifestTemplate.getClass());
+            Image.Builder imageBuilder = Image.builder(manifestTemplate.getFormat());
 
             for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++)
             {

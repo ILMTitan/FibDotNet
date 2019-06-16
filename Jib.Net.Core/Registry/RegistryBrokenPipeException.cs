@@ -29,21 +29,5 @@ namespace com.google.cloud.tools.jib.registry
               cause)
         {
         }
-
-        public RegistryBrokenPipeException(string message, Exception cause) : base(message, cause)
-        {
-        }
-
-        public RegistryBrokenPipeException(string message) : base(message)
-        {
-        }
-
-        public RegistryBrokenPipeException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public RegistryBrokenPipeException() : base()
-        {
-        }
     }
 }

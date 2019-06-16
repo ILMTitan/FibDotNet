@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -27,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Compression;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -194,13 +196,24 @@ namespace com.google.cloud.tools.jib.api
                 {
                     if (layerEntry.isFile())
                     {
+                        const PosixFilePermission expectedFilePermissions = PosixFilePermission.OWNER_READ
+                            | PosixFilePermission.OWNER_WRITE
+                            | PosixFilePermission.GROUP_READ
+                            | PosixFilePermission.OTHERS_READ;
                         Assert.AreEqual(
-                    0644, layerEntry.getMode() & 0777, layerName + ": " + layerEntry.getName());
+                            expectedFilePermissions,
+                            layerEntry.getMode() & PosixFilePermission.ALL,
+                            layerName + ": " + layerEntry.getName());
                     }
                     else if (layerEntry.isDirectory())
                     {
+                        const PosixFilePermission expectedDirectoryPermissions = PosixFilePermission.OWNER_ALL
+                            | PosixFilePermission.GROUP_READ_EXECUTE
+                            | PosixFilePermission.OTHERS_READ_EXECUTE;
                         Assert.AreEqual(
-                    0755, layerEntry.getMode() & 0777, layerName + ": " + layerEntry.getName());
+                            expectedDirectoryPermissions,
+                            layerEntry.getMode() & PosixFilePermission.ALL,
+                            layerName + ": " + layerEntry.getName());
                     }
                 });
         }
@@ -272,7 +285,7 @@ namespace com.google.cloud.tools.jib.api
                     // assume all .tar.gz files are layers
                     if (imageEntry.isFile() && imageEntryName.endsWith(".tar.gz"))
                     {
-                        TarInputStream layer = new TarInputStream(new GZipInputStream(input));
+                        TarInputStream layer = new TarInputStream(new GZipStream(input, CompressionMode.Decompress));
                         TarEntry layerEntry;
                         while ((layerEntry = layer.getNextTarEntry()) != null)
                         {

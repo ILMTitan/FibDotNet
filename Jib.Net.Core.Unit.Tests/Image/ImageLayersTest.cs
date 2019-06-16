@@ -32,16 +32,16 @@ namespace com.google.cloud.tools.jib.image
     public class ImageLayersTest
     {
         private Layer mockLayer = Mock.Of<Layer>();
-        private ReferenceLayer mockReferenceLayer = Mock.Of<ReferenceLayer>();
-        private DigestOnlyLayer mockDigestOnlyLayer = Mock.Of<DigestOnlyLayer>();
+        private Layer mockReferenceLayer = Mock.Of<Layer>();
+        private Layer mockDigestOnlyLayer = Mock.Of<Layer>();
         private Layer mockLayer2 = Mock.Of<Layer>();
 
         [SetUp]
         public void setUpFakes()
         {
-            DescriptorDigest mockDescriptorDigest1 = Mock.Of<DescriptorDigest>();
-            DescriptorDigest mockDescriptorDigest2 = Mock.Of<DescriptorDigest>();
-            DescriptorDigest mockDescriptorDigest3 = Mock.Of<DescriptorDigest>();
+            DescriptorDigest mockDescriptorDigest1 = DescriptorDigest.fromHash(new string('a', 64));
+            DescriptorDigest mockDescriptorDigest2 = DescriptorDigest.fromHash(new string('b', 64));
+            DescriptorDigest mockDescriptorDigest3 = DescriptorDigest.fromHash(new string('c', 64));
 
             BlobDescriptor layerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
             BlobDescriptor referenceLayerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest2);

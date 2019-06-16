@@ -52,8 +52,8 @@ namespace com.google.cloud.tools.jib.registry
         private static readonly string TEST_BLOB_CONTENT = "some BLOB content";
         private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
-        private Uri mockURL = Mock.Of<Uri>();
-        private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
+        private Uri mockURL = new Uri("mock://someServerUrl/someImageName");
+        private HttpResponseMessage mockResponse = new HttpResponseMessage();
 
         private DescriptorDigest fakeDescriptorDigest;
         private BlobPusher testBlobPusher;
@@ -87,13 +87,16 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testInitializer_handleResponse_created()
         {
-            Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)201); // Created
+            mockResponse = new HttpResponseMessage(HttpStatusCode.Created);
             Assert.IsNull(testBlobPusher.initializer().handleResponse(mockResponse));
-            Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)202); // Accepted
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Collections.singletonList("location"));
-
-            UriBuilder requestUrl = new UriBuilder("https://someurl");
-            Mock.Get(mockResponse).Setup(m => m.getRequestUrl()).Returns(requestUrl.Uri);
+            mockResponse = new HttpResponseMessage(HttpStatusCode.Accepted)
+            {
+                Headers = { Location = new Uri("location", UriKind.Relative) },
+                RequestMessage = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("https://someurl")
+                }
+            };
 
             Assert.AreEqual(
                 new Uri("https://someurl/location"),
@@ -101,27 +104,9 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testInitializer_handleResponse_accepted_multipleLocations()
-        {
-            Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)202); // Accepted
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Arrays.asList("location1", "location2"));
-
-            try
-            {
-                testBlobPusher.initializer().handleResponse(mockResponse);
-                Assert.Fail("Multiple 'Location' headers should be a registry error");
-            }
-            catch (RegistryErrorException ex)
-            {
-                StringAssert.Contains(
-                    ex.getMessage(), "Expected 1 'Location' header, but found 2");
-            }
-        }
-
-        [Test]
         public void testInitializer_handleResponse_unrecognized()
         {
-            Mock.Get(mockResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)(-1)); // Unrecognized
+            mockResponse = new HttpResponseMessage(HttpStatusCode.Unused);
             try
             {
                 testBlobPusher.initializer().handleResponse(mockResponse);
@@ -129,8 +114,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(), "Received unrecognized status code -1");
+                Assert.That(ex.getMessage(), Does.Contain("Received unrecognized status code Unused"));
             }
         }
 
@@ -163,7 +147,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testInitializer_getHttpMethod()
         {
-            Assert.AreEqual("POST", testBlobPusher.initializer().getHttpMethod());
+            Assert.AreEqual(HttpMethod.Post, testBlobPusher.initializer().getHttpMethod());
         }
 
         [Test]
@@ -200,10 +184,18 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testWriter_handleResponse()
         {
-            Mock.Get(mockResponse).Setup(m => m.getHeader("Location")).Returns(Collections.singletonList("https://somenewurl/location"));
-
             UriBuilder requestUrl = new UriBuilder("https://someurl");
-            Mock.Get(mockResponse).Setup(m => m.getRequestUrl()).Returns(requestUrl.Uri);
+            mockResponse = new HttpResponseMessage
+            {
+                Headers =
+                {
+                    Location = new Uri("https://somenewurl/location")
+                },
+                RequestMessage = new HttpRequestMessage
+                {
+                    RequestUri = requestUrl.Uri
+                }
+            };
 
             Assert.AreEqual(
                 new Uri("https://somenewurl/location"),
@@ -220,7 +212,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testWriter_getHttpMethod()
         {
-            Assert.AreEqual("PATCH", testBlobPusher.writer(mockURL, ignored => { }).getHttpMethod());
+            Assert.AreEqual(HttpMethod.Patch, testBlobPusher.writer(mockURL, ignored => { }).getHttpMethod());
         }
 
         [Test]
@@ -261,7 +253,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testCommitter_getHttpMethod()
         {
-            Assert.AreEqual("PUT", testBlobPusher.committer(mockURL).getHttpMethod());
+            Assert.AreEqual(HttpMethod.Put, testBlobPusher.committer(mockURL).getHttpMethod());
         }
 
         [Test]

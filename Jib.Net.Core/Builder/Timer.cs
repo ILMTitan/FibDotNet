@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.builder
         public Duration lap()
         {
             Instant now = clock.instant();
-            Duration duration = lapStartTime - now;
+            Duration duration = now - lapStartTime;
             lapStartTime = now;
             return duration;
         }
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         public Duration getElapsedTime()
         {
-            return startTime - clock.instant();
+            return clock.instant() - startTime;
         }
     }
 }

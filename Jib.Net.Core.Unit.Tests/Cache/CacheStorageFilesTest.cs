@@ -68,8 +68,9 @@ namespace com.google.cloud.tools.jib.cache
             }
             catch (CacheCorruptedException ex)
             {
-                StringAssert.StartsWith(
-                    ex.getMessage(), "Layer file did not include valid diff ID: not long enough");
+                Assert.That(
+                    ex.getMessage(),
+                    Does.StartWith("Layer file did not include valid diff ID: not long enough"));
 
                 Assert.IsInstanceOf<DigestException>(ex.getCause());
             }
@@ -83,10 +84,11 @@ namespace com.google.cloud.tools.jib.cache
             }
             catch (CacheCorruptedException ex)
             {
-                StringAssert.StartsWith(
+                Assert.That(
                     ex.getMessage(),
+                    Does.StartWith(
                         "Layer file did not include valid diff ID: "
-                            + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+                            + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
 
                 Assert.IsInstanceOf<DigestException>(ex.getCause());
             }

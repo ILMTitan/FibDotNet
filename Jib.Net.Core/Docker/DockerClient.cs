@@ -21,6 +21,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.docker
@@ -109,7 +110,8 @@ namespace com.google.cloud.tools.jib.docker
                 dockerCommand.add(dockerExecutable);
                 dockerCommand.addAll(dockerSubCommand);
 
-                ProcessBuilder processBuilder = new ProcessBuilder(dockerCommand);
+                ProcessBuilder processBuilder =
+                    new ProcessBuilder(dockerExecutable, string.Join(" ", dockerSubCommand));
                 IDictionary<string, string> environment = processBuilder.environment();
                 environment.putAll(dockerEnvironment);
 
@@ -120,9 +122,9 @@ namespace com.google.cloud.tools.jib.docker
         private static readonly SystemPath DEFAULT_DOCKER_CLIENT = Paths.get("docker");
 
         /** Factory for generating the {@link ProcessBuilder} for running {@code docker} commands. */
-        private readonly Func<List<string>, ProcessBuilder> processBuilderFactory;
+        private readonly Func<List<string>, IProcessBuilder> processBuilderFactory;
 
-        public DockerClient(Func<IList<string>, ProcessBuilder> processBuilderFactory)
+        public DockerClient(Func<IList<string>, IProcessBuilder> processBuilderFactory)
         {
             this.processBuilderFactory = processBuilderFactory;
         }
@@ -163,7 +165,7 @@ namespace com.google.cloud.tools.jib.docker
                 new ProcessBuilder(dockerExecutable.toString()).start();
                 return true;
             }
-            catch (IOException)
+            catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.FileNotFound)
             {
                 return false;
             }
@@ -179,10 +181,10 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker load' process is interrupted.
          * @throws IOException if streaming the blob to 'docker load' fails.
          */
-        public string load(ImageTarball imageTarball)
+        public string load(IImageTarball imageTarball)
         {
             // Runs 'docker load'.
-            Process dockerProcess = docker("load");
+            IProcess dockerProcess = docker("load");
 
             using (Stream stdin = dockerProcess.getOutputStream())
             {
@@ -196,8 +198,7 @@ namespace com.google.cloud.tools.jib.docker
                     string error;
                     try
                     {
-                        using (StreamReader stderr =
-                            new StreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8))
+                        using (TextReader stderr = dockerProcess.GetErrorReader())
                         {
                             error = CharStreams.toString(stderr);
                         }
@@ -242,10 +243,10 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker tag' process is interrupted.
          * @throws IOException if an I/O exception occurs or {@code docker tag} failed
          */
-        public void tag(ImageReference originalImageReference, ImageReference newImageReference)
+        public void tag(IImageReference originalImageReference, ImageReference newImageReference)
         {
             // Runs 'docker tag'.
-            Process dockerProcess =
+            IProcess dockerProcess =
                 docker("tag", originalImageReference.toString(), newImageReference.toString());
 
             if (dockerProcess.waitFor() != 0)
@@ -260,7 +261,7 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         /** Runs a {@code docker} command. */
-        private Process docker(params string[] subCommand)
+        private IProcess docker(params string[] subCommand)
         {
             return processBuilderFactory.apply(Arrays.asList(subCommand)).start();
         }

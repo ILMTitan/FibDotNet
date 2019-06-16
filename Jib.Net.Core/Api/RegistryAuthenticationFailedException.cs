@@ -27,32 +27,16 @@ namespace com.google.cloud.tools.jib.api
         private readonly string imageName;
 
         public RegistryAuthenticationFailedException(
-            string serverUrl, string imageName, Exception cause) : base(MessageFormat.format(REASON, serverUrl, imageName, cause.getMessage()), cause)
+            string serverUrl, string imageName, Exception cause) : base(string.Format(REASON, serverUrl, imageName, cause.getMessage()), cause)
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;
         }
 
-        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(MessageFormat.format(REASON, serverUrl, imageName, reason))
+        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(string.Format(REASON, serverUrl, imageName, reason))
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;
-        }
-
-        public RegistryAuthenticationFailedException(string message, Exception cause) : base(message, cause)
-        {
-        }
-
-        public RegistryAuthenticationFailedException(string message) : base(message)
-        {
-        }
-
-        public RegistryAuthenticationFailedException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public RegistryAuthenticationFailedException() : base()
-        {
         }
 
         /** @return the server being authenticated */

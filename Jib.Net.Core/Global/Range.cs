@@ -20,37 +20,69 @@ namespace com.google.cloud.tools.jib.global
 {
     internal static class Range
     {
-        internal static Range<int> atLeast(int v)
+        internal static Range<T> atLeast<T>(T v)
         {
-            throw new NotImplementedException();
+            return new Range<T>(v, default, RangeType.ClosedLower);
         }
 
-        internal static Range<int> closed(int v1, int v2)
+        internal static Range<T> closed<T>(T v1, T v2)
         {
-            throw new NotImplementedException();
+            return new Range<T>(v1, v2, RangeType.Closed);
+        }
+
+        public enum RangeType
+        {
+            Closed,
+            ClosedLower
         }
     }
 
     internal class Range<T>
     {
-        internal bool hasLowerBound()
+        private T lowerBound;
+        private T upperBound;
+        private Range.RangeType type;
+
+        public Range(T lowerBound, T upperBound, Range.RangeType closed)
         {
-            throw new NotImplementedException();
+            this.lowerBound = lowerBound;
+            this.upperBound = upperBound;
+            this.type = closed;
         }
 
-        internal int lowerEndpoint()
+        internal bool hasLowerBound()
         {
-            throw new NotImplementedException();
+            switch (type)
+            {
+                case Range.RangeType.Closed:
+                case Range.RangeType.ClosedLower:
+                    return true;
+                default:
+                    throw new InvalidOperationException($"Unsupported Range Type {type:G}");
+            }
+        }
+
+        internal T lowerEndpoint()
+        {
+            return this.lowerBound;
         }
 
         internal bool hasUpperBound()
         {
-            throw new NotImplementedException();
+            switch (type)
+            {
+                case Range.RangeType.Closed:
+                    return true;
+                case Range.RangeType.ClosedLower:
+                    return false;
+                default:
+                    throw new InvalidOperationException($"Unsupported Range Type {type:G}");
+            }
         }
 
-        internal int upperEndpoint()
+        internal T upperEndpoint()
         {
-            throw new NotImplementedException();
+            return this.upperBound;
         }
     }
 }

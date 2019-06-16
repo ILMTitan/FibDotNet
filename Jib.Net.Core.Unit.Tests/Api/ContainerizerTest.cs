@@ -25,7 +25,7 @@ using System.Collections.Immutable;
 namespace com.google.cloud.tools.jib.api
 {
     /** Tests for {@link Containerizer}. */
-
+    [TestFixture]
     public class ContainerizerTest
     {
         [Test]
@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.api
                 .setAllowInsecureRegistries(true)
                 .setToolName("tool");
 
-            Assert.AreEqual(ImmutableHashSet.Create("tag1", "tag2"), containerizer.getAdditionalTags());
+            CollectionAssert.AreEquivalent(ImmutableHashSet.Create("tag1", "tag2"), containerizer.getAdditionalTags());
             Assert.AreEqual(
                 Paths.get("base/image/layers"), containerizer.getBaseImageLayersCacheDirectory());
             Assert.AreEqual(

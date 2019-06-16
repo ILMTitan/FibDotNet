@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.api
     {
         internal static IDictionary<TKey, TValue> emptyMap<TKey, TValue>()
         {
-            throw new NotImplementedException();
+            return new Dictionary<TKey, TValue>();
         }
 
         public static List<T> singletonList<T>(T value)
@@ -53,12 +53,12 @@ namespace com.google.cloud.tools.jib.api
 
         public static ISet<T> emptySet<T>()
         {
-            throw new NotImplementedException();
+            return new HashSet<T>();
         }
 
-        internal static IEnumerable<T> nCopies<T>(int v, T p)
+        internal static IEnumerable<T> nCopies<T>(int count, T value)
         {
-            throw new NotImplementedException();
+            return Enumerable.Repeat(value, count);
         }
     }
 }

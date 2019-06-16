@@ -68,7 +68,7 @@ namespace com.google.cloud.tools.jib.registry
             blobSizeListener.accept(response.getContentLength() ?? 0);
 
             using (Stream outputStream =
-                new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener))
+                new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))
             {
                 BlobDescriptor receivedBlobDescriptor =
                     Digests.computeDigest(response.getBody(), outputStream);

@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(retrieveTargetRegistryCredentialsStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<Authorization> getFuture()

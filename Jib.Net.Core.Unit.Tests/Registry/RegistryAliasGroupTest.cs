@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry
                     "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io");
             foreach (string alias in aliases)
             {
-                Assert.AreEqual(aliases, new HashSet<string>(RegistryAliasGroup.getAliasesGroup(alias)));
+                CollectionAssert.AreEquivalent(aliases, new HashSet<string>(RegistryAliasGroup.getAliasesGroup(alias)));
             }
         }
 

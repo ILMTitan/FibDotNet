@@ -25,24 +25,30 @@ namespace com.google.cloud.tools.jib.registry
     [Serializable]
     public class HttpResponseException : Exception
     {
-        public HttpResponseException()
-        {
-        }
 
         public HttpResponseException(HttpResponseMessage message)
         {
             this.Cause = message;
         }
 
-        public HttpResponseException(string message) : base(message)
+        public HttpResponseException(string message, HttpResponseMessage cause) : base(message)
         {
-        }
-
-        public HttpResponseException(string message, Exception innerException) : base(message, innerException)
-        {
+            this.Cause = cause;
         }
 
         protected HttpResponseException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+
+        private HttpResponseException(string message) : base(message)
+        {
+        }
+
+        private HttpResponseException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        private HttpResponseException()
         {
         }
 

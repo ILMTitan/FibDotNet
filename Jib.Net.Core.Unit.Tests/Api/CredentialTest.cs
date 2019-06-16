@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.api
 
             ISet<Credential> credentialSet =
                 new HashSet<Credential>(Arrays.asList(credentialA1, credentialA2, credentialB1, credentialB2));
-            Assert.AreEqual(new HashSet<Credential>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
+            CollectionAssert.AreEquivalent(new HashSet<Credential>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
         }
 
         [Test]
@@ -50,9 +50,9 @@ namespace com.google.cloud.tools.jib.api
                 oauth2Credential.isOAuth2RefreshToken(),
                 "Credential should be an auth2 token when username is <token>");
             Assert.AreEqual(
-                "OAuth2 token credential should take password as refresh token",
                 "eyJhbGciOi...3gw",
-                oauth2Credential.getPassword());
+                oauth2Credential.getPassword(),
+                "OAuth2 token credential should take password as refresh token");
         }
     }
 }

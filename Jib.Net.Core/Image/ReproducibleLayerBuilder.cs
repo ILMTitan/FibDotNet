@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.registry;
 using com.google.cloud.tools.jib.tar;
 using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -77,8 +78,14 @@ namespace com.google.cloud.tools.jib.image
                 SystemPath namePath = Paths.get(tarArchiveEntry.getName());
                 if (namePath.getParent() != namePath.getRoot())
                 {
-                    TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString());
+                    TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString().Replace(Path.DirectorySeparatorChar, '/'));
+                    dir.Name += "/";
                     dir.setModTime(LayerConfiguration.DEFAULT_MODIFIED_TIME.toEpochMilli());
+                    dir.TarHeader.Mode &= ~(int)(PosixFilePermission.ALL);
+                    dir.TarHeader.Mode |=(int)(
+                        PosixFilePermission.OWNER_ALL
+                        | PosixFilePermission.GROUP_READ_EXECUTE
+                        | PosixFilePermission.OTHERS_READ_EXECUTE);
                     add(dir);
                 }
 
@@ -115,13 +122,17 @@ namespace com.google.cloud.tools.jib.image
             {
                 // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
                 // adds parent directories for each extraction path.
-                TarEntry entry =
-                              TarEntry.CreateEntryFromFile(layerEntry.getSourceFile().toString());
-                entry.Name = layerEntry.getExtractionPath().toString();
+                TarEntry entry = TarEntry.CreateEntryFromFile(layerEntry.getSourceFile());
+                entry.Name = layerEntry.getExtractionPath().toString().TrimStart('/');
+
+                if (Directory.Exists(layerEntry.getSourceFile()))
+                {
+                    entry.Name += '/';
+                }
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.setMode((entry.getMode() & ~0777) | layerEntry.getPermissions().getPermissionBits());
+                entry.setMode((entry.getMode() & ~PosixFilePermission.ALL) | layerEntry.getPermissions().getPermissionBits());
                 entry.setModTime(layerEntry.getLastModifiedTime().toEpochMilli());
 
                 uniqueTarArchiveEntries.add(entry);

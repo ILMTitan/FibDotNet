@@ -18,45 +18,80 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 
 namespace Jib.Net.Core.FileSystem
 {
-    public class SystemPath : IEnumerable<SystemPath>
+    public class SystemPath : IComparable<SystemPath>
     {
-        private string file;
-        private FileSystemInfo fileInfo;
-        private AbsoluteUnixPath absolutePath;
+        private readonly string path;
 
         public static implicit operator SystemPath(AbsoluteUnixPath absolutePath)
         {
-            return new SystemPath(absolutePath);
+            if(absolutePath.OriginalRoot == null)
+            {
+                return new SystemPath(absolutePath.ToString());
+            }
+            else
+            {
+                return new SystemPath(Path.Combine(
+                    absolutePath.OriginalRoot.ToString(),
+                    Path.Combine(absolutePath.PathComponents.ToArray())));
+            }
+        }
+        public static implicit operator string(SystemPath path)
+        {
+            return path.path;
         }
 
-        public SystemPath(string file)
+        public SystemPath(string path)
         {
-            this.file = file;
+            path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            if (path != Path.DirectorySeparatorChar.ToString())
+            {
+                path = path.TrimEnd(Path.DirectorySeparatorChar);
+            }
+            this.path = path;
         }
 
         public SystemPath(FileSystemInfo fileInfo)
         {
-            this.fileInfo = fileInfo;
+            path = fileInfo.FullName;
         }
 
-        public SystemPath(AbsoluteUnixPath absolutePath)
+        public SystemPath(string[] pathParts)
         {
-            this.absolutePath = absolutePath;
+            path = Path.Combine(pathParts);
+            if(path.Length > 1)
+            {
+                path = path.TrimEnd(Path.DirectorySeparatorChar);
+            }
         }
 
-        public SystemPath resolve(string v)
+        public SystemPath resolve(string pathToResolve)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(pathToResolve))
+            {
+                return this;
+            }
+            else if (Path.IsPathRooted(pathToResolve))
+            {
+                return new SystemPath(pathToResolve);
+            }
+            return new SystemPath(Path.Combine(path,pathToResolve));
         }
 
-        internal object getRoot()
+        internal SystemPath getRoot()
         {
-            throw new NotImplementedException();
+            if (Path.IsPathRooted(path))
+            {
+                return new SystemPath(Path.GetPathRoot(path));
+            } else
+            {
+                return null;
+            }
         }
 
         internal object getNameCount()
@@ -66,57 +101,106 @@ namespace Jib.Net.Core.FileSystem
 
         public IEnumerator<SystemPath> GetEnumerator()
         {
-            throw new NotImplementedException();
+            string rootlessPath;
+            if (Path.IsPathRooted(path))
+            {
+                rootlessPath = path.Substring(Path.GetPathRoot(path).Length);
+            } else
+            {
+                rootlessPath = path;
+            }
+            char[] separators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+            return rootlessPath.Split(separators, StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => new SystemPath(p))
+                .GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        internal DirectoryInfo toDirectory()
         {
-            throw new NotImplementedException();
+            return new DirectoryInfo(path);
         }
 
         public SystemPath resolve(SystemPath relativePath)
         {
-            throw new NotImplementedException();
+            return new SystemPath(Path.Combine(path, relativePath.path));
         }
 
         internal SystemPath relativize(SystemPath path)
         {
-            throw new NotImplementedException();
+            Uri relativeUri = new Uri(this.path +Path.DirectorySeparatorChar).MakeRelativeUri(path.toURI());
+            return new SystemPath(relativeUri.ToString());
         }
 
         public SystemPath getParent()
         {
-            throw new NotImplementedException();
+            if (Path.GetPathRoot(path) == path)
+            {
+                return null;
+            }
+            var dirName = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dirName))
+            {
+                return new SystemPath(dirName);
+            }
+            else if (string.IsNullOrEmpty(Path.GetPathRoot(path)))
+            {
+                return null;
+            }
+            else
+            {
+                return new SystemPath(Path.GetPathRoot(path));
+            }
         }
 
-        public string toURI()
+        public Uri toURI()
         {
-            throw new NotImplementedException();
+            return new Uri(path);
         }
 
         internal FileInfo toFile()
         {
-            throw new NotImplementedException();
+            return new FileInfo(path);
         }
 
-        internal string toString()
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return path;
         }
 
         public RelativeUnixPath getFileName()
         {
-            throw new NotImplementedException();
+            return RelativeUnixPath.get(Path.GetFileName(path));
         }
 
         internal AbsoluteUnixPath toAbsolutePath()
         {
-            throw new NotImplementedException();
+            return AbsoluteUnixPath.fromPath(this);
         }
 
-        public bool endsWith(string s)
+        public static bool operator == (SystemPath path1, SystemPath path2)
         {
-            throw new NotImplementedException();
+            return Equals(path1, path2);
+        }
+
+        public static bool operator != (SystemPath path1, SystemPath path2)
+        {
+            return !Equals(path1, path2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is SystemPath otherPath &&
+                Equals(path, otherPath.path);
+        }
+
+        public override int GetHashCode()
+        {
+            return -1757656154 + EqualityComparer<string>.Default.GetHashCode(path);
+        }
+
+        public int CompareTo(SystemPath other)
+        {
+            return string.Compare(path, other?.path);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.frontend
         private static DockerCredentialHelperFactory getTestFactory(
             string expectedRegistry,
             SystemPath expectedCredentialHelper,
-            DockerCredentialHelper returnedCredentialHelper)
+            IDockerCredentialHelper returnedCredentialHelper)
         {
             return (registry, credentialHelper) =>
             {
@@ -67,11 +67,11 @@ namespace com.google.cloud.tools.jib.frontend
         }
 
         private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
-        private DockerCredentialHelper mockDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
-        private DockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<DockerConfigCredentialRetriever>();
+        private IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
+        private IDockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<IDockerConfigCredentialRetriever>();
 
         /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
-        private DockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<DockerCredentialHelper>();
+        private IDockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
 
         private CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
 
@@ -99,7 +99,7 @@ namespace com.google.cloud.tools.jib.frontend
                     .dockerCredentialHelper(Paths.get("docker-credential-helper"))
                     .retrieve()
                     .orElseThrow(() => new AssertionException("")));
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-helper for registry")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using docker-credential-helper for registry")));
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.frontend
                     .inferCredentialHelper()
                     .retrieve()
                     .orElseThrow(() => new AssertionException("")));
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using docker-credential-gcr for something.gcr.io")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using docker-credential-gcr for something.gcr.io")));
         }
 
         [Test]
@@ -135,14 +135,14 @@ namespace com.google.cloud.tools.jib.frontend
                         Paths.get("docker-credential-ecr-login"),
                         mockNonexistentDockerCredentialHelper));
 
-            Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getMessage()).Returns("warning");
-
-            Mock.Get(mockCredentialHelperNotFoundException).Setup(m => m.getCause()).Returns(new IOException("the root cause"));
+            Mock.Get(mockNonexistentDockerCredentialHelper)
+                .Setup(m => m.retrieve())
+                .Throws(new CredentialHelperNotFoundException("warning", new IOException("the root cause")));
 
             Assert.IsFalse(credentialRetrieverFactory.inferCredentialHelper().retrieve().isPresent());
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("warning")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.info("warning")));
 
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("  Caused by: the root cause")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.info("  Caused by: the root cause")));
         }
 
         [Test]
@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.frontend
                     .dockerConfig(mockDockerConfigCredentialRetriever)
                     .retrieve()
                     .orElseThrow(() => new AssertionException("")));
-            Mock.Get(mockLogger).Verify(m => m.accept(LogEvent.info("Using credentials from Docker config for registry")));
+            Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using credentials from Docker config for registry")));
         }
     }
 }

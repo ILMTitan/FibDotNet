@@ -42,7 +42,7 @@ namespace Jib.Net.Core.Api
             Preconditions.checkArgument(
                 unixPath.StartsWith("/"), "Path does not start with forward slash (/): " + unixPath);
 
-            return new AbsoluteUnixPath(UnixPathParser.parse(unixPath));
+            return new AbsoluteUnixPath(UnixPathParser.parse(unixPath), null);
         }
 
         /**
@@ -63,11 +63,13 @@ namespace Jib.Net.Core.Api
             {
                 pathComponents.Add(pathComponent.ToString());
             }
-            return new AbsoluteUnixPath(pathComponents.ToImmutable());
+            return new AbsoluteUnixPath(pathComponents.ToImmutable(), path.getRoot());
         }
 
         /** Path components after the file system root. This should always match {@link #unixPath}. */
-        private readonly ImmutableArray<string> pathComponents;
+        public ImmutableArray<string> PathComponents { get; }
+
+        public SystemPath OriginalRoot { get; }
 
         /**
          * Unix-style path, in absolute form. Does not end with trailing slash, except for the file system
@@ -75,17 +77,20 @@ namespace Jib.Net.Core.Api
          */
         private readonly string unixPath;
 
-        private AbsoluteUnixPath(ImmutableArray<string> pathComponents)
+        private AbsoluteUnixPath(ImmutableArray<string> pathComponents, SystemPath originalRoot)
         {
-            this.pathComponents = pathComponents;
+            PathComponents = pathComponents;
+            OriginalRoot = originalRoot;
 
             StringJoiner pathJoiner = new StringJoiner("/", "/", "");
             foreach (string pathComponent in pathComponents)
             {
                 pathJoiner.add(pathComponent);
             }
-            unixPath = pathJoiner.toString();
+            unixPath = pathJoiner.ToString();
         }
+
+        public AbsoluteUnixPath(ImmutableArray<string> pathComponents) : this(pathComponents, null) { }
 
         /**
          * Resolves this path against another relative path.
@@ -97,7 +102,7 @@ namespace Jib.Net.Core.Api
         {
             ImmutableArray<string>.Builder newPathComponents =
                 ImmutableArray.CreateBuilder<string>();
-            newPathComponents.AddRange(pathComponents);
+            newPathComponents.AddRange(PathComponents);
             newPathComponents.AddRange(relativeUnixPath.getRelativePathComponents());
             return new AbsoluteUnixPath(newPathComponents.ToImmutable());
         }

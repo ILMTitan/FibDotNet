@@ -15,32 +15,22 @@
  */
 
 using System;
-using System.IO;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using NodaTime;
 
-namespace com.google.cloud.tools.jib.registry
+namespace com.google.cloud.tools.jib.cache
 {
-    [Serializable]
-    internal class SSLException : IOException
+    internal class InstantConverter : JsonConverter<Instant>
     {
-        public SSLException()
+        public override Instant ReadJson(JsonReader reader, Type objectType, Instant existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+            string s = serializer.Deserialize<string>(reader);
+            return Instant.FromDateTimeUtc(DateTime.Parse(s).ToUniversalTime());
         }
 
-        public SSLException(string message) : base(message)
+        public override void WriteJson(JsonWriter writer, Instant value, JsonSerializer serializer)
         {
-        }
-
-        public SSLException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected SSLException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        public SSLException(string message, int hresult) : base(message, hresult)
-        {
+            serializer.Serialize(writer, value.ToDateTimeUtc());
         }
     }
 }

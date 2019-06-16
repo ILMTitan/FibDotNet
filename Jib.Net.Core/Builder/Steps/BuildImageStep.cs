@@ -26,6 +26,7 @@ using NodaTime;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -45,20 +46,20 @@ namespace com.google.cloud.tools.jib.builder.steps
     {
         private static readonly string DESCRIPTION = "Building container configuration";
 
-        private readonly BuildConfiguration buildConfiguration;
+        private readonly IBuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-        private readonly PullBaseImageStep pullBaseImageStep;
-        private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+        private readonly AsyncStep<BaseImageWithAuthorization> pullBaseImageStep;
+        private readonly AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> pullAndCacheBaseImageLayersStep;
+        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
 
         private readonly Task<AsyncStep<Image>> listenableFuture;
 
         public BuildImageStep(
-            BuildConfiguration buildConfiguration,
+            IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-            PullBaseImageStep pullBaseImageStep,
-            PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps)
+            AsyncStep<BaseImageWithAuthorization> pullBaseImageStep,
+            AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> pullAndCacheBaseImageLayersStep,
+            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
@@ -70,7 +71,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullBaseImageStep)
                     .addStep(pullAndCacheBaseImageLayersStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<AsyncStep<Image>> getFuture()
@@ -98,13 +99,13 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Constructs the image.
                 Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
                 Image baseImage = NonBlockingSteps.get(pullBaseImageStep).getBaseImage();
-                ContainerConfiguration containerConfiguration =
+                IContainerConfiguration containerConfiguration =
                     buildConfiguration.getContainerConfiguration();
 
                 // Base image layers
-                IReadOnlyList<AsyncStep<CachedLayer>> baseImageLayers =
+                IReadOnlyList<AsyncStep<ICachedLayer>> baseImageLayers =
                     NonBlockingSteps.get(pullAndCacheBaseImageLayersStep);
-                foreach (AsyncStep<CachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
+                foreach (AsyncStep<ICachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
                 {
                     imageBuilder.addLayer(NonBlockingSteps.get(pullAndCacheBaseImageLayerStep));
                 }
@@ -144,7 +145,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 }
 
                 // Add built layers/configuration
-                foreach (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
+                foreach (AsyncStep<ICachedLayer> buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
                 {
                     imageBuilder
                         .addLayer(NonBlockingSteps.get(buildAndCacheApplicationLayerStep))
@@ -153,7 +154,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                                 .setCreationTimestamp(layerCreationTime)
                                 .setAuthor("Jib")
                                 .setCreatedBy(buildConfiguration.getToolName() + ":" + ProjectInfo.VERSION)
-                                .setComment(buildAndCacheApplicationLayerStep.getLayerType())
+                                .setComment(NonBlockingSteps.get(buildAndCacheApplicationLayerStep).getLayerType())
                                 .build());
                 }
                 if (containerConfiguration != null)
@@ -188,7 +189,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @return the container entrypoint
          */
         private ImmutableArray<string>? computeEntrypoint(
-            Image baseImage, ContainerConfiguration containerConfiguration)
+            Image baseImage, IContainerConfiguration containerConfiguration)
         {
             bool shouldInherit =
                 baseImage.getEntrypoint() != null && containerConfiguration.getEntrypoint() == null;
@@ -218,7 +219,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @return the container program arguments
          */
         private ImmutableArray<string>? computeProgramArguments(
-            Image baseImage, ContainerConfiguration containerConfiguration)
+            Image baseImage, IContainerConfiguration containerConfiguration)
         {
             bool shouldInherit =
                 baseImage.getProgramArguments() != null

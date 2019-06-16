@@ -62,13 +62,13 @@ namespace com.google.cloud.tools.jib.registry
         {
             // Runs the Docker registry.
             string[] dockerTokens = new[] {
-                "docker", "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName };
+                "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName };
             if (username != null && password != null)
             {
                 // Generate the htpasswd file to store credentials
                 string credentialString =
                     new Command(
-                            "docker",
+                            "docker",string.Join(" ",new[] {
                             "run",
                             "--rm",
                             "--entrypoint",
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.registry
                             "registry:2",
                             "-Bbn",
                             username,
-                            password)
+                            password }))
                         .run();
                 // Creates the temporary directory in /tmp since that is one of the default directories
                 // mounted into Docker.
@@ -99,7 +99,7 @@ namespace com.google.cloud.tools.jib.registry
                         "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
             }
             dockerTokens.add("registry:2");
-            new Command(dockerTokens).run();
+            new Command("docker", string.Join(' ', dockerTokens)).run();
             waitUntilReady();
         }
 
@@ -152,7 +152,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             if (username != null && password != null)
             {
-                new Command("docker", "login", "localhost:" + port, "-u", username, "--password-stdin")
+                new Command("docker", string.Join(' ', new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
                     .run(password.getBytes(StandardCharsets.UTF_8));
             }
         }

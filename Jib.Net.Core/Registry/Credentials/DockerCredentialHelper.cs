@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
      * @see <a
      *     href="https://github.com/docker/docker-credential-helpers">https://github.com/docker/docker-credential-helpers</a>
      */
-    public class DockerCredentialHelper
+    public class DockerCredentialHelper : IDockerCredentialHelper
     {
         public static readonly string CREDENTIAL_HELPER_PREFIX = "docker-credential-";
 
@@ -45,13 +45,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
         private readonly SystemPath credentialHelper;
 
         /** Template for a Docker credential helper output. */
-        [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-        private class DockerCredentialsTemplate : JsonTemplate
+        [JsonObject]
+        private class DockerCredentialsTemplate
         {
-            [JsonProperty]
             public string Username { get; }
 
-            [JsonProperty]
             public string Secret { get; }
         }
 
@@ -93,9 +91,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
             try
             {
-                string[] credentialHelperCommand = { credentialHelper.toString(), "get" };
-
-                Process process = new ProcessBuilder(credentialHelperCommand).start();
+                IProcess process = new ProcessBuilder(credentialHelper.toString(), "get").start();
                 using (Stream processStdin = process.getOutputStream())
                 {
                     processStdin.write(serverUrl.getBytes(StandardCharsets.UTF_8));

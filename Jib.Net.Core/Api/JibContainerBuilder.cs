@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.api
 
         private readonly BuildConfiguration.Builder buildConfigurationBuilder;
 
-        private IList<LayerConfiguration> layerConfigurations = new List<LayerConfiguration>();
+        private IList<ILayerConfiguration> layerConfigurations = new List<ILayerConfiguration>();
 
         /** Instantiate with {@link Jib#from}. */
         public JibContainerBuilder(RegistryImage baseImage) :
@@ -147,7 +147,7 @@ namespace com.google.cloud.tools.jib.api
          * @param layerConfiguration the {@link LayerConfiguration}
          * @return this
          */
-        public JibContainerBuilder addLayer(LayerConfiguration layerConfiguration)
+        public JibContainerBuilder addLayer(ILayerConfiguration layerConfiguration)
         {
             layerConfigurations.add(layerConfiguration);
             return this;
@@ -160,9 +160,9 @@ namespace com.google.cloud.tools.jib.api
          * @param layerConfigurations the list of {@link LayerConfiguration}s
          * @return this
          */
-        public JibContainerBuilder setLayers(IList<LayerConfiguration> layerConfigurations)
+        public JibContainerBuilder setLayers(IList<ILayerConfiguration> layerConfigurations)
         {
-            this.layerConfigurations = new List<LayerConfiguration>(layerConfigurations);
+            this.layerConfigurations = new List<ILayerConfiguration>(layerConfigurations);
             return this;
         }
 
@@ -172,7 +172,7 @@ namespace com.google.cloud.tools.jib.api
          * @param layerConfigurations the {@link LayerConfiguration}s
          * @return this
          */
-        public JibContainerBuilder setLayers(params LayerConfiguration[] layerConfigurations)
+        public JibContainerBuilder setLayers(params ILayerConfiguration[] layerConfigurations)
         {
             return setLayers(Arrays.asList(layerConfigurations));
         }
@@ -469,18 +469,18 @@ namespace com.google.cloud.tools.jib.api
          * @throws ExecutionException if some other exception occurred during execution
          * @throws InterruptedException if the execution was interrupted
          */
-        public JibContainer containerize(Containerizer containerizer)
+        public JibContainer containerize(IContainerizer containerizer)
         {
             BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer);
 
-            EventHandlers eventHandlers = buildConfiguration.getEventHandlers();
+            IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
             logSources(eventHandlers);
 
             using (new TimerEventDispatcher(eventHandlers, containerizer.getDescription()))
             {
                 try
                 {
-                    BuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
+                    IBuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
                     return new JibContainer(result.getImageDigest(), result.getImageId());
                 }
                 catch (Exception ex)
@@ -507,7 +507,7 @@ namespace com.google.cloud.tools.jib.api
          */
 
         public BuildConfiguration toBuildConfiguration(
-            Containerizer containerizer)
+            IContainerizer containerizer)
         {
             return buildConfigurationBuilder
                 .setTargetImageConfiguration(containerizer.getImageConfiguration())
@@ -523,7 +523,7 @@ namespace com.google.cloud.tools.jib.api
                 .build();
         }
 
-        private void logSources(EventHandlers eventHandlers)
+        private void logSources(IEventHandlers eventHandlers)
         {
             // Logs the different source files used.
             eventHandlers.dispatch(LogEvent.info("Containerizing application with the following files:"));

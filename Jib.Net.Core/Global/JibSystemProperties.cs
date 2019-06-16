@@ -20,7 +20,7 @@ using System;
 namespace com.google.cloud.tools.jib.global
 {
     /** Names of system properties defined/used by Jib. */
-    public sealed class JibSystemProperties
+    public static class JibSystemProperties
     {
         private const int defaultTimeoutMills = 20000;
         public static readonly string HTTP_TIMEOUT = "jib.httpTimeout";
@@ -108,18 +108,6 @@ namespace com.google.cloud.tools.jib.global
             checkNumericSystemProperty(HTTP_TIMEOUT, Range.atLeast(0));
         }
 
-        /**
-         * Checks if {@code http.proxyPort} and {@code https.proxyPort} system properties are in the
-         * [0..65535] range when set.
-         *
-         * @throws NumberFormatException if invalid values
-         */
-        public static void checkProxyPortProperty()
-        {
-            checkNumericSystemProperty("http.proxyPort", Range.closed(0, 65535));
-            checkNumericSystemProperty("https.proxyPort", Range.closed(0, 65535));
-        }
-
         private static void checkNumericSystemProperty(string property, Range<int> validRange)
         {
             string value = Environment.GetEnvironmentVariable(property);
@@ -148,7 +136,5 @@ namespace com.google.cloud.tools.jib.global
                     property + " cannot be greater than " + validRange.upperEndpoint() + ": " + value);
             }
         }
-
-        private JibSystemProperties() { }
     }
 }

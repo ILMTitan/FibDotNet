@@ -14,28 +14,12 @@
  * the License.
  */
 
-using System;
-using System.Collections.Generic;
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.@event.events;
-
-namespace com.google.cloud.tools.jib.builder
+namespace com.google.cloud.tools.jib.configuration
 {
-    internal class ArgumentCaptor<T>
+    public enum ManifestFormat
     {
-        internal ArgumentCaptor<ProgressEvent> forClass(Type type)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal T capture()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal IList<ProgressEvent> getAllValues()
-        {
-            throw new NotImplementedException();
-        }
+        V22,
+        V21,
+        OCI
     }
 }

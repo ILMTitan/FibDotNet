@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Text;
 
 namespace com.google.cloud.tools.jib.registry
@@ -114,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public string getActionDescription()
             {
-                throw new NotImplementedException();
+                return parent.getActionDescription();
             }
         }
 
@@ -127,7 +128,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public BlobHttpContent getContent()
             {
-                return new BlobHttpContent(parent.blob, MediaType.OCTET_STREAM.toString(), writtenByteCountListener);
+                return new BlobHttpContent(parent.blob, MediaTypeNames.Application.Octet, writtenByteCountListener);
             }
 
             public IList<string> getAccept()
@@ -155,7 +156,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public string getActionDescription()
             {
-                throw new NotImplementedException();
+                return parent.getActionDescription();
             }
 
             public Writer(Uri location, Consumer<long> writtenByteCountListener, BlobPusher parent)
@@ -193,8 +194,15 @@ namespace com.google.cloud.tools.jib.registry
             {
                 UriBuilder builder = new UriBuilder(location)
                 {
-                    Query = "?digest=" + parent.blobDigest
                 };
+                if (string.IsNullOrEmpty(builder.Query))
+                {
+                    builder.Query = "?digest=" + parent.blobDigest;
+                }
+                else
+                {
+                    builder.Query += "&digest=" + parent.blobDigest;
+                }
                 return builder.Uri;
             }
 
@@ -205,7 +213,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public string getActionDescription()
             {
-                throw new NotImplementedException();
+                return parent.getActionDescription();
             }
 
             public Committer(Uri location, BlobPusher parent)
@@ -291,7 +299,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public static Uri getRedirectLocation(HttpResponseMessage response)
         {
-            return response.getRequestUrl().MakeRelativeUri(response.Headers.Location);
+            return new Uri(response.getRequestUrl(), response.Headers.Location);
         }
     }
 }

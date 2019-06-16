@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -86,7 +87,7 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             // Checks if the 'WWW-Authenticate' header is present.
-            string authenticationMethod = httpResponse.getHeaders().getAuthenticate().Single().Parameter;
+            AuthenticationHeaderValue authenticationMethod = httpResponse.getHeaders().getAuthenticate().FirstOrDefault();
             if (authenticationMethod == null)
             {
                 throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)

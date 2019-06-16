@@ -25,19 +25,22 @@ namespace com.google.cloud.tools.jib.http
      * org.mockito.Mockito#mock}; this class is intended to examine the {@link Request) object by
      * calling its non-public package-protected methods.
      */
-    public class MockConnection : Connection
+    public class MockConnection : IConnection
     {
-        private readonly Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier;
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> responseSupplier;
 
-        public MockConnection(Func<string, HttpRequestMessage, HttpResponseMessage> responseSupplier) : base(
-              new UriBuilder("ftp://non-exisiting.example.url.ever").toURL())
+        public MockConnection(Func<HttpRequestMessage, HttpResponseMessage> responseSupplier)
         {
             this.responseSupplier = responseSupplier;
         }
 
-        public HttpResponseMessage send(string httpMethod, HttpRequestMessage request)
+        public void Dispose()
         {
-            return responseSupplier.apply(httpMethod, request);
+        }
+
+        public HttpResponseMessage send(HttpRequestMessage request)
+        {
+            return responseSupplier(request);
         }
     }
 }

@@ -24,9 +24,18 @@ namespace com.google.cloud.tools.jib.api
 {
     public struct Optional<T>
     {
+        private readonly bool present;
+        private readonly T value;
+
+        public Optional(T value)
+        {
+            this.value = value;
+            this.present = true;
+        }
+
         public bool isPresent()
         {
-            throw new NotImplementedException();
+            return present;
         }
 
         internal T orElseGet(Supplier<T> supplier)
@@ -41,22 +50,38 @@ namespace com.google.cloud.tools.jib.api
 
         internal void ifPresent(Action<T> action)
         {
-            throw new NotImplementedException();
+            if (present)
+            {
+                action(value);
+            }
         }
 
-        internal void ifPresent<R>(Func<T, R> func)
+        internal Optional<R> ifPresent<R>(Func<T, R> func)
         {
-            throw new NotImplementedException();
+            if (present)
+            {
+                return new Optional<R>(func(value));
+            } else
+            {
+                return new Optional<R>();
+            }
         }
 
         public T get()
         {
-            throw new NotImplementedException();
+            return value;
         }
 
         public T orElseThrow(Func<Exception> p)
         {
-            throw new NotImplementedException();
+            if (present)
+            {
+                return value;
+            }
+            else
+            {
+                throw p();
+            }
         }
 
         public Optional<TResult> map<TResult>(Func<T, TResult> p)
@@ -67,24 +92,24 @@ namespace com.google.cloud.tools.jib.api
 
     public static class Optional
     {
-        public static Optional<T> of<T>(T credential)
+        public static Optional<T> of<T>(T value)
         {
-            throw new NotImplementedException();
+            return new Optional<T>(value);
         }
 
-        internal static Optional<T> ofNullable<T>(T dockerExecutable)
+        internal static Optional<T> ofNullable<T>(T value)
         {
-            throw new NotImplementedException();
-        }
-
-        internal static Optional<Credential> empty()
-        {
-            throw new NotImplementedException();
+            if (value == null)
+            {
+                return Optional.empty<T>();
+            } else {
+                return Optional.of(value);
+            }
         }
 
         public static Optional<T> empty<T>()
         {
-            throw new NotImplementedException();
+            return new Optional<T>();
         }
 
         public static T orElse<T>(this Optional<T> o, T defaultValue) where T : class
@@ -101,7 +126,13 @@ namespace com.google.cloud.tools.jib.api
 
         public static T? asNullable<T>(this Optional<T> o) where T : struct
         {
-            throw new NotImplementedException();
+            if (o.isPresent())
+            {
+                return o.get();
+            } else
+            {
+                return null;
+            }
         }
     }
 }

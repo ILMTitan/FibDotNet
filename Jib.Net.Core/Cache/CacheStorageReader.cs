@@ -23,6 +23,8 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -92,7 +94,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Optional<ManifestAndConfig> retrieveMetadata(ImageReference imageReference)
+        public Optional<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
         {
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             SystemPath manifestPath = imageDirectory.resolve("manifest.json");
@@ -102,15 +104,18 @@ namespace com.google.cloud.tools.jib.cache
             }
 
             // TODO: Consolidate with ManifestPuller
-            ObjectNode node =
-                new ObjectMapper().readValue<ObjectNode>(Files.newInputStream(manifestPath));
-            if (!node.has("schemaVersion"))
+            JToken token = JToken.ReadFrom(new JsonTextReader(File.OpenText(manifestPath)));
+            if(!(token is JObject node))
+            {
+                throw new CacheCorruptedException(cacheStorageFiles.getCacheDirectory(), "Manifest was not a json object");
+            }
+            if (!node.ContainsKey("schemaVersion"))
             {
                 throw new CacheCorruptedException(
                     cacheStorageFiles.getCacheDirectory(), "Cannot find field 'schemaVersion' in manifest");
             }
 
-            int schemaVersion = node.get("schemaVersion").asInt(-1);
+            int schemaVersion = node.get("schemaVersion").Value<int>();
             if (schemaVersion == -1)
             {
                 throw new CacheCorruptedException(
@@ -128,7 +133,7 @@ namespace com.google.cloud.tools.jib.cache
             if (schemaVersion == 2)
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
-                string mediaType = node.get("mediaType").asText();
+                string mediaType = node.get("mediaType").Value<string>();
 
                 ManifestTemplate manifestTemplate;
                 if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
@@ -182,29 +187,25 @@ namespace com.google.cloud.tools.jib.cache
 
             CachedLayer.Builder cachedLayerBuilder = CachedLayer.builder().setLayerDigest(layerDigest);
 
-            IEnumerable<SystemPath> filesInLayerDirectory = Files.list(layerDirectory);
+            foreach (SystemPath fileInLayerDirectory in Files.list(layerDirectory))
             {
-                foreach (SystemPath fileInLayerDirectory in filesInLayerDirectory.ToList())
+                if (CacheStorageFiles.isLayerFile(fileInLayerDirectory))
                 {
-                    if (CacheStorageFiles.isLayerFile(fileInLayerDirectory))
+                    if (cachedLayerBuilder.hasLayerBlob())
                     {
-                        if (cachedLayerBuilder.hasLayerBlob())
-                        {
-                            throw new CacheCorruptedException(
-                                cacheStorageFiles.getCacheDirectory(),
-                                "Multiple layer files found for layer with digest "
-                                    + layerDigest.getHash()
-                                    + " in directory: "
-                                    + layerDirectory);
-                        }
-                        cachedLayerBuilder
-                            .setLayerBlob(Blobs.from(fileInLayerDirectory))
-                            .setLayerDiffId(cacheStorageFiles.getDiffId(fileInLayerDirectory))
-                            .setLayerSize(Files.size(fileInLayerDirectory));
+                        throw new CacheCorruptedException(
+                            cacheStorageFiles.getCacheDirectory(),
+                            "Multiple layer files found for layer with digest "
+                                + layerDigest.getHash()
+                                + " in directory: "
+                                + layerDirectory);
                     }
+                    cachedLayerBuilder
+                        .setLayerBlob(Blobs.from(fileInLayerDirectory))
+                        .setLayerDiffId(cacheStorageFiles.getDiffId(fileInLayerDirectory))
+                        .setLayerSize(Files.size(fileInLayerDirectory));
                 }
             }
-
             return Optional.of(cachedLayerBuilder.build());
         }
 

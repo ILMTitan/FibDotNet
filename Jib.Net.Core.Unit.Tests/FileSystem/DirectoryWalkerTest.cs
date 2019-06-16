@@ -28,20 +28,17 @@ namespace com.google.cloud.tools.jib.filesystem
     /** Tests for {@link DirectoryWalker}. */
     public class DirectoryWalkerTest
     {
-        private readonly ISet<SystemPath> walkedPaths = new HashSet<SystemPath>();
-        private readonly PathConsumer addToWalkedPaths;
+        private ISet<SystemPath> walkedPaths;
+        private PathConsumer addToWalkedPaths;
 
         private SystemPath testDir;
-
-        public DirectoryWalkerTest()
-        {
-            addToWalkedPaths = walkedPaths.add;
-        }
 
         [SetUp]
         public void setUp()
         {
             testDir = Paths.get(Resources.getResource("core/layer").toURI());
+            walkedPaths = new HashSet<SystemPath>();
+            addToWalkedPaths = walkedPaths.add;
         }
 
         [Test]
@@ -68,12 +65,12 @@ namespace com.google.cloud.tools.jib.filesystem
             // Filters to immediate subdirectories of testDir, and foo.
             new DirectoryWalker(testDir)
                 .filter(path => path.getParent().Equals(testDir))
-                .filter(path => !path.endsWith("foo"))
+                .filter(path => !path.ToString().endsWith("foo"))
                 .walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
                 new HashSet<SystemPath>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
-            Assert.AreEqual(expectedPaths, walkedPaths);
+            CollectionAssert.AreEquivalent(expectedPaths, walkedPaths);
         }
 
         [Test]
@@ -90,7 +87,7 @@ namespace com.google.cloud.tools.jib.filesystem
                         testDir.resolve("c"),
                         testDir.resolve("c").resolve("cat"),
                         testDir.resolve("foo")));
-            Assert.AreEqual(expectedPaths, walkedPaths);
+            CollectionAssert.AreEqual(expectedPaths, walkedPaths);
         }
     }
 }

@@ -27,22 +27,26 @@ namespace com.google.cloud.tools.jib.@event.events
     /** Tests for {@link ProgressEvent}. */
     public class ProgressEventTest
     {
-        /** {@link Allocation} tree for testing. */
-        private class AllocationTree
+        /** The root node. */
+        private Allocation root;
+
+        /** First child of the root node. */
+        private Allocation child1;
+
+        /** Child of the first child of the root node. */
+        private Allocation child1Child;
+
+        /** Second child of the root node. */
+        private Allocation child2;
+        
+
+        [SetUp]
+        public void SetUp()
         {
-            /** The root node. */
-            public static readonly Allocation root = Allocation.newRoot("ignored", 2);
-
-            /** First child of the root node. */
-            public static readonly Allocation child1 = root.newChild("ignored", 1);
-
-            /** Child of the first child of the root node. */
-            public static readonly Allocation child1Child = child1.newChild("ignored", 100);
-
-            /** Second child of the root node. */
-            public static readonly Allocation child2 = root.newChild("ignored", 200);
-
-            private AllocationTree() { }
+            root = Allocation.newRoot("ignored", 2);
+            child1 = root.newChild("ignored", 1);
+            child1Child = child1.newChild("ignored", 100);
+            child2 = root.newChild("ignored", 200);
         }
 
         private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer)
@@ -70,22 +74,22 @@ namespace com.google.cloud.tools.jib.@event.events
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
             Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
             Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 10));
+            eventHandlers.dispatch(new ProgressEvent(child2, 10));
             Assert.AreEqual(1.0 / 2 + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 190));
+            eventHandlers.dispatch(new ProgressEvent(child2, 190));
             Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
         }
 
         private EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer)
         {
-            throw new NotImplementedException();
+            return EventHandlers.builder().add<ProgressEvent>(e => progressEventConsumer(e)).build();
         }
 
         [Test]
@@ -102,25 +106,25 @@ namespace com.google.cloud.tools.jib.@event.events
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(1, allocationCompletionMap.size());
-            Assert.AreEqual(50, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
+            Assert.AreEqual(50, allocationCompletionMap.get(child1Child).longValue());
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1Child, 50));
+            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(3, allocationCompletionMap.size());
-            Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.root).longValue());
+            Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(child1).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(root).longValue());
 
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child2, 200));
+            eventHandlers.dispatch(new ProgressEvent(child2, 200));
 
             Assert.AreEqual(4, allocationCompletionMap.size());
-            Assert.AreEqual(100, allocationCompletionMap.get(AllocationTree.child1Child).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(AllocationTree.child1).longValue());
-            Assert.AreEqual(200, allocationCompletionMap.get(AllocationTree.child2).longValue());
-            Assert.AreEqual(2, allocationCompletionMap.get(AllocationTree.root).longValue());
+            Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.get(child1).longValue());
+            Assert.AreEqual(200, allocationCompletionMap.get(child2).longValue());
+            Assert.AreEqual(2, allocationCompletionMap.get(root).longValue());
         }
 
         [Test]
@@ -135,7 +139,7 @@ namespace com.google.cloud.tools.jib.@event.events
                 };
 
             EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
-            eventHandlers.dispatch(new ProgressEvent(AllocationTree.child1, 50));
+            eventHandlers.dispatch(new ProgressEvent(child1, 50));
             Assert.IsTrue(called[0]);
         }
 

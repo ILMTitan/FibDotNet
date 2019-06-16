@@ -28,7 +28,10 @@ namespace com.google.cloud.tools.jib.registry
 
         internal static void verify(bool v)
         {
-            throw new NotImplementedException();
+            if (!v)
+            {
+                throw new ArgumentException();
+            }
         }
     }
 }

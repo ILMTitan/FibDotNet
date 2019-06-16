@@ -15,19 +15,26 @@
  */
 
 using System;
+using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
     internal class DoubleAdder
     {
-        internal void add(double v)
+        private ThreadLocal<double> values = new ThreadLocal<double>(true);
+        internal void add(double value)
         {
-            throw new NotImplementedException();
+            values.Value += value;
         }
 
         internal double sum()
         {
-            throw new NotImplementedException();
+            double sum = 0;
+            foreach(double value in values.Values)
+            {
+                sum += value;
+            }
+            return sum;
         }
     }
 }

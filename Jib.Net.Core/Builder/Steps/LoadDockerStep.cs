@@ -16,10 +16,12 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Global;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
@@ -41,7 +43,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly DockerClient dockerClient;
 
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -51,7 +53,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             DockerClient dockerClient,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps,
+            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;
@@ -65,7 +67,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullAndCacheBaseImageLayersStep)
                     .addStep(buildImageStep)
-                    .whenAllSucceed(this);
+                    .whenAllSucceed(call);
         }
 
         public Task<BuildResult> getFuture()
@@ -93,7 +95,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 progressEventDispatcherFactory.create("loading to Docker daemon", 1))
             {
                 Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
-                ImageReference targetImageReference =
+                IImageReference targetImageReference =
                     buildConfiguration.getTargetImageConfiguration().getImage();
 
                 // Load the image to docker daemon.

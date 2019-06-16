@@ -119,7 +119,7 @@ namespace Jib.Net.Core.Global
 
         public static DateTime getModTime(this TarEntry e)
         {
-            return e.ModTime;
+            return DateTime.SpecifyKind(e.ModTime, DateTimeKind.Utc);
         }
 
         public static bool isDirectory(this TarEntry e)
@@ -401,14 +401,14 @@ namespace Jib.Net.Core.Global
             e.TarHeader.GroupId = groupId;
         }
 
-        public static void setMode(this TarEntry e, int mode)
+        public static void setMode(this TarEntry e, PosixFilePermission mode)
         {
-            e.TarHeader.Mode = mode;
+            e.TarHeader.Mode = (int)mode;
         }
 
-        public static int getMode(this TarEntry e)
+        public static PosixFilePermission getMode(this TarEntry e)
         {
-            return e.TarHeader.Mode;
+            return (PosixFilePermission)e.TarHeader.Mode;
         }
 
         public static void sort<T>(this List<T> l, IComparer<T> o)
@@ -498,7 +498,7 @@ namespace Jib.Net.Core.Global
 
         public static void write(this Stream s, byte[] bytes)
         {
-            s.write(bytes);
+            s.Write(bytes, 0, bytes.Length);
         }
 
         public static int indexOf(this string s, string substring)
@@ -591,6 +591,11 @@ namespace Jib.Net.Core.Global
             return p(value);
         }
 
+        public static Func<T, bool> or<T>(this Func<T, bool> first, Func<T, bool> second)
+        {
+            return i => first(i) || second(i);
+        }
+
         public static Func<T, bool> and<T>(this Func<T, bool> first, Func<T, bool> second)
         {
             return i => first(i) && second(i);
@@ -618,6 +623,10 @@ namespace Jib.Net.Core.Global
 
         public static TValue get<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key)
         {
+            if (!d.ContainsKey(key))
+            {
+                return default;
+            }
             return d[key];
         }
 
@@ -653,14 +662,14 @@ namespace Jib.Net.Core.Global
 
         public static void put<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key, TValue value)
         {
-            d.Add(key, value);
+            d[key]= value;
         }
 
         public static void putAll<TKey, TValue>(this IDictionary<TKey, TValue> d, IEnumerable<KeyValuePair<TKey, TValue>> entries)
         {
             foreach (var (k, v) in entries)
             {
-                d.Add(k, v);
+                d[k]= v;
             }
         }
 
@@ -743,7 +752,18 @@ namespace Jib.Net.Core.Global
 
         public static bool matches(this string s, string regex)
         {
+            regex = ForFullString(regex);
             return Regex.IsMatch(s, regex);
+        }
+
+        private static string ForFullString(string regex)
+        {
+            if (!regex.StartsWith("^") || !regex.EndsWith("$"))
+            {
+                regex = "^(?:" + regex +")$";
+            }
+
+            return regex;
         }
 
         public static string substring(this string s, int l)

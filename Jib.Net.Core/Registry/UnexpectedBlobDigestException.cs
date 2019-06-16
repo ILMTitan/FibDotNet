@@ -24,17 +24,5 @@ namespace com.google.cloud.tools.jib.registry
         public UnexpectedBlobDigestException(string message) : base(message)
         {
         }
-
-        public UnexpectedBlobDigestException(string message, System.Exception cause) : base(message, cause)
-        {
-        }
-
-        public UnexpectedBlobDigestException(string message, System.Net.Http.HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public UnexpectedBlobDigestException() : base()
-        {
-        }
     }
 }

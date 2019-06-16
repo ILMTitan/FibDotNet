@@ -50,23 +50,23 @@ namespace com.google.cloud.tools.jib.filesystem
          * <p>For macOS, this is {@code $HOME/Library/Application Support/}.
          */
 
-        public static SystemPath getCacheHome()
+        public static SystemPath getCacheHome(IEnvironment environment)
         {
             // Use environment variable $XDG_CACHE_HOME if set and not empty.
-            string xdgCacheHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
+            string xdgCacheHome = environment.GetEnvironmentVariable("XDG_CACHE_HOME");
             if (!string.IsNullOrWhiteSpace(xdgCacheHome))
             {
                 return Paths.get(xdgCacheHome);
             }
 
             // Next, try using localAppData.
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string localAppData = environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (!string.IsNullOrWhiteSpace(localAppData))
             {
                 return Paths.get(localAppData);
             }
-            string userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            string userHome = environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (environment.IsOSPlatform(OSPlatform.OSX))
             {
                 // Use '~/Library/Application Support/' for macOS.
                 SystemPath applicationSupport = Paths.get(userHome, "Library", "Application Support");
@@ -77,8 +77,7 @@ namespace com.google.cloud.tools.jib.filesystem
             }
             if (!string.IsNullOrWhiteSpace(userHome))
             {
-                SystemPath xdgPath = Paths.get(userHome, ".cache");
-                return xdgPath;
+                return Paths.get(userHome, ".cache");
             }
 
             throw new InvalidOperationException("Unknown OS: " + RuntimeInformation.OSDescription);

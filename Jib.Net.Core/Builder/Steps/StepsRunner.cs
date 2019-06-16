@@ -15,10 +15,12 @@
  */
 
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Runnable = System.Action;
 
@@ -36,7 +38,7 @@ namespace com.google.cloud.tools.jib.builder.steps
      * that order matters, so make sure that steps are run before other steps that depend on them. Wait
      * on the last step by calling the respective {@code wait...} methods.
      */
-    public sealed class StepsRunner
+    public sealed class StepsRunner : IStepsRunner
     {
         /** Holds the individual steps. */
         private class Steps
@@ -46,7 +48,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             public PullBaseImageStep pullBaseImageStep;
             public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
 
-            public ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps;
+            public IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
 
             public PushLayersStep pushBaseImageLayersStep;
             public PushLayersStep pushApplicationLayersStep;
@@ -237,7 +239,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.checkNotNull(steps.buildImageStep)));
         }
 
-        public BuildResult run()
+        public IBuildResult run()
         {
             Preconditions.checkNotNull(rootProgressAllocationDescription);
 

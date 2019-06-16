@@ -19,26 +19,51 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-    internal class Splitter
+    internal abstract class Splitter
     {
+        class CharSplitter : Splitter
+        {
+            private char v;
+
+            public CharSplitter(char v)
+            {
+                this.v = v;
+            }
+
+            internal override IList<string> splitToList(string s)
+            {
+                return s.Split(new[] { v }, StringSplitOptions.RemoveEmptyEntries);
+            }
+        }
         internal static Splitter on(char v)
         {
-            throw new NotImplementedException();
+            return new CharSplitter(v);
         }
 
         internal static Splitter on(string v)
         {
-            throw new NotImplementedException();
+            return new StringSplitter(v);
+        }
+        
+        internal abstract IList<string> splitToList(string s);
+        internal IEnumerable<string> split(string s)
+        {
+            return splitToList(s);
         }
 
-        internal IEnumerable<string> split(string unixPath)
+        private class StringSplitter : Splitter
         {
-            throw new NotImplementedException();
-        }
+            private string v;
 
-        internal IList<string> splitToList(string layers)
-        {
-            throw new NotImplementedException();
+            public StringSplitter(string v)
+            {
+                this.v = v;
+            }
+
+            internal override IList<string> splitToList(string s)
+            {
+                return s.Split(new[] { v }, StringSplitOptions.RemoveEmptyEntries);
+            }
         }
     }
 }

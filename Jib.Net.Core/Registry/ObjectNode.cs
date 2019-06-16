@@ -16,10 +16,13 @@
 
 using System;
 using com.google.cloud.tools.jib.json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
-    internal class ObjectNode : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    internal class ObjectNode
     {
         internal bool has(string v)
         {

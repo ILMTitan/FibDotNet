@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.docker;
 using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -254,12 +255,12 @@ namespace com.google.cloud.tools.jib.image
             {
                 // root (default folder permissions)
                 TarEntry root = @in.getNextTarEntry();
-                Assert.AreEqual(040755, root.getMode());
+                Assert.AreEqual("755", root.getMode().ToOctalString());
                 Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
                 // parentAAA (custom permissions, custom timestamp)
                 TarEntry rootParentAAA = @in.getNextTarEntry();
-                Assert.AreEqual(040111, rootParentAAA.getMode());
+                Assert.AreEqual("111", (rootParentAAA.getMode()).ToOctalString());
                 Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
 
                 // skip over fileA
@@ -268,7 +269,7 @@ namespace com.google.cloud.tools.jib.image
                 // parentBBB (default permissions - ignored custom permissions, since fileB added first)
                 TarEntry rootParentBBB = @in.getNextTarEntry();
                 // TODO (#1650): we want 040444 here.
-                Assert.AreEqual(040755, rootParentBBB.getMode());
+                Assert.AreEqual("755", rootParentBBB.getMode().ToOctalString());
                 // TODO (#1650): we want Instant.ofEpochSecond(40) here.
                 Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
@@ -277,7 +278,7 @@ namespace com.google.cloud.tools.jib.image
 
                 // parentCCC (default permissions - no entry provided)
                 TarEntry rootParentCCC = @in.getNextTarEntry();
-                Assert.AreEqual(040755, rootParentCCC.getMode());
+                Assert.AreEqual("755", rootParentCCC.getMode().ToOctalString());
                 Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
 
                 // we don't care about fileC
@@ -333,7 +334,8 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
             {
                 Assert.AreEqual(
-                    Date.from(Instant.FromUnixTimeSeconds(0).plusSeconds(123)), @in.getNextEntry().getLastModifiedDate());
+                    Instant.FromUnixTimeSeconds(0).plusSeconds(123).ToDateTimeUtc(),
+                    @in.getNextEntry().getLastModifiedDate());
             }
         }
 
@@ -370,13 +372,17 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
             {
                 // Root folder (default folder permissions)
-                Assert.AreEqual(040755, @in.getNextTarEntry().getMode());
+                TarEntry rootEntry = @in.getNextTarEntry();
                 // fileA (default file permissions)
-                Assert.AreEqual(0100644, @in.getNextTarEntry().getMode());
+                TarEntry fileAEntry = @in.getNextTarEntry();
                 // fileB (custom file permissions)
-                Assert.AreEqual(0100123, @in.getNextTarEntry().getMode());
+                TarEntry fileBEntry = @in.getNextTarEntry();
                 // folder (custom folder permissions)
-                Assert.AreEqual(040456, @in.getNextTarEntry().getMode());
+                TarEntry folderEntry = @in.getNextTarEntry();
+                Assert.AreEqual("755", rootEntry.getMode().ToOctalString());
+                Assert.AreEqual("644", fileAEntry.getMode().ToOctalString());
+                Assert.AreEqual("123", fileBEntry.getMode().ToOctalString());
+                Assert.AreEqual("456", folderEntry.getMode().ToOctalString());
             }
         }
 

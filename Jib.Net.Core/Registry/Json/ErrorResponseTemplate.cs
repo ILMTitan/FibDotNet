@@ -17,6 +17,8 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.registry.json
@@ -38,18 +40,19 @@ namespace com.google.cloud.tools.jib.registry.json
      * }
      * }</pre>
      */
-    public class ErrorResponseTemplate : JsonTemplate
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class ErrorResponseTemplate
     {
-        private readonly List<ErrorEntryTemplate> errors = new List<ErrorEntryTemplate>();
+        public List<ErrorEntryTemplate> Errors { get; } = new List<ErrorEntryTemplate>();
 
         public IReadOnlyList<ErrorEntryTemplate> getErrors()
         {
-            return Collections.unmodifiableList(errors);
+            return Collections.unmodifiableList(Errors);
         }
 
         public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate)
         {
-            errors.add(errorEntryTemplate);
+            Errors.add(errorEntryTemplate);
             return this;
         }
     }

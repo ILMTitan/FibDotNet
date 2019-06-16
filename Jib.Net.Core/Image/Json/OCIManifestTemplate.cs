@@ -15,8 +15,11 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -53,6 +56,7 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">OCI Image
      *     Manifest Specification</a>
      */
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class OCIManifestTemplate : BuildableManifestTemplate
     {
         /** The OCI manifest media type. */
@@ -65,18 +69,18 @@ namespace com.google.cloud.tools.jib.image.json
         /** The OCI layer media type. */
         private static readonly string LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip";
 
-        private readonly int schemaVersion = 2;
-        private readonly string mediaType = MANIFEST_MEDIA_TYPE;
+        public int SchemaVersion { get; } = 2;
+        public string MediaType { get; } = MANIFEST_MEDIA_TYPE;
 
         /** The container configuration reference. */
-        private ContentDescriptorTemplate config;
+        public ContentDescriptorTemplate Config { get; set; }
 
         /** The list of layer references. */
-        private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
+        public List<ContentDescriptorTemplate> Layers { get; } = new List<ContentDescriptorTemplate>();
 
         public int getSchemaVersion()
         {
-            return schemaVersion;
+            return SchemaVersion;
         }
 
         public string getManifestMediaType()
@@ -86,22 +90,27 @@ namespace com.google.cloud.tools.jib.image.json
 
         public ContentDescriptorTemplate getContainerConfiguration()
         {
-            return config;
+            return Config;
         }
 
         public IReadOnlyList<ContentDescriptorTemplate> getLayers()
         {
-            return Collections.unmodifiableList(layers);
+            return Collections.unmodifiableList(Layers);
         }
 
         public void setContainerConfiguration(long size, DescriptorDigest digest)
         {
-            config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
+            Config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
         }
 
         public void addLayer(long size, DescriptorDigest digest)
         {
-            layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+            Layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+        }
+
+        public ManifestFormat getFormat()
+        {
+            return ManifestFormat.OCI;
         }
     }
 }

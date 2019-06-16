@@ -23,9 +23,9 @@ namespace com.google.cloud.tools.jib.blob
     public interface Blob
     {
         /**
-         * Writes the BLOB to an {@link OutputStream}. Does not close the {@code outputStream}.
+         * Writes the BLOB to an {@link OutputStream}. Does not close the {@code innerStream}.
          *
-         * @param outputStream the {@link OutputStream} to write to
+         * @param innerStream the {@link OutputStream} to write to
          * @return the {@link BlobDescriptor} of the written BLOB
          * @throws IOException if writing the BLOB fails
          */

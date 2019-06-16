@@ -26,6 +26,7 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Reflection.Metadata;
 using Blob = com.google.cloud.tools.jib.blob.Blob;
 
@@ -70,13 +71,14 @@ namespace com.google.cloud.tools.jib.builder.steps
          * Lists the files in the {@code resourcePath} resources directory and creates a {@link
          * LayerConfiguration} with entries from those files.
          */
-        private static LayerConfiguration makeLayerConfiguration(
+        private static ILayerConfiguration makeLayerConfiguration(
             string resourcePath, AbsoluteUnixPath extractionPath)
         {
             IEnumerable<SystemPath> fileStream =
                 Files.list(Paths.get(Resources.getResource(resourcePath).toURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
+                    layerConfigurationBuilder.setName(Path.GetFileName(resourcePath));
                 fileStream.forEach(
                     sourceFile =>
                         layerConfigurationBuilder.addEntry(
@@ -90,19 +92,31 @@ namespace com.google.cloud.tools.jib.builder.steps
             CollectionAssert.AreEqual(Blobs.writeToByteArray(expectedBlob), Blobs.writeToByteArray(blob));
         }
 
-        public TemporaryFolder temporaryFolder = new TemporaryFolder();
+        public TemporaryFolder temporaryFolder;
 
-        private BuildConfiguration mockBuildConfiguration = Mock.Of<BuildConfiguration>();
+        private IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
 
         private Cache cache;
-        private EventHandlers mockEventHandlers = Mock.Of<EventHandlers>();
+        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
-        private LayerConfiguration fakeDependenciesLayerConfiguration;
-        private LayerConfiguration fakeSnapshotDependenciesLayerConfiguration;
-        private LayerConfiguration fakeResourcesLayerConfiguration;
-        private LayerConfiguration fakeClassesLayerConfiguration;
-        private LayerConfiguration fakeExtraFilesLayerConfiguration;
-        private LayerConfiguration emptyLayerConfiguration;
+        private ILayerConfiguration fakeDependenciesLayerConfiguration;
+        private ILayerConfiguration fakeSnapshotDependenciesLayerConfiguration;
+        private ILayerConfiguration fakeResourcesLayerConfiguration;
+        private ILayerConfiguration fakeClassesLayerConfiguration;
+        private ILayerConfiguration fakeExtraFilesLayerConfiguration;
+        private ILayerConfiguration emptyLayerConfiguration;
+
+        [OneTimeSetUp]
+        public void SetUpFixture()
+        {
+            temporaryFolder = new TemporaryFolder();
+        }
+
+        [OneTimeTearDown]
+        public void TearDownFixture()
+        {
+            temporaryFolder.Dispose();
+        }
 
         [SetUp]
         public void setUp()
@@ -157,7 +171,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         [Test]
         public void testRun()
         {
-            ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
+            ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
                     fakeDependenciesLayerConfiguration,
                     fakeSnapshotDependenciesLayerConfiguration,
@@ -218,7 +232,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         [Test]
         public void testRun_emptyLayersIgnored()
         {
-            ImmutableArray<LayerConfiguration> fakeLayerConfigurations =
+            ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
                     fakeDependenciesLayerConfiguration,
                     emptyLayerConfiguration,

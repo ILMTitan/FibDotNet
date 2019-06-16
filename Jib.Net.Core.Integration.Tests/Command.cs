@@ -25,18 +25,20 @@ namespace com.google.cloud.tools.jib
     /** Test utility to run shell commands for integration tests. */
     public class Command
     {
-        private readonly IList<string> command;
+        private readonly string command;
+        private readonly string args;
 
         /** Instantiate with a command. */
-        public Command(params string[] command)
+        public Command(string command, string args)
         {
-            this.command = Arrays.asList(command);
+            this.command = (command);
+            this.args = args;
         }
 
-        /** Instantiate with a command. */
-        public Command(IList<string> command)
+        public Command(string command, params string[] args)
         {
             this.command = command;
+            this.args = string.Join(' ', args);
         }
 
         /** Runs the command. */
@@ -48,7 +50,7 @@ namespace com.google.cloud.tools.jib
         /** Runs the command and pipes in {@code stdin}. */
         public string run(byte[] stdin)
         {
-            Process process = new ProcessBuilder(command).start();
+            IProcess process = new ProcessBuilder(command, args).start();
 
             if (stdin != null)
             {

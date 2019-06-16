@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
      * @see <a
      *     href="https://docs.docker.com/engine/reference/commandline/login/">https://docs.docker.com/engine/reference/commandline/login/</a>
      */
-    public class DockerConfigCredentialRetriever
+    public class DockerConfigCredentialRetriever : IDockerConfigCredentialRetriever
     {
         /**
          * @see <a
@@ -78,7 +78,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
             if (!Files.exists(dockerConfigFile))
             {
-                return Optional.empty();
+                return Optional.empty<Credential>();
             }
             DockerConfig dockerConfig =
                 new DockerConfig(
@@ -94,7 +94,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the retrieved credentials, or {@code Optional#empty} if none are found
          */
 
-        public Optional<Credential> retrieve(DockerConfig dockerConfig, Consumer<LogEvent> logger)
+        public Optional<Credential> retrieve(IDockerConfig dockerConfig, Consumer<LogEvent> logger)
         {
             foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
             {
@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 }
 
                 // Then, tries to use a defined credHelpers credential helper.
-                DockerCredentialHelper dockerCredentialHelper =
+                IDockerCredentialHelper dockerCredentialHelper =
                     dockerConfig.getCredentialHelperFor(registryAlias);
                 if (dockerCredentialHelper != null)
                 {
@@ -133,7 +133,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                 }
             }
-            return Optional.empty();
+            return Optional.empty<Credential>();
         }
     }
 }

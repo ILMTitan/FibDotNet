@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.builder
          * @return a new {@link ProgressEventDispatcher}
          */
         public static ProgressEventDispatcher newRoot(
-            EventHandlers eventHandlers, string description, long allocationUnits)
+            IEventHandlers eventHandlers, string description, long allocationUnits)
         {
             return newProgressEventDispatcher(
                 eventHandlers, Allocation.newRoot(description, allocationUnits));
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.builder
          * @return a new {@link ProgressEventDispatcher}
          */
         private static ProgressEventDispatcher newProgressEventDispatcher(
-            EventHandlers eventHandlers, Allocation allocation)
+            IEventHandlers eventHandlers, Allocation allocation)
         {
             ProgressEventDispatcher progressEventDispatcher =
                 new ProgressEventDispatcher(eventHandlers, allocation);
@@ -84,13 +84,13 @@ namespace com.google.cloud.tools.jib.builder
             return progressEventDispatcher;
         }
 
-        private readonly EventHandlers eventHandlers;
+        private readonly IEventHandlers eventHandlers;
         private readonly Allocation allocation;
 
         private long remainingAllocationUnits;
         private bool closed = false;
 
-        private ProgressEventDispatcher(EventHandlers eventHandlers, Allocation allocation)
+        private ProgressEventDispatcher(IEventHandlers eventHandlers, Allocation allocation)
         {
             this.eventHandlers = eventHandlers;
             this.allocation = allocation;

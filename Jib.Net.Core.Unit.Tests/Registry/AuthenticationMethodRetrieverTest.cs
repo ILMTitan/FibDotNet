@@ -34,9 +34,7 @@ namespace com.google.cloud.tools.jib.registry
     [RunWith(typeof(MockitoJUnitRunner))]
     public class AuthenticationMethodRetrieverTest
     {
-        private HttpResponseMessage mockHttpResponse = Mock.Of<HttpResponseMessage>();
-        private HttpResponseHeaders mockHeaders = Mock.Of<HttpResponseHeaders>();
-
+        
         private RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties;
         private AuthenticationMethodRetriever testAuthenticationMethodRetriever;
 
@@ -93,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testHandleHttpResponseException_invalidStatusCode()
         {
-            Mock.Get(mockHttpResponse).Setup(m => m.getStatusCode()).Returns((HttpStatusCode)(-1));
+            var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
 
             try
             {
@@ -103,18 +101,15 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
-                Assert.AreEqual(mockHttpResponse, ex);
+                Assert.AreEqual(mockHttpResponse, ex.Cause);
             }
         }
 
         [Test]
         public void tsetHandleHttpResponseException_noHeader()
         {
-            Mock.Get(mockHttpResponse).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.Unauthorized);
-
-            Mock.Get(mockHttpResponse).Setup(m => m.getHeaders()).Returns(mockHeaders);
-
-            Mock.Get(mockHeaders).Setup(m => m.getAuthenticate()).Returns(() => null);
+            var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            mockHttpResponse.Headers.WwwAuthenticate.Clear();
 
             try
             {
@@ -124,22 +119,25 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(), "'WWW-Authenticate' header not found");
+                Assert.That(
+                    ex.getMessage(), Does.Contain("'WWW-Authenticate' header not found"));
             }
         }
 
         [Test]
         public void testHandleHttpResponseException_pass()
         {
-            const string authenticationMethod =
-                "Bearer realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"";
+            const string authScheme = "Bearer";
+            const string authParamter = "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"";
 
-            Mock.Get(mockHttpResponse).Setup(m => m.getStatusCode()).Returns(HttpStatusCode.Unauthorized);
-
-            Mock.Get(mockHttpResponse).Setup(m => m.getHeaders()).Returns(mockHeaders);
-
-            Mock.Get(mockHeaders).Setup(m => m.getAuthenticate()).Returns(Mock.Of<HttpHeaderValueCollection<AuthenticationHeaderValue>>(c => c.Count == 1 && c.GetEnumerator() == new[] { authenticationMethod }.GetEnumerator()));
+            var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                Headers ={
+                    WwwAuthenticate = {
+                        new AuthenticationHeaderValue(authScheme,authParamter)
+                    }
+                }
+            };
 
             RegistryAuthenticator registryAuthenticator =
                 testAuthenticationMethodRetriever.handleHttpResponse(mockHttpResponse);
