@@ -72,13 +72,19 @@ namespace com.google.cloud.tools.jib.async
             return this;
         }
 
-        internal async Task<TResult> whenAllSucceed<TResult>(Func<TResult> f)
+        internal async Task<TResult> whenAllSucceedAsync<TResult>(Func<TResult> f)
         {
             await Task.WhenAll(futures).ConfigureAwait(false);
             return await Task.Run(f).ConfigureAwait(false);
         }
 
-        internal Task<T> call<T>(Func<T> p)
+        internal async Task<TResult> whenAllSucceedAsync<TResult>(Func<Task<TResult>> f)
+        {
+            await Task.WhenAll(futures).ConfigureAwait(false);
+            return await Task.Run(f).ConfigureAwait(false);
+        }
+
+        internal Task<T> callAsync<T>(Func<T> p)
         {
             throw new NotImplementedException();
         }

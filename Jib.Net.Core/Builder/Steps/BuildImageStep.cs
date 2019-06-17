@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullBaseImageStep)
                     .addStep(pullAndCacheBaseImageLayersStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<AsyncStep<Image>> getFuture()
@@ -81,17 +81,17 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public AsyncStep<Image> call()
+        public async Task<AsyncStep<Image>> callAsync()
         {
             Task<Image> future =
                 AsyncDependencies.@using()
-                    .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+                    .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
                     .addSteps(buildAndCacheApplicationLayerSteps)
-                    .whenAllSucceed(this.afterCachedLayerSteps);
+                    .whenAllSucceedAsync(this.afterCachedLayerStepsAsync);
             return AsyncStep.Of(() => future);
         }
 
-        private Image afterCachedLayerSteps()
+        private async Task<Image> afterCachedLayerStepsAsync()
         {
             using (ProgressEventDispatcher ignored =
                     progressEventDispatcherFactory.create("building image format", 1))
@@ -100,16 +100,16 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 // Constructs the image.
                 Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
-                Image baseImage = NonBlockingSteps.get(pullBaseImageStep).getBaseImage();
+                Image baseImage = (await pullBaseImageStep.getFuture()).getBaseImage();
                 IContainerConfiguration containerConfiguration =
                     buildConfiguration.getContainerConfiguration();
 
                 // Base image layers
                 IReadOnlyList<AsyncStep<ICachedLayer>> baseImageLayers =
-                    NonBlockingSteps.get(pullAndCacheBaseImageLayersStep);
+                    await pullAndCacheBaseImageLayersStep.getFuture();
                 foreach (AsyncStep<ICachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
                 {
-                    imageBuilder.addLayer(NonBlockingSteps.get(pullAndCacheBaseImageLayerStep));
+                    imageBuilder.addLayer(await pullAndCacheBaseImageLayerStep.getFuture());
                 }
 
                 // Passthrough config and count non-empty history entries
@@ -157,12 +157,12 @@ namespace com.google.cloud.tools.jib.builder.steps
                         historyBuilder.setCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
                     }
                     imageBuilder
-                        .addLayer(NonBlockingSteps.get(buildAndCacheApplicationLayerStep))
+                        .addLayer(await buildAndCacheApplicationLayerStep.getFuture())
                         .addHistory(
                             historyBuilder
                                 .setCreationTimestamp(layerCreationTime)
                                 .setAuthor("Jib")
-                                .setComment(NonBlockingSteps.get(buildAndCacheApplicationLayerStep).getLayerType())
+                                .setComment((await buildAndCacheApplicationLayerStep.getFuture()).getLayerType())
                                 .build());
                 }
                 if (containerConfiguration != null)

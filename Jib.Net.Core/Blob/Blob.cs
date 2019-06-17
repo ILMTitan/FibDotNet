@@ -16,6 +16,7 @@
 
 using Jib.Net.Core.Blob;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
@@ -29,6 +30,6 @@ namespace com.google.cloud.tools.jib.blob
          * @return the {@link BlobDescriptor} of the written BLOB
          * @throws IOException if writing the BLOB fails
          */
-        BlobDescriptor writeTo(Stream outputStream);
+        Task<BlobDescriptor> writeToAsync(Stream outputStream);
     }
 }

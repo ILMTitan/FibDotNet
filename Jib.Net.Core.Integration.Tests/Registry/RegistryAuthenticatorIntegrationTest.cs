@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -26,18 +27,18 @@ namespace com.google.cloud.tools.jib.registry
     public class RegistryAuthenticatorIntegrationTest
     {
         [Test]
-        public void testAuthenticate()
+        public async Task testAuthenticateAsync()
         {
             ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
             RegistryAuthenticator registryAuthenticator =
-                RegistryClient.factory(
+                await RegistryClient.factory(
                         EventHandlers.NONE,
                         dockerHubImageReference.getRegistry(),
                         dockerHubImageReference.getRepository())
                     .newRegistryClient()
-                    .getRegistryAuthenticator();
+                    .getRegistryAuthenticatorAsync();
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = registryAuthenticator.authenticatePull(null);
+            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null);
 
             // Checks that some token was received.
             Assert.IsTrue(0 < authorization.getToken().length());

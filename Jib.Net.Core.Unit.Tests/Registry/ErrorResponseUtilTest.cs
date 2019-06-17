@@ -18,6 +18,7 @@ using NUnit.Framework;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -25,7 +26,7 @@ namespace com.google.cloud.tools.jib.registry
     public class ErrorResponseUtilTest
     {
         [Test]
-        public void testGetErrorCode_knownErrorCode()
+        public async Task testGetErrorCode_knownErrorCodeAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -33,12 +34,12 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(
-                ErrorCodes.MANIFEST_INVALID, ErrorResponseUtil.getErrorCode(httpResponseException));
+                ErrorCodes.MANIFEST_INVALID, await ErrorResponseUtil.getErrorCodeAsync(httpResponseException));
         }
 
         /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
         [Test]
-        public void testGetErrorCode_unknownErrorCode()
+        public async System.Threading.Tasks.Task testGetErrorCode_unknownErrorCodeAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -48,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                ErrorResponseUtil.getErrorCode(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)
@@ -59,7 +60,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Multiple error objects should cause original exception to be rethrown. */
         [Test]
-        public void testGetErrorCode_multipleErrors()
+        public async System.Threading.Tasks.Task testGetErrorCode_multipleErrorsAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -72,7 +73,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                ErrorResponseUtil.getErrorCode(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)
@@ -83,7 +84,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** An non-error object should cause original exception to be rethrown. */
         [Test]
-        public void testGetErrorCode_invalidErrorObject()
+        public async Task testGetErrorCode_invalidErrorObjectAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -91,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry
             };
             try
             {
-                ErrorResponseUtil.getErrorCode(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)

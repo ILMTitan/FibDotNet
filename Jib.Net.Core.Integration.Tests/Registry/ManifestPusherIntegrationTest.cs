@@ -39,13 +39,13 @@ namespace com.google.cloud.tools.jib.registry
         private static readonly EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
 
         [Test]
-        public void testPush_missingBlobs()
+        public async System.Threading.Tasks.Task testPush_missingBlobsAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
 
             RegistryClient registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = registryClient.pullManifest("latest");
+            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest");
 
             registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "localhost:5000", "busybox")
@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.registry
                     .newRegistryClient();
             try
             {
-                registryClient.pushManifest((V22ManifestTemplate)manifestTemplate, "latest");
+                await registryClient.pushManifestAsync((V22ManifestTemplate)manifestTemplate, "latest");
                 Assert.Fail("Pushing manifest without its BLOBs should fail");
             }
             catch (RegistryErrorException ex)
@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Tests manifest pushing. This test is a comprehensive test of push and pull. */
         [Test]
-        public void testPush()
+        public async System.Threading.Tasks.Task testPushAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             Blob testLayerBlob = Blobs.from("crepecake");
@@ -90,20 +90,20 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             Assert.IsFalse(
-                registryClient.pushBlob(testLayerBlobDigest, testLayerBlob, null, ignored => { }));
+                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, ignored => { }));
             Assert.IsFalse(
-                registryClient.pushBlob(
+                await registryClient.pushBlobAsync(
                     testContainerConfigurationBlobDigest,
                     testContainerConfigurationBlob,
                     null,
                     ignored => { }));
 
             // Pushes the manifest.
-            DescriptorDigest imageDigest = registryClient.pushManifest(expectedManifestTemplate, "latest");
+            DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest");
 
             // Pulls the manifest.
             V22ManifestTemplate manifestTemplate =
-                registryClient.pullManifest<V22ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest");
             Assert.AreEqual(1, manifestTemplate.getLayers().size());
             Assert.AreEqual(testLayerBlobDigest, manifestTemplate.getLayers().get(0).getDigest());
             Assert.IsNotNull(manifestTemplate.getContainerConfiguration());
@@ -113,7 +113,7 @@ namespace com.google.cloud.tools.jib.registry
 
             // Pulls the manifest by digest.
             V22ManifestTemplate manifestTemplateByDigest =
-                registryClient.pullManifest<V22ManifestTemplate>(imageDigest.toString());
+                await registryClient.pullManifestAsync<V22ManifestTemplate>(imageDigest.toString());
             Assert.AreEqual(
                 Digests.computeJsonDigest(manifestTemplate),
                 Digests.computeJsonDigest(manifestTemplateByDigest));

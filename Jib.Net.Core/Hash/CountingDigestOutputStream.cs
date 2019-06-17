@@ -21,6 +21,8 @@ using Jib.Net.Core.Global;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.hash
 {
@@ -76,10 +78,30 @@ namespace com.google.cloud.tools.jib.hash
             return bytesSoFar;
         }
 
-        public override void Write(byte[] data, int offset, int length)
+        public override void Write(byte[] data, int offset, int count)
         {
-            base.Write(data, offset, length);
-            bytesSoFar += length;
+            base.Write(data, offset, count);
+            bytesSoFar += count;
+        }
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            bytesSoFar += count;
+            return base.WriteAsync(buffer, offset, count, cancellationToken);
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var bytesRead = base.Read(buffer, offset, count);
+            bytesSoFar += bytesRead;
+            return bytesRead;
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            var bytesRead = await base.ReadAsync(buffer, offset, count, cancellationToken);
+            bytesSoFar += bytesRead;
+            return bytesRead;
         }
     }
 }

@@ -109,7 +109,7 @@ namespace com.google.cloud.tools.jib.image
         [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         [Test]
-        public void testBuild()
+        public async System.Threading.Tasks.Task testBuildAsync()
         {
             SystemPath layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
             SystemPath blobA = Paths.get(Resources.getResource("core/blobA").toURI());
@@ -130,7 +130,7 @@ namespace com.google.cloud.tools.jib.image
             using (Stream temporaryFileOutputStream =
                 new BufferedStream(Files.newOutputStream(temporaryFile)))
             {
-                unwrittenBlob.writeTo(temporaryFileOutputStream);
+                await unwrittenBlob.writeToAsync(temporaryFileOutputStream);
             }
 
             // Reads the file back.
@@ -163,7 +163,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public void testToBlob_reproducibility()
+        public async System.Threading.Tasks.Task testToBlob_reproducibilityAsync()
         {
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
             SystemPath root1 = Files.createDirectories(testRoot.resolve("files1"));
@@ -196,14 +196,14 @@ namespace com.google.cloud.tools.jib.image
                             defaultLayerEntry(fileA2, AbsoluteUnixPath.get("/somewhere/fileA"))))
                     .build();
 
-            byte[] layerContent = Blobs.writeToByteArray(layer);
-            byte[] reproducedLayerContent = Blobs.writeToByteArray(reproduced);
+            byte[] layerContent = await Blobs.writeToByteArrayAsync(layer);
+            byte[] reproducedLayerContent = await Blobs.writeToByteArrayAsync(reproduced);
 
             Assert.AreEqual(layerContent, reproducedLayerContent);
         }
 
         [Test]
-        public void testBuild_parentDirBehavior()
+        public async System.Threading.Tasks.Task testBuild_parentDirBehaviorAsync()
         {
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
 
@@ -248,7 +248,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                layer.writeTo(@out);
+                await layer.writeToAsync(@out);
             }
 
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
@@ -286,7 +286,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public void testBuild_timestampDefault()
+        public async System.Threading.Tasks.Task testBuild_timestampDefaultAsync()
         {
             SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
@@ -298,7 +298,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                blob.writeTo(@out);
+                await blob.writeToAsync(@out);
             }
 
             // Reads the file back.
@@ -310,7 +310,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public void testBuild_timestampNonDefault()
+        public async System.Threading.Tasks.Task testBuild_timestampNonDefaultAsync()
         {
             SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
@@ -327,7 +327,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                blob.writeTo(@out);
+                await blob.writeToAsync(@out);
             }
 
             // Reads the file back.
@@ -340,7 +340,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public void testBuild_permissions()
+        public async System.Threading.Tasks.Task testBuild_permissionsAsync()
         {
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
             SystemPath folder = Files.createDirectories(testRoot.resolve("files1"));
@@ -366,7 +366,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                blob.writeTo(@out);
+                await blob.writeToAsync(@out);
             }
 
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))

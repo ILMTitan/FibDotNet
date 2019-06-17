@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(cachedLayerStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<ImmutableArray<AsyncStep<PushBlobStep>>> getFuture()
@@ -66,13 +66,13 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public ImmutableArray<AsyncStep<PushBlobStep>> call()
+        public async Task<ImmutableArray<AsyncStep<PushBlobStep>>> callAsync()
         {
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 IReadOnlyList<AsyncStep<ICachedLayer>> cachedLayers =
-                    NonBlockingSteps.get(cachedLayerStep);
+                    await cachedLayerStep.getFuture();
 
                 using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size()))
@@ -84,9 +84,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                     {
                         ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
                             progressEventDispatcher.newChildProducer();
+                        await cachedLayerStep.getFuture();
                         Task<PushBlobStep> pushBlobStepFuture =
-                            Futures.whenAllSucceed(cachedLayerStep.getFuture())
-                                .call(() => makePushBlobStep(cachedLayerStep, childProgressEventDispatcherFactory));
+                            makePushBlobStepAsync(cachedLayerStep, childProgressEventDispatcherFactory);
                         pushBlobStepsBuilder.add(AsyncStep.Of(() => pushBlobStepFuture));
                     }
 
@@ -95,11 +95,11 @@ namespace com.google.cloud.tools.jib.builder.steps
             }
         }
 
-        private PushBlobStep makePushBlobStep(
+        private async Task<PushBlobStep> makePushBlobStepAsync(
             AsyncStep<CachedLayer> cachedLayerStep,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
-            CachedLayer cachedLayer = NonBlockingSteps.get(cachedLayerStep);
+            CachedLayer cachedLayer = await cachedLayerStep.getFuture();
 
             return new PushBlobStep(
                 buildConfiguration,

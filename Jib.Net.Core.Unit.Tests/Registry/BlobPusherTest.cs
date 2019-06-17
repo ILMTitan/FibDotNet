@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -85,10 +86,10 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testInitializer_handleResponse_created()
+        public async Task testInitializer_handleResponse_createdAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Created);
-            Assert.IsNull(testBlobPusher.initializer().handleResponse(mockResponse));
+            Assert.IsNull(await testBlobPusher.initializer().handleResponseAsync(mockResponse));
             mockResponse = new HttpResponseMessage(HttpStatusCode.Accepted)
             {
                 Headers = { Location = new Uri("location", UriKind.Relative) },
@@ -100,16 +101,16 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://someurl/location"),
-                testBlobPusher.initializer().handleResponse(mockResponse));
+                await testBlobPusher.initializer().handleResponseAsync(mockResponse));
         }
 
         [Test]
-        public void testInitializer_handleResponse_unrecognized()
+        public async System.Threading.Tasks.Task testInitializer_handleResponse_unrecognizedAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Unused);
             try
             {
-                testBlobPusher.initializer().handleResponse(mockResponse);
+                await testBlobPusher.initializer().handleResponseAsync(mockResponse);
                 Assert.Fail("Multiple 'Location' headers should be a registry error");
             }
             catch (RegistryErrorException ex)
@@ -159,7 +160,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testWriter_getContent()
+        public async System.Threading.Tasks.Task testWriter_getContentAsync()
         {
             LongAdder byteCount = new LongAdder();
             BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount.add).getContent();
@@ -168,7 +169,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual("application/octet-stream", body.getType());
 
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            body.writeTo(byteArrayOutputStream);
+            await body.writeToAsync(byteArrayOutputStream);
 
             Assert.AreEqual(
                 TEST_BLOB_CONTENT, StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
@@ -182,7 +183,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testWriter_handleResponse()
+        public async Task testWriter_handleResponseAsync()
         {
             UriBuilder requestUrl = new UriBuilder("https://someurl");
             mockResponse = new HttpResponseMessage
@@ -199,7 +200,7 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://somenewurl/location"),
-                testBlobPusher.writer(mockURL, ignored => { }).handleResponse(mockResponse));
+                await testBlobPusher.writer(mockURL, ignored => { }).handleResponseAsync(mockResponse));
         }
 
         [Test]
@@ -236,10 +237,9 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testCommitter_handleResponse()
+        public async Task testCommitter_handleResponseAsync()
         {
-            Assert.IsNull(
-                testBlobPusher.committer(mockURL).handleResponse(Mock.Of<HttpResponseMessage>()));
+            Assert.IsNull(await testBlobPusher.committer(mockURL).handleResponseAsync(Mock.Of<HttpResponseMessage>()));
         }
 
         [Test]

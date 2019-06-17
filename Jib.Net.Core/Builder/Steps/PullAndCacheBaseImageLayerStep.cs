@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.layerDigest = layerDigest;
             this.pullAuthorization = pullAuthorization;
 
-            listenableFuture = Task.Run(call);
+            listenableFuture = Task.Run(callAsync);
         }
 
         public Task<ICachedLayer> getFuture()
@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public ICachedLayer call()
+        public async Task<ICachedLayer> callAsync()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         progressEventDispatcher.newChildProducer(),
                         "pulling base image layer " + layerDigest))
                 {
-                    return cache.writeCompressedLayer(
+                    return await cache.writeCompressedLayerAsync(
                         registryClient.pullBlob(
                             layerDigest,
                             progressEventDispatcherWrapper.setProgressTarget,

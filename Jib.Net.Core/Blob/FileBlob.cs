@@ -19,6 +19,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
@@ -32,11 +33,11 @@ namespace com.google.cloud.tools.jib.blob
             this.file = file;
         }
 
-        public BlobDescriptor writeTo(Stream outputStream)
+        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
             using (Stream fileIn = new BufferedStream(Files.newInputStream(file)))
             {
-                return Digests.computeDigest(fileIn, outputStream);
+                return await Digests.computeDigestAsync(fileIn, outputStream);
             }
         }
     }

@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -63,7 +64,7 @@ namespace com.google.cloud.tools.jib.registry
             this.writtenByteCountListener = writtenByteCountListener;
         }
 
-        public object handleResponse(HttpResponseMessage response)
+        public async Task<object> handleResponseAsync(HttpResponseMessage response)
         {
             blobSizeListener.accept(response.getContentLength() ?? 0);
 
@@ -71,7 +72,7 @@ namespace com.google.cloud.tools.jib.registry
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))
             {
                 BlobDescriptor receivedBlobDescriptor =
-                    Digests.computeDigest(response.getBody(), outputStream);
+                    await Digests.computeDigestAsync(await response.getBodyAsync(), outputStream);
 
                 if (!blobDigest.Equals(receivedBlobDescriptor.getDigest()))
                 {

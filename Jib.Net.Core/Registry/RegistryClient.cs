@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -206,11 +207,11 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public RegistryAuthenticator getRegistryAuthenticator()
+        public async Task<RegistryAuthenticator> getRegistryAuthenticatorAsync()
         {
             // Gets the WWW-Authenticate header (eg. 'WWW-Authenticate: Bearer
             // realm="https://gcr.io/v2/token",service="gcr.io"')
-            return callRegistryEndpoint(
+            return await callRegistryEndpointAsync(
                 new AuthenticationMethodRetriever(registryEndpointRequestProperties, getUserAgent()));
         }
 
@@ -225,12 +226,12 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public T pullManifest<T>(
+        public async Task<T> pullManifestAsync<T>(
             string imageTag) where T : ManifestTemplate
         {
             ManifestPuller<T> manifestPuller =
                 new ManifestPuller<T>(registryEndpointRequestProperties, imageTag);
-            T manifestTemplate = callRegistryEndpoint(manifestPuller);
+            T manifestTemplate = await callRegistryEndpointAsync(manifestPuller);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
@@ -238,9 +239,9 @@ namespace com.google.cloud.tools.jib.registry
             return manifestTemplate;
         }
 
-        public ManifestTemplate pullManifest(string imageTag)
+        public async Task<ManifestTemplate> pullManifestAsync(string imageTag)
         {
-            return pullAnyManifest(imageTag);
+            return await pullAnyManifestAsync(imageTag);
         }
 
         /**
@@ -254,11 +255,11 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public ManifestTemplate pullAnyManifest(string imageTag) 
+        public async Task<ManifestTemplate> pullAnyManifestAsync(string imageTag) 
         {
             ManifestPuller manifestPuller =
                 new ManifestPuller(registryEndpointRequestProperties, imageTag);
-            ManifestTemplate manifestTemplate = callRegistryEndpoint(manifestPuller);
+            ManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
@@ -275,10 +276,9 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public DescriptorDigest pushManifest(BuildableManifestTemplate manifestTemplate, string imageTag)
+        public async Task<DescriptorDigest> pushManifestAsync(BuildableManifestTemplate manifestTemplate, string imageTag)
         {
-            return Verify.verifyNotNull(
-                callRegistryEndpoint(
+            return Verify.verifyNotNull(await callRegistryEndpointAsync(
                     new ManifestPusher(
                         registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers)));
         }
@@ -290,10 +290,10 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public BlobDescriptor checkBlob(DescriptorDigest blobDigest)
+        public async Task<BlobDescriptor> checkBlobAsync(DescriptorDigest blobDigest)
         {
             BlobChecker blobChecker = new BlobChecker(registryEndpointRequestProperties, blobDigest);
-            return callRegistryEndpoint(blobChecker);
+            return await callRegistryEndpointAsync(blobChecker);
         }
 
         /**
@@ -312,11 +312,11 @@ namespace com.google.cloud.tools.jib.registry
             Consumer<long> writtenByteCountListener)
         {
             return Blobs.from(
-                outputStream =>
+                async outputStream =>
                 {
                     try
                     {
-                        callRegistryEndpoint(
+                        await callRegistryEndpointAsync(
                     new BlobPuller(
                         registryEndpointRequestProperties,
                         blobDigest,
@@ -345,7 +345,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public bool pushBlob(
+        public async Task<bool> pushBlobAsync(
             DescriptorDigest blobDigest,
             Blob blob,
             string sourceRepository,
@@ -362,7 +362,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // POST /v2/<name>/blobs/uploads/ OR
                     // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
-                    Uri patchLocation = callRegistryEndpoint(blobPusher.initializer());
+                    Uri patchLocation = await callRegistryEndpointAsync(blobPusher.initializer());
                     if (patchLocation == null)
                     {
                         // The BLOB exists already.
@@ -373,13 +373,13 @@ namespace com.google.cloud.tools.jib.registry
 
                     // PATCH <Location> with BLOB
                     Uri putLocation =
-                        callRegistryEndpoint(blobPusher.writer(patchLocation, writtenByteCountListener));
+                        await callRegistryEndpointAsync(blobPusher.writer(patchLocation, writtenByteCountListener));
                     Preconditions.checkNotNull(putLocation);
 
                     timerEventDispatcher2.lap("pushBlob PUT " + blobDigest);
 
                     // PUT <Location>?digest={blob.digest}
-                    callRegistryEndpoint(blobPusher.committer(putLocation));
+                    await callRegistryEndpointAsync(blobPusher.committer(putLocation));
 
                     return false;
                 }
@@ -405,9 +405,9 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        private T callRegistryEndpoint<T>(RegistryEndpointProvider<T> registryEndpointProvider)
+        private async Task<T> callRegistryEndpointAsync<T>(RegistryEndpointProvider<T> registryEndpointProvider)
         {
-            return new RegistryEndpointCaller<T>(
+            return await new RegistryEndpointCaller<T>(
                     eventHandlers,
                     userAgent,
                     getApiRouteBase(),
@@ -415,7 +415,7 @@ namespace com.google.cloud.tools.jib.registry
                     authorization,
                     registryEndpointRequestProperties,
                     allowInsecureRegistries)
-                .call();
+                .callAsync();
         }
     }
 }

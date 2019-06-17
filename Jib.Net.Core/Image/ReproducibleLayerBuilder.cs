@@ -161,7 +161,7 @@ namespace com.google.cloud.tools.jib.image
             }
 
             return Blobs.from(
-                tarStreamBuilder.writeAsTarArchiveTo);
+                tarStreamBuilder.writeAsTarArchiveToAsync);
         }
     }
 }

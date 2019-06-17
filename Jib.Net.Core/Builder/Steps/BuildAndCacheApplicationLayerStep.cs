@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.layerType = layerType;
             this.layerConfiguration = layerConfiguration;
 
-            listenableFuture = Task.Run(call);
+            listenableFuture = Task.Run(callAsync);
         }
 
         public Task<ICachedLayer> getFuture()
@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public ICachedLayer call()
+        public async Task<ICachedLayer> callAsync()
         {
             string description = "Building " + layerType + " layer";
 
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 Blob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
                 CachedLayer cachedLayer =
-                    cache.writeUncompressedLayer(layerBlob, layerConfiguration.getLayerEntries());
+                    await cache.writeUncompressedLayerAsync(layerBlob, layerConfiguration.getLayerEntries());
 
                 buildConfiguration
                     .getEventHandlers()

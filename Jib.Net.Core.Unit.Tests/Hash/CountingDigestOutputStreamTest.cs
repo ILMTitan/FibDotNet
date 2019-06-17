@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.hash
                 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
 
         [Test]
-        public void test_smokeTest()
+        public async System.Threading.Tasks.Task test_smokeTestAsync()
         {
             foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES.entrySet())
             {
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.hash
 
                 byte[] bytesToHash = toHash.getBytes(StandardCharsets.UTF_8);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
-                ByteStreams.copy(toHashInputStream, countingDigestOutputStream);
+                await ByteStreams.copyAsync(toHashInputStream, countingDigestOutputStream);
 
                 BlobDescriptor blobDescriptor = countingDigestOutputStream.computeDigest();
                 Assert.AreEqual(DescriptorDigest.fromHash(expectedHash), blobDescriptor.getDigest());

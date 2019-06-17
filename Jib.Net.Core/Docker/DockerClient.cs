@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
@@ -181,7 +182,7 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker load' process is interrupted.
          * @throws IOException if streaming the blob to 'docker load' fails.
          */
-        public string load(IImageTarball imageTarball)
+        public async Task<string> loadAsync(IImageTarball imageTarball)
         {
             // Runs 'docker load'.
             IProcess dockerProcess = docker("load");
@@ -190,7 +191,7 @@ namespace com.google.cloud.tools.jib.docker
             {
                 try
                 {
-                    imageTarball.writeTo(stdin);
+                    await imageTarball.writeToAsync(stdin);
                 }
                 catch (IOException ex)
                 {
@@ -213,8 +214,8 @@ namespace com.google.cloud.tools.jib.docker
                 }
             }
 
-            using (StreamReader stdout =
-                new StreamReader(dockerProcess.getInputStream(), StandardCharsets.UTF_8))
+            Stream stdoutStream = dockerProcess.getInputStream();
+            using (StreamReader stdout =new StreamReader(stdoutStream, StandardCharsets.UTF_8))
             {
                 string output = CharStreams.toString(stdout);
 

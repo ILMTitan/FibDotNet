@@ -16,14 +16,15 @@
 
 using com.google.cloud.tools.jib.async;
 using System;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
     public static class NonBlockingSteps
     {
-        public static T get<T>(AsyncStep<T> step)
+        public static async Task<T> getAsync<T>(AsyncStep<T> step)
         {
-            return step.getFuture().Result;
+            return await step.getFuture();
         }
     }
 }

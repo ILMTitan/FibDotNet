@@ -210,7 +210,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             // Translates the image to the manifest and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
-            BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
+            BlobDescriptor blobDescriptor = Digests.computeJsonDescriptor(containerConfiguration);
             BuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
 

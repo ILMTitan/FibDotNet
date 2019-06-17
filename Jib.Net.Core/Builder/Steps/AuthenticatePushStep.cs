@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(retrieveTargetRegistryCredentialsStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<Authorization> getFuture()
@@ -69,9 +69,9 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public Authorization call()
+        public async Task<Authorization> callAsync()
         {
-            Credential registryCredential = NonBlockingSteps.get(retrieveTargetRegistryCredentialsStep);
+            Credential registryCredential = await retrieveTargetRegistryCredentialsStep.getFuture();
 
             string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
             try
@@ -83,13 +83,13 @@ namespace com.google.cloud.tools.jib.builder.steps
                             buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, registry)))
                 {
                     RegistryAuthenticator registryAuthenticator =
-                        buildConfiguration
+                        await buildConfiguration
                             .newTargetImageRegistryClientFactory()
                             .newRegistryClient()
-                            .getRegistryAuthenticator();
+                            .getRegistryAuthenticatorAsync();
                     if (registryAuthenticator != null)
                     {
-                        return registryAuthenticator.authenticatePush(registryCredential);
+                        return await registryAuthenticator.authenticatePushAsync(registryCredential);
                     }
                 }
             }

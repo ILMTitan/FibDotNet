@@ -24,6 +24,8 @@ using System.IO;
 using System.Net.Http;
 using Moq;
 using System;
+using System.Threading.Tasks;
+using Jib.Net.Core.Blob;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -46,20 +48,17 @@ namespace com.google.cloud.tools.jib.registry
 
         private DescriptorDigest fakeDigest;
 
-        private readonly MemoryStream layerContentOutputStream = new MemoryStream();
-        private readonly CountingDigestOutputStream layerOutputStream;
+        private MemoryStream layerContentOutputStream;
+        private CountingDigestOutputStream layerOutputStream;
 
         private BlobPuller testBlobPuller;
-
-        public BlobPullerTest()
-        {
-            layerOutputStream =
-      new CountingDigestOutputStream(layerContentOutputStream);
-        }
 
         [SetUp]
         public void setUpFakes()
         {
+            layerContentOutputStream = new MemoryStream();
+            layerOutputStream = new CountingDigestOutputStream(layerContentOutputStream);
+
             fakeDigest =
                 DescriptorDigest.fromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -74,11 +73,11 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse()
+        public async Task testHandleResponseAsync()
         {
-            MemoryStream blobContent =
-        new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-            DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
+            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent);
+            DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;
 
             HttpResponseMessage mockResponse = new HttpResponseMessage()
@@ -93,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry
                     layerOutputStream,
                     size => Assert.AreEqual("some BLOB content".length(), size.longValue()),
                     byteCount.add);
-            blobPuller.handleResponse(mockResponse);
+            await blobPuller.handleResponseAsync(mockResponse);
             Assert.AreEqual(
                 "some BLOB content",
                 StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
@@ -102,10 +101,11 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse_unexpectedDigest()
+        public async Task testHandleResponse_unexpectedDigestAsync()
         {
             MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-            DescriptorDigest testBlobDigest = Digests.computeDigest(blobContent).getDigest();
+            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent);
+            DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;
 
             HttpResponseMessage mockResponse = new HttpResponseMessage()
@@ -115,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testBlobPuller.handleResponse(mockResponse);
+                await testBlobPuller.handleResponseAsync(mockResponse);
                 Assert.Fail("Receiving an unexpected digest should fail");
             }
             catch (UnexpectedBlobDigestException ex)

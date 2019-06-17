@@ -21,9 +21,11 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -41,7 +43,7 @@ namespace com.google.cloud.tools.jib.registry
         [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         [Test]
-        public void testPull()
+        public async Task testPullAsync()
         {
             // Pulls the busybox image.
             localRegistry.pullAndPushToLocal("busybox", "busybox");
@@ -50,7 +52,7 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                registryClient.pullManifest<V21ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest");
 
             DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
 
@@ -66,13 +68,14 @@ namespace com.google.cloud.tools.jib.registry
                         expectedSize.add(size);
                     },
                     totalByteCount.add);
-            Assert.AreEqual(realDigest, pulledBlob.writeTo(Stream.Null).getDigest());
+            BlobDescriptor blobDescriptor = await pulledBlob.writeToAsync(Stream.Null);
+            Assert.AreEqual(realDigest, blobDescriptor.getDigest());
             Assert.IsTrue(expectedSize.sum() > 0);
             Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
         }
 
         [Test]
-        public void testPull_unknownBlob()
+        public async Task testPull_unknownBlobAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             DescriptorDigest nonexistentDigest =
@@ -86,9 +89,9 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                registryClient
+                await registryClient
                     .pullBlob(nonexistentDigest, ignored => { }, ignored => { })
-                    .writeTo(Stream.Null);
+                    .writeToAsync(Stream.Null);
                 Assert.Fail("Trying to pull nonexistent blob should have errored");
             }
             catch (IOException ex)

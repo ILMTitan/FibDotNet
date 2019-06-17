@@ -22,6 +22,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -66,14 +67,14 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testBasic_helloWorld()
+        public async Task testBasic_helloWorldAsync()
         {
             ImageReference targetImageReference =
                 ImageReference.of("localhost:5000", "jib-core", "basic-helloworld");
             JibContainer jibContainer =
-                Jib.from("busybox")
+                await Jib.from("busybox")
                     .setEntrypoint("echo", "Hello World")
-                    .containerize(
+                    .containerizeAsync(
                         Containerizer.to(
                                 RegistryImage.named(targetImageReference)
                                     .addCredentialRetriever(
@@ -88,12 +89,12 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testScratch()
+        public async Task testScratchAsync()
         {
             ImageReference targetImageReference =
                 ImageReference.of("localhost:5000", "jib-core", "basic-scratch");
-            Jib.fromScratch()
-                .containerize(
+            await Jib.fromScratch()
+                .containerizeAsync(
                     Containerizer.to(
                             RegistryImage.named(targetImageReference)
                                 .addCredentialRetriever(
@@ -107,10 +108,10 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testOffline()
+        public async Task testOfflineAsync()
         {
             LocalRegistry tempRegistry = new LocalRegistry(5001);
-            tempRegistry.start();
+            await tempRegistry.startAsync();
             tempRegistry.pullAndPushToLocal("busybox", "busybox");
             SystemPath cacheDirectory = cacheFolder.getRoot().toPath();
 
@@ -125,7 +126,7 @@ namespace com.google.cloud.tools.jib.api
             // Should fail since Jib can't build to registry offline
             try
             {
-                jibContainerBuilder.containerize(
+                await jibContainerBuilder.containerizeAsync(
                     Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true));
                 Assert.Fail();
             }
@@ -137,7 +138,7 @@ namespace com.google.cloud.tools.jib.api
             // Should fail since Jib hasn't cached the base image yet
             try
             {
-                jibContainerBuilder.containerize(
+                await jibContainerBuilder.containerizeAsync(
                     Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
                         .setBaseImageLayersCache(cacheDirectory)
                         .setOfflineMode(true));
@@ -151,14 +152,14 @@ namespace com.google.cloud.tools.jib.api
             }
 
             // Run online to cache the base image
-            jibContainerBuilder.containerize(
+            await jibContainerBuilder.containerizeAsync(
                 Containerizer.to(DockerDaemonImage.named(targetImageReferenceOnline))
                     .setBaseImageLayersCache(cacheDirectory)
                     .setAllowInsecureRegistries(true));
 
             // Run again in offline mode, should succeed this time
             tempRegistry.stop();
-            jibContainerBuilder.containerize(
+            await jibContainerBuilder.containerizeAsync(
                 Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
                     .setBaseImageLayersCache(cacheDirectory)
                     .setOfflineMode(true));

@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(buildImageStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<AsyncStep<PushBlobStep>> getFuture()
@@ -70,27 +70,27 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public AsyncStep<PushBlobStep> call()
+        public async Task<AsyncStep<PushBlobStep>> callAsync()
         {
             Task<PushBlobStep> pushBlobStepFuture =
                 AsyncDependencies.@using()
                     .addStep(authenticatePushStep)
-                    .addStep(NonBlockingSteps.get(buildImageStep))
-                    .whenAllSucceed(this.afterBuildConfigurationFutureFuture);
+                    .addStep(await buildImageStep.getFuture())
+                    .whenAllSucceedAsync(this.afterBuildConfigurationFutureFutureAsync);
             return AsyncStep.Of(() => pushBlobStepFuture);
         }
 
-        private PushBlobStep afterBuildConfigurationFutureFuture()
+        private async Task<PushBlobStep> afterBuildConfigurationFutureFutureAsync()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("pushing container configuration", 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
-                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+                Image image = await (await buildImageStep.getFuture()).getFuture();
                 ContainerConfigurationTemplate containerConfiguration =
                     new ImageToJsonTranslator(image).getContainerConfiguration();
-                BlobDescriptor blobDescriptor = Digests.computeDigest(containerConfiguration);
+                BlobDescriptor blobDescriptor = Digests.computeJsonDescriptor(containerConfiguration);
 
                 return new PushBlobStep(
                     buildConfiguration,

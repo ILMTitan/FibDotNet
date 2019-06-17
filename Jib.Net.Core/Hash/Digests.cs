@@ -19,6 +19,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.hash
 {
@@ -33,23 +34,23 @@ namespace com.google.cloud.tools.jib.hash
     {
         public static DescriptorDigest computeJsonDigest(object template)
         {
-            return computeDigest(template, Stream.Null).getDigest();
+            return computeJsonDigest(template, Stream.Null).getDigest();
         }
 
-        public static BlobDescriptor computeDigest(object template)
+        public static BlobDescriptor computeJsonDescriptor(object template)
         {
-            return computeDigest(template, Stream.Null);
+            return computeJsonDigest(template, Stream.Null);
         }
 
-        public static BlobDescriptor computeDigest(object template, Stream outStream)
+        public static BlobDescriptor computeJsonDigest(object template, Stream outStream)
         {
             WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(template, contentsOut);
             return computeDigest(contents, outStream);
         }
 
-        public static BlobDescriptor computeDigest(Stream inStream)
+        public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream)
         {
-            return computeDigest(inStream, Stream.Null);
+            return await computeDigestAsync(inStream, Stream.Null);
         }
 
         /**
@@ -65,6 +66,18 @@ namespace com.google.cloud.tools.jib.hash
         }
 
         /**
+         * Computes the digest by consuming the contents.
+         *
+         * @param contents the contents for which the digest is computed
+         * @return computed digest and bytes consumed
+         * @throws IOException if reading fails
+         */
+        public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents)
+        {
+            return await computeDigestAsync(contents, Stream.Null);
+        }
+
+        /**
          * Computes the digest by consuming the contents of an {@link InputStream} while copying it to an
          * {@link OutputStream}. Returns the computed digest along with the size of the bytes consumed to
          * compute the digest. Does not close either stream.
@@ -74,10 +87,10 @@ namespace com.google.cloud.tools.jib.hash
          * @return computed digest and bytes consumed
          * @throws IOException if reading from or writing fails
          */
-        public static BlobDescriptor computeDigest(Stream inStream, Stream outStream)
+        public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream, Stream outStream)
         {
-            WritableContents contents = contentsOut => ByteStreams.copy(inStream, contentsOut);
-            return computeDigest(contents, outStream);
+            WritableContentsAsync contents = async contentsOut => await ByteStreams.copyAsync(inStream, contentsOut);
+            return await computeDigestAsync(contents, outStream);
         }
 
         /**
@@ -95,6 +108,25 @@ namespace com.google.cloud.tools.jib.hash
             using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
             {
                 contents.writeTo(digestOutStream);
+                return digestOutStream.computeDigest();
+            }
+        }
+
+        /**
+         * Computes the digest by consuming the contents while copying it to an {@link OutputStream}.
+         * Returns the computed digest along with the size of the bytes consumed to compute the digest.
+         * Does not close the stream.
+         *
+         * @param contents the contents to compute digest for
+         * @param outStream the stream to which the contents are copied
+         * @return computed digest and bytes consumed
+         * @throws IOException if reading from or writing fails
+         */
+        public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents, Stream outStream)
+        {
+            using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
+            {
+                await contents(digestOutStream);
                 return digestOutStream.computeDigest();
             }
         }

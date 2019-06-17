@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.http
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            blob.writeTo(new NotifyingOutputStream(stream, writtenByteCountListener));
+            await blob.writeToAsync(new NotifyingOutputStream(stream, writtenByteCountListener));
             await stream.FlushAsync();
         }
 

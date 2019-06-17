@@ -27,6 +27,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -165,11 +166,11 @@ namespace com.google.cloud.tools.jib.api
         private readonly ProgressChecker progressChecker = new ProgressChecker();
 
         [Test]
-        public void testSteps_forBuildToDockerRegistry()
+        public async Task testSteps_forBuildToDockerRegistryAsync()
         {
             Stopwatch s = Stopwatch.StartNew();
             JibContainer image1 =
-                buildRegistryImage(
+                await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
                     Collections.emptyList<string>());
@@ -179,7 +180,7 @@ namespace com.google.cloud.tools.jib.api
             logger.info("Initial build time: " + (s.Elapsed));
             s.Restart();
             JibContainer image2 =
-                buildRegistryImage(
+                await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
                     Collections.emptyList<string>());
@@ -204,9 +205,9 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testSteps_forBuildToDockerRegistry_multipleTags()
+        public async Task testSteps_forBuildToDockerRegistry_multipleTagsAsync()
         {
-            buildRegistryImage(
+            await buildRegistryImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of("localhost:5000", "testimage", "testtag"),
                 Arrays.asList("testtag2", "testtag3"));
@@ -233,9 +234,9 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testBuildToDockerRegistry_dockerHubBaseImage()
+        public async Task testBuildToDockerRegistry_dockerHubBaseImageAsync()
         {
-            buildRegistryImage(
+            await buildRegistryImageAsync(
                 ImageReference.parse("openjdk:8-jre-alpine"),
                 ImageReference.of("localhost:5000", "testimage", "testtag"),
                 Collections.emptyList<string>());
@@ -247,9 +248,9 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testBuildToDockerDaemon()
+        public async Task testBuildToDockerDaemonAsync()
         {
-            buildDockerDaemonImage(
+            await buildDockerDaemonImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testdocker", null),
                 Collections.emptyList<string>());
@@ -263,10 +264,10 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testBuildToDockerDaemon_multipleTags()
+        public async Task testBuildToDockerDaemon_multipleTagsAsync()
         {
             const string imageReference = "testdocker";
-            buildDockerDaemonImage(
+            await buildDockerDaemonImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, imageReference, null),
                 Arrays.asList("testtag2", "testtag3"));
@@ -285,10 +286,10 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testBuildTarball()
+        public async Task testBuildTarballAsync()
         {
             SystemPath outputPath = temporaryFolder.newFolder().toPath().resolve("test.tar");
-            buildTarImage(
+            await buildTarImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testtar", null),
                 outputPath,
@@ -302,33 +303,33 @@ namespace com.google.cloud.tools.jib.api
                 "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testtar").run());
         }
 
-        private JibContainer buildRegistryImage(
+        private async Task<JibContainer> buildRegistryImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
-            return buildImage(
+            return await buildImageAsync(
                 baseImage, Containerizer.to(RegistryImage.named(targetImage)), additionalTags);
         }
 
-        private JibContainer buildDockerDaemonImage(
+        private async Task<JibContainer> buildDockerDaemonImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
-            return buildImage(
+            return await buildImageAsync(
                 baseImage, Containerizer.to(DockerDaemonImage.named(targetImage)), additionalTags);
         }
 
-        private JibContainer buildTarImage(
+        private async Task<JibContainer> buildTarImageAsync(
             ImageReference baseImage,
             ImageReference targetImage,
             SystemPath outputPath,
             List<string> additionalTags)
         {
-            return buildImage(
+            return await buildImageAsync(
                 baseImage,
                 Containerizer.to(TarImage.named(targetImage).saveTo(outputPath)),
                 additionalTags);
         }
 
-        private JibContainer buildImage(
+        private async System.Threading.Tasks.Task<JibContainer> buildImageAsync(
             ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
         {
             JibContainerBuilder containerBuilder =
@@ -351,7 +352,7 @@ namespace com.google.cloud.tools.jib.api
                 .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler);
             additionalTags.forEach(containerizer.withAdditionalTag);
 
-            return containerBuilder.containerize(containerizer);
+            return await containerBuilder.containerizeAsync(containerizer);
         }
     }
 }

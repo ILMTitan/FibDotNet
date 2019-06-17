@@ -1,5 +1,6 @@
 ﻿using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.FileSystem;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -16,7 +17,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         StepsRunner pushContainerConfiguration();
         StepsRunner pushImage();
         StepsRunner retrieveTargetRegistryCredentials();
-        IBuildResult run();
+        Task<IBuildResult> runAsync();
         StepsRunner writeTarFile(SystemPath outputPath);
     }
 }

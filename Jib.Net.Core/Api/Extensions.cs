@@ -61,14 +61,14 @@ namespace Jib.Net.Core.Global
             h.Location = new Uri(location);
         }
 
-        public static string parseAsString(this HttpResponseMessage m)
+        public static async Task<string> parseAsStringAsync(this HttpResponseMessage m)
         {
-            return m.Content.ReadAsStringAsync().Result;
+            return await m.Content.ReadAsStringAsync();
         }
 
-        public static void writeTo(this BlobHttpContent c, Stream s)
+        public static async Task writeToAsync(this BlobHttpContent c, Stream s)
         {
-            c.CopyToAsync(s).Wait();
+            await c.CopyToAsync(s);
         }
 
         public static string name(this ErrorCodes e)
@@ -234,11 +234,6 @@ namespace Jib.Net.Core.Global
             return message.RequestMessage.RequestUri;
         }
 
-        public static T get<T>(this Task<T> task)
-        {
-            return task.GetAwaiter().GetResult();
-        }
-
         public static int size<T>(this ImmutableArray<T> l)
         {
             return l.Length;
@@ -316,9 +311,9 @@ namespace Jib.Net.Core.Global
             h.Accept.ParseAdd(input);
         }
 
-        public static Stream getBody(this HttpResponseMessage m)
+        public static async Task<Stream> getBodyAsync(this HttpResponseMessage m)
         {
-            return m.Content.ReadAsStreamAsync().Result;
+            return await m.Content.ReadAsStreamAsync();
         }
 
         public static IList<string> getHeader(this HttpResponseMessage m, string name)
@@ -461,9 +456,9 @@ namespace Jib.Net.Core.Global
             return !e.Any(predicate);
         }
 
-        public static string getContent(this HttpResponseMessage message)
+        public static async Task<string> getContentAsync(this HttpResponseMessage message)
         {
-            return message.Content.ReadAsStringAsync().Result;
+            return await message.Content.ReadAsStringAsync();
         }
 
         public static long? getContentLength(this HttpResponseMessage message)

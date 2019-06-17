@@ -15,6 +15,7 @@
  */
 
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.hash
 {
@@ -25,6 +26,13 @@ namespace com.google.cloud.tools.jib.hash
      * output stream.
      */
     public delegate void WritableContents(Stream outputStream);
+    /**
+     * As a function, writes some contents to an output stream. As a class, represents contents that can
+     * be written to an output stream. This may be "unrealized-before-write" contents; for example, a
+     * file may be open and read for input contents only when this function is called to write to an
+     * output stream.
+     */
+    public delegate Task WritableContentsAsync(Stream outputStream);
 
     public static class WCExtensions
     {

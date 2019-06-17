@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -123,10 +124,10 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Parses the response body into a {@link ManifestTemplate}. */
 
-        public T handleResponse(HttpResponseMessage response)
+        public async Task<T> handleResponseAsync(HttpResponseMessage response)
         {
             string jsonString =
-                CharStreams.toString(new StreamReader(response.getBody(), StandardCharsets.UTF_8));
+                CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
             return getManifestTemplateFromJson(jsonString);
         }
 

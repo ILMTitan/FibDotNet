@@ -17,22 +17,23 @@
 using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Blob;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds {@link WritableContents}. */
-    internal class WritableContentsBlob : Blob
+    internal class AsyncWritableContentsBlob : Blob
     {
-        private readonly WritableContents writableContents;
+        private readonly WritableContentsAsync writableContents;
 
-        public WritableContentsBlob(WritableContents writableContents)
+        public AsyncWritableContentsBlob(WritableContentsAsync writableContents)
         {
             this.writableContents = writableContents;
         }
 
-        public BlobDescriptor writeTo(Stream outputStream)
+        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
-            return Digests.computeDigest(writableContents, outputStream);
+            return await Digests.computeDigestAsync(writableContents, outputStream);
         }
     }
 }

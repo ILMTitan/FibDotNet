@@ -26,6 +26,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.tar
 {
@@ -64,49 +65,49 @@ namespace com.google.cloud.tools.jib.tar
         }
 
         [Test]
-        public void testToBlob_tarArchiveEntries()
+        public async Task testToBlob_tarArchiveEntriesAsync()
         {
             setUpWithTarEntries();
-            verifyBlobWithoutCompression();
+            await verifyBlobWithoutCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_strings()
+        public async Task testToBlob_stringsAsync()
         {
             setUpWithStrings();
-            verifyBlobWithoutCompression();
+            await verifyBlobWithoutCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_stringsAndTarArchiveEntries()
+        public async Task testToBlob_stringsAndTarArchiveEntriesAsync()
         {
             setUpWithStringsAndTarEntries();
-            verifyBlobWithoutCompression();
+            await verifyBlobWithoutCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_tarArchiveEntriesWithCompression()
+        public async Task testToBlob_tarArchiveEntriesWithCompressionAsync()
         {
             setUpWithTarEntries();
-            verifyBlobWithCompression();
+            await verifyBlobWithCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_stringsWithCompression()
+        public async Task testToBlob_stringsWithCompressionAsync()
         {
             setUpWithStrings();
-            verifyBlobWithCompression();
+            await verifyBlobWithCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_stringsAndTarArchiveEntriesWithCompression()
+        public async Task testToBlob_stringsAndTarArchiveEntriesWithCompressionAsync()
         {
             setUpWithStringsAndTarEntries();
-            verifyBlobWithCompression();
+            await verifyBlobWithCompressionAsync();
         }
 
         [Test]
-        public void testToBlob_multiByte()
+        public async Task testToBlob_multiByteAsync()
         {
             testTarStreamBuilder.addByteEntry("日本語".getBytes(StandardCharsets.UTF_8), "test");
             testTarStreamBuilder.addByteEntry("asdf".getBytes(StandardCharsets.UTF_8), "crepecake");
@@ -116,7 +117,7 @@ namespace com.google.cloud.tools.jib.tar
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
             Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
-            testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
+            await testTarStreamBuilder.writeAsTarArchiveToAsync(compressorStream);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
@@ -184,12 +185,12 @@ namespace com.google.cloud.tools.jib.tar
         }
 
         /** Creates a compressed blob from the TarStreamBuilder and verifies it. */
-        private void verifyBlobWithCompression()
+        private async Task verifyBlobWithCompressionAsync()
         {
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
             Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
-            testTarStreamBuilder.writeAsTarArchiveTo(compressorStream);
+            await testTarStreamBuilder.writeAsTarArchiveToAsync(compressorStream);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
@@ -200,11 +201,11 @@ namespace com.google.cloud.tools.jib.tar
         }
 
         /** Creates an uncompressed blob from the TarStreamBuilder and verifies it. */
-        private void verifyBlobWithoutCompression()
+        private async Task verifyBlobWithoutCompressionAsync()
         {
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
-            testTarStreamBuilder.writeAsTarArchiveTo(tarByteOutputStream);
+            await testTarStreamBuilder.writeAsTarArchiveToAsync(tarByteOutputStream);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =

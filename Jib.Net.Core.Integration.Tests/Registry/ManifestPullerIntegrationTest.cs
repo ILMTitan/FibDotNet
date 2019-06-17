@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -29,7 +30,7 @@ namespace com.google.cloud.tools.jib.registry
         [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
         [Test]
-        public void testPull_v21()
+        public async System.Threading.Tasks.Task testPull_v21Async()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
@@ -37,19 +38,19 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                registryClient.pullManifest<V21ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest");
 
             Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
             Assert.IsTrue(manifestTemplate.getFsLayers().size() > 0);
         }
 
         [Test]
-        public void testPull_v22()
+        public async Task testPull_v22Async()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
                 RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = registryClient.pullManifest("latest");
+            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest");
 
             Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
             V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate)manifestTemplate;
@@ -57,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testPull_unknownManifest()
+        public async Task testPull_unknownManifestAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             try
@@ -66,7 +67,7 @@ namespace com.google.cloud.tools.jib.registry
                     RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
                         .setAllowInsecureRegistries(true)
                         .newRegistryClient();
-                registryClient.pullManifest("nonexistent-tag");
+                await registryClient.pullManifestAsync("nonexistent-tag");
                 Assert.Fail("Trying to pull nonexistent image should have errored");
             }
             catch (RegistryErrorException ex)

@@ -1,9 +1,10 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
     public interface IImageTarball
     {
-        void writeTo(Stream @out);
+        Task writeToAsync(Stream @out);
     }
 }

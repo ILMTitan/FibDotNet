@@ -22,6 +22,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Runnable = System.Action;
 
 namespace com.google.cloud.tools.jib.builder.steps
@@ -239,7 +240,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.checkNotNull(steps.buildImageStep)));
         }
 
-        public IBuildResult run()
+        public async Task<IBuildResult> runAsync()
         {
             Preconditions.checkNotNull(rootProgressAllocationDescription);
 
@@ -249,7 +250,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 rootProgressEventDispatcher = progressEventDispatcher;
                 stepsRunnable.run();
-                return Preconditions.checkNotNull(steps.finalStep).getFuture().get();
+                return await Preconditions.checkNotNull(steps.finalStep).getFuture();
             }
         }
 

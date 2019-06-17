@@ -93,11 +93,8 @@ namespace com.google.cloud.tools.jib.builder.steps
 
             buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
 
-            using (ProgressEventDispatcher ignored =
-                    progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
-            using (TimerEventDispatcher ignored2 =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
-
+            using (progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
+            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
             {
                 foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
                 {

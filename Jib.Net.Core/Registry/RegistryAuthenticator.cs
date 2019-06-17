@@ -30,6 +30,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -176,9 +177,9 @@ namespace com.google.cloud.tools.jib.registry
          * @return an {@code Authorization} authenticating the pull
          * @throws RegistryAuthenticationFailedException if authentication fails
          */
-        public Authorization authenticatePull(Credential credential)
+        public async Task<Authorization> authenticatePullAsync(Credential credential)
         {
-            return authenticate(credential, "pull");
+            return await authenticateAsync(credential, "pull");
         }
 
         /**
@@ -188,9 +189,9 @@ namespace com.google.cloud.tools.jib.registry
          * @return an {@code Authorization} authenticating the push
          * @throws RegistryAuthenticationFailedException if authentication fails
          */
-        public Authorization authenticatePush(Credential credential)
+        public async Task<Authorization> authenticatePushAsync(Credential credential)
         {
-            return authenticate(credential, "pull,push");
+            return await authenticateAsync(credential, "pull,push");
         }
 
         private string getServiceScopeRequestParameters(string scope)
@@ -246,7 +247,7 @@ namespace com.google.cloud.tools.jib.registry
          * @see <a
          *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
          */
-        private Authorization authenticate(Credential credential, string scope)
+        private async System.Threading.Tasks.Task<Authorization> authenticateAsync(Credential credential, string scope)
         {
             try
             {
@@ -278,9 +279,9 @@ namespace com.google.cloud.tools.jib.registry
                         request.Method = HttpMethod.Get;
                     }
 
-                    HttpResponseMessage response = connection.send(request);
+                    HttpResponseMessage response = await connection.sendAsync(request);
                     string responseString =
-                        CharStreams.toString(new StreamReader(response.getBody(), StandardCharsets.UTF_8));
+                        CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
 
                     AuthenticationResponseTemplate responseJson =
                         JsonTemplateMapper.readJson<AuthenticationResponseTemplate>(responseString);

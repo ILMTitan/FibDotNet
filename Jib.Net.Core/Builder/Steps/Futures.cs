@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             throw new NotImplementedException();
         }
 
-        public static Task<T> immediateFuture<T>(T mockCachedLayer)
+        public static Task<T> immediateFutureAsync<T>(T mockCachedLayer)
         {
             return Task.FromResult(mockCachedLayer);
         }

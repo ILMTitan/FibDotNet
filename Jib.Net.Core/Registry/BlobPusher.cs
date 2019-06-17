@@ -26,6 +26,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -77,16 +78,16 @@ namespace com.google.cloud.tools.jib.registry
              * @return a Uri to continue pushing the BLOB to, or {@code null} if the BLOB already exists on
              *     the registry
              */
-            public Uri handleResponse(HttpResponseMessage response)
+            public Task<Uri> handleResponseAsync(HttpResponseMessage response)
             {
                 switch (response.getStatusCode())
                 {
                     case HttpStatusCode.Created:
                         // The BLOB exists in the registry.
-                        return null;
+                        return Task.FromResult(default(Uri));
 
                     case HttpStatusCode.Accepted:
-                        return getRedirectLocation(response);
+                        return Task.FromResult(getRedirectLocation(response));
 
                     default:
                         throw parent.buildRegistryErrorException(
@@ -138,10 +139,10 @@ namespace com.google.cloud.tools.jib.registry
 
             /** @return a Uri to continue pushing the BLOB to */
 
-            public Uri handleResponse(HttpResponseMessage response)
+            public Task<Uri> handleResponseAsync(HttpResponseMessage response)
             {
                 // TODO: Handle 204 No Content
-                return getRedirectLocation(response);
+                return Task.FromResult(getRedirectLocation(response));
             }
 
             public Uri getApiRoute(string apiRouteBase)
@@ -183,9 +184,9 @@ namespace com.google.cloud.tools.jib.registry
                 return Collections.emptyList<string>();
             }
 
-            public object handleResponse(HttpResponseMessage response)
+            public Task<object> handleResponseAsync(HttpResponseMessage response)
             {
-                return null;
+                return Task.FromResult(default(object));
             }
 
             /** @return {@code location} with query parameter 'digest' set to the BLOB's digest */

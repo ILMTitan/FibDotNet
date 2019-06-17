@@ -30,16 +30,16 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private class FunStep<T> : AsyncStep<T>
         {
-            private Lazy<Task<T>> lazyFuture;
+            private Task<T> future;
 
             public FunStep(Func<Task<T>> p)
             {
-                lazyFuture = new Lazy<Task<T>>(p);
+                future = p();
             }
 
             public Task<T> getFuture()
             {
-                return lazyFuture.Value;
+                return future;
             }
         }
     }

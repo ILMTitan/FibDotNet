@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Blob;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
@@ -31,9 +32,9 @@ namespace com.google.cloud.tools.jib.blob
             this.template = template;
         }
 
-        public BlobDescriptor writeTo(Stream outputStream)
+        public Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
-            return Digests.computeDigest(template, outputStream);
+            return Task.FromResult(Digests.computeJsonDigest(template, outputStream));
         }
     }
 }

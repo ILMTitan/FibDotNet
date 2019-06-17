@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
@@ -32,12 +33,12 @@ namespace com.google.cloud.tools.jib.blob
             this.content = content;
         }
 
-        public BlobDescriptor writeTo(Stream outputStream)
+        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
             using (Stream stringIn =
                 new MemoryStream(content.getBytes(StandardCharsets.UTF_8)))
             {
-                return Digests.computeDigest(stringIn, outputStream);
+                return await Digests.computeDigestAsync(stringIn, outputStream);
             }
         }
     }

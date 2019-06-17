@@ -21,6 +21,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -66,7 +67,7 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testBuilder_pass()
+        public async Task testBuilder_passAsync()
         {
             CachedLayer.Builder cachedLayerBuilder =
                 CachedLayer.builder()
@@ -80,7 +81,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
             Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
             Assert.AreEqual(1337, cachedLayer.getSize());
-            Assert.AreEqual("layerBlob", Blobs.writeToString(cachedLayer.getBlob()));
+            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(cachedLayer.getBlob()));
         }
     }
 }

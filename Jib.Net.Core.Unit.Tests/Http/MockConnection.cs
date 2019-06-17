@@ -17,6 +17,7 @@
 using Jib.Net.Core.Global;
 using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -38,9 +39,9 @@ namespace com.google.cloud.tools.jib.http
         {
         }
 
-        public HttpResponseMessage send(HttpRequestMessage request)
+        public Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
         {
-            return responseSupplier(request);
+            return Task.FromResult(responseSupplier(request));
         }
     }
 }

@@ -27,6 +27,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -49,26 +50,26 @@ namespace com.google.cloud.tools.jib.cache
     /** Tests for {@link CacheStorageWriter}. */
     public class CacheStorageWriterTest
     {
-        private static BlobDescriptor getDigest(Blob blob)
+        private static async Task<BlobDescriptor> getDigestAsync(Blob blob)
         {
-            return blob.writeTo(Stream.Null);
+            return await blob.writeToAsync(Stream.Null);
         }
 
         private static Blob compress(Blob blob)
         {
             return Blobs.from(
-                outputStream =>
+                async outputStream =>
                 {
                     using (GZipStream compressorStream = new GZipStream(outputStream, CompressionMode.Compress, true))
                     {
-                        blob.writeTo(compressorStream);
+                        await blob.writeToAsync(compressorStream);
                     }
                 });
         }
 
-        private static Blob decompress(Blob blob)
+        private static async Task<Blob> decompressAsync(Blob blob)
         {
-            return Blobs.from(new GZipStream(new MemoryStream(Blobs.writeToByteArray(blob)), CompressionMode.Decompress));
+            return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob)), CompressionMode.Decompress));
         }
 
         [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -84,33 +85,35 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testWrite_compressed()
+        public async Task testWrite_compressedAsync()
         {
             Blob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
 
             CachedLayer cachedLayer =
-                new CacheStorageWriter(cacheStorageFiles).writeCompressed(compress(uncompressedLayerBlob));
+                await new CacheStorageWriter(cacheStorageFiles).writeCompressedAsync(compress(uncompressedLayerBlob));
 
-            verifyCachedLayer(cachedLayer, uncompressedLayerBlob);
+            await verifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob);
         }
 
         [Test]
-        public void testWrite_uncompressed()
+        public async Task testWrite_uncompressedAsync()
         {
             Blob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
-            DescriptorDigest layerDigest = getDigest(compress(uncompressedLayerBlob)).getDigest();
-            DescriptorDigest selector = getDigest(Blobs.from("selector")).getDigest();
+            BlobDescriptor layerDigestDescriptor = await getDigestAsync(compress(uncompressedLayerBlob));
+            DescriptorDigest layerDigest = layerDigestDescriptor.getDigest();
+            BlobDescriptor selectorDescriptor = await getDigestAsync(Blobs.from("selector"));
+            DescriptorDigest selector = selectorDescriptor.getDigest();
 
             CachedLayer cachedLayer =
-                new CacheStorageWriter(cacheStorageFiles)
-                    .writeUncompressed(uncompressedLayerBlob, selector);
+                await new CacheStorageWriter(cacheStorageFiles)
+                    .writeUncompressedAsync(uncompressedLayerBlob, selector);
 
-            verifyCachedLayer(cachedLayer, uncompressedLayerBlob);
+            await verifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob);
 
             // Verifies that the files are present.
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             Assert.IsTrue(Files.exists(selectorFile));
-            Assert.AreEqual(layerDigest.getHash(), Blobs.writeToString(Blobs.from(selectorFile)));
+            Assert.AreEqual(layerDigest.getHash(), await Blobs.writeToStringAsync(Blobs.from(selectorFile)));
         }
 
         [Test]
@@ -169,18 +172,19 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual("wasm", savedContainerConfig.getArchitecture());
         }
 
-        private void verifyCachedLayer(CachedLayer cachedLayer, Blob uncompressedLayerBlob)
+        private async Task verifyCachedLayerAsync(CachedLayer cachedLayer, Blob uncompressedLayerBlob)
         {
-            BlobDescriptor layerBlobDescriptor = getDigest(compress(uncompressedLayerBlob));
-            DescriptorDigest layerDiffId = getDigest(uncompressedLayerBlob).getDigest();
+            BlobDescriptor layerBlobDescriptor = await getDigestAsync(compress(uncompressedLayerBlob));
+            BlobDescriptor layerDiffDescriptor = await getDigestAsync(uncompressedLayerBlob);
+            DescriptorDigest layerDiffId = layerDiffDescriptor.getDigest();
 
             // Verifies cachedLayer is correct.
             Assert.AreEqual(layerBlobDescriptor.getDigest(), cachedLayer.getDigest());
             Assert.AreEqual(layerDiffId, cachedLayer.getDiffId());
             Assert.AreEqual(layerBlobDescriptor.getSize(), cachedLayer.getSize());
             CollectionAssert.AreEqual(
-                Blobs.writeToByteArray(uncompressedLayerBlob),
-                Blobs.writeToByteArray(decompress(cachedLayer.getBlob())));
+                await Blobs.writeToByteArrayAsync(uncompressedLayerBlob),
+                await Blobs.writeToByteArrayAsync(await decompressAsync(cachedLayer.getBlob())));
 
             // Verifies that the files are present.
             Assert.IsTrue(

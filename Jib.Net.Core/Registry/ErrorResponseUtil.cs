@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -36,10 +37,10 @@ namespace com.google.cloud.tools.jib.registry
          * @throws HttpResponseException rethrows the original exception if an error object could not be
          *     parsed, if there were multiple error objects, or if the error code is unknown.
          */
-        public static ErrorCodes getErrorCode(HttpResponseMessage httpResponse)
+        public static async Task<ErrorCodes> getErrorCodeAsync(HttpResponseMessage httpResponse)
         {
             // Obtain the error response code.
-            string errorContent = httpResponse.getContent();
+            string errorContent = await httpResponse.getContentAsync();
             if (errorContent == null)
             {
                 throw new HttpResponseException(httpResponse);

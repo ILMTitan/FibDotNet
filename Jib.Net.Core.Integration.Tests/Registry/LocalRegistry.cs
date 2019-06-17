@@ -25,6 +25,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -47,9 +48,9 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Starts the local registry. */
 
-        protected void before()
+        protected async Task beforeAsync()
         {
-            start();
+            await startAsync();
         }
 
         protected void after()
@@ -58,7 +59,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         /** Starts the registry */
-        public void start()
+        public async Task startAsync()
         {
             // Runs the Docker registry.
             string[] dockerTokens = new[] {
@@ -100,7 +101,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             dockerTokens.add("registry:2");
             new Command("docker", string.Join(' ', dockerTokens)).run();
-            waitUntilReady();
+            await waitUntilReadyAsync();
         }
 
         /** Stops the registry. */
@@ -165,7 +166,7 @@ namespace com.google.cloud.tools.jib.registry
             }
         }
 
-        private void waitUntilReady()
+        private async Task waitUntilReadyAsync()
         {
             Uri queryUrl = new Uri("http://localhost:" + port + "/v2/_catalog");
 
@@ -174,7 +175,7 @@ namespace com.google.cloud.tools.jib.registry
                 try
                 {
                     var client = new HttpClient();
-                    var message = client.GetAsync(queryUrl).Result;
+                    var message = await client.GetAsync(queryUrl);
                     var code = message.StatusCode;
                     if (code == HttpStatusCode.OK || code == HttpStatusCode.Unauthorized)
                     {

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -99,7 +100,7 @@ namespace com.google.cloud.tools.jib.registry
             return Collections.emptyList<string>();
         }
 
-        public DescriptorDigest handleHttpResponseException(HttpResponseMessage httpResponse)
+        public async Task<DescriptorDigest> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
             // docker registry 2.0 and 2.1 returns:
             //   400 Bad Request
@@ -118,7 +119,7 @@ namespace com.google.cloud.tools.jib.registry
                 throw new HttpResponseException(httpResponse);
             }
 
-            ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponse);
+            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse);
             if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.TAG_INVALID)
             {
                 throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
@@ -130,7 +131,10 @@ namespace com.google.cloud.tools.jib.registry
             // rethrow: unhandled error response code.
             throw new HttpResponseException(httpResponse);
         }
-
+        public Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
+        {
+            return Task.FromResult(handleResponse(response));
+        }
         public DescriptorDigest handleResponse(HttpResponseMessage response)
         {
             // Checks if the image digest is as expected.

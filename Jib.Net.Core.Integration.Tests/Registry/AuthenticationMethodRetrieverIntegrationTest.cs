@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -24,20 +25,20 @@ namespace com.google.cloud.tools.jib.registry
     public class AuthenticationMethodRetrieverIntegrationTest
     {
         [Test]
-        public void testGetRegistryAuthenticator()
+        public async Task testGetRegistryAuthenticatorAsync()
         {
             RegistryClient registryClient =
                 RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
                     .newRegistryClient();
-            RegistryAuthenticator registryAuthenticator = registryClient.getRegistryAuthenticator();
+            RegistryAuthenticator registryAuthenticator = await registryClient.getRegistryAuthenticatorAsync();
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = registryAuthenticator.authenticatePull(null);
+            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null);
 
             RegistryClient authorizedRegistryClient =
                 RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
                     .setAuthorization(authorization)
                     .newRegistryClient();
-            authorizedRegistryClient.pullManifest("latest");
+            await authorizedRegistryClient.pullManifestAsync("latest");
         }
     }
 }

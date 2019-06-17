@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(pullBaseImageStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<IReadOnlyList<AsyncStep<ICachedLayer>>> getFuture()
@@ -64,9 +64,9 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public IReadOnlyList<AsyncStep<ICachedLayer>> call()
+        public async Task<IReadOnlyList<AsyncStep<ICachedLayer>>> callAsync()
         {
-            BaseImageWithAuthorization pullBaseImageStepResult = NonBlockingSteps.get(pullBaseImageStep);
+            BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.getFuture();
             ImmutableArray<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
 
             using (ProgressEventDispatcher progressEventDispatcher =

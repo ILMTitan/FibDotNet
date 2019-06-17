@@ -32,6 +32,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -84,7 +85,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testGetContent()
+        public async Task testGetContentAsync()
         {
             BlobHttpContent body = testManifestPusher.getContent();
 
@@ -92,7 +93,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.getType());
 
             MemoryStream bodyCaptureStream = new MemoryStream();
-            body.writeTo(bodyCaptureStream);
+            await body.writeToAsync(bodyCaptureStream);
             string v22manifestJson =
                 StandardCharsets.UTF_8.GetString(Files.readAllBytes(v22manifestJsonFile));
             Assert.AreEqual(
@@ -100,7 +101,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse_valid()
+        public async Task testHandleResponse_validAsync()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
             HttpResponseMessage mockResponse = new HttpResponseMessage
@@ -108,11 +109,11 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.singletonList(expectedDigest.toString()) } }
             };
 
-            Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
         }
 
         [Test]
-        public void testHandleResponse_noDigest()
+        public async Task testHandleResponse_noDigestAsync()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
             HttpResponseMessage mockResponse = new HttpResponseMessage
@@ -120,12 +121,12 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.emptyList<string>() } }
             };
 
-            Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
         }
 
         [Test]
-        public void testHandleResponse_multipleDigests()
+        public async Task testHandleResponse_multipleDigestsAsync()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
             HttpResponseMessage mockResponse = new HttpResponseMessage
@@ -133,13 +134,13 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Arrays.asList("too", "many") } }
             };
 
-            Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: too, many")));
         }
 
         [Test]
-        public void testHandleResponse_invalidDigest()
+        public async Task testHandleResponse_invalidDigestAsync()
         {
             DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
             HttpResponseMessage mockResponse = new HttpResponseMessage
@@ -147,7 +148,7 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.singletonList("not valid") } }
             };
 
-            Assert.AreEqual(expectedDigest, testManifestPusher.handleResponse(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: not valid")));
         }
@@ -182,7 +183,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Docker Registry 2.0 and 2.1 return 400 / TAG_INVALID. */
         [Test]
-        public void testHandleHttpResponseException_dockerRegistry_tagInvalid()
+        public async Task testHandleHttpResponseException_dockerRegistry_tagInvalidAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -192,7 +193,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPusher.handleHttpResponseException(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -206,7 +207,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Docker Registry 2.2 returns a 400 / MANIFEST_INVALID. */
         [Test]
-        public void testHandleHttpResponseException_dockerRegistry_manifestInvalid()
+        public async Task testHandleHttpResponseException_dockerRegistry_manifestInvalidAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -216,7 +217,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPusher.handleHttpResponseException(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -230,7 +231,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Quay.io returns an undocumented 415 / MANIFEST_INVALID. */
         [Test]
-        public void testHandleHttpResponseException_quayIo()
+        public async Task testHandleHttpResponseException_quayIoAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.UnsupportedMediaType)
             {
@@ -241,7 +242,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPusher.handleHttpResponseException(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -254,7 +255,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleHttpResponseException_otherError()
+        public async Task testHandleHttpResponseException_otherErrorAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.Unauthorized)
             {
@@ -263,7 +264,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPusher.handleHttpResponseException(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)

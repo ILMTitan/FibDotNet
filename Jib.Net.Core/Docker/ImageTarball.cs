@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.tar;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
@@ -54,7 +55,7 @@ namespace com.google.cloud.tools.jib.docker
             this.imageReference = imageReference;
         }
 
-        public void writeTo(Stream @out)
+        public async Task writeToAsync(Stream @out)
         {
             TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
             DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
@@ -82,7 +83,7 @@ namespace com.google.cloud.tools.jib.docker
                 JsonTemplateMapper.toByteArray(Collections.singletonList(manifestTemplate)),
                 MANIFEST_JSON_FILE_NAME);
 
-            tarStreamBuilder.writeAsTarArchiveTo(@out);
+            await tarStreamBuilder.writeAsTarArchiveToAsync(@out);
         }
     }
 }

@@ -24,6 +24,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -99,7 +100,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         [Test]
-        public void testCall_exception()
+        public async Task testCall_exceptionAsync()
         {
             CredentialRetrievalException credentialRetrievalException =
                 Mock.Of<CredentialRetrievalException>();
@@ -113,10 +114,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                     Collections.emptyList<CredentialRetriever>());
             try
             {
-                RetrieveRegistryCredentialsStep.forBaseImage(
+                await RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
                         ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
-                    .call();
+                    .getFuture();
                 Assert.Fail("Should have thrown exception");
             }
             catch (CredentialRetrievalException ex)

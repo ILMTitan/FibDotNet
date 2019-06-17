@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .addStep(pushBaseImageLayersStep)
                     .addStep(pushApplicationLayersStep)
                     .addStep(pushContainerConfigurationStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<BuildResult> getFuture()
@@ -90,36 +90,34 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public BuildResult call()
+        public async Task<BuildResult> callAsync()
         {
-            return AsyncDependencies.@using()
+            return await AsyncDependencies.@using()
                 .addStep(authenticatePushStep)
-                .addSteps(NonBlockingSteps.get(pushBaseImageLayersStep))
-                .addSteps(NonBlockingSteps.get(pushApplicationLayersStep))
-                .addStep(NonBlockingSteps.get(pushContainerConfigurationStep))
-                .addStep(NonBlockingSteps.get(buildImageStep))
-                .whenAllSucceed(this.afterPushSteps)
-                .get();
+                .addSteps(await pushBaseImageLayersStep.getFuture())
+                .addSteps(await pushApplicationLayersStep.getFuture())
+                .addStep(await pushContainerConfigurationStep.getFuture())
+                .addStep(await buildImageStep.getFuture())
+                .whenAllSucceedAsync(this.afterPushStepsAsync);
         }
 
-        private BuildResult afterPushSteps()
+        private async Task<BuildResult> afterPushStepsAsync()
         {
             AsyncDependencies dependencies = AsyncDependencies.@using();
-            foreach (AsyncStep<PushBlobStep> pushBaseImageLayerStep in NonBlockingSteps.get(pushBaseImageLayersStep))
+            foreach (AsyncStep<PushBlobStep> pushBaseImageLayerStep in await pushBaseImageLayersStep.getFuture())
             {
-                dependencies.addStep(NonBlockingSteps.get(pushBaseImageLayerStep));
+                dependencies.addStep(await pushBaseImageLayerStep.getFuture());
             }
-            foreach (AsyncStep<PushBlobStep> pushApplicationLayerStep in NonBlockingSteps.get(pushApplicationLayersStep))
+            foreach (AsyncStep<PushBlobStep> pushApplicationLayerStep in await pushApplicationLayersStep.getFuture())
             {
-                dependencies.addStep(NonBlockingSteps.get(pushApplicationLayerStep));
+                dependencies.addStep(await pushApplicationLayerStep.getFuture());
             }
-            return dependencies
-                .addStep(NonBlockingSteps.get(NonBlockingSteps.get(pushContainerConfigurationStep)))
-                .whenAllSucceed(this.afterAllPushed)
-                .get();
+            return await dependencies
+                .addStep(await (await pushContainerConfigurationStep.getFuture()).getFuture())
+                .whenAllSucceedAsync(this.afterAllPushedAsync);
         }
 
-        private BuildResult afterAllPushed()
+        private async Task<BuildResult> afterAllPushedAsync()
         {
             ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
             ProgressEventDispatcher progressEventDispatcher =
@@ -131,55 +129,44 @@ namespace com.google.cloud.tools.jib.builder.steps
                 RegistryClient registryClient =
                     buildConfiguration
                         .newTargetImageRegistryClientFactory()
-                        .setAuthorization(NonBlockingSteps.get(authenticatePushStep))
+                        .setAuthorization(await authenticatePushStep.getFuture())
                         .newRegistryClient();
 
                 // Constructs the image.
                 ImageToJsonTranslator imageToJsonTranslator =
-                    new ImageToJsonTranslator(NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep)));
+                    new ImageToJsonTranslator(await (await buildImageStep.getFuture()).getFuture());
 
                 // Gets the image manifest to push.
                 BlobDescriptor containerConfigurationBlobDescriptor =
-                    NonBlockingSteps.get(
-                        NonBlockingSteps.get(NonBlockingSteps.get(pushContainerConfigurationStep)));
+                    await (await (await pushContainerConfigurationStep.getFuture()).getFuture()).getFuture();
                 BuildableManifestTemplate manifestTemplate =
                     imageToJsonTranslator.getManifestTemplate(
                         buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
 
                 // Pushes to all target image tags.
-                IList<Task<object>> pushAllTagsFutures = new List<Task<object>>();
+                IList<Task<DescriptorDigest>> pushAllTagsFutures = new List<Task<DescriptorDigest>>();
                 foreach (string tag in targetImageTags)
                 {
                     ProgressEventDispatcher.Factory progressEventDispatcherFactory =
                         progressEventDispatcher.newChildProducer();
-                    pushAllTagsFutures.add(
-                        Task.Run<object>(
-                            () =>
-                            {
-                                using (ProgressEventDispatcher ignored2 =
-                        progressEventDispatcherFactory.create("tagging with " + tag, 1))
-                                {
-                                    buildConfiguration
-                            .getEventHandlers()
-                            .dispatch(LogEvent.info("Tagging with " + tag + "..."));
-                                    registryClient.pushManifest(manifestTemplate, tag);
-                                }
-                                return Task.FromResult(default(object));
-                            }));
+                    using (progressEventDispatcherFactory.create("tagging with " + tag, 1))
+                    {
+                        buildConfiguration.getEventHandlers().dispatch(LogEvent.info("Tagging with " + tag + "..."));
+                        pushAllTagsFutures.add(registryClient.pushManifestAsync(manifestTemplate, tag));
+                    }
                 }
 
                 DescriptorDigest imageDigest = Digests.computeJsonDigest(manifestTemplate);
                 DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
                 BuildResult result = new BuildResult(imageDigest, imageId);
 
-                return Futures.whenAllSucceed(pushAllTagsFutures)
-                    .call(
+                return await Futures.whenAllSucceed(pushAllTagsFutures)
+                    .callAsync(
                         () =>
                         {
                             progressEventDispatcher.close();
                             return result;
-                        })
-                    .get();
+                        });
             }
         }
     }

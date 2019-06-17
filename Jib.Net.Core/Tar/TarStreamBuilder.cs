@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.tar
 {
@@ -38,14 +39,14 @@ namespace com.google.cloud.tools.jib.tar
          * @param out the stream to write to.
          * @throws IOException if building the tarball fails.
          */
-        public void writeAsTarArchiveTo(Stream @out)
+        public async Task writeAsTarArchiveToAsync(Stream @out)
         {
             using (TarOutputStream tarArchiveOutputStream = new TarOutputStream(@out))
             {
                 foreach (KeyValuePair<TarEntry, Blob> entry in archiveMap.entrySet())
                 {
                     tarArchiveOutputStream.putArchiveEntry(entry.getKey());
-                    entry.getValue().writeTo(tarArchiveOutputStream);
+                    await entry.getValue().writeToAsync(tarArchiveOutputStream);
                     tarArchiveOutputStream.closeArchiveEntry();
                 }
             }
@@ -59,7 +60,7 @@ namespace com.google.cloud.tools.jib.tar
         public void addTarArchiveEntry(TarEntry entry)
         {
             archiveMap.put(
-                entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(ignored => { }));
+                entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(_ => Task.CompletedTask));
         }
 
         /**
@@ -73,7 +74,7 @@ namespace com.google.cloud.tools.jib.tar
         {
             TarEntry entry = TarEntry.CreateTarEntry(name);
             entry.setSize(contents.Length);
-            archiveMap.put(entry, Blobs.from(outputStream => outputStream.write(contents)));
+            archiveMap.put(entry, Blobs.from(async outputStream => await outputStream.WriteAsync(contents, 0, contents.Length)));
         }
 
         /**

@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.http
         {
             this.https = https;
             serverSocket = createServerSocket(https);
-            serveTask = serve200();
+            serveTask = serve200Async();
             threadStarted.acquire();
         }
         public string GetAddressAndPort()
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.http
             return new TcpListener(IPAddress.Loopback, 0);
         }
 
-        private async Task serve200()
+        private async Task serve200Async()
         {
             threadStarted.release();
             serverSocket.Start();

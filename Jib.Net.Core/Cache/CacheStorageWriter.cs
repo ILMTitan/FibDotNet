@@ -30,6 +30,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -112,14 +113,14 @@ namespace com.google.cloud.tools.jib.cache
          * @return the digest of the decompressed file
          * @throws IOException if an I/O exception occurs
          */
-        private static DescriptorDigest getDiffIdByDecompressingFile(SystemPath compressedFile)
+        private static async Task<DescriptorDigest> getDiffIdByDecompressingFileAsync(SystemPath compressedFile)
         {
             using (CountingDigestOutputStream diffIdCaptureOutputStream =
                 new CountingDigestOutputStream(Stream.Null))
             {
                 using (GZipStream decompressorStream = new GZipStream(Files.newInputStream(compressedFile), CompressionMode.Decompress))
                 {
-                    ByteStreams.copy(decompressorStream, diffIdCaptureOutputStream);
+                    await ByteStreams.copyAsync(decompressorStream, diffIdCaptureOutputStream);
                 }
                 return diffIdCaptureOutputStream.computeDigest().getDigest();
             }
@@ -165,7 +166,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public CachedLayer writeCompressed(Blob compressedLayerBlob)
+        public async Task<CachedLayer> writeCompressedAsync(Blob compressedLayerBlob)
         {
             // Creates the layers directory if it doesn't exist.
             Files.createDirectories(cacheStorageFiles.getLayersDirectory());
@@ -179,7 +180,7 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    writeCompressedLayerBlobToDirectory(compressedLayerBlob, temporaryLayerDirectory);
+                    await writeCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory);
 
                 // Moves the temporary directory to the final location.
                 temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
@@ -213,7 +214,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public CachedLayer writeUncompressed(Blob uncompressedLayerBlob, DescriptorDigest selector)
+        public async Task<CachedLayer> writeUncompressedAsync(Blob uncompressedLayerBlob, DescriptorDigest selector)
         {
             // Creates the layers directory if it doesn't exist.
             Files.createDirectories(cacheStorageFiles.getLayersDirectory());
@@ -228,7 +229,7 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    writeUncompressedLayerBlobToDirectory(uncompressedLayerBlob, temporaryLayerDirectory);
+                    await writeUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory);
 
                 // Moves the temporary directory to the final location.
                 temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
@@ -303,7 +304,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return a {@link WrittenLayer} with the written layer information
          * @throws IOException if an I/O exception occurs
          */
-        private WrittenLayer writeCompressedLayerBlobToDirectory(
+        private async Task<WrittenLayer> writeCompressedLayerBlobToDirectoryAsync(
             Blob compressedLayerBlob, SystemPath layerDirectory)
         {
             // Writes the layer file to the temporary directory.
@@ -313,11 +314,11 @@ namespace com.google.cloud.tools.jib.cache
                 BlobDescriptor layerBlobDescriptor;
                 using (Stream fileOutputStream = Files.newOutputStream(temporaryLayerFile.Path))
                 {
-                    layerBlobDescriptor = compressedLayerBlob.writeTo(fileOutputStream);
+                    layerBlobDescriptor = await compressedLayerBlob.writeToAsync(fileOutputStream);
                 }
 
                 // Gets the diff ID.
-                DescriptorDigest layerDiffId = getDiffIdByDecompressingFile(temporaryLayerFile.Path);
+                DescriptorDigest layerDiffId = await getDiffIdByDecompressingFileAsync(temporaryLayerFile.Path);
 
                 // Renames the temporary layer file to the correct filename.
                 SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
@@ -336,7 +337,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return a {@link WrittenLayer} with the written layer information
          * @throws IOException if an I/O exception occurs
          */
-        private WrittenLayer writeUncompressedLayerBlobToDirectory(
+        private async Task<WrittenLayer> writeUncompressedLayerBlobToDirectoryAsync(
             Blob uncompressedLayerBlob, SystemPath layerDirectory)
         {
             using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory)) {
@@ -351,7 +352,8 @@ namespace com.google.cloud.tools.jib.cache
                         Files.newOutputStream(temporaryLayerFile.Path))) {
                     using (GZipStream compressorStream = new GZipStream(compressedDigestOutputStream, CompressionMode.Compress, true))
                     {
-                        layerDiffId = uncompressedLayerBlob.writeTo(compressorStream).getDigest();
+                        BlobDescriptor descriptor = await uncompressedLayerBlob.writeToAsync(compressorStream);
+                        layerDiffId = descriptor.getDigest();
                     }
                     // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
                     blobDescriptor = compressedDigestOutputStream.computeDigest();

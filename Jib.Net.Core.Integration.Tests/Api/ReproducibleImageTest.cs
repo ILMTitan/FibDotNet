@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.api
         private static FileInfo imageTar;
 
         [OneTimeSetUp]
-        public static void createImage()
+        public static async System.Threading.Tasks.Task createImageAsync()
         {
             SystemPath root = imageLocation.getRoot().toPath();
             SystemPath fileA = Files.createFile(root.resolve("fileA.txt"));
@@ -78,7 +78,7 @@ namespace com.google.cloud.tools.jib.api
             Containerizer containerizer =
                 Containerizer.to(TarImage.named("jib-core/reproducible").saveTo(imageTar.toPath()));
 
-            Jib.fromScratch()
+            await Jib.fromScratch()
                 .setEntrypoint("echo", "Hello World")
                 .addLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.get("/app"))
                 // layer with out-of-order files
@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.api
                     LayerConfiguration.builder()
                         .addEntryRecursive(subdir, AbsoluteUnixPath.get("/app"))
                         .build())
-                .containerize(containerizer);
+                .containerizeAsync(containerizer);
         }
 
         [Test]

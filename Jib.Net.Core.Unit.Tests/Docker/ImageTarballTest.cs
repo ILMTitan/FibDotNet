@@ -31,6 +31,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
@@ -65,7 +66,7 @@ namespace com.google.cloud.tools.jib.docker
         private Layer mockLayer2 = Mock.Of<Layer>();
 
         [Test]
-        public void testWriteTo()
+        public async Task testWriteToAsync()
         {
             SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
             SystemPath fileB = Paths.get(Resources.getResource("core/fileB").toURI());
@@ -97,7 +98,7 @@ namespace com.google.cloud.tools.jib.docker
             ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 
             MemoryStream @out = new MemoryStream();
-            imageToTarball.writeTo(@out);
+            await imageToTarball.writeToAsync(@out);
             MemoryStream @in = new MemoryStream(@out.toByteArray());
             using (TarInputStream tarArchiveInputStream = new TarInputStream(@in))
             {
@@ -107,7 +108,7 @@ namespace com.google.cloud.tools.jib.docker
                 string fileAString =
                     CharStreams.toString(
                         new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-                Assert.AreEqual(Blobs.writeToString(Blobs.from(fileA)), fileAString);
+                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileA)), fileAString);
 
                 // Verifies layer with fileB was added.
                 TarEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
@@ -115,7 +116,7 @@ namespace com.google.cloud.tools.jib.docker
                 string fileBString =
                     CharStreams.toString(
                         new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-                Assert.AreEqual(Blobs.writeToString(Blobs.from(fileB)), fileBString);
+                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileB)), fileBString);
 
                 // Verifies container configuration was added.
                 TarEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();

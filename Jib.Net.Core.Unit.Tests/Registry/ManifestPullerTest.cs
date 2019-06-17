@@ -27,6 +27,7 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -71,7 +72,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse_v21()
+        public async Task testHandleResponse_v21Async()
         {
             SystemPath v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
             Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
@@ -82,15 +83,15 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             ManifestTemplate manifestTemplate =
-                new ManifestPuller<V21ManifestTemplate>(
+                await new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponse(mockResponse);
+                    .handleResponseAsync(mockResponse);
 
             Assert.IsInstanceOf<V21ManifestTemplate>(manifestTemplate);
         }
 
         [Test]
-        public void testHandleResponse_v22()
+        public async Task testHandleResponse_v22Async()
         {
             SystemPath v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
             Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
@@ -100,15 +101,15 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             ManifestTemplate manifestTemplate =
-                new ManifestPuller<V22ManifestTemplate>(
+                await new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponse(mockResponse);
+                    .handleResponseAsync(mockResponse);
 
             Assert.IsInstanceOf<V22ManifestTemplate>(manifestTemplate);
         }
 
         [Test]
-        public void testHandleResponse_noSchemaVersion()
+        public async Task testHandleResponse_noSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -117,7 +118,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPuller.handleResponse(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse);
                 Assert.Fail("An empty manifest should throw an error");
             }
             catch (UnknownManifestFormatException ex)
@@ -127,7 +128,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse_invalidSchemaVersion()
+        public async Task testHandleResponse_invalidSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -136,7 +137,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPuller.handleResponse(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse);
                 Assert.Fail("A non-integer schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)
@@ -146,7 +147,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse_unknownSchemaVersion()
+        public async Task testHandleResponse_unknownSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -155,7 +156,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                testManifestPuller.handleResponse(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse);
                 Assert.Fail("An unknown manifest schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)

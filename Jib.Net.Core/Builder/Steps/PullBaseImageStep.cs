@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-            listenableFuture = Task.Run(call);
+            listenableFuture = Task.Run(callAsync);
         }
 
         public Task<BaseImageWithAuthorization> getFuture()
@@ -112,7 +112,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public BaseImageWithAuthorization call()
+        public async Task<BaseImageWithAuthorization> callAsync()
         {
             IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
             // Skip this step if this is a scratch image
@@ -144,7 +144,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // First, try with no credentials.
                 try
                 {
-                    return new BaseImageWithAuthorization(pullBaseImage(null, progressEventDispatcher), null);
+                    return new BaseImageWithAuthorization(await pullBaseImageAsync(null, progressEventDispatcher), null);
                 }
                 catch (RegistryUnauthorizedException)
                 {
@@ -162,7 +162,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             buildConfiguration,
                             progressEventDispatcher.newChildProducer());
 
-                    Credential registryCredential = NonBlockingSteps.get(retrieveBaseRegistryCredentialsStep);
+                    Credential registryCredential = await retrieveBaseRegistryCredentialsStep.getFuture();
                     Authorization registryAuthorization =
                         registryCredential == null || registryCredential.isOAuth2RefreshToken()
                             ? null
@@ -172,7 +172,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     try
                     {
                         return new BaseImageWithAuthorization(
-                            pullBaseImage(registryAuthorization, progressEventDispatcher), registryAuthorization);
+                            await pullBaseImageAsync(registryAuthorization, progressEventDispatcher), registryAuthorization);
                     }
                     catch (RegistryUnauthorizedException)
                     {
@@ -181,17 +181,17 @@ namespace com.google.cloud.tools.jib.builder.steps
                         try
                         {
                             RegistryAuthenticator registryAuthenticator =
-                                buildConfiguration
+                                await buildConfiguration
                                     .newBaseImageRegistryClientFactory()
                                     .newRegistryClient()
-                                    .getRegistryAuthenticator();
+                                    .getRegistryAuthenticatorAsync();
                             if (registryAuthenticator != null)
                             {
                                 Authorization pullAuthorization =
-                                    registryAuthenticator.authenticatePull(registryCredential);
+                                    await registryAuthenticator.authenticatePullAsync(registryCredential);
 
                                 return new BaseImageWithAuthorization(
-                                    pullBaseImage(pullAuthorization, progressEventDispatcher), pullAuthorization);
+                                    await pullBaseImageAsync(pullAuthorization, progressEventDispatcher), pullAuthorization);
                             }
                         }
                         catch (InsecureRegistryException)
@@ -222,7 +222,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
          *     format
          */
-        private Image pullBaseImage(
+        private async Task<Image> pullBaseImageAsync(
             Authorization registryAuthorization,
             ProgressEventDispatcher progressEventDispatcher)
         {
@@ -233,7 +233,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .newRegistryClient();
 
             ManifestTemplate manifestTemplate =
-                registryClient.pullManifest(buildConfiguration.getBaseImageConfiguration().getImageTag());
+                await registryClient.pullManifestAsync(buildConfiguration.getBaseImageConfiguration().getImageTag());
 
             // TODO: Make schema version be enum.
             switch (manifestTemplate.getSchemaVersion())
@@ -266,7 +266,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             "pull container configuration " + containerConfigurationDigest))
                     {
                         string containerConfigurationString =
-                            Blobs.writeToString(
+                            await Blobs.writeToStringAsync(
                                 registryClient.pullBlob(
                                     containerConfigurationDigest,
                                     progressEventDispatcherWrapper.setProgressTarget,

@@ -18,8 +18,10 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -29,7 +31,7 @@ namespace com.google.cloud.tools.jib.registry
         [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
         [Test]
-        public void testCheck_exists()
+        public async Task testCheck_existsAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
@@ -37,14 +39,15 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             V22ManifestTemplate manifestTemplate =
-                registryClient.pullManifest<V22ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest");
             DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
 
-            Assert.AreEqual(blobDigest, registryClient.checkBlob(blobDigest).getDigest());
+            BlobDescriptor blobDescriptor = await registryClient.checkBlobAsync(blobDigest);
+            Assert.AreEqual(blobDigest, blobDescriptor.getDigest());
         }
 
         [Test]
-        public void testCheck_doesNotExist()
+        public async Task testCheck_doesNotExistAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
@@ -55,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
                 DescriptorDigest.fromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-            Assert.IsNull(registryClient.checkBlob(fakeBlobDigest));
+            Assert.IsNull(await registryClient.checkBlobAsync(fakeBlobDigest));
         }
     }
 }

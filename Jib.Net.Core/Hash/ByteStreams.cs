@@ -19,14 +19,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.hash
 {
     internal static class ByteStreams
     {
-        internal static void copy(Stream inStream, Stream contentsOut)
+        internal static async Task copyAsync(Stream inStream, Stream contentsOut)
         {
-            inStream.CopyTo(contentsOut);
+            await inStream.CopyToAsync(contentsOut);
         }
 
         internal static byte[] toByteArray(Stream stream)

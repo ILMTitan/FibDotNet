@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             listenableFuture =
                 AsyncDependencies.@using()
                     .addStep(authenticatePushStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<BlobDescriptor> getFuture()
@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public BlobDescriptor call()
+        public async Task<BlobDescriptor> callAsync()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDipatcherFactory.create(
@@ -87,11 +87,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                 RegistryClient registryClient =
                     buildConfiguration
                         .newTargetImageRegistryClientFactory()
-                        .setAuthorization(NonBlockingSteps.get(authenticatePushStep))
+                        .setAuthorization(await authenticatePushStep.getFuture())
                         .newRegistryClient();
 
                 // check if the BLOB is available
-                if (registryClient.checkBlob(blobDescriptor.getDigest()) != null)
+                if (registryClient.checkBlobAsync(blobDescriptor.getDigest()) != null)
                 {
                     buildConfiguration
                         .getEventHandlers()
@@ -100,7 +100,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 }
 
                 // todo: leverage cross-repository mounts
-                registryClient.pushBlob(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept);
+                await registryClient.pushBlobAsync(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept);
 
                 return blobDescriptor;
             }

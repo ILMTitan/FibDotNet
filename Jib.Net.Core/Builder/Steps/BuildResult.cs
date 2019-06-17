@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
             BlobDescriptor containerConfigurationBlobDescriptor =
-                Digests.computeDigest(imageToJsonTranslator.getContainerConfiguration());
+                Digests.computeJsonDescriptor(imageToJsonTranslator.getContainerConfiguration());
             BuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(
                     targetFormat, containerConfigurationBlobDescriptor);

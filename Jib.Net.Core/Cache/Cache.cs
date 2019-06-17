@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -96,9 +97,9 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} for the written layer
          * @throws IOException if an I/O exception occurs
          */
-        public CachedLayer writeCompressedLayer(Blob compressedLayerBlob)
+        public async Task<CachedLayer> writeCompressedLayerAsync(Blob compressedLayerBlob)
         {
-            return cacheStorageWriter.writeCompressed(compressedLayerBlob);
+            return await cacheStorageWriter.writeCompressedAsync(compressedLayerBlob);
         }
 
         /**
@@ -110,10 +111,10 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} for the written layer
          * @throws IOException if an I/O exception occurs
          */
-        public CachedLayer writeUncompressedLayer(
+        public async Task<CachedLayer> writeUncompressedLayerAsync(
             Blob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries)
         {
-            return cacheStorageWriter.writeUncompressed(
+            return await cacheStorageWriter.writeUncompressedAsync(
                 uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries));
         }
 

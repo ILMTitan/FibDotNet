@@ -31,6 +31,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
+using System.Threading.Tasks;
 using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
 namespace com.google.cloud.tools.jib.registry
@@ -175,12 +176,12 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        public T call()
+        public async Task<T> callAsync()
         {
-            return callWithAllowInsecureRegistryHandling(initialRequestUrl);
+            return await callWithAllowInsecureRegistryHandlingAsync(initialRequestUrl);
         }
 
-        private T callWithAllowInsecureRegistryHandling(Uri url)
+        private async Task<T> callWithAllowInsecureRegistryHandlingAsync(Uri url)
         {
             if (!isHttpsProtocol(url) && !allowInsecureRegistries)
             {
@@ -189,11 +190,11 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                return call(url, connectionFactory);
+                return await callAsync(url, connectionFactory);
             }
             catch (HttpRequestException e) when (e.InnerException is AuthenticationException)
             {
-                return handleUnverifiableServerException(url);
+                return await handleUnverifiableServerExceptionAsync(url);
             }
             catch (ConnectException)
             {
@@ -201,13 +202,13 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
                     // port 443) and we could not connect to 443. It's worth trying port 80.
-                    return fallBackToHttp(url);
+                    return await fallBackToHttpAsync(url);
                 }
                 throw;
             }
         }
 
-        private T handleUnverifiableServerException(Uri url)
+        private async Task<T> handleUnverifiableServerExceptionAsync(Uri url)
         {
             if (!allowInsecureRegistries)
             {
@@ -219,19 +220,19 @@ namespace com.google.cloud.tools.jib.registry
                 eventHandlers.dispatch(
                     LogEvent.info(
                         "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
-                return call(url, getInsecureConnectionFactory());
+                return await callAsync(url, getInsecureConnectionFactory());
             }
             catch (AuthenticationException)
             {
-                return fallBackToHttp(url);
+                return await fallBackToHttpAsync(url);
             }
             catch(HttpRequestException e) when (e.InnerException is AuthenticationException)
             {
-                return fallBackToHttp(url);
+                return await fallBackToHttpAsync(url);
             }
         }
 
-        private T fallBackToHttp(Uri url)
+        private async Task<T> fallBackToHttpAsync(Uri url)
         {
             UriBuilder httpUrl = new UriBuilder(url)
             {
@@ -241,7 +242,7 @@ namespace com.google.cloud.tools.jib.registry
             eventHandlers.dispatch(
                 LogEvent.info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
-            return call(httpUrl.toURL(), connectionFactory);
+            return await callAsync(httpUrl.toURL(), connectionFactory);
         }
 
         private Func<Uri, IConnection> getInsecureConnectionFactory()
@@ -268,7 +269,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        private T call(Uri url, Func<Uri, IConnection> connectionFactory)
+        private async System.Threading.Tasks.Task<T> callAsync(Uri url, Func<Uri, IConnection> connectionFactory)
         {
             // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
             bool sendCredentials =
@@ -291,9 +292,9 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
                     }
-                    HttpResponseMessage response = connection.send(request);
+                    HttpResponseMessage response = await connection.sendAsync(request);
 
-                    return registryEndpointProvider.handleResponse(response);
+                    return await registryEndpointProvider.handleResponseAsync(response);
                 }
             }
             catch (HttpResponseException ex)
@@ -305,7 +306,7 @@ namespace com.google.cloud.tools.jib.registry
                             == HttpStatusCode.MethodNotAllowed)
                     {
                         // The name or reference was invalid.
-                        throw newRegistryErrorException(ex);
+                        throw await newRegistryErrorExceptionAsync(ex);
                     }
                     else if (ex.getStatusCode() == HttpStatusCode.Forbidden)
                     {
@@ -338,7 +339,7 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         // 'Location' header can be relative or absolute.
                         Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
-                        return callWithAllowInsecureRegistryHandling(redirectLocation);
+                        return await callWithAllowInsecureRegistryHandlingAsync(redirectLocation);
                     }
                     else
                     {
@@ -361,13 +362,13 @@ namespace com.google.cloud.tools.jib.registry
             }
         }
 
-        public RegistryErrorException newRegistryErrorException(HttpResponseException httpResponseException)
+        public async Task<RegistryErrorException> newRegistryErrorExceptionAsync(HttpResponseException httpResponseException)
         {
             RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
                 new RegistryErrorExceptionBuilder(
                     registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
 
-            string stringContent = httpResponseException.getContent().ReadAsStringAsync().Result;
+            string stringContent = await httpResponseException.getContent().ReadAsStringAsync();
             try
             {
                 ErrorResponseTemplate errorResponse =

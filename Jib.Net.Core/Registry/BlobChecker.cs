@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -48,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** @return the BLOB's content descriptor */
 
-        public BlobDescriptor handleResponse(HttpResponseMessage response)
+        public async Task<BlobDescriptor> handleResponseAsync(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
@@ -56,7 +57,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             else
             {
-                return handleHttpResponseException(response);
+                return await handleHttpResponseExceptionAsync(response);
             }
         }
 
@@ -73,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry
             return new BlobDescriptor(contentLength.GetValueOrDefault(), blobDigest);
         }
 
-        public BlobDescriptor handleHttpResponseException(HttpResponseMessage httpResponse)
+        public async Task<BlobDescriptor> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
             if (httpResponse.getStatusCode() != HttpStatusCode.NotFound)
             {
@@ -81,14 +82,14 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             // Finds a BLOB_UNKNOWN error response code.
-            if (httpResponse.getContent() == null)
+            if (httpResponse.getContentAsync() == null)
             {
                 // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
                 // be null, even for HEAD requests.
                 return null;
             }
 
-            ErrorCodes errorCode = ErrorResponseUtil.getErrorCode(httpResponse);
+            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse);
             if (errorCode == ErrorCodes.BLOB_UNKNOWN)
             {
                 return null;

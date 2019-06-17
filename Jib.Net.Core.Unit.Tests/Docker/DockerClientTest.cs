@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
@@ -53,17 +55,20 @@ namespace com.google.cloud.tools.jib.docker
     {
         [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-        private IProcessBuilder mockProcessBuilder = Mock.Of<IProcessBuilder>();
-        private IProcess mockProcess = Mock.Of<IProcess>();
-        private IImageTarball imageTarball = Mock.Of<IImageTarball>();
+        private IProcessBuilder mockProcessBuilder;
+        private IProcess mockProcess;
+        private IImageTarball imageTarball;
 
         [SetUp]
         public void setUp()
         {
+            mockProcessBuilder = Mock.Of<IProcessBuilder>();
+            mockProcess = Mock.Of<IProcess>();
+            imageTarball = Mock.Of<IImageTarball>();
             Mock.Get(mockProcessBuilder).Setup(m => m.start()).Returns(mockProcess);
 
-            Mock.Get(imageTarball).Setup(i => i.writeTo(It.IsAny<Stream>()))
-                .Callback<Stream>(s => s.write("jib".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(imageTarball).Setup(i => i.writeToAsync(It.IsAny<Stream>()))
+                .Returns<Stream>(async s => await s.WriteAsync("jib".getBytes(StandardCharsets.UTF_8)));
         }
 
         [Test]
@@ -73,7 +78,7 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void testLoad()
+        public async Task testLoadAsync()
         {
             DockerClient testDockerClient =
                 new DockerClient(
@@ -91,7 +96,7 @@ namespace com.google.cloud.tools.jib.docker
             // Simulates stdout.
             Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("output".getBytes(StandardCharsets.UTF_8)));
 
-            string output = testDockerClient.load(imageTarball);
+            string output = await testDockerClient.loadAsync(imageTarball);
 
             Assert.AreEqual(
                 "jib", StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
@@ -99,17 +104,20 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void testLoad_stdinFail()
+        public async System.Threading.Tasks.Task testLoad_stdinFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
 
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream().Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws<IOException>();
+            Mock.Get(mockProcess)
+                .Setup(m =>
+                    m.getOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+                .Throws<IOException>();
 
             Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Returns("error");
 
             try
             {
-                testDockerClient.load(imageTarball);
+                await testDockerClient.loadAsync(imageTarball);
                 Assert.Fail("Write should have failed");
             }
             catch (IOException ex)
@@ -119,17 +127,20 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void testLoad_stdinFail_stderrFail()
+        public async System.Threading.Tasks.Task testLoad_stdinFail_stderrFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
             IOException expectedIOException = new IOException();
 
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream().Write(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>())).Throws(expectedIOException);
+            Mock.Get(mockProcess)
+                .Setup(m =>
+                    m.getOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+                .Throws(expectedIOException);
 
             Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Throws<IOException>();
             try
             {
-                testDockerClient.load(imageTarball);
+                await testDockerClient.loadAsync(imageTarball);
                 Assert.Fail("Write should have failed");
             }
             catch (IOException ex)
@@ -139,7 +150,7 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void testLoad_stdoutFail()
+        public async Task testLoad_stdoutFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(ignored => mockProcessBuilder);
             Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
@@ -152,7 +163,7 @@ namespace com.google.cloud.tools.jib.docker
 
             try
             {
-                testDockerClient.load(imageTarball);
+                await testDockerClient.loadAsync(imageTarball);
                 Assert.Fail("Process should have failed");
             }
             catch (IOException ex)

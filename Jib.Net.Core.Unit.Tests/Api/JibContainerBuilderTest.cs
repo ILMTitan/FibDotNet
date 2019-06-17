@@ -26,6 +26,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -183,7 +184,7 @@ namespace com.google.cloud.tools.jib.api
         /** Verify that an internally-created ExecutorService is shutdown. */
 
         [Test]
-        public void testContainerize_executorCreated()
+        public async Task testContainerize_executorCreatedAsync()
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
@@ -198,13 +199,13 @@ namespace com.google.cloud.tools.jib.api
 
             IContainerizer mockContainerizer = createMockContainerizer();
 
-            jibContainerBuilder.containerize(mockContainerizer);
+            await jibContainerBuilder.containerizeAsync(mockContainerizer);
         }
 
         /** Verify that a provided ExecutorService is not shutdown. */
 
         [Test]
-        public void testContainerize_configuredExecutor()
+        public async Task testContainerize_configuredExecutorAsync()
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
@@ -218,7 +219,7 @@ namespace com.google.cloud.tools.jib.api
                     .setWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
             IContainerizer mockContainerizer = createMockContainerizer();
 
-            jibContainerBuilder.containerize(mockContainerizer);
+            await jibContainerBuilder.containerizeAsync(mockContainerizer);
         }
 
         private IContainerizer createMockContainerizer()
@@ -232,7 +233,7 @@ namespace com.google.cloud.tools.jib.api
 
             Mock.Get(mockContainerizer).Setup(m => m.createStepsRunner(It.IsAny<BuildConfiguration>())).Returns(stepsRunner);
 
-            Mock.Get(stepsRunner).Setup(s => s.run()).Returns(mockBuildResult);
+            Mock.Get(stepsRunner).Setup(s => s.runAsync()).Returns(Task.FromResult(mockBuildResult));
 
             Mock.Get(mockBuildResult).Setup(m => m.getImageDigest()).Returns(
                     DescriptorDigest.fromHash(

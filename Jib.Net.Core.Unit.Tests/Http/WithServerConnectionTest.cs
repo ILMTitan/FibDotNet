@@ -31,23 +31,23 @@ namespace com.google.cloud.tools.jib.http
     public class WithServerConnectionTest
     {
         [Test]
-        public void testGet()
+        public async Task testGetAsync()
         {
             using (TestWebServer server = new TestWebServer(false))
             using (Connection connection =
                     Connection.getConnectionFactory().apply(new Uri("http://" + server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = connection.send(new HttpRequestMessage());
+                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage());
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
-                    ByteStreams.toByteArray(response.getBody()));
+                    ByteStreams.toByteArray(await response.getBodyAsync()));
             }
         }
 
         [Test]
-        public void testSecureConnectionOnInsecureHttpsServer()
+        public async Task testSecureConnectionOnInsecureHttpsServerAsync()
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.http
             {
                 try
                 {
-                    connection.send(new HttpRequestMessage());
+                    await connection.sendAsync(new HttpRequestMessage());
                     Assert.Fail("Should fail if cannot verify peer");
                 }
                 catch (HttpRequestException ex)
@@ -66,18 +66,18 @@ namespace com.google.cloud.tools.jib.http
         }
 
         [Test]
-        public void testInsecureConnection()
+        public async Task testInsecureConnectionAsync()
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
                     Connection.getInsecureConnectionFactory().apply(new Uri("https://"+server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = connection.send(new HttpRequestMessage());
+                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage());
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
-                    ByteStreams.toByteArray(response.getBody()));
+                    ByteStreams.toByteArray(await response.getBodyAsync()));
             }
         }
     }

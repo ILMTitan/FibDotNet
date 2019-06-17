@@ -124,9 +124,9 @@ namespace com.google.cloud.tools.jib.http
          * @return the response to the sent request
          * @throws IOException if building the HTTP request fails.
          */
-        public HttpResponseMessage send(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
         {
-            return client.SendAsync(request).GetAwaiter().GetResult();
+            return await client.SendAsync(request);
         }
 
         internal int? getRequestedHttpTimeout()

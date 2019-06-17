@@ -23,6 +23,7 @@ using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -469,7 +470,7 @@ namespace com.google.cloud.tools.jib.api
          * @throws ExecutionException if some other exception occurred during execution
          * @throws InterruptedException if the execution was interrupted
          */
-        public JibContainer containerize(IContainerizer containerizer)
+        public async Task<JibContainer> containerizeAsync(IContainerizer containerizer)
         {
             BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer);
 
@@ -480,7 +481,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    IBuildResult result = containerizer.createStepsRunner(buildConfiguration).run();
+                    IBuildResult result = await containerizer.createStepsRunner(buildConfiguration).runAsync();
                     return new JibContainer(result.getImageDigest(), result.getImageId());
                 }
                 catch (Exception ex)

@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Blob;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
@@ -34,7 +35,7 @@ namespace com.google.cloud.tools.jib.blob
             this.inputStream = inputStream;
         }
 
-        public BlobDescriptor writeTo(Stream outputStream)
+        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
             // Cannot rewrite.
             if (isWritten)
@@ -45,7 +46,7 @@ namespace com.google.cloud.tools.jib.blob
             {
                 using (Stream inputStream = this.inputStream)
                 {
-                    return Digests.computeDigest(inputStream, outputStream);
+                    return await Digests.computeDigestAsync(inputStream, outputStream);
                 }
             }
             finally

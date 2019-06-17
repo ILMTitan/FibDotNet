@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.http;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -44,7 +45,7 @@ namespace com.google.cloud.tools.jib.registry
         IList<string> getAccept();
 
         /** Handles the response specific to the registry action. */
-        T handleResponse(HttpResponseMessage response);
+        Task<T> handleResponseAsync(HttpResponseMessage response);
         string getActionDescription();
     }
 }

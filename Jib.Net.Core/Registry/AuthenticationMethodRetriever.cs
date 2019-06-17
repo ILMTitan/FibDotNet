@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -58,9 +59,9 @@ namespace com.google.cloud.tools.jib.registry
          * @return {@code null}
          */
 
-        public RegistryAuthenticator handleResponse(HttpResponseMessage response)
+        public Task<RegistryAuthenticator> handleResponseAsync(HttpResponseMessage response)
         {
-            return null;
+            return Task.FromResult(default(RegistryAuthenticator));
         }
 
         public Uri getApiRoute(string apiRouteBase)

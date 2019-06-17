@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -197,7 +198,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testUserAgent()
+        public async Task testUserAgentAsync()
         {
             using (TestWebServer server = new TestWebServer(false))
             {
@@ -208,7 +209,7 @@ namespace com.google.cloud.tools.jib.registry
                             new AuthenticationHeaderValue("Bearer","realm=\"" + server.GetAddressAndPort() + "\""),
                             registryEndpointRequestProperties,
                             new[] { new ProductInfoHeaderValue(new ProductHeaderValue("Competent-Agent")) });
-                    authenticator.authenticatePush(null);
+                    await authenticator.authenticatePushAsync(null);
                 }
                 catch (RegistryAuthenticationFailedException)
                 {

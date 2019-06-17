@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullAndCacheBaseImageLayersStep)
                     .addStep(buildImageStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<BuildResult> getFuture()
@@ -80,17 +80,16 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public BuildResult call()
+        public async Task<BuildResult> callAsync()
         {
-            return AsyncDependencies.@using()
-                .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+            return await AsyncDependencies.@using()
+                .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
                 .addSteps(buildAndCacheApplicationLayerSteps)
-                .addStep(NonBlockingSteps.get(buildImageStep))
-                .whenAllSucceed(writeTarFile)
-                .get();
+                .addStep(await buildImageStep.getFuture())
+                .whenAllSucceedAsync(writeTarFileAsync);
         }
 
-        private BuildResult writeTarFile()
+        private async Task<BuildResult> writeTarFileAsync()
         {
             buildConfiguration
                 .getEventHandlers()
@@ -99,15 +98,15 @@ namespace com.google.cloud.tools.jib.builder.steps
             using (ProgressEventDispatcher ignored =
                 progressEventDispatcherFactory.create("writing to tar file", 1))
             {
-                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+                Image image = await (await buildImageStep.getFuture()).getFuture();
 
                 // Builds the image to a tarball.
                 Files.createDirectories(outputPath.getParent());
                 using (Stream outputStream =
                     new BufferedStream(FileOperations.newLockingOutputStream(outputPath)))
                 {
-                    new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
-                        .writeTo(outputStream);
+                    await new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
+                        .writeToAsync(outputStream);
                 }
 
                 return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());

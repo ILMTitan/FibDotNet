@@ -67,7 +67,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 AsyncDependencies.@using()
                     .addStep(pullAndCacheBaseImageLayersStep)
                     .addStep(buildImageStep)
-                    .whenAllSucceed(call);
+                    .whenAllSucceedAsync(callAsync);
         }
 
         public Task<BuildResult> getFuture()
@@ -75,17 +75,16 @@ namespace com.google.cloud.tools.jib.builder.steps
             return listenableFuture;
         }
 
-        public BuildResult call()
+        public async Task<BuildResult> callAsync()
         {
-            return AsyncDependencies.@using()
-                .addSteps(NonBlockingSteps.get(pullAndCacheBaseImageLayersStep))
+            return await AsyncDependencies.@using()
+                .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
                 .addSteps(buildAndCacheApplicationLayerSteps)
-                .addStep(NonBlockingSteps.get(buildImageStep))
-                .whenAllSucceed(this.afterPushBaseImageLayerFuturesFuture)
-                .get();
+                .addStep(await buildImageStep.getFuture())
+                .whenAllSucceedAsync(this.afterPushBaseImageLayerFuturesFutureAsync);
         }
 
-        private BuildResult afterPushBaseImageLayerFuturesFuture()
+        private async Task<BuildResult> afterPushBaseImageLayerFuturesFutureAsync()
         {
             buildConfiguration
                 .getEventHandlers()
@@ -94,7 +93,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             using (ProgressEventDispatcher ignored =
                 progressEventDispatcherFactory.create("loading to Docker daemon", 1))
             {
-                Image image = NonBlockingSteps.get(NonBlockingSteps.get(buildImageStep));
+                Image image = await (await buildImageStep.getFuture()).getFuture();
                 IImageReference targetImageReference =
                     buildConfiguration.getTargetImageConfiguration().getImage();
 
@@ -102,7 +101,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 buildConfiguration
                     .getEventHandlers()
                     .dispatch(
-                        LogEvent.debug(dockerClient.load(new ImageTarball(image, targetImageReference))));
+                        LogEvent.debug(await dockerClient.loadAsync(new ImageTarball(image, targetImageReference))));
 
                 // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
                 foreach (string tag in buildConfiguration.getAllTargetImageTags())

@@ -22,6 +22,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -62,10 +63,9 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testHandleResponse()
+        public async Task testHandleResponseAsync()
         {
-            Assert.IsNull(
-                testAuthenticationMethodRetriever.handleResponse(Mock.Of<HttpResponseMessage>()));
+            Assert.IsNull(await testAuthenticationMethodRetriever.handleResponseAsync(Mock.Of<HttpResponseMessage>()));
         }
 
         [Test]

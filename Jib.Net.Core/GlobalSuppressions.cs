@@ -14,4 +14,7 @@ using System.Diagnostics.CodeAnalysis;
     "Design",
     "RCS1194:Implement exception constructors.",
     Justification = "Why?")]
-
+[assembly: SuppressMessage(
+    "Usage",
+    "VSTHRD003:Avoid awaiting foreign Tasks",
+    Justification = "<Pending>")]

@@ -25,6 +25,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -171,7 +172,7 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testRetrieve()
+        public async Task testRetrieveAsync()
         {
             CacheStorageFiles cacheStorageFiles =
                 new CacheStorageFiles(temporaryFolder.newFolder().toPath());
@@ -194,7 +195,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual(layerDigest, optionalCachedLayer.get().getDigest());
             Assert.AreEqual(layerDiffId, optionalCachedLayer.get().getDiffId());
             Assert.AreEqual("layerBlob".length(), optionalCachedLayer.get().getSize());
-            Assert.AreEqual("layerBlob", Blobs.writeToString(optionalCachedLayer.get().getBlob()));
+            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(optionalCachedLayer.get().getBlob()));
 
             // Checks that multiple .layer files means the cache is corrupted.
             Files.createFile(cacheStorageFiles.getLayerFile(layerDigest, layerDigest));

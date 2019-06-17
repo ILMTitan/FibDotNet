@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -29,7 +30,7 @@ namespace com.google.cloud.tools.jib.registry
         [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
         [Test]
-        public void testPush()
+        public async Task testPushAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             Blob testBlob = Blobs.from("crepecake");
@@ -42,7 +43,7 @@ namespace com.google.cloud.tools.jib.registry
                 RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
-            Assert.IsFalse(registryClient.pushBlob(testBlobDigest, testBlob, null, ignored => { }));
+            Assert.IsFalse(await registryClient.pushBlobAsync(testBlobDigest, testBlob, null, ignored => { }));
         }
     }
 }
