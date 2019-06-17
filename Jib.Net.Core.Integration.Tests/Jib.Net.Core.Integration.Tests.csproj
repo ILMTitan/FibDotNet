@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -15,6 +15,85 @@
   <ItemGroup>
     <ProjectReference Include="..\Jib.Net.Core\Jib.Net.Core.csproj" />
     <ProjectReference Include="..\Jib.Net.Test.Common\Jib.Net.Test.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\core\application\classes\HelloWorld.class" />
+    <None Remove="Resources\core\application\classes\some.class" />
+    <None Remove="Resources\core\application\dependencies\dependency-1.0.0.jar" />
+    <None Remove="Resources\core\application\dependencies\libraryA.jar" />
+    <None Remove="Resources\core\application\dependencies\libraryB.jar" />
+    <None Remove="Resources\core\application\dependencies\more\dependency-1.0.0.jar" />
+    <None Remove="Resources\core\application\resources\resourceA" />
+    <None Remove="Resources\core\application\resources\resourceB" />
+    <None Remove="Resources\core\application\resources\world" />
+    <None Remove="Resources\core\application\snapshot-dependencies\dependency-1.0.0-SNAPSHOT.jar" />
+    <None Remove="Resources\core\blobA" />
+    <None Remove="Resources\core\class-finder-tests\extension\main\MainClass.class" />
+    <None Remove="Resources\core\class-finder-tests\extension\pack\Apple.class" />
+    <None Remove="Resources\core\class-finder-tests\extension\pack\Orange.class" />
+    <None Remove="Resources\core\class-finder-tests\external-classes\main\MainClass.class" />
+    <None Remove="Resources\core\class-finder-tests\imported-methods\main\MainClass.class" />
+    <None Remove="Resources\core\class-finder-tests\imported-methods\pack\Apple.class" />
+    <None Remove="Resources\core\class-finder-tests\imported-methods\pack\Orange.class" />
+    <None Remove="Resources\core\class-finder-tests\inner-classes\HelloWorld$InnerClass.class" />
+    <None Remove="Resources\core\class-finder-tests\inner-classes\HelloWorld.class" />
+    <None Remove="Resources\core\class-finder-tests\inner-classes\NotMain.class" />
+    <None Remove="Resources\core\class-finder-tests\multiple\HelloWorld.class" />
+    <None Remove="Resources\core\class-finder-tests\multiple\multi\Layer1Class.class" />
+    <None Remove="Resources\core\class-finder-tests\multiple\multi\Layer2Class.class" />
+    <None Remove="Resources\core\class-finder-tests\multiple\multi\layered\HelloMoon.class" />
+    <None Remove="Resources\core\class-finder-tests\multiple\NotMain.class" />
+    <None Remove="Resources\core\class-finder-tests\no-main\multi\Layer1Class.class" />
+    <None Remove="Resources\core\class-finder-tests\no-main\multi\Layer2Class.class" />
+    <None Remove="Resources\core\class-finder-tests\no-main\NotMain.class" />
+    <None Remove="Resources\core\class-finder-tests\simple\HelloWorld.class" />
+    <None Remove="Resources\core\class-finder-tests\simple\NotAClassButMightBe.class" />
+    <None Remove="Resources\core\class-finder-tests\simple\NotEvenAClass.txt" />
+    <None Remove="Resources\core\class-finder-tests\simple\NotMain.class" />
+    <None Remove="Resources\core\class-finder-tests\subdirectories\multi\Layer1Class.class" />
+    <None Remove="Resources\core\class-finder-tests\subdirectories\multi\layered\HelloWorld.class" />
+    <None Remove="Resources\core\class-finder-tests\subdirectories\multi\layered\Layer2Class.class" />
+    <None Remove="Resources\core\class-finder-tests\varargs\HelloWorld.class" />
+    <None Remove="Resources\core\directoryA\.gitkeep" />
+    <None Remove="Resources\core\fileA" />
+    <None Remove="Resources\core\fileB" />
+    <None Remove="Resources\core\json\basic.json" />
+    <None Remove="Resources\core\json\basic_list.json" />
+    <None Remove="Resources\core\json\containerconfig.json" />
+    <None Remove="Resources\core\json\dockerconfig.json" />
+    <None Remove="Resources\core\json\dockerconfig_extra_matches.json" />
+    <None Remove="Resources\core\json\dockerconfig_index_docker_io_v1.json" />
+    <None Remove="Resources\core\json\loadmanifest.json" />
+    <None Remove="Resources\core\json\loadmanifest_notag.json" />
+    <None Remove="Resources\core\json\metadata-v2.json" />
+    <None Remove="Resources\core\json\metadata-v3.json" />
+    <None Remove="Resources\core\json\metadata.json" />
+    <None Remove="Resources\core\json\metadata_corrupted.json" />
+    <None Remove="Resources\core\json\metadata_windows-v2.json" />
+    <None Remove="Resources\core\json\metadata_windows.json" />
+    <None Remove="Resources\core\json\ocimanifest.json" />
+    <None Remove="Resources\core\json\translated_ocimanifest.json" />
+    <None Remove="Resources\core\json\translated_v22manifest.json" />
+    <None Remove="Resources\core\json\v21manifest.json" />
+    <None Remove="Resources\core\json\v22manifest.json" />
+    <None Remove="Resources\core\layer\a\b\bar" />
+    <None Remove="Resources\core\layer\c\cat" />
+    <None Remove="Resources\core\layer\foo" />
+    <None Remove="Resources\core\random-contents\file1" />
+    <None Remove="Resources\core\random-contents\file2" />
+    <None Remove="Resources\core\random-contents\sub-directory\file3" />
+    <None Remove="Resources\core\random-contents\sub-directory\file4" />
+    <None Remove="Resources\core\random-contents\sub-directory\leaf\file5" />
+    <None Remove="Resources\core\random-contents\sub-directory\leaf\file6" />
+    <None Remove="Resources\core\TestWebServer-keystore" />
+    <None Remove="Resources\core\webAppSampleDockerfile" />
   </ItemGroup>
 
 </Project>

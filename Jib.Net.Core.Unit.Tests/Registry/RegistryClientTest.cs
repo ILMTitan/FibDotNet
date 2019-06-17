@@ -20,6 +20,8 @@ using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
+using System.Linq;
+using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -44,33 +46,34 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testGetUserAgent_null()
         {
-            Assert.IsTrue(
+            var defaultUserAgent = new ProductHeaderValue("jib", "0.0.1-alpha.1");
+            Assert.AreEqual(defaultUserAgent,
                 testRegistryClientFactory
                     .setAuthorization(mockAuthorization)
                     .newRegistryClient()
-                    .getUserAgent()
-                    .startsWith("jib"));
+                    .getUserAgent().Single().Product);
 
-            Assert.IsTrue(
+            Assert.AreEqual(defaultUserAgent,
                 testRegistryClientFactory
                     .setAuthorization(mockAuthorization)
-                    .setUserAgentSuffix(null)
+                    .addUserAgentValue(null)
                     .newRegistryClient()
-                    .getUserAgent()
-                    .startsWith("jib"));
+                    .getUserAgent().Single().Product);
         }
 
         [Test]
         public void testGetUserAgent()
         {
+            var defaultUserAgent = new ProductHeaderValue("jib", "0.0.1-alpha.1");
             RegistryClient registryClient =
                 testRegistryClientFactory
                     .setAllowInsecureRegistries(true)
-                    .setUserAgentSuffix("some user agent suffix")
+                    .addUserAgentValue(new ProductInfoHeaderValue("someUserAgent", "someAgentVersion"))
                     .newRegistryClient();
 
-            Assert.IsTrue(registryClient.getUserAgent().startsWith("jib "));
-            Assert.IsTrue(registryClient.getUserAgent().endsWith(" some user agent suffix"));
+            Assert.AreEqual(defaultUserAgent, registryClient.getUserAgent().First().Product);
+            Assert.AreEqual("someUserAgent", registryClient.getUserAgent().Skip(1).First().Product.Name);
+            Assert.AreEqual("someAgentVersion", registryClient.getUserAgent().Skip(1).First().Product.Version);
         }
 
         [Test]

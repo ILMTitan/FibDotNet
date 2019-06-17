@@ -51,10 +51,8 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public void Dispose()
         {
-            Preconditions.checkNotNull(progressEventDispatcher);
-            Preconditions.checkNotNull(throttledDispatcher);
-            throttledDispatcher.close();
-            progressEventDispatcher.close();
+            throttledDispatcher?.close();
+            progressEventDispatcher?.close();
         }
 
         public void setProgressTarget(long allocationUnits)

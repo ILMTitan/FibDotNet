@@ -25,6 +25,7 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -70,7 +71,7 @@ namespace com.google.cloud.tools.jib.registry
         public static RegistryAuthenticator fromAuthenticationMethod(
             AuthenticationHeaderValue authenticationMethod,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
-            string userAgent)
+            IEnumerable<ProductInfoHeaderValue> userAgent)
         {
             // If the authentication method starts with 'basic ' (case insensitive), no registry
             // authentication is needed.
@@ -154,13 +155,13 @@ namespace com.google.cloud.tools.jib.registry
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly string realm;
         private readonly string service;
-        private readonly string userAgent;
+        private readonly IEnumerable<ProductInfoHeaderValue> userAgent;
 
         private RegistryAuthenticator(
             string realm,
             string service,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
-            string userAgent)
+            IEnumerable<ProductInfoHeaderValue> userAgent)
         {
             this.realm = realm;
             this.service = service;
@@ -253,7 +254,10 @@ namespace com.google.cloud.tools.jib.registry
                     Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope)))
                 {
                     var request = new HttpRequestMessage();
-                    request.Headers.UserAgent.ParseAdd(userAgent);
+                    foreach(var value in userAgent)
+                    {
+                        request.Headers.UserAgent.Add(value);
+                    }
 
                     if (isOAuth2Auth(credential))
                     {

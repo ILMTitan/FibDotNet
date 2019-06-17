@@ -236,7 +236,7 @@ namespace Jib.Net.Core.Global
 
         public static T get<T>(this Task<T> task)
         {
-            return task.Result;
+            return task.GetAwaiter().GetResult();
         }
 
         public static int size<T>(this ImmutableArray<T> l)

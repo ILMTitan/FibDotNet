@@ -23,6 +23,7 @@ using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -99,7 +100,7 @@ namespace com.google.cloud.tools.jib.registry
 
         private readonly IEventHandlers eventHandlers;
         private readonly Uri initialRequestUrl;
-        private readonly string userAgent;
+        private readonly IEnumerable<ProductInfoHeaderValue> userAgent;
         private readonly RegistryEndpointProvider<T> registryEndpointProvider;
         private readonly Authorization authorization;
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
@@ -125,7 +126,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public RegistryEndpointCaller(
             IEventHandlers eventHandlers,
-            string userAgent,
+            IEnumerable<ProductInfoHeaderValue> userAgent,
             string apiRouteBase,
             RegistryEndpointProvider<T> registryEndpointProvider,
             Authorization authorization,
@@ -146,7 +147,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public RegistryEndpointCaller(
             IEventHandlers eventHandlers,
-            string userAgent,
+            IEnumerable<ProductInfoHeaderValue> userAgent,
             string apiRouteBase,
             RegistryEndpointProvider<T> registryEndpointProvider,
             Authorization authorization,
@@ -277,13 +278,16 @@ namespace com.google.cloud.tools.jib.registry
                 using (IConnection connection = connectionFactory.apply(url))
                 {
                     var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
-                    request.Headers.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue(userAgent)));
+                    foreach(var value in userAgent)
+                    {
+                        request.Headers.UserAgent.Add(value);
+                    }
                     foreach (var accept in registryEndpointProvider.getAccept())
                     {
                         request.Headers.Accept.ParseAdd(accept);
                     }
                     request.Content = registryEndpointProvider.getContent();
-                    if (sendCredentials)
+                    if (sendCredentials && authorization != null)
                     {
                         request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
                     }

@@ -233,7 +233,7 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void tesBuildToDockerRegistry_dockerHubBaseImage()
+        public void testBuildToDockerRegistry_dockerHubBaseImage()
         {
             buildRegistryImage(
                 ImageReference.parse("openjdk:8-jre-alpine"),

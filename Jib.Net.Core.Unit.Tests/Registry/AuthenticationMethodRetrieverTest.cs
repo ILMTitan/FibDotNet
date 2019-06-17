@@ -44,7 +44,9 @@ namespace com.google.cloud.tools.jib.registry
             fakeRegistryEndpointRequestProperties =
          new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
             testAuthenticationMethodRetriever =
-         new AuthenticationMethodRetriever(fakeRegistryEndpointRequestProperties, "user-agent");
+         new AuthenticationMethodRetriever(
+             fakeRegistryEndpointRequestProperties,
+             new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
         }
 
         [Test]

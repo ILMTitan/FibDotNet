@@ -200,7 +200,8 @@ namespace com.google.cloud.tools.jib.configuration
             Assert.IsNull(buildConfiguration.getContainerConfiguration());
             Assert.IsFalse(buildConfiguration.getAllowInsecureRegistries());
             Assert.AreEqual(Collections.emptyList<LayerConfiguration>(), buildConfiguration.getLayerConfigurations());
-            Assert.AreEqual("jib", buildConfiguration.getToolName());
+            Assert.AreEqual(null, buildConfiguration.getToolName());
+            Assert.AreEqual(null, buildConfiguration.getToolVersion());
         }
 
         [Test]

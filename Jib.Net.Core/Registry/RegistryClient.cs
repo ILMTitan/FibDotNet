@@ -25,7 +25,9 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace com.google.cloud.tools.jib.registry
@@ -45,6 +47,9 @@ namespace com.google.cloud.tools.jib.registry
     /** Interfaces with a registry. */
     public sealed class RegistryClient
     {
+        public static ProductInfoHeaderValue defaultJibUserAgent = 
+            new ProductInfoHeaderValue(new ProductHeaderValue("jib", ProjectInfo.VERSION));
+
         /** Factory for creating {@link RegistryClient}s. */
         public class Factory
         {
@@ -52,7 +57,7 @@ namespace com.google.cloud.tools.jib.registry
             private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
             private bool allowInsecureRegistries = false;
-            private string userAgentSuffix;
+            private List<ProductInfoHeaderValue> additionalUserAgentValues = new List<ProductInfoHeaderValue>();
             private Authorization authorization;
 
             public Factory(
@@ -94,9 +99,24 @@ namespace com.google.cloud.tools.jib.registry
              * @param userAgentSuffix the suffix to append
              * @return this
              */
-            public Factory setUserAgentSuffix(string userAgentSuffix)
+            public Factory addUserAgentValues(IEnumerable<ProductInfoHeaderValue> userAgentSuffix)
             {
-                this.userAgentSuffix = userAgentSuffix;
+                additionalUserAgentValues.AddRange(userAgentSuffix);
+                return this;
+            }
+
+            /**
+             * Sets a suffix to append to {@code User-Agent} headers.
+             *
+             * @param userAgentSuffix the suffix to append
+             * @return this
+             */
+            public Factory addUserAgentValue(ProductInfoHeaderValue userAgentSuffix)
+            {
+                if (userAgentSuffix != null)
+                {
+                    additionalUserAgentValues.Add(userAgentSuffix);
+                }
                 return this;
             }
 
@@ -123,21 +143,19 @@ namespace com.google.cloud.tools.jib.registry
              *     setting the system property variable {@code _JIB_DISABLE_USER_AGENT} to any non-empty
              *     string.
              */
-            private string makeUserAgent()
+            private IEnumerable<ProductInfoHeaderValue> makeUserAgent()
             {
                 if (!JibSystemProperties.isUserAgentEnabled())
                 {
-                    return "";
+                    yield break;
                 }
 
-                StringBuilder userAgentBuilder = new StringBuilder();
-                userAgentBuilder.append("jib");
-                userAgentBuilder.append(" ").append(ProjectInfo.VERSION);
-                if (userAgentSuffix != null)
+                
+                yield return defaultJibUserAgent;
+                foreach(var value in additionalUserAgentValues)
                 {
-                    userAgentBuilder.append(" ").append(userAgentSuffix);
+                    yield return value;
                 }
-                return userAgentBuilder.toString();
             }
         }
 
@@ -158,7 +176,7 @@ namespace com.google.cloud.tools.jib.registry
         private readonly Authorization authorization;
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly bool allowInsecureRegistries;
-        private readonly string userAgent;
+        private readonly IEnumerable<ProductInfoHeaderValue> userAgent;
 
         /**
          * Instantiate with {@link #factory}.
@@ -173,7 +191,7 @@ namespace com.google.cloud.tools.jib.registry
             Authorization authorization,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             bool allowInsecureRegistries,
-            string userAgent)
+            IEnumerable<ProductInfoHeaderValue> userAgent)
         {
             this.eventHandlers = eventHandlers;
             this.authorization = authorization;
@@ -222,7 +240,30 @@ namespace com.google.cloud.tools.jib.registry
 
         public ManifestTemplate pullManifest(string imageTag)
         {
-            return pullManifest<ManifestTemplate>(imageTag);
+            return pullAnyManifest(imageTag);
+        }
+
+        /**
+         * Pulls the image manifest for a specific tag.
+         *
+         * @param <T> child type of ManifestTemplate
+         * @param imageTag the tag to pull on
+         * @param manifestTemplateClass the specific version of manifest template to pull, or {@link
+         *     ManifestTemplate} to pull either {@link V22ManifestTemplate} or {@link V21ManifestTemplate}
+         * @return the manifest template
+         * @throws IOException if communicating with the endpoint fails
+         * @throws RegistryException if communicating with the endpoint fails
+         */
+        public ManifestTemplate pullAnyManifest(string imageTag) 
+        {
+            ManifestPuller manifestPuller =
+                new ManifestPuller(registryEndpointRequestProperties, imageTag);
+            ManifestTemplate manifestTemplate = callRegistryEndpoint(manifestPuller);
+            if (manifestTemplate == null)
+            {
+                throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
+            }
+            return manifestTemplate;
         }
 
         /**
@@ -352,7 +393,7 @@ namespace com.google.cloud.tools.jib.registry
             return registryEndpointRequestProperties.getServerUrl() + "/v2/";
         }
 
-        public string getUserAgent()
+        public IEnumerable<ProductInfoHeaderValue> getUserAgent()
         {
             return userAgent;
         }

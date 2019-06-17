@@ -612,7 +612,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             return new RegistryEndpointCaller<string>(
                 mockEventHandlers,
-                "userAgent",
+                new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) },
                 (port == -1) ? "apiroutebase" : ("apiroutebase:" + port),
                 new TestRegistryEndpointProvider(),
                 Authorization.fromBasicToken("token"),

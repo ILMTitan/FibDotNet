@@ -74,8 +74,8 @@ namespace com.google.cloud.tools.jib.async
 
         internal async Task<TResult> whenAllSucceed<TResult>(Func<TResult> f)
         {
-            await Task.WhenAll(futures);
-            return f();
+            await Task.WhenAll(futures).ConfigureAwait(false);
+            return await Task.Run(f).ConfigureAwait(false);
         }
 
         internal Task<T> call<T>(Func<T> p)

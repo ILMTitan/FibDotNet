@@ -20,11 +20,13 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 
@@ -147,13 +149,19 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Add built layers/configuration
                 foreach (AsyncStep<ICachedLayer> buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
                 {
+                    HistoryEntry.Builder historyBuilder = HistoryEntry.builder();
+                    if (buildConfiguration.getToolName() != null) {
+                        historyBuilder.setCreatedBy(buildConfiguration.getToolName() + ":" + buildConfiguration.getToolVersion());
+                    } else
+                    {
+                        historyBuilder.setCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
+                    }
                     imageBuilder
                         .addLayer(NonBlockingSteps.get(buildAndCacheApplicationLayerStep))
                         .addHistory(
-                            HistoryEntry.builder()
+                            historyBuilder
                                 .setCreationTimestamp(layerCreationTime)
                                 .setAuthor("Jib")
-                                .setCreatedBy(buildConfiguration.getToolName() + ":" + ProjectInfo.VERSION)
                                 .setComment(NonBlockingSteps.get(buildAndCacheApplicationLayerStep).getLayerType())
                                 .build());
                 }

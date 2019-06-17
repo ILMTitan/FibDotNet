@@ -84,7 +84,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
             Mock.Get(mockBuildConfiguration).Setup(m => m.getContainerConfiguration()).Returns(mockContainerConfiguration);
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getToolName()).Returns("jib");
+            Mock.Get(mockBuildConfiguration).Setup(m => m.getToolName()).Returns(() => null);
 
             Mock.Get(mockContainerConfiguration).Setup(m => m.getCreationTime()).Returns(Instant.FromUnixTimeSeconds(0));
 

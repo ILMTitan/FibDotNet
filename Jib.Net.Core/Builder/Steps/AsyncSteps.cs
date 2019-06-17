@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 
@@ -24,9 +25,24 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     internal static class AsyncSteps
     {
-        internal static AsyncStep<T> immediate<T>(T list)
+        internal static AsyncStep<T> immediate<T>(T value)
         {
-            throw new NotImplementedException();
+            return new ImmediateStep<T>(value);
+        }
+
+        private class ImmediateStep<T> : AsyncStep<T>
+        {
+            private readonly T value;
+
+            public ImmediateStep(T value)
+            {
+                this.value = value;
+            }
+
+            public Task<T> getFuture()
+            {
+                return Task.FromResult(value);
+            }
         }
     }
 }

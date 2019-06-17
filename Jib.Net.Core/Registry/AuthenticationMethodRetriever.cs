@@ -32,10 +32,10 @@ namespace com.google.cloud.tools.jib.registry
     internal class AuthenticationMethodRetriever : RegistryEndpointProvider<RegistryAuthenticator>
     {
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-        private readonly string userAgent;
+        private readonly IEnumerable<ProductInfoHeaderValue> userAgent;
 
         public AuthenticationMethodRetriever(
-            RegistryEndpointRequestProperties registryEndpointRequestProperties, string userAgent)
+            RegistryEndpointRequestProperties registryEndpointRequestProperties, IEnumerable<ProductInfoHeaderValue> userAgent)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
             this.userAgent = userAgent;

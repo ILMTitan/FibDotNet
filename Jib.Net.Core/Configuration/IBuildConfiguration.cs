@@ -21,5 +21,6 @@ namespace com.google.cloud.tools.jib.configuration
         bool isOffline();
         RegistryClient.Factory newBaseImageRegistryClientFactory();
         RegistryClient.Factory newTargetImageRegistryClientFactory();
+        string getToolVersion();
     }
 }

@@ -24,6 +24,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.configuration
 {
@@ -46,9 +47,6 @@ namespace com.google.cloud.tools.jib.configuration
         /** The default target format of the container manifest. */
         private static readonly ManifestFormat DEFAULT_TARGET_FORMAT = ManifestFormat.V22;
 
-        /** The default tool identifier. */
-        private static readonly string DEFAULT_TOOL_NAME = "jib";
-
         /** Builds an immutable {@link BuildConfiguration}. Instantiate with {@link #builder}. */
         public class Builder
         {
@@ -63,7 +61,8 @@ namespace com.google.cloud.tools.jib.configuration
             private bool offline = false;
             private ImmutableArray<ILayerConfiguration> layerConfigurations = ImmutableArray.Create<ILayerConfiguration>();
             private ManifestFormat targetFormat = DEFAULT_TARGET_FORMAT;
-            private string toolName = DEFAULT_TOOL_NAME;
+            private string toolName = null;
+            private string toolVersion = null;
             private IEventHandlers eventHandlers = EventHandlers.NONE;
 
             public Builder() { }
@@ -205,6 +204,18 @@ namespace com.google.cloud.tools.jib.configuration
             }
 
             /**
+             * Sets the version of the tool that is executing the build.
+             *
+             * @param toolName the tool name
+             * @return this
+             */
+            public Builder setToolVersion(string toolVersion)
+            {
+                this.toolVersion = toolVersion;
+                return this;
+            }
+
+            /**
              * Sets the {@link EventHandlers} to dispatch events with.
              *
              * @param eventHandlers the {@link EventHandlers}
@@ -267,6 +278,7 @@ namespace com.google.cloud.tools.jib.configuration
                             offline,
                             layerConfigurations,
                             toolName,
+                            toolVersion,
                             eventHandlers);
 
                     case 1:
@@ -319,6 +331,7 @@ namespace com.google.cloud.tools.jib.configuration
         private readonly bool offline;
         private readonly ImmutableArray<ILayerConfiguration> layerConfigurations;
         private readonly string toolName;
+        private readonly string toolVersion;
         private readonly IEventHandlers eventHandlers;
         public Consumer<JibEvent> JibEvents;
 
@@ -335,6 +348,7 @@ namespace com.google.cloud.tools.jib.configuration
             bool offline,
             ImmutableArray<ILayerConfiguration> layerConfigurations,
             string toolName,
+            string toolVersion,
             IEventHandlers eventHandlers)
         {
             this.baseImageConfiguration = baseImageConfiguration;
@@ -348,6 +362,7 @@ namespace com.google.cloud.tools.jib.configuration
             this.offline = offline;
             this.layerConfigurations = layerConfigurations;
             this.toolName = toolName;
+            this.toolVersion = toolVersion;
             this.eventHandlers = eventHandlers;
         }
 
@@ -382,6 +397,11 @@ namespace com.google.cloud.tools.jib.configuration
         public string getToolName()
         {
             return toolName;
+        }
+
+        public string getToolVersion()
+        {
+            return toolVersion;
         }
 
         public IEventHandlers getEventHandlers()
@@ -464,12 +484,16 @@ namespace com.google.cloud.tools.jib.configuration
 
         private RegistryClient.Factory newRegistryClientFactory(ImageConfiguration imageConfiguration)
         {
-            return RegistryClient.factory(
+            RegistryClient.Factory factory = RegistryClient.factory(
                     getEventHandlers(),
                     imageConfiguration.getImageRegistry(),
                     imageConfiguration.getImageRepository())
-                .setAllowInsecureRegistries(getAllowInsecureRegistries())
-                .setUserAgentSuffix(getToolName());
+                .setAllowInsecureRegistries(getAllowInsecureRegistries());
+            if (getToolName() != null)
+            {
+                factory.addUserAgentValue(new ProductInfoHeaderValue(getToolName(), getToolVersion()));
+            }
+            return factory;
         }
     }
 }
