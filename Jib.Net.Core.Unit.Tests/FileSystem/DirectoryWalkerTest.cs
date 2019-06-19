@@ -23,8 +23,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
-
     /** Tests for {@link DirectoryWalker}. */
     public class DirectoryWalkerTest
     {

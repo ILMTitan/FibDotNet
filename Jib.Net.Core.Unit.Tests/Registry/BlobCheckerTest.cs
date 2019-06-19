@@ -29,19 +29,7 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link BlobChecker}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class BlobCheckerTest
     {
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
@@ -68,8 +56,7 @@ namespace com.google.cloud.tools.jib.registry
                 Content = new StringContent("")
             };
 
-            BlobDescriptor expectedBlobDescriptor = new BlobDescriptor(0, fakeDigest);
-            bool result = await testBlobChecker.handleResponseAsync(mockHttpResponseException);
+            bool result = await testBlobChecker.handleResponseAsync(mockHttpResponseException).ConfigureAwait(false);
 
             Assert.IsTrue(result);
         }
@@ -87,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testBlobChecker.handleResponseAsync(mockResponse);
+                await testBlobChecker.handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("Should throw exception if Content-Length header is not present");
             }
             catch (RegistryErrorException ex)
@@ -100,7 +87,6 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleHttpResponseExceptionAsync()
         {
-
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"));
@@ -110,7 +96,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             bool result =
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException);
+                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
 
             Assert.IsFalse(result);
         }
@@ -118,7 +104,6 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleHttpResponseException_hasOtherErrorsAsync()
         {
-
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .addError(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "some message"))
@@ -130,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException);
+                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
             }
             catch (HttpResponseException ex)
@@ -150,7 +135,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException);
+                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
             }
             catch (HttpResponseException ex)
@@ -162,11 +147,10 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleHttpResponseException_invalidStatusCodeAsync()
         {
-
                 HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException);
+                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-404 status codes should not be handled");
             }
             catch (HttpResponseException ex)

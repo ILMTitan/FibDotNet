@@ -23,7 +23,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
-
     /** Tests for {@link AllocationCompletionTracker}. */
     public class AllocationCompletionTrackerTest
     {
@@ -113,15 +112,15 @@ namespace com.google.cloud.tools.jib.@event.progress
                 Assert.AreEqual(
                     true,
                     await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(root, 0L)));
+                        () => allocationCompletionTracker.updateProgress(root, 0L)).ConfigureAwait(false));
                 Assert.AreEqual(
                     true,
                     await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(child1, 0L)));
+                        () => allocationCompletionTracker.updateProgress(child1, 0L)).ConfigureAwait(false));
                 Assert.AreEqual(
                     true,
                     await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(child1Child, 0L)));
+                        () => allocationCompletionTracker.updateProgress(child1Child, 0L)).ConfigureAwait(false));
                 Assert.AreEqual(
                     Arrays.asList(root, child1, child1Child),
                     allocationCompletionTracker.getUnfinishedAllocations());
@@ -137,7 +136,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                         100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
 
                 CollectionAssert.AreEqual(
-                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables));
+                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
                 Assert.AreEqual(
                     Arrays.asList(
                         root,
@@ -152,7 +151,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                     await multithreadedExecutor.invokeAllAsync(
                         Collections.nCopies<Func<bool>>(
                             100,
-                            () => allocationCompletionTracker.updateProgress(child1, 0L))));
+                            () => allocationCompletionTracker.updateProgress(child1, 0L))).ConfigureAwait(false));
                 Assert.AreEqual(
                     Arrays.asList(
                         root,
@@ -163,7 +162,7 @@ namespace com.google.cloud.tools.jib.@event.progress
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
                 CollectionAssert.AreEqual(
-                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables));
+                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
                 CollectionAssert.AreEqual(
                     Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
             }

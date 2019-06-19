@@ -21,8 +21,8 @@ namespace com.google.cloud.tools.jib.api
     /** Represents a port number with a protocol (TCP or UDP). */
     public sealed class Port
     {
-        private static readonly string TCP_PROTOCOL = "tcp";
-        private static readonly string UDP_PROTOCOL = "udp";
+        private const string TCP_PROTOCOL = "tcp";
+        private const string UDP_PROTOCOL = "udp";
 
         /**
          * Create a new {@link Port} with TCP protocol.

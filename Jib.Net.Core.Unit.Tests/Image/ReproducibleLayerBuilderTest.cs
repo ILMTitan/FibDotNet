@@ -32,30 +32,7 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.image
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link ReproducibleLayerBuilder}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ReproducibleLayerBuilderTest
     {
         /**
@@ -130,7 +107,7 @@ namespace com.google.cloud.tools.jib.image
             using (Stream temporaryFileOutputStream =
                 new BufferedStream(Files.newOutputStream(temporaryFile)))
             {
-                await unwrittenBlob.writeToAsync(temporaryFileOutputStream);
+                await unwrittenBlob.writeToAsync(temporaryFileOutputStream).ConfigureAwait(false);
             }
 
             // Reads the file back.
@@ -196,8 +173,8 @@ namespace com.google.cloud.tools.jib.image
                             defaultLayerEntry(fileA2, AbsoluteUnixPath.get("/somewhere/fileA"))))
                     .build();
 
-            byte[] layerContent = await Blobs.writeToByteArrayAsync(layer);
-            byte[] reproducedLayerContent = await Blobs.writeToByteArrayAsync(reproduced);
+            byte[] layerContent = await Blobs.writeToByteArrayAsync(layer).ConfigureAwait(false);
+            byte[] reproducedLayerContent = await Blobs.writeToByteArrayAsync(reproduced).ConfigureAwait(false);
 
             Assert.AreEqual(layerContent, reproducedLayerContent);
         }
@@ -248,7 +225,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                await layer.writeToAsync(@out);
+                await layer.writeToAsync(@out).ConfigureAwait(false);
             }
 
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
@@ -298,7 +275,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out);
+                await blob.writeToAsync(@out).ConfigureAwait(false);
             }
 
             // Reads the file back.
@@ -327,7 +304,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out);
+                await blob.writeToAsync(@out).ConfigureAwait(false);
             }
 
             // Reads the file back.
@@ -366,7 +343,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath tarFile = temporaryFolder.newFile().toPath();
             using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out);
+                await blob.writeToAsync(@out).ConfigureAwait(false);
             }
 
             using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))

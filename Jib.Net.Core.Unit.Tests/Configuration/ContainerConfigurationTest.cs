@@ -24,9 +24,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.configuration
 {
-
-
-
     /** Tests for {@link ContainerConfiguration}. */
     public class ContainerConfigurationTest
     {

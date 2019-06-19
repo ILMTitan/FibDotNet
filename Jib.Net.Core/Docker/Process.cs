@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.docker
 {
     public class Process : IProcess
     {
-        private System.Diagnostics.Process process;
+        private readonly System.Diagnostics.Process process;
 
         public Process(System.Diagnostics.Process process)
         {

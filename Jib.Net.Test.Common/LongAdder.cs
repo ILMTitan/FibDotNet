@@ -22,6 +22,7 @@ namespace com.google.cloud.tools.jib.registry
     public class LongAdder
     {
         private long value = 0;
+
         public void add(long byteCount)
         {
             Interlocked.Add(ref value, byteCount);

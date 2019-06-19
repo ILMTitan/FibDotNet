@@ -26,14 +26,9 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
     internal class PushLayersStep : AsyncStep<IReadOnlyList<BlobDescriptor>>
     {
-        private static readonly string DESCRIPTION = "Setting up to push layers";
+        private const string DESCRIPTION = "Setting up to push layers";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -65,11 +60,10 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<IReadOnlyList<BlobDescriptor>> callAsync()
         {
-            IReadOnlyList<ICachedLayer> cachedLayers = await cachedLayerStep.getFuture();
+            IReadOnlyList<ICachedLayer> cachedLayers = await cachedLayerStep.getFuture().ConfigureAwait(false);
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
-
                 using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size()))
                 {
@@ -84,7 +78,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         pushBlobSteps.add(pushBlobStepFuture);
                     }
 
-                    return await Task.WhenAll(pushBlobSteps);
+                    return await Task.WhenAll(pushBlobSteps).ConfigureAwait(false);
                 }
             }
         }
@@ -98,7 +92,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 progressEventDispatcherFactory,
                 authenticatePushStep,
                 new BlobDescriptor(cachedLayer.getSize(), cachedLayer.getDigest()),
-                cachedLayer.getBlob()).getFuture();
+                cachedLayer.getBlob()).getFuture().ConfigureAwait(false);
         }
     }
 }

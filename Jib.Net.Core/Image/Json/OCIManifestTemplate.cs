@@ -63,11 +63,11 @@ namespace com.google.cloud.tools.jib.image.json
         public static readonly string MANIFEST_MEDIA_TYPE = "application/vnd.oci.image.manifest.v1+json";
 
         /** The OCI container configuration media type. */
-        private static readonly string CONTAINER_CONFIGURATION_MEDIA_TYPE =
+        private const string CONTAINER_CONFIGURATION_MEDIA_TYPE =
             "application/vnd.oci.image.config.v1+json";
 
         /** The OCI layer media type. */
-        private static readonly string LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip";
+        private const string LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip";
 
         public int SchemaVersion { get; } = 2;
         public string MediaType { get; } = MANIFEST_MEDIA_TYPE;

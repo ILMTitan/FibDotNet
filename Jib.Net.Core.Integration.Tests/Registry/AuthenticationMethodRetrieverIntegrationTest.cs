@@ -30,15 +30,15 @@ namespace com.google.cloud.tools.jib.registry
             RegistryClient registryClient =
                 RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
                     .newRegistryClient();
-            RegistryAuthenticator registryAuthenticator = await registryClient.getRegistryAuthenticatorAsync();
+            RegistryAuthenticator registryAuthenticator = await registryClient.getRegistryAuthenticatorAsync().ConfigureAwait(false);
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null);
+            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null).ConfigureAwait(false);
 
             RegistryClient authorizedRegistryClient =
                 RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
                     .setAuthorization(authorization)
                     .newRegistryClient();
-            await authorizedRegistryClient.pullManifestAsync("latest");
+            await authorizedRegistryClient.pullManifestAsync("latest").ConfigureAwait(false);
         }
     }
 }

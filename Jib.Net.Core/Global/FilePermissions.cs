@@ -101,6 +101,7 @@ namespace com.google.cloud.tools.jib.api
         {
             return permissionBits.ToString("G");
         }
+
         public override bool Equals(object other)
         {
             if (this == other)

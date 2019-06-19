@@ -24,8 +24,9 @@ namespace com.google.cloud.tools.jib.docker
 {
     public class ProcessBuilder : IProcessBuilder
     {
-        private string _args;
-        private string _cmd;
+        private readonly string _args;
+        private readonly string _cmd;
+
         private readonly IDictionary<string, string> env =
             Environment.GetEnvironmentVariables()
                 .Cast<DictionaryEntry>()

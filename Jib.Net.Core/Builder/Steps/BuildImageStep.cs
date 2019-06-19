@@ -32,21 +32,10 @@ using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
-
-
-
-    /** Builds a model {@link Image}. */
+  /** Builds a model {@link Image}. */
     public class BuildImageStep : AsyncStep<Image>
     {
-        private static readonly string DESCRIPTION = "Building container configuration";
+        private const string DESCRIPTION = "Building container configuration";
 
         private readonly IBuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -79,9 +68,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<Image> callAsync()
         {
-            BaseImageWithAuthorization baseImageWithAuthorization = await pullBaseImageStep.getFuture();
-            IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.getFuture();
-            IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.getFuture();
+            BaseImageWithAuthorization baseImageWithAuthorization = await pullBaseImageStep.getFuture().ConfigureAwait(false);
+            IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
+            IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
 
             using (progressEventDispatcherFactory.create("building image format", 1))
             using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))

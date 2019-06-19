@@ -26,18 +26,12 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib
 {
-
-
-
-
     /** Testing infrastructure for running code across multiple threads. */
     public class MultithreadedExecutor : IDisposable
     {
-        private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.FromSeconds(1);
-
         public async Task<E> invokeAsync<E>(Func<E> callable)
         {
-            IList<E> returnValue = await invokeAllAsync(Collections.singletonList(callable));
+            IList<E> returnValue = await invokeAllAsync(Collections.singletonList(callable)).ConfigureAwait(false);
             return returnValue.get(0);
         }
 
@@ -63,7 +57,7 @@ namespace com.google.cloud.tools.jib
             Task<E>[] futures =
                         callables.Select(c => Task.Run(() => c())).ToArray();
 
-            return await Task.WhenAll(futures);
+            return await Task.WhenAll(futures).ConfigureAwait(false);
         }
 
         public void Dispose()

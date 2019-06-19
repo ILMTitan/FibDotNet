@@ -27,15 +27,10 @@ using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
     /** Pulls and caches the base image layers. */
     public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<ICachedLayer>>
     {
-        private static readonly string DESCRIPTION = "Setting up base image caching";
+        private const string DESCRIPTION = "Setting up base image caching";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -63,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<IReadOnlyList<ICachedLayer>> callAsync()
         {
-            BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.getFuture();
+            BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.getFuture().ConfigureAwait(false);
             ImmutableArray<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
 
             using (ProgressEventDispatcher progressEventDispatcher =
@@ -84,7 +79,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             pullBaseImageStepResult.getBaseImageAuthorization()).getFuture());
                 }
 
-                return await Task.WhenAll(pullAndCacheBaseImageLayerStepsBuilder);
+                return await Task.WhenAll(pullAndCacheBaseImageLayerStepsBuilder).ConfigureAwait(false);
             }
         }
     }

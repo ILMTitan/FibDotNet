@@ -38,11 +38,11 @@ namespace Jib.Net.Core.Api
         public static readonly SystemPath DEFAULT_BASE_CACHE_DIRECTORY =
             UserCacheHome.getCacheHome(SystemEnvironment.Instance).resolve("google-cloud-tools-java").resolve("jib");
 
-        private static readonly string DEFAULT_TOOL_NAME = "jib-core";
+        private const string DEFAULT_TOOL_NAME = "jib-core";
 
-        private static readonly string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
-        private static readonly string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
-        private static readonly string DESCRIPTION_FOR_TARBALL = "Building image tarball";
+        private const string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
+        private const string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
+        private const string DESCRIPTION_FOR_TARBALL = "Building image tarball";
 
         /**
          * Gets a new {@link Containerizer} that containerizes to a container registry.
@@ -58,8 +58,10 @@ namespace Jib.Net.Core.Api
                     .setCredentialRetrievers(registryImage.getCredentialRetrievers())
                     .build();
 
-            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-                buildConfiguration =>
+            return new Containerizer(
+                DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
+
+            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.begin(buildConfiguration)
                         .retrieveTargetRegistryCredentials()
                         .authenticatePush()
@@ -71,9 +73,6 @@ namespace Jib.Net.Core.Api
                         .pushContainerConfiguration()
                         .pushApplicationLayers()
                         .pushImage();
-
-            return new Containerizer(
-                DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
         }
 
         /**
@@ -91,17 +90,16 @@ namespace Jib.Net.Core.Api
             dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder.setDockerExecutable);
             dockerClientBuilder.setDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.getDockerEnvironment()));
 
-            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-                buildConfiguration =>
+            return new Containerizer(
+                DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
+
+            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.begin(buildConfiguration)
                         .pullBaseImage()
                         .pullAndCacheBaseImageLayers()
                         .buildAndCacheApplicationLayers()
                         .buildImage()
                         .loadDocker(dockerClientBuilder.build());
-
-            return new Containerizer(
-                DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
         }
 
         /**
@@ -115,17 +113,16 @@ namespace Jib.Net.Core.Api
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(tarImage.getImageReference()).build();
 
-            Func<BuildConfiguration, StepsRunner> stepsRunnerFactory =
-                buildConfiguration =>
+            return new Containerizer(
+                DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
+
+            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.begin(buildConfiguration)
                         .pullBaseImage()
                         .pullAndCacheBaseImageLayers()
                         .buildAndCacheApplicationLayers()
                         .buildImage()
                         .writeTarFile(tarImage.getOutputFile());
-
-            return new Containerizer(
-                DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
         }
 
         private readonly string description;
@@ -336,10 +333,7 @@ namespace Jib.Net.Core.Api
 
         public void Dispose()
         {
-            if (tempAppLayersCacheDir != null)
-            {
-                tempAppLayersCacheDir.Dispose();
-            }
+            tempAppLayersCacheDir?.Dispose();
         }
     }
 }

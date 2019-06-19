@@ -27,11 +27,6 @@ using Runnable = System.Action;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
     /**
      * Runs steps for building an image.
      *
@@ -249,7 +244,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 rootProgressEventDispatcher = progressEventDispatcher;
                 stepsRunnable.run();
-                return await Preconditions.checkNotNull(steps.finalStep).getFuture();
+                return await Preconditions.checkNotNull(steps.finalStep).getFuture().ConfigureAwait(false);
             }
         }
 

@@ -24,12 +24,11 @@ using NUnit.Framework;
 namespace com.google.cloud.tools.jib.image
 {
     /** Tests for {@link Layer}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class LayerTest
     {
-        private DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
-        private BlobDescriptor mockBlobDescriptor = new BlobDescriptor(DescriptorDigest.fromHash(new string('b', 64)));
-        private DescriptorDigest mockDiffId = DescriptorDigest.fromHash(new string('c', 64));
+        private readonly DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
+        private readonly BlobDescriptor mockBlobDescriptor = new BlobDescriptor(DescriptorDigest.fromHash(new string('b', 64)));
+        private readonly DescriptorDigest mockDiffId = DescriptorDigest.fromHash(new string('c', 64));
 
         [Test]
         public void testNew_reference()

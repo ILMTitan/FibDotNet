@@ -29,18 +29,7 @@ using Jib.Net.Core.Blob;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link BlobPuller}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class BlobPullerTest
     {
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
@@ -68,15 +57,15 @@ namespace com.google.cloud.tools.jib.registry
                     fakeRegistryEndpointRequestProperties,
                     fakeDigest,
                     layerOutputStream,
-                    ignored => { },
-                    ignored => { });
+                    _ => { },
+                    _ => { });
         }
 
         [Test]
         public async Task testHandleResponseAsync()
         {
             MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent);
+            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;
 
@@ -92,7 +81,7 @@ namespace com.google.cloud.tools.jib.registry
                     layerOutputStream,
                     size => Assert.AreEqual("some BLOB content".length(), size.longValue()),
                     byteCount.add);
-            await blobPuller.handleResponseAsync(mockResponse);
+            await blobPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
             Assert.AreEqual(
                 "some BLOB content",
                 StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
@@ -104,7 +93,7 @@ namespace com.google.cloud.tools.jib.registry
         public async Task testHandleResponse_unexpectedDigestAsync()
         {
             MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
-            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent);
+            BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;
 
@@ -115,7 +104,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testBlobPuller.handleResponseAsync(mockResponse);
+                await testBlobPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("Receiving an unexpected digest should fail");
             }
             catch (UnexpectedBlobDigestException ex)

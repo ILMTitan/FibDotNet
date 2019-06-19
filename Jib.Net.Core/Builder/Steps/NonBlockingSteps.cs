@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.builder.steps
     {
         public static async Task<T> getAsync<T>(AsyncStep<T> step)
         {
-            return await step.getFuture();
+            return await step.getFuture().ConfigureAwait(false);
         }
     }
 }

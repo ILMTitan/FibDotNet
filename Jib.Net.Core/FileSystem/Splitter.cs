@@ -21,9 +21,9 @@ namespace com.google.cloud.tools.jib.filesystem
 {
     internal abstract class Splitter
     {
-        class CharSplitter : Splitter
+        private class CharSplitter : Splitter
         {
-            private char v;
+            private readonly char v;
 
             public CharSplitter(char v)
             {
@@ -35,6 +35,7 @@ namespace com.google.cloud.tools.jib.filesystem
                 return s.Split(new[] { v }, StringSplitOptions.RemoveEmptyEntries);
             }
         }
+
         internal static Splitter on(char v)
         {
             return new CharSplitter(v);
@@ -44,8 +45,9 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             return new StringSplitter(v);
         }
-        
+
         internal abstract IList<string> splitToList(string s);
+
         internal IEnumerable<string> split(string s)
         {
             return splitToList(s);
@@ -53,7 +55,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
         private class StringSplitter : Splitter
         {
-            private string v;
+            private readonly string v;
 
             public StringSplitter(string v)
             {

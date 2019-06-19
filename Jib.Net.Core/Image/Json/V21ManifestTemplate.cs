@@ -25,7 +25,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
     /**
      * JSON template for Docker Manifest Schema V2.1
      *

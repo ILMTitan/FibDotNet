@@ -52,19 +52,9 @@ namespace com.google.cloud.tools.jib.image.json
             return Size;
         }
 
-        private void setSize(long size)
-        {
-            this.Size = size;
-        }
-
         public DescriptorDigest getDigest()
         {
             return Digest;
-        }
-
-        private void setDigest(DescriptorDigest digest)
-        {
-            this.Digest = digest;
         }
 
         public bool Equals(ContentDescriptorTemplate other)

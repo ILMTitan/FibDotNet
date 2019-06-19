@@ -94,27 +94,5 @@ namespace com.google.cloud.tools.jib.registry.credentials.json
         {
             return CredHelpers;
         }
-
-        private DockerConfigTemplate addAuth(string registry, string auth)
-        {
-            AuthTemplate authTemplate = new AuthTemplate
-            {
-                Auth = auth
-            };
-            Auths.put(registry, authTemplate);
-            return this;
-        }
-
-        private DockerConfigTemplate setCredsStore(string credsStore)
-        {
-            this.CredsStore = credsStore;
-            return this;
-        }
-
-        private DockerConfigTemplate addCredHelper(string registry, string credHelper)
-        {
-            CredHelpers.put(registry, credHelper);
-            return this;
-        }
     }
 }

@@ -27,8 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
     /** Retrieves the {@code WWW-Authenticate} header from the registry API. */
     internal class AuthenticationMethodRetriever : RegistryEndpointProvider<RegistryAuthenticator>
     {

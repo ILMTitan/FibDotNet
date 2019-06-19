@@ -30,6 +30,7 @@ namespace Jib.Net.Core.Api
         {
             return createTempDirectory(basePath.ToString(), name);
         }
+
         internal static SystemPath createTempDirectory(string basePath, string name)
         {
             string newPath;
@@ -116,7 +117,7 @@ namespace Jib.Net.Core.Api
             Directory.Move(source, destination);
         }
 
-        internal static TemporaryFile createTempFile(SystemPath systemPath, object p1, object p2)
+        internal static TemporaryFile createTempFile(SystemPath systemPath)
         {
             return new TemporaryFile(systemPath.resolve(Path.GetRandomFileName()));
         }
@@ -160,7 +161,7 @@ namespace Jib.Net.Core.Api
             File.Delete(file);
         }
 
-        internal static TemporaryFile createTempFile(object p1, object p2)
+        internal static TemporaryFile createTempFile()
         {
             TemporaryFile temporaryFile = new TemporaryFile();
             File.Create(temporaryFile.Path).Dispose();

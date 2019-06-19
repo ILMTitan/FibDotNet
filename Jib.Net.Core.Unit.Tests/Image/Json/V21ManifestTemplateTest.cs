@@ -24,8 +24,6 @@ using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
     /** Tests for {@link V21ManifestTemplate}. */
     public class V21ManifestTemplateTest
     {

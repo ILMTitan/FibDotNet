@@ -28,24 +28,11 @@ using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.configuration
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Immutable configuration options for the builder process. */
     public sealed class BuildConfiguration : IBuildConfiguration
     {
         /** The default target format of the container manifest. */
-        private static readonly ManifestFormat DEFAULT_TARGET_FORMAT = ManifestFormat.V22;
+        private const ManifestFormat DEFAULT_TARGET_FORMAT = ManifestFormat.V22;
 
         /** Builds an immutable {@link BuildConfiguration}. Instantiate with {@link #builder}. */
         public class Builder
@@ -326,7 +313,7 @@ namespace com.google.cloud.tools.jib.configuration
         private readonly ContainerConfiguration containerConfiguration;
         private readonly Cache baseImageLayersCache;
         private readonly Cache applicationLayersCache;
-        private ManifestFormat targetFormat;
+        private readonly ManifestFormat targetFormat;
         private readonly bool allowInsecureRegistries;
         private readonly bool offline;
         private readonly ImmutableArray<ILayerConfiguration> layerConfigurations;

@@ -33,22 +33,10 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
     /** Interfaces with a registry. */
     public sealed class RegistryClient
     {
-        public static ProductInfoHeaderValue defaultJibUserAgent = 
+        public static ProductInfoHeaderValue defaultJibUserAgent =
             new ProductInfoHeaderValue(new ProductHeaderValue("jib", ProjectInfo.VERSION));
 
         /** Factory for creating {@link RegistryClient}s. */
@@ -58,7 +46,7 @@ namespace com.google.cloud.tools.jib.registry
             private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
 
             private bool allowInsecureRegistries = false;
-            private List<ProductInfoHeaderValue> additionalUserAgentValues = new List<ProductInfoHeaderValue>();
+            private readonly List<ProductInfoHeaderValue> additionalUserAgentValues = new List<ProductInfoHeaderValue>();
             private Authorization authorization;
 
             public Factory(
@@ -151,7 +139,6 @@ namespace com.google.cloud.tools.jib.registry
                     yield break;
                 }
 
-                
                 yield return defaultJibUserAgent;
                 foreach(var value in additionalUserAgentValues)
                 {
@@ -212,7 +199,7 @@ namespace com.google.cloud.tools.jib.registry
             // Gets the WWW-Authenticate header (eg. 'WWW-Authenticate: Bearer
             // realm="https://gcr.io/v2/token",service="gcr.io"')
             return await callRegistryEndpointAsync(
-                new AuthenticationMethodRetriever(registryEndpointRequestProperties, getUserAgent()));
+                new AuthenticationMethodRetriever(registryEndpointRequestProperties, getUserAgent())).ConfigureAwait(false);
         }
 
         /**
@@ -231,7 +218,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             ManifestPuller<T> manifestPuller =
                 new ManifestPuller<T>(registryEndpointRequestProperties, imageTag);
-            T manifestTemplate = await callRegistryEndpointAsync(manifestPuller);
+            T manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
@@ -241,7 +228,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public async Task<ManifestTemplate> pullManifestAsync(string imageTag)
         {
-            return await pullAnyManifestAsync(imageTag);
+            return await pullAnyManifestAsync(imageTag).ConfigureAwait(false);
         }
 
         /**
@@ -255,11 +242,11 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<ManifestTemplate> pullAnyManifestAsync(string imageTag) 
+        public async Task<ManifestTemplate> pullAnyManifestAsync(string imageTag)
         {
             ManifestPuller manifestPuller =
                 new ManifestPuller(registryEndpointRequestProperties, imageTag);
-            ManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller);
+            ManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
@@ -280,7 +267,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             return Verify.verifyNotNull(await callRegistryEndpointAsync(
                     new ManifestPusher(
-                        registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers)));
+                        registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers)).ConfigureAwait(false));
         }
 
         /**
@@ -293,7 +280,7 @@ namespace com.google.cloud.tools.jib.registry
         public async Task<bool> checkBlobAsync(BlobDescriptor blobDigest)
         {
             BlobChecker blobChecker = new BlobChecker(registryEndpointRequestProperties, blobDigest);
-            return await callRegistryEndpointAsync(blobChecker);
+            return await callRegistryEndpointAsync(blobChecker).ConfigureAwait(false);
         }
 
         /**
@@ -321,7 +308,7 @@ namespace com.google.cloud.tools.jib.registry
                         blobDigest,
                         outputStream,
                         blobSizeListener,
-                        writtenByteCountListener));
+                        writtenByteCountListener)).ConfigureAwait(false);
                     }
                     catch (RegistryException ex)
                     {
@@ -361,7 +348,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // POST /v2/<name>/blobs/uploads/ OR
                     // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
-                    Uri patchLocation = await callRegistryEndpointAsync(blobPusher.initializer());
+                    Uri patchLocation = await callRegistryEndpointAsync(blobPusher.initializer()).ConfigureAwait(false);
                     if (patchLocation == null)
                     {
                         // The BLOB exists already.
@@ -372,13 +359,13 @@ namespace com.google.cloud.tools.jib.registry
 
                     // PATCH <Location> with BLOB
                     Uri putLocation =
-                        await callRegistryEndpointAsync(blobPusher.writer(patchLocation, writtenByteCountListener));
+                        await callRegistryEndpointAsync(blobPusher.writer(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
                     Preconditions.checkNotNull(putLocation);
 
                     timerEventDispatcher2.lap("pushBlob PUT " + blobDigest);
 
                     // PUT <Location>?digest={blob.digest}
-                    await callRegistryEndpointAsync(blobPusher.committer(putLocation));
+                    await callRegistryEndpointAsync(blobPusher.committer(putLocation)).ConfigureAwait(false);
 
                     return false;
                 }
@@ -414,7 +401,7 @@ namespace com.google.cloud.tools.jib.registry
                     authorization,
                     registryEndpointRequestProperties,
                     allowInsecureRegistries)
-                .callAsync();
+                .callAsync().ConfigureAwait(false);
         }
     }
 }

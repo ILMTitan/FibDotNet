@@ -23,16 +23,15 @@ namespace com.google.cloud.tools.jib.hash
 {
     public class DigestStream : Stream
     {
-        private Stream innerStream;
+        private readonly Stream innerStream;
         protected MessageDigest messageDigest;
-        private bool keepOpen;
+        private readonly bool keepOpen;
 
         public DigestStream(Stream innerStream, MessageDigest messageDigest, bool keepOpen = false)
         {
             this.innerStream = innerStream;
             this.messageDigest = messageDigest;
             this.keepOpen = keepOpen;
-
         }
 
         public override bool CanRead => innerStream.CanRead;
@@ -87,19 +86,19 @@ namespace com.google.cloud.tools.jib.hash
 
         public async override Task FlushAsync(CancellationToken cancellationToken)
         {
-            await innerStream.FlushAsync(cancellationToken);
+            await innerStream.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var bytesRead = await innerStream.ReadAsync(buffer, offset, count, cancellationToken);
+            var bytesRead = await innerStream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             return messageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
         }
 
         public async override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             var newCount = messageDigest.TransformBlock(buffer, offset, count, buffer, offset);
-            await innerStream.WriteAsync(buffer, offset, newCount, cancellationToken);
+            await innerStream.WriteAsync(buffer, offset, newCount, cancellationToken).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)

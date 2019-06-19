@@ -20,7 +20,7 @@ using com.google.cloud.tools.jib.filesystem;
 
 namespace Jib.Net.Core.Api
 {
-    internal class SystemEnvironment : IEnvironment
+    internal sealed class SystemEnvironment : IEnvironment
     {
         public static SystemEnvironment Instance { get; } = new SystemEnvironment();
 

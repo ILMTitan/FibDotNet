@@ -28,11 +28,6 @@ using System.Runtime.InteropServices;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
-
-
-
-
     /** Tests for {@link UserCacheHome}. */
     public class UserCacheHomeTest
     {

@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private class FunStep<T> : AsyncStep<T>
         {
-            private Task<T> future;
+            private readonly Task<T> future;
 
             public FunStep(Func<Task<T>> p)
             {

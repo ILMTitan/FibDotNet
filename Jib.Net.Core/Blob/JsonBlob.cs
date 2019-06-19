@@ -26,7 +26,6 @@ namespace com.google.cloud.tools.jib.blob
     /** A {@link Blob} that holds {@link JsonTemplate}. */
     internal class JsonBlob : StringBlob
     {
-
         public JsonBlob(object template) : base(JsonConvert.SerializeObject(template)) { }
     }
 }

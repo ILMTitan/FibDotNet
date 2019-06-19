@@ -41,6 +41,7 @@ namespace Jib.Net.Core.FileSystem
                     Path.Combine(absolutePath.PathComponents.ToArray())));
             }
         }
+
         public static implicit operator string(SystemPath path)
         {
             return path.path;
@@ -92,11 +93,6 @@ namespace Jib.Net.Core.FileSystem
             {
                 return null;
             }
-        }
-
-        internal object getNameCount()
-        {
-            throw new NotImplementedException();
         }
 
         public IEnumerator<SystemPath> GetEnumerator()

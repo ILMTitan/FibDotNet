@@ -28,10 +28,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
     /**
      * Generates a selector based on {@link LayerEntry}s for a layer. Selectors are secondary references
      * for a cache entries.
@@ -63,8 +59,10 @@ namespace com.google.cloud.tools.jib.cache
         {
             public string SourceFile { get; }
             public string ExtractionPath { get; }
+
             [JsonConverter(typeof(InstantConverter))]
             public Instant LastModifiedTime { get; }
+
             public string Permissions { get; }
 
             public LayerEntryTemplate(LayerEntry layerEntry)

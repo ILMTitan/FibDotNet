@@ -26,12 +26,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image
 {
-
-
-
-
-
-
     /** Represents an image. */
     public sealed class Image
     {

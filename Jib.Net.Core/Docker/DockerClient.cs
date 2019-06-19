@@ -27,12 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
-
-
-
-
-
-
     /** Calls out to the {@code docker} CLI. */
     public class DockerClient
     {
@@ -191,7 +185,7 @@ namespace com.google.cloud.tools.jib.docker
             {
                 try
                 {
-                    await imageTarball.writeToAsync(stdin);
+                    await imageTarball.writeToAsync(stdin).ConfigureAwait(false);
                 }
                 catch (IOException ex)
                 {

@@ -24,14 +24,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
     /**
      * Authenticates push to a target registry using Docker Token Authentication.
      *
@@ -40,7 +32,7 @@ namespace com.google.cloud.tools.jib.builder.steps
      */
     internal class AuthenticatePushStep : AsyncStep<Authorization>
     {
-        private static readonly string DESCRIPTION = "Authenticating with push to {0}";
+        private const string DESCRIPTION = "Authenticating with push to {0}";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -68,7 +60,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<Authorization> callAsync()
         {
-            Credential registryCredential = await retrieveTargetRegistryCredentialsStep.getFuture();
+            Credential registryCredential = await retrieveTargetRegistryCredentialsStep.getFuture().ConfigureAwait(false);
 
             string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
             try
@@ -81,10 +73,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                         await buildConfiguration
                             .newTargetImageRegistryClientFactory()
                             .newRegistryClient()
-                            .getRegistryAuthenticatorAsync();
+                            .getRegistryAuthenticatorAsync().ConfigureAwait(false);
                     if (registryAuthenticator != null)
                     {
-                        return await registryAuthenticator.authenticatePushAsync(registryCredential);
+                        return await registryAuthenticator.authenticatePushAsync(registryCredential).ConfigureAwait(false);
                     }
                 }
             }
@@ -93,7 +85,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Cannot skip certificate validation or use HTTP; fall through.
             }
 
-            return (registryCredential == null || registryCredential.isOAuth2RefreshToken())
+            return registryCredential?.isOAuth2RefreshToken() != false
                 ? null
                 : Authorization.fromBasicCredentials(
                     registryCredential.getUsername(), registryCredential.getPassword());

@@ -22,7 +22,6 @@ using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
-
     /** Integration tests for {@link DockerCredentialHelper}. */
     public class DockerCredentialHelperIntegrationTest
     {

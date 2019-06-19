@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.http
         private readonly Blob blob;
         private readonly Consumer<long> writtenByteCountListener;
 
-        public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, ignored => { })
+        public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, _ => { })
         {
         }
 
@@ -49,8 +49,8 @@ namespace com.google.cloud.tools.jib.http
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            await blob.writeToAsync(new NotifyingOutputStream(stream, writtenByteCountListener));
-            await stream.FlushAsync();
+            await blob.writeToAsync(new NotifyingOutputStream(stream, writtenByteCountListener)).ConfigureAwait(false);
+            await stream.FlushAsync().ConfigureAwait(false);
         }
 
         protected override bool TryComputeLength(out long length)

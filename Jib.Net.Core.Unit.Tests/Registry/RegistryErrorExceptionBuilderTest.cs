@@ -24,10 +24,9 @@ using System.Net.Http;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Tests for {@link RegistryErrorExceptionBuilder}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class RegistryErrorExceptionBuilderTest
     {
-        private HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
+        private readonly HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
 
         [Test]
         public void testAddErrorEntry()

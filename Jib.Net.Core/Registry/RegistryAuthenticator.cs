@@ -34,21 +34,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Authenticates push/pull access with a registry service.
      *
@@ -150,11 +135,7 @@ namespace com.google.cloud.tools.jib.registry
             /** @return {@link #token} if not null, or {@link #access_token} */
             public string getToken()
             {
-                if (Token != null)
-                {
-                    return Token;
-                }
-                return AccessToken;
+                return Token ?? AccessToken;
             }
         }
 
@@ -184,7 +165,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public async Task<Authorization> authenticatePullAsync(Credential credential)
         {
-            return await authenticateAsync(credential, "pull");
+            return await authenticateAsync(credential, "pull").ConfigureAwait(false);
         }
 
         /**
@@ -196,7 +177,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public async Task<Authorization> authenticatePushAsync(Credential credential)
         {
-            return await authenticateAsync(credential, "pull,push");
+            return await authenticateAsync(credential, "pull,push").ConfigureAwait(false);
         }
 
         private string getServiceScopeRequestParameters(string scope)
@@ -239,7 +220,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public bool isOAuth2Auth(Credential credential)
         {
-            return credential != null && credential.isOAuth2RefreshToken();
+            return credential?.isOAuth2RefreshToken() == true;
         }
 
         /**
@@ -284,9 +265,9 @@ namespace com.google.cloud.tools.jib.registry
                         request.Method = HttpMethod.Get;
                     }
 
-                    HttpResponseMessage response = await connection.sendAsync(request);
+                    HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false);
                     string responseString =
-                        CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
+                        CharStreams.toString(new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8));
 
                     AuthenticationResponseTemplate responseJson =
                         JsonTemplateMapper.readJson<AuthenticationResponseTemplate>(responseString);

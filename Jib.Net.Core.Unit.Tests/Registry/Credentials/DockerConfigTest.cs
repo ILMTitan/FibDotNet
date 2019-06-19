@@ -26,8 +26,6 @@ using System.Buffers.Text;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
-
-
     /** Tests for {@link DockerConfig}. */
     public class DockerConfigTest
     {

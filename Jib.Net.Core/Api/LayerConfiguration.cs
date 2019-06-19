@@ -230,7 +230,7 @@ namespace com.google.cloud.tools.jib.api
         /** Provider that returns default file permissions (644 for files, 755 for directories). */
         public static readonly Func<SystemPath, AbsoluteUnixPath, FilePermissions>
             DEFAULT_FILE_PERMISSIONS_PROVIDER =
-                (sourcePath, destinationPath) =>
+                (sourcePath, _) =>
                     Files.isDirectory(sourcePath)
                         ? FilePermissions.DEFAULT_FOLDER_PERMISSIONS
                         : FilePermissions.DEFAULT_FILE_PERMISSIONS;
@@ -240,7 +240,7 @@ namespace com.google.cloud.tools.jib.api
 
         /** Provider that returns default file modification time (EPOCH + 1 second). */
         public static readonly Func<SystemPath, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
-            (sourcePath, destinationPath) => DEFAULT_MODIFIED_TIME;
+            (_, __) => DEFAULT_MODIFIED_TIME;
 
         /**
          * Gets a new {@link Builder} for {@link LayerConfiguration}.

@@ -35,35 +35,11 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link ImageTarball}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ImageTarballTest
     {
-        private Layer mockLayer1 = Mock.Of<Layer>();
-        private Layer mockLayer2 = Mock.Of<Layer>();
+        private readonly Layer mockLayer1 = Mock.Of<Layer>();
+        private readonly Layer mockLayer2 = Mock.Of<Layer>();
 
         [Test]
         public async Task testWriteToAsync()
@@ -98,7 +74,7 @@ namespace com.google.cloud.tools.jib.docker
             ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 
             MemoryStream @out = new MemoryStream();
-            await imageToTarball.writeToAsync(@out);
+            await imageToTarball.writeToAsync(@out).ConfigureAwait(false);
             MemoryStream @in = new MemoryStream(@out.toByteArray());
             using (TarInputStream tarArchiveInputStream = new TarInputStream(@in))
             {
@@ -108,7 +84,7 @@ namespace com.google.cloud.tools.jib.docker
                 string fileAString =
                     CharStreams.toString(
                         new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileA)), fileAString);
+                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileA)).ConfigureAwait(false), fileAString);
 
                 // Verifies layer with fileB was added.
                 TarEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
@@ -116,7 +92,7 @@ namespace com.google.cloud.tools.jib.docker
                 string fileBString =
                     CharStreams.toString(
                         new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
-                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileB)), fileBString);
+                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileB)).ConfigureAwait(false), fileBString);
 
                 // Verifies container configuration was added.
                 TarEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();

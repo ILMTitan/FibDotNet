@@ -28,17 +28,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
     internal class ManifestPuller : ManifestPuller<ManifestTemplate>
     {
         public ManifestPuller(RegistryEndpointRequestProperties registryEndpointRequestProperties, string imageTag) : base(registryEndpointRequestProperties, imageTag)
@@ -83,6 +72,7 @@ namespace com.google.cloud.tools.jib.registry
                 "Unknown schemaVersion: " + schemaVersion + " - only 1 and 2 are supported");
         }
     }
+
     /** Pulls an image's manifest. */
     internal class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
     {
@@ -127,7 +117,7 @@ namespace com.google.cloud.tools.jib.registry
             if (response.IsSuccessStatusCode)
             {
                 string jsonString =
-                    CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
+                    CharStreams.toString(new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8));
                 return getManifestTemplateFromJson(jsonString);
             } else
             {

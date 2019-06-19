@@ -27,9 +27,9 @@ namespace com.google.cloud.tools.jib.global
 
         public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
 
-        private static readonly string SERIALIZE = "jibSerialize";
+        private const string SERIALIZE = "jibSerialize";
 
-        private static readonly string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
+        private const string DISABLE_USER_AGENT = "_JIB_DISABLE_USER_AGENT";
 
         /**
          * Gets the HTTP connection/read timeouts for registry interactions in milliseconds. This is

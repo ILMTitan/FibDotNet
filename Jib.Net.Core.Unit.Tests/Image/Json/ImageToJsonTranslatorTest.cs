@@ -33,28 +33,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link ImageToJsonTranslator}. */
     public class ImageToJsonTranslatorTest
     {
@@ -111,7 +89,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         private class FakeLayer : Layer
         {
-            private DescriptorDigest fakeDigest;
+            private readonly DescriptorDigest fakeDigest;
 
             public FakeLayer(DescriptorDigest fakeDigest)
             {
@@ -202,7 +180,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         /** Tests translation of image to {@link BuildableManifestTemplate}. */
         private void testGetManifest(
-            ManifestFormat manifestTemplateClass, string translatedJsonFilename) 
+            ManifestFormat manifestTemplateClass, string translatedJsonFilename)
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());

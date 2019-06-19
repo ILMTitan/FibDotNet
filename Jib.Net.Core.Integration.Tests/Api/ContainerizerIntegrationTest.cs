@@ -32,27 +32,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // TODO: now it looks like we can move everything here into JibIntegrationTest.
     /** Integration tests for {@link Containerizer}. */
     public class ContainerizerIntegrationTest : HttpRegistryTest
@@ -85,10 +64,10 @@ namespace com.google.cloud.tools.jib.api
 
         private static readonly Logger logger = new Logger(TestContext.Out);
 
-        private static readonly string DISTROLESS_DIGEST =
+        private const string DISTROLESS_DIGEST =
             "sha256:f488c213f278bc5f9ffe3ddf30c5dbb2303a15a74146b738d12453088e662880";
 
-        private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
+        private const double DOUBLE_ERROR_MARGIN = 1e-10;
 
         public static readonly ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
@@ -166,7 +145,7 @@ namespace com.google.cloud.tools.jib.api
                 await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
-                    Collections.emptyList<string>());
+                    Collections.emptyList<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -176,7 +155,7 @@ namespace com.google.cloud.tools.jib.api
                 await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
-                    Collections.emptyList<string>());
+                    Collections.emptyList<string>()).ConfigureAwait(false);
 
             logger.info("Secondary build time: " + s.Elapsed);
 
@@ -203,7 +182,7 @@ namespace com.google.cloud.tools.jib.api
             await buildRegistryImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of("localhost:5000", "testimage", "testtag"),
-                Arrays.asList("testtag2", "testtag3"));
+                Arrays.asList("testtag2", "testtag3")).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
             localRegistry.pull(imageReference);
@@ -232,7 +211,7 @@ namespace com.google.cloud.tools.jib.api
             await buildRegistryImageAsync(
                 ImageReference.parse("openjdk:8-jre-alpine"),
                 ImageReference.of("localhost:5000", "testimage", "testtag"),
-                Collections.emptyList<string>());
+                Collections.emptyList<string>()).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
             new Command("docker", "pull", imageReference).run();
@@ -246,7 +225,7 @@ namespace com.google.cloud.tools.jib.api
             await buildDockerDaemonImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testdocker", null),
-                Collections.emptyList<string>());
+                Collections.emptyList<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -263,7 +242,7 @@ namespace com.google.cloud.tools.jib.api
             await buildDockerDaemonImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, imageReference, null),
-                Arrays.asList("testtag2", "testtag3"));
+                Arrays.asList("testtag2", "testtag3")).ConfigureAwait(false);
 
             assertDockerInspect(imageReference);
             Assert.AreEqual(
@@ -286,7 +265,7 @@ namespace com.google.cloud.tools.jib.api
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testtar", null),
                 outputPath,
-                Collections.emptyList<string>());
+                Collections.emptyList<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -300,14 +279,14 @@ namespace com.google.cloud.tools.jib.api
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
             return await buildImageAsync(
-                baseImage, Containerizer.to(RegistryImage.named(targetImage)), additionalTags);
+                baseImage, Containerizer.to(RegistryImage.named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> buildDockerDaemonImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
             return await buildImageAsync(
-                baseImage, Containerizer.to(DockerDaemonImage.named(targetImage)), additionalTags);
+                baseImage, Containerizer.to(DockerDaemonImage.named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> buildTarImageAsync(
@@ -319,7 +298,7 @@ namespace com.google.cloud.tools.jib.api
             return await buildImageAsync(
                 baseImage,
                 Containerizer.to(TarImage.named(targetImage).saveTo(outputPath)),
-                additionalTags);
+                additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> buildImageAsync(
@@ -345,7 +324,7 @@ namespace com.google.cloud.tools.jib.api
                 .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler);
             additionalTags.forEach(containerizer.withAdditionalTag);
 
-            return await containerBuilder.containerizeAsync(containerizer);
+            return await containerBuilder.containerizeAsync(containerizer).ConfigureAwait(false);
         }
     }
 }

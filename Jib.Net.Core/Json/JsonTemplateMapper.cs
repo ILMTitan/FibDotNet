@@ -25,12 +25,6 @@ using System.Text;
 
 namespace com.google.cloud.tools.jib.json
 {
-
-
-
-
-
-
     // TODO: Add JsonFactory for HTTP response parsing.
     /**
      * Helper class for serializing and deserializing JSON.

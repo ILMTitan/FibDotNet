@@ -37,12 +37,12 @@ namespace com.google.cloud.tools.jib.http
             using (Connection connection =
                     Connection.getConnectionFactory().apply(new Uri("http://" + server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage());
+                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
-                    ByteStreams.toByteArray(await response.getBodyAsync()));
+                    ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
             }
         }
 
@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.http
             {
                 try
                 {
-                    await connection.sendAsync(new HttpRequestMessage());
+                    await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
                     Assert.Fail("Should fail if cannot verify peer");
                 }
                 catch (HttpRequestException ex)
@@ -72,12 +72,12 @@ namespace com.google.cloud.tools.jib.http
             using (Connection connection =
                     Connection.getInsecureConnectionFactory().apply(new Uri("https://"+server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage());
+                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
                     "Hello World!".getBytes(StandardCharsets.UTF_8),
-                    ByteStreams.toByteArray(await response.getBodyAsync()));
+                    ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
             }
         }
     }

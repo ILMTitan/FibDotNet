@@ -36,23 +36,6 @@ using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     internal static class RegistryEndpointCaller
     {
         /**
@@ -92,7 +75,7 @@ namespace com.google.cloud.tools.jib.registry
      */
     internal class RegistryEndpointCaller<T>
     {
-        private static readonly string DEFAULT_PROTOCOL = "https";
+        private const string DEFAULT_PROTOCOL = "https";
 
         private static bool isHttpsProtocol(Uri url)
         {
@@ -178,7 +161,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public async Task<T> callAsync()
         {
-            return await callWithAllowInsecureRegistryHandlingAsync(initialRequestUrl);
+            return await callWithAllowInsecureRegistryHandlingAsync(initialRequestUrl).ConfigureAwait(false);
         }
 
         private async Task<T> callWithAllowInsecureRegistryHandlingAsync(Uri url)
@@ -190,11 +173,11 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                return await callAsync(url, connectionFactory);
+                return await callAsync(url, connectionFactory).ConfigureAwait(false);
             }
-            catch (HttpRequestException e) when (e.InnerException is AuthenticationException || e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security")
+            catch (HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
             {
-                return await handleUnverifiableServerExceptionAsync(url);
+                return await handleUnverifiableServerExceptionAsync(url).ConfigureAwait(false);
             }
             catch (ConnectException)
             {
@@ -202,7 +185,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
                     // port 443) and we could not connect to 443. It's worth trying port 80.
-                    return await fallBackToHttpAsync(url);
+                    return await fallBackToHttpAsync(url).ConfigureAwait(false);
                 }
                 throw;
             }
@@ -220,15 +203,15 @@ namespace com.google.cloud.tools.jib.registry
                 eventHandlers.dispatch(
                     LogEvent.info(
                         "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
-                return await callAsync(url, getInsecureConnectionFactory());
+                return await callAsync(url, getInsecureConnectionFactory()).ConfigureAwait(false);
             }
             catch (AuthenticationException)
             {
-                return await fallBackToHttpAsync(url);
+                return await fallBackToHttpAsync(url).ConfigureAwait(false);
             }
-            catch(HttpRequestException e) when (e.InnerException is AuthenticationException || e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security")
+            catch(HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
             {
-                return await fallBackToHttpAsync(url);
+                return await fallBackToHttpAsync(url).ConfigureAwait(false);
             }
         }
 
@@ -242,7 +225,7 @@ namespace com.google.cloud.tools.jib.registry
             eventHandlers.dispatch(
                 LogEvent.info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
-            return await callAsync(httpUrl.toURL(), connectionFactory);
+            return await callAsync(httpUrl.toURL(), connectionFactory).ConfigureAwait(false);
         }
 
         private Func<Uri, IConnection> getInsecureConnectionFactory()
@@ -292,9 +275,9 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
                     }
-                    HttpResponseMessage response = await connection.sendAsync(request);
+                    HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false);
 
-                    return await registryEndpointProvider.handleResponseAsync(response);
+                    return await registryEndpointProvider.handleResponseAsync(response).ConfigureAwait(false);
                 }
             }
             catch (HttpResponseException ex)
@@ -305,7 +288,7 @@ namespace com.google.cloud.tools.jib.registry
                         || ex.getStatusCode() == HttpStatusCode.MethodNotAllowed)
                     {
                         // The name or reference was invalid.
-                        throw await newRegistryErrorExceptionAsync(ex);
+                        throw await newRegistryErrorExceptionAsync(ex).ConfigureAwait(false);
                     }
                     else if (ex.getStatusCode() == HttpStatusCode.Forbidden)
                     {
@@ -337,7 +320,7 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         // 'Location' header can be relative or absolute.
                         Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
-                        return await callWithAllowInsecureRegistryHandlingAsync(redirectLocation);
+                        return await callWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
                     }
                     else
                     {
@@ -366,7 +349,7 @@ namespace com.google.cloud.tools.jib.registry
                 new RegistryErrorExceptionBuilder(
                     registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
 
-            string stringContent = await httpResponseException.getContent().ReadAsStringAsync();
+            string stringContent = await httpResponseException.getContent().ReadAsStringAsync().ConfigureAwait(false);
             try
             {
                 ErrorResponseTemplate errorResponse =

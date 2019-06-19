@@ -28,23 +28,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.configuration
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link BuildConfiguration}. */
     public class BuildConfigurationTest
     {
@@ -67,7 +50,7 @@ namespace com.google.cloud.tools.jib.configuration
             IDictionary<string, string> expectedEnvironment = ImmutableDic.of("key", "value");
             ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000));
             IDictionary<string, string> expectedLabels = ImmutableDic.of("key1", "value1", "key2", "value2");
-            ManifestFormat expectedTargetFormat = ManifestFormat.OCI;
+            const ManifestFormat expectedTargetFormat = ManifestFormat.OCI;
             SystemPath expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
             SystemPath expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
             IList<ILayerConfiguration> expectedLayerConfigurations =

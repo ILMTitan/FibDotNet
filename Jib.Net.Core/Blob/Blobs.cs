@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.blob
          */
         public static async Task<string> writeToStringAsync(Blob blob)
         {
-            return StandardCharsets.UTF_8.GetString(await writeToByteArrayAsync(blob));
+            return StandardCharsets.UTF_8.GetString(await writeToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
         /**
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.blob
         public static async Task<byte[]> writeToByteArrayAsync(Blob blob)
         {
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            await blob.writeToAsync(byteArrayOutputStream);
+            await blob.writeToAsync(byteArrayOutputStream).ConfigureAwait(false);
             return byteArrayOutputStream.toByteArray();
         }
 

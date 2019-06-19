@@ -37,7 +37,6 @@ namespace com.google.cloud.tools.jib
             this.command = command;
             this.args = string.Join(' ', args);
         }
-     
 
         /** Runs the command. */
         public string run()

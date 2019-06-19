@@ -27,13 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
     /** Adds image layers to a tarball and loads into Docker daemon. */
     internal class LoadDockerStep : AsyncStep<BuildResult>
     {
@@ -73,9 +66,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            await pullAndCacheBaseImageLayersStep.getFuture();
-            await buildAndCacheApplicationLayersStep.getFuture();
-            await buildImageStep.getFuture();
+            await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
+            await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
+            await buildImageStep.getFuture().ConfigureAwait(false);
             buildConfiguration
                 .getEventHandlers()
                 .dispatch(LogEvent.progress("Loading to Docker daemon..."));
@@ -83,7 +76,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             using (ProgressEventDispatcher ignored =
                 progressEventDispatcherFactory.create("loading to Docker daemon", 1))
             {
-                Image image = await buildImageStep.getFuture();
+                Image image = await buildImageStep.getFuture().ConfigureAwait(false);
                 IImageReference targetImageReference =
                     buildConfiguration.getTargetImageConfiguration().getImage();
 
@@ -91,7 +84,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 buildConfiguration
                     .getEventHandlers()
                     .dispatch(
-                        LogEvent.debug(await dockerClient.loadAsync(new ImageTarball(image, targetImageReference))));
+                        LogEvent.debug(await dockerClient.loadAsync(new ImageTarball(image, targetImageReference)).ConfigureAwait(false)));
 
                 // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
                 foreach (string tag in buildConfiguration.getAllTargetImageTags())

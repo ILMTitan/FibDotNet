@@ -131,8 +131,8 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
             Func<string, bool> exactMatch = registry.equals;
             Func<string, bool> withHttps = ("https://" + registry).equals;
-            Func<string, bool> withSuffix = name => name.startsWith(registry + "/");
-            Func<string, bool> withHttpsAndSuffix = name => name.startsWith("https://" + registry + "/");
+            bool withSuffix(string name) => name.startsWith(registry + "/");
+            bool withHttpsAndSuffix(string name) => name.startsWith("https://" + registry + "/");
             return Arrays.asList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
         }
     }

@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.@event.progress
     public class AllocationTest
     {
         /** Error margin for checking equality of two doubles. */
-        private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
+        private const double DOUBLE_ERROR_MARGIN = 1e-10;
 
         [Test]
         public void testSmoke_linear()
@@ -84,10 +84,10 @@ namespace com.google.cloud.tools.jib.@event.progress
 
             // Checks that the leaf allocations add up to a full 1.0.
             double total =
-                leftLeftDown.getFractionOfRoot() * leftLeftDown.getAllocationUnits()
-                    + leftMiddle.getFractionOfRoot() * leftMiddle.getAllocationUnits()
-                    + leftRight.getFractionOfRoot() * leftRight.getAllocationUnits()
-                    + rightDown.getFractionOfRoot() * rightDown.getAllocationUnits();
+                (leftLeftDown.getFractionOfRoot() * leftLeftDown.getAllocationUnits())
+                    + (leftMiddle.getFractionOfRoot() * leftMiddle.getAllocationUnits())
+                    + (leftRight.getFractionOfRoot() * leftRight.getAllocationUnits())
+                    + (rightDown.getFractionOfRoot() * rightDown.getAllocationUnits());
             Assert.AreEqual(1.0, total, DOUBLE_ERROR_MARGIN);
         }
     }

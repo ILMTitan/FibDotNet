@@ -29,15 +29,14 @@ namespace com.google.cloud.tools.jib.blob
 
         /** Indicates if the {@link Blob} has already been written or not. */
         private bool isWritten = false;
-        private readonly long _size;
 
         public InputStreamBlob(Stream inputStream, long size)
         {
             this.inputStream = inputStream;
-            _size = size;
+            Size = size;
         }
 
-        public long Size => _size;
+        public long Size { get; }
 
         public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
@@ -50,7 +49,7 @@ namespace com.google.cloud.tools.jib.blob
             {
                 using (Stream inputStream = this.inputStream)
                 {
-                    return await Digests.computeDigestAsync(inputStream, outputStream);
+                    return await Digests.computeDigestAsync(inputStream, outputStream).ConfigureAwait(false);
                 }
             }
             finally

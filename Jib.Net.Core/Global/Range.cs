@@ -39,9 +39,9 @@ namespace com.google.cloud.tools.jib.global
 
     internal class Range<T>
     {
-        private T lowerBound;
-        private T upperBound;
-        private Range.RangeType type;
+        private readonly T lowerBound;
+        private readonly T upperBound;
+        private readonly Range.RangeType type;
 
         public Range(T lowerBound, T upperBound, Range.RangeType closed)
         {

@@ -27,9 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
     /**
      * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
      * exists.
@@ -57,7 +54,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             else
             {
-                return await handleHttpResponseExceptionAsync(response);
+                return await handleHttpResponseExceptionAsync(response).ConfigureAwait(false);
             }
         }
 
@@ -89,14 +86,14 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             // Finds a BLOB_UNKNOWN error response code.
-            if (string.IsNullOrEmpty(await httpResponse.getContentAsync()))
+            if (string.IsNullOrEmpty(await httpResponse.getContentAsync().ConfigureAwait(false)))
             {
                 // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
                 // be null, even for HEAD requests.
                 return false;
             }
 
-            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse);
+            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
             if (errorCode == ErrorCodes.BLOB_UNKNOWN)
             {
                 return false;

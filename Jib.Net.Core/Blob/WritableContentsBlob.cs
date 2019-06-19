@@ -25,19 +25,18 @@ namespace com.google.cloud.tools.jib.blob
     internal class AsyncWritableContentsBlob : Blob
     {
         private readonly WritableContentsAsync writableContents;
-        private readonly long _size;
 
         public AsyncWritableContentsBlob(WritableContentsAsync writableContents, long size)
         {
             this.writableContents = writableContents;
-            _size = size;
+            Size = size;
         }
 
-        public long Size => _size;
+        public long Size { get; }
 
         public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
-            return await Digests.computeDigestAsync(writableContents, outputStream);
+            return await Digests.computeDigestAsync(writableContents, outputStream).ConfigureAwait(false);
         }
     }
 }

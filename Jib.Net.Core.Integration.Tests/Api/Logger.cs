@@ -21,7 +21,7 @@ namespace com.google.cloud.tools.jib.api
 {
     internal class Logger
     {
-        private TextWriter @out;
+        private readonly TextWriter @out;
 
         public Logger(TextWriter @out)
         {

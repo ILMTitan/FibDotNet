@@ -24,10 +24,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.docker.json
 {
-
-
-
-
     /** Tests for {@link DockerLoadManifestEntryTemplate}. */
     public class DockerLoadManifestTemplateTest
     {

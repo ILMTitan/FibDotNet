@@ -27,13 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
-
-
-
-
-
-
-
     /** Tests for {@link Blob}. */
     public class BlobTest
     {
@@ -42,7 +35,7 @@ namespace com.google.cloud.tools.jib.blob
         {
             const string expected = "crepecake";
             Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
-            await verifyBlobWriteToAsync(expected, Blobs.from(inputStream, -1));
+            await verifyBlobWriteToAsync(expected, Blobs.from(inputStream, -1)).ConfigureAwait(false);
         }
 
         [Test]
@@ -50,7 +43,7 @@ namespace com.google.cloud.tools.jib.blob
         {
             SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
             string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
-            await verifyBlobWriteToAsync(expected, Blobs.from(fileA));
+            await verifyBlobWriteToAsync(expected, Blobs.from(fileA)).ConfigureAwait(false);
         }
 
         [Test]
@@ -58,14 +51,14 @@ namespace com.google.cloud.tools.jib.blob
         {
             const string expected = "crepecake";
             byte[] content = (expected.getBytes(StandardCharsets.UTF_8));
-            await verifyBlobWriteToAsync(expected, Blobs.from(content));
+            await verifyBlobWriteToAsync(expected, Blobs.from(content)).ConfigureAwait(false);
         }
 
         [Test]
         public async Task testFromStringAsync()
         {
             const string expected = "crepecake";
-            await verifyBlobWriteToAsync(expected, Blobs.from(expected));
+            await verifyBlobWriteToAsync(expected, Blobs.from(expected)).ConfigureAwait(false);
         }
 
         [Test]
@@ -73,17 +66,16 @@ namespace com.google.cloud.tools.jib.blob
         {
             const string expected = "crepecake";
 
-            WritableContentsAsync writableContents =
-                async outputStream => await outputStream.WriteAsync(expected.getBytes(StandardCharsets.UTF_8));
+            async Task writableContents(Stream outputStream) => await outputStream.WriteAsync(expected.getBytes(StandardCharsets.UTF_8));
 
-            await verifyBlobWriteToAsync(expected, Blobs.from(writableContents, -1));
+            await verifyBlobWriteToAsync(expected, Blobs.from(writableContents, -1)).ConfigureAwait(false);
         }
 
         /** Checks that the {@link Blob} streams the expected string. */
         private async System.Threading.Tasks.Task verifyBlobWriteToAsync(string expected, Blob blob)
         {
             MemoryStream outputStream = new MemoryStream();
-            BlobDescriptor blobDescriptor = await blob.writeToAsync(outputStream);
+            BlobDescriptor blobDescriptor = await blob.writeToAsync(outputStream).ConfigureAwait(false);
 
             string output = StandardCharsets.UTF_8.GetString(outputStream.ToArray());
             Assert.AreEqual(expected, output);
@@ -91,7 +83,7 @@ namespace com.google.cloud.tools.jib.blob
             byte[] expectedBytes = expected.getBytes(StandardCharsets.UTF_8);
             Assert.AreEqual(expectedBytes.Length, blobDescriptor.getSize());
 
-            BlobDescriptor digestDescriptor = await Digests.computeDigestAsync(new MemoryStream(expectedBytes));
+            BlobDescriptor digestDescriptor = await Digests.computeDigestAsync(new MemoryStream(expectedBytes)).ConfigureAwait(false);
             DescriptorDigest expectedDigest =
                 digestDescriptor.getDigest();
             Assert.AreEqual(expectedDigest, blobDescriptor.getDigest());

@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.tar
                 foreach (KeyValuePair<TarEntry, Blob> entry in archiveMap.entrySet())
                 {
                     tarArchiveOutputStream.putArchiveEntry(entry.getKey());
-                    await entry.getValue().writeToAsync(tarArchiveOutputStream);
+                    await entry.getValue().writeToAsync(tarArchiveOutputStream).ConfigureAwait(false);
                     tarArchiveOutputStream.closeArchiveEntry();
                 }
             }

@@ -22,12 +22,13 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     public class TemporaryFolder:IDisposable
     {
-        private DirectoryInfo directory;
+        private readonly DirectoryInfo directory;
 
         public TemporaryFolder()
         {
             directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
         }
+
         public DirectoryInfo newFolder()
         {
             return directory.CreateSubdirectory(Path.GetRandomFileName());

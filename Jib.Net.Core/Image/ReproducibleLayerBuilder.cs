@@ -29,13 +29,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.image
 {
-
-
-
-
-
-
-
     /**
      * Builds a reproducible layer {@link Blob} from files. The reproducibility is implemented by strips
      * out all non-reproducible elements (modification time, group ID, user ID, user name, and group
@@ -49,13 +42,6 @@ namespace com.google.cloud.tools.jib.image
          */
         private class UniqueTarArchiveEntries
         {
-            /**
-             * Uses the current directory to act as the file input to TarArchiveEntry (since all directories
-             * are treated the same in {@link TarArchiveEntry#TarArchiveEntry(File, string)}, except for
-             * modification time, which is wiped away in {@link #build}).
-             */
-            private static readonly FileInfo DIRECTORY_FILE = Paths.get(".").toFile();
-
             private readonly IList<TarEntry> entries = new List<TarEntry>();
             private readonly ISet<string> names = new HashSet<string>();
 

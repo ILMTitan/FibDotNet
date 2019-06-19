@@ -24,9 +24,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
-
-
-
     /** Tests for {@link ProgressEventHandler}. */
     public class ProgressEventHandlerTest
     {
@@ -42,7 +39,7 @@ namespace com.google.cloud.tools.jib.@event.progress
         /** Second child of the root node. */
         private Allocation child2;
 
-        private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
+        private const double DOUBLE_ERROR_MARGIN = 1e-10;
 
         [SetUp]
         public void SetUp()
@@ -58,7 +55,7 @@ namespace com.google.cloud.tools.jib.@event.progress
         {
             using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor())
             {
-                DoubleAccumulator maxProgress = new DoubleAccumulator(double.MaxValue, 0);
+                DoubleAccumulator maxProgress = new DoubleAccumulator(0);
 
                 ProgressEventHandler progressEventHandler =
                     new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
@@ -67,20 +64,11 @@ namespace com.google.cloud.tools.jib.@event.progress
 
                 // Adds root, child1, and child1Child.
                 multithreadedExecutor.invoke(
-                    () =>
-                    {
-                        eventHandlers.dispatch(new ProgressEvent(root, 0L));
-                    });
+                    () => eventHandlers.dispatch(new ProgressEvent(root, 0L)));
                 multithreadedExecutor.invoke(
-                    () =>
-                    {
-                        eventHandlers.dispatch(new ProgressEvent(child1, 0L));
-                    });
+                    () => eventHandlers.dispatch(new ProgressEvent(child1, 0L)));
                 multithreadedExecutor.invoke(
-                    () =>
-                    {
-                        eventHandlers.dispatch(new ProgressEvent(child1Child, 0L));
-                    });
+                    () => eventHandlers.dispatch(new ProgressEvent(child1Child, 0L)));
                 Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2.
@@ -88,33 +76,24 @@ namespace com.google.cloud.tools.jib.@event.progress
                 callables.addAll(
                     Collections.nCopies<Action>(
                         50,
-                        () =>
-                        {
-                            eventHandlers.dispatch(new ProgressEvent(child1Child, 1L));
-                        }));
+                        () => eventHandlers.dispatch(new ProgressEvent(child1Child, 1L))));
                 callables.addAll(
                     Collections.nCopies<Action>(
                         100,
-                        () =>
-                        {
-                            eventHandlers.dispatch(new ProgressEvent(child2, 1L));
-                        }));
+                        () => eventHandlers.dispatch(new ProgressEvent(child2, 1L))));
 
                 multithreadedExecutor.invokeAll(callables);
 
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // 0 progress doesn't do anything.
                 multithreadedExecutor.invokeAll(
                     Collections.nCopies<Action>(
                         100,
-                        () =>
-                        {
-                            eventHandlers.dispatch(new ProgressEvent(child1, 0L));
-                        }));
+                        () => eventHandlers.dispatch(new ProgressEvent(child1, 0L))));
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
                 multithreadedExecutor.invokeAll(callables);

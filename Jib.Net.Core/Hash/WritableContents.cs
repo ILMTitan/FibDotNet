@@ -26,6 +26,7 @@ namespace com.google.cloud.tools.jib.hash
      * output stream.
      */
     public delegate void WritableContents(Stream outputStream);
+
     /**
      * As a function, writes some contents to an output stream. As a class, represents contents that can
      * be written to an output stream. This may be "unrealized-before-write" contents; for example, a

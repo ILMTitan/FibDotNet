@@ -28,12 +28,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
     /** Integration tests for {@link ManifestPusher}. */
     public class ManifestPusherIntegrationTest : HttpRegistryTest
     {
@@ -46,7 +40,7 @@ namespace com.google.cloud.tools.jib.registry
 
             RegistryClient registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest");
+            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
 
             registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "localhost:5000", "busybox")
@@ -54,7 +48,7 @@ namespace com.google.cloud.tools.jib.registry
                     .newRegistryClient();
             try
             {
-                await registryClient.pushManifestAsync((V22ManifestTemplate)manifestTemplate, "latest");
+                await registryClient.pushManifestAsync((V22ManifestTemplate)manifestTemplate, "latest").ConfigureAwait(false);
                 Assert.Fail("Pushing manifest without its BLOBs should fail");
             }
             catch (RegistryErrorException ex)
@@ -91,20 +85,20 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             Assert.IsFalse(
-                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, _ => { }));
+                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, _ => { }).ConfigureAwait(false));
             Assert.IsFalse(
                 await registryClient.pushBlobAsync(
                     testContainerConfigurationBlobDigest,
                     testContainerConfigurationBlob,
                     null,
-                    _ => { }));
+                    _ => { }).ConfigureAwait(false));
 
             // Pushes the manifest.
-                DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest");
+                DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest").ConfigureAwait(false);
 
             // Pulls the manifest.
             V22ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
             Assert.AreEqual(1, manifestTemplate.getLayers().size());
             Assert.AreEqual(testLayerBlobDigest, manifestTemplate.getLayers().get(0).getDigest());
             Assert.IsNotNull(manifestTemplate.getContainerConfiguration());
@@ -114,7 +108,7 @@ namespace com.google.cloud.tools.jib.registry
 
             // Pulls the manifest by digest.
             V22ManifestTemplate manifestTemplateByDigest =
-                await registryClient.pullManifestAsync<V22ManifestTemplate>(imageDigest.toString());
+                await registryClient.pullManifestAsync<V22ManifestTemplate>(imageDigest.toString()).ConfigureAwait(false);
             Assert.AreEqual(
                 Digests.computeJsonDigest(manifestTemplate),
                 Digests.computeJsonDigest(manifestTemplateByDigest));

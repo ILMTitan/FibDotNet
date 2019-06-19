@@ -23,9 +23,6 @@ using com.google.cloud.tools.jib.@event.progress;
 
 namespace com.google.cloud.tools.jib.http
 {
-
-
-
     /** Tests for {@link NotifyingOutputStream}. */
     public class NotifyingOutputStreamTest
     {

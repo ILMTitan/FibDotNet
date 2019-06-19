@@ -68,7 +68,7 @@ namespace com.google.cloud.tools.jib.filesystem
             {
                 try
                 {
-                    MoreFiles.deleteRecursively(path, RecursiveDeleteOption.ALLOW_INSECURE);
+                    MoreFiles.deleteRecursively(path);
                 }
                 catch (IOException e)
                 {
@@ -86,7 +86,6 @@ namespace com.google.cloud.tools.jib.filesystem
             }
             try
             {
-
                 Directory.Move(path, destination);
             }
             catch (IOException)

@@ -44,13 +44,13 @@ namespace com.google.cloud.tools.jib.hash
 
         public static BlobDescriptor computeJsonDigest(object template, Stream outStream)
         {
-            WritableContents contents = contentsOut => JsonTemplateMapper.writeTo(template, contentsOut);
+            void contents(Stream contentsOut) => JsonTemplateMapper.writeTo(template, contentsOut);
             return computeDigest(contents, outStream);
         }
 
         public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream)
         {
-            return await computeDigestAsync(inStream, Stream.Null);
+            return await computeDigestAsync(inStream, Stream.Null).ConfigureAwait(false);
         }
 
         /**
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.hash
          */
         public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents)
         {
-            return await computeDigestAsync(contents, Stream.Null);
+            return await computeDigestAsync(contents, Stream.Null).ConfigureAwait(false);
         }
 
         /**
@@ -89,8 +89,8 @@ namespace com.google.cloud.tools.jib.hash
          */
         public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream, Stream outStream)
         {
-            WritableContentsAsync contents = async contentsOut => await ByteStreams.copyAsync(inStream, contentsOut);
-            return await computeDigestAsync(contents, outStream);
+            async Task contents(Stream contentsOut) => await ByteStreams.copyAsync(inStream, contentsOut).ConfigureAwait(false);
+            return await computeDigestAsync(contents, outStream).ConfigureAwait(false);
         }
 
         /**
@@ -126,7 +126,7 @@ namespace com.google.cloud.tools.jib.hash
         {
             using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
             {
-                await contents(digestOutStream);
+                await contents(digestOutStream).ConfigureAwait(false);
                 return digestOutStream.computeDigest();
             }
         }

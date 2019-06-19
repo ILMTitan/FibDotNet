@@ -25,7 +25,6 @@ namespace com.google.cloud.tools.jib.registry
     [Serializable]
     public class HttpResponseException : Exception
     {
-
         public HttpResponseException(HttpResponseMessage message)
         {
             Cause = message;
@@ -46,42 +45,6 @@ namespace com.google.cloud.tools.jib.registry
         public HttpContent getContent()
         {
             return Cause.Content;
-        }
-
-        public class Builder
-        {
-            private object badRequest;
-            private string v;
-            private HttpHeaders httpHeaders;
-            private HttpResponseMessage httpResponseMessage;
-            private HttpStatusCode badRequest1;
-
-            public Builder(HttpResponseMessage httpResponseMessage)
-            {
-                this.httpResponseMessage = httpResponseMessage;
-            }
-
-            public Builder(HttpStatusCode badRequest1)
-            {
-                this.badRequest1 = badRequest1;
-            }
-
-            public Builder(object badRequest, string v, HttpHeaders httpHeaders)
-            {
-                this.badRequest = badRequest;
-                this.v = v;
-                this.httpHeaders = httpHeaders;
-            }
-
-            internal HttpResponseMessage build()
-            {
-                throw new NotImplementedException();
-            }
-
-            internal Builder setContent(string v)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

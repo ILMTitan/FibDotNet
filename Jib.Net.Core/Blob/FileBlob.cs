@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.blob
         {
             using (Stream fileIn = new BufferedStream(Files.newInputStream(file)))
             {
-                return await Digests.computeDigestAsync(fileIn, outputStream);
+                return await Digests.computeDigestAsync(fileIn, outputStream).ConfigureAwait(false);
             }
         }
     }

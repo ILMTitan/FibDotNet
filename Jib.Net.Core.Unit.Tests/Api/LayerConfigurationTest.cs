@@ -79,11 +79,9 @@ namespace com.google.cloud.tools.jib.api
             Instant timestamp1 = Instant.FromUnixTimeSeconds(123);
             Instant timestamp2 = Instant.FromUnixTimeSeconds(987);
 
-            Func<SystemPath, AbsoluteUnixPath, FilePermissions> permissionsProvider =
-                (source, destination) =>
+            FilePermissions permissionsProvider(SystemPath _, AbsoluteUnixPath destination) =>
                     destination.toString().startsWith("/app/layer/a") ? permissions1 : permissions2;
-            Func<SystemPath, AbsoluteUnixPath, Instant> timestampProvider =
-                (source, destination) =>
+            Instant timestampProvider(SystemPath _, AbsoluteUnixPath destination) =>
                     destination.toString().startsWith("/app/layer/a") ? timestamp1 : timestamp2;
 
             ILayerConfiguration layerConfiguration =

@@ -29,16 +29,9 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
     /** Integration tests for {@link BlobPuller}. */
     public class BlobPullerIntegrationTest : HttpRegistryTest
     {
-
         [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         [Test]
@@ -51,7 +44,7 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
             DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
 
@@ -67,7 +60,7 @@ namespace com.google.cloud.tools.jib.registry
                         expectedSize.add(size);
                     },
                     totalByteCount.add);
-            BlobDescriptor blobDescriptor = await pulledBlob.writeToAsync(Stream.Null);
+            BlobDescriptor blobDescriptor = await pulledBlob.writeToAsync(Stream.Null).ConfigureAwait(false);
             Assert.AreEqual(realDigest, blobDescriptor.getDigest());
             Assert.IsTrue(expectedSize.sum() > 0);
             Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
@@ -89,8 +82,8 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 await registryClient
-                    .pullBlob(nonexistentDigest, ignored => { }, ignored => { })
-                    .writeToAsync(Stream.Null);
+                    .pullBlob(nonexistentDigest, _ => { }, _ => { })
+                    .writeToAsync(Stream.Null).ConfigureAwait(false);
                 Assert.Fail("Trying to pull nonexistent blob should have errored");
             }
             catch (IOException ex)

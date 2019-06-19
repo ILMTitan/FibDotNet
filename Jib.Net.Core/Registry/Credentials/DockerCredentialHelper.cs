@@ -26,12 +26,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
-
-
-
-
-
-
     /**
      * Retrieves Docker credentials with a Docker credential helper.
      *

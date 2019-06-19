@@ -64,11 +64,11 @@ namespace com.google.cloud.tools.jib.image.json
             "application/vnd.docker.distribution.manifest.v2+json";
 
         /** The Docker V2.2 container configuration media type. */
-        private static readonly string CONTAINER_CONFIGURATION_MEDIA_TYPE =
+        private const string CONTAINER_CONFIGURATION_MEDIA_TYPE =
             "application/vnd.docker.container.image.v1+json";
 
         /** The Docker V2.2 layer media type. */
-        private static readonly string LAYER_MEDIA_TYPE =
+        private const string LAYER_MEDIA_TYPE =
             "application/vnd.docker.image.rootfs.diff.tar.gzip";
 
         public int SchemaVersion { get; } = 2;

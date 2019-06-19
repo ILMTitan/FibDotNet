@@ -23,8 +23,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
-
     /** Creates and deletes lock files. */
     public sealed class LockFile : IDisposable
     {

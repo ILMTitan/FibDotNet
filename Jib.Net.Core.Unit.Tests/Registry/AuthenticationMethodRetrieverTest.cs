@@ -26,16 +26,9 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
     /** Tests for {@link AuthenticationMethodRetriever}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class AuthenticationMethodRetrieverTest
     {
-        
         private RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties;
         private AuthenticationMethodRetriever testAuthenticationMethodRetriever;
 
@@ -65,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponseAsync()
         {
-            Assert.IsNull(await testAuthenticationMethodRetriever.handleResponseAsync(Mock.Of<HttpResponseMessage>()));
+            Assert.IsNull(await testAuthenticationMethodRetriever.handleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
         }
 
         [Test]

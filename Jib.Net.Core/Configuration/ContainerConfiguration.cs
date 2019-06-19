@@ -23,13 +23,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.configuration
 {
-
-
-
-
-
-
-
     /** Immutable configuration options for the container. */
     public sealed class ContainerConfiguration : IContainerConfiguration
     {
@@ -109,11 +102,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void addEnvironment(string name, string value)
             {
-                if (environmentMap == null)
-                {
-                    environmentMap = new Dictionary<string, string>();
-                }
-                environmentMap.put(name, value);
+                (environmentMap ?? (environmentMap = new Dictionary<string, string>())).put(name, value);
             }
 
             /**
@@ -139,11 +128,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void addExposedPort(Port port)
             {
-                if (exposedPorts == null)
-                {
-                    exposedPorts = new HashSet<Port>();
-                }
-                exposedPorts.add(port);
+                (exposedPorts ?? (exposedPorts = new HashSet<Port>())).add(port);
             }
 
             /**
@@ -168,11 +153,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void addVolume(AbsoluteUnixPath volume)
             {
-                if (volumes == null)
-                {
-                    volumes = new HashSet<AbsoluteUnixPath>();
-                }
-                volumes.add(volume);
+                (volumes ?? (volumes = new HashSet<AbsoluteUnixPath>())).add(volume);
             }
 
             /**
@@ -200,11 +181,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void addLabel(string key, string value)
             {
-                if (labels == null)
-                {
-                    labels = new Dictionary<string, string>();
-                }
-                labels.put(key, value);
+                (labels ?? (labels = new Dictionary<string, string>())).put(key, value);
             }
 
             /**

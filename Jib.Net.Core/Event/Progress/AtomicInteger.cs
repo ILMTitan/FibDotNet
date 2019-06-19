@@ -21,7 +21,8 @@ namespace com.google.cloud.tools.jib.@event.progress
 {
     internal class AtomicInteger
     {
-        int i;
+        private int i;
+
         internal int getAndIncrement()
         {
             return Interlocked.Increment(ref i) - 1;

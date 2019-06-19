@@ -26,11 +26,10 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.cache
 {
     /** Tests for {@link CachedLayer}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class CachedLayerTest
     {
-        private DescriptorDigest mockLayerDigest = DescriptorDigest.fromHash(new string('a', 64));
-        private DescriptorDigest mockLayerDiffId = DescriptorDigest.fromHash(new string('b', 64));
+        private readonly DescriptorDigest mockLayerDigest = DescriptorDigest.fromHash(new string('a', 64));
+        private readonly DescriptorDigest mockLayerDiffId = DescriptorDigest.fromHash(new string('b', 64));
 
         [Test]
         public void testBuilder_fail()
@@ -81,7 +80,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
             Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
             Assert.AreEqual(1337, cachedLayer.getSize());
-            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(cachedLayer.getBlob()));
+            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(cachedLayer.getBlob()).ConfigureAwait(false));
         }
     }
 }

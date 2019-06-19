@@ -27,17 +27,10 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
     /** Pulls and caches a single base image layer. */
     public class PullAndCacheBaseImageLayerStep : AsyncStep<ICachedLayer>
     {
-        private static readonly string DESCRIPTION = "Pulling base image layer {0}";
+        private const string DESCRIPTION = "Pulling base image layer {0}";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -105,7 +98,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         registryClient.pullBlob(
                             layerDigest,
                             progressEventDispatcherWrapper.setProgressTarget,
-                            progressEventDispatcherWrapper.dispatchProgress));
+                            progressEventDispatcherWrapper.dispatchProgress)).ConfigureAwait(false);
                 }
             }
         }

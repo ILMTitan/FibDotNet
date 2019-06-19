@@ -28,11 +28,10 @@ namespace com.google.cloud.tools.jib.registry
     /**
      * Tests for {@link RegistryClient}. More comprehensive tests can be found in the integration tests.
      */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class RegistryClientTest
     {
-        private IEventHandlers eventHandlers = Mock.Of<IEventHandlers>();
-        private Authorization mockAuthorization = Authorization.fromBasicCredentials("username", "password");
+        private readonly IEventHandlers eventHandlers = Mock.Of<IEventHandlers>();
+        private readonly Authorization mockAuthorization = Authorization.fromBasicCredentials("username", "password");
 
         private RegistryClient.Factory testRegistryClientFactory;
 

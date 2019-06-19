@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
     /** Integration tests for {@link ManifestPuller}. */
     public class ManifestPullerIntegrationTest : HttpRegistryTest
     {
@@ -36,7 +35,7 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest");
+                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
             Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
             Assert.IsTrue(manifestTemplate.getFsLayers().size() > 0);
@@ -48,7 +47,7 @@ namespace com.google.cloud.tools.jib.registry
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
                 RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest");
+            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
 
             Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
             V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate)manifestTemplate;
@@ -65,7 +64,7 @@ namespace com.google.cloud.tools.jib.registry
                     RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
                         .setAllowInsecureRegistries(true)
                         .newRegistryClient();
-                await registryClient.pullManifestAsync("nonexistent-tag");
+                await registryClient.pullManifestAsync("nonexistent-tag").ConfigureAwait(false);
                 Assert.Fail("Trying to pull nonexistent image should have errored");
             }
             catch (RegistryErrorException ex)

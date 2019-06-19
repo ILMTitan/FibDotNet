@@ -26,20 +26,7 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.frontend
 {
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link CredentialRetrieverFactory}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class CredentialRetrieverFactoryTest
     {
         private static readonly Credential FAKE_CREDENTIALS = Credential.from("username", "password");
@@ -66,14 +53,14 @@ namespace com.google.cloud.tools.jib.frontend
             };
         }
 
-        private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
-        private IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
-        private IDockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<IDockerConfigCredentialRetriever>();
+        private readonly Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+        private readonly IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
+        private readonly IDockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<IDockerConfigCredentialRetriever>();
 
         /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
-        private IDockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
+        private readonly IDockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
 
-        private CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
+        private readonly CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
 
         [SetUp]
         public void setUp()

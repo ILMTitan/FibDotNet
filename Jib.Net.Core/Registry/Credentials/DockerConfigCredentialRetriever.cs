@@ -26,11 +26,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
-
-
-
-
-
     /**
      * Retrieves registry credentials from the Docker config.
      *
@@ -125,7 +120,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                         if (ex.getMessage() != null)
                         {
                             logger.accept(LogEvent.warn(ex.getMessage()));
-                            if (ex.getCause() != null && ex.getCause().getMessage() != null)
+                            if (ex.getCause()?.getMessage() != null)
                             {
                                 logger.accept(LogEvent.warn("  Caused by: " + ex.getCause().getMessage()));
                             }

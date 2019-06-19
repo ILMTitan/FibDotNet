@@ -26,14 +26,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.frontend
 {
-
-
-
-
-
-
-
-
     /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
 
     public delegate IDockerCredentialHelper DockerCredentialHelperFactory(string registry, SystemPath credentialHelper);
@@ -78,7 +70,7 @@ namespace com.google.cloud.tools.jib.frontend
         public static CredentialRetrieverFactory forImage(ImageReference imageReference)
         {
             return new CredentialRetrieverFactory(
-                imageReference, logEvent => { }, DockerCredentialHelper.Create);
+                imageReference, _ => { }, DockerCredentialHelper.Create);
         }
 
         private readonly ImageReference imageReference;
@@ -198,7 +190,7 @@ namespace com.google.cloud.tools.jib.frontend
                         {
                             // Warns the user that the specified (or inferred) credential helper cannot be used.
                             logger.accept(LogEvent.info(ex.getMessage()));
-                            if (ex.getCause() != null && ex.getCause().getMessage() != null)
+                            if (ex.getCause()?.getMessage() != null)
                             {
                                 logger.accept(LogEvent.info("  Caused by: " + ex.getCause().getMessage()));
                             }

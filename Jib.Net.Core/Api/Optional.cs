@@ -38,16 +38,6 @@ namespace com.google.cloud.tools.jib.api
             return present;
         }
 
-        internal T orElseGet(Supplier<T> supplier)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal Optional<T> ofNullable(T value)
-        {
-            throw new NotImplementedException();
-        }
-
         internal void ifPresent(Action<T> action)
         {
             if (present)
@@ -82,11 +72,6 @@ namespace com.google.cloud.tools.jib.api
             {
                 throw p();
             }
-        }
-
-        public Optional<TResult> map<TResult>(Func<T, TResult> p)
-        {
-            throw new NotImplementedException();
         }
     }
 

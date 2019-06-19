@@ -26,18 +26,12 @@ using static com.google.cloud.tools.jib.@event.events.TimerEvent;
 
 namespace com.google.cloud.tools.jib.builder
 {
-
-
-
-
-
     /** Tests for {@link TimerEventDispatcher}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class TimerEventDispatcherTest
     {
         private readonly Queue<TimerEvent> timerEventQueue = new Queue<TimerEvent>();
 
-        private IClock mockClock = Mock.Of<IClock>();
+        private readonly IClock mockClock = Mock.Of<IClock>();
 
         [Test]
         public void testLogging()

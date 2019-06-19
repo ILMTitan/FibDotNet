@@ -23,12 +23,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
     /** Attempts to retrieve registry credentials. */
     public sealed class RetrieveRegistryCredentialsStep : AsyncStep<Credential>
     {

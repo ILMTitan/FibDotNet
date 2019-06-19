@@ -25,7 +25,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image
 {
-
     /** Holds the layers for an image. */
     public sealed class ImageLayers : IEnumerable<Layer>
     {
@@ -207,9 +206,9 @@ namespace com.google.cloud.tools.jib.image
                 return inner.MoveNext();
             }
 
-            public void Reset()
+            void IEnumerator.Reset()
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
         }
     }

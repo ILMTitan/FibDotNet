@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
     /** Integration tests for {@link BlobPusher}. */
     public class BlobPusherIntegrationTest : HttpRegistryTest
     {
@@ -41,7 +40,7 @@ namespace com.google.cloud.tools.jib.registry
                 RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
-            Assert.IsFalse(await registryClient.pushBlobAsync(testBlobDigest, testBlob, null, ignored => { }));
+            Assert.IsFalse(await registryClient.pushBlobAsync(testBlobDigest, testBlob, null, _ => { }).ConfigureAwait(false));
         }
     }
 }

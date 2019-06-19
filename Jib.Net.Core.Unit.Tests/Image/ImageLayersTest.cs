@@ -24,17 +24,13 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.image
 {
-
-
-
     /** Tests for {@link ImageLayers}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ImageLayersTest
     {
-        private Layer mockLayer = Mock.Of<Layer>();
-        private Layer mockReferenceLayer = Mock.Of<Layer>();
-        private Layer mockDigestOnlyLayer = Mock.Of<Layer>();
-        private Layer mockLayer2 = Mock.Of<Layer>();
+        private readonly Layer mockLayer = Mock.Of<Layer>();
+        private readonly Layer mockReferenceLayer = Mock.Of<Layer>();
+        private readonly Layer mockDigestOnlyLayer = Mock.Of<Layer>();
+        private readonly Layer mockLayer2 = Mock.Of<Layer>();
 
         [SetUp]
         public void setUpFakes()

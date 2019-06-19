@@ -34,32 +34,7 @@ using Blob = com.google.cloud.tools.jib.blob.Blob;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link BuildAndCacheApplicationLayerStep}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class BuildAndCacheApplicationLayerStepTest
     {
         // TODO: Consolidate with BuildStepsIntegrationTest.
@@ -91,15 +66,15 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private static async Task assertBlobsEqualAsync(Blob expectedBlob, Blob blob)
         {
-            CollectionAssert.AreEqual(await Blobs.writeToByteArrayAsync(expectedBlob), await Blobs.writeToByteArrayAsync(blob));
+            CollectionAssert.AreEqual(await Blobs.writeToByteArrayAsync(expectedBlob).ConfigureAwait(false), await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
         public TemporaryFolder temporaryFolder;
 
-        private IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
+        private readonly IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
 
         private Cache cache;
-        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
+        private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         private ILayerConfiguration fakeDependenciesLayerConfiguration;
         private ILayerConfiguration fakeSnapshotDependenciesLayerConfiguration;
@@ -161,7 +136,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockBuildConfiguration,
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());
 
-            foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.getFuture())
+            foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false))
 
             {
                 applicationLayersBuilder.add(applicationLayer);
@@ -183,7 +158,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
 
             // Populates the cache.
-            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync();
+            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync().ConfigureAwait(false);
             Assert.AreEqual(5, applicationLayers.size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
@@ -224,11 +199,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                 extraFilesCachedLayer.getDigest());
 
             // Verifies that the cache reader gets the same layers as the newest application layers.
-            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), snapshotDependenciesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), resourcesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(3).getBlob(), classesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(4).getBlob(), extraFilesCachedLayer.getBlob());
+            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), snapshotDependenciesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), resourcesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(3).getBlob(), classesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(4).getBlob(), extraFilesCachedLayer.getBlob()).ConfigureAwait(false);
         }
 
         [Test]
@@ -244,7 +219,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
 
             // Populates the cache.
-            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync();
+            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync().ConfigureAwait(false);
             Assert.AreEqual(3, applicationLayers.size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
@@ -271,9 +246,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                 applicationLayers.get(2).getBlobDescriptor().getDigest(), classesCachedLayer.getDigest());
 
             // Verifies that the cache reader gets the same layers as the newest application layers.
-            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), resourcesCachedLayer.getBlob());
-            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), classesCachedLayer.getBlob());
+            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), resourcesCachedLayer.getBlob()).ConfigureAwait(false);
+            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), classesCachedLayer.getBlob()).ConfigureAwait(false);
         }
     }
 }

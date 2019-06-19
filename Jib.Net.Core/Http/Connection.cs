@@ -23,15 +23,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.http
 {
-
-
-
-
-
-
-
-
-
     /**
      * Sends an HTTP {@link Request} and stores the {@link Response}. Clients should not send more than
      * one request.
@@ -94,7 +85,7 @@ namespace com.google.cloud.tools.jib.http
             {
                 HttpMessageHandler handler = new HttpClientHandler
                 {
-                    ServerCertificateCustomValidationCallback = (message, cert, chain, sslErrors) => true
+                    ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
                 };
                 client = new HttpClient(handler)
                 {
@@ -109,7 +100,6 @@ namespace com.google.cloud.tools.jib.http
                     BaseAddress = url,
                     Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
                 };
-
             }
         }
 
@@ -135,11 +125,6 @@ namespace com.google.cloud.tools.jib.http
                 Debug.WriteLine("Exception retrieving " + request.RequestUri);
                 throw;
             }
-        }
-
-        internal int? getRequestedHttpTimeout()
-        {
-            throw new NotImplementedException();
         }
     }
 }

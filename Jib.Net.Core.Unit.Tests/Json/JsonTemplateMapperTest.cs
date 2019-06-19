@@ -27,12 +27,6 @@ using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.json
 {
-
-
-
-
-
-
     /** Tests for {@link JsonTemplateMapper}. */
     public class JsonTemplateMapperTest
     {

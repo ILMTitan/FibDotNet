@@ -28,14 +28,6 @@ using com.google.cloud.tools.jib.json;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
-
-
     /** Tests for {@link ContainerConfigurationTemplate}. */
     public class ContainerConfigurationTemplateTest
     {

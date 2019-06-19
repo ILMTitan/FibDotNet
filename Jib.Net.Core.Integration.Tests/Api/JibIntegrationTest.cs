@@ -27,12 +27,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
-
-
-
-
-
-
     /** Integration tests for {@link Jib}. */
     public class JibIntegrationTest
     {
@@ -53,11 +47,11 @@ namespace com.google.cloud.tools.jib.api
             localRegistry.pull(imageReference);
             return new Command("docker", "run", "--rm", imageReference).run();
         }
-        
+
         [OneTimeSetUp]
         public async Task OneTimeSetUpAsync()
         {
-            await localRegistry.startAsync();
+            await localRegistry.startAsync().ConfigureAwait(false);
         }
 
         [SetUp]
@@ -92,7 +86,7 @@ namespace com.google.cloud.tools.jib.api
                                     .addCredentialRetriever(
                                         () => Optional.of(Credential.from("username", "password"))))
                             .setAllowInsecureRegistries(true)
-                            .addEventHandler<JibEvent>(e=>TestContext.Out.WriteLine(e)));
+                            .addEventHandler<JibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
             Assert.AreEqual("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
             Assert.AreEqual(
@@ -112,7 +106,7 @@ namespace com.google.cloud.tools.jib.api
                             RegistryImage.named(targetImageReference)
                                 .addCredentialRetriever(
                                     () => Optional.of(Credential.from("username", "password"))))
-                        .setAllowInsecureRegistries(true));
+                        .setAllowInsecureRegistries(true)).ConfigureAwait(false);
 
             // Check that resulting image has no layers
             localRegistry.pull(targetImageReference.toString());
@@ -133,12 +127,11 @@ namespace com.google.cloud.tools.jib.api
             JibContainerBuilder jibContainerBuilder =
                 Jib.from("localhost:5001/busybox").setEntrypoint("echo", "Hello World");
 
-
             // Should fail since Jib can't build to registry offline
             try
             {
                 await jibContainerBuilder.containerizeAsync(
-                    Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true));
+                    Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (InvalidOperationException ex)
@@ -152,7 +145,7 @@ namespace com.google.cloud.tools.jib.api
                 await jibContainerBuilder.containerizeAsync(
                     Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
                         .setBaseImageLayersCache(cacheDirectory)
-                        .setOfflineMode(true));
+                        .setOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (IOException ex)
@@ -163,22 +156,21 @@ namespace com.google.cloud.tools.jib.api
             }
             using (LocalRegistry tempRegistry = new LocalRegistry(5001))
             {
-                await tempRegistry.startAsync();
+                await tempRegistry.startAsync().ConfigureAwait(false);
                 tempRegistry.pullAndPushToLocal("busybox", "busybox");
 
                 // Run online to cache the base image
                 await jibContainerBuilder.containerizeAsync(
                     Containerizer.to(DockerDaemonImage.named(targetImageReferenceOnline))
                         .setBaseImageLayersCache(cacheDirectory)
-                        .setAllowInsecureRegistries(true));
-
+                        .setAllowInsecureRegistries(true)).ConfigureAwait(false);
             }
 
             // Run again in offline mode, should succeed this time
             await jibContainerBuilder.containerizeAsync(
                 Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
                     .setBaseImageLayersCache(cacheDirectory)
-                    .setOfflineMode(true));
+                    .setOfflineMode(true)).ConfigureAwait(false);
 
             // Verify output
             Assert.AreEqual(

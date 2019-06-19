@@ -34,27 +34,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Writes to the default cache storage engine. */
     public class CacheStorageWriter
     {
@@ -75,38 +54,6 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         /**
-         * Attempts to move {@code source} to {@code destination}. If {@code destination} already exists,
-         * this does nothing. Attempts an atomic move first, and falls back to non-atomic if the
-         * filesystem does not support atomic moves.
-         *
-         * @param source the source path
-         * @param destination the destination path
-         * @throws IOException if an I/O exception occurs
-         */
-        private static void moveIfDoesNotExist(SystemPath source, SystemPath destination)
-        {
-            // If the file already exists, we skip renaming and use the existing file. This happens if a
-            // new layer happens to have the same content as a previously-cached layer.
-            if (Files.exists(destination))
-            {
-                return;
-            }
-
-            try
-            {
-                Files.move(source, destination);
-            }
-            catch (IOException)
-            {
-                if (!Files.exists(destination))
-                {
-                    // TODO to log that the destination exists
-                    throw;
-                }
-            }
-        }
-
-        /**
          * Decompresses the file to obtain the diff ID.
          *
          * @param compressedFile the file containing the compressed contents
@@ -120,7 +67,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 using (GZipStream decompressorStream = new GZipStream(Files.newInputStream(compressedFile), CompressionMode.Decompress))
                 {
-                    await ByteStreams.copyAsync(decompressorStream, diffIdCaptureOutputStream);
+                    await ByteStreams.copyAsync(decompressorStream, diffIdCaptureOutputStream).ConfigureAwait(false);
                 }
                 return diffIdCaptureOutputStream.computeDigest().getDigest();
             }
@@ -136,7 +83,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public static void writeMetadata(object jsonTemplate, SystemPath destination)
         {
-            using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent(), null, null))
+            using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent()))
             {
                 using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
                 {
@@ -180,7 +127,7 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    await writeCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory);
+                    await writeCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
                 temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
@@ -229,7 +176,7 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    await writeUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory);
+                    await writeUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
                 temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
@@ -310,15 +257,14 @@ namespace com.google.cloud.tools.jib.cache
             // Writes the layer file to the temporary directory.
             using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory))
             {
-
                 BlobDescriptor layerBlobDescriptor;
                 using (Stream fileOutputStream = Files.newOutputStream(temporaryLayerFile.Path))
                 {
-                    layerBlobDescriptor = await compressedLayerBlob.writeToAsync(fileOutputStream);
+                    layerBlobDescriptor = await compressedLayerBlob.writeToAsync(fileOutputStream).ConfigureAwait(false);
                 }
 
                 // Gets the diff ID.
-                DescriptorDigest layerDiffId = await getDiffIdByDecompressingFileAsync(temporaryLayerFile.Path);
+                DescriptorDigest layerDiffId = await getDiffIdByDecompressingFileAsync(temporaryLayerFile.Path).ConfigureAwait(false);
 
                 // Renames the temporary layer file to the correct filename.
                 SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
@@ -352,7 +298,7 @@ namespace com.google.cloud.tools.jib.cache
                         Files.newOutputStream(temporaryLayerFile.Path))) {
                     using (GZipStream compressorStream = new GZipStream(compressedDigestOutputStream, CompressionMode.Compress, true))
                     {
-                        BlobDescriptor descriptor = await uncompressedLayerBlob.writeToAsync(compressorStream);
+                        BlobDescriptor descriptor = await uncompressedLayerBlob.writeToAsync(compressorStream).ConfigureAwait(false);
                         layerDiffId = descriptor.getDigest();
                     }
                     // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
@@ -385,7 +331,7 @@ namespace com.google.cloud.tools.jib.cache
             Files.createDirectories(selectorFile.getParent());
 
             // Writes the selector to a temporary file and then moves the file to the intended location.
-            using (TemporaryFile temporarySelectorFile = Files.createTempFile(null, null))
+            using (TemporaryFile temporarySelectorFile = Files.createTempFile())
             {
                 using (Stream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile.Path))
                 {
@@ -415,6 +361,7 @@ namespace Jib.Net.Core
     [Flags]
     internal enum StandardCopyOption
     {
+        None = 0,
         ATOMIC_MOVE = 1 << 0,
         REPLACE_EXISTING =1<<1
     }

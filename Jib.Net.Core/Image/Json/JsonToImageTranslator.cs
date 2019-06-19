@@ -28,20 +28,6 @@ using System.Text.RegularExpressions;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Translates {@link V21ManifestTemplate} and {@link V22ManifestTemplate} into {@link Image}. */
     public sealed class JsonToImageTranslator
     {

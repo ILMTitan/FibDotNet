@@ -23,11 +23,9 @@ namespace com.google.cloud.tools.jib.@event.progress
     internal class DoubleAccumulator
     {
         private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
-        private readonly double maxValue;
 
-        public DoubleAccumulator(double maxValue, double initialValue)
+        public DoubleAccumulator(double initialValue)
         {
-            this.maxValue = maxValue;
             values.Value = initialValue;
         }
 

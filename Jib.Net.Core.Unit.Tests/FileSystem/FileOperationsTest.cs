@@ -26,18 +26,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link FileOperations}. */
     public class FileOperationsTest
     {
@@ -91,7 +79,7 @@ namespace com.google.cloud.tools.jib.filesystem
         [Test]
         public void testNewLockingOutputStream_newFile()
         {
-            using (TemporaryFile file = Files.createTempFile("", ""))
+            using (TemporaryFile file = Files.createTempFile())
             {
                 // Ensures file doesn't exist.
                 Files.deleteIfExists(file.Path);
@@ -103,7 +91,7 @@ namespace com.google.cloud.tools.jib.filesystem
         [Test]
         public void testNewLockingOutputStream_existingFile()
         {
-            using (TemporaryFile file = Files.createTempFile("", ""))
+            using (TemporaryFile file = Files.createTempFile())
             {
                 // Writes out more bytes to ensure proper truncated.
                 byte[] dataBytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };

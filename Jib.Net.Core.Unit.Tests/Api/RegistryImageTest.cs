@@ -22,11 +22,9 @@ using NUnit.Framework;
 namespace com.google.cloud.tools.jib.api
 {
     /** Tests for {@link RegistryImage}. */
-
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class RegistryImageTest
     {
-        private CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
+        private readonly CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
 
         [Test]
         public void testGetters_default()

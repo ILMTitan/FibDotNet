@@ -33,18 +33,6 @@ using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.http
 {
-
-
-
-
-
-
-
-
-
-
-
-
     /** Simple local web server for testing. */
     public class TestWebServer : IDisposable
     {
@@ -57,10 +45,11 @@ namespace com.google.cloud.tools.jib.http
         public TestWebServer(bool https)
         {
             this.https = https;
-            serverSocket = createServerSocket(https);
+            serverSocket = createServerSocket();
             serveTask = serve200Async();
             threadStarted.acquire();
         }
+
         public string GetAddressAndPort()
         {
             var host = serverSocket.LocalEndpoint;
@@ -77,7 +66,7 @@ namespace com.google.cloud.tools.jib.http
             serverSocket.Stop();
         }
 
-        private TcpListener createServerSocket(bool https)
+        private TcpListener createServerSocket()
         {
             return new TcpListener(IPAddress.Loopback, 0);
         }

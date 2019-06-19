@@ -31,32 +31,9 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link ManifestPuller}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ManifestPullerTest
     {
-        private static Stream stringToInputStreamUtf8(string @string)
-        {
-            return new MemoryStream(@string.getBytes(StandardCharsets.UTF_8));
-        }
-
         private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
 
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
@@ -85,7 +62,7 @@ namespace com.google.cloud.tools.jib.registry
             ManifestTemplate manifestTemplate =
                 await new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponseAsync(mockResponse);
+                    .handleResponseAsync(mockResponse).ConfigureAwait(false);
 
             Assert.IsInstanceOf<V21ManifestTemplate>(manifestTemplate);
         }
@@ -103,7 +80,7 @@ namespace com.google.cloud.tools.jib.registry
             ManifestTemplate manifestTemplate =
                 await new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponseAsync(mockResponse);
+                    .handleResponseAsync(mockResponse).ConfigureAwait(false);
 
             Assert.IsInstanceOf<V22ManifestTemplate>(manifestTemplate);
         }
@@ -118,7 +95,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("An empty manifest should throw an error");
             }
             catch (UnknownManifestFormatException ex)
@@ -137,7 +114,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("A non-integer schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)
@@ -156,7 +133,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse);
+                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("An unknown manifest schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)

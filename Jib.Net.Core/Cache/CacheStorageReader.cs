@@ -31,21 +31,6 @@ using System.Linq;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Reads from the default cache storage engine. */
     public class CacheStorageReader
     {

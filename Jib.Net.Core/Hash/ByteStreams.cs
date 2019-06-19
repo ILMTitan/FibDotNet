@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.hash
     {
         internal static async Task copyAsync(Stream inStream, Stream contentsOut)
         {
-            await inStream.CopyToAsync(contentsOut);
+            await inStream.CopyToAsync(contentsOut).ConfigureAwait(false);
         }
 
         internal static byte[] toByteArray(Stream stream)

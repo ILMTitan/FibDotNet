@@ -30,10 +30,10 @@ namespace com.google.cloud.tools.jib.registry
         {
             try
             {
-                await localRegistry.startAsync();
+                await localRegistry.startAsync().ConfigureAwait(false);
             } catch (Exception e)
             {
-                await TestContext.Out.WriteLineAsync(e.ToString());
+                await TestContext.Out.WriteLineAsync(e.ToString()).ConfigureAwait(false);
                 throw new Exception(e.ToString(), e);
             }
         }

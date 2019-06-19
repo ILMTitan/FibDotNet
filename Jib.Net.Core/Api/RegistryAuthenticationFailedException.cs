@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.api
     /** Thrown because registry authentication failed. */
     public class RegistryAuthenticationFailedException : RegistryException
     {
-        private static readonly string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
+        private const string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
         private readonly string serverUrl;
         private readonly string imageName;
 

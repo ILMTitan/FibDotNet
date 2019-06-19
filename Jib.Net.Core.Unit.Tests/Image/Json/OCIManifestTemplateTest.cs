@@ -24,9 +24,6 @@ using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
     /** Tests for {@link OCIManifestTemplate}. */
     public class OCIManifestTemplateTest
     {

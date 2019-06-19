@@ -28,26 +28,10 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link RetrieveRegistryCredentialsStep}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class RetrieveRegistryCredentialsStepTest
     {
-        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
+        private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         [Test]
         public void testCall_retrieved()
@@ -107,17 +91,14 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration =
                 makeFakeBuildConfiguration(
                     Collections.singletonList<CredentialRetriever>(
-                        () =>
-                        {
-                            throw credentialRetrievalException;
-                        }),
+                        () => throw credentialRetrievalException),
                     Collections.emptyList<CredentialRetriever>());
             try
             {
                 await RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
                         ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
-                    .getFuture();
+                    .getFuture().ConfigureAwait(false);
                 Assert.Fail("Should have thrown exception");
             }
             catch (CredentialRetrievalException ex)

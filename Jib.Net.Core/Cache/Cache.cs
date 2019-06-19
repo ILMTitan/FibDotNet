@@ -24,11 +24,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
     /**
      * Cache for storing data to be shared between Jib executions.
      *
@@ -99,7 +94,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public async Task<CachedLayer> writeCompressedLayerAsync(Blob compressedLayerBlob)
         {
-            return await cacheStorageWriter.writeCompressedAsync(compressedLayerBlob);
+            return await cacheStorageWriter.writeCompressedAsync(compressedLayerBlob).ConfigureAwait(false);
         }
 
         /**
@@ -115,7 +110,7 @@ namespace com.google.cloud.tools.jib.cache
             Blob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries)
         {
             return await cacheStorageWriter.writeUncompressedAsync(
-                uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries));
+                uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries)).ConfigureAwait(false);
         }
 
         /**

@@ -31,16 +31,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
-
-
     public class WriteTarFileStep : AsyncStep<BuildResult>
     {
         private readonly BuildConfiguration buildConfiguration;
@@ -78,16 +68,16 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            await pullAndCacheBaseImageLayersStep.getFuture();
-            await buildAndCacheApplicationLayersStep.getFuture();
-            await buildImageStep.getFuture();
+            await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
+            await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
+            await buildImageStep.getFuture().ConfigureAwait(false);
             buildConfiguration
                 .getEventHandlers()
                 .dispatch(LogEvent.progress("Building image to tar file..."));
 
             using (progressEventDispatcherFactory.create("writing to tar file", 1))
             {
-                Image image = await buildImageStep.getFuture();
+                Image image = await buildImageStep.getFuture().ConfigureAwait(false);
 
                 // Builds the image to a tarball.
                 Files.createDirectories(outputPath.getParent());
@@ -95,7 +85,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new BufferedStream(FileOperations.newLockingOutputStream(outputPath)))
                 {
                     await new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
-                        .writeToAsync(outputStream);
+                        .writeToAsync(outputStream).ConfigureAwait(false);
                 }
 
                 return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());

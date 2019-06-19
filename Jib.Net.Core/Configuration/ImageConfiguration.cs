@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.configuration
         /** Builder for instantiating an {@link ImageConfiguration}. */
         public class Builder
         {
-            private IImageReference imageReference;
+            private readonly IImageReference imageReference;
             private ImmutableArray<CredentialRetriever> credentialRetrievers = ImmutableArray.Create<CredentialRetriever>();
 
             /**

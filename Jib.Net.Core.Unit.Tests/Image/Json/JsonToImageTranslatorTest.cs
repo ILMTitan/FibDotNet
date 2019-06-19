@@ -29,22 +29,6 @@ using System.Text.RegularExpressions;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link JsonToImageTranslator}. */
     public class JsonToImageTranslatorTest
     {

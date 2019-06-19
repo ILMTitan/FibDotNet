@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.filesystem
 {
     internal static class MoreFiles
     {
-        internal static void deleteRecursively(SystemPath directory, object aLLOW_INSECURE)
+        internal static void deleteRecursively(SystemPath directory)
         {
             Directory.Delete(directory, true);
         }

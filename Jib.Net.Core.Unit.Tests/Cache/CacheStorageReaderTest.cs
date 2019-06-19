@@ -29,21 +29,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link CacheStorageReader}. */
     public class CacheStorageReaderTest
     {
@@ -195,7 +180,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual(layerDigest, optionalCachedLayer.get().getDigest());
             Assert.AreEqual(layerDiffId, optionalCachedLayer.get().getDiffId());
             Assert.AreEqual("layerBlob".length(), optionalCachedLayer.get().getSize());
-            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(optionalCachedLayer.get().getBlob()));
+            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(optionalCachedLayer.get().getBlob()).ConfigureAwait(false));
 
             // Checks that multiple .layer files means the cache is corrupted.
             Files.createFile(cacheStorageFiles.getLayerFile(layerDigest, layerDigest));

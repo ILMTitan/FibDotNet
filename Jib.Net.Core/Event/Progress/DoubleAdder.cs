@@ -21,7 +21,8 @@ namespace com.google.cloud.tools.jib.@event.progress
 {
     internal class DoubleAdder
     {
-        private ThreadLocal<double> values = new ThreadLocal<double>(true);
+        private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
+
         internal void add(double value)
         {
             values.Value += value;

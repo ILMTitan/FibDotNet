@@ -22,7 +22,7 @@ namespace Jib.Net.Core.Api
     /** Thrown when a directory to be used as the cache could not be created. */
     public class CacheDirectoryCreationException : Exception
     {
-        private static readonly string MESSAGE = "Could not create cache directory";
+        private const string MESSAGE = "Could not create cache directory";
 
         public CacheDirectoryCreationException(Exception cause) : base(MESSAGE, cause)
         {

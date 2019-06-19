@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.registry
 
         protected async Task beforeAsync()
         {
-            await startAsync();
+            await startAsync().ConfigureAwait(false);
         }
 
         protected void after()
@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             dockerTokens.add("registry");
             new Command("docker", dockerTokens).run();
-            await waitUntilReadyAsync();
+            await waitUntilReadyAsync().ConfigureAwait(false);
         }
 
         /** Stops the registry. */
@@ -182,7 +182,7 @@ namespace com.google.cloud.tools.jib.registry
                 try
                 {
                     var client = new HttpClient();
-                    var message = await client.GetAsync(queryUrl);
+                    var message = await client.GetAsync(queryUrl).ConfigureAwait(false);
                     var code = message.StatusCode;
                     if (code == HttpStatusCode.OK || code == HttpStatusCode.Unauthorized)
                     {

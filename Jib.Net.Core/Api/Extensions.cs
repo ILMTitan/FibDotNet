@@ -63,12 +63,12 @@ namespace Jib.Net.Core.Global
 
         public static async Task<string> parseAsStringAsync(this HttpResponseMessage m)
         {
-            return await m.Content.ReadAsStringAsync();
+            return await m.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         public static async Task writeToAsync(this BlobHttpContent c, Stream s)
         {
-            await c.CopyToAsync(s);
+            await c.CopyToAsync(s).ConfigureAwait(false);
         }
 
         public static string name(this ErrorCodes e)
@@ -313,7 +313,7 @@ namespace Jib.Net.Core.Global
 
         public static async Task<Stream> getBodyAsync(this HttpResponseMessage m)
         {
-            return await m.Content.ReadAsStreamAsync();
+            return await m.Content.ReadAsStreamAsync().ConfigureAwait(false);
         }
 
         public static IList<string> getHeader(this HttpResponseMessage m, string name)
@@ -349,11 +349,6 @@ namespace Jib.Net.Core.Global
         public static int size<T>(this IReadOnlyCollection<T> c)
         {
             return c.Count;
-        }
-
-        public static void deleteOnExit(this FileSystemInfo i)
-        {
-            throw new NotImplementedException();
         }
 
         public static void close(this IDisposable d)
@@ -426,11 +421,6 @@ namespace Jib.Net.Core.Global
             return e.Name;
         }
 
-        public static Class<T> getClass<T>(this T o)
-        {
-            return o.GetType();
-        }
-
         public static bool isEmpty<T>(this ImmutableArray<T> c)
         {
             return c.Length == 0;
@@ -458,7 +448,7 @@ namespace Jib.Net.Core.Global
 
         public static async Task<string> getContentAsync(this HttpResponseMessage message)
         {
-            return await message.Content.ReadAsStringAsync();
+            return await message.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         public static long? getContentLength(this HttpResponseMessage message)
@@ -576,27 +566,7 @@ namespace Jib.Net.Core.Global
             return string.IsNullOrEmpty(s);
         }
 
-        public static T computeIfAbsent<TKey, T>(this ConcurrentDictionary<TKey, T> d, TKey key, Func<TKey, T> f)
-        {
-            return d.GetOrAdd(key, f);
-        }
-
-        public static bool accept<T>(this Predicate<T> p, T value)
-        {
-            return p(value);
-        }
-
-        public static Func<T, bool> or<T>(this Func<T, bool> first, Func<T, bool> second)
-        {
-            return i => first(i) || second(i);
-        }
-
         public static Func<T, bool> and<T>(this Func<T, bool> first, Func<T, bool> second)
-        {
-            return i => first(i) && second(i);
-        }
-
-        public static Predicate<T> and<T>(this Predicate<T> first, Predicate<T> second)
         {
             return i => first(i) && second(i);
         }

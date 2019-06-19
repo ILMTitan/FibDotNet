@@ -27,11 +27,11 @@ namespace com.google.cloud.tools.jib.cache
     /** Resolves the files used in the default cache storage engine. */
     public class CacheStorageFiles
     {
-        private static readonly string LAYERS_DIRECTORY = "layers";
-        private static readonly string IMAGES_DIRECTORY = "images";
-        private static readonly string SELECTORS_DIRECTORY = "selectors";
-        private static readonly string TEMPORARY_DIRECTORY = "tmp";
-        private static readonly string TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
+        private const string LAYERS_DIRECTORY = "layers";
+        private const string IMAGES_DIRECTORY = "images";
+        private const string SELECTORS_DIRECTORY = "selectors";
+        private const string TEMPORARY_DIRECTORY = "tmp";
+        private const string TEMPORARY_LAYER_FILE_NAME = ".tmp.layer";
 
         /**
          * Returns whether or not {@code file} is a layer contents file.

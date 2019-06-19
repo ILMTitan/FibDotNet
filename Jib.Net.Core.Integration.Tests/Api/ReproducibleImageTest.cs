@@ -33,26 +33,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Verify that created image has explicit directory structures, default timestamps, permissions, and
      * file orderings.
@@ -88,7 +68,7 @@ namespace com.google.cloud.tools.jib.api
                     LayerConfiguration.builder()
                         .addEntryRecursive(subdir, AbsoluteUnixPath.get("/app"))
                         .build())
-                .containerizeAsync(containerizer);
+                .containerizeAsync(containerizer).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -202,7 +182,7 @@ namespace com.google.cloud.tools.jib.api
         {
             ISet<string> paths = new HashSet<string>();
             layerEntriesDo(
-                (layerName, layerEntry) =>
+                (_, layerEntry) =>
                 {
                     if (layerEntry.isFile())
                     {
@@ -223,7 +203,7 @@ namespace com.google.cloud.tools.jib.api
         public void testAllFileAndDirectories()
         {
             layerEntriesDo(
-                (layerName, layerEntry) =>
+                (_, layerEntry) =>
                     Assert.IsTrue(layerEntry.isFile() || layerEntry.isDirectory()));
         }
 
@@ -276,7 +256,7 @@ namespace com.google.cloud.tools.jib.api
         {
             ISet<string> directories = new HashSet<string>();
             layerEntriesDo(
-                (layerName, layerEntry) =>
+                (_, layerEntry) =>
                 {
                     string entryPath = layerEntry.getName();
                     if (layerEntry.isDirectory())

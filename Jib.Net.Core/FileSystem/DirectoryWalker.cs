@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.filesystem
     {
         private readonly SystemPath rootDir;
 
-        private Func<SystemPath, bool> pathFilter = path => true;
+        private Func<SystemPath, bool> pathFilter = _ => true;
 
         /**
          * Initialize with a root directory to walk.

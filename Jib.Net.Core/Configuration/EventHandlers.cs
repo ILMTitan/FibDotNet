@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.configuration
 
         public class Builder
         {
-            private IList<Action<JibEvent>> handlers = new List<Action<JibEvent>>();
+            private readonly IList<Action<JibEvent>> handlers = new List<Action<JibEvent>>();
 
             public Builder add<T>(Action<T> action) where T : JibEvent
             {
@@ -70,11 +70,6 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 return new EventHandlers(handlers.ToImmutableArray());
             }
-        }
-
-        internal object getHandlers()
-        {
-            throw new NotImplementedException();
         }
     }
 }

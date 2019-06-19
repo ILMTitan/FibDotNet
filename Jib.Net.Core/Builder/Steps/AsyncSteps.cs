@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         internal static AsyncStep<IReadOnlyList<T>> fromTasks<T>(IEnumerable<Task<T>> tasks) {
-            async Task<IReadOnlyList<T>> f() => await Task.WhenAll(tasks);
+            async Task<IReadOnlyList<T>> f() => await Task.WhenAll(tasks).ConfigureAwait(false);
             return AsyncStep.Of(f);
         }
     }

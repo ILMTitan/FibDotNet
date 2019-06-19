@@ -43,11 +43,6 @@ namespace com.google.cloud.tools.jib.api
                 this.imageReference = imageReference;
             }
 
-            public TarImage saveTo(object p)
-            {
-                throw new NotImplementedException();
-            }
-
             /**
              * Sets the output file to save the tarball archive to.
              *

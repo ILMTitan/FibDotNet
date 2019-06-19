@@ -30,11 +30,6 @@ namespace Jib.Net.Core.Global
             }
         }
 
-        internal static void checkState(bool v, string message)
-        {
-            throw new NotImplementedException();
-        }
-
         internal static void checkArgument(bool v1)
         {
             if (!v1)

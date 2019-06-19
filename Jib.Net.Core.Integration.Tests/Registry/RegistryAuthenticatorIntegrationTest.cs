@@ -36,9 +36,9 @@ namespace com.google.cloud.tools.jib.registry
                         dockerHubImageReference.getRegistry(),
                         dockerHubImageReference.getRepository())
                     .newRegistryClient()
-                    .getRegistryAuthenticatorAsync();
+                    .getRegistryAuthenticatorAsync().ConfigureAwait(false);
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null);
+            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null).ConfigureAwait(false);
 
             // Checks that some token was received.
             Assert.IsTrue(0 < authorization.getToken().length());

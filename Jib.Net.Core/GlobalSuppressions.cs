@@ -15,6 +15,6 @@ using System.Diagnostics.CodeAnalysis;
     "RCS1194:Implement exception constructors.",
     Justification = "Why?")]
 [assembly: SuppressMessage(
-    "Usage",
-    "VSTHRD003:Avoid awaiting foreign Tasks",
-    Justification = "<Pending>")]
+    "Performance",
+    "RCS1096:Use bitwise operation instead of calling 'HasFlag'.",
+    Justification = "Unnecessicary in latest .NET Core versions.")]

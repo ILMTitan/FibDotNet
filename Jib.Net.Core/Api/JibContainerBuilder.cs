@@ -48,15 +48,6 @@ namespace com.google.cloud.tools.jib.api
     // TODO: Add tests once containerize() is added.
     public class JibContainerBuilder
     {
-        private static string capitalizeFirstLetter(string s)
-        {
-            if (s.length() == 0)
-            {
-                return s;
-            }
-            return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-        }
-
         private readonly ContainerConfiguration.Builder containerConfigurationBuilder =
             ContainerConfiguration.builder();
 
@@ -481,7 +472,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    IBuildResult result = await containerizer.createStepsRunner(buildConfiguration).runAsync();
+                    IBuildResult result = await containerizer.createStepsRunner(buildConfiguration).runAsync().ConfigureAwait(false);
                     return new JibContainer(result.getImageDigest(), result.getImageId());
                 }
                 catch (Exception ex)
@@ -538,7 +529,7 @@ namespace com.google.cloud.tools.jib.api
                 }
 
                 eventHandlers.dispatch(
-                    LogEvent.info("\t" + capitalizeFirstLetter(layerConfiguration.getName()) + ":"));
+                    LogEvent.info("\t" + layerConfiguration.getName() + ":"));
 
                 foreach (LayerEntry layerEntry in layerConfiguration.getLayerEntries())
                 {

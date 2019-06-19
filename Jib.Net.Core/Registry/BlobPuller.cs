@@ -28,12 +28,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
     /** Pulls an image's BLOB (layer or container configuration). */
     internal class BlobPuller : RegistryEndpointProvider<object>
     {
@@ -76,7 +70,7 @@ namespace com.google.cloud.tools.jib.registry
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))
             {
                 BlobDescriptor receivedBlobDescriptor =
-                    await Digests.computeDigestAsync(await response.getBodyAsync(), outputStream);
+                    await Digests.computeDigestAsync(await response.getBodyAsync().ConfigureAwait(false), outputStream).ConfigureAwait(false);
 
                 if (!blobDigest.Equals(receivedBlobDescriptor.getDigest()))
                 {

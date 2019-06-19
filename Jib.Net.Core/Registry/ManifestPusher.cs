@@ -31,20 +31,11 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
     /** Pushes an image's manifest. */
     internal class ManifestPusher : RegistryEndpointProvider<DescriptorDigest>
     {
         /** Response header containing digest of pushed image. */
-        private static readonly string RESPONSE_DIGEST_HEADER = "Docker-Content-Digest";
+        private const string RESPONSE_DIGEST_HEADER = "Docker-Content-Digest";
 
         /**
          * Makes the warning for when the registry responds with an image digest that is not the expected
@@ -119,7 +110,7 @@ namespace com.google.cloud.tools.jib.registry
                 throw new HttpResponseException(httpResponse);
             }
 
-            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse);
+            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
             if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.TAG_INVALID)
             {
                 throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
@@ -131,6 +122,7 @@ namespace com.google.cloud.tools.jib.registry
             // rethrow: unhandled error response code.
             throw new HttpResponseException(httpResponse);
         }
+
         public Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
@@ -139,6 +131,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             return Task.FromResult(handleResponse(response));
         }
+
         public DescriptorDigest handleResponse(HttpResponseMessage response)
         {
             // Checks if the image digest is as expected.

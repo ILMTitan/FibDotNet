@@ -27,18 +27,10 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
     /** Pushes the container configuration. */
     internal class PushContainerConfigurationStep : AsyncStep<BlobDescriptor>
     {
-        private static readonly string DESCRIPTION = "Pushing container configuration";
+        private const string DESCRIPTION = "Pushing container configuration";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -69,7 +61,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BlobDescriptor> callAsync()
         {
-            Image image = await buildImageStep.getFuture();
+            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("pushing container configuration", 1))
             using (TimerEventDispatcher ignored =
@@ -84,7 +76,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     progressEventDispatcher.newChildProducer(),
                     authenticatePushStep,
                     blobDescriptor,
-                    Blobs.fromJson(containerConfiguration)).getFuture();
+                    Blobs.fromJson(containerConfiguration)).getFuture().ConfigureAwait(false);
             }
         }
     }

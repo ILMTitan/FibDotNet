@@ -26,12 +26,10 @@ using System.Linq;
 
 namespace com.google.cloud.tools.jib.builder
 {
-
     /** Tests for {@link ProgressEventDispatcher}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ProgressEventDispatcherTest
     {
-        private IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
+        private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         [Test]
         public void testDispatch()

@@ -25,19 +25,17 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
 {
-
-
     /** Translates an {@link Image} to a tarball that can be loaded into Docker. */
     public class ImageTarball : IImageTarball
     {
         /** File name for the container configuration in the tarball. */
-        private static readonly string CONTAINER_CONFIGURATION_JSON_FILE_NAME = "config.json";
+        private const string CONTAINER_CONFIGURATION_JSON_FILE_NAME = "config.json";
 
         /** File name for the manifest in the tarball. */
-        private static readonly string MANIFEST_JSON_FILE_NAME = "manifest.json";
+        private const string MANIFEST_JSON_FILE_NAME = "manifest.json";
 
         /** File name extension for the layer content files. */
-        private static readonly string LAYER_FILE_EXTENSION = ".tar.gz";
+        private const string LAYER_FILE_EXTENSION = ".tar.gz";
 
         private readonly Image image;
 
@@ -83,7 +81,7 @@ namespace com.google.cloud.tools.jib.docker
                 JsonTemplateMapper.toByteArray(Collections.singletonList(manifestTemplate)),
                 MANIFEST_JSON_FILE_NAME);
 
-            await tarStreamBuilder.writeAsTarArchiveToAsync(@out);
+            await tarStreamBuilder.writeAsTarArchiveToAsync(@out).ConfigureAwait(false);
         }
     }
 }

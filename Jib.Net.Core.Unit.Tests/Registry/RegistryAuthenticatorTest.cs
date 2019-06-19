@@ -24,9 +24,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
     /** Tests for {@link RegistryAuthenticator}. */
     public class RegistryAuthenticatorTest
     {
@@ -209,7 +206,7 @@ namespace com.google.cloud.tools.jib.registry
                             new AuthenticationHeaderValue("Bearer","realm=\"" + server.GetAddressAndPort() + "\""),
                             registryEndpointRequestProperties,
                             new[] { new ProductInfoHeaderValue(new ProductHeaderValue("Competent-Agent")) });
-                    await authenticator.authenticatePushAsync(null);
+                    await authenticator.authenticatePushAsync(null).ConfigureAwait(false);
                 }
                 catch (RegistryAuthenticationFailedException)
                 {

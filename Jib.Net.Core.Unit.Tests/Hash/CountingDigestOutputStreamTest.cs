@@ -25,11 +25,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.hash
 {
-
-
-
-
-
     /** Tests for {@link CountingDigestOutputStream}. */
     public class CountingDigestOutputStreamTest
     {
@@ -56,7 +51,7 @@ namespace com.google.cloud.tools.jib.hash
 
                 byte[] bytesToHash = toHash.getBytes(StandardCharsets.UTF_8);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
-                await ByteStreams.copyAsync(toHashInputStream, countingDigestOutputStream);
+                await ByteStreams.copyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
 
                 BlobDescriptor blobDescriptor = countingDigestOutputStream.computeDigest();
                 Assert.AreEqual(DescriptorDigest.fromHash(expectedHash), blobDescriptor.getDigest());

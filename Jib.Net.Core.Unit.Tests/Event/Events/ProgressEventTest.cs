@@ -38,7 +38,6 @@ namespace com.google.cloud.tools.jib.@event.events
 
         /** Second child of the root node. */
         private Allocation child2;
-        
 
         [SetUp]
         public void SetUp()
@@ -54,7 +53,7 @@ namespace com.google.cloud.tools.jib.@event.events
             return EventHandlers.builder().add<ProgressEvent>(progressEventConsumer).build();
         }
 
-        private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
+        private const double DOUBLE_ERROR_MARGIN = 1e-10;
 
         private readonly IDictionary<Allocation, long> allocationCompletionMap = new Dictionary<Allocation, long>();
 
@@ -63,14 +62,13 @@ namespace com.google.cloud.tools.jib.@event.events
         [Test]
         public void testAccumulateProgress()
         {
-            Consumer<ProgressEvent> progressEventConsumer =
-                progressEvent =>
-                {
-                    double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
-                    long units = progressEvent.getUnits();
+            void progressEventConsumer(ProgressEvent progressEvent)
+            {
+                double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
+                long units = progressEvent.getUnits();
 
-                    progress += units * fractionOfRoot;
-                };
+                progress += units * fractionOfRoot;
+            }
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
@@ -81,28 +79,22 @@ namespace com.google.cloud.tools.jib.@event.events
             Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.dispatch(new ProgressEvent(child2, 10));
-            Assert.AreEqual(1.0 / 2 + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
+            Assert.AreEqual((1.0 / 2) + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.dispatch(new ProgressEvent(child2, 190));
             Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
         }
 
-        private EventHandlers makeEventHandlers(Consumer<ProgressEvent> progressEventConsumer)
-        {
-            return EventHandlers.builder().add<ProgressEvent>(e => progressEventConsumer(e)).build();
-        }
-
         [Test]
         public void testSmoke()
         {
-            Consumer<ProgressEvent> progressEventConsumer =
-                progressEvent =>
-                {
-                    Allocation allocation = progressEvent.getAllocation();
-                    long units = progressEvent.getUnits();
+            void progressEventConsumer(ProgressEvent progressEvent)
+            {
+                Allocation allocation = progressEvent.getAllocation();
+                long units = progressEvent.getUnits();
 
-                    updateCompletionMap(allocation, units);
-                };
+                updateCompletionMap(allocation, units);
+            }
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
@@ -132,11 +124,10 @@ namespace com.google.cloud.tools.jib.@event.events
         {
             // Used to test whether or not progress event was consumed
             bool[] called = new bool[] { false };
-            Consumer<ProgressEvent> buildImageConsumer =
-                progressEvent =>
-                {
-                    called[0] = true;
-                };
+            void buildImageConsumer(ProgressEvent _)
+            {
+                called[0] = true;
+            }
 
             EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
             eventHandlers.dispatch(new ProgressEvent(child1, 50));

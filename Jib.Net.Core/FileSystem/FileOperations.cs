@@ -22,8 +22,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
-
     /** Static methods for operating on the filesystem. */
     public sealed class FileOperations
     {

@@ -31,29 +31,13 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link BlobPusher}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class BlobPusherTest
     {
-        private static readonly string TEST_BLOB_CONTENT = "some BLOB content";
+        private const string TEST_BLOB_CONTENT = "some BLOB content";
         private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
-        private Uri mockURL = new Uri("mock://someServerUrl/someImageName");
+        private readonly Uri mockURL = new Uri("mock://someServerUrl/someImageName");
         private HttpResponseMessage mockResponse = new HttpResponseMessage();
 
         private DescriptorDigest fakeDescriptorDigest;
@@ -89,7 +73,7 @@ namespace com.google.cloud.tools.jib.registry
         public async Task testInitializer_handleResponse_createdAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Created);
-            Assert.IsNull(await testBlobPusher.initializer().handleResponseAsync(mockResponse));
+            Assert.IsNull(await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false));
             mockResponse = new HttpResponseMessage(HttpStatusCode.Accepted)
             {
                 Headers = { Location = new Uri("location", UriKind.Relative) },
@@ -101,7 +85,7 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://someurl/location"),
-                await testBlobPusher.initializer().handleResponseAsync(mockResponse));
+                await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
@@ -110,7 +94,7 @@ namespace com.google.cloud.tools.jib.registry
             mockResponse = new HttpResponseMessage(HttpStatusCode.Unused);
             try
             {
-                await testBlobPusher.initializer().handleResponseAsync(mockResponse);
+                await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("Multiple 'Location' headers should be a registry error");
             }
             catch (RegistryErrorException ex)
@@ -169,7 +153,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual("application/octet-stream", body.Headers.ContentType.MediaType);
 
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            await body.writeToAsync(byteArrayOutputStream);
+            await body.writeToAsync(byteArrayOutputStream).ConfigureAwait(false);
 
             Assert.AreEqual(
                 TEST_BLOB_CONTENT, StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
@@ -179,7 +163,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void testWriter_GetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.writer(mockURL, ignored => { }).getAccept().size());
+            Assert.AreEqual(0, testBlobPusher.writer(mockURL, _ => { }).getAccept().size());
         }
 
         [Test]
@@ -200,20 +184,20 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://somenewurl/location"),
-                await testBlobPusher.writer(mockURL, ignored => { }).handleResponseAsync(mockResponse));
+                await testBlobPusher.writer(mockURL, _ => { }).handleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
         public void testWriter_getApiRoute()
         {
             Uri fakeUrl = new Uri("http://someurl");
-            Assert.AreEqual(fakeUrl, testBlobPusher.writer(fakeUrl, ignored => { }).getApiRoute(""));
+            Assert.AreEqual(fakeUrl, testBlobPusher.writer(fakeUrl, _ => { }).getApiRoute(""));
         }
 
         [Test]
         public void testWriter_getHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Patch, testBlobPusher.writer(mockURL, ignored => { }).getHttpMethod());
+            Assert.AreEqual(HttpMethod.Patch, testBlobPusher.writer(mockURL, _ => { }).getHttpMethod());
         }
 
         [Test]
@@ -221,7 +205,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             Assert.AreEqual(
                 "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
-                testBlobPusher.writer(mockURL, ignored => { }).getActionDescription());
+                testBlobPusher.writer(mockURL, _ => { }).getActionDescription());
         }
 
         [Test]
@@ -239,7 +223,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testCommitter_handleResponseAsync()
         {
-            Assert.IsNull(await testBlobPusher.committer(mockURL).handleResponseAsync(Mock.Of<HttpResponseMessage>()));
+            Assert.IsNull(await testBlobPusher.committer(mockURL).handleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
         }
 
         [Test]

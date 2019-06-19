@@ -99,7 +99,7 @@ namespace com.google.cloud.tools.jib.hash
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var bytesRead = await base.ReadAsync(buffer, offset, count, cancellationToken);
+            var bytesRead = await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             bytesSoFar += bytesRead;
             return bytesRead;
         }

@@ -31,23 +31,10 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Pushes the final image. Outputs the pushed image digest. */
     internal class PushImageStep : AsyncStep<BuildResult>
     {
-        private static readonly string DESCRIPTION = "Pushing new image";
+        private const string DESCRIPTION = "Pushing new image";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -88,9 +75,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            IReadOnlyList<BlobDescriptor> baseImageDescriptors = await pushBaseImageLayersStep.getFuture();
-            IReadOnlyList<BlobDescriptor> appLayerDescriptors = await pushApplicationLayersStep.getFuture();
-            BlobDescriptor containerConfigurationBlobDescriptor = await pushContainerConfigurationStep.getFuture();
+            IReadOnlyList<BlobDescriptor> baseImageDescriptors = await pushBaseImageLayersStep.getFuture().ConfigureAwait(false);
+            IReadOnlyList<BlobDescriptor> appLayerDescriptors = await pushApplicationLayersStep.getFuture().ConfigureAwait(false);
+            BlobDescriptor containerConfigurationBlobDescriptor = await pushContainerConfigurationStep.getFuture().ConfigureAwait(false);
             ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
 
             using (ProgressEventDispatcher progressEventDispatcher =
@@ -101,12 +88,12 @@ namespace com.google.cloud.tools.jib.builder.steps
                 RegistryClient registryClient =
                     buildConfiguration
                         .newTargetImageRegistryClientFactory()
-                        .setAuthorization(await authenticatePushStep.getFuture())
+                        .setAuthorization(await authenticatePushStep.getFuture().ConfigureAwait(false))
                         .newRegistryClient();
 
                 // Constructs the image.
                 ImageToJsonTranslator imageToJsonTranslator =
-                    new ImageToJsonTranslator(await buildImageStep.getFuture());
+                    new ImageToJsonTranslator(await buildImageStep.getFuture().ConfigureAwait(false));
 
                 // Gets the image manifest to push.
                 BuildableManifestTemplate manifestTemplate =
@@ -130,7 +117,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
                 BuildResult result = new BuildResult(imageDigest, imageId);
 
-                await Task.WhenAll(pushAllTagsFutures);
+                await Task.WhenAll(pushAllTagsFutures).ConfigureAwait(false);
                 return result;
             }
         }

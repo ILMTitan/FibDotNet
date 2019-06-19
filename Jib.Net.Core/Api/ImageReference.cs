@@ -32,15 +32,15 @@ namespace com.google.cloud.tools.jib.api
      */
     public sealed class ImageReference : IImageReference
     {
-        private static readonly string DOCKER_HUB_REGISTRY = "registry-1.docker.io";
-        private static readonly string DEFAULT_TAG = "latest";
-        private static readonly string LIBRARY_REPOSITORY_PREFIX = "library/";
+        private const string DOCKER_HUB_REGISTRY = "registry-1.docker.io";
+        private const string DEFAULT_TAG = "latest";
+        private const string LIBRARY_REPOSITORY_PREFIX = "library/";
 
         /**
          * Matches all sequences of alphanumeric characters possibly separated by any number of dashes in
          * the middle.
          */
-        private static readonly string REGISTRY_COMPONENT_REGEX =
+        private const string REGISTRY_COMPONENT_REGEX =
             "(?:[a-zA-Z\\d]|(?:[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]))";
 
         /**
@@ -55,14 +55,14 @@ namespace com.google.cloud.tools.jib.api
          *
          * <p>A separator is either an underscore, a dot, two underscores, or any number of dashes.
          */
-        private static readonly string REPOSITORY_COMPONENT_REGEX = "[a-z\\d]+(?:(?:[_.]|__|-+)[a-z\\d]+)*";
+        private const string REPOSITORY_COMPONENT_REGEX = "[a-z\\d]+(?:(?:[_.]|__|-+)[a-z\\d]+)*";
 
         /** Matches all repetitions of {@code REPOSITORY_COMPONENT_REGEX} separated by a backslash. */
         private static readonly string REPOSITORY_REGEX =
             $"(?:{REPOSITORY_COMPONENT_REGEX}/)*{REPOSITORY_COMPONENT_REGEX}";
 
         /** Matches a tag of max length 128. */
-        private static readonly string TAG_REGEX = "[\\w][\\w.-]{0,127}";
+        private const string TAG_REGEX = "[\\w][\\w.-]{0,127}";
 
         /**
          * Matches a full image reference, which is the registry, repository, and tag/digest separated by

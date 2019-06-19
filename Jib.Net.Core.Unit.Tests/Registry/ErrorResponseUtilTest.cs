@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(
-                ErrorCodes.MANIFEST_INVALID, await ErrorResponseUtil.getErrorCodeAsync(httpResponseException));
+                ErrorCodes.MANIFEST_INVALID, await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false));
         }
 
         /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)
@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry
             };
             try
             {
-                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException);
+                await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)

@@ -38,7 +38,7 @@ namespace Jib.Net.Core.Api
         private static readonly string HASH_REGEX = $"[a-f0-9]{{{HASH_LENGTH}}}";
 
         /** The algorithm prefix for the digest string. */
-        private static readonly string DIGEST_PREFIX = "sha256:";
+        private const string DIGEST_PREFIX = "sha256:";
 
         /** Pattern matches a SHA-256 digest - a SHA-256 hash prefixed with "sha256:". */
         public static readonly string DIGEST_REGEX = DIGEST_PREFIX + HASH_REGEX;

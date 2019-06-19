@@ -25,9 +25,6 @@ using System.Linq;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
-
-
-
     /**
      * Keeps track of the progress for {@link Allocation}s as well as their order in which they appear.
      *

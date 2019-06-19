@@ -36,30 +36,7 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link ManifestPusher}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ManifestPusherTest
     {
         private IEventHandlers mockEventHandlers;
@@ -93,7 +70,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.Headers.ContentType.MediaType);
 
             MemoryStream bodyCaptureStream = new MemoryStream();
-            await body.writeToAsync(bodyCaptureStream);
+            await body.writeToAsync(bodyCaptureStream).ConfigureAwait(false);
             string v22manifestJson =
                 StandardCharsets.UTF_8.GetString(Files.readAllBytes(v22manifestJsonFile));
             Assert.AreEqual(
@@ -109,7 +86,7 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.singletonList(expectedDigest.toString()) } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
@@ -121,7 +98,7 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.emptyList<string>() } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
         }
 
@@ -134,7 +111,7 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Arrays.asList("too", "many") } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: too, many")));
         }
@@ -148,7 +125,7 @@ namespace com.google.cloud.tools.jib.registry
                 Headers = { { "Docker-Content-Digest", Collections.singletonList("not valid") } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
             Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: not valid")));
         }
@@ -193,7 +170,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -217,7 +194,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -242,7 +219,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
@@ -264,7 +241,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception);
+                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)

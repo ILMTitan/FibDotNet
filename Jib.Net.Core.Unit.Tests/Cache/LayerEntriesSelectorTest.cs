@@ -29,16 +29,6 @@ using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
 
 namespace com.google.cloud.tools.jib.cache
 {
-
-
-
-
-
-
-
-
-
-
     /** Tests for {@link LayerEntriesSelector}. */
     public class LayerEntriesSelectorTest
     {

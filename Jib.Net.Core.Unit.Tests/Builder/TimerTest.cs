@@ -23,10 +23,9 @@ using NUnit.Framework;
 namespace com.google.cloud.tools.jib.builder
 {
     /** Tests for {@link Timer}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class TimerTest
     {
-        private IClock mockClock = Mock.Of<IClock>();
+        private readonly IClock mockClock = Mock.Of<IClock>();
 
         [Test]
         public void testLap()

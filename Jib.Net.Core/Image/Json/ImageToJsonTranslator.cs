@@ -26,16 +26,6 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image.json
 {
-
-
-
-
-
-
-
-
-
-
     /**
      * Translates an {@link Image} into a manifest or container configuration JSON BLOB.
      *
@@ -224,7 +214,6 @@ namespace com.google.cloud.tools.jib.image.json
                         break;
                     default:
                         throw new ArgumentException(nameof(manifestFormat));
-
                 }
                 BuildableManifestTemplate buildableTemplate = (BuildableManifestTemplate)template;
 

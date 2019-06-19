@@ -25,22 +25,14 @@ using System;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
-
-
-
-
-
-
-
     /** Tests for {@link DockerConfigCredentialRetriever}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class DockerConfigCredentialRetrieverTest
     {
         private static readonly Credential FAKE_CREDENTIAL = Credential.from("username", "password");
 
-        private IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
-        private IDockerConfig mockDockerConfig = Mock.Of<IDockerConfig>();
-        private Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+        private readonly IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
+        private readonly IDockerConfig mockDockerConfig = Mock.Of<IDockerConfig>();
+        private readonly Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
 
         private SystemPath dockerConfigFile;
 

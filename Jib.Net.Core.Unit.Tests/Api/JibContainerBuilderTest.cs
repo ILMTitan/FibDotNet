@@ -31,16 +31,14 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.api
 {
     /** Tests for {@link JibContainerBuilder}. */
-
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class JibContainerBuilderTest
     {
-        private BuildConfiguration.Builder buildConfigurationBuilder = new BuildConfiguration.Builder();
-        private ILayerConfiguration mockLayerConfiguration1 = Mock.Of<ILayerConfiguration>();
-        private ILayerConfiguration mockLayerConfiguration2 = Mock.Of<ILayerConfiguration>();
-        private CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
-        private Action<JibEvent> mockJibEventConsumer = Mock.Of<Action<JibEvent>>();
-        private JibEvent mockJibEvent = Mock.Of<JibEvent>();
+        private readonly BuildConfiguration.Builder buildConfigurationBuilder = new BuildConfiguration.Builder();
+        private readonly ILayerConfiguration mockLayerConfiguration1 = Mock.Of<ILayerConfiguration>();
+        private readonly ILayerConfiguration mockLayerConfiguration2 = Mock.Of<ILayerConfiguration>();
+        private readonly CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
+        private readonly Action<JibEvent> mockJibEventConsumer = Mock.Of<Action<JibEvent>>();
+        private readonly JibEvent mockJibEvent = Mock.Of<JibEvent>();
 
         [Test]
         public void testToBuildConfiguration_containerConfigurationSet()
@@ -199,7 +197,7 @@ namespace com.google.cloud.tools.jib.api
 
             IContainerizer mockContainerizer = createMockContainerizer();
 
-            await jibContainerBuilder.containerizeAsync(mockContainerizer);
+            await jibContainerBuilder.containerizeAsync(mockContainerizer).ConfigureAwait(false);
         }
 
         /** Verify that a provided ExecutorService is not shutdown. */
@@ -219,7 +217,7 @@ namespace com.google.cloud.tools.jib.api
                     .setWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
             IContainerizer mockContainerizer = createMockContainerizer();
 
-            await jibContainerBuilder.containerizeAsync(mockContainerizer);
+            await jibContainerBuilder.containerizeAsync(mockContainerizer).ConfigureAwait(false);
         }
 
         private IContainerizer createMockContainerizer()

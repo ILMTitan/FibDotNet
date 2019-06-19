@@ -24,7 +24,6 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
-
     /** Tests for {@link TemporaryDirectory}. */
     public class TemporaryDirectoryTest
     {

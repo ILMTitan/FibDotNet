@@ -28,20 +28,11 @@ using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image
 {
-
-
-
-
-
-
-
-
     /** Tests for {@link Image}. */
-    [RunWith(typeof(MockitoJUnitRunner))]
     public class ImageTest
     {
-        private Layer mockLayer = Mock.Of<Layer>();
-        private DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
+        private readonly Layer mockLayer = Mock.Of<Layer>();
+        private readonly DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
 
         [SetUp]
         public void setUp()

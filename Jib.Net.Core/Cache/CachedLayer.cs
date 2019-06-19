@@ -25,7 +25,7 @@ namespace com.google.cloud.tools.jib.cache
 {
     public class CachedLayerWithType : ICachedLayer
     {
-        private string layerType;
+        private readonly string layerType;
 
         public CachedLayerWithType(ICachedLayer cachedLayer, string layerType)
         {
@@ -65,8 +65,9 @@ namespace com.google.cloud.tools.jib.cache
             return layerType;
         }
     }
+
     /** Default implementation of {@link CachedLayer}. */
-    public class CachedLayer : Layer, ICachedLayer
+    public sealed class CachedLayer : Layer, ICachedLayer
     {
         /** Builds a {@link CachedLayer}. */
         public class Builder
@@ -166,7 +167,7 @@ namespace com.google.cloud.tools.jib.cache
 
         public string getLayerType()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

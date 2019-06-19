@@ -30,12 +30,6 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-
-
-
-
-
-
     /**
      * Pushes an image's BLOB (layer or container configuration).
      *
@@ -172,7 +166,7 @@ namespace com.google.cloud.tools.jib.registry
         private class Committer : RegistryEndpointProvider<object>
         {
             private readonly Uri location;
-            private BlobPusher parent;
+            private readonly BlobPusher parent;
 
             public BlobHttpContent getContent()
             {
@@ -193,9 +187,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public Uri getApiRoute(string apiRouteBase)
             {
-                UriBuilder builder = new UriBuilder(location)
-                {
-                };
+                UriBuilder builder = new UriBuilder(location);
                 if (string.IsNullOrEmpty(builder.Query))
                 {
                     builder.Query = "?digest=" + parent.blobDigest;
