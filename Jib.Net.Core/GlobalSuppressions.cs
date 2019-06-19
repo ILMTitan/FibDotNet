@@ -18,3 +18,7 @@ using System.Diagnostics.CodeAnalysis;
     "Performance",
     "RCS1096:Use bitwise operation instead of calling 'HasFlag'.",
     Justification = "Unnecessicary in latest .NET Core versions.")]
+[assembly: SuppressMessage(
+    "Formatting",
+    "RCS1029:Format binary operator on next line.",
+    Justification = "Style choice I disagree with.")]
