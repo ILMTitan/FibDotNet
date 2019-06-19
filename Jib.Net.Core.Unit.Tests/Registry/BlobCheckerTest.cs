@@ -56,7 +56,8 @@ namespace com.google.cloud.tools.jib.registry
             fakeDigest =
                 DescriptorDigest.fromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            testBlobChecker = new BlobChecker(fakeRegistryEndpointRequestProperties, fakeDigest);
+
+            testBlobChecker = new BlobChecker(fakeRegistryEndpointRequestProperties, new BlobDescriptor(fakeDigest));
         }
 
         [Test]
@@ -68,10 +69,9 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             BlobDescriptor expectedBlobDescriptor = new BlobDescriptor(0, fakeDigest);
+            bool result = await testBlobChecker.handleResponseAsync(mockHttpResponseException);
 
-            BlobDescriptor blobDescriptor = await testBlobChecker.handleResponseAsync(mockHttpResponseException);
-
-            Assert.AreEqual(expectedBlobDescriptor, blobDescriptor);
+            Assert.IsTrue(result);
         }
 
         [Test]
@@ -81,10 +81,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 Content = new StringContent("")
                 {
-                    Headers =
-                    {
-                        ContentLength = null
-                    }
+                    Headers = { ContentLength = null }
                 }
             };
 
@@ -112,10 +109,10 @@ namespace com.google.cloud.tools.jib.registry
                 Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
             };
 
-            BlobDescriptor blobDescriptor =
+            bool result =
                 await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException);
 
-            Assert.IsNull(blobDescriptor);
+            Assert.IsFalse(result);
         }
 
         [Test]

@@ -66,6 +66,10 @@ namespace com.google.cloud.tools.jib.registry
 
         public async Task<object> handleResponseAsync(HttpResponseMessage response)
         {
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpResponseException(response);
+            }
             blobSizeListener.accept(response.getContentLength() ?? 0);
 
             using (Stream outputStream =

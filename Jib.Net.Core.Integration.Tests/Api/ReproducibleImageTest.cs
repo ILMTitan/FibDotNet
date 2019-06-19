@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -58,12 +59,12 @@ namespace com.google.cloud.tools.jib.api
      */
     public class ReproducibleImageTest
     {
-        [ClassRule] public static readonly TemporaryFolder imageLocation = new TemporaryFolder();
+        public static readonly TemporaryFolder imageLocation = new TemporaryFolder();
 
         private static FileInfo imageTar;
 
         [OneTimeSetUp]
-        public static async System.Threading.Tasks.Task createImageAsync()
+        public static async Task createImageAsync()
         {
             SystemPath root = imageLocation.getRoot().toPath();
             SystemPath fileA = Files.createFile(root.resolve("fileA.txt"));
@@ -90,15 +91,21 @@ namespace com.google.cloud.tools.jib.api
                 .containerizeAsync(containerizer);
         }
 
+        [OneTimeTearDown]
+        public static void OneTimeTearDown()
+        {
+            imageLocation.Dispose();
+        }
+
         [Test]
         public void testTarballStructure()
         {
             // known content should produce known results
             IList<string> expected =
                 ImmutableArray.Create(
-                    "c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz",
-                    "6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz",
-                    "530c1954a2b087d0b989895ea56435c9dc739a973f2d2b6cb9bb98e55bbea7ac.tar.gz",
+                    "d92b71b2286ff6c6f6fa33761a6fd4758208750c37856d5452d2e8588660f979.tar.gz",
+                    "41ca669ea78da47d94469b16018242f6f6f5fac94c931cfc1a32fd66f33f65fe.tar.gz",
+                    "905f254d440aeb07a4ed7b3d0713b6a005e122aef1b0d46bae6859158b3697cf.tar.gz",
                     "config.json",
                     "manifest.json");
 
@@ -113,7 +120,7 @@ namespace com.google.cloud.tools.jib.api
                 }
             }
 
-            Assert.AreEqual(expected, actual);
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         [Test]
@@ -122,8 +129,15 @@ namespace com.google.cloud.tools.jib.api
             using (Stream input = Files.newInputStream(imageTar.toPath()))
             {
                 const string exectedManifest =
-                    "[{\"config\":\"config.json\",\"repoTags\":[\"jib-core/reproducible:latest\"],"
-                        + "\"layers\":[\"c46572ef74f58d95e44dd36c1fbdfebd3752e8b56a794a13c11cfed35a1a6e1c.tar.gz\",\"6d2763b0f3940d324ea6b55386429e5b173899608abf7d1bff62e25dd2e4dcea.tar.gz\",\"530c1954a2b087d0b989895ea56435c9dc739a973f2d2b6cb9bb98e55bbea7ac.tar.gz\"]}]";
+                    "[{" +
+                        "\"config\":\"config.json\"," +
+                        "\"repoTags\":[\"jib-core/reproducible:latest\"]," +
+                        "\"layers\":[" +
+                            "\"d92b71b2286ff6c6f6fa33761a6fd4758208750c37856d5452d2e8588660f979.tar.gz\"," +
+                            "\"41ca669ea78da47d94469b16018242f6f6f5fac94c931cfc1a32fd66f33f65fe.tar.gz\"," +
+                            "\"905f254d440aeb07a4ed7b3d0713b6a005e122aef1b0d46bae6859158b3697cf.tar.gz\"" +
+                        "]" +
+                    "}]";
                 string generatedManifest = extractFromTarFileAsString(imageTar, "manifest.json");
                 Assert.AreEqual(exectedManifest, generatedManifest);
             }
@@ -135,10 +149,49 @@ namespace com.google.cloud.tools.jib.api
             using (Stream input = Files.newInputStream(imageTar.toPath()))
             {
                 const string exectedConfig =
-                    "{\"created\":\"1970-01-01T00:00:00Z\",\"architecture\":\"amd64\",\"os\":\"linux\","
-                        + "\"config\":{\"Env\":[],\"Entrypoint\":[\"echo\",\"Hello World\"],\"ExposedPorts\":{},\"Labels\":{},\"Volumes\":{}},"
-                        + "\"history\":[{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"},{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"},{\"created\":\"1970-01-01T00:00:00Z\",\"author\":\"Jib\",\"created_by\":\"jib-core:null\",\"comment\":\"\"}],"
-                        + "\"rootfs\":{\"type\":\"layers\",\"diff_ids\":[\"sha256:18e4f44e6d1835bd968339b166057bd17ab7d4cbb56dc7262a5cafea7cf8d405\",\"sha256:13369c34f073f2b9c1fa6431e23d925f1a8eac65b1726c8cc8fcc2596c69b414\",\"sha256:4f92c507112d7880ca0f504ef8272b7fdee107263270125036a260a741565923\"]}}";
+                    "{" +
+                        "\"created\":\"1970-01-01T00:00:00Z\"," +
+                        "\"architecture\":\"amd64\"," +
+                        "\"os\":\"linux\","+
+                        "\"config\":{" +
+                            "\"Env\":[]," +
+                            "\"Entrypoint\":[" +
+                                "\"echo\"," +
+                                "\"Hello World\"" +
+                            "]," +
+                            "\"ExposedPorts\":{}," +
+                            "\"Labels\":{}," +
+                            "\"Volumes\":{}" +
+                        "}," +
+                        "\"history\":[" +
+                            "{" +
+                                "\"created\":\"1970-01-01T00:00:00Z\"," +
+                                "\"author\":\"Jib\"," +
+                                "\"created_by\":\"jib-core:null\"," +
+                                "\"comment\":\"\"" +
+                            "}," +
+                            "{" +
+                                "\"created\":\"1970-01-01T00:00:00Z\"," +
+                                "\"author\":\"Jib\"," +
+                                "\"created_by\":\"jib-core:null\"," +
+                                "\"comment\":\"\"" +
+                            "}," +
+                            "{" +
+                                "\"created\":\"1970-01-01T00:00:00Z\"," +
+                                "\"author\":\"Jib\"," +
+                                "\"created_by\":\"jib-core:null\"," +
+                                "\"comment\":\"\"" +
+                            "}" +
+                        "]," +
+                        "\"rootfs\":{" +
+                            "\"type\":\"layers\"," +
+                            "\"diff_ids\":[" +
+                                "\"sha256:5be38b9a5bd93ad25adec1ced93c1d4051436246e815a0e7c917c872622b98c4\"," +
+                                "\"sha256:4972099d16725fc66efd2a0e64637a4d8d43e74ef3cc26257484780180f5721d\"," +
+                                "\"sha256:76ee9817f30cdfbe18d84c3b045ab223a0df85bb47020bfed304ecfa8510d077\"" +
+                            "]" +
+                        "}" +
+                    "}";
                 string generatedConfig = extractFromTarFileAsString(imageTar, "config.json");
                 Assert.AreEqual(exectedConfig, generatedConfig);
             }
@@ -156,7 +209,7 @@ namespace com.google.cloud.tools.jib.api
                         paths.add(layerEntry.getName());
                     }
                 });
-            Assert.AreEqual(
+            CollectionAssert.AreEquivalent(
                 ImmutableHashSet.Create(
                     "app/fileA.txt",
                     "app/fileB.txt",
@@ -180,7 +233,7 @@ namespace com.google.cloud.tools.jib.api
             layerEntriesDo(
                 (layerName, layerEntry) =>
                 {
-                    Instant modificationTime = layerEntry.getLastModifiedDate().toInstant();
+                    Instant modificationTime = DateTime.SpecifyKind(layerEntry.getLastModifiedDate(), DateTimeKind.Utc).toInstant();
                     Assert.AreEqual(
                 Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.getName());
                 });
@@ -189,8 +242,8 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testPermissions()
         {
-            Assert.AreEqual(0644, FilePermissions.DEFAULT_FILE_PERMISSIONS.getPermissionBits());
-            Assert.AreEqual(0755, FilePermissions.DEFAULT_FOLDER_PERMISSIONS.getPermissionBits());
+            Assert.AreEqual(FilePermissions.fromOctalString("644"), FilePermissions.DEFAULT_FILE_PERMISSIONS);
+            Assert.AreEqual(FilePermissions.fromOctalString("755"), FilePermissions.DEFAULT_FOLDER_PERMISSIONS);
             layerEntriesDo(
                 (layerName, layerEntry) =>
                 {

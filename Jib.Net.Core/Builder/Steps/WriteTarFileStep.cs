@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly SystemPath outputPath;
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
+        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -58,21 +58,17 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             SystemPath outputPath,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps,
+            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.outputPath = outputPath;
             this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+            this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayersStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(pullAndCacheBaseImageLayersStep)
-                    .addStep(buildImageStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
         public Task<BuildResult> getFuture()
@@ -82,23 +78,16 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            return await AsyncDependencies.@using()
-                .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
-                .addSteps(buildAndCacheApplicationLayerSteps)
-                .addStep(await buildImageStep.getFuture())
-                .whenAllSucceedAsync(writeTarFileAsync);
-        }
-
-        private async Task<BuildResult> writeTarFileAsync()
-        {
+            await pullAndCacheBaseImageLayersStep.getFuture();
+            await buildAndCacheApplicationLayersStep.getFuture();
+            await buildImageStep.getFuture();
             buildConfiguration
                 .getEventHandlers()
                 .dispatch(LogEvent.progress("Building image to tar file..."));
 
-            using (ProgressEventDispatcher ignored =
-                progressEventDispatcherFactory.create("writing to tar file", 1))
+            using (progressEventDispatcherFactory.create("writing to tar file", 1))
             {
-                Image image = await (await buildImageStep.getFuture()).getFuture();
+                Image image = await buildImageStep.getFuture();
 
                 // Builds the image to a tarball.
                 Files.createDirectories(outputPath.getParent());

@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Global;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
          * classes layers. Optionally adds an extra layer if configured to do so.
          */
-        public static ImmutableArray<BuildAndCacheApplicationLayerStep> makeList(
+        public static AsyncStep<IReadOnlyList<ICachedLayer>> makeList(
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
@@ -56,8 +57,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
 
             {
-                ImmutableArray<BuildAndCacheApplicationLayerStep>.Builder buildAndCacheApplicationLayerSteps =
-          ImmutableArray.CreateBuilder<BuildAndCacheApplicationLayerStep>(layerCount);
+                List<Task<ICachedLayer>> buildAndCacheApplicationLayerSteps = new List<Task<ICachedLayer>>();
                 foreach (LayerConfiguration layerConfiguration in buildConfiguration.getLayerConfigurations())
                 {
                     // Skips the layer if empty.
@@ -71,9 +71,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             buildConfiguration,
                             progressEventDispatcher.newChildProducer(),
                             layerConfiguration.getName(),
-                            layerConfiguration));
+                            layerConfiguration).getFuture());
                 }
-                return buildAndCacheApplicationLayerSteps.build();
+                return AsyncSteps.fromTasks(buildAndCacheApplicationLayerSteps);
             }
         }
 

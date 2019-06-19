@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly DockerClient dockerClient;
 
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
+        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -53,21 +53,17 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             DockerClient dockerClient,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps,
+            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.dockerClient = dockerClient;
             this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+            this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayersStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(pullAndCacheBaseImageLayersStep)
-                    .addStep(buildImageStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
         public Task<BuildResult> getFuture()
@@ -77,15 +73,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            return await AsyncDependencies.@using()
-                .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
-                .addSteps(buildAndCacheApplicationLayerSteps)
-                .addStep(await buildImageStep.getFuture())
-                .whenAllSucceedAsync(this.afterPushBaseImageLayerFuturesFutureAsync);
-        }
-
-        private async Task<BuildResult> afterPushBaseImageLayerFuturesFutureAsync()
-        {
+            await pullAndCacheBaseImageLayersStep.getFuture();
+            await buildAndCacheApplicationLayersStep.getFuture();
+            await buildImageStep.getFuture();
             buildConfiguration
                 .getEventHandlers()
                 .dispatch(LogEvent.progress("Loading to Docker daemon..."));
@@ -93,7 +83,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             using (ProgressEventDispatcher ignored =
                 progressEventDispatcherFactory.create("loading to Docker daemon", 1))
             {
-                Image image = await (await buildImageStep.getFuture()).getFuture();
+                Image image = await buildImageStep.getFuture();
                 IImageReference targetImageReference =
                     buildConfiguration.getTargetImageConfiguration().getImage();
 

@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
@@ -155,15 +156,15 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             ImageLayers.Builder applicationLayersBuilder = ImageLayers.builder();
 
-            ImmutableArray<BuildAndCacheApplicationLayerStep> buildAndCacheApplicationLayerSteps =
+            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep =
                 BuildAndCacheApplicationLayerStep.makeList(
                     mockBuildConfiguration,
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());
 
-            foreach (BuildAndCacheApplicationLayerStep buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
+            foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.getFuture())
 
             {
-                applicationLayersBuilder.add(await buildAndCacheApplicationLayerStep.getFuture());
+                applicationLayersBuilder.add(applicationLayer);
             }
 
             return applicationLayersBuilder.build();

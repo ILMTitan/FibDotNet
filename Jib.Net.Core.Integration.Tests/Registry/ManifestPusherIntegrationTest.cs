@@ -23,6 +23,8 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -33,9 +35,8 @@ namespace com.google.cloud.tools.jib.registry
 
 
     /** Integration tests for {@link ManifestPusher}. */
-    public class ManifestPusherIntegrationTest
+    public class ManifestPusherIntegrationTest : HttpRegistryTest
     {
-        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
         private static readonly EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
 
         [Test]
@@ -58,15 +59,15 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                HttpResponseException httpResponseException = (HttpResponseException)ex.getCause();
+                HttpResponseMessage httpResponse = ex.Cause;
                 Assert.AreEqual(
-                    HttpStatusCode.BadRequest, httpResponseException.getStatusCode());
+                    HttpStatusCode.BadRequest, httpResponse.getStatusCode());
             }
         }
 
         /** Tests manifest pushing. This test is a comprehensive test of push and pull. */
         [Test]
-        public async System.Threading.Tasks.Task testPushAsync()
+        public async Task testPushAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             Blob testLayerBlob = Blobs.from("crepecake");
@@ -90,16 +91,16 @@ namespace com.google.cloud.tools.jib.registry
                     .setAllowInsecureRegistries(true)
                     .newRegistryClient();
             Assert.IsFalse(
-                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, ignored => { }));
+                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, _ => { }));
             Assert.IsFalse(
                 await registryClient.pushBlobAsync(
                     testContainerConfigurationBlobDigest,
                     testContainerConfigurationBlob,
                     null,
-                    ignored => { }));
+                    _ => { }));
 
             // Pushes the manifest.
-            DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest");
+                DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest");
 
             // Pulls the manifest.
             V22ManifestTemplate manifestTemplate =

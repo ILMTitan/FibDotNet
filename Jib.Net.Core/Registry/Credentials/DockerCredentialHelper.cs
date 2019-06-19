@@ -21,6 +21,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
+using System.ComponentModel;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.registry.credentials
@@ -51,6 +52,13 @@ namespace com.google.cloud.tools.jib.registry.credentials
             public string Username { get; }
 
             public string Secret { get; }
+
+            [JsonConstructor]
+            public DockerCredentialsTemplate(string username, string secret)
+            {
+                Username = username;
+                Secret = secret;
+            }
         }
 
         /**
@@ -139,7 +147,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                 }
             }
-            catch (IOException ex)
+            catch (Win32Exception ex) when (ex.NativeErrorCode == Win32ErrorCodes.FileNotFound)
             {
                 if (ex.getMessage() == null)
                 {

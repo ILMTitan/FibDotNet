@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public Task<RegistryAuthenticator> handleResponseAsync(HttpResponseMessage response)
         {
-            return Task.FromResult(default(RegistryAuthenticator));
+            return Task.FromResult(handleHttpResponse(response));
         }
 
         public Uri getApiRoute(string apiRouteBase)
@@ -81,6 +81,10 @@ namespace com.google.cloud.tools.jib.registry
 
         public RegistryAuthenticator handleHttpResponse(HttpResponseMessage httpResponse)
         {
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                return null;
+            }
             // Only valid for status code of '401 Unauthorized'.
             if (httpResponse.getStatusCode() != HttpStatusCode.Unauthorized)
             {

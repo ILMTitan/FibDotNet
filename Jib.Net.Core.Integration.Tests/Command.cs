@@ -28,18 +28,16 @@ namespace com.google.cloud.tools.jib
         private readonly string command;
         private readonly string args;
 
-        /** Instantiate with a command. */
-        public Command(string command, string args)
+        public Command(string command, params string[] args): this(command, (IEnumerable<string>) args)
         {
-            this.command = (command);
-            this.args = args;
         }
 
-        public Command(string command, params string[] args)
+        public Command(string command, IEnumerable<string> args)
         {
             this.command = command;
             this.args = string.Join(' ', args);
         }
+     
 
         /** Runs the command. */
         public string run()
@@ -72,7 +70,7 @@ namespace com.google.cloud.tools.jib
                     string stderr =
                         CharStreams.toString(
                             new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-                    throw new Exception("Command '" + string.Join(" ", command) + "' failed: " + stderr);
+                    throw new Exception("Command '" + command + " " +string.Join(" ", args) + "' failed: " + stderr);
                 }
 
                 return output;

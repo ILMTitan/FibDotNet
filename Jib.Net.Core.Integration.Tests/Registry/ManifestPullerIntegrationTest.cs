@@ -25,10 +25,8 @@ namespace com.google.cloud.tools.jib.registry
 {
 
     /** Integration tests for {@link ManifestPuller}. */
-    public class ManifestPullerIntegrationTest
+    public class ManifestPullerIntegrationTest : HttpRegistryTest
     {
-        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
-
         [Test]
         public async System.Threading.Tasks.Task testPull_v21Async()
         {
@@ -72,9 +70,8 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryErrorException ex)
             {
-                StringAssert.Contains(
-                    ex.getMessage(),
-                        "pull image manifest for localhost:5000/busybox:nonexistent-tag");
+                Assert.That(ex.getMessage(),
+                    Does.Contain("pull image manifest for localhost:5000/busybox:nonexistent-tag"));
             }
         }
     }

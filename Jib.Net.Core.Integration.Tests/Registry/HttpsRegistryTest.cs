@@ -14,19 +14,34 @@
  * the License.
  */
 
+using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.cache;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace com.google.cloud.tools.jib.registry
 {
-    public static class Futures
+    [TestFixture]
+    public abstract class HttpRegistryTest
     {
-        public static Task<T> immediateFutureAsync<T>(T mockCachedLayer)
+        public static LocalRegistry localRegistry = new LocalRegistry(5000);
+
+        [OneTimeSetUp]
+        public static async Task OneTimeSetUpAsync()
         {
-            return Task.FromResult(mockCachedLayer);
+            try
+            {
+                await localRegistry.startAsync();
+            } catch (Exception e)
+            {
+                await TestContext.Out.WriteLineAsync(e.ToString());
+                throw new Exception(e.ToString(), e);
+            }
+        }
+
+        [OneTimeTearDown]
+        public static void OneTimeTearDown()
+        {
+            localRegistry.stop();
         }
     }
 }

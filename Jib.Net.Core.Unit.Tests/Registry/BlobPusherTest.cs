@@ -166,7 +166,7 @@ namespace com.google.cloud.tools.jib.registry
             BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount.add).getContent();
 
             Assert.IsNotNull(body);
-            Assert.AreEqual("application/octet-stream", body.getType());
+            Assert.AreEqual("application/octet-stream", body.Headers.ContentType.MediaType);
 
             MemoryStream byteArrayOutputStream = new MemoryStream();
             await body.writeToAsync(byteArrayOutputStream);

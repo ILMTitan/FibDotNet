@@ -86,6 +86,7 @@ namespace com.google.cloud.tools.jib.image
                         PosixFilePermission.OWNER_ALL
                         | PosixFilePermission.GROUP_READ_EXECUTE
                         | PosixFilePermission.OTHERS_READ_EXECUTE);
+                    dir.TarHeader.TypeFlag = TarHeader.LF_DIR;
                     add(dir);
                 }
 
@@ -128,6 +129,7 @@ namespace com.google.cloud.tools.jib.image
                 if (Directory.Exists(layerEntry.getSourceFile()))
                 {
                     entry.Name += '/';
+                    entry.TarHeader.TypeFlag = TarHeader.LF_DIR;
                 }
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
@@ -160,8 +162,7 @@ namespace com.google.cloud.tools.jib.image
                 tarStreamBuilder.addTarArchiveEntry(entry);
             }
 
-            return Blobs.from(
-                tarStreamBuilder.writeAsTarArchiveToAsync);
+            return Blobs.from(tarStreamBuilder.writeAsTarArchiveToAsync, -1);
         }
     }
 }

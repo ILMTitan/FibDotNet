@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.progress;
+using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
@@ -61,10 +62,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.blobDescriptor = blobDescriptor;
             this.blob = blob;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(authenticatePushStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
         public Task<BlobDescriptor> getFuture()
@@ -74,6 +72,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BlobDescriptor> callAsync()
         {
+            Authorization authorization = await authenticatePushStep.getFuture();
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDipatcherFactory.create(
                         "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
@@ -87,11 +86,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                 RegistryClient registryClient =
                     buildConfiguration
                         .newTargetImageRegistryClientFactory()
-                        .setAuthorization(await authenticatePushStep.getFuture())
+                        .setAuthorization(authorization)
                         .newRegistryClient();
 
                 // check if the BLOB is available
-                if (registryClient.checkBlobAsync(blobDescriptor.getDigest()) != null)
+                if (await registryClient.checkBlobAsync(blobDescriptor))
                 {
                     buildConfiguration
                         .getEventHandlers()

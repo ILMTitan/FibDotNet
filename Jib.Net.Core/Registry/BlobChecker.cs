@@ -34,22 +34,22 @@ namespace com.google.cloud.tools.jib.registry
      * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
      * exists.
      */
-    internal class BlobChecker : RegistryEndpointProvider<BlobDescriptor>
+    internal class BlobChecker : RegistryEndpointProvider<bool>
     {
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-        private readonly DescriptorDigest blobDigest;
+        private readonly BlobDescriptor blobDescriptor;
 
         public BlobChecker(
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
-            DescriptorDigest blobDigest)
+            BlobDescriptor blobDigest)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-            this.blobDigest = blobDigest;
+            this.blobDescriptor = blobDigest;
         }
 
         /** @return the BLOB's content descriptor */
 
-        public async Task<BlobDescriptor> handleResponseAsync(HttpResponseMessage response)
+        public async Task<bool> handleResponseAsync(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.registry
             }
         }
 
-        public BlobDescriptor handleResponseSuccess(HttpResponseMessage response)
+        public bool handleResponseSuccess(HttpResponseMessage response)
         {
             long? contentLength = response.getContentLength();
             if (contentLength < 0 || contentLength == null)
@@ -71,10 +71,17 @@ namespace com.google.cloud.tools.jib.registry
                     .build();
             }
 
-            return new BlobDescriptor(contentLength.GetValueOrDefault(), blobDigest);
+            if(blobDescriptor.getSize() > 0 && contentLength.GetValueOrDefault() != blobDescriptor.getSize())
+            {
+                throw new RegistryErrorExceptionBuilder(getActionDescription())
+                    .addReason($"Expected size {blobDescriptor.getSize()} but got {contentLength.GetValueOrDefault()}")
+                    .build();
+            }
+
+            return true;
         }
 
-        public async Task<BlobDescriptor> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
+        public async Task<bool> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
             if (httpResponse.getStatusCode() != HttpStatusCode.NotFound)
             {
@@ -82,17 +89,17 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             // Finds a BLOB_UNKNOWN error response code.
-            if (httpResponse.getContentAsync() == null)
+            if (string.IsNullOrEmpty(await httpResponse.getContentAsync()))
             {
                 // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
                 // be null, even for HEAD requests.
-                return null;
+                return false;
             }
 
             ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse);
             if (errorCode == ErrorCodes.BLOB_UNKNOWN)
             {
-                return null;
+                return false;
             }
 
             // BLOB_UNKNOWN was not found as a error response code.
@@ -102,7 +109,7 @@ namespace com.google.cloud.tools.jib.registry
         public Uri getApiRoute(string apiRouteBase)
         {
             return new Uri(
-                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
+                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDescriptor.getDigest());
         }
 
         public BlobHttpContent getContent()
@@ -127,7 +134,7 @@ namespace com.google.cloud.tools.jib.registry
                 + "/"
                 + registryEndpointRequestProperties.getImageName()
                 + " with digest "
-                + blobDigest;
+                + blobDescriptor.getDigest();
         }
     }
 }

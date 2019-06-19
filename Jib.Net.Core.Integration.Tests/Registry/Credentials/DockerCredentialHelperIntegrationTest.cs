@@ -73,9 +73,10 @@ namespace com.google.cloud.tools.jib.registry.credentials
             }
             catch (CredentialHelperUnhandledServerUrlException ex)
             {
-                StringAssert.Contains(
+                Assert.That(
                     ex.getMessage(),
-                        "The credential helper (docker-credential-gcr) has nothing for server Uri: fake.server.url");
+                    Does.Contain(
+                        "The credential helper (docker-credential-gcr) has nothing for server Uri: fake.server.url"));
             }
         }
     }

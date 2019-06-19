@@ -25,10 +25,8 @@ namespace com.google.cloud.tools.jib.registry
 {
 
     /** Integration tests for {@link BlobPusher}. */
-    public class BlobPusherIntegrationTest
+    public class BlobPusherIntegrationTest : HttpRegistryTest
     {
-        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
-
         [Test]
         public async Task testPushAsync()
         {

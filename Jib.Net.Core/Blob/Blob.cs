@@ -31,5 +31,7 @@ namespace com.google.cloud.tools.jib.blob
          * @throws IOException if writing the BLOB fails
          */
         Task<BlobDescriptor> writeToAsync(Stream outputStream);
+
+        long Size { get; }
     }
 }

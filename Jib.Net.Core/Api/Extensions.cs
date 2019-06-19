@@ -256,7 +256,7 @@ namespace Jib.Net.Core.Global
 
         public static bool isFile(this TarEntry e)
         {
-            return File.Exists(e.File);
+            return e.TarHeader.TypeFlag != TarHeader.LF_DIR;
         }
 
         public static void closeArchiveEntry(this TarOutputStream s)

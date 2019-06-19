@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.blob
         {
             const string expected = "crepecake";
             Stream inputStream = new MemoryStream(expected.getBytes(StandardCharsets.UTF_8));
-            await verifyBlobWriteToAsync(expected, Blobs.from(inputStream));
+            await verifyBlobWriteToAsync(expected, Blobs.from(inputStream, -1));
         }
 
         [Test]
@@ -51,6 +51,14 @@ namespace com.google.cloud.tools.jib.blob
             SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
             string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
             await verifyBlobWriteToAsync(expected, Blobs.from(fileA));
+        }
+
+        [Test]
+        public async Task testFromBytesAsync()
+        {
+            const string expected = "crepecake";
+            byte[] content = (expected.getBytes(StandardCharsets.UTF_8));
+            await verifyBlobWriteToAsync(expected, Blobs.from(content));
         }
 
         [Test]
@@ -68,7 +76,7 @@ namespace com.google.cloud.tools.jib.blob
             WritableContentsAsync writableContents =
                 async outputStream => await outputStream.WriteAsync(expected.getBytes(StandardCharsets.UTF_8));
 
-            await verifyBlobWriteToAsync(expected, Blobs.from(writableContents));
+            await verifyBlobWriteToAsync(expected, Blobs.from(writableContents, -1));
         }
 
         /** Checks that the {@link Blob} streams the expected string. */

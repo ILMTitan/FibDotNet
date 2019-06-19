@@ -290,7 +290,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<BlobDescriptor> checkBlobAsync(DescriptorDigest blobDigest)
+        public async Task<bool> checkBlobAsync(BlobDescriptor blobDigest)
         {
             BlobChecker blobChecker = new BlobChecker(registryEndpointRequestProperties, blobDigest);
             return await callRegistryEndpointAsync(blobChecker);
@@ -316,8 +316,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     try
                     {
-                        await callRegistryEndpointAsync(
-                    new BlobPuller(
+                        await callRegistryEndpointAsync(new BlobPuller(
                         registryEndpointRequestProperties,
                         blobDigest,
                         outputStream,
@@ -328,7 +327,7 @@ namespace com.google.cloud.tools.jib.registry
                     {
                         throw new IOException("", ex);
                     }
-                });
+                }, -1);
         }
 
         /**

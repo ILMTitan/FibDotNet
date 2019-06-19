@@ -26,6 +26,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
@@ -77,12 +78,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.pushContainerConfigurationStep = pushContainerConfigurationStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(pushBaseImageLayersStep)
-                    .addStep(pushApplicationLayersStep)
-                    .addStep(pushContainerConfigurationStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
         public Task<BuildResult> getFuture()
@@ -92,37 +88,13 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public async Task<BuildResult> callAsync()
         {
-            return await AsyncDependencies.@using()
-                .addStep(authenticatePushStep)
-                .addSteps(await pushBaseImageLayersStep.getFuture())
-                .addSteps(await pushApplicationLayersStep.getFuture())
-                .addStep(await pushContainerConfigurationStep.getFuture())
-                .addStep(await buildImageStep.getFuture())
-                .whenAllSucceedAsync(this.afterPushStepsAsync);
-        }
-
-        private async Task<BuildResult> afterPushStepsAsync()
-        {
-            AsyncDependencies dependencies = AsyncDependencies.@using();
-            foreach (AsyncStep<PushBlobStep> pushBaseImageLayerStep in await pushBaseImageLayersStep.getFuture())
-            {
-                dependencies.addStep(await pushBaseImageLayerStep.getFuture());
-            }
-            foreach (AsyncStep<PushBlobStep> pushApplicationLayerStep in await pushApplicationLayersStep.getFuture())
-            {
-                dependencies.addStep(await pushApplicationLayerStep.getFuture());
-            }
-            return await dependencies
-                .addStep(await (await pushContainerConfigurationStep.getFuture()).getFuture())
-                .whenAllSucceedAsync(this.afterAllPushedAsync);
-        }
-
-        private async Task<BuildResult> afterAllPushedAsync()
-        {
+            IReadOnlyList<BlobDescriptor> baseImageDescriptors = await pushBaseImageLayersStep.getFuture();
+            IReadOnlyList<BlobDescriptor> appLayerDescriptors = await pushApplicationLayersStep.getFuture();
+            BlobDescriptor containerConfigurationBlobDescriptor = await pushContainerConfigurationStep.getFuture();
             ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
-            ProgressEventDispatcher progressEventDispatcher =
-                progressEventDispatcherFactory.create("pushing image manifest", targetImageTags.size());
 
+            using (ProgressEventDispatcher progressEventDispatcher =
+                progressEventDispatcherFactory.create("pushing image manifest", targetImageTags.size()))
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
@@ -134,11 +106,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 // Constructs the image.
                 ImageToJsonTranslator imageToJsonTranslator =
-                    new ImageToJsonTranslator(await (await buildImageStep.getFuture()).getFuture());
+                    new ImageToJsonTranslator(await buildImageStep.getFuture());
 
                 // Gets the image manifest to push.
-                BlobDescriptor containerConfigurationBlobDescriptor =
-                    await (await (await pushContainerConfigurationStep.getFuture()).getFuture()).getFuture();
                 BuildableManifestTemplate manifestTemplate =
                     imageToJsonTranslator.getManifestTemplate(
                         buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
@@ -160,13 +130,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                 DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
                 BuildResult result = new BuildResult(imageDigest, imageId);
 
-                return await Futures.whenAllSucceed(pushAllTagsFutures)
-                    .callAsync(
-                        () =>
-                        {
-                            progressEventDispatcher.close();
-                            return result;
-                        });
+                await Task.WhenAll(pushAllTagsFutures);
+                return result;
             }
         }
     }

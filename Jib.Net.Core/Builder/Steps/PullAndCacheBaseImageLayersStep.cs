@@ -33,7 +33,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
     /** Pulls and caches the base image layers. */
-    public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>>
+    public class PullAndCacheBaseImageLayersStep : AsyncStep<IReadOnlyList<ICachedLayer>>
     {
         private static readonly string DESCRIPTION = "Setting up base image caching";
 
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly PullBaseImageStep pullBaseImageStep;
 
-        private readonly Task<IReadOnlyList<AsyncStep<ICachedLayer>>> listenableFuture;
+        private readonly Task<IReadOnlyList<ICachedLayer>> listenableFuture;
 
         public PullAndCacheBaseImageLayersStep(
             BuildConfiguration buildConfiguration,
@@ -53,18 +53,15 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.pullBaseImageStep = pullBaseImageStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(pullBaseImageStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
-        public Task<IReadOnlyList<AsyncStep<ICachedLayer>>> getFuture()
+        public Task<IReadOnlyList<ICachedLayer>> getFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<IReadOnlyList<AsyncStep<ICachedLayer>>> callAsync()
+        public async Task<IReadOnlyList<ICachedLayer>> callAsync()
         {
             BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.getFuture();
             ImmutableArray<Layer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
@@ -76,8 +73,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
 
             {
-                ImmutableArray<AsyncStep<ICachedLayer>>.Builder pullAndCacheBaseImageLayerStepsBuilder =
-                    ImmutableArray.CreateBuilder<AsyncStep<ICachedLayer>>();
+                List<Task<ICachedLayer>> pullAndCacheBaseImageLayerStepsBuilder = new List<Task<ICachedLayer>>();
                 foreach (Layer layer in baseImageLayers)
                 {
                     pullAndCacheBaseImageLayerStepsBuilder.add(
@@ -85,10 +81,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                             buildConfiguration,
                             progressEventDispatcher.newChildProducer(),
                             layer.getBlobDescriptor().getDigest(),
-                            pullBaseImageStepResult.getBaseImageAuthorization()));
+                            pullBaseImageStepResult.getBaseImageAuthorization()).getFuture());
                 }
 
-                return pullAndCacheBaseImageLayerStepsBuilder.build();
+                return await Task.WhenAll(pullAndCacheBaseImageLayerStepsBuilder);
             }
         }
     }

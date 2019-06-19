@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.global;
 using Jib.Net.Core.Global;
 using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -126,7 +127,14 @@ namespace com.google.cloud.tools.jib.http
          */
         public async Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
         {
-            return await client.SendAsync(request);
+            try
+            {
+                return await client.SendAsync(request).ConfigureAwait(false);
+            } catch (Exception)
+            {
+                Debug.WriteLine("Exception retrieving " + request.RequestUri);
+                throw;
+            }
         }
 
         internal int? getRequestedHttpTimeout()

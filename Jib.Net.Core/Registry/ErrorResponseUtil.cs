@@ -50,9 +50,9 @@ namespace com.google.cloud.tools.jib.registry
             {
                 ErrorResponseTemplate errorResponse =
                     JsonTemplateMapper.readJson<ErrorResponseTemplate>(errorContent);
-                IReadOnlyList<ErrorEntryTemplate> errors = errorResponse.getErrors();
+                IReadOnlyList<ErrorEntryTemplate> errors = errorResponse?.getErrors();
                 // There may be multiple error objects
-                if (errors.size() == 1)
+                if (errors?.size() == 1)
                 {
                     string errorCodeString = errors.get(0).getCode();
                     // May not get an error code back.

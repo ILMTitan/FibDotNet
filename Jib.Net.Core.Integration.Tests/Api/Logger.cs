@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.api
 
         internal void info(string v)
         {
-            throw new NotImplementedException();
+            @out.WriteLine(v);
         }
     }
 }

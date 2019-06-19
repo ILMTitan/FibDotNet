@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2017 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,33 +14,30 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
-using Jib.Net.Core.Api;
-using Jib.Net.Core.Blob;
-using Jib.Net.Core.FileSystem;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Blob;
 
 namespace com.google.cloud.tools.jib.blob
 {
-    /** A {@link Blob} that holds a {@link Path}. */
-    internal class FileBlob : Blob
+    internal class BytesBlob : Blob
     {
-        private readonly SystemPath file;
+        private readonly byte[] _bytes;
+        protected IReadOnlyList<byte> bytes => _bytes;
 
-        public FileBlob(SystemPath file)
+        public BytesBlob(byte[] bytes)
         {
-            this.file = file;
+            _bytes = bytes;
         }
 
-        public long Size => new FileInfo(file).Length;
+        public long Size => _bytes.LongLength;
 
-        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
+        public Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {
-            using (Stream fileIn = new BufferedStream(Files.newInputStream(file)))
-            {
-                return await Digests.computeDigestAsync(fileIn, outputStream);
-            }
+            return Digests.computeDigestAsync(s => s.WriteAsync(_bytes, 0, _bytes.Length), outputStream);
         }
     }
 }

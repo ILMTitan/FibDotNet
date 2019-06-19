@@ -127,13 +127,13 @@ namespace com.google.cloud.tools.jib.@event.progress
                     allocationCompletionTracker.getUnfinishedAllocations());
 
                 // Adds 50 to child1Child and 100 to child2.
-                IList<Callable<bool>> callables = new List<Callable<bool>>(150);
+                IList<Func<bool>> callables = new List<Func<bool>>(150);
                 callables.addAll(
-                    Collections.nCopies<Callable<bool>>(
+                    Collections.nCopies<Func<bool>>(
                         50,
                         () => allocationCompletionTracker.updateProgress(child1Child, 1L)));
                 callables.addAll(
-                    Collections.nCopies<Callable<bool>>(
+                    Collections.nCopies<Func<bool>>(
                         100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
 
                 CollectionAssert.AreEqual(
@@ -150,7 +150,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                 Assert.AreEqual(
                     Collections.nCopies(100, false),
                     await multithreadedExecutor.invokeAllAsync(
-                        Collections.nCopies<Callable<bool>>(
+                        Collections.nCopies<Func<bool>>(
                             100,
                             () => allocationCompletionTracker.updateProgress(child1, 0L))));
                 Assert.AreEqual(

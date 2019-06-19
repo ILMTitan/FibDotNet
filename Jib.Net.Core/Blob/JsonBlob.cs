@@ -17,24 +17,16 @@
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Blob;
+using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds {@link JsonTemplate}. */
-    internal class JsonBlob : Blob
+    internal class JsonBlob : StringBlob
     {
-        private readonly object template;
 
-        public JsonBlob(object template)
-        {
-            this.template = template;
-        }
-
-        public Task<BlobDescriptor> writeToAsync(Stream outputStream)
-        {
-            return Task.FromResult(Digests.computeJsonDigest(template, outputStream));
-        }
+        public JsonBlob(object template) : base(JsonConvert.SerializeObject(template)) { }
     }
 }

@@ -19,6 +19,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -124,8 +125,9 @@ namespace com.google.cloud.tools.jib.json
         public static void writeTo(object template, Stream @out)
         {
             var jsonString = JsonConvert.SerializeObject(template);
+            Debug.WriteLine(jsonString);
             var writer = new StreamWriter(@out);
-                writer.Write(jsonString);
+            writer.Write(jsonString);
             writer.Flush();
         }
     }

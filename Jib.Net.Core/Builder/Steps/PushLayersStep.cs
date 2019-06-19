@@ -21,6 +21,7 @@ using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
@@ -30,7 +31,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
 
-    internal class PushLayersStep : AsyncStep<ImmutableArray<AsyncStep<PushBlobStep>>>
+    internal class PushLayersStep : AsyncStep<IReadOnlyList<BlobDescriptor>>
     {
         private static readonly string DESCRIPTION = "Setting up to push layers";
 
@@ -39,74 +40,65 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly AuthenticatePushStep authenticatePushStep;
 
-        private readonly AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>>
-            cachedLayerStep;
+        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep;
 
-        private readonly Task<ImmutableArray<AsyncStep<PushBlobStep>>> listenableFuture;
+        private readonly Task<IReadOnlyList<BlobDescriptor>> listenableFuture;
 
         public PushLayersStep(
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             AuthenticatePushStep authenticatePushStep,
-            AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> cachedLayerStep)
+            AsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.authenticatePushStep = authenticatePushStep;
             this.cachedLayerStep = cachedLayerStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(cachedLayerStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
-        public Task<ImmutableArray<AsyncStep<PushBlobStep>>> getFuture()
+        public Task<IReadOnlyList<BlobDescriptor>> getFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<ImmutableArray<AsyncStep<PushBlobStep>>> callAsync()
+        public async Task<IReadOnlyList<BlobDescriptor>> callAsync()
         {
+            IReadOnlyList<ICachedLayer> cachedLayers = await cachedLayerStep.getFuture();
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
-                IReadOnlyList<AsyncStep<ICachedLayer>> cachedLayers =
-                    await cachedLayerStep.getFuture();
 
                 using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size()))
                 {
                     // Constructs a PushBlobStep for each layer.
-                    ImmutableArray<AsyncStep<PushBlobStep>>.Builder pushBlobStepsBuilder =
-                        ImmutableArray.CreateBuilder<AsyncStep<PushBlobStep>>();
-                    foreach (AsyncStep<CachedLayer> cachedLayerStep in cachedLayers)
+                    var pushBlobSteps = new List<Task<BlobDescriptor>>();
+                    foreach (ICachedLayer cachedLayer in cachedLayers)
                     {
                         ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
                             progressEventDispatcher.newChildProducer();
-                        await cachedLayerStep.getFuture();
-                        Task<PushBlobStep> pushBlobStepFuture =
-                            makePushBlobStepAsync(cachedLayerStep, childProgressEventDispatcherFactory);
-                        pushBlobStepsBuilder.add(AsyncStep.Of(() => pushBlobStepFuture));
+                        Task<BlobDescriptor> pushBlobStepFuture =
+                            pushBlobAsync(cachedLayer, childProgressEventDispatcherFactory);
+                        pushBlobSteps.add(pushBlobStepFuture);
                     }
 
-                    return pushBlobStepsBuilder.build();
+                    return await Task.WhenAll(pushBlobSteps);
                 }
             }
         }
 
-        private async Task<PushBlobStep> makePushBlobStepAsync(
-            AsyncStep<CachedLayer> cachedLayerStep,
+        private async Task<BlobDescriptor> pushBlobAsync(
+            ICachedLayer cachedLayer,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
-            CachedLayer cachedLayer = await cachedLayerStep.getFuture();
-
-            return new PushBlobStep(
+            return await new PushBlobStep(
                 buildConfiguration,
                 progressEventDispatcherFactory,
                 authenticatePushStep,
                 new BlobDescriptor(cachedLayer.getSize(), cachedLayer.getDigest()),
-                cachedLayer.getBlob());
+                cachedLayer.getBlob()).getFuture();
         }
     }
 }

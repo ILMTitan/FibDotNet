@@ -58,10 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(retrieveTargetRegistryCredentialsStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
         public Task<Authorization> getFuture()
@@ -76,10 +73,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
             try
             {
-                using (ProgressEventDispatcher ignored =
-                        progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
-                using (TimerEventDispatcher ignored2 =
-                        new TimerEventDispatcher(
+                using (progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
+                using (new TimerEventDispatcher(
                             buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, registry)))
                 {
                     RegistryAuthenticator registryAuthenticator =

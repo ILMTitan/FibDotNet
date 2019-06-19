@@ -49,7 +49,13 @@ namespace com.google.cloud.tools.jib.docker
 
         public IProcess start()
         {
-            var startInfo = new ProcessStartInfo(_cmd, _args);
+            var startInfo = new ProcessStartInfo(_cmd, _args)
+            {
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true
+            };
             foreach(var kvp in env)
             {
                 startInfo.Environment.Add(kvp.Key, kvp.Value);

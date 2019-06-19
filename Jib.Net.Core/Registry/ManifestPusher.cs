@@ -133,6 +133,10 @@ namespace com.google.cloud.tools.jib.registry
         }
         public Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
         {
+            if (!response.IsSuccessStatusCode)
+            {
+                return handleHttpResponseExceptionAsync(response);
+            }
             return Task.FromResult(handleResponse(response));
         }
         public DescriptorDigest handleResponse(HttpResponseMessage response)

@@ -44,72 +44,58 @@ namespace com.google.cloud.tools.jib.builder.steps
 
 
     /** Builds a model {@link Image}. */
-    public class BuildImageStep : AsyncStep<AsyncStep<Image>>
+    public class BuildImageStep : AsyncStep<Image>
     {
         private static readonly string DESCRIPTION = "Building container configuration";
 
         private readonly IBuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
         private readonly AsyncStep<BaseImageWithAuthorization> pullBaseImageStep;
-        private readonly AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> pullAndCacheBaseImageLayersStep;
-        private readonly IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
+        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep;
+        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
 
-        private readonly Task<AsyncStep<Image>> listenableFuture;
+        private readonly Task<Image> listenableFuture;
 
         public BuildImageStep(
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             AsyncStep<BaseImageWithAuthorization> pullBaseImageStep,
-            AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> pullAndCacheBaseImageLayersStep,
-            IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps)
+            AsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep,
+            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.pullBaseImageStep = pullBaseImageStep;
             this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-            this.buildAndCacheApplicationLayerSteps = buildAndCacheApplicationLayerSteps;
+            this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayerSteps;
 
-            listenableFuture =
-                AsyncDependencies.@using()
-                    .addStep(pullBaseImageStep)
-                    .addStep(pullAndCacheBaseImageLayersStep)
-                    .whenAllSucceedAsync(callAsync);
+            listenableFuture = callAsync();
         }
 
-        public Task<AsyncStep<Image>> getFuture()
+        public Task<Image> getFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<AsyncStep<Image>> callAsync()
+        public async Task<Image> callAsync()
         {
-            Task<Image> future =
-                AsyncDependencies.@using()
-                    .addSteps(await pullAndCacheBaseImageLayersStep.getFuture())
-                    .addSteps(buildAndCacheApplicationLayerSteps)
-                    .whenAllSucceedAsync(this.afterCachedLayerStepsAsync);
-            return AsyncStep.Of(() => future);
-        }
+            BaseImageWithAuthorization baseImageWithAuthorization = await pullBaseImageStep.getFuture();
+            IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.getFuture();
+            IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.getFuture();
 
-        private async Task<Image> afterCachedLayerStepsAsync()
-        {
-            using (ProgressEventDispatcher ignored =
-                    progressEventDispatcherFactory.create("building image format", 1))
-            using (TimerEventDispatcher ignored2 =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+            using (progressEventDispatcherFactory.create("building image format", 1))
+            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 // Constructs the image.
                 Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
-                Image baseImage = (await pullBaseImageStep.getFuture()).getBaseImage();
+                Image baseImage = baseImageWithAuthorization.getBaseImage();
                 IContainerConfiguration containerConfiguration =
                     buildConfiguration.getContainerConfiguration();
 
                 // Base image layers
-                IReadOnlyList<AsyncStep<ICachedLayer>> baseImageLayers =
-                    await pullAndCacheBaseImageLayersStep.getFuture();
-                foreach (AsyncStep<ICachedLayer> pullAndCacheBaseImageLayerStep in baseImageLayers)
+                foreach (ICachedLayer pullAndCacheBaseImageLayer in baseImageLayers)
                 {
-                    imageBuilder.addLayer(await pullAndCacheBaseImageLayerStep.getFuture());
+                    imageBuilder.addLayer(pullAndCacheBaseImageLayer);
                 }
 
                 // Passthrough config and count non-empty history entries
@@ -147,22 +133,22 @@ namespace com.google.cloud.tools.jib.builder.steps
                 }
 
                 // Add built layers/configuration
-                foreach (AsyncStep<ICachedLayer> buildAndCacheApplicationLayerStep in buildAndCacheApplicationLayerSteps)
+                foreach (ICachedLayer applicationLayer in applicationLayers)
                 {
                     HistoryEntry.Builder historyBuilder = HistoryEntry.builder();
                     if (buildConfiguration.getToolName() != null) {
-                        historyBuilder.setCreatedBy(buildConfiguration.getToolName() + ":" + buildConfiguration.getToolVersion());
+                        historyBuilder.setCreatedBy(buildConfiguration.getToolName() + ":" + (buildConfiguration.getToolVersion()??"null"));
                     } else
                     {
                         historyBuilder.setCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
                     }
                     imageBuilder
-                        .addLayer(await buildAndCacheApplicationLayerStep.getFuture())
+                        .addLayer(applicationLayer)
                         .addHistory(
                             historyBuilder
                                 .setCreationTimestamp(layerCreationTime)
                                 .setAuthor("Jib")
-                                .setComment((await buildAndCacheApplicationLayerStep.getFuture()).getLayerType())
+                                .setComment(applicationLayer.getLayerType())
                                 .build());
                 }
                 if (containerConfiguration != null)

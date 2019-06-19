@@ -23,6 +23,7 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -54,7 +55,7 @@ namespace com.google.cloud.tools.jib.api
 
     // TODO: now it looks like we can move everything here into JibIntegrationTest.
     /** Integration tests for {@link Containerizer}. */
-    public class ContainerizerIntegrationTest
+    public class ContainerizerIntegrationTest : HttpRegistryTest
     {
         /**
          * Helper class to hold a {@link ProgressEventHandler} and verify that it handles a full progress.
@@ -68,13 +69,7 @@ namespace com.google.cloud.tools.jib.api
 
             public ProgressChecker()
             {
-                progressEventHandler =
-           new ProgressEventHandler(
-               update =>
-               {
-                   lastProgress = update.getProgress();
-                   areTasksFinished = update.getUnfinishedLeafTasks().isEmpty();
-               });
+                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.getProgress(); areTasksFinished = update.getUnfinishedLeafTasks().isEmpty(); });
             }
 
             public void checkCompletion()
@@ -84,7 +79,9 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        [ClassRule] public static readonly LocalRegistry localRegistry = new LocalRegistry(5000);
+        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        private ProgressChecker progressChecker;
 
         private static readonly Logger logger = new Logger(TestContext.Out);
 
@@ -93,16 +90,16 @@ namespace com.google.cloud.tools.jib.api
 
         private static readonly double DOUBLE_ERROR_MARGIN = 1e-10;
 
-        public static ImmutableArray<ILayerConfiguration> fakeLayerConfigurations;
-
-        [OneTimeSetUp]
-        public static void setUp()
-        {
-            fakeLayerConfigurations =
+        public static readonly ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
                     makeLayerConfiguration("core/application/dependencies", "/app/libs/"),
                     makeLayerConfiguration("core/application/resources", "/app/resources/"),
                     makeLayerConfiguration("core/application/classes", "/app/classes/"));
+
+        [SetUp]
+        public void SetUp()
+        {
+            progressChecker = new ProgressChecker();
         }
 
         /**
@@ -127,43 +124,39 @@ namespace com.google.cloud.tools.jib.api
         private static void assertDockerInspect(string imageReference)
         {
             string dockerContainerConfig = new Command("docker", "inspect", imageReference).run();
-            StringAssert.Contains(
-                dockerContainerConfig,
+            Assert.That(
+                dockerContainerConfig, Does.Contain(
                     "            \"ExposedPorts\": {\n"
                         + "                \"1000/tcp\": {},\n"
                         + "                \"2000/tcp\": {},\n"
                         + "                \"2001/tcp\": {},\n"
                         + "                \"2002/tcp\": {},\n"
-                        + "                \"3000/udp\": {}");
-            StringAssert.Contains(
-                dockerContainerConfig,
+                        + "                \"3000/udp\": {}"));
+            Assert.That(
+                dockerContainerConfig, Does.Contain(
                     "            \"Labels\": {\n"
                         + "                \"key1\": \"value1\",\n"
                         + "                \"key2\": \"value2\"\n"
-                        + "            }");
+                        + "            }"));
             string dockerConfigEnv =
                 new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).run();
-            StringAssert.Contains(dockerConfigEnv, "env1=envvalue1");
+            Assert.That(dockerConfigEnv, Does.Contain("env1=envvalue1"));
 
-            StringAssert.Contains(dockerConfigEnv, "env2=envvalue2");
+            Assert.That(dockerConfigEnv, Does.Contain("env2=envvalue2"));
 
             string history = new Command("docker", "history", imageReference).run();
-            StringAssert.Contains(history, "jib-integration-test");
+            Assert.That(history, Does.Contain("jib-integration-test"));
 
-            StringAssert.Contains(history, "bazel build ...");
+            Assert.That(history, Does.Contain("bazel build ..."));
         }
 
         private static void assertLayerSizer(int expected, string imageReference)
         {
             Command command =
-                new Command("docker", "inspect", "-f", "{{join .RootFS.Layers \",\"}}", imageReference);
+                new Command("docker", "inspect", "-f", "\"{{json .RootFS.Layers}}\"", imageReference);
             string layers = command.run().trim();
-            Assert.AreEqual(expected, Splitter.on(",").splitToList(layers).size());
+            Assert.AreEqual(expected, JsonConvert.DeserializeObject<List<string>>(layers).Count);
         }
-
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-        private readonly ProgressChecker progressChecker = new ProgressChecker();
 
         [Test]
         public async Task testSteps_forBuildToDockerRegistryAsync()
@@ -329,7 +322,7 @@ namespace com.google.cloud.tools.jib.api
                 additionalTags);
         }
 
-        private async System.Threading.Tasks.Task<JibContainer> buildImageAsync(
+        private async Task<JibContainer> buildImageAsync(
             ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
         {
             JibContainerBuilder containerBuilder =

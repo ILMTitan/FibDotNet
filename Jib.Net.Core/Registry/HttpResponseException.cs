@@ -28,28 +28,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public HttpResponseException(HttpResponseMessage message)
         {
-            this.Cause = message;
-        }
-
-        public HttpResponseException(string message, HttpResponseMessage cause) : base(message)
-        {
-            this.Cause = cause;
-        }
-
-        protected HttpResponseException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
-        private HttpResponseException(string message) : base(message)
-        {
-        }
-
-        private HttpResponseException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        private HttpResponseException()
-        {
+            Cause = message;
         }
 
         public HttpResponseMessage Cause { get; }

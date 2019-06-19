@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.tar
         public void addTarArchiveEntry(TarEntry entry)
         {
             archiveMap.put(
-                entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(_ => Task.CompletedTask));
+                entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(_ => Task.CompletedTask, 0));
         }
 
         /**
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.tar
         {
             TarEntry entry = TarEntry.CreateTarEntry(name);
             entry.setSize(contents.Length);
-            archiveMap.put(entry, Blobs.from(async outputStream => await outputStream.WriteAsync(contents, 0, contents.Length)));
+            archiveMap.put(entry, Blobs.from(contents));
         }
 
         /**

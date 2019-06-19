@@ -36,9 +36,8 @@ namespace com.google.cloud.tools.jib.registry
 
 
     /** Integration tests for {@link BlobPuller}. */
-    public class BlobPullerIntegrationTest
+    public class BlobPullerIntegrationTest : HttpRegistryTest
     {
-        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
 
         [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
 

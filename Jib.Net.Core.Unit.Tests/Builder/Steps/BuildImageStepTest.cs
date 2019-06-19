@@ -63,16 +63,18 @@ namespace com.google.cloud.tools.jib.builder.steps
         private IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
         private IContainerConfiguration mockContainerConfiguration = Mock.Of<IContainerConfiguration>();
         private AsyncStep<BaseImageWithAuthorization> mockPullBaseImageStep = Mock.Of<AsyncStep<BaseImageWithAuthorization>>();
-        private AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>> mockPullAndCacheBaseImageLayersStep = Mock.Of<AsyncStep<IReadOnlyList<AsyncStep<ICachedLayer>>>>();
+        private AsyncStep<IReadOnlyList<ICachedLayer>> mockPullAndCacheBaseImageLayersStep = Mock.Of<AsyncStep<IReadOnlyList<ICachedLayer>>>();
         private AsyncStep<ICachedLayer> mockPullAndCacheBaseImageLayerStep = Mock.Of<AsyncStep<ICachedLayer>>();
-        private AsyncStep<ICachedLayer> mockBuildAndCacheApplicationLayerStepDependencies = Mock.Of<AsyncStep<ICachedLayer>> ();
-        private AsyncStep<ICachedLayer> mockBuildAndCacheApplicationLayerStepResources = Mock.Of<AsyncStep<ICachedLayer>>();
-        private AsyncStep<ICachedLayer> mockBuildAndCacheApplicationLayerStepClasses = Mock.Of<AsyncStep<ICachedLayer>>();
-        private AsyncStep<ICachedLayer> mockBuildAndCacheApplicationLayerStepExtraFiles = Mock.Of<AsyncStep<ICachedLayer>>();
+        private ICachedLayer mockClassesLayer;
+        private ICachedLayer mockDependenciesLayer;
+        private ICachedLayer mockResourcesLayer;
+        private ICachedLayer mockExtraFilesLayer;
         private ICachedLayer mockCachedLayer = Mock.Of<ICachedLayer>();
         private DescriptorDigest testDescriptorDigest;
         private HistoryEntry nonEmptyLayerHistory;
         private HistoryEntry emptyLayerHistory;
+        private AsyncStep<IReadOnlyList<ICachedLayer>> mockBuildAndCacheApplicationLayersStep =
+            Mock.Of<AsyncStep<IReadOnlyList<ICachedLayer>>>();
 
         [SetUp]
         public void setUp()
@@ -143,47 +145,40 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockPullAndCacheBaseImageLayerStep).Setup(m => m.getFuture()).Returns(Futures.immediateFutureAsync(mockCachedLayer));
 
             Mock.Get(mockPullAndCacheBaseImageLayersStep).Setup(m => m.getFuture()).Returns(
-                    Futures.immediateFutureAsync<IReadOnlyList<AsyncStep<ICachedLayer>>>(
+                    Futures.immediateFutureAsync<IReadOnlyList<ICachedLayer>>(
                         ImmutableArray.Create(
-                            mockPullAndCacheBaseImageLayerStep,
-                            mockPullAndCacheBaseImageLayerStep,
-                            mockPullAndCacheBaseImageLayerStep)));
+                            mockCachedLayer,
+                            mockCachedLayer,
+                            mockCachedLayer)));
 
             Mock.Get(mockPullBaseImageStep).Setup(m => m.getFuture()).Returns(
                     Futures.immediateFutureAsync(
                         new PullBaseImageStep.BaseImageWithAuthorization(baseImage, null)));
             
-            Mock.Get(mockBuildAndCacheApplicationLayerStepClasses)
-                .Setup(l => l.getFuture())
-                .Returns(Futures.immediateFutureAsync<ICachedLayer>(new CachedLayerWithType(mockCachedLayer, "classes")));
+            mockClassesLayer = new CachedLayerWithType(mockCachedLayer, "classes");
 
-            Mock.Get(mockBuildAndCacheApplicationLayerStepDependencies)
-                .Setup(l => l.getFuture())
-                .Returns(Futures.immediateFutureAsync<ICachedLayer>(new CachedLayerWithType(mockCachedLayer, "dependencies")));
+            mockDependenciesLayer = new CachedLayerWithType(mockCachedLayer, "dependencies");
 
-            Mock.Get(mockBuildAndCacheApplicationLayerStepExtraFiles)
-                .Setup(l => l.getFuture())
-                .Returns(Futures.immediateFutureAsync<ICachedLayer>(new CachedLayerWithType(mockCachedLayer, "extra files")));
+            mockExtraFilesLayer = new CachedLayerWithType(mockCachedLayer, "extra files");
 
-            Mock.Get(mockBuildAndCacheApplicationLayerStepResources)
-                .Setup(l => l.getFuture())
-                .Returns(Futures.immediateFutureAsync<ICachedLayer>(new CachedLayerWithType(mockCachedLayer, "resources")));
+            mockResourcesLayer = new CachedLayerWithType(mockCachedLayer, "resources");
         }
 
         [Test]
         public async Task test_validateAsyncDependenciesAsync()
         {
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
             Assert.AreEqual(
                 testDescriptorDigest, image.getLayers().asList().get(0).getBlobDescriptor().getDigest());
         }
@@ -200,6 +195,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockContainerConfiguration).Setup(m => m.getVolumes()).Returns(
                     ImmutableHashSet.Create(
                         AbsoluteUnixPath.get("/new/path1"), AbsoluteUnixPath.get("/new/path2")));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
 
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -207,11 +206,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
             Assert.AreEqual("wasm", image.getArchitecture());
             Assert.AreEqual("js", image.getOs());
             Assert.AreEqual(
@@ -262,6 +258,10 @@ namespace com.google.cloud.tools.jib.builder.steps
         public async Task testOverrideWorkingDirectoryAsync()
         {
             Mock.Get(mockContainerConfiguration).Setup(m => m.getWorkingDirectory()).Returns(AbsoluteUnixPath.get("/my/directory"));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
 
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -269,11 +269,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
 
             Assert.AreEqual("/my/directory", image.getWorkingDirectory());
         }
@@ -284,6 +281,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(() => null);
 
             Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(ImmutableArray.Create("test"));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
 
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -291,11 +292,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
 
             CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
             CollectionAssert.AreEqual(ImmutableArray.Create("test"), image.getProgramArguments());
@@ -307,6 +305,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(() => null);
 
             Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(() => null);
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
 
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -314,11 +316,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
 
             CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
             CollectionAssert.AreEqual(ImmutableArray.Create("catalina.sh", "run"), image.getProgramArguments());
@@ -330,6 +329,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(ImmutableArray.Create("myEntrypoint"));
 
             Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(() => null);
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer)));
 
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -337,11 +340,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
 
             CollectionAssert.AreEqual(ImmutableArray.Create("myEntrypoint"), image.getEntrypoint());
             Assert.IsNull(image.getProgramArguments());
@@ -350,6 +350,11 @@ namespace com.google.cloud.tools.jib.builder.steps
         [Test]
         public async Task test_generateHistoryObjectsAsync()
         {
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        mockDependenciesLayer,
+                        mockResourcesLayer,
+                        mockClassesLayer,
+                        mockExtraFilesLayer)));
             string createdBy = "jib:" + ProjectInfo.VERSION;
             BuildImageStep buildImageStep =
                 new BuildImageStep(
@@ -357,12 +362,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
-                    ImmutableArray.Create(
-                        mockBuildAndCacheApplicationLayerStepDependencies,
-                        mockBuildAndCacheApplicationLayerStepResources,
-                        mockBuildAndCacheApplicationLayerStepClasses,
-                        mockBuildAndCacheApplicationLayerStepExtraFiles));
-            Image image = await (await buildImageStep.getFuture()).getFuture();
+                    mockBuildAndCacheApplicationLayersStep);
+            Image image = await buildImageStep.getFuture();
 
             // Make sure history is as expected
             HistoryEntry expectedAddedBaseLayerHistory =

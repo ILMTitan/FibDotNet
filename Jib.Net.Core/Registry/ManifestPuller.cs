@@ -56,8 +56,6 @@ namespace com.google.cloud.tools.jib.registry
             {
                 throw new UnknownManifestFormatException("Cannot find field 'schemaVersion' in manifest");
             }
-
-            ;
             if (!obj.TryGetValue("schemaVersion", out JToken schemaVersionToken) || schemaVersionToken.Type != JTokenType.Integer)
             {
                 throw new UnknownManifestFormatException("`schemaVersion` field is not an integer");
@@ -126,9 +124,15 @@ namespace com.google.cloud.tools.jib.registry
 
         public async Task<T> handleResponseAsync(HttpResponseMessage response)
         {
-            string jsonString =
-                CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
-            return getManifestTemplateFromJson(jsonString);
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString =
+                    CharStreams.toString(new StreamReader(await response.getBodyAsync(), StandardCharsets.UTF_8));
+                return getManifestTemplateFromJson(jsonString);
+            } else
+            {
+                throw new HttpResponseException(response);
+            }
         }
 
         public Uri getApiRoute(string apiRouteBase)

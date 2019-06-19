@@ -30,9 +30,9 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Runs a local registry. */
-    public class LocalRegistry
+    public class LocalRegistry : IDisposable
     {
-        private readonly string containerName = "registry-" + new Guid();
+        private readonly string containerName = "registry-" + Guid.NewGuid().ToString("N").ToLowerInvariant();
         private readonly int port;
         private readonly string username;
         private readonly string password;
@@ -62,27 +62,34 @@ namespace com.google.cloud.tools.jib.registry
         public async Task startAsync()
         {
             // Runs the Docker registry.
-            string[] dockerTokens = new[] {
-                "run", "--rm", "-d", "-p", port + ":5000", "--name", containerName };
+            List<string> dockerTokens = new List<string> {
+                "run",
+                "--rm",
+                "-d",
+                "-p",
+                port + ":5000",
+                "--name",
+                containerName
+            };
             if (username != null && password != null)
             {
                 // Generate the htpasswd file to store credentials
                 string credentialString =
                     new Command(
-                            "docker",string.Join(" ",new[] {
+                            "docker",
                             "run",
                             "--rm",
                             "--entrypoint",
                             "htpasswd",
-                            "registry:2",
+                            "registry",
                             "-Bbn",
                             username,
-                            password }))
+                            password)
                         .run();
                 // Creates the temporary directory in /tmp since that is one of the default directories
                 // mounted into Docker.
                 // See: https://docs.docker.com/docker-for-mac/osxfs
-                SystemPath tempFolder = Files.createTempDirectory(Paths.get("/tmp"), "");
+                SystemPath tempFolder = Files.createTempDirectory(Paths.get(Path.GetTempPath()), "");
                 Files.write(
                     tempFolder.resolve("htpasswd"), credentialString.getBytes(StandardCharsets.UTF_8));
 
@@ -95,12 +102,12 @@ namespace com.google.cloud.tools.jib.registry
                         "-e",
                         "REGISTRY_AUTH=htpasswd",
                         "-e",
-                        "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
+                        "REGISTRY_AUTH_HTPASSWD_REALM=\"Registry Realm\"",
                         "-e",
                         "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
             }
-            dockerTokens.add("registry:2");
-            new Command("docker", string.Join(' ', dockerTokens)).run();
+            dockerTokens.add("registry");
+            new Command("docker", dockerTokens).run();
             await waitUntilReadyAsync();
         }
 
@@ -182,11 +189,15 @@ namespace com.google.cloud.tools.jib.registry
                         return;
                     }
                 }
-                catch (IOException)
-                {
-                }
+                catch (IOException) { }
+                catch (HttpRequestException) { }
                 Thread.Sleep(250);
             }
+        }
+
+        public void Dispose()
+        {
+            stop();
         }
     }
 }

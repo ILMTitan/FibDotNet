@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.cache
                     {
                         await blob.writeToAsync(compressorStream);
                     }
-                });
+                }, -1);
         }
 
         /**
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         private static async Task<Blob> decompressAsync(Blob blob)
         {
-            return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob)), CompressionMode.Decompress));
+            return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob)), CompressionMode.Decompress), -1);
         }
 
         /**

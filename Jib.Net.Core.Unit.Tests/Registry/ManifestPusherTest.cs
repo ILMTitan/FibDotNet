@@ -90,7 +90,7 @@ namespace com.google.cloud.tools.jib.registry
             BlobHttpContent body = testManifestPusher.getContent();
 
             Assert.IsNotNull(body);
-            Assert.AreEqual(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.getType());
+            Assert.AreEqual(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.Headers.ContentType.MediaType);
 
             MemoryStream bodyCaptureStream = new MemoryStream();
             await body.writeToAsync(bodyCaptureStream);

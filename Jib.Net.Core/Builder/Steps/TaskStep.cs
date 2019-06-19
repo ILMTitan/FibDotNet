@@ -14,28 +14,8 @@
  * the License.
  */
 
-using System;
-using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.api
+namespace com.google.cloud.tools.jib.builder.steps
 {
-    [Serializable]
-    internal class ExecutionException : Exception
-    {
-        public ExecutionException()
-        {
-        }
-
-        public ExecutionException(string message) : base(message)
-        {
-        }
-
-        public ExecutionException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected ExecutionException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
 }

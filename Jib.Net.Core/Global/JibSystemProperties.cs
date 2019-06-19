@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.global
     /** Names of system properties defined/used by Jib. */
     public static class JibSystemProperties
     {
-        private const int defaultTimeoutMills = 20000;
+        private const int defaultTimeoutMills = 60000;
         public static readonly string HTTP_TIMEOUT = "jib.httpTimeout";
 
         public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";

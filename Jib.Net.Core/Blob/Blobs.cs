@@ -27,9 +27,14 @@ namespace com.google.cloud.tools.jib.blob
     /** Static methods for {@link Blob}. */
     public sealed class Blobs
     {
-        public static Blob from(Stream inputStream)
+        public static Blob from(Stream inputStream, long size)
         {
-            return new InputStreamBlob(inputStream);
+            return new InputStreamBlob(inputStream, size);
+        }
+
+        public static Blob from(byte[] bytes)
+        {
+            return new BytesBlob(bytes);
         }
 
         public static Blob from(SystemPath file)
@@ -53,9 +58,9 @@ namespace com.google.cloud.tools.jib.blob
             return new StringBlob(content);
         }
 
-        public static Blob from(WritableContentsAsync writable)
+        public static Blob from(WritableContentsAsync writable, long size)
         {
-            return new AsyncWritableContentsBlob(writable);
+            return new AsyncWritableContentsBlob(writable, size);
         }
 
         /**

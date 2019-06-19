@@ -40,7 +40,10 @@ namespace com.google.cloud.tools.jib.registry.json
      * }
      * }</pre>
      */
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    [JsonObject(
+        NamingStrategyType = typeof(CamelCaseNamingStrategy),
+        MissingMemberHandling = MissingMemberHandling.Ignore,
+        ItemNullValueHandling =NullValueHandling.Ignore)]
     public class ErrorResponseTemplate
     {
         public List<ErrorEntryTemplate> Errors { get; } = new List<ErrorEntryTemplate>();

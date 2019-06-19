@@ -14,12 +14,9 @@
  * the License.
  */
 
-using System;
-
-namespace com.google.cloud.tools.jib.api
+namespace com.google.cloud.tools.jib
 {
-    [AttributeUsage(AttributeTargets.All)]
-    internal class ClassRuleAttribute : Attribute
+    internal class command
     {
     }
 }

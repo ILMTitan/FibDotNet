@@ -29,11 +29,15 @@ namespace com.google.cloud.tools.jib.blob
 
         /** Indicates if the {@link Blob} has already been written or not. */
         private bool isWritten = false;
+        private readonly long _size;
 
-        public InputStreamBlob(Stream inputStream)
+        public InputStreamBlob(Stream inputStream, long size)
         {
             this.inputStream = inputStream;
+            _size = size;
         }
+
+        public long Size => _size;
 
         public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
         {

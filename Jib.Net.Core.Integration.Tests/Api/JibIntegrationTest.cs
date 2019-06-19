@@ -22,6 +22,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
@@ -35,8 +36,7 @@ namespace com.google.cloud.tools.jib.api
     /** Integration tests for {@link Jib}. */
     public class JibIntegrationTest
     {
-        [ClassRule]
-        public static readonly LocalRegistry localRegistry = new LocalRegistry(5000, "username", "password");
+        public static readonly LocalRegistry localRegistry = new LocalRegistry(5002, "username", "password");
 
         [Rule] public readonly TemporaryFolder cacheFolder = new TemporaryFolder();
 
@@ -53,6 +53,12 @@ namespace com.google.cloud.tools.jib.api
             localRegistry.pull(imageReference);
             return new Command("docker", "run", "--rm", imageReference).run();
         }
+        
+        [OneTimeSetUp]
+        public async Task OneTimeSetUpAsync()
+        {
+            await localRegistry.startAsync();
+        }
 
         [SetUp]
         public void setUp()
@@ -66,11 +72,17 @@ namespace com.google.cloud.tools.jib.api
             Environment.SetEnvironmentVariable("sendCredentialsOverHttp", null);
         }
 
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            localRegistry.stop();
+        }
+
         [Test]
         public async Task testBasic_helloWorldAsync()
         {
             ImageReference targetImageReference =
-                ImageReference.of("localhost:5000", "jib-core", "basic-helloworld");
+                ImageReference.of("localhost:5002", "jib-core", "basic-helloworld");
             JibContainer jibContainer =
                 await Jib.from("busybox")
                     .setEntrypoint("echo", "Hello World")
@@ -79,7 +91,8 @@ namespace com.google.cloud.tools.jib.api
                                 RegistryImage.named(targetImageReference)
                                     .addCredentialRetriever(
                                         () => Optional.of(Credential.from("username", "password"))))
-                            .setAllowInsecureRegistries(true));
+                            .setAllowInsecureRegistries(true)
+                            .addEventHandler<JibEvent>(e=>TestContext.Out.WriteLine(e)));
 
             Assert.AreEqual("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
             Assert.AreEqual(
@@ -92,7 +105,7 @@ namespace com.google.cloud.tools.jib.api
         public async Task testScratchAsync()
         {
             ImageReference targetImageReference =
-                ImageReference.of("localhost:5000", "jib-core", "basic-scratch");
+                ImageReference.of("localhost:5002", "jib-core", "basic-scratch");
             await Jib.fromScratch()
                 .containerizeAsync(
                     Containerizer.to(
@@ -110,9 +123,6 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public async Task testOfflineAsync()
         {
-            LocalRegistry tempRegistry = new LocalRegistry(5001);
-            await tempRegistry.startAsync();
-            tempRegistry.pullAndPushToLocal("busybox", "busybox");
             SystemPath cacheDirectory = cacheFolder.getRoot().toPath();
 
             ImageReference targetImageReferenceOnline =
@@ -122,6 +132,7 @@ namespace com.google.cloud.tools.jib.api
 
             JibContainerBuilder jibContainerBuilder =
                 Jib.from("localhost:5001/busybox").setEntrypoint("echo", "Hello World");
+
 
             // Should fail since Jib can't build to registry offline
             try
@@ -144,21 +155,26 @@ namespace com.google.cloud.tools.jib.api
                         .setOfflineMode(true));
                 Assert.Fail();
             }
-            catch (ExecutionException ex)
+            catch (IOException ex)
             {
                 Assert.AreEqual(
                     "Cannot run Jib in offline mode; localhost:5001/busybox not found in local Jib cache",
-                    ex.getCause().getMessage());
+                    ex.getMessage());
+            }
+            using (LocalRegistry tempRegistry = new LocalRegistry(5001))
+            {
+                await tempRegistry.startAsync();
+                tempRegistry.pullAndPushToLocal("busybox", "busybox");
+
+                // Run online to cache the base image
+                await jibContainerBuilder.containerizeAsync(
+                    Containerizer.to(DockerDaemonImage.named(targetImageReferenceOnline))
+                        .setBaseImageLayersCache(cacheDirectory)
+                        .setAllowInsecureRegistries(true));
+
             }
 
-            // Run online to cache the base image
-            await jibContainerBuilder.containerizeAsync(
-                Containerizer.to(DockerDaemonImage.named(targetImageReferenceOnline))
-                    .setBaseImageLayersCache(cacheDirectory)
-                    .setAllowInsecureRegistries(true));
-
             // Run again in offline mode, should succeed this time
-            tempRegistry.stop();
             await jibContainerBuilder.containerizeAsync(
                 Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
                     .setBaseImageLayersCache(cacheDirectory)

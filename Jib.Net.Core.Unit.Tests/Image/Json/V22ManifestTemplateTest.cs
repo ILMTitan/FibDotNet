@@ -51,7 +51,8 @@ namespace com.google.cloud.tools.jib.image.json
                     "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"));
 
             // Serializes the JSON object.
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestJson));
+            string result = JsonTemplateMapper.toUtf8String(manifestJson);
+            Assert.AreEqual(expectedJson, result);
         }
 
         [Test]

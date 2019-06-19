@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib
     {
         private static readonly Duration MULTITHREADED_TEST_TIMEOUT = Duration.FromSeconds(1);
 
-        public async Task<E> invokeAsync<E>(Callable<E> callable)
+        public async Task<E> invokeAsync<E>(Func<E> callable)
         {
             IList<E> returnValue = await invokeAllAsync(Collections.singletonList(callable));
             return returnValue.get(0);
@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib
             }
         }
 
-        public async Task<IList<E>> invokeAllAsync<E>(IEnumerable<Callable<E>> callables)
+        public async Task<IList<E>> invokeAllAsync<E>(IEnumerable<Func<E>> callables)
         {
             Task<E>[] futures =
                         callables.Select(c => Task.Run(() => c())).ToArray();

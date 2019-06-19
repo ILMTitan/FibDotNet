@@ -128,9 +128,8 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Template for the authentication response JSON. */
         [JsonObject(NamingStrategyType = typeof(SnakeCaseNamingStrategy))]
-        private class AuthenticationResponseTemplate
+        public class AuthenticationResponseTemplate
         {
-            [JsonProperty]
             public string Token { get; }
 
             /**
@@ -139,8 +138,14 @@ namespace com.google.cloud.tools.jib.registry
              * @see <a
              *     href="https://docs.docker.com/registry/spec/auth/token/#token-response-fields">https://docs.docker.com/registry/spec/auth/token/#token-response-fields</a>
              */
-            [JsonProperty]
             public string AccessToken { get; }
+
+            [JsonConstructor]
+            public AuthenticationResponseTemplate(string token, string accessToken)
+            {
+                Token = token;
+                AccessToken = accessToken;
+            }
 
             /** @return {@link #token} if not null, or {@link #access_token} */
             public string getToken()
@@ -247,7 +252,7 @@ namespace com.google.cloud.tools.jib.registry
          * @see <a
          *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
          */
-        private async System.Threading.Tasks.Task<Authorization> authenticateAsync(Credential credential, string scope)
+        private async Task<Authorization> authenticateAsync(Credential credential, string scope)
         {
             try
             {

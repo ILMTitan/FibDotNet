@@ -192,7 +192,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return await callAsync(url, connectionFactory);
             }
-            catch (HttpRequestException e) when (e.InnerException is AuthenticationException)
+            catch (HttpRequestException e) when (e.InnerException is AuthenticationException || e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security")
             {
                 return await handleUnverifiableServerExceptionAsync(url);
             }
@@ -226,7 +226,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return await fallBackToHttpAsync(url);
             }
-            catch(HttpRequestException e) when (e.InnerException is AuthenticationException)
+            catch(HttpRequestException e) when (e.InnerException is AuthenticationException || e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security")
             {
                 return await fallBackToHttpAsync(url);
             }
@@ -269,7 +269,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        private async System.Threading.Tasks.Task<T> callAsync(Uri url, Func<Uri, IConnection> connectionFactory)
+        private async Task<T> callAsync(Uri url, Func<Uri, IConnection> connectionFactory)
         {
             // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
             bool sendCredentials =
@@ -302,8 +302,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     if (ex.getStatusCode() == HttpStatusCode.BadRequest
                         || ex.getStatusCode() == HttpStatusCode.NotFound
-                        || ex.getStatusCode()
-                            == HttpStatusCode.MethodNotAllowed)
+                        || ex.getStatusCode() == HttpStatusCode.MethodNotAllowed)
                     {
                         // The name or reference was invalid.
                         throw await newRegistryErrorExceptionAsync(ex);
@@ -315,8 +314,7 @@ namespace com.google.cloud.tools.jib.registry
                             registryEndpointRequestProperties.getImageName(),
                             ex);
                     }
-                    else if (ex.getStatusCode()
-                      == HttpStatusCode.Unauthorized)
+                    else if (ex.getStatusCode() == HttpStatusCode.Unauthorized)
                     {
                         if (sendCredentials)
                         {
@@ -372,9 +370,8 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 ErrorResponseTemplate errorResponse =
-                    JsonTemplateMapper.readJson<ErrorResponseTemplate>(
-                        stringContent);
-                foreach (ErrorEntryTemplate errorEntry in errorResponse.getErrors())
+                    JsonTemplateMapper.readJson<ErrorResponseTemplate>(stringContent);
+                foreach (ErrorEntryTemplate errorEntry in errorResponse?.getErrors() ?? Enumerable.Empty<ErrorEntryTemplate>())
                 {
                     registryErrorExceptionBuilder.addReason(errorEntry);
                 }

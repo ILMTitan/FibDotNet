@@ -26,9 +26,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Integration tests for {@link BlobChecker}. */
-    public class BlobCheckerIntegrationTest
-    {
-        [ClassRule] public static LocalRegistry localRegistry = new LocalRegistry(5000);
+    public class BlobCheckerIntegrationTest : HttpRegistryTest {
 
         [Test]
         public async Task testCheck_existsAsync()
@@ -42,8 +40,7 @@ namespace com.google.cloud.tools.jib.registry
                 await registryClient.pullManifestAsync<V22ManifestTemplate>("latest");
             DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
 
-            BlobDescriptor blobDescriptor = await registryClient.checkBlobAsync(blobDigest);
-            Assert.AreEqual(blobDigest, blobDescriptor.getDigest());
+            Assert.IsTrue(await registryClient.checkBlobAsync(new BlobDescriptor(blobDigest)));
         }
 
         [Test]
@@ -58,7 +55,7 @@ namespace com.google.cloud.tools.jib.registry
                 DescriptorDigest.fromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-            Assert.IsNull(await registryClient.checkBlobAsync(fakeBlobDigest));
+            Assert.IsFalse(await registryClient.checkBlobAsync(new BlobDescriptor(fakeBlobDigest)));
         }
     }
 }

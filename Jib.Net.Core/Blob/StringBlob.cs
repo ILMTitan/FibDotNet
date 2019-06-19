@@ -19,27 +19,21 @@ using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
-    internal class StringBlob : Blob
+    internal class StringBlob : BytesBlob
     {
-        private readonly string content;
 
-        public StringBlob(string content)
-        {
-            this.content = content;
-        }
+        public StringBlob(string content) : base(Encoding.UTF8.GetBytes(content)) { }
 
-        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
+        public override string ToString()
         {
-            using (Stream stringIn =
-                new MemoryStream(content.getBytes(StandardCharsets.UTF_8)))
-            {
-                return await Digests.computeDigestAsync(stringIn, outputStream);
-            }
+            return Encoding.UTF8.GetString(bytes.ToArray());
         }
     }
 }

@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             public PullBaseImageStep pullBaseImageStep;
             public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
 
-            public IReadOnlyList<AsyncStep<ICachedLayer>> buildAndCacheApplicationLayerSteps;
+            public AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps;
 
             public PushLayersStep pushBaseImageLayersStep;
             public PushLayersStep pushApplicationLayersStep;
@@ -187,8 +187,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                             buildConfiguration,
                             Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
                             Preconditions.checkNotNull(steps.authenticatePushStep),
-                            AsyncSteps.immediate(
-                                Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps))));
+                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps)));
         }
 
         public StepsRunner pushImage()
