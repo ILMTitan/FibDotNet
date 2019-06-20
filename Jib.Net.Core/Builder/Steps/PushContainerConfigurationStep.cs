@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Pushes the container configuration. */
-    internal class PushContainerConfigurationStep : AsyncStep<BlobDescriptor>
+    internal class PushContainerConfigurationStep : IAsyncStep<BlobDescriptor>
     {
         private const string DESCRIPTION = "Pushing container configuration";
 

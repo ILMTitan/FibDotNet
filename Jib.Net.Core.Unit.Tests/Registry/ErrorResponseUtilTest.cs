@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(
-                ErrorCodes.MANIFEST_INVALID, await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false));
+                ErrorCode.MANIFEST_INVALID, await ErrorResponseUtil.getErrorCodeAsync(httpResponseException).ConfigureAwait(false));
         }
 
         /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */

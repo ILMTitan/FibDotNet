@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
-    internal class DoubleAdder
+    internal class DoubleAdder : IDisposable
     {
         private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
 
@@ -36,6 +36,11 @@ namespace com.google.cloud.tools.jib.@event.progress
                 sum += value;
             }
             return sum;
+        }
+
+        public void Dispose()
+        {
+            values.Dispose();
         }
     }
 }

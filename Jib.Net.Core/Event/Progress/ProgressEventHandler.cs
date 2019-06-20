@@ -27,10 +27,14 @@ namespace com.google.cloud.tools.jib.@event.progress
      *
      * <p>This implementation is thread-safe.
      */
-    public class ProgressEventHandler
+    public sealed class ProgressEventHandler : IDisposable
     {
         public static implicit operator Action<ProgressEvent>(ProgressEventHandler h)
         {
+            if(h is null)
+            {
+                return _ => { };
+            }
             return h.accept;
         }
 
@@ -82,9 +86,9 @@ namespace com.google.cloud.tools.jib.@event.progress
          * Note that every change will be reported (though multiple could be reported together), and there
          * could be false positives.
          */
-        private readonly Consumer<Update> updateNotifier;
+        private readonly Action<Update> updateNotifier;
 
-        public ProgressEventHandler(Consumer<Update> updateNotifier)
+        public ProgressEventHandler(Action<Update> updateNotifier)
         {
             this.updateNotifier = updateNotifier;
         }
@@ -103,8 +107,13 @@ namespace com.google.cloud.tools.jib.@event.progress
             if (completionTracker.updateProgress(allocation, progressUnits))
             {
                 // Note: Could produce false positives.
-                updateNotifier.accept(new Update(progress.sum(), completionTracker.getUnfinishedLeafTasks()));
+                updateNotifier(new Update(progress.sum(), completionTracker.getUnfinishedLeafTasks()));
             }
+        }
+
+        public void Dispose()
+        {
+            progress.Dispose();
         }
     }
 }

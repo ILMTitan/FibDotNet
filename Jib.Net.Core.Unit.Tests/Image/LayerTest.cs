@@ -33,7 +33,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void testNew_reference()
         {
-            Layer layer = new ReferenceLayer(mockBlobDescriptor, mockDiffId);
+            ILayer layer = new ReferenceLayer(mockBlobDescriptor, mockDiffId);
 
             try
             {
@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void testNew_digestOnly()
         {
-            Layer layer = new DigestOnlyLayer(mockDescriptorDigest);
+            ILayer layer = new DigestOnlyLayer(mockDescriptorDigest);
 
             try
             {

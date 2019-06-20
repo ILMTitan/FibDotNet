@@ -106,10 +106,10 @@ namespace com.google.cloud.tools.jib.cache
                     return false;
                 }
                 LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate)other;
-                return SourceFile.Equals(otherLayerEntryTemplate.SourceFile)
-                    && ExtractionPath.Equals(otherLayerEntryTemplate.ExtractionPath)
-                    && LastModifiedTime.Equals(otherLayerEntryTemplate.LastModifiedTime)
-                    && Permissions.Equals(otherLayerEntryTemplate.Permissions);
+                return SourceFile == otherLayerEntryTemplate.SourceFile
+                    && ExtractionPath ==otherLayerEntryTemplate.ExtractionPath
+                    && LastModifiedTime == otherLayerEntryTemplate.LastModifiedTime
+                    && Permissions == otherLayerEntryTemplate.Permissions;
             }
 
             public override int GetHashCode()

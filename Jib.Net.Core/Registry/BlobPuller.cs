@@ -41,15 +41,15 @@ namespace com.google.cloud.tools.jib.registry
          */
         private readonly Stream destinationOutputStream;
 
-        private readonly Consumer<long> blobSizeListener;
-        private readonly Consumer<long> writtenByteCountListener;
+        private readonly Action<long> blobSizeListener;
+        private readonly Action<long> writtenByteCountListener;
 
         public BlobPuller(
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             DescriptorDigest blobDigest,
             Stream destinationOutputStream,
-            Consumer<long> blobSizeListener,
-            Consumer<long> writtenByteCountListener)
+            Action<long> blobSizeListener,
+            Action<long> writtenByteCountListener)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
             this.blobDigest = blobDigest;
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 throw new HttpResponseException(response);
             }
-            blobSizeListener.accept(response.getContentLength() ?? 0);
+            blobSizeListener(response.getContentLength() ?? 0);
 
             using (Stream outputStream =
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))

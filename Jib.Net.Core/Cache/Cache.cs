@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public void writeMetadata(
             IImageReference imageReference,
-            BuildableManifestTemplate manifestTemplate,
+            IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate)
         {
             cacheStorageWriter.writeMetadata(
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} for the written layer
          * @throws IOException if an I/O exception occurs
          */
-        public async Task<CachedLayer> writeCompressedLayerAsync(Blob compressedLayerBlob)
+        public async Task<CachedLayer> writeCompressedLayerAsync(IBlob compressedLayerBlob)
         {
             return await cacheStorageWriter.writeCompressedAsync(compressedLayerBlob).ConfigureAwait(false);
         }
@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          */
         public async Task<CachedLayer> writeUncompressedLayerAsync(
-            Blob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries)
+            IBlob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries)
         {
             return await cacheStorageWriter.writeUncompressedAsync(
                 uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries)).ConfigureAwait(false);

@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Threading;
 
 namespace com.google.cloud.tools.jib.@event.progress
@@ -40,7 +41,7 @@ namespace com.google.cloud.tools.jib.@event.progress
 
         public override string ToString()
         {
-            return get().ToString();
+            return get().ToString(CultureInfo.CurrentCulture);
         }
     }
 }

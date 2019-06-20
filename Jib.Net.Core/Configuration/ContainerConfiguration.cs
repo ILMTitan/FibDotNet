@@ -346,11 +346,10 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 return true;
             }
-            if (!(other is ContainerConfiguration))
+            if (!(other is ContainerConfiguration otherContainerConfiguration))
             {
                 return false;
             }
-            ContainerConfiguration otherContainerConfiguration = (ContainerConfiguration)other;
             return creationTime.Equals(otherContainerConfiguration.creationTime)
                 && Objects.Equals(entrypoint, otherContainerConfiguration.entrypoint)
                 && Objects.Equals(programArguments, otherContainerConfiguration.programArguments)

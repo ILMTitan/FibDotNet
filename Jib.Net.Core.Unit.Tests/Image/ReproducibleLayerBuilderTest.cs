@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.image
                         .getLayerEntries());
 
             // Writes the layer tar to a temporary file.
-            Blob unwrittenBlob = layerBuilder.build();
+            IBlob unwrittenBlob = layerBuilder.build();
             SystemPath temporaryFile = temporaryFolder.newFile().toPath();
             using (Stream temporaryFileOutputStream =
                 new BufferedStream(Files.newOutputStream(temporaryFile)))
@@ -160,13 +160,13 @@ namespace com.google.cloud.tools.jib.image
             Assert.AreNotEqual(Files.getLastModifiedTime(fileB1), Files.getLastModifiedTime(fileB2));
 
             // create layers of exact same content but ordered differently and with different timestamps
-            Blob layer =
+            IBlob layer =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             defaultLayerEntry(fileA1, AbsoluteUnixPath.get("/somewhere/fileA")),
                             defaultLayerEntry(fileB1, AbsoluteUnixPath.get("/somewhere/fileB"))))
                     .build();
-            Blob reproduced =
+            IBlob reproduced =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             defaultLayerEntry(fileB2, AbsoluteUnixPath.get("/somewhere/fileB")),
@@ -192,7 +192,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath fileC =
                 Files.createFile(Files.createDirectories(testRoot.resolve("ccc-absent")).resolve("fileC"));
 
-            Blob layer =
+            IBlob layer =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             new LayerEntry(
@@ -237,7 +237,7 @@ namespace com.google.cloud.tools.jib.image
 
                 // parentAAA (custom permissions, custom timestamp)
                 TarEntry rootParentAAA = @in.getNextTarEntry();
-                Assert.AreEqual("111", (rootParentAAA.getMode()).ToOctalString());
+                Assert.AreEqual("111", rootParentAAA.getMode().ToOctalString());
                 Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
 
                 // skip over fileA
@@ -267,7 +267,7 @@ namespace com.google.cloud.tools.jib.image
         {
             SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
-            Blob blob =
+            IBlob blob =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(defaultLayerEntry(file, AbsoluteUnixPath.get("/fileA"))))
                     .build();
@@ -291,7 +291,7 @@ namespace com.google.cloud.tools.jib.image
         {
             SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
 
-            Blob blob =
+            IBlob blob =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             new LayerEntry(
@@ -324,7 +324,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath fileA = createFile(testRoot, "fileA", "abc", 54321);
             SystemPath fileB = createFile(testRoot, "fileB", "def", 54321);
 
-            Blob blob =
+            IBlob blob =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             defaultLayerEntry(fileA, AbsoluteUnixPath.get("/somewhere/fileA")),

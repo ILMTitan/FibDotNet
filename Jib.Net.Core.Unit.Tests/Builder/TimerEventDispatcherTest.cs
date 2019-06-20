@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.builder
             verifyStartState(timerEvent);
             verifyDescription(timerEvent, "description");
 
-            TimerEvent.Timer parentTimer = timerEvent.getTimer();
+            TimerEvent.ITimer parentTimer = timerEvent.getTimer();
 
             timerEvent = getNextTimerEvent();
             verifyNoParent(timerEvent);
@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedParentTimer the expected parent timer
          */
-        private void verifyParent(TimerEvent timerEvent, TimerEvent.Timer expectedParentTimer)
+        private void verifyParent(TimerEvent timerEvent, TimerEvent.ITimer expectedParentTimer)
         {
             Assert.IsTrue(timerEvent.getTimer().getParent().isPresent());
             Assert.AreSame(expectedParentTimer, timerEvent.getTimer().getParent().get());

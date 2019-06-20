@@ -34,12 +34,12 @@ namespace com.google.cloud.tools.jib.cache
     /** Tests for {@link CacheStorageWriter}. */
     public class CacheStorageWriterTest
     {
-        private static async Task<BlobDescriptor> getDigestAsync(Blob blob)
+        private static async Task<BlobDescriptor> getDigestAsync(IBlob blob)
         {
             return await blob.writeToAsync(Stream.Null).ConfigureAwait(false);
         }
 
-        private static Blob compress(Blob blob)
+        private static IBlob compress(IBlob blob)
         {
             return Blobs.from(
                 async outputStream =>
@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.cache
                 }, -1);
         }
 
-        private static async Task<Blob> decompressAsync(Blob blob)
+        private static async Task<IBlob> decompressAsync(IBlob blob)
         {
             return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
         }
@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task testWrite_compressedAsync()
         {
-            Blob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
+            IBlob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
 
             CachedLayer cachedLayer =
                 await new CacheStorageWriter(cacheStorageFiles).writeCompressedAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task testWrite_uncompressedAsync()
         {
-            Blob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
+            IBlob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
             BlobDescriptor layerDigestDescriptor = await getDigestAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
             DescriptorDigest layerDigest = layerDigestDescriptor.getDigest();
             BlobDescriptor selectorDescriptor = await getDigestAsync(Blobs.from("selector")).ConfigureAwait(false);
@@ -131,7 +131,7 @@ namespace com.google.cloud.tools.jib.cache
                     containerConfigurationJsonFile);
             SystemPath manifestJsonFile =
                 Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
-            BuildableManifestTemplate manifestTemplate =
+            IBuildableManifestTemplate manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
 
@@ -156,7 +156,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual("wasm", savedContainerConfig.getArchitecture());
         }
 
-        private async Task verifyCachedLayerAsync(CachedLayer cachedLayer, Blob uncompressedLayerBlob)
+        private async Task verifyCachedLayerAsync(CachedLayer cachedLayer, IBlob uncompressedLayerBlob)
         {
             BlobDescriptor layerBlobDescriptor = await getDigestAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
             BlobDescriptor layerDiffDescriptor = await getDigestAsync(uncompressedLayerBlob).ConfigureAwait(false);

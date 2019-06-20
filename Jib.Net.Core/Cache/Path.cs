@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using com.google.cloud.tools.jib.api;
@@ -30,6 +31,10 @@ namespace Jib.Net.Core.FileSystem
 
         public static implicit operator SystemPath(AbsoluteUnixPath absolutePath)
         {
+            if(absolutePath == null)
+            {
+                return null;
+            }
             if(absolutePath.OriginalRoot == null)
             {
                 return new SystemPath(absolutePath.ToString());
@@ -44,13 +49,14 @@ namespace Jib.Net.Core.FileSystem
 
         public static implicit operator string(SystemPath path)
         {
-            return path.path;
+            return path?.path;
         }
 
         public SystemPath(string path)
         {
+            path = path ?? throw new ArgumentNullException(nameof(path));
             path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-            if (path != Path.DirectorySeparatorChar.ToString())
+            if (path != Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))
             {
                 path = path.TrimEnd(Path.DirectorySeparatorChar);
             }
@@ -59,7 +65,7 @@ namespace Jib.Net.Core.FileSystem
 
         public SystemPath(FileSystemInfo fileInfo)
         {
-            path = fileInfo.FullName;
+            path = fileInfo?.FullName ?? throw new ArgumentNullException(nameof(fileInfo));
         }
 
         public SystemPath(string[] pathParts)
@@ -118,6 +124,7 @@ namespace Jib.Net.Core.FileSystem
 
         public SystemPath resolve(SystemPath relativePath)
         {
+            relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             return new SystemPath(Path.Combine(path, relativePath.path));
         }
 
@@ -196,7 +203,7 @@ namespace Jib.Net.Core.FileSystem
 
         public int CompareTo(SystemPath other)
         {
-            return string.Compare(path, other?.path);
+            return string.CompareOrdinal(path, other?.path);
         }
     }
 }

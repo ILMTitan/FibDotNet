@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             Image image = JsonToImageTranslator.toImage(manifestTemplate);
 
-            IList<Layer> layers = image.getLayers();
+            IList<ILayer> layers = image.getLayers();
             Assert.AreEqual(2, layers.size());
             Assert.AreEqual(
                 DescriptorDigest.fromDigest(
@@ -165,7 +165,7 @@ namespace com.google.cloud.tools.jib.image.json
         }
 
         private void testToImage_buildable<T>(
-            string jsonFilename) where T : BuildableManifestTemplate
+            string jsonFilename) where T : IBuildableManifestTemplate
         {
             // Loads the container configuration JSON.
             SystemPath containerConfigurationJsonFile =
@@ -183,7 +183,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             Image image = JsonToImageTranslator.toImage(manifestTemplate, containerConfigurationTemplate);
 
-            IList<Layer> layers = image.getLayers();
+            IList<ILayer> layers = image.getLayers();
             Assert.AreEqual(1, layers.size());
             Assert.AreEqual(
                 new BlobDescriptor(

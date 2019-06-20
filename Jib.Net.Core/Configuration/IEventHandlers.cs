@@ -4,6 +4,6 @@ namespace com.google.cloud.tools.jib.configuration
 {
     public interface IEventHandlers
     {
-        void dispatch(JibEvent @event);
+        void dispatch(IJibEvent @event);
     }
 }

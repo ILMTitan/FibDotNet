@@ -15,6 +15,7 @@
  */
 
 using Jib.Net.Core.Global;
+using System;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -95,12 +96,11 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is Port))
+            if (!(other is Port otherPort))
             {
                 return false;
             }
-            Port otherPort = (Port)other;
-            return port == otherPort.port && protocol.Equals(otherPort.protocol);
+            return port == otherPort.port && protocol == otherPort.protocol;
         }
 
         public override int GetHashCode()

@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.image
     /** Tests for {@link Image}. */
     public class ImageTest
     {
-        private readonly Layer mockLayer = Mock.Of<Layer>();
+        private readonly ILayer mockLayer = Mock.Of<ILayer>();
         private readonly DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
 
         [SetUp]
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.image
             Image image = Image.builder(ManifestFormat.V22).build();
             Assert.AreEqual("amd64", image.getArchitecture());
             Assert.AreEqual("linux", image.getOs());
-            Assert.AreEqual(Collections.emptyList<Layer>(), image.getLayers());
+            Assert.AreEqual(Collections.emptyList<ILayer>(), image.getLayers());
             Assert.AreEqual(Collections.emptyList<HistoryEntry>(), image.getHistory());
         }
 

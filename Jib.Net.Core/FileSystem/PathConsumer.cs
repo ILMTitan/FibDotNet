@@ -15,6 +15,7 @@
  */
 
 using Jib.Net.Core.FileSystem;
+using System;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -24,6 +25,7 @@ namespace com.google.cloud.tools.jib.filesystem
     {
         public static void accept(this PathConsumer c, SystemPath path)
         {
+            c = c ?? throw new ArgumentNullException(nameof(c));
             c(path);
         }
     }

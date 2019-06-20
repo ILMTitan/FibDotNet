@@ -25,12 +25,12 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     internal static class AsyncSteps
     {
-        internal static AsyncStep<T> immediate<T>(T value)
+        internal static IAsyncStep<T> immediate<T>(T value)
         {
             return AsyncStep.Of(() => Task.FromResult(value));
         }
 
-        internal static AsyncStep<IReadOnlyList<T>> fromTasks<T>(IEnumerable<Task<T>> tasks) {
+        internal static IAsyncStep<IReadOnlyList<T>> fromTasks<T>(IEnumerable<Task<T>> tasks) {
             async Task<IReadOnlyList<T>> f() => await Task.WhenAll(tasks).ConfigureAwait(false);
             return AsyncStep.Of(f);
         }

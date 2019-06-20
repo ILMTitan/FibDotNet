@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.registry
     public class BlobPusherTest
     {
         private const string TEST_BLOB_CONTENT = "some BLOB content";
-        private static readonly Blob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
+        private static readonly IBlob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
 
         private readonly Uri mockURL = new Uri("mock://someServerUrl/someImageName");
         private HttpResponseMessage mockResponse = new HttpResponseMessage();

@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.blob
 {
     /** Holds a BLOB source for writing to an {@link OutputStream}. */
-    public interface Blob
+    public interface IBlob
     {
         /**
          * Writes the BLOB to an {@link OutputStream}. Does not close the {@code innerStream}.

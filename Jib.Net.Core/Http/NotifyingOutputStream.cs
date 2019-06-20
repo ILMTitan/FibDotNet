@@ -15,6 +15,7 @@
  */
 
 using Jib.Net.Core.Api;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace com.google.cloud.tools.jib.http
         private readonly Stream underlyingOutputStream;
 
         /** Receives a count of bytes written since the last call. */
-        private readonly Consumer<long> byteCountListener;
+        private readonly Action<long> byteCountListener;
 
         /** Number of bytes to provide to {@link #byteCountListener}. */
         private long byteCount = 0;
@@ -51,7 +52,7 @@ namespace com.google.cloud.tools.jib.http
          * @param byteCountListener the byte count {@link Consumer}
          */
         public NotifyingOutputStream(
-      Stream underlyingOutputStream, Consumer<long> byteCountListener, bool leaveOpen = false)
+      Stream underlyingOutputStream, Action<long> byteCountListener, bool leaveOpen = false)
         {
             this.underlyingOutputStream = underlyingOutputStream;
             this.byteCountListener = byteCountListener;
@@ -79,7 +80,7 @@ namespace com.google.cloud.tools.jib.http
                 return;
             }
 
-            byteCountListener.accept(byteCount);
+            byteCountListener(byteCount);
             byteCount = 0;
         }
 

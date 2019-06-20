@@ -34,6 +34,7 @@ namespace com.google.cloud.tools.jib.frontend
     {
         public static IDockerCredentialHelper create(this DockerCredentialHelperFactory f, string registry, SystemPath credentialHelper)
         {
+            f = f ?? throw new ArgumentNullException(nameof(f));
             return f(registry, credentialHelper);
         }
     }
@@ -56,7 +57,7 @@ namespace com.google.cloud.tools.jib.frontend
          * @return a new {@link CredentialRetrieverFactory}
          */
         public static CredentialRetrieverFactory forImage(
-            ImageReference imageReference, Consumer<LogEvent> logger)
+            ImageReference imageReference, Action<LogEvent> logger)
         {
             return new CredentialRetrieverFactory(imageReference, logger, DockerCredentialHelper.Create);
         }
@@ -74,12 +75,12 @@ namespace com.google.cloud.tools.jib.frontend
         }
 
         private readonly ImageReference imageReference;
-        private readonly Consumer<LogEvent> logger;
+        private readonly Action<LogEvent> logger;
         private readonly DockerCredentialHelperFactory dockerCredentialHelperFactory;
 
         public CredentialRetrieverFactory(
             ImageReference imageReference,
-            Consumer<LogEvent> logger,
+            Action<LogEvent> logger,
             DockerCredentialHelperFactory dockerCredentialHelperFactory)
         {
             this.imageReference = imageReference;
@@ -128,7 +129,7 @@ namespace com.google.cloud.tools.jib.frontend
         {
             return () =>
             {
-                logger.accept(LogEvent.info("Checking credentials from " + credentialHelper));
+                logger(LogEvent.info("Checking credentials from " + credentialHelper));
 
                 try
                 {
@@ -136,7 +137,7 @@ namespace com.google.cloud.tools.jib.frontend
                 }
                 catch (CredentialHelperUnhandledServerUrlException)
                 {
-                    logger.accept(
+                    logger(
                         LogEvent.info(
                             "No credentials for " + imageReference.getRegistry() + " in " + credentialHelper));
                     return Optional.empty<Credential>();
@@ -189,10 +190,10 @@ namespace com.google.cloud.tools.jib.frontend
                         if (ex.getMessage() != null)
                         {
                             // Warns the user that the specified (or inferred) credential helper cannot be used.
-                            logger.accept(LogEvent.info(ex.getMessage()));
+                            logger(LogEvent.info(ex.getMessage()));
                             if (ex.getCause()?.getMessage() != null)
                             {
-                                logger.accept(LogEvent.info("  Caused by: " + ex.getCause().getMessage()));
+                                logger(LogEvent.info("  Caused by: " + ex.getCause().getMessage()));
                             }
                         }
                     }
@@ -242,7 +243,7 @@ namespace com.google.cloud.tools.jib.frontend
                         dockerConfigCredentialRetriever.retrieve(logger);
                     if (dockerConfigCredentials.isPresent())
                     {
-                        logger.accept(
+                        logger(
                             LogEvent.info(
                                 "Using credentials from Docker config for " + imageReference.getRegistry()));
                         return dockerConfigCredentials;
@@ -250,7 +251,7 @@ namespace com.google.cloud.tools.jib.frontend
                 }
                 catch (IOException)
                 {
-                    logger.accept(LogEvent.info("Unable to parse Docker config"));
+                    logger(LogEvent.info("Unable to parse Docker config"));
                 }
                 return Optional.empty<Credential>();
             };
@@ -268,7 +269,7 @@ namespace com.google.cloud.tools.jib.frontend
 
         private void logGotCredentialsFrom(string credentialSource)
         {
-            logger.accept(
+            logger(
                 LogEvent.info("Using " + credentialSource + " for " + imageReference.getRegistry()));
         }
     }

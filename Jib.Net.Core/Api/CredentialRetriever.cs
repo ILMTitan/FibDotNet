@@ -38,6 +38,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static Optional<Credential> retrieve(this CredentialRetriever c)
         {
+            c = c ?? throw new ArgumentNullException(nameof(c));
             return c();
         }
     }

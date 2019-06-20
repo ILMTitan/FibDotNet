@@ -23,7 +23,7 @@ using static com.google.cloud.tools.jib.@event.events.TimerEvent;
 namespace com.google.cloud.tools.jib.builder
 {
     /** Handles {@link Timer}s to dispatch {@link TimerEvent}s. */
-    public class TimerEventDispatcher : IDisposable
+    public sealed class TimerEventDispatcher : IDisposable
     {
         private static readonly IClock DEFAULT_CLOCK = SystemClock.Instance;
 

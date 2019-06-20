@@ -25,14 +25,14 @@ namespace com.google.cloud.tools.jib.configuration
     public class EventHandlers : IEventHandlers
     {
         public static EventHandlers NONE = new Builder().build();
-        private ImmutableArray<Action<JibEvent>> handlers;
+        private ImmutableArray<Action<IJibEvent>> handlers;
 
-        public EventHandlers(ImmutableArray<Action<JibEvent>> handlers)
+        public EventHandlers(ImmutableArray<Action<IJibEvent>> handlers)
         {
             this.handlers = handlers;
         }
 
-        public void dispatch(JibEvent @event)
+        public void dispatch(IJibEvent @event)
         {
             foreach (var handler in handlers)
             {
@@ -47,9 +47,9 @@ namespace com.google.cloud.tools.jib.configuration
 
         public class Builder
         {
-            private readonly IList<Action<JibEvent>> handlers = new List<Action<JibEvent>>();
+            private readonly IList<Action<IJibEvent>> handlers = new List<Action<IJibEvent>>();
 
-            public Builder add<T>(Action<T> action) where T : JibEvent
+            public Builder add<T>(Action<T> action) where T : IJibEvent
             {
                 handlers.Add(jibEvent =>
                 {
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.configuration
                 return this;
             }
 
-            public Builder add<T>(Type _, Action<T> action) where T : JibEvent
+            public Builder add<T>(Type _, Action<T> action) where T : IJibEvent
             {
                 return add<T>(action);
             }

@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.image.json
      *     Schema 1</a>
      */
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class V21ManifestTemplate : ManifestTemplate
+    public class V21ManifestTemplate : IManifestTemplate
     {
         public static readonly string MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v1+json";
 

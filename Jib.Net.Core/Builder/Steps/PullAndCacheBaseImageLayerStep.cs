@@ -22,13 +22,14 @@ using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Pulls and caches a single base image layer. */
-    public class PullAndCacheBaseImageLayerStep : AsyncStep<ICachedLayer>
+    public class PullAndCacheBaseImageLayerStep : IAsyncStep<ICachedLayer>
     {
         private const string DESCRIPTION = "Pulling base image layer {0}";
 
@@ -65,7 +66,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
-                        buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, layerDigest)))
+                        buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
             {
                 Cache cache = buildConfiguration.getBaseImageLayersCache();
 

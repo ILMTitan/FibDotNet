@@ -18,11 +18,12 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.@event.events;
 using Jib.Net.Core.Global;
 using NodaTime;
+using System;
 
 namespace com.google.cloud.tools.jib.builder
 {
     /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
-    public class Timer : TimerEvent.Timer
+    public class Timer : TimerEvent.ITimer
     {
         private readonly IClock clock;
         private readonly Timer parentTimer;
@@ -32,16 +33,16 @@ namespace com.google.cloud.tools.jib.builder
 
         public Timer(IClock clock, Timer parentTimer)
         {
-            this.clock = clock;
+            this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             this.parentTimer = parentTimer;
 
             startTime = clock.instant();
             lapStartTime = startTime;
         }
 
-        public Optional<TimerEvent.Timer> getParent()
+        public Optional<TimerEvent.ITimer> getParent()
         {
-            return Optional.ofNullable<TimerEvent.Timer>(parentTimer);
+            return Optional.ofNullable<TimerEvent.ITimer>(parentTimer);
         }
 
         /**

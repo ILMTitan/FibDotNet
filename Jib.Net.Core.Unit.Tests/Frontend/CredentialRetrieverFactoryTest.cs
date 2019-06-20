@@ -22,6 +22,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.frontend
@@ -53,7 +54,7 @@ namespace com.google.cloud.tools.jib.frontend
             };
         }
 
-        private readonly Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+        private readonly Action<LogEvent> mockLogger = Mock.Of<Action<LogEvent>>();
         private readonly IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
         private readonly IDockerConfigCredentialRetriever mockDockerConfigCredentialRetriever = Mock.Of<IDockerConfigCredentialRetriever>();
 

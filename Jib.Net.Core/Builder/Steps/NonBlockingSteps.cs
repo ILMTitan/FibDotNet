@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     public static class NonBlockingSteps
     {
-        public static async Task<T> getAsync<T>(AsyncStep<T> step)
+        public static async Task<T> getAsync<T>(IAsyncStep<T> step)
         {
             return await step.getFuture().ConfigureAwait(false);
         }

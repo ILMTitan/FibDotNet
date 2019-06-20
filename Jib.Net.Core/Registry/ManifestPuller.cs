@@ -28,13 +28,13 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
 {
-    internal class ManifestPuller : ManifestPuller<ManifestTemplate>
+    internal class ManifestPuller : ManifestPuller<IManifestTemplate>
     {
         public ManifestPuller(RegistryEndpointRequestProperties registryEndpointRequestProperties, string imageTag) : base(registryEndpointRequestProperties, imageTag)
         {
         }
 
-        protected override ManifestTemplate getManifestTemplateFromJson(string jsonString)
+        protected override IManifestTemplate getManifestTemplateFromJson(string jsonString)
         {
             var token = JToken.Parse(jsonString);
             if (!(token is JObject obj))
@@ -58,11 +58,11 @@ namespace com.google.cloud.tools.jib.registry
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
                 string mediaType = obj.Value<string>("mediaType");
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == (mediaType))
                 {
                     return JsonTemplateMapper.readJson<V22ManifestTemplate>(jsonString);
                 }
-                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == (mediaType))
                 {
                     return JsonTemplateMapper.readJson<OCIManifestTemplate>(jsonString);
                 }
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry
     }
 
     /** Pulls an image's manifest. */
-    internal class ManifestPuller<T> : RegistryEndpointProvider<T> where T : ManifestTemplate
+    internal class ManifestPuller<T> : RegistryEndpointProvider<T> where T : IManifestTemplate
     {
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly string imageTag;
@@ -116,10 +116,14 @@ namespace com.google.cloud.tools.jib.registry
         {
             if (response.IsSuccessStatusCode)
             {
-                string jsonString =
-                    CharStreams.toString(new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8));
+                string jsonString;
+                using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8))
+                {
+                    jsonString = CharStreams.toString(reader);
+                }
                 return getManifestTemplateFromJson(jsonString);
-            } else
+            }
+            else
             {
                 throw new HttpResponseException(response);
             }

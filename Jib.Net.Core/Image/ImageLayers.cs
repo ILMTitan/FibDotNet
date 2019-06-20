@@ -26,11 +26,11 @@ using System.Collections.Immutable;
 namespace com.google.cloud.tools.jib.image
 {
     /** Holds the layers for an image. */
-    public sealed class ImageLayers : IEnumerable<Layer>
+    public sealed class ImageLayers : IEnumerable<ILayer>
     {
         public class Builder
         {
-            private readonly IList<Layer> layers = new List<Layer>();
+            private readonly IList<ILayer> layers = new List<ILayer>();
 
             private readonly ImmutableHashSet<DescriptorDigest>.Builder layerDigestsBuilder =
                 ImmutableHashSet.CreateBuilder<DescriptorDigest>();
@@ -47,8 +47,9 @@ namespace com.google.cloud.tools.jib.image
              * @return this
              * @throws LayerPropertyNotFoundException if adding the layer fails
              */
-            public Builder add(Layer layer)
+            public Builder add(ILayer layer)
             {
+                layer = layer ?? throw new ArgumentNullException(nameof(layer));
                 layerDigestsBuilder.add(layer.getBlobDescriptor().getDigest());
                 layers.add(layer);
                 return this;
@@ -63,7 +64,8 @@ namespace com.google.cloud.tools.jib.image
              */
             public Builder addAll(ImageLayers layers)
             {
-                foreach (Layer layer in layers)
+                layers = layers ?? throw new ArgumentNullException(nameof(layers));
+                foreach (ILayer layer in layers)
                 {
                     add(layer);
                 }
@@ -90,8 +92,8 @@ namespace com.google.cloud.tools.jib.image
 
                 // LinkedHashSet maintains the order but keeps the first occurrence. Keep last occurrence by
                 // adding elements in reverse, and then reversing the result
-                ISet<Layer> dedupedButReversed = new LinkedHashSet<Layer>(layers.reverse());
-                ImmutableArray<Layer> deduped = ImmutableArray.CreateRange(dedupedButReversed.reverse());
+                ISet<ILayer> dedupedButReversed = new LinkedHashSet<ILayer>(layers.reverse());
+                ImmutableArray<ILayer> deduped = ImmutableArray.CreateRange(dedupedButReversed.reverse());
                 return new ImageLayers(deduped, layerDigestsBuilder.build());
             }
         }
@@ -102,19 +104,19 @@ namespace com.google.cloud.tools.jib.image
         }
 
         /** The layers of the image, in the order in which they are applied. */
-        private readonly ImmutableArray<Layer> layers;
+        private readonly ImmutableArray<ILayer> layers;
 
         /** Keeps track of the layers already added. */
         private readonly ImmutableHashSet<DescriptorDigest> layerDigests;
 
-        private ImageLayers(ImmutableArray<Layer> layers, ImmutableHashSet<DescriptorDigest> layerDigests)
+        private ImageLayers(ImmutableArray<ILayer> layers, ImmutableHashSet<DescriptorDigest> layerDigests)
         {
             this.layers = layers;
             this.layerDigests = layerDigests;
         }
 
         /** @return a read-only view of the image layers. */
-        public ImmutableArray<Layer> getLayers()
+        public ImmutableArray<ILayer> getLayers()
         {
             return layers;
         }
@@ -134,7 +136,7 @@ namespace com.google.cloud.tools.jib.image
          * @param index the index of the layer to get
          * @return the layer at the specified index
          */
-        public Layer get(int index)
+        public ILayer get(int index)
         {
             return layers.get(index);
         }
@@ -144,13 +146,13 @@ namespace com.google.cloud.tools.jib.image
          * @return the layer found, or {@code null} if not found
          * @throws LayerPropertyNotFoundException if getting the layer's blob descriptor fails
          */
-        public Layer get(DescriptorDigest digest)
+        public ILayer get(DescriptorDigest digest)
         {
             if (!has(digest))
             {
                 return null;
             }
-            foreach (Layer layer in layers)
+            foreach (ILayer layer in layers)
             {
                 if (layer.getBlobDescriptor().getDigest().Equals(digest))
                 {
@@ -174,7 +176,7 @@ namespace com.google.cloud.tools.jib.image
             return new Enumerator(getLayers().GetEnumerator());
         }
 
-        IEnumerator<Layer> IEnumerable<Layer>.GetEnumerator()
+        IEnumerator<ILayer> IEnumerable<ILayer>.GetEnumerator()
         {
             return GetEnumerator();
         }
@@ -184,16 +186,16 @@ namespace com.google.cloud.tools.jib.image
             return GetEnumerator();
         }
 
-        public struct Enumerator : IEnumerator<Layer>
+        public struct Enumerator : IEnumerator<ILayer>
         {
-            private ImmutableArray<Layer>.Enumerator inner;
+            private ImmutableArray<ILayer>.Enumerator inner;
 
-            public Enumerator(ImmutableArray<Layer>.Enumerator inner)
+            public Enumerator(ImmutableArray<ILayer>.Enumerator inner)
             {
                 this.inner = inner;
             }
 
-            public Layer Current => inner.Current;
+            public ILayer Current => inner.Current;
 
             object IEnumerator.Current => Current;
 

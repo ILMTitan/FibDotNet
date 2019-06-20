@@ -35,15 +35,15 @@ namespace com.google.cloud.tools.jib.registry
                 new RegistryErrorExceptionBuilder("do something", mockHttpResponseException);
 
             builder.addReason(
-                new ErrorEntryTemplate(ErrorCodes.MANIFEST_INVALID.name(), "manifest invalid"));
-            builder.addReason(new ErrorEntryTemplate(ErrorCodes.BLOB_UNKNOWN.name(), "blob unknown"));
+                new ErrorEntryTemplate(ErrorCode.MANIFEST_INVALID.name(), "manifest invalid"));
+            builder.addReason(new ErrorEntryTemplate(ErrorCode.BLOB_UNKNOWN.name(), "blob unknown"));
             builder.addReason(
-                new ErrorEntryTemplate(ErrorCodes.MANIFEST_UNKNOWN.name(), "manifest unknown"));
-            builder.addReason(new ErrorEntryTemplate(ErrorCodes.TAG_INVALID.name(), "tag invalid"));
+                new ErrorEntryTemplate(ErrorCode.MANIFEST_UNKNOWN.name(), "manifest unknown"));
+            builder.addReason(new ErrorEntryTemplate(ErrorCode.TAG_INVALID.name(), "tag invalid"));
             builder.addReason(
-                new ErrorEntryTemplate(ErrorCodes.MANIFEST_UNVERIFIED.name(), "manifest unverified"));
+                new ErrorEntryTemplate(ErrorCode.MANIFEST_UNVERIFIED.name(), "manifest unverified"));
             builder.addReason(
-                new ErrorEntryTemplate(ErrorCodes.UNSUPPORTED.name(), "some other error happened"));
+                new ErrorEntryTemplate(ErrorCode.UNSUPPORTED.name(), "some other error happened"));
             builder.addReason(new ErrorEntryTemplate("unknown", "some unknown error happened"));
 
             try

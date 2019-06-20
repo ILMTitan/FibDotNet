@@ -52,6 +52,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
         public static SystemPath getCacheHome(IEnvironment environment)
         {
+            environment = environment ?? throw new ArgumentNullException(nameof(environment));
             // Use environment variable $XDG_CACHE_HOME if set and not empty.
             string xdgCacheHome = environment.GetEnvironmentVariable("XDG_CACHE_HOME");
             if (!string.IsNullOrWhiteSpace(xdgCacheHome))

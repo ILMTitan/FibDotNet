@@ -31,14 +31,14 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    public class WriteTarFileStep : AsyncStep<BuildResult>
+    public class WriteTarFileStep : IAsyncStep<BuildResult>
     {
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
 
         private readonly SystemPath outputPath;
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             SystemPath outputPath,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
+            IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;

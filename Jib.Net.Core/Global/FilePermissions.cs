@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.api
                 octalPermissions.matches(OCTAL_PATTERN),
                 "octalPermissions must be a 3-digit octal number (000-777)");
 
-            return new FilePermissions((PosixFilePermission)Convert.ToInt32(octalPermissions, 8));
+            return new FilePermissions((PosixFilePermissions)Convert.ToInt32(octalPermissions, 8));
         }
 
         /**
@@ -60,19 +60,20 @@ namespace com.google.cloud.tools.jib.api
          * @return a new {@link FilePermissions} with the given permissions
          */
         public static FilePermissions fromPosixFilePermissions(
-            ISet<PosixFilePermission> posixFilePermissions)
+            ISet<PosixFilePermissions> posixFilePermissions)
         {
-            PosixFilePermission permissionBits = 0;
-            foreach (PosixFilePermission permission in posixFilePermissions)
+            posixFilePermissions = posixFilePermissions ?? throw new ArgumentNullException(nameof(posixFilePermissions));
+            PosixFilePermissions permissionBits = 0;
+            foreach (PosixFilePermissions permission in posixFilePermissions)
             {
                 permissionBits |= permission;
             }
             return new FilePermissions(permissionBits);
         }
 
-        private readonly PosixFilePermission permissionBits;
+        private readonly PosixFilePermissions permissionBits;
 
-        public FilePermissions(PosixFilePermission permissionBits)
+        public FilePermissions(PosixFilePermissions permissionBits)
         {
             this.permissionBits = permissionBits;
         }
@@ -82,7 +83,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the permission bits
          */
-        public PosixFilePermission getPermissionBits()
+        public PosixFilePermissions getPermissionBits()
         {
             return permissionBits;
         }

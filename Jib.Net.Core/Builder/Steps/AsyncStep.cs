@@ -23,12 +23,12 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     internal static class AsyncStep
     {
-        internal static AsyncStep<T> Of<T>(Func<Task<T>> p)
+        internal static IAsyncStep<T> Of<T>(Func<Task<T>> p)
         {
             return new FunStep<T>(p);
         }
 
-        private class FunStep<T> : AsyncStep<T>
+        private class FunStep<T> : IAsyncStep<T>
         {
             private readonly Task<T> future;
 

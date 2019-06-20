@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     // Found a group. Move the requested "registry" to the front before returning it.
                     IEnumerable<string> self = new[] { registry };
-                    IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => !registry.Equals(alias));
+                    IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => registry != alias);
                     return self.Concat(withoutSelf).ToList();
                 }
             }

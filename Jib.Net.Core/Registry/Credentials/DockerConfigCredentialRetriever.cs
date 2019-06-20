@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return {@link Credential} found for {@code registry}, or {@link Optional#empty} if not found
          * @throws IOException if failed to parse the config JSON
          */
-        public Optional<Credential> retrieve(Consumer<LogEvent> logger)
+        public Optional<Credential> retrieve(Action<LogEvent> logger)
         {
             if (!Files.exists(dockerConfigFile))
             {
@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the retrieved credentials, or {@code Optional#empty} if none are found
          */
 
-        public Optional<Credential> retrieve(IDockerConfig dockerConfig, Consumer<LogEvent> logger)
+        public Optional<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
         {
             foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
             {
@@ -119,10 +119,10 @@ namespace com.google.cloud.tools.jib.registry.credentials
                         // Warns the user that the specified credential helper cannot be used.
                         if (ex.getMessage() != null)
                         {
-                            logger.accept(LogEvent.warn(ex.getMessage()));
+                            logger(LogEvent.warn(ex.getMessage()));
                             if (ex.getCause()?.getMessage() != null)
                             {
-                                logger.accept(LogEvent.warn("  Caused by: " + ex.getCause().getMessage()));
+                                logger(LogEvent.warn("  Caused by: " + ex.getCause().getMessage()));
                             }
                         }
                     }

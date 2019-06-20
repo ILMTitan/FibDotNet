@@ -21,11 +21,11 @@ namespace com.google.cloud.tools.jib.image.json
     /** Stores a manifest and container config. */
     public class ManifestAndConfig
     {
-        private readonly ManifestTemplate manifest;
+        private readonly IManifestTemplate manifest;
         private readonly ContainerConfigurationTemplate config;
 
         public ManifestAndConfig(
-            ManifestTemplate manifest, ContainerConfigurationTemplate config)
+            IManifestTemplate manifest, ContainerConfigurationTemplate config)
         {
             this.manifest = manifest;
             this.config = config;
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the manifest
          */
-        public ManifestTemplate getManifest()
+        public IManifestTemplate getManifest()
         {
             return manifest;
         }

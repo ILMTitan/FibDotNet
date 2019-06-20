@@ -71,6 +71,7 @@ namespace Jib.Net.Core.Api
          */
         public static DescriptorDigest fromDigest(string digest)
         {
+            digest = digest ?? throw new ArgumentNullException(nameof(digest));
             if (!digest.matches(DIGEST_REGEX))
             {
                 throw new DigestException("Invalid digest: " + digest);
@@ -109,7 +110,7 @@ namespace Jib.Net.Core.Api
         {
             if (obj is DescriptorDigest descriptorDigest)
             {
-                return hash.Equals(descriptorDigest.hash);
+                return hash == descriptorDigest.hash;
             }
 
             return false;

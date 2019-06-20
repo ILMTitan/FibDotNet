@@ -27,10 +27,10 @@ namespace com.google.cloud.tools.jib.image
     /** Tests for {@link ImageLayers}. */
     public class ImageLayersTest
     {
-        private readonly Layer mockLayer = Mock.Of<Layer>();
-        private readonly Layer mockReferenceLayer = Mock.Of<Layer>();
-        private readonly Layer mockDigestOnlyLayer = Mock.Of<Layer>();
-        private readonly Layer mockLayer2 = Mock.Of<Layer>();
+        private readonly ILayer mockLayer = Mock.Of<ILayer>();
+        private readonly ILayer mockReferenceLayer = Mock.Of<ILayer>();
+        private readonly ILayer mockDigestOnlyLayer = Mock.Of<ILayer>();
+        private readonly ILayer mockLayer2 = Mock.Of<ILayer>();
 
         [SetUp]
         public void setUpFakes()
@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void testAddLayer_success()
         {
-            IList<Layer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
+            IList<ILayer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
 
             ImageLayers imageLayers =
                 ImageLayers.builder()
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.image
         public void testAddLayer_maintainDuplicates()
         {
             // must maintain duplicate
-            IList<Layer> expectedLayers =
+            IList<ILayer> expectedLayers =
                 Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
             ImageLayers imageLayers =
@@ -93,7 +93,7 @@ namespace com.google.cloud.tools.jib.image
         public void testAddLayer_removeDuplicates()
         {
             // remove duplicates: last layer should be kept
-            IList<Layer> expectedLayers =
+            IList<ILayer> expectedLayers =
                 Arrays.asList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
             ImageLayers imageLayers =

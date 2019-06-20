@@ -29,6 +29,6 @@ namespace com.google.cloud.tools.jib
 
         /** The project version. May be {@code null} if the version cannot be determined. */
         public static readonly string VERSION = "0.0.1-alpha.1";
-        internal static readonly string TOOL_NAME = "jib";
+        internal const string TOOL_NAME = "jib";
     }
 }

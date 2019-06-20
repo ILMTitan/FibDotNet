@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.registry
             // Pulls a layer BLOB of the busybox image.
             LongAdder totalByteCount = new LongAdder();
             LongAdder expectedSize = new LongAdder();
-            Blob pulledBlob =
+            IBlob pulledBlob =
                 registryClient.pullBlob(
                     realDigest,
                     size =>

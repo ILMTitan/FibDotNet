@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -197,14 +198,15 @@ namespace com.google.cloud.tools.jib.docker
                         {
                             error = CharStreams.toString(stderr);
                         }
+                        throw new IOException("'docker load' command failed with error: " + error, ex);
                     }
-                    catch (IOException)
+                    catch (IOException e)
                     {
                         // This ignores exceptions from reading stderr and throws the original exception from
                         // writing to stdin.
-                        throw ex;
+                        Debug.WriteLine(e);
                     }
-                    throw new IOException("'docker load' command failed with error: " + error, ex);
+                    throw;
                 }
             }
 

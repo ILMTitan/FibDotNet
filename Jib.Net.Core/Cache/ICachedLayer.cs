@@ -5,7 +5,7 @@ using Jib.Net.Core.Blob;
 
 namespace com.google.cloud.tools.jib.cache
 {
-    public interface ICachedLayer: Layer
+    public interface ICachedLayer: ILayer
     {
         DescriptorDigest getDigest();
         long getSize();

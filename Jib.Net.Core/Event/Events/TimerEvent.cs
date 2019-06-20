@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.@event.events
      *
      * <p>Timers can also define a hierarchy.
      */
-    public class TimerEvent : JibEvent
+    public class TimerEvent : IJibEvent
     {
         /** The state of the timing. */
         public enum State
@@ -51,18 +51,18 @@ namespace com.google.cloud.tools.jib.@event.events
         }
 
         /** Defines a timer hierarchy. */
-        public interface Timer
+        public interface ITimer
         {
             /**
              * Gets the parent of this {@link Timer}.
              *
              * @return the parent of this {@link Timer}
              */
-            Optional<Timer> getParent();
+            Optional<ITimer> getParent();
         }
 
         private readonly State state;
-        private readonly Timer timer;
+        private readonly ITimer timer;
         private readonly Duration duration;
         private readonly Duration elapsed;
         private readonly string description;
@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.@event.events
          * @param description the description of this event
          */
         public TimerEvent(
-            State state, Timer timer, Duration duration, Duration elapsed, string description)
+            State state, ITimer timer, Duration duration, Duration elapsed, string description)
         {
             this.state = state;
             this.timer = timer;
@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the timer
          */
-        public Timer getTimer()
+        public ITimer getTimer()
         {
             return timer;
         }

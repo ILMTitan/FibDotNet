@@ -72,5 +72,19 @@ namespace com.google.cloud.tools.jib.image.json
                 return Digest == other.Digest && MediaType == other.MediaType && Size == other.Size;
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ContentDescriptorTemplate);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1122470636;
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(MediaType);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<DescriptorDigest>.Default.GetHashCode(Digest);
+            hashCode = (hashCode * -1521134295) + Size.GetHashCode();
+            return hashCode;
+        }
     }
 }

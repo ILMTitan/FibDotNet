@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
@@ -30,7 +31,7 @@ namespace com.google.cloud.tools.jib.builder.steps
      * @see <a
      *     href="https://docs.docker.com/registry/spec/auth/token/">https://docs.docker.com/registry/spec/auth/token/</a>
      */
-    internal class AuthenticatePushStep : AsyncStep<Authorization>
+    internal class AuthenticatePushStep : IAsyncStep<Authorization>
     {
         private const string DESCRIPTION = "Authenticating with push to {0}";
 
@@ -67,7 +68,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 using (progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
                 using (new TimerEventDispatcher(
-                            buildConfiguration.getEventHandlers(), string.Format(DESCRIPTION, registry)))
+                            buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture,DESCRIPTION, registry)))
                 {
                     RegistryAuthenticator registryAuthenticator =
                         await buildConfiguration

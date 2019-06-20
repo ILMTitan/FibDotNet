@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.registry
      * @see <a
      *     href="https://docs.docker.com/registry/spec/api/#errors-2">https://docs.docker.com/registry/spec/api/#errors-2</a>
      */
-    public enum ErrorCodes
+    public enum ErrorCode
     {
 
         /**

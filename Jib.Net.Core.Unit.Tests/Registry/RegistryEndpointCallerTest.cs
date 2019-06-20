@@ -260,8 +260,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testCall_noHttpResponseAsync()
         {
-            NoHttpResponseException mockNoHttpResponseException =
-                new NoHttpResponseException();
+            var mockNoHttpResponseException = new TimeoutException("no response");
             Mock.Get(mockConnection).Setup(m => m.sendAsync(It.IsAny<HttpRequestMessage>())).Throws(mockNoHttpResponseException);
 
             try

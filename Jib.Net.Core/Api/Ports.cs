@@ -18,6 +18,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace com.google.cloud.tools.jib.api
@@ -64,11 +65,11 @@ namespace com.google.cloud.tools.jib.api
                 }
 
                 // Parse protocol
-                int min = int.Parse(matcher.group(1));
+                int min = int.Parse(matcher.group(1), CultureInfo.InvariantCulture);
                 int max = min;
                 if (!Strings.isNullOrEmpty(matcher.group(2)))
                 {
-                    max = int.Parse(matcher.group(2));
+                    max = int.Parse(matcher.group(2), CultureInfo.InvariantCulture);
                 }
                 string protocol = matcher.group(3);
 

@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds an {@link InputStream}. */
-    internal class InputStreamBlob : Blob
+    internal class InputStreamBlob : IBlob
     {
         private readonly Stream inputStream;
 

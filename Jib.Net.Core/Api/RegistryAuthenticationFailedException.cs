@@ -16,6 +16,7 @@
 
 using Jib.Net.Core.Global;
 using System;
+using System.Globalization;
 
 namespace com.google.cloud.tools.jib.api
 {
@@ -27,13 +28,13 @@ namespace com.google.cloud.tools.jib.api
         private readonly string imageName;
 
         public RegistryAuthenticationFailedException(
-            string serverUrl, string imageName, Exception cause) : base(string.Format(REASON, serverUrl, imageName, cause.getMessage()), cause)
+            string serverUrl, string imageName, Exception cause) : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, cause.getMessage()), cause)
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;
         }
 
-        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(string.Format(REASON, serverUrl, imageName, reason))
+        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, reason))
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;

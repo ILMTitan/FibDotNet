@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    internal class PushLayersStep : AsyncStep<IReadOnlyList<BlobDescriptor>>
+    internal class PushLayersStep : IAsyncStep<IReadOnlyList<BlobDescriptor>>
     {
         private const string DESCRIPTION = "Setting up to push layers";
 
@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly AuthenticatePushStep authenticatePushStep;
 
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep;
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep;
 
         private readonly Task<IReadOnlyList<BlobDescriptor>> listenableFuture;
 
@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             AuthenticatePushStep authenticatePushStep,
-            AsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep)
+            IAsyncStep<IReadOnlyList<ICachedLayer>> cachedLayerStep)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;

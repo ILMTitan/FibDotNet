@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds a {@link Path}. */
-    internal class FileBlob : Blob
+    internal class FileBlob : IBlob
     {
         private readonly SystemPath file;
 

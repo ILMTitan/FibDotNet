@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.global;
 using Jib.Net.Core.Global;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -36,7 +37,8 @@ namespace com.google.cloud.tools.jib.http
      * }
      * }</pre>
      */
-    public class Connection : IDisposable, IConnection
+     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed")]
+    public sealed class Connection : IDisposable, IConnection
     {
         /**
          * Returns a factory for {@link Connection}.
@@ -117,6 +119,7 @@ namespace com.google.cloud.tools.jib.http
          */
         public async Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
         {
+            request = request ?? throw new ArgumentNullException(nameof(request));
             try
             {
                 return await client.SendAsync(request).ConfigureAwait(false);

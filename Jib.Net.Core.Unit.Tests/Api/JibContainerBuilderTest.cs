@@ -37,8 +37,8 @@ namespace com.google.cloud.tools.jib.api
         private readonly ILayerConfiguration mockLayerConfiguration1 = Mock.Of<ILayerConfiguration>();
         private readonly ILayerConfiguration mockLayerConfiguration2 = Mock.Of<ILayerConfiguration>();
         private readonly CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
-        private readonly Action<JibEvent> mockJibEventConsumer = Mock.Of<Action<JibEvent>>();
-        private readonly JibEvent mockJibEvent = Mock.Of<JibEvent>();
+        private readonly Action<IJibEvent> mockJibEventConsumer = Mock.Of<Action<IJibEvent>>();
+        private readonly IJibEvent mockJibEvent = Mock.Of<IJibEvent>();
 
         [Test]
         public void testToBuildConfiguration_containerConfigurationSet()

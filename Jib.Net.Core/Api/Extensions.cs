@@ -39,7 +39,7 @@ using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Global
 {
-    public static class Extensions
+    internal static class JavaExtensions
     {
         public static IDictionary<TKey, TValue> asMap<TKey, TValue>(this IDictionary<TKey, TValue> d)
         {
@@ -53,7 +53,7 @@ namespace Jib.Net.Core.Global
 
         public static int lastIndexOf(this string s, string substring)
         {
-            return s.LastIndexOf(substring);
+            return s.LastIndexOf(substring, StringComparison.Ordinal);
         }
 
         public static void setLocation(this HttpResponseHeaders h, string location)
@@ -71,7 +71,7 @@ namespace Jib.Net.Core.Global
             await c.CopyToAsync(s).ConfigureAwait(false);
         }
 
-        public static string name(this ErrorCodes e)
+        public static string name(this ErrorCode e)
         {
             return e.ToString("G");
         }
@@ -391,14 +391,14 @@ namespace Jib.Net.Core.Global
             e.TarHeader.GroupId = groupId;
         }
 
-        public static void setMode(this TarEntry e, PosixFilePermission mode)
+        public static void setMode(this TarEntry e, PosixFilePermissions mode)
         {
             e.TarHeader.Mode = (int)mode;
         }
 
-        public static PosixFilePermission getMode(this TarEntry e)
+        public static PosixFilePermissions getMode(this TarEntry e)
         {
-            return (PosixFilePermission)e.TarHeader.Mode;
+            return (PosixFilePermissions)e.TarHeader.Mode;
         }
 
         public static void sort<T>(this List<T> l, IComparer<T> o)
@@ -488,7 +488,7 @@ namespace Jib.Net.Core.Global
 
         public static int indexOf(this string s, string substring)
         {
-            return s.IndexOf(substring);
+            return s.IndexOf(substring, StringComparison.Ordinal);
         }
 
         public static int indexOf(this string s, char c)
@@ -513,7 +513,7 @@ namespace Jib.Net.Core.Global
 
         public static bool startsWith(this string s, string prefix)
         {
-            return s.StartsWith(prefix);
+            return s.StartsWith(prefix, StringComparison.Ordinal);
         }
 
         public static bool equals(this object o, object other)
@@ -553,7 +553,7 @@ namespace Jib.Net.Core.Global
 
         public static bool endsWith(this string s, string suffix)
         {
-            return s.EndsWith(suffix);
+            return s.EndsWith(suffix, StringComparison.Ordinal);
         }
 
         public static string trim(this string s)
@@ -723,7 +723,7 @@ namespace Jib.Net.Core.Global
 
         private static string ForFullString(string regex)
         {
-            if (!regex.StartsWith("^") || !regex.EndsWith("$"))
+            if (!regex.StartsWith("^", StringComparison.Ordinal) || !regex.EndsWith("$", StringComparison.Ordinal))
             {
                 regex = "^(?:" + regex +")$";
             }

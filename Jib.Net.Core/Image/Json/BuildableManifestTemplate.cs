@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.image.json
      * @see V22ManifestTemplate Docker V2.2 format
      * @see OCIManifestTemplate OCI format
      */
-    public interface BuildableManifestTemplate : ManifestTemplate
+    public interface IBuildableManifestTemplate : IManifestTemplate
     {
         /** @return the media type for this manifest, specific to the image format */
         string getManifestMediaType();

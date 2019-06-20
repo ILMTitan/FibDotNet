@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param blob the {@link Blob} to compress
          * @return the compressed {@link Blob}
          */
-        private static Blob compress(Blob blob)
+        private static IBlob compress(IBlob blob)
         {
             return Blobs.from(
                 async outputStream =>
@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the decompressed {@link Blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<Blob> decompressAsync(Blob blob)
+        private static async Task<IBlob> decompressAsync(IBlob blob)
         {
             return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
         }
@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link DescriptorDigest} of {@code blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<DescriptorDigest> digestOfAsync(Blob blob)
+        private static async Task<DescriptorDigest> digestOfAsync(IBlob blob)
         {
             BlobDescriptor descriptor = await blob.writeToAsync(Stream.Null).ConfigureAwait(false);
             return descriptor.getDigest();
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the size (in bytes) of {@code blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<long> sizeOfAsync(Blob blob)
+        private static async Task<long> sizeOfAsync(IBlob blob)
         {
             CountingDigestOutputStream countingOutputStream =
                 new CountingDigestOutputStream(Stream.Null);
@@ -104,13 +104,13 @@ namespace com.google.cloud.tools.jib.cache
 
         [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-        private Blob layerBlob1;
+        private IBlob layerBlob1;
         private DescriptorDigest layerDigest1;
         private DescriptorDigest layerDiffId1;
         private long layerSize1;
         private ImmutableArray<LayerEntry> layerEntries1;
 
-        private Blob layerBlob2;
+        private IBlob layerBlob2;
         private DescriptorDigest layerDigest2;
         private DescriptorDigest layerDiffId2;
         private long layerSize2;

@@ -38,6 +38,7 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public DirectoryWalker(SystemPath rootDir)
         {
+            rootDir = rootDir ?? throw new ArgumentNullException(nameof(rootDir));
             if (!Files.isDirectory(rootDir))
             {
                 throw new ArgumentException(rootDir + " is not a directory", nameof(rootDir));

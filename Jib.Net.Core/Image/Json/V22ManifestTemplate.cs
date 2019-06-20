@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.image.json
      *     Schema 2</a>
      */
      [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class V22ManifestTemplate : BuildableManifestTemplate
+    public class V22ManifestTemplate : IBuildableManifestTemplate
     {
         /** The Docker V2.2 manifest media type. */
         public static readonly string MANIFEST_MEDIA_TYPE =

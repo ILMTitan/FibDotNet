@@ -33,7 +33,7 @@ using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Pulls the base image manifest. */
-    public class PullBaseImageStep : AsyncStep<BaseImageWithAuthorization>
+    public class PullBaseImageStep : IAsyncStep<BaseImageWithAuthorization>
     {
         private const string DESCRIPTION = "Pulling base image manifest";
 
@@ -199,7 +199,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .setAuthorization(registryAuthorization)
                     .newRegistryClient();
 
-            ManifestTemplate manifestTemplate =
+            IManifestTemplate manifestTemplate =
                 await registryClient.pullManifestAsync(buildConfiguration.getBaseImageConfiguration().getImageTag()).ConfigureAwait(false);
 
             // TODO: Make schema version be enum.
@@ -214,8 +214,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     return JsonToImageTranslator.toImage(v21ManifestTemplate);
 
                 case 2:
-                    BuildableManifestTemplate buildableManifestTemplate =
-                        (BuildableManifestTemplate)manifestTemplate;
+                    IBuildableManifestTemplate buildableManifestTemplate =
+                        (IBuildableManifestTemplate)manifestTemplate;
                     if (buildableManifestTemplate.getContainerConfiguration() == null
                         || buildableManifestTemplate.getContainerConfiguration().getDigest() == null)
                     {
@@ -277,7 +277,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     "Cannot run Jib in offline mode; " + baseImage + " not found in local Jib cache");
             }
 
-            ManifestTemplate manifestTemplate = metadata.get().getManifest();
+            IManifestTemplate manifestTemplate = metadata.get().getManifest();
             if (manifestTemplate is V21ManifestTemplate v21ManifestTemplate)
             {
                 return JsonToImageTranslator.toImage(v21ManifestTemplate);
@@ -286,7 +286,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ContainerConfigurationTemplate configurationTemplate =
                 metadata.get().getConfig().orElseThrow(() => new InvalidOperationException());
             return JsonToImageTranslator.toImage(
-                (BuildableManifestTemplate)manifestTemplate, configurationTemplate);
+                (IBuildableManifestTemplate)manifestTemplate, configurationTemplate);
         }
     }
 }

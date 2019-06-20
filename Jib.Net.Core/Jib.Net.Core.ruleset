@@ -57,7 +57,7 @@
     <Rule Id="CA2214" Action="Warning" />
     <Rule Id="CA2216" Action="Warning" />
     <Rule Id="CA2220" Action="Warning" />
-    <Rule Id="CA2229" Action="Warning" />
+    <Rule Id="CA2229" Action="Info" />
     <Rule Id="CA2231" Action="Warning" />
     <Rule Id="CA2232" Action="Warning" />
     <Rule Id="CA2235" Action="Warning" />
@@ -70,5 +70,33 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.VisualStudio.Threading.Analyzers" RuleNamespace="Microsoft.VisualStudio.Threading.Analyzers">
     <Rule Id="VSTHRD003" Action="Hidden" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
+    <Rule Id="CA1032" Action="Hidden" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
+    <Rule Id="CA1034" Action="Info" />
+    <Rule Id="CA1036" Action="Info" />
+    <Rule Id="CA1040" Action="Info" />
+    <Rule Id="CA1051" Action="Info" />
+    <Rule Id="CA1054" Action="Info" />
+    <Rule Id="CA1055" Action="Info" />
+    <Rule Id="CA1062" Action="Info" />
+    <Rule Id="CA1064" Action="Warning" />
+    <Rule Id="CA1707" Action="Info" />
+    <Rule Id="CA1710" Action="Hidden" />
+    <Rule Id="CA1716" Action="Info" />
+    <Rule Id="CA1724" Action="Info" />
+    <Rule Id="CA2211" Action="Info" />
+    <Rule Id="CA2225" Action="Info" />
+    <Rule Id="CA2227" Action="Info" />
+    <Rule Id="CA1822" Action="Info" />
+    <Rule Id="CA1801" Action="Info" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
+    <Rule Id="CA1303" Action="Info" />
+    <Rule Id="CA2208" Action="Info" />
+    <Rule Id="CA2229" Action="Info" />
+    <Rule Id="CA2000" Action="Info" />
   </Rules>
 </RuleSet>

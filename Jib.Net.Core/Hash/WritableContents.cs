@@ -14,6 +14,7 @@
  * the License.
  */
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -39,6 +40,7 @@ namespace com.google.cloud.tools.jib.hash
     {
         public static void writeTo(this WritableContents wc, Stream outputStream)
         {
+            wc = wc ?? throw new ArgumentNullException(nameof(wc));
             wc(outputStream);
         }
     }

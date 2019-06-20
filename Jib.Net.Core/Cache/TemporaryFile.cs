@@ -21,7 +21,7 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.cache
 {
-    public class TemporaryFile:IDisposable
+    public sealed class TemporaryFile : IDisposable
     {
         public SystemPath Path { get; }
 

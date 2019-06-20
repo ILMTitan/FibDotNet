@@ -229,23 +229,23 @@ namespace com.google.cloud.tools.jib.api
                 {
                     if (layerEntry.isFile())
                     {
-                        const PosixFilePermission expectedFilePermissions = PosixFilePermission.OWNER_READ
-                            | PosixFilePermission.OWNER_WRITE
-                            | PosixFilePermission.GROUP_READ
-                            | PosixFilePermission.OTHERS_READ;
+                        const PosixFilePermissions expectedFilePermissions = PosixFilePermissions.OWNER_READ
+                            | PosixFilePermissions.OWNER_WRITE
+                            | PosixFilePermissions.GROUP_READ
+                            | PosixFilePermissions.OTHERS_READ;
                         Assert.AreEqual(
                             expectedFilePermissions,
-                            layerEntry.getMode() & PosixFilePermission.ALL,
+                            layerEntry.getMode() & PosixFilePermissions.ALL,
                             layerName + ": " + layerEntry.getName());
                     }
                     else if (layerEntry.isDirectory())
                     {
-                        const PosixFilePermission expectedDirectoryPermissions = PosixFilePermission.OWNER_ALL
-                            | PosixFilePermission.GROUP_READ_EXECUTE
-                            | PosixFilePermission.OTHERS_READ_EXECUTE;
+                        const PosixFilePermissions expectedDirectoryPermissions = PosixFilePermissions.OWNER_ALL
+                            | PosixFilePermissions.GROUP_READ_EXECUTE
+                            | PosixFilePermissions.OTHERS_READ_EXECUTE;
                         Assert.AreEqual(
                             expectedDirectoryPermissions,
-                            layerEntry.getMode() & PosixFilePermission.ALL,
+                            layerEntry.getMode() & PosixFilePermissions.ALL,
                             layerName + ": " + layerEntry.getName());
                     }
                 });

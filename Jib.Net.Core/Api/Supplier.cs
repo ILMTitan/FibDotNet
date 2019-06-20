@@ -14,6 +14,8 @@
  * the License.
  */
 
+using System;
+
 namespace Jib.Net.Core
 {
     public delegate T Supplier<T>();
@@ -22,6 +24,7 @@ namespace Jib.Net.Core
     {
         public static T get<T>(this Supplier<T> s)
         {
+            s = s ?? throw new ArgumentNullException(nameof(s));
             return s();
         }
     }

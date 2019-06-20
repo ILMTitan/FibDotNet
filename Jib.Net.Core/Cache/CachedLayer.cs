@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.cache
 
         public ICachedLayer CachedLayer { get; set; }
 
-        public Blob getBlob()
+        public IBlob getBlob()
         {
             return CachedLayer.getBlob();
         }
@@ -67,7 +67,7 @@ namespace com.google.cloud.tools.jib.cache
     }
 
     /** Default implementation of {@link CachedLayer}. */
-    public sealed class CachedLayer : Layer, ICachedLayer
+    public sealed class CachedLayer : ILayer, ICachedLayer
     {
         /** Builds a {@link CachedLayer}. */
         public class Builder
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.cache
             private DescriptorDigest layerDigest;
             private DescriptorDigest layerDiffId;
             private long layerSize = -1;
-            private Blob layerBlob;
+            private IBlob layerBlob;
 
             public Builder() { }
 
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.cache
                 return this;
             }
 
-            public Builder setLayerBlob(Blob layerBlob)
+            public Builder setLayerBlob(IBlob layerBlob)
             {
                 this.layerBlob = layerBlob;
                 return this;
@@ -130,10 +130,10 @@ namespace com.google.cloud.tools.jib.cache
 
         private readonly DescriptorDigest layerDiffId;
         private readonly BlobDescriptor blobDescriptor;
-        private readonly Blob layerBlob;
+        private readonly IBlob layerBlob;
 
         private CachedLayer(
-            DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, Blob layerBlob)
+            DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, IBlob layerBlob)
         {
             this.layerDiffId = layerDiffId;
             this.layerBlob = layerBlob;
@@ -155,7 +155,7 @@ namespace com.google.cloud.tools.jib.cache
             return layerDiffId;
         }
 
-        public Blob getBlob()
+        public IBlob getBlob()
         {
             return layerBlob;
         }

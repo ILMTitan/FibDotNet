@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using NodaTime;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -102,6 +103,7 @@ namespace com.google.cloud.tools.jib.configuration
          */
         public static DockerHealthCheck.Builder fromCommand(IList<string> command)
         {
+            command = command ?? throw new ArgumentNullException(nameof(command));
             Preconditions.checkArgument(command.size() > 0, "command must not be empty");
             Preconditions.checkArgument(!command.contains(null), "command must not contain null elements");
             return new Builder(ImmutableArray.CreateRange(command));

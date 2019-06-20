@@ -18,7 +18,9 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Immutable;
+using System.Globalization;
 
 namespace Jib.Net.Core.Api
 {
@@ -39,8 +41,10 @@ namespace Jib.Net.Core.Api
          */
         public static AbsoluteUnixPath get(string unixPath)
         {
+            Preconditions.checkNotNull(unixPath);
             Preconditions.checkArgument(
-                unixPath.StartsWith("/"), "Path does not start with forward slash (/): " + unixPath);
+                unixPath.StartsWith("/", StringComparison.InvariantCulture),
+                "Path does not start with forward slash (/): " + unixPath);
 
             return new AbsoluteUnixPath(UnixPathParser.parse(unixPath), null);
         }
@@ -54,6 +58,7 @@ namespace Jib.Net.Core.Api
          */
         public static AbsoluteUnixPath fromPath(SystemPath path)
         {
+            path = path ?? throw new ArgumentNullException(nameof(path));
             Preconditions.checkArgument(
                 path.getRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
 
@@ -100,6 +105,7 @@ namespace Jib.Net.Core.Api
          */
         public AbsoluteUnixPath resolve(RelativeUnixPath relativeUnixPath)
         {
+            relativeUnixPath = relativeUnixPath ?? throw new ArgumentNullException(nameof(relativeUnixPath));
             ImmutableArray<string>.Builder newPathComponents =
                 ImmutableArray.CreateBuilder<string>();
             newPathComponents.AddRange(PathComponents);
@@ -116,6 +122,7 @@ namespace Jib.Net.Core.Api
          */
         public AbsoluteUnixPath resolve(SystemPath relativePath)
         {
+            relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             Preconditions.checkArgument(
                 relativePath.getRoot() == null, "Cannot resolve against absolute Path: " + relativePath);
 
@@ -155,7 +162,7 @@ namespace Jib.Net.Core.Api
                 return false;
             }
             AbsoluteUnixPath otherAbsoluteUnixPath = (AbsoluteUnixPath)other;
-            return unixPath.Equals(otherAbsoluteUnixPath.unixPath);
+            return unixPath == otherAbsoluteUnixPath.unixPath;
         }
 
         public override int GetHashCode()

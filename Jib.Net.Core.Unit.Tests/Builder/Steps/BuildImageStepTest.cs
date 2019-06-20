@@ -39,9 +39,9 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
         private readonly IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
         private readonly IContainerConfiguration mockContainerConfiguration = Mock.Of<IContainerConfiguration>();
-        private readonly AsyncStep<BaseImageWithAuthorization> mockPullBaseImageStep = Mock.Of<AsyncStep<BaseImageWithAuthorization>>();
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> mockPullAndCacheBaseImageLayersStep = Mock.Of<AsyncStep<IReadOnlyList<ICachedLayer>>>();
-        private readonly AsyncStep<ICachedLayer> mockPullAndCacheBaseImageLayerStep = Mock.Of<AsyncStep<ICachedLayer>>();
+        private readonly IAsyncStep<BaseImageWithAuthorization> mockPullBaseImageStep = Mock.Of<IAsyncStep<BaseImageWithAuthorization>>();
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> mockPullAndCacheBaseImageLayersStep = Mock.Of<IAsyncStep<IReadOnlyList<ICachedLayer>>>();
+        private readonly IAsyncStep<ICachedLayer> mockPullAndCacheBaseImageLayerStep = Mock.Of<IAsyncStep<ICachedLayer>>();
         private ICachedLayer mockClassesLayer;
         private ICachedLayer mockDependenciesLayer;
         private ICachedLayer mockResourcesLayer;
@@ -51,8 +51,8 @@ namespace com.google.cloud.tools.jib.builder.steps
         private HistoryEntry nonEmptyLayerHistory;
         private HistoryEntry emptyLayerHistory;
 
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> mockBuildAndCacheApplicationLayersStep =
-            Mock.Of<AsyncStep<IReadOnlyList<ICachedLayer>>>();
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> mockBuildAndCacheApplicationLayersStep =
+            Mock.Of<IAsyncStep<IReadOnlyList<ICachedLayer>>>();
 
         [SetUp]
         public void setUp()

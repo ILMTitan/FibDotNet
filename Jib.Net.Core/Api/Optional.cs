@@ -22,7 +22,7 @@ using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api
 {
-    public struct Optional<T>
+    public struct Optional<T> : IEquatable<Optional<T>>
     {
         private readonly bool present;
         private readonly T value;
@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.api
         public Optional(T value)
         {
             this.value = value;
-            this.present = true;
+            present = true;
         }
 
         public bool isPresent()
@@ -72,6 +72,35 @@ namespace com.google.cloud.tools.jib.api
             {
                 throw p();
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Optional<T> optional && Equals(optional);
+        }
+
+        public bool Equals(Optional<T> other)
+        {
+            return present == other.present &&
+                   EqualityComparer<T>.Default.Equals(value, other.value);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1691996566;
+            hashCode = (hashCode * -1521134295) + present.GetHashCode();
+            hashCode = (hashCode * -1521134295) + EqualityComparer<T>.Default.GetHashCode(value);
+            return hashCode;
+        }
+
+        public static bool operator ==(Optional<T> left, Optional<T> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Optional<T> left, Optional<T> right)
+        {
+            return !(left == right);
         }
     }
 

@@ -21,7 +21,7 @@ using Jib.Net.Core.Blob;
 namespace com.google.cloud.tools.jib.image
 {
     /** A {@link Layer} reference that only has its {@link DescriptorDigest}. */
-    public class DigestOnlyLayer : Layer
+    public class DigestOnlyLayer : ILayer
     {
         /** The {@link BlobDescriptor} of the compressed layer content. */
         private readonly BlobDescriptor blobDescriptor;
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.image
             blobDescriptor = new BlobDescriptor(digest);
         }
 
-        public Blob getBlob()
+        public IBlob getBlob()
         {
             throw new LayerPropertyNotFoundException("Blob not available for digest-only layer");
         }

@@ -26,7 +26,7 @@ namespace com.google.cloud.tools.jib.filesystem
      * A temporary directory that tries to delete itself upon close. Note that deletion is <b>NOT</b>
      * guaranteed.
      */
-    public class TemporaryDirectory : IDisposable
+    public sealed class TemporaryDirectory : IDisposable
     {
         private readonly SystemPath path;
 
@@ -38,6 +38,7 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public TemporaryDirectory(SystemPath parentDirectory)
         {
+            parentDirectory = parentDirectory ?? throw new ArgumentNullException(nameof(parentDirectory));
             path = Files.createTempDirectory(parentDirectory, null);
         }
 

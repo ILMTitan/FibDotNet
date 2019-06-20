@@ -44,19 +44,19 @@ namespace com.google.cloud.tools.jib.registry
                 message = "no details";
             }
 
-            if (!Enum.TryParse<ErrorCodes>(errorCodeString, true, out var errorCode))
+            if (!Enum.TryParse<ErrorCode>(errorCodeString, true, out var errorCode))
             {
                 // Unknown errorCodeString
                 return "unknown: " + message;
             }
 
-            if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.BLOB_UNKNOWN)
+            if (errorCode == ErrorCode.MANIFEST_INVALID || errorCode == ErrorCode.BLOB_UNKNOWN)
             {
                 return message + " (something went wrong)";
             }
-            else if (errorCode == ErrorCodes.MANIFEST_UNKNOWN
-              || errorCode == ErrorCodes.TAG_INVALID
-              || errorCode == ErrorCodes.MANIFEST_UNVERIFIED)
+            else if (errorCode == ErrorCode.MANIFEST_UNKNOWN
+              || errorCode == ErrorCode.TAG_INVALID
+              || errorCode == ErrorCode.MANIFEST_UNVERIFIED)
             {
                 return message;
             }

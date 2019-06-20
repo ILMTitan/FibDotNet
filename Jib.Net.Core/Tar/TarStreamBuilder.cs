@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.tar
          * Maps from {@link TarArchiveEntry} to a {@link Blob}. The order of the entries is the order they
          * belong in the tarball.
          */
-        private readonly Dictionary<TarEntry, Blob> archiveMap = new Dictionary<TarEntry, Blob>();
+        private readonly Dictionary<TarEntry, IBlob> archiveMap = new Dictionary<TarEntry, IBlob>();
 
         /**
          * Writes each entry in the filesystem to the tarball archive stream.
@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.tar
         {
             using (TarOutputStream tarArchiveOutputStream = new TarOutputStream(@out))
             {
-                foreach (KeyValuePair<TarEntry, Blob> entry in archiveMap.entrySet())
+                foreach (KeyValuePair<TarEntry, IBlob> entry in archiveMap.entrySet())
                 {
                     tarArchiveOutputStream.putArchiveEntry(entry.getKey());
                     await entry.getValue().writeToAsync(tarArchiveOutputStream).ConfigureAwait(false);
@@ -59,6 +59,7 @@ namespace com.google.cloud.tools.jib.tar
          */
         public void addTarArchiveEntry(TarEntry entry)
         {
+            entry = entry ?? throw new ArgumentNullException(nameof(entry));
             archiveMap.put(
                 entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(_ => Task.CompletedTask, 0));
         }
@@ -72,6 +73,7 @@ namespace com.google.cloud.tools.jib.tar
          */
         public void addByteEntry(byte[] contents, string name)
         {
+            contents = contents ?? throw new ArgumentNullException(nameof(contents));
             TarEntry entry = TarEntry.CreateTarEntry(name);
             entry.setSize(contents.Length);
             archiveMap.put(entry, Blobs.from(contents));
@@ -85,7 +87,7 @@ namespace com.google.cloud.tools.jib.tar
          * @param size the size (in bytes) of {@code blob}
          * @param name the name of the entry (i.e. filename)
          */
-        public void addBlobEntry(Blob blob, long size, string name)
+        public void addBlobEntry(IBlob blob, long size, string name)
         {
             TarEntry entry = TarEntry.CreateTarEntry(name);
             entry.setSize(size);

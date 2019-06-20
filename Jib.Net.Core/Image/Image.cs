@@ -246,7 +246,7 @@ namespace com.google.cloud.tools.jib.image
              * @return this
              * @throws LayerPropertyNotFoundException if adding the layer fails
              */
-            public Builder addLayer(Layer layer)
+            public Builder addLayer(ILayer layer)
             {
                 imageLayersBuilder.add(layer);
                 return this;
@@ -434,7 +434,7 @@ namespace com.google.cloud.tools.jib.image
             return user;
         }
 
-        public ImmutableArray<Layer> getLayers()
+        public ImmutableArray<ILayer> getLayers()
         {
             return layers.getLayers();
         }

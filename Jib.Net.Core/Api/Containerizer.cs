@@ -53,6 +53,7 @@ namespace Jib.Net.Core.Api
          */
         public static Containerizer to(RegistryImage registryImage)
         {
+            registryImage = registryImage ?? throw new ArgumentNullException(nameof(registryImage));
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(registryImage.getImageReference())
                     .setCredentialRetrievers(registryImage.getCredentialRetrievers())
@@ -83,6 +84,7 @@ namespace Jib.Net.Core.Api
          */
         public static Containerizer to(DockerDaemonImage dockerDaemonImage)
         {
+            dockerDaemonImage = dockerDaemonImage ?? throw new ArgumentNullException(nameof(dockerDaemonImage));
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
 
@@ -110,6 +112,7 @@ namespace Jib.Net.Core.Api
          */
         public static Containerizer to(TarImage tarImage)
         {
+            tarImage = tarImage ?? throw new ArgumentNullException(nameof(tarImage));
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(tarImage.getImageReference()).build();
 
@@ -130,7 +133,7 @@ namespace Jib.Net.Core.Api
         private readonly Func<BuildConfiguration, StepsRunner> stepsRunnerFactory;
         private readonly bool mustBeOnline;
         private readonly ISet<string> additionalTags = new HashSet<string>();
-        public event Action<JibEvent> JibEvents = _ => { };
+        public event Action<IJibEvent> JibEvents = _ => { };
 
         private SystemPath baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
         private TemporaryDirectory tempAppLayersCacheDir;
@@ -200,7 +203,7 @@ namespace Jib.Net.Core.Api
             return this;
         }
 
-        public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : JibEvent
+        public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
         {
             return addEventHandler(je =>
             {
@@ -218,7 +221,7 @@ namespace Jib.Net.Core.Api
          * @param eventConsumer the event handler
          * @return this
          */
-        private Containerizer addEventHandler(Action<JibEvent> eventConsumer)
+        private Containerizer addEventHandler(Action<IJibEvent> eventConsumer)
         {
             JibEvents += eventConsumer;
             return this;
@@ -328,7 +331,7 @@ namespace Jib.Net.Core.Api
 
         public EventHandlers buildEventHandlers()
         {
-            return new EventHandlers.Builder().add<JibEvent>(e => JibEvents(e)).build();
+            return new EventHandlers.Builder().add<IJibEvent>(e => JibEvents(e)).build();
         }
 
         public void Dispose()

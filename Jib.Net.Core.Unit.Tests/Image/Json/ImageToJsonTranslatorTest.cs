@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.image.json
             imageToJsonTranslator = new ImageToJsonTranslator(testImageBuilder.build());
         }
 
-        private class FakeLayer : Layer
+        private class FakeLayer : ILayer
         {
             private readonly DescriptorDigest fakeDigest;
 
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.image.json
                 this.fakeDigest = fakeDigest;
             }
 
-            public Blob getBlob()
+            public IBlob getBlob()
             {
                 return Blobs.from("ignored");
             }
@@ -189,7 +189,7 @@ namespace com.google.cloud.tools.jib.image.json
             // Translates the image to the manifest and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
             BlobDescriptor blobDescriptor = Digests.computeJsonDescriptor(containerConfiguration);
-            BuildableManifestTemplate manifestTemplate =
+            IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));

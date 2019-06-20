@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Adds image layers to a tarball and loads into Docker daemon. */
-    internal class LoadDockerStep : AsyncStep<BuildResult>
+    internal class LoadDockerStep : IAsyncStep<BuildResult>
     {
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -36,7 +37,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly DockerClient dockerClient;
 
         private readonly PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
         private readonly BuildImageStep buildImageStep;
 
         private readonly Task<BuildResult> listenableFuture;
@@ -46,7 +47,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
             DockerClient dockerClient,
             PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep,
-            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
+            IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep,
             BuildImageStep buildImageStep)
         {
             this.buildConfiguration = buildConfiguration;
@@ -89,7 +90,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
                 foreach (string tag in buildConfiguration.getAllTargetImageTags())
                 {
-                    if (tag.Equals(targetImageReference.getTag()))
+                    if (tag.Equals(targetImageReference.getTag(), StringComparison.Ordinal))
                     {
                         continue;
                     }

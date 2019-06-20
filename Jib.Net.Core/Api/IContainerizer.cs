@@ -9,9 +9,9 @@ namespace Jib.Net.Core.Api
 {
     public interface IContainerizer
     {
-        event Action<JibEvent> JibEvents;
+        event Action<IJibEvent> JibEvents;
 
-        Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : JibEvent;
+        Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent;
         EventHandlers buildEventHandlers();
         IStepsRunner createStepsRunner(BuildConfiguration buildConfiguration);
         void Dispose();

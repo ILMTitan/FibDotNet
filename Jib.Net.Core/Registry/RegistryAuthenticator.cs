@@ -239,9 +239,9 @@ namespace com.google.cloud.tools.jib.registry
             {
                 using (Connection connection =
                     Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope)))
+                using (var request = new HttpRequestMessage())
                 {
-                    var request = new HttpRequestMessage();
-                    foreach(var value in userAgent)
+                    foreach (var value in userAgent)
                     {
                         request.Headers.UserAgent.Add(value);
                     }
@@ -266,8 +266,11 @@ namespace com.google.cloud.tools.jib.registry
                     }
 
                     HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false);
-                    string responseString =
-                        CharStreams.toString(new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8));
+                    string responseString;
+                    using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8))
+                    {
+                        responseString = CharStreams.toString(reader);
+                    }
 
                     AuthenticationResponseTemplate responseJson =
                         JsonTemplateMapper.readJson<AuthenticationResponseTemplate>(responseString);

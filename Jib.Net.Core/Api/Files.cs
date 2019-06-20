@@ -63,6 +63,7 @@ namespace Jib.Net.Core.Api
 
         public static SystemPath createDirectories(SystemPath directory)
         {
+            directory = directory ?? throw new ArgumentNullException(directory);
             return new SystemPath(Directory.CreateDirectory(directory.ToString()));
         }
 

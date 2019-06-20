@@ -93,8 +93,8 @@ namespace com.google.cloud.tools.jib.registry
                 return false;
             }
 
-            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
-            if (errorCode == ErrorCodes.BLOB_UNKNOWN)
+            ErrorCode errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
+            if (errorCode == ErrorCode.BLOB_UNKNOWN)
             {
                 return false;
             }

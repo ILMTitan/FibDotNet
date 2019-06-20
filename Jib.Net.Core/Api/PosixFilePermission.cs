@@ -20,14 +20,14 @@ namespace Jib.Net.Core
 {
     public static class PosixFilePermissionExtensions
     {
-        public static string ToOctalString(this PosixFilePermission permissions)
+        public static string ToOctalString(this PosixFilePermissions permissions)
         {
-            return Convert.ToString((int)(permissions & PosixFilePermission.ALL), 8).PadLeft(3, '0');
+            return Convert.ToString((int)(permissions & PosixFilePermissions.ALL), 8).PadLeft(3, '0');
         }
     }
 
     [Flags]
-    public enum PosixFilePermission : int
+    public enum PosixFilePermissions : int
     {
         NONE = 0,
         OTHERS_EXECUTE = 1<< 0,

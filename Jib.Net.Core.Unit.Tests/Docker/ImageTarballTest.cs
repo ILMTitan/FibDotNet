@@ -38,8 +38,8 @@ namespace com.google.cloud.tools.jib.docker
     /** Tests for {@link ImageTarball}. */
     public class ImageTarballTest
     {
-        private readonly Layer mockLayer1 = Mock.Of<Layer>();
-        private readonly Layer mockLayer2 = Mock.Of<Layer>();
+        private readonly ILayer mockLayer1 = Mock.Of<ILayer>();
+        private readonly ILayer mockLayer2 = Mock.Of<ILayer>();
 
         [Test]
         public async Task testWriteToAsync()

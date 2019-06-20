@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.builder
             var progressEvents = new List<ProgressEvent>();
             Mock.Get(mockEventHandlers)
                 .Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
-                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
+                .Callback((IJibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 10))
             using (ProgressEventDispatcher ignored =
@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.builder
         {
             var progressEvents = new List<ProgressEvent>();
             Mock.Get(mockEventHandlers).Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
-                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
+                .Callback((IJibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                 ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 10))
             {
@@ -90,7 +90,7 @@ namespace com.google.cloud.tools.jib.builder
         {
             var progressEvents = new List<ProgressEvent>();
             Mock.Get(mockEventHandlers).Setup(m => m.dispatch(It.IsAny<ProgressEvent>()))
-                .Callback((JibEvent e) => progressEvents.Add((ProgressEvent)e));
+                .Callback((IJibEvent e) => progressEvents.Add((ProgressEvent)e));
             using (ProgressEventDispatcher progressEventDispatcher =
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "allocation description", 1))
             using (ProgressEventDispatcher ignored1 =

@@ -49,13 +49,13 @@ namespace com.google.cloud.tools.jib.image
      *       </ul>
      * </ul>
      */
-    public interface Layer
+    public interface ILayer
     {
         /**
          * @return the layer's content BLOB
          * @throws LayerPropertyNotFoundException if not available
          */
-        Blob getBlob();
+        IBlob getBlob();
         // TODO: Remove this
         /**
          * @return the layer's content {@link BlobDescriptor}

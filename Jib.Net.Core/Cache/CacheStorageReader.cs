@@ -25,6 +25,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -89,7 +90,11 @@ namespace com.google.cloud.tools.jib.cache
             }
 
             // TODO: Consolidate with ManifestPuller
-            JToken token = JToken.ReadFrom(new JsonTextReader(File.OpenText(manifestPath)));
+            JToken token;
+            using (JsonTextReader reader = new JsonTextReader(File.OpenText(manifestPath)))
+            {
+                token = JToken.ReadFrom(reader);
+            }
             if(!(token is JObject node))
             {
                 throw new CacheCorruptedException(cacheStorageFiles.getCacheDirectory(), "Manifest was not a json object");
@@ -120,13 +125,13 @@ namespace com.google.cloud.tools.jib.cache
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
                 string mediaType = node.get("mediaType").Value<string>();
 
-                ManifestTemplate manifestTemplate;
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                IManifestTemplate manifestTemplate;
+                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
                 {
                     manifestTemplate =
                         JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestPath);
                 }
-                else if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE.Equals(mediaType))
+                else if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
                 {
                     manifestTemplate =
                         JsonTemplateMapper.readJsonFromFile<OCIManifestTemplate>(manifestPath);
@@ -164,6 +169,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public Optional<CachedLayer> retrieve(DescriptorDigest layerDigest)
         {
+            layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
             SystemPath layerDirectory = cacheStorageFiles.getLayerDirectory(layerDigest);
             if (!Files.exists(layerDirectory))
             {

@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.registry
          * @see <a
          *     href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308">https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308</a>
          */
-        public static readonly HttpStatusCode STATUS_CODE_PERMANENT_REDIRECT = (HttpStatusCode)308;
+        public const HttpStatusCode STATUS_CODE_PERMANENT_REDIRECT = (HttpStatusCode)308;
 
         /// <summary>
         /// The broken pipe error code.
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.registry
 
         private static bool isHttpsProtocol(Uri url)
         {
-            return "https".Equals(url.getProtocol());
+            return "https" == url.getProtocol();
         }
 
         private readonly IEventHandlers eventHandlers;
@@ -230,18 +230,11 @@ namespace com.google.cloud.tools.jib.registry
 
         private Func<Uri, IConnection> getInsecureConnectionFactory()
         {
-            try
+            if (insecureConnectionFactory == null)
             {
-                if (insecureConnectionFactory == null)
-                {
-                    insecureConnectionFactory = Connection.getInsecureConnectionFactory();
-                }
-                return insecureConnectionFactory;
+                insecureConnectionFactory = Connection.getInsecureConnectionFactory();
             }
-            catch (GeneralSecurityException ex)
-            {
-                throw new RegistryException("cannot turn off TLS peer verification", ex);
-            }
+            return insecureConnectionFactory;
         }
 
         /**
@@ -328,10 +321,6 @@ namespace com.google.cloud.tools.jib.registry
                         throw;
                     }
                 }
-            }
-            catch (NoHttpResponseException ex)
-            {
-                throw new RegistryNoResponseException(ex.Message, ex);
             }
             catch (IOException ex)
             {

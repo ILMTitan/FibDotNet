@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Builds and caches application layers. */
-    public sealed class BuildAndCacheApplicationLayerStep : AsyncStep<ICachedLayer>
+    public sealed class BuildAndCacheApplicationLayerStep : IAsyncStep<ICachedLayer>
     {
         private const string DESCRIPTION = "Building application layers";
 
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
          * classes layers. Optionally adds an extra layer if configured to do so.
          */
-        public static AsyncStep<IReadOnlyList<ICachedLayer>> makeList(
+        public static IAsyncStep<IReadOnlyList<ICachedLayer>> makeList(
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
@@ -118,7 +118,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     return new CachedLayerWithType(optionalCachedLayer.get(), getLayerType());
                 }
 
-                Blob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
+                IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
                 CachedLayer cachedLayer =
                     await cache.writeUncompressedLayerAsync(layerBlob, layerConfiguration.getLayerEntries()).ConfigureAwait(false);
 

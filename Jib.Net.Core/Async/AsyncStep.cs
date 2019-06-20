@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.async
      *
      * @param <T> the object type passed on by this step
      */
-    public interface AsyncStep<T>
+    public interface IAsyncStep<T>
     {
         /** @return the submitted future */
         // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.

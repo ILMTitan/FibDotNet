@@ -30,7 +30,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
-using Blob = com.google.cloud.tools.jib.blob.Blob;
+using IBlob = com.google.cloud.tools.jib.blob.IBlob;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             }
         }
 
-        private static async Task assertBlobsEqualAsync(Blob expectedBlob, Blob blob)
+        private static async Task assertBlobsEqualAsync(IBlob expectedBlob, IBlob blob)
         {
             CollectionAssert.AreEqual(await Blobs.writeToByteArrayAsync(expectedBlob).ConfigureAwait(false), await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false));
         }
@@ -131,7 +131,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             ImageLayers.Builder applicationLayersBuilder = ImageLayers.builder();
 
-            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep =
+            IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep =
                 BuildAndCacheApplicationLayerStep.makeList(
                     mockBuildConfiguration,
                     ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());

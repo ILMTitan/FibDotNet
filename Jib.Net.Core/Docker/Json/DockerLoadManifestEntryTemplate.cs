@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.docker.json
      *     source</a>
      */
      [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class DockerLoadManifestEntryTemplate 
+    public class DockerLoadManifestEntryTemplate
     {
         public string Config { get; } = "config.json";
         public List<string> RepoTags { get; set; } = Collections.singletonList<string>(null);

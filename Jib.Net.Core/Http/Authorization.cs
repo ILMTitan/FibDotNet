@@ -33,6 +33,10 @@ namespace com.google.cloud.tools.jib.http
     {
         public static implicit operator AuthenticationHeaderValue(Authorization a)
         {
+            if(a is null)
+            {
+                return null;
+            }
             return new AuthenticationHeaderValue(a.getScheme(), a.getToken());
         }
 
@@ -103,7 +107,7 @@ namespace com.google.cloud.tools.jib.http
                 return false;
             }
             Authorization otherAuthorization = (Authorization)other;
-            return scheme.Equals(otherAuthorization.scheme) && token.Equals(otherAuthorization.token);
+            return scheme == otherAuthorization.scheme && token == otherAuthorization.token;
         }
 
         public override int GetHashCode()

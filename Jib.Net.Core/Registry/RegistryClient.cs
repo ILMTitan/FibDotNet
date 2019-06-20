@@ -214,7 +214,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws RegistryException if communicating with the endpoint fails
          */
         public async Task<T> pullManifestAsync<T>(
-            string imageTag) where T : ManifestTemplate
+            string imageTag) where T : IManifestTemplate
         {
             ManifestPuller<T> manifestPuller =
                 new ManifestPuller<T>(registryEndpointRequestProperties, imageTag);
@@ -226,7 +226,7 @@ namespace com.google.cloud.tools.jib.registry
             return manifestTemplate;
         }
 
-        public async Task<ManifestTemplate> pullManifestAsync(string imageTag)
+        public async Task<IManifestTemplate> pullManifestAsync(string imageTag)
         {
             return await pullAnyManifestAsync(imageTag).ConfigureAwait(false);
         }
@@ -242,11 +242,11 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<ManifestTemplate> pullAnyManifestAsync(string imageTag)
+        public async Task<IManifestTemplate> pullAnyManifestAsync(string imageTag)
         {
             ManifestPuller manifestPuller =
                 new ManifestPuller(registryEndpointRequestProperties, imageTag);
-            ManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
+            IManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
@@ -263,7 +263,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<DescriptorDigest> pushManifestAsync(BuildableManifestTemplate manifestTemplate, string imageTag)
+        public async Task<DescriptorDigest> pushManifestAsync(IBuildableManifestTemplate manifestTemplate, string imageTag)
         {
             return Verify.verifyNotNull(await callRegistryEndpointAsync(
                     new ManifestPusher(
@@ -293,10 +293,10 @@ namespace com.google.cloud.tools.jib.registry
          *     pull
          * @return a {@link Blob}
          */
-        public Blob pullBlob(
+        public IBlob pullBlob(
             DescriptorDigest blobDigest,
-            Consumer<long> blobSizeListener,
-            Consumer<long> writtenByteCountListener)
+            Action<long> blobSizeListener,
+            Action<long> writtenByteCountListener)
         {
             return Blobs.from(
                 async outputStream =>
@@ -333,9 +333,9 @@ namespace com.google.cloud.tools.jib.registry
          */
         public async Task<bool> pushBlobAsync(
             DescriptorDigest blobDigest,
-            Blob blob,
+            IBlob blob,
             string sourceRepository,
-            Consumer<long> writtenByteCountListener)
+            Action<long> writtenByteCountListener)
         {
             BlobPusher blobPusher =
                 new BlobPusher(registryEndpointRequestProperties, blobDigest, blob, sourceRepository);

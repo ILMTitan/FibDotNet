@@ -72,12 +72,11 @@ namespace Jib.Net.Core.Blob
             {
                 return true;
             }
-            if (size < 0 || !(obj is BlobDescriptor))
+            if (size < 0 || !(obj is BlobDescriptor other))
             {
                 return false;
             }
 
-            BlobDescriptor other = (BlobDescriptor)obj;
             return size == other.getSize() && digest.Equals(other.getDigest());
         }
 

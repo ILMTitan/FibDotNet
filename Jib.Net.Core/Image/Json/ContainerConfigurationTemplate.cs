@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.image.json
         public class RootFilesystemObjectTemplate
         {
             /** The type must always be {@code "layers"}. */
-            public string Type => "layers";
+            public string Type { get; } = "layers";
 
             /**
              * The in-order list of layer content digests (hashes of the uncompressed partial filesystem

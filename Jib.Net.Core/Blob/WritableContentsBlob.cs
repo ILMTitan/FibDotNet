@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.blob
 {
     /** A {@link Blob} that holds {@link WritableContents}. */
-    internal class AsyncWritableContentsBlob : Blob
+    internal class AsyncWritableContentsBlob : IBlob
     {
         private readonly WritableContentsAsync writableContents;
 

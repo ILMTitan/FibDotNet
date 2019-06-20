@@ -149,7 +149,7 @@ namespace com.google.cloud.tools.jib.api
 
             progressChecker.checkCompletion();
 
-            logger.info("Initial build time: " + (s.Elapsed));
+            logger.info("Initial build time: " + s.Elapsed);
             s.Restart();
             JibContainer image2 =
                 await buildRegistryImageAsync(

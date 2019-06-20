@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.registry
             localRegistry.pullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
                 RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
+            IManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
 
             Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
             V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate)manifestTemplate;

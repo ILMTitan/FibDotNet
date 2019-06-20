@@ -25,7 +25,7 @@ namespace com.google.cloud.tools.jib.@event.events
      *
      * @see Allocation
      */
-    public class ProgressEvent : JibEvent
+    public class ProgressEvent : IJibEvent
     {
         /**
          * The allocation this progress is for. Each progress unit accounts for a single allocation unit

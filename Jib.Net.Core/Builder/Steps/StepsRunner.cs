@@ -44,14 +44,14 @@ namespace com.google.cloud.tools.jib.builder.steps
             public PullBaseImageStep pullBaseImageStep;
             public PullAndCacheBaseImageLayersStep pullAndCacheBaseImageLayersStep;
 
-            public AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps;
+            public IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps;
 
             public PushLayersStep pushBaseImageLayersStep;
             public PushLayersStep pushApplicationLayersStep;
             public BuildImageStep buildImageStep;
             public PushContainerConfigurationStep pushContainerConfigurationStep;
 
-            public AsyncStep<BuildResult> finalStep;
+            public IAsyncStep<BuildResult> finalStep;
         }
 
         /**

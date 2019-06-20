@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -124,6 +125,7 @@ namespace com.google.cloud.tools.jib.hash
          */
         public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents, Stream outStream)
         {
+            contents = contents ?? throw new ArgumentNullException(nameof(contents));
             using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
             {
                 await contents(digestOutStream).ConfigureAwait(false);

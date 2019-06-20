@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.registry
     {
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
         private readonly DescriptorDigest blobDigest;
-        private readonly Blob blob;
+        private readonly IBlob blob;
         private readonly string sourceRepository;
 
         /** Initializes the BLOB upload. */
@@ -119,7 +119,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             private readonly BlobPusher parent;
             private readonly Uri location;
-            private readonly Consumer<long> writtenByteCountListener;
+            private readonly Action<long> writtenByteCountListener;
 
             public BlobHttpContent getContent()
             {
@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.registry
                 return parent.getActionDescription();
             }
 
-            public Writer(Uri location, Consumer<long> writtenByteCountListener, BlobPusher parent)
+            public Writer(Uri location, Action<long> writtenByteCountListener, BlobPusher parent)
             {
                 this.location = location;
                 this.writtenByteCountListener = writtenByteCountListener;
@@ -219,7 +219,7 @@ namespace com.google.cloud.tools.jib.registry
         public BlobPusher(
       RegistryEndpointRequestProperties registryEndpointRequestProperties,
       DescriptorDigest blobDigest,
-      Blob blob,
+      IBlob blob,
       string sourceRepository)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
@@ -242,7 +242,7 @@ namespace com.google.cloud.tools.jib.registry
          * @param blobProgressListener the listener for {@link Blob} push progress
          * @return a {@link RegistryEndpointProvider} for writing the BLOB to an upload location
          */
-        public RegistryEndpointProvider<Uri> writer(Uri location, Consumer<long> writtenByteCountListener)
+        public RegistryEndpointProvider<Uri> writer(Uri location, Action<long> writtenByteCountListener)
         {
             return new Writer(location, writtenByteCountListener, this);
         }

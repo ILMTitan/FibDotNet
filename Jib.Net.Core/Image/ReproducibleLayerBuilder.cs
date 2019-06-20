@@ -67,11 +67,11 @@ namespace com.google.cloud.tools.jib.image
                     TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString().Replace(Path.DirectorySeparatorChar, '/'));
                     dir.Name += "/";
                     dir.setModTime(LayerConfiguration.DEFAULT_MODIFIED_TIME.toEpochMilli());
-                    dir.TarHeader.Mode &= ~(int)(PosixFilePermission.ALL);
+                    dir.TarHeader.Mode &= ~(int)PosixFilePermissions.ALL;
                     dir.TarHeader.Mode |=(int)(
-                        PosixFilePermission.OWNER_ALL
-                        | PosixFilePermission.GROUP_READ_EXECUTE
-                        | PosixFilePermission.OTHERS_READ_EXECUTE);
+                        PosixFilePermissions.OWNER_ALL
+                        | PosixFilePermissions.GROUP_READ_EXECUTE
+                        | PosixFilePermissions.OTHERS_READ_EXECUTE);
                     dir.TarHeader.TypeFlag = TarHeader.LF_DIR;
                     add(dir);
                 }
@@ -100,7 +100,7 @@ namespace com.google.cloud.tools.jib.image
          *
          * @return the new layer
          */
-        public Blob build()
+        public IBlob build()
         {
             UniqueTarArchiveEntries uniqueTarArchiveEntries = new UniqueTarArchiveEntries();
 
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.image
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.setMode((entry.getMode() & ~PosixFilePermission.ALL) | layerEntry.getPermissions().getPermissionBits());
+                entry.setMode((entry.getMode() & ~PosixFilePermissions.ALL) | layerEntry.getPermissions().getPermissionBits());
                 entry.setModTime(layerEntry.getLastModifiedTime().toEpochMilli());
 
                 uniqueTarArchiveEntries.add(entry);

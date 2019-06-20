@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.registry
 
             RegistryClient registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "gcr.io", "distroless/java").newRegistryClient();
-            ManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
+            IManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
 
             registryClient =
                 RegistryClient.factory(EVENT_HANDLERS, "localhost:5000", "busybox")
@@ -64,12 +64,12 @@ namespace com.google.cloud.tools.jib.registry
         public async Task testPushAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
-            Blob testLayerBlob = Blobs.from("crepecake");
+            IBlob testLayerBlob = Blobs.from("crepecake");
             // Known digest for 'crepecake'
             DescriptorDigest testLayerBlobDigest =
                 DescriptorDigest.fromHash(
                     "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c");
-            Blob testContainerConfigurationBlob = Blobs.from("12345");
+            IBlob testContainerConfigurationBlob = Blobs.from("12345");
             DescriptorDigest testContainerConfigurationBlobDigest =
                 DescriptorDigest.fromHash(
                     "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");

@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.registry
                 Content = new StreamContent(v21Manifest)
             };
 
-            ManifestTemplate manifestTemplate =
+            IManifestTemplate manifestTemplate =
                 await new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .handleResponseAsync(mockResponse).ConfigureAwait(false);
@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.registry
                 Content = new StreamContent(v22Manifest)
             };
 
-            ManifestTemplate manifestTemplate =
+            IManifestTemplate manifestTemplate =
                 await new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .handleResponseAsync(mockResponse).ConfigureAwait(false);

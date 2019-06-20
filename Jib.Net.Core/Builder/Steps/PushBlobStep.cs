@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Pushes a BLOB to the target registry. */
-    internal class PushBlobStep : AsyncStep<BlobDescriptor>
+    internal class PushBlobStep : IAsyncStep<BlobDescriptor>
     {
         private const string DESCRIPTION = "Pushing BLOB ";
 
@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly AuthenticatePushStep authenticatePushStep;
         private readonly BlobDescriptor blobDescriptor;
-        private readonly Blob blob;
+        private readonly IBlob blob;
 
         private readonly Task<BlobDescriptor> listenableFuture;
 
@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDipatcherFactory,
             AuthenticatePushStep authenticatePushStep,
             BlobDescriptor blobDescriptor,
-            Blob blob)
+            IBlob blob)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDipatcherFactory = progressEventDipatcherFactory;

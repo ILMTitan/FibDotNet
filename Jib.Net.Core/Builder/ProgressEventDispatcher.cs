@@ -32,6 +32,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         public static ProgressEventDispatcher create(this ProgressEventDispatcher.Factory f, string description, long allocationUnits)
         {
+            f = f ?? throw new ArgumentNullException(nameof(f));
             return f(description, allocationUnits);
         }
     }

@@ -16,6 +16,7 @@
 
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -77,6 +78,7 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public static Stream newLockingOutputStream(SystemPath file)
         {
+            file = file ?? throw new ArgumentNullException(nameof(file));
             return file.toFile().Create();
         }
 

@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.image.json
      *     Manifest Specification</a>
      */
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class OCIManifestTemplate : BuildableManifestTemplate
+    public class OCIManifestTemplate : IBuildableManifestTemplate
     {
         /** The OCI manifest media type. */
         public static readonly string MANIFEST_MEDIA_TYPE = "application/vnd.oci.image.manifest.v1+json";

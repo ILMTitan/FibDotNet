@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.registry
         public async Task testPushAsync()
         {
             localRegistry.pullAndPushToLocal("busybox", "busybox");
-            Blob testBlob = Blobs.from("crepecake");
+            IBlob testBlob = Blobs.from("crepecake");
             // Known digest for 'crepecake'
             DescriptorDigest testBlobDigest =
                 DescriptorDigest.fromHash(

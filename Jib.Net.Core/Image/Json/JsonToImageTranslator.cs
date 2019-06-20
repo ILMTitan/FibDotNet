@@ -24,6 +24,7 @@ using NodaTime.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -92,7 +93,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public static Image toImage<T>(
             T manifestTemplate,
-            ContainerConfigurationTemplate containerConfigurationTemplate) where T : BuildableManifestTemplate
+            ContainerConfigurationTemplate containerConfigurationTemplate) where T : IBuildableManifestTemplate
         {
             IList<ReferenceNoDiffIdLayer> layers = new List<ReferenceNoDiffIdLayer>();
             foreach (ContentDescriptorTemplate layerObjectTemplate in
@@ -139,7 +140,11 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 try
                 {
-                    imageBuilder.setCreated(Instant.FromDateTimeOffset(DateTimeOffset.Parse(containerConfigurationTemplate.getCreated())));
+                    imageBuilder.setCreated(
+                        Instant.FromDateTimeOffset(
+                            DateTimeOffset.Parse(
+                                containerConfigurationTemplate.getCreated(),
+                                CultureInfo.InvariantCulture)));
                 }
                 catch (FormatException ex)
                 {
@@ -241,7 +246,7 @@ namespace com.google.cloud.tools.jib.image.json
                         "Invalid port configuration: '" + port + "'.");
                 }
 
-                int portNumber = int.Parse(matcher.group("portNum"));
+                int portNumber = int.Parse(matcher.group("portNum"), CultureInfo.InvariantCulture);
                 string protocol = matcher.group("protocol");
                 ports.add(Port.parseProtocol(portNumber, protocol));
             }

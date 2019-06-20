@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Pushes the final image. Outputs the pushed image digest. */
-    internal class PushImageStep : AsyncStep<BuildResult>
+    internal class PushImageStep : IAsyncStep<BuildResult>
     {
         private const string DESCRIPTION = "Pushing new image";
 
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     new ImageToJsonTranslator(await buildImageStep.getFuture().ConfigureAwait(false));
 
                 // Gets the image manifest to push.
-                BuildableManifestTemplate manifestTemplate =
+                IBuildableManifestTemplate manifestTemplate =
                     imageToJsonTranslator.getManifestTemplate(
                         buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
 

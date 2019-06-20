@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -118,7 +119,7 @@ namespace com.google.cloud.tools.jib.api
              *
              * See https://github.com/docker/distribution/blob/245ca4659e09e9745f3cc1217bf56e946509220c/reference/normalize.go#L62
              */
-            if (!registry.contains(".") && !registry.contains(":") && !"localhost".Equals(registry))
+            if (!registry.contains(".") && !registry.contains(":") && "localhost" != registry)
             {
                 repository = registry + "/" + repository;
                 registry = DOCKER_HUB_REGISTRY;
@@ -130,7 +131,7 @@ namespace com.google.cloud.tools.jib.api
              *
              * See https://docs.docker.com/engine/reference/commandline/pull/#pull-an-image-from-docker-hub
              */
-            if (DOCKER_HUB_REGISTRY.Equals(registry) && repository.indexOf('/') < 0)
+            if (DOCKER_HUB_REGISTRY == registry && repository.indexOf('/') < 0)
             {
                 repository = LIBRARY_REPOSITORY_PREFIX + repository;
             }
@@ -240,7 +241,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static bool isDefaultTag(string tag)
         {
-            return tag.isEmpty() || DEFAULT_TAG.Equals(tag);
+            return tag.isEmpty() || DEFAULT_TAG == tag;
         }
 
         private readonly string registry;
@@ -314,7 +315,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public bool isScratch()
         {
-            return "".Equals(registry) && "scratch".Equals(repository) && "".Equals(tag);
+            return string.IsNullOrEmpty(registry) && "scratch" == repository && string.IsNullOrEmpty(tag);
         }
 
         /**
@@ -339,7 +340,7 @@ namespace com.google.cloud.tools.jib.api
         {
             StringBuilder referenceString = new StringBuilder();
 
-            if (!DOCKER_HUB_REGISTRY.Equals(registry))
+            if (DOCKER_HUB_REGISTRY != registry)
             {
                 // Use registry and repository if not Docker Hub.
                 referenceString.append(registry).append('/').append(repository);
@@ -356,7 +357,7 @@ namespace com.google.cloud.tools.jib.api
             }
 
             // Use tag if not the default tag.
-            if (!DEFAULT_TAG.Equals(tag))
+            if (DEFAULT_TAG != tag)
             {
                 // Append with "@tag" instead of ":tag" if tag is a digest
                 referenceString.append(isTagDigest() ? '@' : ':').append(tag);

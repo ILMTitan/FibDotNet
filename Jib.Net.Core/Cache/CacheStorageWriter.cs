@@ -113,7 +113,7 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public async Task<CachedLayer> writeCompressedAsync(Blob compressedLayerBlob)
+        public async Task<CachedLayer> writeCompressedAsync(IBlob compressedLayerBlob)
         {
             // Creates the layers directory if it doesn't exist.
             Files.createDirectories(cacheStorageFiles.getLayersDirectory());
@@ -161,8 +161,9 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public async Task<CachedLayer> writeUncompressedAsync(Blob uncompressedLayerBlob, DescriptorDigest selector)
+        public async Task<CachedLayer> writeUncompressedAsync(IBlob uncompressedLayerBlob, DescriptorDigest selector)
         {
+            uncompressedLayerBlob = uncompressedLayerBlob ?? throw new ArgumentNullException(nameof(uncompressedLayerBlob));
             // Creates the layers directory if it doesn't exist.
             Files.createDirectories(cacheStorageFiles.getLayersDirectory());
 
@@ -210,7 +211,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public void writeMetadata(
             IImageReference imageReference,
-            BuildableManifestTemplate manifestTemplate,
+            IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfiguration)
         {
             Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration());
@@ -252,7 +253,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          */
         private async Task<WrittenLayer> writeCompressedLayerBlobToDirectoryAsync(
-            Blob compressedLayerBlob, SystemPath layerDirectory)
+            IBlob compressedLayerBlob, SystemPath layerDirectory)
         {
             // Writes the layer file to the temporary directory.
             using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory))
@@ -284,7 +285,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          */
         private async Task<WrittenLayer> writeUncompressedLayerBlobToDirectoryAsync(
-            Blob uncompressedLayerBlob, SystemPath layerDirectory)
+            IBlob uncompressedLayerBlob, SystemPath layerDirectory)
         {
             using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory)) {
                 DescriptorDigest layerDiffId;
@@ -340,17 +341,10 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Attempts an atomic move first, and falls back to non-atomic if the file system does not
                 // support atomic moves.
-                try
-                {
-                    Files.move(
-                        temporarySelectorFile.Path,
-                        selectorFile,
-                        StandardCopyOption.REPLACE_EXISTING);
-                }
-                catch (AtomicMoveNotSupportedException)
-                {
-                    Files.move(temporarySelectorFile.Path, selectorFile, StandardCopyOption.REPLACE_EXISTING);
-                }
+                Files.move(
+                    temporarySelectorFile.Path,
+                    selectorFile,
+                    StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }

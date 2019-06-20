@@ -14,10 +14,12 @@
  * the License.
  */
 
+using System;
+
 namespace com.google.cloud.tools.jib.api
 {
     /** Log message event. */
-    public sealed class LogEvent : JibEvent
+    public sealed class LogEvent : IJibEvent
     {
         /** Log levels, in order of verbosity. */
         public enum Level
@@ -111,13 +113,11 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is LogEvent))
+            if (!(other is LogEvent logEvent))
             {
                 return false;
             }
-
-            LogEvent otherLogEvent = (LogEvent)other;
-            return level == otherLogEvent.level && message.Equals(otherLogEvent.message);
+            return level == logEvent.level && message == logEvent.message;
         }
 
         public override int GetHashCode()

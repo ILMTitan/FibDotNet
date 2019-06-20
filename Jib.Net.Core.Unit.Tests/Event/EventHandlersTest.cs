@@ -27,13 +27,13 @@ namespace com.google.cloud.tools.jib.@event
     public class EventHandlersTest
     {
         /** Test {@link JibEvent}. */
-        public interface TestJibEvent1 : JibEvent
+        public interface TestJibEvent1 : IJibEvent
         {
             string getPayload();
         }
 
         /** Test implementation of {@link JibEvent}. */
-        private class TestJibEvent2 : JibEvent
+        private class TestJibEvent2 : IJibEvent
         {
             private string message;
 
@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.@event
         }
 
         /** Test {@link JibEvent}. */
-        private class TestJibEvent3 : JibEvent { }
+        private class TestJibEvent3 : IJibEvent { }
 
         [Test]
         public void testAdd()
@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.@event
                     .add<TestJibEvent1>(
                         testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
                     .add<TestJibEvent2>(e => e.sayHello("Jib"))
-                    .add<JibEvent>(_ => counter++)
+                    .add<IJibEvent>(_ => counter++)
                     .build();
 
             eventHandlers.dispatch(mockTestJibEvent1);
@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.@event
 
                     .add<TestJibEvent3>(_ => emissions.add("handled 3"))
 
-                    .add<JibEvent>(_ => emissions.add("handled generic"))
+                    .add<IJibEvent>(_ => emissions.add("handled generic"))
 
                     .build();
 

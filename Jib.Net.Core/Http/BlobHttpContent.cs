@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -27,14 +28,14 @@ namespace com.google.cloud.tools.jib.http
     /** {@link Blob}-backed {@link HttpContent}. */
     public class BlobHttpContent : HttpContent
     {
-        private readonly Blob blob;
-        private readonly Consumer<long> writtenByteCountListener;
+        private readonly IBlob blob;
+        private readonly Action<long> writtenByteCountListener;
 
-        public BlobHttpContent(Blob blob, string contentType) : this(blob, contentType, _ => { })
+        public BlobHttpContent(IBlob blob, string contentType) : this(blob, contentType, _ => { })
         {
         }
 
-        public BlobHttpContent(Blob blob, string contentType, Consumer<long> writtenByteCountListener)
+        public BlobHttpContent(IBlob blob, string contentType, Action<long> writtenByteCountListener)
         {
             this.blob = blob;
             this.Headers.ContentType = new MediaTypeHeaderValue(contentType);
@@ -49,6 +50,7 @@ namespace com.google.cloud.tools.jib.http
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
+            stream = stream ?? throw new ArgumentNullException(nameof(stream));
             await blob.writeToAsync(new NotifyingOutputStream(stream, writtenByteCountListener)).ConfigureAwait(false);
             await stream.FlushAsync().ConfigureAwait(false);
         }

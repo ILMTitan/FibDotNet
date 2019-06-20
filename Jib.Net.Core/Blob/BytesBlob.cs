@@ -23,7 +23,7 @@ using Jib.Net.Core.Blob;
 
 namespace com.google.cloud.tools.jib.blob
 {
-    internal class BytesBlob : Blob
+    internal class BytesBlob : IBlob
     {
         private readonly byte[] _bytes;
         protected IReadOnlyList<byte> bytes => _bytes;

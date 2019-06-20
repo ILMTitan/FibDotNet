@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.blob
         public async Task testFromBytesAsync()
         {
             const string expected = "crepecake";
-            byte[] content = (expected.getBytes(StandardCharsets.UTF_8));
+            byte[] content = expected.getBytes(StandardCharsets.UTF_8);
             await verifyBlobWriteToAsync(expected, Blobs.from(content)).ConfigureAwait(false);
         }
 
@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.blob
         }
 
         /** Checks that the {@link Blob} streams the expected string. */
-        private async System.Threading.Tasks.Task verifyBlobWriteToAsync(string expected, Blob blob)
+        private async System.Threading.Tasks.Task verifyBlobWriteToAsync(string expected, IBlob blob)
         {
             MemoryStream outputStream = new MemoryStream();
             BlobDescriptor blobDescriptor = await blob.writeToAsync(outputStream).ConfigureAwait(false);

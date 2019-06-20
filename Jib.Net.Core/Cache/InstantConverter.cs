@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using NodaTime;
 
@@ -25,7 +26,7 @@ namespace com.google.cloud.tools.jib.cache
         public override Instant ReadJson(JsonReader reader, Type objectType, Instant existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             string s = serializer.Deserialize<string>(reader);
-            return Instant.FromDateTimeUtc(DateTime.Parse(s).ToUniversalTime());
+            return Instant.FromDateTimeUtc(DateTime.Parse(s, CultureInfo.InvariantCulture).ToUniversalTime());
         }
 
         public override void WriteJson(JsonWriter writer, Instant value, JsonSerializer serializer)

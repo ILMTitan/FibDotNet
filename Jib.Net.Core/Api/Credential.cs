@@ -14,6 +14,8 @@
  * the License.
  */
 
+using System;
+
 namespace com.google.cloud.tools.jib.api
 {
     /** Holds credentials (username and password). */
@@ -71,7 +73,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public bool isOAuth2RefreshToken()
         {
-            return OAUTH2_TOKEN_USER_NAME.Equals(this.username);
+            return OAUTH2_TOKEN_USER_NAME == username;
         }
 
         public override bool Equals(object other)
@@ -85,7 +87,8 @@ namespace com.google.cloud.tools.jib.api
                 return false;
             }
             Credential otherCredential = (Credential)other;
-            return username.Equals(otherCredential.username) && password.Equals(otherCredential.password);
+            return username == otherCredential.username
+                && password == otherCredential.password;
         }
 
         public override int GetHashCode()

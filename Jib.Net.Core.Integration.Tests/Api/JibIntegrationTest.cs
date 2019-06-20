@@ -86,7 +86,7 @@ namespace com.google.cloud.tools.jib.api
                                     .addCredentialRetriever(
                                         () => Optional.of(Credential.from("username", "password"))))
                             .setAllowInsecureRegistries(true)
-                            .addEventHandler<JibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
+                            .addEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
             Assert.AreEqual("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
             Assert.AreEqual(

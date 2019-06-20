@@ -18,13 +18,14 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core;
+using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Attempts to retrieve registry credentials. */
-    public sealed class RetrieveRegistryCredentialsStep : AsyncStep<Credential>
+    public sealed class RetrieveRegistryCredentialsStep : IAsyncStep<Credential>
     {
         private static string makeDescription(string registry)
         {
@@ -48,6 +49,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
+            buildConfiguration = buildConfiguration ?? throw new ArgumentNullException(nameof(buildConfiguration));
             return new RetrieveRegistryCredentialsStep(
                 buildConfiguration,
                 progressEventDispatcherFactory,

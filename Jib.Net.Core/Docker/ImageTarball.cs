@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.docker
             DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
 
             // Adds all the layers to the tarball and manifest.
-            foreach (Layer layer in image.getLayers())
+            foreach (ILayer layer in image.getLayers())
             {
                 string layerName = layer.getBlobDescriptor().getDigest().getHash() + LAYER_FILE_EXTENSION;
 

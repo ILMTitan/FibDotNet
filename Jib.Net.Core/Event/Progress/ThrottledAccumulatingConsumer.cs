@@ -26,14 +26,18 @@ namespace com.google.cloud.tools.jib.@event.progress
      * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
      * period of time are merged into a single later call with the value accumulated up to that point.
      */
-    public class ThrottledAccumulatingConsumer : IDisposable
+    public sealed class ThrottledAccumulatingConsumer : IDisposable
     {
-        public static implicit operator Consumer<long>(ThrottledAccumulatingConsumer c)
+        public static implicit operator Action<long>(ThrottledAccumulatingConsumer c)
         {
+            if(c is null)
+            {
+                return _ => { };
+            }
             return c.accept;
         }
 
-        private readonly Consumer<long> consumer;
+        private readonly Action<long> consumer;
 
         /** Delay between each call to the underlying {@link #accept}. */
         private readonly Duration delayBetweenCallbacks;
@@ -51,14 +55,14 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @param callback {@link Consumer} callback to wrap
          */
-        public ThrottledAccumulatingConsumer(Consumer<long> callback) : this(callback, Duration.FromMilliseconds(100), SystemClock.Instance.GetCurrentInstant)
+        public ThrottledAccumulatingConsumer(Action<long> callback) : this(callback, Duration.FromMilliseconds(100), SystemClock.Instance.GetCurrentInstant)
         {
         }
 
         public ThrottledAccumulatingConsumer(
-            Consumer<long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow)
+            Action<long> consumer, Duration delayBetweenCallbacks, Supplier<Instant> getNow)
         {
-            this.consumer = consumer;
+            this.consumer = consumer ?? throw new ArgumentNullException(nameof(consumer));
             this.delayBetweenCallbacks = delayBetweenCallbacks;
             this.getNow = getNow;
 
@@ -73,7 +77,7 @@ namespace com.google.cloud.tools.jib.@event.progress
             Instant nextFireTime = previousCallback.plus(delayBetweenCallbacks);
             if (now.isAfter(nextFireTime))
             {
-                consumer.accept(valueSoFar);
+                consumer(valueSoFar);
                 previousCallback = now;
                 valueSoFar = 0;
             }
@@ -81,7 +85,7 @@ namespace com.google.cloud.tools.jib.@event.progress
 
         public void Dispose()
         {
-            consumer.accept(valueSoFar);
+            consumer(valueSoFar);
         }
     }
 }

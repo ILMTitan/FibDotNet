@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -143,7 +144,7 @@ namespace com.google.cloud.tools.jib.image.json
             ContainerConfigurationTemplate template = new ContainerConfigurationTemplate();
 
             // Adds the layer diff IDs.
-            foreach (Layer layer in image.getLayers())
+            foreach (ILayer layer in image.getLayers())
             {
                 template.addLayerDiffId(layer.getDiffId());
             }
@@ -197,12 +198,12 @@ namespace com.google.cloud.tools.jib.image.json
          * @param containerConfigurationBlobDescriptor the container configuration descriptor.
          * @return the image contents serialized as JSON.
          */
-        public BuildableManifestTemplate getManifestTemplate(
+        public IBuildableManifestTemplate getManifestTemplate(
             ManifestFormat manifestFormat, BlobDescriptor containerConfigurationBlobDescriptor)
         {
             try
             {
-                BuildableManifestTemplate template;
+                IBuildableManifestTemplate template;
                 // ISet up the JSON template.
                 switch (manifestFormat)
                 {
@@ -215,7 +216,7 @@ namespace com.google.cloud.tools.jib.image.json
                     default:
                         throw new ArgumentException(nameof(manifestFormat));
                 }
-                BuildableManifestTemplate buildableTemplate = (BuildableManifestTemplate)template;
+                IBuildableManifestTemplate buildableTemplate = (IBuildableManifestTemplate)template;
 
                 // Adds the container configuration reference.
                 DescriptorDigest containerConfigurationDigest =
@@ -224,7 +225,7 @@ namespace com.google.cloud.tools.jib.image.json
                 buildableTemplate.setContainerConfiguration(containerConfigurationSize, containerConfigurationDigest);
 
                 // Adds the layers.
-                foreach (Layer layer in image.getLayers())
+                foreach (ILayer layer in image.getLayers())
                 {
                     buildableTemplate.addLayer(
             layer.getBlobDescriptor().getSize(), layer.getBlobDescriptor().getDigest());
@@ -233,10 +234,7 @@ namespace com.google.cloud.tools.jib.image.json
                 // Serializes into JSON.
                 return template;
             }
-            catch (Exception ex) when (ex is InstantiationException
-              || ex is IllegalAccessException
-              || ex is NoSuchMethodException
-              || ex is InvocationTargetException)
+            catch (JsonException ex)
             {
                 throw new ArgumentException(manifestFormat + " cannot be instantiated", ex);
             }

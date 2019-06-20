@@ -63,13 +63,13 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         private readonly RegistryEndpointRequestProperties registryEndpointRequestProperties;
-        private readonly BuildableManifestTemplate manifestTemplate;
+        private readonly IBuildableManifestTemplate manifestTemplate;
         private readonly string imageTag;
         private readonly IEventHandlers eventHandlers;
 
         public ManifestPusher(
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
-            BuildableManifestTemplate manifestTemplate,
+            IBuildableManifestTemplate manifestTemplate,
             string imageTag,
             IEventHandlers eventHandlers)
         {
@@ -110,8 +110,8 @@ namespace com.google.cloud.tools.jib.registry
                 throw new HttpResponseException(httpResponse);
             }
 
-            ErrorCodes errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
-            if (errorCode == ErrorCodes.MANIFEST_INVALID || errorCode == ErrorCodes.TAG_INVALID)
+            ErrorCode errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
+            if (errorCode == ErrorCode.MANIFEST_INVALID || errorCode == ErrorCode.TAG_INVALID)
             {
                 throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
                     .addReason(
@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             eventHandlers.dispatch(
-                LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, new string[0])));
+                LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, Array.Empty<string>())));
             // The received digest is not as expected. Warns about this.
             return expectedDigest;
         }

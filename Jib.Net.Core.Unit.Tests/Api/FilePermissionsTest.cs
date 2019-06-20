@@ -32,27 +32,27 @@ namespace com.google.cloud.tools.jib.api
         {
             Assert.AreEqual(
                 new FilePermissions(
-                    PosixFilePermission.OWNER_ALL | PosixFilePermission.GROUP_ALL | PosixFilePermission.OTHERS_ALL),
+                    PosixFilePermissions.OWNER_ALL | PosixFilePermissions.GROUP_ALL | PosixFilePermissions.OTHERS_ALL),
                 FilePermissions.fromOctalString("777"));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.NONE),
+                new FilePermissions(PosixFilePermissions.NONE),
                 FilePermissions.fromOctalString("000"));
             Assert.AreEqual(
                 new FilePermissions(
-                    PosixFilePermission.OWNER_EXECUTE |
-                    PosixFilePermission.GROUP_WRITE |
-                    PosixFilePermission.OTHERS_READ),
+                    PosixFilePermissions.OWNER_EXECUTE |
+                    PosixFilePermissions.GROUP_WRITE |
+                    PosixFilePermissions.OTHERS_READ),
                 FilePermissions.fromOctalString("124"));
             Assert.AreEqual(
                 new FilePermissions(
-                    PosixFilePermission.OWNER_ALL |
-                    PosixFilePermission.GROUP_READ |
-                    PosixFilePermission.GROUP_EXECUTE |
-                    PosixFilePermission.OTHERS_READ |
-                    PosixFilePermission.OTHERS_EXECUTE),
+                    PosixFilePermissions.OWNER_ALL |
+                    PosixFilePermissions.GROUP_READ |
+                    PosixFilePermissions.GROUP_EXECUTE |
+                    PosixFilePermissions.OTHERS_READ |
+                    PosixFilePermissions.OTHERS_EXECUTE),
                 FilePermissions.fromOctalString("755"));
             Assert.AreEqual(
-                new FilePermissions((PosixFilePermission)0b110_100_100),
+                new FilePermissions((PosixFilePermissions)0b110_100_100),
                 FilePermissions.fromOctalString("644"));
 
             ImmutableArray<string> badStrings = ImmutableArray.Create("abc", "-123", "777444333", "987", "3");
@@ -75,23 +75,23 @@ namespace com.google.cloud.tools.jib.api
         public void testFromPosixFilePermissions()
         {
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.NONE), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermission>()));
+                new FilePermissions(PosixFilePermissions.NONE), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermissions>()));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.OWNER_EXECUTE| PosixFilePermission.GROUP_EXECUTE),
+                new FilePermissions(PosixFilePermissions.OWNER_EXECUTE| PosixFilePermissions.GROUP_EXECUTE),
                 FilePermissions.fromPosixFilePermissions(
-                    ImmutableHashSet.Create(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE)));
+                    ImmutableHashSet.Create(PosixFilePermissions.OWNER_EXECUTE, PosixFilePermissions.GROUP_EXECUTE)));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.OWNER_WRITE| PosixFilePermission.OTHERS_WRITE),
+                new FilePermissions(PosixFilePermissions.OWNER_WRITE| PosixFilePermissions.OTHERS_WRITE),
                 FilePermissions.fromPosixFilePermissions(
-                    ImmutableHashSet.Create(PosixFilePermission.OWNER_WRITE, PosixFilePermission.OTHERS_WRITE)));
+                    ImmutableHashSet.Create(PosixFilePermissions.OWNER_WRITE, PosixFilePermissions.OTHERS_WRITE)));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.GROUP_READ| PosixFilePermission.OTHERS_READ),
+                new FilePermissions(PosixFilePermissions.GROUP_READ| PosixFilePermissions.OTHERS_READ),
                 FilePermissions.fromPosixFilePermissions(
-                    ImmutableHashSet.Create(PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ)));
+                    ImmutableHashSet.Create(PosixFilePermissions.GROUP_READ, PosixFilePermissions.OTHERS_READ)));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermission.OWNER_ALL | PosixFilePermission.GROUP_ALL | PosixFilePermission.OTHERS_ALL),
+                new FilePermissions(PosixFilePermissions.OWNER_ALL | PosixFilePermissions.GROUP_ALL | PosixFilePermissions.OTHERS_ALL),
                 FilePermissions.fromPosixFilePermissions(
-                    ImmutableHashSet.CreateRange(Enum.GetValues(typeof(PosixFilePermission)).Cast<PosixFilePermission>())));
+                    ImmutableHashSet.CreateRange(Enum.GetValues(typeof(PosixFilePermissions)).Cast<PosixFilePermissions>())));
         }
     }
 }

@@ -33,24 +33,24 @@ using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
 namespace com.google.cloud.tools.jib.builder.steps
 {
   /** Builds a model {@link Image}. */
-    public class BuildImageStep : AsyncStep<Image>
+    public class BuildImageStep : IAsyncStep<Image>
     {
         private const string DESCRIPTION = "Building container configuration";
 
         private readonly IBuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
-        private readonly AsyncStep<BaseImageWithAuthorization> pullBaseImageStep;
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep;
-        private readonly AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
+        private readonly IAsyncStep<BaseImageWithAuthorization> pullBaseImageStep;
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep;
+        private readonly IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep;
 
         private readonly Task<Image> listenableFuture;
 
         public BuildImageStep(
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory,
-            AsyncStep<BaseImageWithAuthorization> pullBaseImageStep,
-            AsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep,
-            AsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps)
+            IAsyncStep<BaseImageWithAuthorization> pullBaseImageStep,
+            IAsyncStep<IReadOnlyList<ICachedLayer>> pullAndCacheBaseImageLayersStep,
+            IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayerSteps)
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;

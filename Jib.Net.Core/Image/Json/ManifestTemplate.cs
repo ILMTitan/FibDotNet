@@ -23,7 +23,7 @@ namespace com.google.cloud.tools.jib.image.json
 {
     /** Parent class for image manifest JSON templates. */
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public interface ManifestTemplate
+    public interface IManifestTemplate
     {
         int SchemaVersion { get; }
         int getSchemaVersion();

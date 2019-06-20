@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
 
         private readonly IDockerCredentialHelper mockDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
         private readonly IDockerConfig mockDockerConfig = Mock.Of<IDockerConfig>();
-        private readonly Consumer<LogEvent> mockLogger = Mock.Of<Consumer<LogEvent>>();
+        private readonly Action<LogEvent> mockLogger = Mock.Of<Action<LogEvent>>();
 
         private SystemPath dockerConfigFile;
 

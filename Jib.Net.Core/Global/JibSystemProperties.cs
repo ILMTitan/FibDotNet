@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using System;
+using System.Globalization;
 
 namespace com.google.cloud.tools.jib.global
 {
@@ -119,7 +120,7 @@ namespace com.google.cloud.tools.jib.global
             int parsed;
             try
             {
-                parsed = int.Parse(value);
+                parsed = int.Parse(value, CultureInfo.InvariantCulture);
             }
             catch (FormatException ex)
             {

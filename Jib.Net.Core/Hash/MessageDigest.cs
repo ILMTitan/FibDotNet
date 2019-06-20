@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.hash
 
         private byte[] ComputeHash()
         {
-            hashAlgorithm.TransformFinalBlock(new byte[0], 0, 0);
+            hashAlgorithm.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
             return hashAlgorithm.Hash;
         }
 

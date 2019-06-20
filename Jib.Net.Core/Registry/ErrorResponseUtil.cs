@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.registry
          * @throws HttpResponseException rethrows the original exception if an error object could not be
          *     parsed, if there were multiple error objects, or if the error code is unknown.
          */
-        public static async Task<ErrorCodes> getErrorCodeAsync(HttpResponseMessage httpResponse)
+        public static async Task<ErrorCode> getErrorCodeAsync(HttpResponseMessage httpResponse)
         {
             // Obtain the error response code.
             string errorContent = await httpResponse.getContentAsync().ConfigureAwait(false);
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     string errorCodeString = errors.get(0).getCode();
                     // May not get an error code back.
-                    if (Enum.TryParse(errorCodeString, out ErrorCodes result))
+                    if (Enum.TryParse(errorCodeString, out ErrorCode result))
                     {
                         return result;
                     }

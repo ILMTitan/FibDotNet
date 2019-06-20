@@ -42,6 +42,7 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public static LockFile @lock(SystemPath lockFile)
         {
+            lockFile = lockFile ?? throw new ArgumentNullException(nameof(lockFile));
             Files.createDirectories(lockFile.getParent());
             return new LockFile(lockFile.toFile().Create());
         }

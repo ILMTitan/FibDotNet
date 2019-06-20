@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.image
      * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
      * layer with its digest, size, and diff ID.
      */
-    public class ReferenceLayer : Layer
+    public class ReferenceLayer : ILayer
     {
         /** The {@link BlobDescriptor} of the compressed layer content. */
         private readonly BlobDescriptor blobDescriptor;
@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.image
             this.diffId = diffId;
         }
 
-        public Blob getBlob()
+        public IBlob getBlob()
         {
             throw new LayerPropertyNotFoundException("Blob not available for reference layer");
         }
