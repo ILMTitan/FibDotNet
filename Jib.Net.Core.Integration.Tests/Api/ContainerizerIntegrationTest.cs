@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         private ProgressChecker progressChecker;
 
@@ -79,6 +79,12 @@ namespace com.google.cloud.tools.jib.api
         public void SetUp()
         {
             progressChecker = new ProgressChecker();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         /**

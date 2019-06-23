@@ -23,8 +23,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
     public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalException
     {
         public CredentialHelperUnhandledServerUrlException(
-            SystemPath credentialHelper, string serverUrl, string credentialHelperOutput, Exception cause) : base(
-              "The credential helper ("
+            SystemPath credentialHelper,
+            string serverUrl,
+            string credentialHelperOutput,
+            Exception cause)
+            : base("The credential helper ("
                   + credentialHelper
                   + ") has nothing for server Uri: "
                   + serverUrl
@@ -33,30 +36,13 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
         }
 
-        public CredentialHelperUnhandledServerUrlException(
-      SystemPath credentialHelper, string serverUrl, string credentialHelperOutput) : base(
+        public CredentialHelperUnhandledServerUrlException(SystemPath credentialHelper, string serverUrl, string credentialHelperOutput) : base(
         "The credential helper ("
             + credentialHelper
             + ") has nothing for server Uri: "
             + serverUrl
             + "\n\nGot output:\n\n"
             + credentialHelperOutput)
-        {
-        }
-
-        protected CredentialHelperUnhandledServerUrlException(string message, System.Exception cause) : base(message, cause)
-        {
-        }
-
-        public CredentialHelperUnhandledServerUrlException(System.Exception cause) : base(cause)
-        {
-        }
-
-        public CredentialHelperUnhandledServerUrlException() : base()
-        {
-        }
-
-        protected CredentialHelperUnhandledServerUrlException(string message) : base(message)
         {
         }
     }

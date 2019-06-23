@@ -320,7 +320,6 @@ namespace com.google.cloud.tools.jib.configuration
         private readonly string toolName;
         private readonly string toolVersion;
         private readonly IEventHandlers eventHandlers;
-        public Action<IJibEvent> JibEvents;
 
         /** Instantiate with {@link #builder}. */
         private BuildConfiguration(

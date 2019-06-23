@@ -27,14 +27,15 @@ namespace com.google.cloud.tools.jib.api
         private readonly string serverUrl;
         private readonly string imageName;
 
-        public RegistryAuthenticationFailedException(
-            string serverUrl, string imageName, Exception cause) : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, cause.getMessage()), cause)
+        public RegistryAuthenticationFailedException(string serverUrl, string imageName, Exception cause)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, cause.getMessage()), cause)
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;
         }
 
-        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason) : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, reason))
+        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, reason))
         {
             this.serverUrl = serverUrl;
             this.imageName = imageName;

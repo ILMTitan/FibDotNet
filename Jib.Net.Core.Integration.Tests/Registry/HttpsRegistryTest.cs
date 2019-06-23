@@ -23,10 +23,10 @@ namespace com.google.cloud.tools.jib.registry
     [TestFixture]
     public abstract class HttpRegistryTest
     {
-        public static LocalRegistry localRegistry = new LocalRegistry(5000);
+        public static readonly LocalRegistry localRegistry = new LocalRegistry(5000);
 
         [OneTimeSetUp]
-        public static async Task OneTimeSetUpAsync()
+        public static async Task StartLocalRegistryAsync()
         {
             try
             {
@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [OneTimeTearDown]
-        public static void OneTimeTearDown()
+        public static void StopLocalRegistry()
         {
             localRegistry.stop();
         }
