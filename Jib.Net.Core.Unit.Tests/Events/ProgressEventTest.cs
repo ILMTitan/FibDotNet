@@ -17,13 +17,14 @@
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.events;
 using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace Jib.Net.Core.Unit.Tests.Event.Events
+namespace Jib.Net.Core.Unit.Tests.Events
 {
     /** Tests for {@link ProgressEvent}. */
     public class ProgressEventTest

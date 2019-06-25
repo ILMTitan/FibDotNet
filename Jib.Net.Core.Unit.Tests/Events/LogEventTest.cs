@@ -21,7 +21,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using static com.google.cloud.tools.jib.api.LogEvent;
 
-namespace Jib.Net.Core.Unit.Tests.Event.Events
+namespace Jib.Net.Core.Unit.Tests.Events
 {
     /** Tests for {@link LogEvent}. */
     public class LogEventTest

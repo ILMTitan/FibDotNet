@@ -21,7 +21,7 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace Jib.Net.Core.Unit.Tests.Event
+namespace Jib.Net.Core.Unit.Tests.Events
 {
     /** Tests for {@link EventHandlers}. */
     public class EventHandlersTest

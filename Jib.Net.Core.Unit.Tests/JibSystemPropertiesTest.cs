@@ -19,7 +19,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 
-namespace Jib.Net.Core.Unit.Tests.Global
+namespace Jib.Net.Core.Unit.Tests
 {
     /** Tests for {@link JibSystemProperties}. */
     public class JibSystemPropertiesTest

@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Jib.Net.Core.Unit.Tests.Event.Progress
+namespace Jib.Net.Core.Unit.Tests.Events.Progress
 {
     /** Tests for {@link ProgressEventHandler}. */
     public class ProgressEventHandlerTest
@@ -91,7 +91,7 @@ namespace Jib.Net.Core.Unit.Tests.Event.Progress
 
                 // 0 progress doesn't do anything.
                 await MultithreadedExecutor
-                    .invokeAllAsync(Collections.nCopies<Action>(100, () => 
+                    .invokeAllAsync(Collections.nCopies<Action>(100, () =>
                         eventHandlers.dispatch(new ProgressEvent(child1, 0L))))
                     .ConfigureAwait(false);
                 Assert.AreEqual(

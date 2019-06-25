@@ -14,9 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.@event.progress;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Unit.Tests.Events.Progress
 {
     /** Tests for {@link Allocation}. */
     public class AllocationTest
@@ -84,10 +85,10 @@ namespace com.google.cloud.tools.jib.@event.progress
 
             // Checks that the leaf allocations add up to a full 1.0.
             double total =
-                (leftLeftDown.getFractionOfRoot() * leftLeftDown.getAllocationUnits())
-                    + (leftMiddle.getFractionOfRoot() * leftMiddle.getAllocationUnits())
-                    + (leftRight.getFractionOfRoot() * leftRight.getAllocationUnits())
-                    + (rightDown.getFractionOfRoot() * rightDown.getAllocationUnits());
+                leftLeftDown.getFractionOfRoot() * leftLeftDown.getAllocationUnits()
+                    + leftMiddle.getFractionOfRoot() * leftMiddle.getAllocationUnits()
+                    + leftRight.getFractionOfRoot() * leftRight.getAllocationUnits()
+                    + rightDown.getFractionOfRoot() * rightDown.getAllocationUnits();
             Assert.AreEqual(1.0, total, DOUBLE_ERROR_MARGIN);
         }
     }

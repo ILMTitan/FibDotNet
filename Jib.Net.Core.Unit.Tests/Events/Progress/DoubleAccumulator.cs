@@ -18,7 +18,7 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace Jib.Net.Core.Unit.Tests.Event.Progress
+namespace Jib.Net.Core.Unit.Tests.Events.Progress
 {
     internal class DoubleAccumulator : IDisposable
     {

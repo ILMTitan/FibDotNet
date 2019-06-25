@@ -14,7 +14,9 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib.@event.progress;
 using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
@@ -22,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Unit.Tests.Events.Progress
 {
     /** Tests for {@link AllocationCompletionTracker}. */
     public class AllocationCompletionTrackerTest
