@@ -7,7 +7,7 @@ using static com.google.cloud.tools.jib.registry.RegistryAuthenticator;
 
 namespace Jib.Net.Core.Unit.Tests.Registry
 {
-    internal class AuthenticationResponseTemplateTest
+    public class AuthenticationResponseTemplateTest
     {
         private const string json = "{\"token\":\"token string\",\"access_token\":\"access token string\",\"expires_in\":300,\"issued_at\":\"2019-06-17T22:21:13.872586297Z\"}";
 

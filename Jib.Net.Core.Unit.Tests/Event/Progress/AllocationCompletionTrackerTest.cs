@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.@event.progress
 {
@@ -102,70 +103,67 @@ namespace com.google.cloud.tools.jib.@event.progress
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testGetUnfinishedAllocations_multipleThreadsAsync()
+        public async Task testGetUnfinishedAllocations_multipleThreadsAsync()
         {
-            using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor())
-            {
-                AllocationCompletionTracker allocationCompletionTracker = new AllocationCompletionTracker();
+            AllocationCompletionTracker allocationCompletionTracker = new AllocationCompletionTracker();
 
-                // Adds root, child1, and child1Child.
-                Assert.AreEqual(
-                    true,
-                    await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(root, 0L)).ConfigureAwait(false));
-                Assert.AreEqual(
-                    true,
-                    await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(child1, 0L)).ConfigureAwait(false));
-                Assert.AreEqual(
-                    true,
-                    await multithreadedExecutor.invokeAsync(
-                        () => allocationCompletionTracker.updateProgress(child1Child, 0L)).ConfigureAwait(false));
-                Assert.AreEqual(
-                    Arrays.asList(root, child1, child1Child),
-                    allocationCompletionTracker.getUnfinishedAllocations());
+            // Adds root, child1, and child1Child.
+            Assert.AreEqual(
+                true,
+                await MultithreadedExecutor.invokeAsync(
+                    () => allocationCompletionTracker.updateProgress(root, 0L)).ConfigureAwait(false));
+            Assert.AreEqual(
+                true,
+                await MultithreadedExecutor.invokeAsync(
+                    () => allocationCompletionTracker.updateProgress(child1, 0L)).ConfigureAwait(false));
+            Assert.AreEqual(
+                true,
+                await MultithreadedExecutor.invokeAsync(
+                    () => allocationCompletionTracker.updateProgress(child1Child, 0L)).ConfigureAwait(false));
+            Assert.AreEqual(
+                Arrays.asList(root, child1, child1Child),
+                allocationCompletionTracker.getUnfinishedAllocations());
 
-                // Adds 50 to child1Child and 100 to child2.
-                IList<Func<bool>> callables = new List<Func<bool>>(150);
-                callables.addAll(
+            // Adds 50 to child1Child and 100 to child2.
+            IList<Func<bool>> callables = new List<Func<bool>>(150);
+            callables.addAll(
+                Collections.nCopies<Func<bool>>(
+                    50,
+                    () => allocationCompletionTracker.updateProgress(child1Child, 1L)));
+            callables.addAll(
+                Collections.nCopies<Func<bool>>(
+                    100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
+
+            CollectionAssert.AreEqual(
+                Collections.nCopies(150, true), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
+            Assert.AreEqual(
+                Arrays.asList(
+                    root,
+                    child1,
+                    child1Child,
+                    child2),
+                allocationCompletionTracker.getUnfinishedAllocations());
+
+            // 0 progress doesn't do anything.
+            Assert.AreEqual(
+                Collections.nCopies(100, false),
+                await MultithreadedExecutor.invokeAllAsync(
                     Collections.nCopies<Func<bool>>(
-                        50,
-                        () => allocationCompletionTracker.updateProgress(child1Child, 1L)));
-                callables.addAll(
-                    Collections.nCopies<Func<bool>>(
-                        100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
+                        100,
+                        () => allocationCompletionTracker.updateProgress(child1, 0L))).ConfigureAwait(false));
+            Assert.AreEqual(
+                Arrays.asList(
+                    root,
+                    child1,
+                    child1Child,
+                    child2),
+                allocationCompletionTracker.getUnfinishedAllocations());
 
-                CollectionAssert.AreEqual(
-                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
-                Assert.AreEqual(
-                    Arrays.asList(
-                        root,
-                        child1,
-                        child1Child,
-                        child2),
-                    allocationCompletionTracker.getUnfinishedAllocations());
-
-                // 0 progress doesn't do anything.
-                Assert.AreEqual(
-                    Collections.nCopies(100, false),
-                    await multithreadedExecutor.invokeAllAsync(
-                        Collections.nCopies<Func<bool>>(
-                            100,
-                            () => allocationCompletionTracker.updateProgress(child1, 0L))).ConfigureAwait(false));
-                Assert.AreEqual(
-                    Arrays.asList(
-                        root,
-                        child1,
-                        child1Child,
-                        child2),
-                    allocationCompletionTracker.getUnfinishedAllocations());
-
-                // Adds 50 to child1Child and 100 to child2 to finish it up.
-                CollectionAssert.AreEqual(
-                    Collections.nCopies(150, true), await multithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
-                CollectionAssert.AreEqual(
-                    Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
-            }
+            // Adds 50 to child1Child and 100 to child2 to finish it up.
+            CollectionAssert.AreEqual(
+                Collections.nCopies(150, true), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
+            CollectionAssert.AreEqual(
+                Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
         }
 
         [Test]

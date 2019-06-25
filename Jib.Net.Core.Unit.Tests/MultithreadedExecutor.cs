@@ -27,41 +27,28 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib
 {
     /** Testing infrastructure for running code across multiple threads. */
-    public sealed class MultithreadedExecutor : IDisposable
+    public static class MultithreadedExecutor
     {
-        public async Task<T> invokeAsync<T>(Func<T> callable)
+        public static async Task<T> invokeAsync<T>(Func<T> callable)
         {
-            IList<T> returnValue = await invokeAllAsync(Collections.singletonList(callable)).ConfigureAwait(false);
-            return returnValue.get(0);
+            return await Task.Run(callable).ConfigureAwait(false);
         }
 
-        public void invoke(Action a)
+        public static async Task invokeAsync(Action a)
         {
-            invokeAll(Collections.singletonList(a));
+            await Task.Run(a).ConfigureAwait(false);
         }
 
-        public void invokeAll(IEnumerable<Action> callables)
+        public static async Task invokeAllAsync(IEnumerable<Action> callables)
         {
-            Task[] futures =
-                        callables.Select(c => Task.Run(() => c())).ToArray();
-            Task.WaitAll(futures);
-
-            foreach (Task future in futures)
-            {
-                Assert.IsTrue(future.isDone());
-            }
+            IEnumerable<Task> futures = callables.Select(Task.Run);
+            await Task.WhenAll(futures).ConfigureAwait(false);
         }
 
-        public async Task<IList<T>> invokeAllAsync<T>(IEnumerable<Func<T>> callables)
+        public static async Task<IList<T>> invokeAllAsync<T>(IEnumerable<Func<T>> callables)
         {
-            Task<T>[] futures =
-                        callables.Select(c => Task.Run(() => c())).ToArray();
-
+            IEnumerable<Task<T>> futures = callables.Select(Task.Run);
             return await Task.WhenAll(futures).ConfigureAwait(false);
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

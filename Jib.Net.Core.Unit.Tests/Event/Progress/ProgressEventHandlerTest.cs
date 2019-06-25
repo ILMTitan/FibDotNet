@@ -23,6 +23,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Unit.Tests.Event.Progress
 {
@@ -53,24 +54,23 @@ namespace Jib.Net.Core.Unit.Tests.Event.Progress
         }
 
         [Test]
-        public void testAccept()
+        public async Task testAcceptAsync()
         {
-            using (MultithreadedExecutor multithreadedExecutor = new MultithreadedExecutor())
+            using (DoubleAccumulator maxProgress = new DoubleAccumulator(0))
             {
-                DoubleAccumulator maxProgress = new DoubleAccumulator(0);
-
                 ProgressEventHandler progressEventHandler =
                     new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
                 EventHandlers eventHandlers =
                     EventHandlers.builder().add<ProgressEvent>(progressEventHandler).build();
 
                 // Adds root, child1, and child1Child.
-                multithreadedExecutor.invoke(
-                    () => eventHandlers.dispatch(new ProgressEvent(root, 0L)));
-                multithreadedExecutor.invoke(
-                    () => eventHandlers.dispatch(new ProgressEvent(child1, 0L)));
-                multithreadedExecutor.invoke(
-                    () => eventHandlers.dispatch(new ProgressEvent(child1Child, 0L)));
+                await MultithreadedExecutor.invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(root, 0L)))
+                    .ConfigureAwait(false);
+                await MultithreadedExecutor.invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(child1, 0L)))
+                    .ConfigureAwait(false);
+                await MultithreadedExecutor
+                    .invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(child1Child, 0L)))
+                    .ConfigureAwait(false);
                 Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2.
@@ -84,21 +84,21 @@ namespace Jib.Net.Core.Unit.Tests.Event.Progress
                         100,
                         () => eventHandlers.dispatch(new ProgressEvent(child2, 1L))));
 
-                multithreadedExecutor.invokeAll(callables);
+                await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
 
                 Assert.AreEqual(
                     1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // 0 progress doesn't do anything.
-                multithreadedExecutor.invokeAll(
-                    Collections.nCopies<Action>(
-                        100,
-                        () => eventHandlers.dispatch(new ProgressEvent(child1, 0L))));
+                await MultithreadedExecutor
+                    .invokeAllAsync(Collections.nCopies<Action>(100, () => 
+                        eventHandlers.dispatch(new ProgressEvent(child1, 0L))))
+                    .ConfigureAwait(false);
                 Assert.AreEqual(
                     1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
-                multithreadedExecutor.invokeAll(callables);
+                await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
                 Assert.AreEqual(1.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
             }
         }
