@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
 
     <NeutralLanguage>en-US</NeutralLanguage>
+    <CodeAnalysisRuleSet>Jib.Net.Core.Unit.Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
