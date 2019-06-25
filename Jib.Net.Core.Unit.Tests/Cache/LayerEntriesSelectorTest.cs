@@ -183,10 +183,5 @@ namespace com.google.cloud.tools.jib.cache
                 LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry111)),
                 LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry222)));
         }
-
-        public void Dispose()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
