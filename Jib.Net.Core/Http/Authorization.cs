@@ -102,11 +102,10 @@ namespace com.google.cloud.tools.jib.http
             {
                 return true;
             }
-            if (!(other is Authorization))
+            if (!(other is Authorization otherAuthorization))
             {
                 return false;
             }
-            Authorization otherAuthorization = (Authorization)other;
             return scheme == otherAuthorization.scheme && token == otherAuthorization.token;
         }
 

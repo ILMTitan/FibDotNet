@@ -46,7 +46,8 @@ namespace com.google.cloud.tools.jib.api
          * @param repository the image repository
          * @param cause the cause
          */
-        public RegistryUnauthorizedException(string registry, string repository, HttpResponseException cause) : base("Unauthorized for " + registry + "/" + repository, cause.Cause)
+        public RegistryUnauthorizedException(string registry, string repository, HttpResponseException cause)
+            : base("Unauthorized for " + registry + "/" + repository, cause?.Cause)
         {
             this.registry = registry;
             this.repository = repository;

@@ -91,6 +91,8 @@ namespace com.google.cloud.tools.jib.registry.credentials
 
         public Optional<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
         {
+
+            logger = logger ?? throw new ArgumentNullException(nameof(logger));
             foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
             {
                 // First, tries to find defined auth.

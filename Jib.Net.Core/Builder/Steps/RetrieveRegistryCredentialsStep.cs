@@ -37,6 +37,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
+
+            buildConfiguration = buildConfiguration ?? throw new ArgumentNullException(nameof(buildConfiguration));
             return new RetrieveRegistryCredentialsStep(
                 buildConfiguration,
                 progressEventDispatcherFactory,

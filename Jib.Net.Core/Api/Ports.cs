@@ -47,6 +47,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static ImmutableHashSet<Port> parse(IList<string> ports)
         {
+            ports = ports ?? throw new ArgumentNullException(nameof(ports));
             ImmutableHashSet<Port>.Builder result = ImmutableHashSet.CreateBuilder<Port>();
 
             foreach (string port in ports)

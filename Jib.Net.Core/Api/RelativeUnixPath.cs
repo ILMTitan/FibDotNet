@@ -41,6 +41,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static RelativeUnixPath get(string relativePath)
         {
+            relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             Preconditions.checkArgument(
                 !relativePath.StartsWith("/", StringComparison.Ordinal), "Path starts with forward slash (/): " + relativePath);
 

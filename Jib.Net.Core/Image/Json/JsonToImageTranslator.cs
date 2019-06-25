@@ -61,6 +61,8 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public static Image toImage(V21ManifestTemplate manifestTemplate)
         {
+
+            manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
             Image.Builder imageBuilder = Image.builder(ManifestFormat.V21);
 
             // V21 layers are in reverse order of V22. (The first layer is the latest one.)
@@ -95,6 +97,10 @@ namespace com.google.cloud.tools.jib.image.json
             T manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate) where T : IBuildableManifestTemplate
         {
+
+            containerConfigurationTemplate =
+                containerConfigurationTemplate
+                ?? throw new ArgumentNullException(nameof(containerConfigurationTemplate));
             IList<ReferenceNoDiffIdLayer> layers = new List<ReferenceNoDiffIdLayer>();
             foreach (ContentDescriptorTemplate layerObjectTemplate in
                 manifestTemplate.getLayers())

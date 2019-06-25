@@ -201,6 +201,9 @@ namespace com.google.cloud.tools.jib.image.json
         public IBuildableManifestTemplate getManifestTemplate(
             ManifestFormat manifestFormat, BlobDescriptor containerConfigurationBlobDescriptor)
         {
+            containerConfigurationBlobDescriptor =
+                containerConfigurationBlobDescriptor
+                ?? throw new ArgumentNullException(nameof(containerConfigurationBlobDescriptor));
             try
             {
                 IBuildableManifestTemplate template;

@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
@@ -40,6 +41,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
+
+            buildConfiguration = buildConfiguration ?? throw new ArgumentNullException(nameof(buildConfiguration));
             int layerCount = buildConfiguration.getLayerConfigurations().size();
 
             using (ProgressEventDispatcher progressEventDispatcher =

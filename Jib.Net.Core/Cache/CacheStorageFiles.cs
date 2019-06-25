@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public static bool isLayerFile(SystemPath file)
         {
-            return file.getFileName().toString().length() == DescriptorDigest.HASH_LENGTH;
+            return file?.getFileName().toString().length() == DescriptorDigest.HASH_LENGTH;
         }
 
         private readonly SystemPath cacheDirectory;
@@ -62,6 +62,8 @@ namespace com.google.cloud.tools.jib.cache
         {
             try
             {
+
+                layerFile = layerFile ?? throw new ArgumentNullException(nameof(layerFile));
                 string diffId = layerFile.getFileName().toString();
                 return DescriptorDigest.fromHash(diffId);
             }
@@ -103,6 +105,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public string getLayerFilename(DescriptorDigest layerDiffId)
         {
+
+            layerDiffId = layerDiffId ?? throw new ArgumentNullException(nameof(layerDiffId));
             return layerDiffId.getHash();
         }
 
@@ -114,6 +118,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getSelectorFile(DescriptorDigest selector)
         {
+
+            selector = selector ?? throw new ArgumentNullException(nameof(selector));
             return cacheDirectory.resolve(SELECTORS_DIRECTORY).resolve(selector.getHash());
         }
 
@@ -135,6 +141,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getLayerDirectory(DescriptorDigest layerDigest)
         {
+
+            layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
             return getLayersDirectory().resolve(layerDigest.getHash());
         }
 
@@ -157,6 +165,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getImageDirectory(IImageReference imageReference)
         {
+
+            imageReference = imageReference ?? throw new ArgumentNullException(nameof(imageReference));
             // Replace ':' and '@' with '!' to avoid directory-naming restrictions
             string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
 
@@ -188,6 +198,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public TemporaryFile getTemporaryLayerFile(SystemPath layerDirectory)
         {
+
+            layerDirectory = layerDirectory ?? throw new ArgumentNullException(nameof(layerDirectory));
             return new TemporaryFile(layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME));
         }
     }

@@ -118,11 +118,10 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is LayerEntry))
+            if (!(other is LayerEntry otherLayerEntry))
             {
                 return false;
             }
-            LayerEntry otherLayerEntry = (LayerEntry)other;
             return Equals(sourceFile, otherLayerEntry.sourceFile)
                 && Equals(extractionPath,otherLayerEntry.extractionPath)
                 && Equals(permissions, otherLayerEntry.permissions)

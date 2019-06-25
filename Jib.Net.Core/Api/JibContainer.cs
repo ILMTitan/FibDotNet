@@ -62,11 +62,10 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is JibContainer))
+            if (!(other is JibContainer otherContainer))
             {
                 return false;
             }
-            JibContainer otherContainer = (JibContainer)other;
             return imageDigest.Equals(otherContainer.imageDigest) && imageId.Equals(otherContainer.imageId);
         }
     }

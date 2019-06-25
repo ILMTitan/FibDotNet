@@ -27,17 +27,5 @@ namespace Jib.Net.Core.Api
         public CacheDirectoryCreationException(Exception cause) : base(MESSAGE, cause)
         {
         }
-
-        public CacheDirectoryCreationException() : base()
-        {
-        }
-
-        public CacheDirectoryCreationException(string message) : base(message)
-        {
-        }
-
-        public CacheDirectoryCreationException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
     }
 }

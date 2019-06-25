@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -39,6 +40,8 @@ namespace com.google.cloud.tools.jib.configuration
              */
             public Builder setCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers)
             {
+
+                credentialRetrievers = credentialRetrievers ?? throw new ArgumentNullException(nameof(credentialRetrievers));
                 Preconditions.checkArgument(
                     !credentialRetrievers.contains(null), "credential retriever list contains null elements");
                 this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);

@@ -109,11 +109,10 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is FilePermissions))
+            if (!(other is FilePermissions otherFilePermissions))
             {
                 return false;
             }
-            FilePermissions otherFilePermissions = (FilePermissions)other;
             return permissionBits == otherFilePermissions.permissionBits;
         }
 

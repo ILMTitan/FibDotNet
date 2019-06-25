@@ -30,7 +30,7 @@ namespace Jib.Net.Core.Api
      *
      * <p>This class is immutable and thread-safe.
      */
-    public sealed class AbsoluteUnixPath
+    public sealed class AbsoluteUnixPath : IEquatable<AbsoluteUnixPath>
     {
         /**
          * Gets a new {@link AbsoluteUnixPath} from a Unix-style path string. The path must begin with a
@@ -157,17 +157,24 @@ namespace Jib.Net.Core.Api
             {
                 return true;
             }
-            if (!(other is AbsoluteUnixPath))
+            if (other is AbsoluteUnixPath otherAbsoluteUnixPath)
+            {
+                return Equals(otherAbsoluteUnixPath);
+            }
+            else
             {
                 return false;
             }
-            AbsoluteUnixPath otherAbsoluteUnixPath = (AbsoluteUnixPath)other;
-            return unixPath == otherAbsoluteUnixPath.unixPath;
         }
 
         public override int GetHashCode()
         {
             return unixPath.GetHashCode();
+        }
+
+        public bool Equals(AbsoluteUnixPath other)
+        {
+            return unixPath == other?.unixPath;
         }
     }
 }

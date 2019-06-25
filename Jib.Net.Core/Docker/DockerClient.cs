@@ -156,6 +156,8 @@ namespace com.google.cloud.tools.jib.docker
          */
         public static bool isDockerInstalled(SystemPath dockerExecutable)
         {
+
+            dockerExecutable = dockerExecutable ?? throw new ArgumentNullException(nameof(dockerExecutable));
             try
             {
                 new ProcessBuilder(dockerExecutable.toString()).start();
@@ -179,6 +181,8 @@ namespace com.google.cloud.tools.jib.docker
          */
         public async Task<string> loadAsync(IImageTarball imageTarball)
         {
+
+            imageTarball = imageTarball ?? throw new ArgumentNullException(nameof(imageTarball));
             // Runs 'docker load'.
             IProcess dockerProcess = docker("load");
 
@@ -252,6 +256,10 @@ namespace com.google.cloud.tools.jib.docker
          */
         public void tag(IImageReference originalImageReference, ImageReference newImageReference)
         {
+
+            originalImageReference = originalImageReference ?? throw new ArgumentNullException(nameof(originalImageReference));
+
+            newImageReference = newImageReference ?? throw new ArgumentNullException(nameof(newImageReference));
             // Runs 'docker tag'.
             IProcess dockerProcess =
                 docker("tag", originalImageReference.toString(), newImageReference.toString());

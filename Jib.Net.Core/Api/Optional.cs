@@ -64,6 +64,7 @@ namespace com.google.cloud.tools.jib.api
 
         public T orElseThrow(Func<Exception> p)
         {
+            p = p ?? throw new ArgumentNullException(nameof(p));
             if (present)
             {
                 return value;

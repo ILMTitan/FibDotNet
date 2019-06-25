@@ -82,11 +82,10 @@ namespace com.google.cloud.tools.jib.api
             {
                 return true;
             }
-            if (!(other is Credential))
+            if (!(other is Credential otherCredential))
             {
                 return false;
             }
-            Credential otherCredential = (Credential)other;
             return username == otherCredential.username
                 && password == otherCredential.password;
         }

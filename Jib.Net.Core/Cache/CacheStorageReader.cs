@@ -210,6 +210,8 @@ namespace com.google.cloud.tools.jib.cache
          */
         public Optional<DescriptorDigest> select(DescriptorDigest selector)
         {
+
+            selector = selector ?? throw new ArgumentNullException(nameof(selector));
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             if (!Files.exists(selectorFile))
             {

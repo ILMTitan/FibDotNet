@@ -61,10 +61,11 @@ namespace com.google.cloud.tools.jib.api
         {
         }
 
-        public JibContainerBuilder(
-            RegistryImage baseImage, BuildConfiguration.Builder buildConfigurationBuilder)
+        public JibContainerBuilder(RegistryImage baseImage, BuildConfiguration.Builder buildConfigurationBuilder)
         {
-            this.buildConfigurationBuilder = buildConfigurationBuilder;
+            baseImage = baseImage ?? throw new ArgumentNullException(nameof(baseImage));
+            this.buildConfigurationBuilder = buildConfigurationBuilder ??
+                throw new ArgumentNullException(nameof(buildConfigurationBuilder));
 
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(baseImage.getImageReference())
@@ -104,6 +105,9 @@ namespace com.google.cloud.tools.jib.api
          */
         public JibContainerBuilder addLayer(IList<SystemPath> files, AbsoluteUnixPath pathInContainer)
         {
+            pathInContainer = pathInContainer ?? throw new ArgumentNullException(nameof(pathInContainer));
+            files = files ?? throw new ArgumentNullException(nameof(files));
+
             LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
 
             foreach (SystemPath file in files)
@@ -463,6 +467,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public async Task<JibContainer> containerizeAsync(IContainerizer containerizer)
         {
+            containerizer = containerizer ?? throw new ArgumentNullException(nameof(containerizer));
             BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer);
 
             IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
@@ -501,6 +506,7 @@ namespace com.google.cloud.tools.jib.api
         public BuildConfiguration toBuildConfiguration(
             IContainerizer containerizer)
         {
+            containerizer = containerizer ?? throw new ArgumentNullException(nameof(containerizer));
             return buildConfigurationBuilder
                 .setTargetImageConfiguration(containerizer.getImageConfiguration())
                 .setAdditionalTargetImageTags(containerizer.getAdditionalTags())

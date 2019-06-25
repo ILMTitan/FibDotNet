@@ -82,11 +82,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 return true;
             }
-            if (!(other is BuildResult))
+            if (!(other is BuildResult otherBuildResult))
             {
                 return false;
             }
-            BuildResult otherBuildResult = (BuildResult)other;
             return imageDigest.Equals(otherBuildResult.imageDigest)
                 && imageId.Equals(otherBuildResult.imageId);
         }

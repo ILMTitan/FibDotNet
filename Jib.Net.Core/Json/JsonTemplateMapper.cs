@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -62,6 +63,8 @@ namespace com.google.cloud.tools.jib.json
          */
         public static T readJsonFromFile<T>(SystemPath jsonFile)
         {
+
+            jsonFile = jsonFile ?? throw new ArgumentNullException(nameof(jsonFile));
             using (StreamReader reader = jsonFile.toFile().OpenText())
             {
                 return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());

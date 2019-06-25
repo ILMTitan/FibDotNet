@@ -69,7 +69,8 @@ namespace Jib.Net.Core.Api
 
         public static IEnumerable<SystemPath> list(SystemPath sourceFile)
         {
-            foreach(var entry in sourceFile.toDirectory().EnumerateFileSystemInfos())
+            sourceFile = sourceFile ?? throw new ArgumentNullException(nameof(sourceFile));
+            foreach (var entry in sourceFile.toDirectory().EnumerateFileSystemInfos())
             {
                 yield return new SystemPath(entry);
             }
@@ -105,7 +106,7 @@ namespace Jib.Net.Core.Api
 
         public static bool exists(SystemPath path)
         {
-            return File.Exists(path.ToString()) || Directory.Exists(path.ToString());
+            return File.Exists(path?.ToString()) || Directory.Exists(path?.ToString());
         }
 
         internal static Stream newInputStream(SystemPath file)

@@ -89,6 +89,8 @@ namespace com.google.cloud.tools.jib.registry
          */
         public RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry)
         {
+
+            errorEntry = errorEntry ?? throw new ArgumentNullException(nameof(errorEntry));
             string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
             addReason(reason);
             return this;

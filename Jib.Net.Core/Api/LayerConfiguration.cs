@@ -195,7 +195,8 @@ namespace com.google.cloud.tools.jib.api
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
                 Func<SystemPath, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
             {
-                FilePermissions permissions = filePermissionProvider.apply(sourceFile, pathInContainer);
+
+                FilePermissions permissions = filePermissionProvider?.apply(sourceFile, pathInContainer);
                 Instant modifiedTime = lastModifiedTimeProvider.apply(sourceFile, pathInContainer);
                 addEntry(sourceFile, pathInContainer, permissions, modifiedTime);
                 if (!Files.isDirectory(sourceFile))
