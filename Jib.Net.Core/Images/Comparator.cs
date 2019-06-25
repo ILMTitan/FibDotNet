@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2017 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,22 +15,16 @@
  */
 
 using System;
+using System.Collections.Generic;
+using ICSharpCode.SharpZipLib.Tar;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
-    /** Exception thrown when the number of layers found did not match expectations. */
-    public class LayerCountMismatchException : Exception
+    internal static class Comparator
     {
-        public LayerCountMismatchException(string message) : base(message)
+        internal static IComparer<TEntry> comparing<TEntry, TToCompare>(Func<TEntry, TToCompare> getValue)
         {
-        }
-
-        public LayerCountMismatchException() : base()
-        {
-        }
-
-        public LayerCountMismatchException(string message, Exception innerException) : base(message, innerException)
-        {
+            return Comparer<TEntry>.Create((first, second) => Comparer<TToCompare>.Default.Compare(getValue(first), getValue(second)));
         }
     }
 }

@@ -18,7 +18,7 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /**
      * A {@link Layer} reference that <b>does not</b> have the underlying content. It references the
@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.image
 
         public IBlob getBlob()
         {
-            throw new LayerPropertyNotFoundException("Blob not available for reference layer");
+            throw new LayerPropertyNotFoundException(Resources.ReferenceLayerGetBlobExceptionMessage);
         }
 
         public BlobDescriptor getBlobDescriptor()

@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Net;
 using System.Net.Http;

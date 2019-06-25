@@ -18,7 +18,7 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /**
      * Represents a layer in an image. Implementations represent the various types of layers.

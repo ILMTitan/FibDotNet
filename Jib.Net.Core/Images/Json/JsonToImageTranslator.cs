@@ -16,9 +16,11 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using NodaTime;
 using NodaTime.Text;
 using System;
@@ -27,7 +29,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /** Translates {@link V21ManifestTemplate} and {@link V22ManifestTemplate} into {@link Image}. */
     public sealed class JsonToImageTranslator
@@ -107,8 +109,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 if (layerObjectTemplate.getDigest() == null)
                 {
-                    throw new ArgumentException(
-                        "All layers in the manifest template must have digest set");
+                    throw new ArgumentException(Resources.JsonToImageTranslatorMissingDigestExceptionMessage);
                 }
 
                 layers.add(
@@ -119,8 +120,7 @@ namespace com.google.cloud.tools.jib.image.json
             IList<DescriptorDigest> diffIds = containerConfigurationTemplate.getDiffIds();
             if (layers.size() != diffIds.size())
             {
-                throw new LayerCountMismatchException(
-                    "Mismatch between image manifest and container configuration");
+                throw new LayerCountMismatchException(Resources.JsonToImageTranslatorDiffIdMismatchExceptionMessage);
             }
 
             Image.Builder imageBuilder = Image.builder(manifestTemplate.getFormat());

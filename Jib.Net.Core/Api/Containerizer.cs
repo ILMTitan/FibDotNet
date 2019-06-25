@@ -251,7 +251,7 @@ namespace Jib.Net.Core.Api
         {
             if (mustBeOnline && offline)
             {
-                throw new InvalidOperationException("Cannot build to a container registry in offline mode");
+                throw new InvalidOperationException(Resources.ContainerizerOfflineExceptionMessage);
             }
             this.offline = offline;
             return this;

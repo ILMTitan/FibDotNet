@@ -24,6 +24,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;

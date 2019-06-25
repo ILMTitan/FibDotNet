@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Cache;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;

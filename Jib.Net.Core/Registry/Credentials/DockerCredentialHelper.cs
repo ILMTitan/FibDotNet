@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -24,7 +25,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /**
      * Retrieves Docker credentials with a Docker credential helper.

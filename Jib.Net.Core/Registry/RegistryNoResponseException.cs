@@ -17,12 +17,12 @@
 using com.google.cloud.tools.jib.api;
 using System;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Thrown when a registry did not respond. */
     public class RegistryNoResponseException : RegistryException
     {
-        public RegistryNoResponseException(string message, Exception cause) : base(message, cause)
+        public RegistryNoResponseException(Exception cause) : base(Resources.RegistryNoResponseExceptionMessage, cause)
         {
         }
     }

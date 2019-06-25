@@ -16,20 +16,12 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
-    /** Exception thrown when accessing non-existent properties of layers. */
-    public class LayerPropertyNotFoundException : Exception
+    /** Exception thrown when the number of layers found did not match expectations. */
+    public class LayerCountMismatchException : Exception
     {
-        public LayerPropertyNotFoundException(string message) : base(message)
-        {
-        }
-
-        public LayerPropertyNotFoundException() : base()
-        {
-        }
-
-        public LayerPropertyNotFoundException(string message, Exception innerException) : base(message, innerException)
+        public LayerCountMismatchException(string message) : base(message)
         {
         }
     }

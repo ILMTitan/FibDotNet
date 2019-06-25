@@ -14,13 +14,13 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.hash;
-using Jib.Net.Core.Blob;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** A {@link Blob} that holds an {@link InputStream}. */
     internal class InputStreamBlob : IBlob
@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.blob
             // Cannot rewrite.
             if (isWritten)
             {
-                throw new InvalidOperationException("Cannot rewrite Blob backed by an InputStream");
+                throw new InvalidOperationException(Resources.InputStreamBlobRewriteExceptionMessage);
             }
             try
             {

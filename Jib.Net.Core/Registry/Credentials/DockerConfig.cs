@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry.Credentials;
 using System;
 using System.Collections.Generic;
 using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;

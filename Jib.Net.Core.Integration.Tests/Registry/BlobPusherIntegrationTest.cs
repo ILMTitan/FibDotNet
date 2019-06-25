@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Threading.Tasks;
 

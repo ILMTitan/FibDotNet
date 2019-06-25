@@ -18,18 +18,19 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Builder.Steps;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {

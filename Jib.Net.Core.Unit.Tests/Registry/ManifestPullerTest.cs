@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;

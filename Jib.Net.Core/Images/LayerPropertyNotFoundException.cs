@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2017 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -15,16 +15,14 @@
  */
 
 using System;
-using System.Collections.Generic;
-using ICSharpCode.SharpZipLib.Tar;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
-    internal static class Comparator
+    /** Exception thrown when accessing non-existent properties of layers. */
+    public class LayerPropertyNotFoundException : Exception
     {
-        internal static IComparer<TEntry> comparing<TEntry, TToCompare>(Func<TEntry, TToCompare> getValue)
+        public LayerPropertyNotFoundException(string message) : base(message)
         {
-            return Comparer<TEntry>.Create((first, second) => Comparer<TToCompare>.Default.Compare(getValue(first), getValue(second)));
         }
     }
 }

@@ -17,10 +17,10 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.image.json;
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

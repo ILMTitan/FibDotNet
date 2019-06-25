@@ -17,13 +17,14 @@
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image;
 using Jib.Net.Core;
+using Jib.Net.Core.Builder.Steps;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {

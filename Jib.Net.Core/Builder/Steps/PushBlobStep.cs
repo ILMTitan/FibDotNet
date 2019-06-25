@@ -20,9 +20,9 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.progress;
 using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Registry;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps

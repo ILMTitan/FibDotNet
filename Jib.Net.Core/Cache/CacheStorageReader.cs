@@ -16,10 +16,12 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -27,10 +29,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Cache
 {
     /** Reads from the default cache storage engine. */
     public class CacheStorageReader
@@ -65,7 +68,7 @@ namespace com.google.cloud.tools.jib.cache
                 {
                     throw new CacheCorruptedException(
                         cacheStorageFiles.getCacheDirectory(),
-                        "Found non-digest file in layers directory",
+                        Resources.CacheStorageReaderNonDigestFileExceptionMessage,
                         ex);
                 }
             }
@@ -95,14 +98,17 @@ namespace com.google.cloud.tools.jib.cache
             {
                 token = JToken.ReadFrom(reader);
             }
-            if(!(token is JObject node))
+            if (!(token is JObject node))
             {
-                throw new CacheCorruptedException(cacheStorageFiles.getCacheDirectory(), "Manifest was not a json object");
+                throw new CacheCorruptedException(
+                    cacheStorageFiles.getCacheDirectory(),
+                    Resources.CacheStorageReaderNotJsonExecpetionMessage);
             }
             if (!node.ContainsKey("schemaVersion"))
             {
                 throw new CacheCorruptedException(
-                    cacheStorageFiles.getCacheDirectory(), "Cannot find field 'schemaVersion' in manifest");
+                    cacheStorageFiles.getCacheDirectory(),
+                    Resources.CacheStorageReaderSchemaVersionMissingExecpetionMessage);
             }
 
             int schemaVersion = node.get("schemaVersion").Value<int>();
@@ -110,7 +116,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 throw new CacheCorruptedException(
                     cacheStorageFiles.getCacheDirectory(),
-                    "`schemaVersion` field is not an integer in manifest");
+                    Resources.CacheStorageReaderInvalidSchemaVersionExecpetionMessageFormat);
             }
 
             if (schemaVersion == 1)
@@ -139,7 +145,10 @@ namespace com.google.cloud.tools.jib.cache
                 else
                 {
                     throw new CacheCorruptedException(
-                        cacheStorageFiles.getCacheDirectory(), "Unknown manifest mediaType: " + mediaType);
+                        cacheStorageFiles.getCacheDirectory(),
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            Resources.CacheStorageReaderUnknownMediaTypeExecpetionMessageFormat, mediaType));
                 }
 
                 SystemPath configPath = imageDirectory.resolve("config.json");
@@ -147,7 +156,7 @@ namespace com.google.cloud.tools.jib.cache
                 {
                     throw new CacheCorruptedException(
                         cacheStorageFiles.getCacheDirectory(),
-                        "Manifest found, but missing container configuration");
+                       Resources.CacheStorageReaderContainerConfigurationMissingExecpetionMessage);
                 }
                 ContainerConfigurationTemplate config =
                     JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(configPath);
@@ -156,7 +165,9 @@ namespace com.google.cloud.tools.jib.cache
             }
             throw new CacheCorruptedException(
                 cacheStorageFiles.getCacheDirectory(),
-                "Unknown schemaVersion in manifest: " + schemaVersion + " - only 1 and 2 are supported");
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.CacheStorageReaderInvalidSchemaVersionExecpetionMessageFormat, schemaVersion));
         }
 
         /**

@@ -49,17 +49,17 @@ namespace Jib.Net.Core.Global
 
         internal static T checkNotNull<T>(T value, string message) where T : class
         {
-            return value ?? throw new ArgumentNullException(message, nameof(value));
+            return value ?? throw new ArgumentNullException(nameof(value), message);
         }
 
         internal static T checkNotNull<T>(T value) where T : class
         {
-            return value ?? throw new ArgumentNullException();
+            return value ?? throw new ArgumentNullException(nameof(value));
         }
 
         internal static T checkNotNull<T>(T? value) where T: struct
         {
-            return value ?? throw new ArgumentNullException();
+            return value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

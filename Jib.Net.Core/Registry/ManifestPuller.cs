@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
+using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json.Linq;
 using System;
@@ -26,7 +27,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     internal class ManifestPuller : ManifestPuller<IManifestTemplate>
     {
@@ -39,15 +40,15 @@ namespace com.google.cloud.tools.jib.registry
             var token = JToken.Parse(jsonString);
             if (!(token is JObject obj))
             {
-                throw new UnknownManifestFormatException("manifest was not a json object");
+                throw new UnknownManifestFormatException(Resources.ManifestPullerNotJsonExceptionMessage);
             }
             if (!obj.ContainsKey("schemaVersion"))
             {
-                throw new UnknownManifestFormatException("Cannot find field 'schemaVersion' in manifest");
+                throw new UnknownManifestFormatException(Resources.ManifestPullerMissingSchemaVersionExceptionMessage);
             }
             if (!obj.TryGetValue("schemaVersion", out JToken schemaVersionToken) || schemaVersionToken.Type != JTokenType.Integer)
             {
-                throw new UnknownManifestFormatException("`schemaVersion` field is not an integer");
+                throw new UnknownManifestFormatException(Resources.ManifestPullerSchemaVersionNotIntExceptionMessage);
             }
             int schemaVersion = schemaVersionToken.Value<int>();
             if (schemaVersion == 1)
@@ -58,11 +59,11 @@ namespace com.google.cloud.tools.jib.registry
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
                 string mediaType = obj.Value<string>("mediaType");
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == (mediaType))
+                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
                 {
                     return JsonTemplateMapper.readJson<V22ManifestTemplate>(jsonString);
                 }
-                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == (mediaType))
+                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
                 {
                     return JsonTemplateMapper.readJson<OCIManifestTemplate>(jsonString);
                 }
@@ -94,13 +95,15 @@ namespace com.google.cloud.tools.jib.registry
 
         public IList<string> getAccept()
         {
-            if (typeof(T) == typeof(OCIManifestTemplate)) {
+            if (typeof(T) == typeof(OCIManifestTemplate))
+            {
                 return new[] { OCIManifestTemplate.MANIFEST_MEDIA_TYPE };
             }
-            if(typeof(T) == typeof(V22ManifestTemplate)) {
+            if (typeof(T) == typeof(V22ManifestTemplate))
+            {
                 return new[] { V22ManifestTemplate.MANIFEST_MEDIA_TYPE };
             }
-            if(typeof(T) == typeof(V21ManifestTemplate))
+            if (typeof(T) == typeof(V21ManifestTemplate))
             {
                 return new[] { V21ManifestTemplate.MEDIA_TYPE };
             }

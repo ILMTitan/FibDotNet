@@ -15,10 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using NUnit.Framework;
 using System.Threading.Tasks;
 

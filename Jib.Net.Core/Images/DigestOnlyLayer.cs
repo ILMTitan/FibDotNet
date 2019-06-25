@@ -18,7 +18,7 @@ using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /** A {@link Layer} reference that only has its {@link DescriptorDigest}. */
     public class DigestOnlyLayer : ILayer
@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.image
 
         public IBlob getBlob()
         {
-            throw new LayerPropertyNotFoundException("Blob not available for digest-only layer");
+            throw new LayerPropertyNotFoundException(Resources.DigestOnlyLayerGetBlobExceptionMessage);
         }
 
         public BlobDescriptor getBlobDescriptor()
@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.image
 
         public DescriptorDigest getDiffId()
         {
-            throw new LayerPropertyNotFoundException("Diff ID not available for digest-only layer");
+            throw new LayerPropertyNotFoundException(Resources.DigestOnlyLayerGetDiffIdExceptionMessage);
         }
     }
 }

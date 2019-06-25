@@ -19,25 +19,16 @@ using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry.Credentials;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.frontend
+namespace Jib.Net.Core.Frontend
 {
     /** Used for passing in mock {@link DockerCredentialHelper}s for testing. */
-
     public delegate IDockerCredentialHelper DockerCredentialHelperFactory(string registry, SystemPath credentialHelper);
-
-    public static class DchfExtensions
-    {
-        public static IDockerCredentialHelper create(this DockerCredentialHelperFactory f, string registry, SystemPath credentialHelper)
-        {
-            f = f ?? throw new ArgumentNullException(nameof(f));
-            return f(registry, credentialHelper);
-        }
-    }
 
     /** Static factories for various {@link CredentialRetriever}s. */
     public class CredentialRetrieverFactory
@@ -168,7 +159,8 @@ namespace com.google.cloud.tools.jib.frontend
                 string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.get(registrySuffix);
                 if (inferredCredentialHelperSuffix == null)
                 {
-                    throw new InvalidOperationException("No COMMON_CREDENTIAL_HELPERS should be null");
+                    throw new InvalidOperationException(
+                        Resources.CredentialRetrieverFactoryCommonCredentialNullExceptionMessage);
                 }
                 inferredCredentialHelperSuffixes.add(inferredCredentialHelperSuffix);
             }
@@ -260,8 +252,7 @@ namespace com.google.cloud.tools.jib.frontend
         private Credential retrieveFromDockerCredentialHelper(SystemPath credentialHelper)
         {
             Credential credentials =
-                dockerCredentialHelperFactory
-                    .create(imageReference.getRegistry(), credentialHelper)
+                dockerCredentialHelperFactory(imageReference.getRegistry(), credentialHelper)
                     .retrieve();
             logGotCredentialsFrom(credentialHelper.getFileName().toString());
             return credentials;

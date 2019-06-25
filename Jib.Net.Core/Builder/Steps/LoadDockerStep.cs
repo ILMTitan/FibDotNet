@@ -16,17 +16,18 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
+using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.image;
-using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Builder.Steps
 {
     /** Adds image layers to a tarball and loads into Docker daemon. */
     internal class LoadDockerStep : IAsyncStep<BuildResult>
@@ -72,10 +73,9 @@ namespace com.google.cloud.tools.jib.builder.steps
             await buildImageStep.getFuture().ConfigureAwait(false);
             buildConfiguration
                 .getEventHandlers()
-                .dispatch(LogEvent.progress("Loading to Docker daemon..."));
+                .dispatch(LogEvent.progress(Resources.LoadDockerStepDescription));
 
-            using (ProgressEventDispatcher ignored =
-                progressEventDispatcherFactory.create("loading to Docker daemon", 1))
+            using (progressEventDispatcherFactory.create(Resources.LoadDockerStepDescription, 1))
             {
                 Image image = await buildImageStep.getFuture().ConfigureAwait(false);
                 IImageReference targetImageReference =

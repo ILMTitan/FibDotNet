@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using Moq;
 using NUnit.Framework;
 

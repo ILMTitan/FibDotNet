@@ -14,18 +14,20 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core.Api;
+using Jib.Net.Core;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
@@ -524,7 +526,8 @@ namespace com.google.cloud.tools.jib.api
         private void logSources(IEventHandlers eventHandlers)
         {
             // Logs the different source files used.
-            eventHandlers.dispatch(LogEvent.info("Containerizing application with the following files:"));
+            var message = new StringBuilder(Resources.ContainerBuilderLogSourcesHeader);
+            message.Append(":");
 
             foreach (LayerConfiguration layerConfiguration in layerConfigurations)
 
@@ -534,14 +537,14 @@ namespace com.google.cloud.tools.jib.api
                     continue;
                 }
 
-                eventHandlers.dispatch(
-                    LogEvent.info("\t" + layerConfiguration.getName() + ":"));
+                message.Append('\t').Append(layerConfiguration.getName()).Append(':');
 
                 foreach (LayerEntry layerEntry in layerConfiguration.getLayerEntries())
                 {
-                    eventHandlers.dispatch(LogEvent.info("\t\t" + layerEntry.getSourceFile()));
+                    message.Append("\t\t").Append(layerEntry.getSourceFile());
                 }
             }
+            eventHandlers.dispatch(LogEvent.info(message.ToString()));
         }
     }
 }

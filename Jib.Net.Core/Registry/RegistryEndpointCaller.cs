@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -332,7 +333,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (TimeoutException e)
             {
-                throw new RegistryNoResponseException("Registry failed to respond", e);
+                throw new RegistryNoResponseException(e);
             }
         }
 

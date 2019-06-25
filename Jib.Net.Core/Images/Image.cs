@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /** Represents an image. */
     public sealed class Image
@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.image
             {
                 if (environment != null)
                 {
-                    this.environmentBuilder.putAll(environment);
+                    environmentBuilder.putAll(environment);
                 }
                 return this;
             }
@@ -371,7 +371,7 @@ namespace com.google.cloud.tools.jib.image
 
         public ManifestFormat getImageFormat()
         {
-            return this.imageFormat;
+            return imageFormat;
         }
 
         public Instant? getCreated()

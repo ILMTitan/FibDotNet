@@ -23,7 +23,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /** Holds the layers for an image. */
     public sealed class ImageLayers : IEnumerable<ILayer>
@@ -159,7 +159,7 @@ namespace com.google.cloud.tools.jib.image
                     return layer;
                 }
             }
-            throw new InvalidOperationException("Layer digest exists but layer not found");
+            throw new InvalidOperationException(Resources.ImageLayersMissingLayerExceptionMessage);
         }
 
         /**

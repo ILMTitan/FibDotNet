@@ -22,6 +22,7 @@ using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.global;
 using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using Moq;
 using NUnit.Framework;
 using System;

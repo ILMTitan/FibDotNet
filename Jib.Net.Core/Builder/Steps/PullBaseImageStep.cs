@@ -17,26 +17,28 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder;
+using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry;
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Registry;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
-using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Builder.Steps
 {
     /** Pulls the base image manifest. */
     public class PullBaseImageStep : IAsyncStep<BaseImageWithAuthorization>
     {
-        private const string DESCRIPTION = "Pulling base image manifest";
-
         /** Structure for the result returned by this step. */
         public class BaseImageWithAuthorization
         {
@@ -84,28 +86,24 @@ namespace com.google.cloud.tools.jib.builder.steps
             IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
             // Skip this step if this is a scratch image
             ImageConfiguration baseImageConfiguration = buildConfiguration.getBaseImageConfiguration();
+            string description = string.Format(
+                CultureInfo.CurrentCulture,
+                Resources.PullBaseImageStepDescriptionFormat,
+                buildConfiguration.getBaseImageConfiguration().getImage());
+            eventHandlers.dispatch(LogEvent.progress(description));
             if (baseImageConfiguration.getImage().isScratch())
             {
-                eventHandlers.dispatch(LogEvent.progress("Getting scratch base image..."));
                 return new BaseImageWithAuthorization(
                     Image.builder(buildConfiguration.getTargetFormat()).build(), null);
             }
-
-            eventHandlers.dispatch(
-                LogEvent.progress(
-                    "Getting base image "
-                        + buildConfiguration.getBaseImageConfiguration().getImage()
-                        + "..."));
 
             if (buildConfiguration.isOffline())
             {
                 return new BaseImageWithAuthorization(pullBaseImageOffline(), null);
             }
 
-            using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create("pulling base image manifest", 2))
-            using (TimerEventDispatcher ignored =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+            using (ProgressEventDispatcher progressEventDispatcher = progressEventDispatcherFactory.create(description, 2))
+            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
 
             {
                 // First, try with no credentials.
@@ -165,9 +163,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         {
                             // Cannot skip certificate validation or use HTTP; fall through.
                         }
-                        eventHandlers.dispatch(
-                            LogEvent.error(
-                                "Failed to retrieve authentication challenge for registry that required token authentication"));
+                        eventHandlers.dispatch(LogEvent.error(Resources.PullBaseImageStepAuthenticationErrorMessage));
                         throw;
                     }
                 }
@@ -253,7 +249,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     }
             }
 
-            throw new InvalidOperationException("Unknown manifest schema version");
+            throw new InvalidOperationException(Resources.PullBaseImageStepUnknownManifestErrorMessage);
         }
 
         /**

@@ -14,6 +14,7 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder;
@@ -21,6 +22,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.global;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.image.json;
+using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
@@ -31,7 +33,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Interfaces with a registry. */
     public sealed class RegistryClient
@@ -140,7 +142,7 @@ namespace com.google.cloud.tools.jib.registry
                 }
 
                 yield return defaultJibUserAgent;
-                foreach(var value in additionalUserAgentValues)
+                foreach (var value in additionalUserAgentValues)
                 {
                     yield return value;
                 }
@@ -221,7 +223,7 @@ namespace com.google.cloud.tools.jib.registry
             T manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
-                throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
+                throw new InvalidOperationException(Resources.RegistryClientManifestPullerReturnedNullExceptionMessage);
             }
             return manifestTemplate;
         }
@@ -249,7 +251,7 @@ namespace com.google.cloud.tools.jib.registry
             IManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
-                throw new InvalidOperationException("ManifestPuller#handleResponse does not return null");
+                throw new InvalidOperationException(Resources.RegistryClientManifestPullerReturnedNullExceptionMessage);
             }
             return manifestTemplate;
         }

@@ -18,21 +18,21 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using NodaTime;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using static com.google.cloud.tools.jib.builder.steps.PullBaseImageStep;
+using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-  /** Builds a model {@link Image}. */
+    /** Builds a model {@link Image}. */
     public class BuildImageStep : IAsyncStep<Image>
     {
         private const string DESCRIPTION = "Building container configuration";

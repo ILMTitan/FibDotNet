@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Builder.Steps;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;

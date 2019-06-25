@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Images
 {
     /**
      * Builds a reproducible layer {@link Blob} from files. The reproducibility is implemented by strips
@@ -68,7 +68,7 @@ namespace com.google.cloud.tools.jib.image
                     dir.Name += "/";
                     dir.setModTime(LayerConfiguration.DEFAULT_MODIFIED_TIME.toEpochMilli());
                     dir.TarHeader.Mode &= ~(int)PosixFilePermissions.ALL;
-                    dir.TarHeader.Mode |=(int)(
+                    dir.TarHeader.Mode |= (int)(
                         PosixFilePermissions.OWNER_ALL
                         | PosixFilePermissions.GROUP_READ_EXECUTE
                         | PosixFilePermissions.OTHERS_READ_EXECUTE);
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.image
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.setMode((entry.getMode() & ~PosixFilePermissions.ALL) | layerEntry.getPermissions().getPermissionBits());
+                entry.setMode(entry.getMode() & ~PosixFilePermissions.ALL | layerEntry.getPermissions().getPermissionBits());
                 entry.setModTime(layerEntry.getLastModifiedTime().toEpochMilli());
 
                 uniqueTarArchiveEntries.add(entry);

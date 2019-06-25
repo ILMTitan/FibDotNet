@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -217,7 +218,7 @@ namespace com.google.cloud.tools.jib.image.json
                         template = new OCIManifestTemplate();
                         break;
                     default:
-                        throw new ArgumentException(nameof(manifestFormat));
+                        throw new ArgumentOutOfRangeException(nameof(manifestFormat));
                 }
                 IBuildableManifestTemplate buildableTemplate = (IBuildableManifestTemplate)template;
 

@@ -16,20 +16,21 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
+using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
-using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
+using Jib.Net.Core.Images;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Builder.Steps
 {
     public class WriteTarFileStep : IAsyncStep<BuildResult>
     {
@@ -71,11 +72,13 @@ namespace com.google.cloud.tools.jib.builder.steps
             await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
             await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
             await buildImageStep.getFuture().ConfigureAwait(false);
-            buildConfiguration
-                .getEventHandlers()
-                .dispatch(LogEvent.progress("Building image to tar file..."));
+            string description = string.Format(
+                CultureInfo.CurrentCulture,
+                Resources.WriteTarFileStepDescriptionFormat,
+                outputPath.getFileName());
+            buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description));
 
-            using (progressEventDispatcherFactory.create("writing to tar file", 1))
+            using (progressEventDispatcherFactory.create(description, 1))
             {
                 Image image = await buildImageStep.getFuture().ConfigureAwait(false);
 
