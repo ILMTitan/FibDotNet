@@ -25,6 +25,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -34,12 +35,12 @@ namespace com.google.cloud.tools.jib.api
 {
     // TODO: now it looks like we can move everything here into JibIntegrationTest.
     /** Integration tests for {@link Containerizer}. */
-    public class ContainerizerIntegrationTest : HttpRegistryTest
+    public class ContainerizerIntegrationTest : HttpRegistryTest, IDisposable
     {
         /**
          * Helper class to hold a {@link ProgressEventHandler} and verify that it handles a full progress.
          */
-        private class ProgressChecker
+        private class ProgressChecker : IDisposable
         {
             public readonly ProgressEventHandler progressEventHandler;
 
@@ -55,6 +56,11 @@ namespace com.google.cloud.tools.jib.api
             {
                 Assert.AreEqual(1.0, lastProgress, DOUBLE_ERROR_MARGIN);
                 Assert.IsTrue(areTasksFinished);
+            }
+
+            public void Dispose()
+            {
+                progressEventHandler.Dispose();
             }
         }
 
@@ -81,10 +87,10 @@ namespace com.google.cloud.tools.jib.api
             progressChecker = new ProgressChecker();
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
+            progressChecker?.Dispose();
         }
 
         /**

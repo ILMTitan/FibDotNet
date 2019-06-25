@@ -33,7 +33,7 @@ using System.IO;
 namespace com.google.cloud.tools.jib.image
 {
     /** Tests for {@link ReproducibleLayerBuilder}. */
-    public class ReproducibleLayerBuilderTest
+    public class ReproducibleLayerBuilderTest : IDisposable
     {
         /**
          * Verifies the correctness of the next {@link TarArchiveEntry} in the {@link
@@ -83,10 +83,9 @@ namespace com.google.cloud.tools.jib.image
                 LayerConfiguration.DEFAULT_MODIFIED_TIME);
         }
 
-        private TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.events;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Unit.Tests.Event.Progress;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

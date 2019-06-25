@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Tests for {@link BlobPusher}. */
-    public class BlobPusherTest
+    public class BlobPusherTest : IDisposable
     {
         private const string TEST_BLOB_CONTENT = "some BLOB content";
         private static readonly IBlob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
@@ -55,6 +55,11 @@ namespace com.google.cloud.tools.jib.registry
                     fakeDescriptorDigest,
                     TEST_BLOB,
                     null);
+        }
+
+        public void Dispose()
+        {
+            mockResponse?.Dispose();
         }
 
         [Test]

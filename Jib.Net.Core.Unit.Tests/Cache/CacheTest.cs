@@ -25,6 +25,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;
 using NUnit.Framework;
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.IO.Compression;
@@ -33,7 +34,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.cache
 {
     /** Tests for {@link Cache}. */
-    public class CacheTest
+    public class CacheTest : IDisposable
     {
         /**
          * Gets a {@link Blob} that is {@code blob} compressed.
@@ -144,8 +145,7 @@ namespace com.google.cloud.tools.jib.cache
             layerEntries2 = ImmutableArray.Create<LayerEntry>();
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

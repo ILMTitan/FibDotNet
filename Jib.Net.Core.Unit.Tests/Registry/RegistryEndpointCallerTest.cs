@@ -39,7 +39,7 @@ using Authorization = com.google.cloud.tools.jib.http.Authorization;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Tests for {@link RegistryEndpointCaller}. */
-    public class RegistryEndpointCallerTest
+    public class RegistryEndpointCallerTest : IDisposable
     {
         /** Implementation of {@link RegistryEndpointProvider} for testing. */
         private class TestRegistryEndpointProvider : RegistryEndpointProvider<string>
@@ -130,6 +130,12 @@ namespace com.google.cloud.tools.jib.registry
         {
             Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, null);
             Environment.SetEnvironmentVariable(JibSystemProperties.SEND_CREDENTIALS_OVER_HTTP, null);
+        }
+
+        public void Dispose()
+        {
+            mockConnection?.Dispose();
+            mockInsecureConnection?.Dispose();
         }
 
         [Test]

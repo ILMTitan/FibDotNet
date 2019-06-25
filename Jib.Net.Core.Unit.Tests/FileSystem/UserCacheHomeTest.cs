@@ -29,21 +29,14 @@ using System.Runtime.InteropServices;
 namespace com.google.cloud.tools.jib.filesystem
 {
     /** Tests for {@link UserCacheHome}. */
-    public class UserCacheHomeTest
+    public class UserCacheHomeTest : IDisposable
     {
-        private TemporaryFolder temporaryFolder;
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         private string fakeCacheHome;
         private IEnvironment mockEnvironment;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            temporaryFolder = new TemporaryFolder();
-        }
-
-        [OneTimeTearDown]
-        public void OneTImeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

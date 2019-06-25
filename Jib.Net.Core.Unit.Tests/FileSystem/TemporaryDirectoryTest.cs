@@ -20,12 +20,13 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
     /** Tests for {@link TemporaryDirectory}. */
-    public class TemporaryDirectoryTest
+    public class TemporaryDirectoryTest : IDisposable
     {
         private static void createFilesInDirectory(SystemPath directory)
         {
@@ -47,8 +48,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

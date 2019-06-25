@@ -25,6 +25,7 @@ using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.cache
 {
     /** Tests for {@link CacheStorageWriter}. */
-    public class CacheStorageWriterTest
+    public class CacheStorageWriterTest : IDisposable
     {
         private static async Task<BlobDescriptor> getDigestAsync(IBlob blob)
         {
@@ -68,8 +69,7 @@ namespace com.google.cloud.tools.jib.cache
             cacheStorageFiles = new CacheStorageFiles(cacheRoot);
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

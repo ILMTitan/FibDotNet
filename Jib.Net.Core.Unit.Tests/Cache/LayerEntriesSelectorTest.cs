@@ -24,13 +24,14 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;
 using NUnit.Framework;
+using System;
 using System.Collections.Immutable;
 using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
 
 namespace com.google.cloud.tools.jib.cache
 {
     /** Tests for {@link LayerEntriesSelector}. */
-    public class LayerEntriesSelectorTest
+    public class LayerEntriesSelectorTest : IDisposable
     {
         private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
         {
@@ -100,8 +101,7 @@ namespace com.google.cloud.tools.jib.cache
                     testLayerEntry6);
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }
@@ -182,6 +182,11 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreNotEqual(
                 LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry111)),
                 LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry222)));
+        }
+
+        public void Dispose()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -21,13 +21,14 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System;
 using System.Collections.Immutable;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
     /** Tests for {@link FileOperations}. */
-    public class FileOperationsTest
+    public class FileOperationsTest : IDisposable
     {
         private static void verifyWriteWithLock(SystemPath file)
         {
@@ -76,8 +77,7 @@ namespace com.google.cloud.tools.jib.filesystem
             assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

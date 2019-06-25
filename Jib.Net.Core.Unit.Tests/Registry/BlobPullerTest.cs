@@ -30,7 +30,7 @@ using Jib.Net.Core.Blob;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Tests for {@link BlobPuller}. */
-    public class BlobPullerTest
+    public class BlobPullerTest : IDisposable
     {
         private readonly RegistryEndpointRequestProperties fakeRegistryEndpointRequestProperties =
             new RegistryEndpointRequestProperties("someServerUrl", "someImageName");
@@ -59,6 +59,12 @@ namespace com.google.cloud.tools.jib.registry
                     layerOutputStream,
                     _ => { },
                     _ => { });
+        }
+
+        public void Dispose()
+        {
+            layerContentOutputStream?.Dispose();
+            layerOutputStream?.Dispose();
         }
 
         [Test]

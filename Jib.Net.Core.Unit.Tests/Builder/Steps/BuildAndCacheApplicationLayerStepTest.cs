@@ -25,6 +25,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -35,7 +36,7 @@ using IBlob = com.google.cloud.tools.jib.blob.IBlob;
 namespace com.google.cloud.tools.jib.builder.steps
 {
     /** Tests for {@link BuildAndCacheApplicationLayerStep}. */
-    public class BuildAndCacheApplicationLayerStepTest
+    public class BuildAndCacheApplicationLayerStepTest : IDisposable
     {
         // TODO: Consolidate with BuildStepsIntegrationTest.
         private static readonly AbsoluteUnixPath EXTRACTION_PATH_ROOT =
@@ -89,8 +90,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             temporaryFolder = new TemporaryFolder();
         }
 
-        [OneTimeTearDown]
-        public void TearDownFixture()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Tests for {@link ManifestPuller}. */
-    public class ManifestPullerTest
+    public class ManifestPullerTest : IDisposable
     {
         private HttpResponseMessage mockResponse = Mock.Of<HttpResponseMessage>();
 
@@ -46,6 +46,11 @@ namespace com.google.cloud.tools.jib.registry
             testManifestPuller =
          new ManifestPuller(
              fakeRegistryEndpointRequestProperties, "test-image-tag");
+        }
+
+        public void Dispose()
+        {
+            mockResponse?.Dispose();
         }
 
         [Test]

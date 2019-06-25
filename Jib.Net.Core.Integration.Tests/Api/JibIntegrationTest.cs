@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.api
 {
     /** Integration tests for {@link Jib}. */
-    public class JibIntegrationTest
+    public class JibIntegrationTest : IDisposable
     {
         public static readonly LocalRegistry localRegistry = new LocalRegistry(5002, "username", "password");
 
@@ -70,6 +70,10 @@ namespace com.google.cloud.tools.jib.api
         public void OneTimeTearDown()
         {
             localRegistry.stop();
+        }
+
+        public void Dispose()
+        {
             cacheFolder.Dispose();
         }
 

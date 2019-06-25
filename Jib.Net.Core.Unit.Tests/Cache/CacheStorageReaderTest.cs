@@ -23,6 +23,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.cache
 {
     /** Tests for {@link CacheStorageReader}. */
-    public class CacheStorageReaderTest
+    public class CacheStorageReaderTest : IDisposable
     {
         private static void setupCachedMetadataV21(SystemPath cacheDirectory)
         {
@@ -69,8 +70,7 @@ namespace com.google.cloud.tools.jib.cache
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void Dispose()
         {
             temporaryFolder.Dispose();
         }

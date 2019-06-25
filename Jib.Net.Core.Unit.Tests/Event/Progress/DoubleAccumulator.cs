@@ -18,9 +18,9 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Unit.Tests.Event.Progress
 {
-    internal class DoubleAccumulator
+    internal class DoubleAccumulator : IDisposable
     {
         private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
 
@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.@event.progress
 
         internal void accumulate(double value)
         {
-            if(values.Value < value)
+            if (values.Value < value)
             {
                 values.Value = value;
             }
@@ -40,6 +40,11 @@ namespace com.google.cloud.tools.jib.@event.progress
         internal double get()
         {
             return values.Values.Max();
+        }
+
+        public void Dispose()
+        {
+            values.Dispose();
         }
     }
 }
