@@ -14,22 +14,23 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.@event.events;
+using com.google.cloud.tools.jib.@event.progress;
 using Jib.Net.Core.Global;
-using Jib.Net.Core.Unit.Tests.Event.Progress;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Unit.Tests.Event.Progress
 {
     /** Tests for {@link ProgressEventHandler}. */
     public class ProgressEventHandlerTest
     {
-            /** The root node. */
-            private Allocation root;
+        /** The root node. */
+        private Allocation root;
 
         /** First child of the root node. */
         private Allocation child1;
@@ -86,7 +87,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                 multithreadedExecutor.invokeAll(callables);
 
                 Assert.AreEqual(
-                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // 0 progress doesn't do anything.
                 multithreadedExecutor.invokeAll(
@@ -94,7 +95,7 @@ namespace com.google.cloud.tools.jib.@event.progress
                         100,
                         () => eventHandlers.dispatch(new ProgressEvent(child1, 0L))));
                 Assert.AreEqual(
-                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
                 multithreadedExecutor.invokeAll(callables);

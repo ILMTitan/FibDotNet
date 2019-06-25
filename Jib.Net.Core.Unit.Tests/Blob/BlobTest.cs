@@ -14,13 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
 using System.Threading.Tasks;
@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.blob
         [Test]
         public async Task testFromFileAsync()
         {
-            SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
+            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
             string expected = StandardCharsets.UTF_8.GetString(Files.readAllBytes(fileA));
             await verifyBlobWriteToAsync(expected, Blobs.from(fileA)).ConfigureAwait(false);
         }

@@ -24,6 +24,7 @@ using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System;
@@ -93,8 +94,8 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public async System.Threading.Tasks.Task testBuildAsync()
         {
-            SystemPath layerDirectory = Paths.get(Resources.getResource("core/layer").toURI());
-            SystemPath blobA = Paths.get(Resources.getResource("core/blobA").toURI());
+            SystemPath layerDirectory = Paths.get(TestResources.getResource("core/layer").toURI());
+            SystemPath blobA = Paths.get(TestResources.getResource("core/blobA").toURI());
 
             ReproducibleLayerBuilder layerBuilder =
                 new ReproducibleLayerBuilder(
@@ -129,16 +130,16 @@ namespace com.google.cloud.tools.jib.image
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/a/b/bar",
-                    Paths.get(Resources.getResource("core/layer/a/b/bar").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/a/b/bar").toURI()));
                 verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/c/");
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/c/cat",
-                    Paths.get(Resources.getResource("core/layer/c/cat").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/c/cat").toURI()));
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/foo",
-                    Paths.get(Resources.getResource("core/layer/foo").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/foo").toURI()));
                 verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/banana/");
                 verifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/banana/blobA", blobA);
             }

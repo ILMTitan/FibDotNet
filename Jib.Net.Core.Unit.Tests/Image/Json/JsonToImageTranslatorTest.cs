@@ -15,12 +15,12 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             // Loads the JSON string.
             SystemPath jsonFile =
-                Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
 
             // Deserializes into a manifest JSON object.
             V21ManifestTemplate manifestTemplate =
@@ -170,14 +170,14 @@ namespace com.google.cloud.tools.jib.image.json
             // Loads the container configuration JSON.
             SystemPath containerConfigurationJsonFile =
                 Paths.get(
-                    Resources.getResource("core/json/containerconfig.json").toURI());
+                    TestResources.getResource("core/json/containerconfig.json").toURI());
             ContainerConfigurationTemplate containerConfigurationTemplate =
                 JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
                     containerConfigurationJsonFile);
 
             // Loads the manifest JSON.
             SystemPath manifestJsonFile =
-                Paths.get(Resources.getResource(jsonFilename).toURI());
+                Paths.get(TestResources.getResource(jsonFilename).toURI());
             T manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<T>(manifestJsonFile);
 

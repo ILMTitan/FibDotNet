@@ -15,10 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.docker.json
         public void testToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/loadmanifest.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/loadmanifest.json").toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();

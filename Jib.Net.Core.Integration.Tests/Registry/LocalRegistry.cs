@@ -48,18 +48,6 @@ namespace com.google.cloud.tools.jib.registry
             this.password = password;
         }
 
-        /** Starts the local registry. */
-
-        protected async Task beforeAsync()
-        {
-            await startAsync().ConfigureAwait(false);
-        }
-
-        protected void after()
-        {
-            stop();
-        }
-
         /** Starts the registry */
         public async Task startAsync()
         {

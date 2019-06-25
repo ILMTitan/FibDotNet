@@ -24,11 +24,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.http
@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.http
                 if (https)
                 {
                     var sslStream = new SslStream(socket.GetStream(), true);
-                    SystemPath certFile = Resources.getResource("localhost.2.pfx");
+                    SystemPath certFile = TestResources.getResource("localhost.2.pfx");
                     X509Certificate2 serverCertificate = new X509Certificate2(certFile, "password");
 
                     await sslStream.AuthenticateAsServerAsync(serverCertificate, false, false).ConfigureAwait(false);

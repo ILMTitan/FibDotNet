@@ -21,13 +21,13 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.@event
+namespace Jib.Net.Core.Unit.Tests.Event
 {
     /** Tests for {@link EventHandlers}. */
     public class EventHandlersTest
     {
         /** Test {@link JibEvent}. */
-        public interface TestJibEvent1 : IJibEvent
+        public interface ITestJibEvent1 : IJibEvent
         {
             string getPayload();
         }
@@ -55,14 +55,14 @@ namespace com.google.cloud.tools.jib.@event
         [Test]
         public void testAdd()
         {
-            TestJibEvent1 mockTestJibEvent1 = Mock.Of<TestJibEvent1>();
+            ITestJibEvent1 mockTestJibEvent1 = Mock.Of<ITestJibEvent1>();
             Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
             TestJibEvent2 testJibEvent2 = new TestJibEvent2();
 
             int counter = 0;
             EventHandlers eventHandlers =
                 EventHandlers.builder()
-                    .add<TestJibEvent1>(
+                    .add<ITestJibEvent1>(
                         testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
                     .add<TestJibEvent2>(e => e.sayHello("Jib"))
                     .add<IJibEvent>(_ => counter++)

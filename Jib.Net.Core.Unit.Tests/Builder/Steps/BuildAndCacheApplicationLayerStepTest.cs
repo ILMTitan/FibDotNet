@@ -23,6 +23,7 @@ using com.google.cloud.tools.jib.image;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -53,7 +54,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             string resourcePath, AbsoluteUnixPath extractionPath)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(Resources.getResource(resourcePath).toURI()));
+                Files.list(Paths.get(TestResources.getResource(resourcePath).toURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
                     layerConfigurationBuilder.setName(Path.GetFileName(resourcePath));
@@ -112,10 +113,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             fakeExtraFilesLayerConfiguration =
                 LayerConfiguration.builder()
                     .addEntry(
-                        Paths.get(Resources.getResource("core/fileA").toURI()),
+                        Paths.get(TestResources.getResource("core/fileA").toURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileA"))
                     .addEntry(
-                        Paths.get(Resources.getResource("core/fileB").toURI()),
+                        Paths.get(TestResources.getResource("core/fileB").toURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileB"))
                     .build();
             emptyLayerConfiguration = LayerConfiguration.builder().build();

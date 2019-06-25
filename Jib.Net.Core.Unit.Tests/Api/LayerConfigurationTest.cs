@@ -14,10 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System;
@@ -41,8 +41,8 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testAddEntryRecursive_defaults()
         {
-            SystemPath testDirectory = Paths.get(Resources.getResource("core/layer").toURI()).toAbsolutePath();
-            SystemPath testFile = Paths.get(Resources.getResource("core/fileA").toURI());
+            SystemPath testDirectory = Paths.get(TestResources.getResource("core/layer").toURI()).toAbsolutePath();
+            SystemPath testFile = Paths.get(TestResources.getResource("core/fileA").toURI());
 
             ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
@@ -71,8 +71,8 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testAddEntryRecursive_permissionsAndTimestamps()
         {
-            SystemPath testDirectory = Paths.get(Resources.getResource("core/layer").toURI()).toAbsolutePath();
-            SystemPath testFile = Paths.get(Resources.getResource("core/fileA").toURI());
+            SystemPath testDirectory = Paths.get(TestResources.getResource("core/layer").toURI()).toAbsolutePath();
+            SystemPath testFile = Paths.get(TestResources.getResource("core/fileA").toURI());
 
             FilePermissions permissions1 = FilePermissions.fromOctalString("111");
             FilePermissions permissions2 = FilePermissions.fromOctalString("777");

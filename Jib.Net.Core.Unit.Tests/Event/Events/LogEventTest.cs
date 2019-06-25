@@ -21,7 +21,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using static com.google.cloud.tools.jib.api.LogEvent;
 
-namespace com.google.cloud.tools.jib.@event.events
+namespace Jib.Net.Core.Unit.Tests.Event.Events
 {
     /** Tests for {@link LogEvent}. */
     public class LogEventTest
@@ -41,12 +41,12 @@ namespace com.google.cloud.tools.jib.@event.events
         [Test]
         public void testFactories()
         {
-            eventHandlers.dispatch(LogEvent.error("error"));
-            eventHandlers.dispatch(LogEvent.lifecycle("lifecycle"));
-            eventHandlers.dispatch(LogEvent.progress("progress"));
-            eventHandlers.dispatch(LogEvent.warn("warn"));
-            eventHandlers.dispatch(LogEvent.info("info"));
-            eventHandlers.dispatch(LogEvent.debug("debug"));
+            eventHandlers.dispatch(error("error"));
+            eventHandlers.dispatch(lifecycle("lifecycle"));
+            eventHandlers.dispatch(progress("progress"));
+            eventHandlers.dispatch(warn("warn"));
+            eventHandlers.dispatch(info("info"));
+            eventHandlers.dispatch(debug("debug"));
 
             verifyNextLogEvent(Level.ERROR, "error");
             verifyNextLogEvent(Level.LIFECYCLE, "lifecycle");

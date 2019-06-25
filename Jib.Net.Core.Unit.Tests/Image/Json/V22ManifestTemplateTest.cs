@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.image.json
         public void testToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.image.json
         public void testFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
 
             // Deserializes into a manifest JSON object.
             V22ManifestTemplate manifestJson =

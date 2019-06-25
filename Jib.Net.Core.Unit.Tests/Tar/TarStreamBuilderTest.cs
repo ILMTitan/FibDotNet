@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using ICSharpCode.SharpZipLib.GZip;
@@ -23,6 +22,7 @@ using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
 using System.IO.Compression;
@@ -45,9 +45,9 @@ namespace com.google.cloud.tools.jib.tar
         {
             testTarStreamBuilder = new TarStreamBuilder();
             // Gets the test resource files.
-            fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-            fileB = Paths.get(Resources.getResource("core/fileB").toURI());
-            directoryA = Paths.get(Resources.getResource("core/directoryA").toURI());
+            fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
+            fileB = Paths.get(TestResources.getResource("core/fileB").toURI());
+            directoryA = Paths.get(TestResources.getResource("core/directoryA").toURI());
 
             fileAContents = Files.readAllBytes(fileA);
             fileBContents = Files.readAllBytes(fileB);

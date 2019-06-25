@@ -15,10 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [SetUp]
         public void setUp()
         {
-            dockerConfigFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            dockerConfigFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
             Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIAL);
         }
 
@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testRetrieve_suffixMatching()
         {
             SystemPath dockerConfigFile =
-                Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("index.docker.io", dockerConfigFile);
@@ -169,7 +169,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testRetrieve_suffixMatchingFromAlias()
         {
             SystemPath dockerConfigFile =
-                Paths.get(Resources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
 
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);

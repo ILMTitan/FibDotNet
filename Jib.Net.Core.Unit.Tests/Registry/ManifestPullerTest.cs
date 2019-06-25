@@ -15,13 +15,13 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_v21Async()
         {
-            SystemPath v21ManifestFile = Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
+            SystemPath v21ManifestFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
             Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
 
             mockResponse = new HttpResponseMessage
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_v22Async()
         {
-            SystemPath v22ManifestFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+            SystemPath v22ManifestFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
             Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
             mockResponse = new HttpResponseMessage
             {

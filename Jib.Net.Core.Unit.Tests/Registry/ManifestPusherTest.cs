@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
@@ -26,6 +25,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry
         public void setUp()
         {
             mockEventHandlers = Mock.Of<IEventHandlers>();
-            v22manifestJsonFile = Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+            v22manifestJsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
             fakeManifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(v22manifestJsonFile);
 

@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
+using com.google.cloud.tools.jib.@event.events;
 using com.google.cloud.tools.jib.@event.progress;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
@@ -22,7 +23,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.@event.events
+namespace Jib.Net.Core.Unit.Tests.Event.Events
 {
     /** Tests for {@link ProgressEvent}. */
     public class ProgressEventTest
@@ -50,7 +51,7 @@ namespace com.google.cloud.tools.jib.@event.events
 
         private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer)
         {
-            return EventHandlers.builder().add<ProgressEvent>(progressEventConsumer).build();
+            return EventHandlers.builder().add(progressEventConsumer).build();
         }
 
         private const double DOUBLE_ERROR_MARGIN = 1e-10;
@@ -79,7 +80,7 @@ namespace com.google.cloud.tools.jib.@event.events
             Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.dispatch(new ProgressEvent(child2, 10));
-            Assert.AreEqual((1.0 / 2) + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
+            Assert.AreEqual(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.dispatch(new ProgressEvent(child2, 190));
             Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);

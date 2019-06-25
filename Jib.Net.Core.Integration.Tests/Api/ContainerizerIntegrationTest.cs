@@ -23,6 +23,7 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -101,7 +102,7 @@ namespace com.google.cloud.tools.jib.api
             string resourcePath, string pathInContainer)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(Resources.getResource(resourcePath).toURI()));
+                Files.list(Paths.get(TestResources.getResource(resourcePath).toURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
                 fileStream.forEach(

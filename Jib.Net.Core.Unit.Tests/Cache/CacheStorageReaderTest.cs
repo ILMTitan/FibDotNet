@@ -22,6 +22,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace com.google.cloud.tools.jib.cache
             SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
             Files.createDirectories(imageDirectory);
             Files.copy(
-                Paths.get(Resources.getResource("core/json/v21manifest.json").toURI()),
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI()),
                 imageDirectory.resolve("manifest.json"));
         }
 
@@ -47,10 +48,10 @@ namespace com.google.cloud.tools.jib.cache
             SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
             Files.createDirectories(imageDirectory);
             Files.copy(
-                Paths.get(Resources.getResource("core/json/v22manifest.json").toURI()),
+                Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI()),
                 imageDirectory.resolve("manifest.json"));
             Files.copy(
-                Paths.get(Resources.getResource("core/json/containerconfig.json").toURI()),
+                Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI()),
                 imageDirectory.resolve("config.json"));
         }
 

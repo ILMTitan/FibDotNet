@@ -14,11 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.global;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.global
+namespace Jib.Net.Core.Unit.Tests.Global
 {
     /** Tests for {@link JibSystemProperties}. */
     public class JibSystemPropertiesTest

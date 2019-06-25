@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker.json;
@@ -28,6 +27,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System.IO;
@@ -44,8 +44,8 @@ namespace com.google.cloud.tools.jib.docker
         [Test]
         public async Task testWriteToAsync()
         {
-            SystemPath fileA = Paths.get(Resources.getResource("core/fileA").toURI());
-            SystemPath fileB = Paths.get(Resources.getResource("core/fileB").toURI());
+            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
+            SystemPath fileB = Paths.get(TestResources.getResource("core/fileB").toURI());
             long fileASize = Files.size(fileA);
             long fileBSize = Files.size(fileB);
 

@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
@@ -25,6 +24,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System;
@@ -118,7 +118,7 @@ namespace com.google.cloud.tools.jib.image.json
             setUp(ManifestFormat.V22);
 
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/containerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the container configuration and writes the JSON string.
@@ -183,7 +183,7 @@ namespace com.google.cloud.tools.jib.image.json
             ManifestFormat manifestTemplateClass, string translatedJsonFilename)
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource(translatedJsonFilename).toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource(translatedJsonFilename).toURI());
             string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the manifest and writes the JSON string.

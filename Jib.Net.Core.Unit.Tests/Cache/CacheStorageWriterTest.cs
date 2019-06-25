@@ -24,6 +24,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -110,7 +111,7 @@ namespace com.google.cloud.tools.jib.cache
         public void testWriteMetadata_v21()
         {
             SystemPath manifestJsonFile =
-                Paths.get(Resources.getResource("core/json/v21manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
             V21ManifestTemplate manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
@@ -131,12 +132,12 @@ namespace com.google.cloud.tools.jib.cache
         {
             SystemPath containerConfigurationJsonFile =
                 Paths.get(
-                    Resources.getResource("core/json/containerconfig.json").toURI());
+                    TestResources.getResource("core/json/containerconfig.json").toURI());
             ContainerConfigurationTemplate containerConfigurationTemplate =
                 JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
                     containerConfigurationJsonFile);
             SystemPath manifestJsonFile =
-                Paths.get(Resources.getResource("core/json/v22manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
             IBuildableManifestTemplate manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");

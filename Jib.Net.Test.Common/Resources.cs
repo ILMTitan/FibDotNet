@@ -19,9 +19,9 @@ using Jib.Net.Core.FileSystem;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Test.Common
 {
-    public static class Resources
+    public static class TestResources
     {
         public static SystemPath getResource(string resourcePath)
         {

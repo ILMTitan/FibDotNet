@@ -29,9 +29,9 @@ namespace com.google.cloud.tools.jib
     /** Testing infrastructure for running code across multiple threads. */
     public sealed class MultithreadedExecutor : IDisposable
     {
-        public async Task<E> invokeAsync<E>(Func<E> callable)
+        public async Task<T> invokeAsync<T>(Func<T> callable)
         {
-            IList<E> returnValue = await invokeAllAsync(Collections.singletonList(callable)).ConfigureAwait(false);
+            IList<T> returnValue = await invokeAllAsync(Collections.singletonList(callable)).ConfigureAwait(false);
             return returnValue.get(0);
         }
 
@@ -52,9 +52,9 @@ namespace com.google.cloud.tools.jib
             }
         }
 
-        public async Task<IList<E>> invokeAllAsync<E>(IEnumerable<Func<E>> callables)
+        public async Task<IList<T>> invokeAllAsync<T>(IEnumerable<Func<T>> callables)
         {
-            Task<E>[] futures =
+            Task<T>[] futures =
                         callables.Select(c => Task.Run(() => c())).ToArray();
 
             return await Task.WhenAll(futures).ConfigureAwait(false);

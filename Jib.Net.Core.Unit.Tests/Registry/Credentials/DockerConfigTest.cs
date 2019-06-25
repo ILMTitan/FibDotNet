@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Buffers.Text;
@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void test_fromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             // Deserializes into a docker config JSON object.
             DockerConfig dockerConfig =
@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testGetAuthFor_orderOfMatchPreference()
         {
             SystemPath json =
-                Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testGetAuthFor_correctSuffixMatching()
         {
             SystemPath json =
-                Paths.get(Resources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor()
         {
-            SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -115,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withHttps()
         {
-            SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withSuffix()
         {
-            SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -141,7 +141,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withProtocolAndSuffix()
         {
-            SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_correctSuffixMatching()
         {
-            SystemPath json = Paths.get(Resources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));

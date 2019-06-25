@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -30,7 +31,7 @@ namespace com.google.cloud.tools.jib.filesystem
     {
         private static void createFilesInDirectory(SystemPath directory)
         {
-            SystemPath testFilesDirectory = Paths.get(Resources.getResource("core/layer").toURI());
+            SystemPath testFilesDirectory = Paths.get(TestResources.getResource("core/layer").toURI());
             new DirectoryWalker(testFilesDirectory)
                 .filterRoot()
                 .walk(path =>

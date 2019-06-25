@@ -14,10 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.filesystem
         [SetUp]
         public void setUp()
         {
-            testDir = Paths.get(Resources.getResource("core/layer").toURI());
+            testDir = Paths.get(TestResources.getResource("core/layer").toURI());
             walkedPaths = new HashSet<SystemPath>();
             addToWalkedPaths = walkedPaths.add;
         }

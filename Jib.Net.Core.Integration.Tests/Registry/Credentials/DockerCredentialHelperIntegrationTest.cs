@@ -15,9 +15,9 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 
 namespace com.google.cloud.tools.jib.registry.credentials
@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testRetrieveGCR()
         {
             new Command("docker-credential-gcr", "store")
-                .run(Files.readAllBytes(Paths.get(Resources.getResource("credentials.json").toURI())));
+                .run(Files.readAllBytes(Paths.get(TestResources.getResource("credentials.json").toURI())));
 
             DockerCredentialHelper dockerCredentialHelper = new DockerCredentialHelper("myregistry", "gcr");
 

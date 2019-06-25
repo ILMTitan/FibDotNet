@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
@@ -58,10 +59,10 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             SystemPath destDir = temporaryFolder.newFolder().toPath();
             SystemPath libraryA =
-                Paths.get(Resources.getResource("core/application/dependencies/libraryA.jar").toURI());
+                Paths.get(TestResources.getResource("core/application/dependencies/libraryA.jar").toURI());
             SystemPath libraryB =
-                Paths.get(Resources.getResource("core/application/dependencies/libraryB.jar").toURI());
-            SystemPath dirLayer = Paths.get(Resources.getResource("core/layer").toURI());
+                Paths.get(TestResources.getResource("core/application/dependencies/libraryB.jar").toURI());
+            SystemPath dirLayer = Paths.get(TestResources.getResource("core/layer").toURI());
 
             FileOperations.copy(ImmutableArray.Create(libraryA, libraryB, dirLayer), destDir);
 
