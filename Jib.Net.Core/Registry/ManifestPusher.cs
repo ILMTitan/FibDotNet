@@ -123,19 +123,19 @@ namespace com.google.cloud.tools.jib.registry
             throw new HttpResponseException(httpResponse);
         }
 
-        public Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
+        public async Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
-                return handleHttpResponseExceptionAsync(response);
+                return await handleHttpResponseExceptionAsync(response).ConfigureAwait(false);
             }
-            return Task.FromResult(handleResponse(response));
+            return await handleSuccessResponseAsync(response).ConfigureAwait(false);
         }
 
-        public DescriptorDigest handleResponse(HttpResponseMessage response)
+        public async Task<DescriptorDigest> handleSuccessResponseAsync(HttpResponseMessage response)
         {
             // Checks if the image digest is as expected.
-            DescriptorDigest expectedDigest = Digests.computeJsonDigest(manifestTemplate);
+            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
 
             if (response.Headers.TryGetValues(RESPONSE_DIGEST_HEADER, out var receivedDigestEnum))
             {

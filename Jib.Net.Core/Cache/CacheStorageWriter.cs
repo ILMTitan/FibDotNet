@@ -83,14 +83,14 @@ namespace com.google.cloud.tools.jib.cache
          * @param destination the destination path
          * @throws IOException if an I/O exception occurs
          */
-        public static void writeMetadata(object jsonTemplate, SystemPath destination)
+        public static async Task writeMetadataAsync(object jsonTemplate, SystemPath destination)
         {
             destination = destination ?? throw new ArgumentNullException(nameof(destination));
             using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent()))
             {
                 using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
                 {
-                    JsonTemplateMapper.writeTo(jsonTemplate, outputStream);
+                    await JsonTemplateMapper.writeToAsync(jsonTemplate, outputStream).ConfigureAwait(false);
                 }
                 Files.move(
                     temporaryFile.Path,
@@ -213,7 +213,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param manifestTemplate the manifest
          * @param containerConfiguration the container configuration
          */
-        public void writeMetadata(
+        public async Task writeMetadataAsync(
             IImageReference imageReference,
             IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfiguration)
@@ -227,8 +227,8 @@ namespace com.google.cloud.tools.jib.cache
 
             using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock")))
             {
-                writeMetadata(manifestTemplate, imageDirectory.resolve("manifest.json"));
-                writeMetadata(containerConfiguration, imageDirectory.resolve("config.json"));
+                await writeMetadataAsync(manifestTemplate, imageDirectory.resolve("manifest.json")).ConfigureAwait(false);
+                await writeMetadataAsync(containerConfiguration, imageDirectory.resolve("config.json")).ConfigureAwait(false);
             }
         }
 
@@ -238,14 +238,14 @@ namespace com.google.cloud.tools.jib.cache
          * @param imageReference the image reference to store the metadata for
          * @param manifestTemplate the manifest
          */
-        public void writeMetadata(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
+        public async Task writeMetadataAsync(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
         {
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             Files.createDirectories(imageDirectory);
 
             using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock")))
             {
-                writeMetadata(manifestTemplate, imageDirectory.resolve("manifest.json"));
+                await writeMetadataAsync(manifestTemplate, imageDirectory.resolve("manifest.json")).ConfigureAwait(false);
             }
         }
 

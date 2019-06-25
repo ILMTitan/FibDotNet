@@ -51,8 +51,11 @@ namespace com.google.cloud.tools.jib.http
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
             stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            await blob.writeToAsync(new NotifyingOutputStream(stream, writtenByteCountListener)).ConfigureAwait(false);
-            await stream.FlushAsync().ConfigureAwait(false);
+            using (NotifyingOutputStream outputStream = new NotifyingOutputStream(stream, writtenByteCountListener))
+            {
+                await blob.writeToAsync(outputStream).ConfigureAwait(false);
+                await stream.FlushAsync().ConfigureAwait(false);
+            }
         }
 
         protected override bool TryComputeLength(out long length)

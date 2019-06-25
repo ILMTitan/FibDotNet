@@ -25,6 +25,7 @@ using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
 {
@@ -151,9 +152,9 @@ namespace com.google.cloud.tools.jib.cache
          * @return the selector
          * @throws IOException if an I/O exception occurs
          */
-        public static DescriptorDigest generateSelector(ImmutableArray<LayerEntry> layerEntries)
+        public static async Task<DescriptorDigest> generateSelectorAsync(ImmutableArray<LayerEntry> layerEntries)
         {
-            return Digests.computeJsonDigest(toSortedJsonTemplates(layerEntries));
+            return await Digests.computeJsonDigestAsync(toSortedJsonTemplates(layerEntries)).ConfigureAwait(false);
         }
     }
 }

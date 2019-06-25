@@ -22,6 +22,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using System;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -36,15 +37,17 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @return a new {@link BuildResult} with the image's digest and id
          * @throws IOException if writing the digest or container configuration fails
          */
-        public static BuildResult fromImage(Image image, ManifestFormat targetFormat)
+        public static async Task<BuildResult> fromImageAsync(Image image, ManifestFormat targetFormat)
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
-            BlobDescriptor containerConfigurationBlobDescriptor =
-                Digests.computeJsonDescriptor(imageToJsonTranslator.getContainerConfiguration());
+            ContainerConfigurationTemplate configurationTemplate = imageToJsonTranslator.getContainerConfiguration();
+            BlobDescriptor containerConfigurationBlobDescriptor = 
+                await Digests.computeJsonDescriptorAsync(configurationTemplate).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(
                     targetFormat, containerConfigurationBlobDescriptor);
-            DescriptorDigest imageDigest = Digests.computeJsonDigest(manifestTemplate);
+            DescriptorDigest imageDigest = 
+                await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
             DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
             return new BuildResult(imageDigest, imageId);
         }

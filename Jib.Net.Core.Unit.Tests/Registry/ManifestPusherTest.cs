@@ -80,7 +80,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_validAsync()
         {
-            DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
+            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", Collections.singletonList(expectedDigest.toString()) } }
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_noDigestAsync()
         {
-            DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
+            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", Collections.emptyList<string>() } }
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_multipleDigestsAsync()
         {
-            DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
+            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", Arrays.asList("too", "many") } }
@@ -119,7 +119,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_invalidDigestAsync()
         {
-            DescriptorDigest expectedDigest = Digests.computeJsonDigest(fakeManifestTemplate);
+            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", Collections.singletonList("not valid") } }

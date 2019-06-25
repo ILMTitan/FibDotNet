@@ -69,7 +69,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 ContainerConfigurationTemplate containerConfiguration =
                     new ImageToJsonTranslator(image).getContainerConfiguration();
-                BlobDescriptor blobDescriptor = Digests.computeJsonDescriptor(containerConfiguration);
+                BlobDescriptor blobDescriptor = 
+                    await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
 
                 return await new PushBlobStep(
                     buildConfiguration,

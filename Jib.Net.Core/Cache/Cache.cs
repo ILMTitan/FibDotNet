@@ -62,13 +62,13 @@ namespace com.google.cloud.tools.jib.cache
          * @param containerConfigurationTemplate the container configuration
          * @throws IOException if an I/O exception occurs
          */
-        public void writeMetadata(
+        public async Task writeMetadataAsync(
             IImageReference imageReference,
             IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate)
         {
-            cacheStorageWriter.writeMetadata(
-                imageReference, manifestTemplate, containerConfigurationTemplate);
+            await cacheStorageWriter.writeMetadataAsync(
+                imageReference, manifestTemplate, containerConfigurationTemplate).ConfigureAwait(false);
         }
 
         /**
@@ -78,9 +78,9 @@ namespace com.google.cloud.tools.jib.cache
          * @param manifestTemplate the V2.1 manifest
          * @throws IOException if an I/O exception occurs
          */
-        public void writeMetadata(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
+        public async Task writeMetadataAsync(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
         {
-            cacheStorageWriter.writeMetadata(imageReference, manifestTemplate);
+            await cacheStorageWriter.writeMetadataAsync(imageReference, manifestTemplate).ConfigureAwait(false);
         }
 
         /**
@@ -109,8 +109,9 @@ namespace com.google.cloud.tools.jib.cache
         public async Task<CachedLayer> writeUncompressedLayerAsync(
             IBlob uncompressedLayerBlob, ImmutableArray<LayerEntry> layerEntries)
         {
+            DescriptorDigest selector = await LayerEntriesSelector.generateSelectorAsync(layerEntries).ConfigureAwait(false);
             return await cacheStorageWriter.writeUncompressedAsync(
-                uncompressedLayerBlob, LayerEntriesSelector.generateSelector(layerEntries)).ConfigureAwait(false);
+                uncompressedLayerBlob, selector).ConfigureAwait(false);
         }
 
         /**
@@ -134,10 +135,10 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Optional<CachedLayer> retrieve(ImmutableArray<LayerEntry> layerEntries)
+        public async Task<Optional<CachedLayer>> retrieveAsync(ImmutableArray<LayerEntry> layerEntries)
         {
-            Optional<DescriptorDigest> optionalSelectedLayerDigest =
-                cacheStorageReader.select(LayerEntriesSelector.generateSelector(layerEntries));
+            DescriptorDigest selector = await LayerEntriesSelector.generateSelectorAsync(layerEntries).ConfigureAwait(false);
+            Optional<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.select(selector);
             if (!optionalSelectedLayerDigest.isPresent())
             {
                 return Optional.empty<CachedLayer>();

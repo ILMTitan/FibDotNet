@@ -98,7 +98,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     dockerClient.tag(targetImageReference, targetImageReference.withTag(tag));
                 }
 
-                return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+                return await BuildResult.fromImageAsync(image, buildConfiguration.getTargetFormat()).ConfigureAwait(false);
             }
         }
     }

@@ -174,15 +174,15 @@ namespace com.google.cloud.tools.jib.builder.steps
                 fakeLayerConfigurations.get(4).getLayerEntries();
 
             CachedLayer dependenciesCachedLayer =
-                cache.retrieve(dependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(dependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer snapshotDependenciesCachedLayer =
-                cache.retrieve(snapshotDependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(snapshotDependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer resourcesCachedLayer =
-                cache.retrieve(resourcesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(resourcesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer classesCachedLayer =
-                cache.retrieve(classesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(classesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer extraFilesCachedLayer =
-                cache.retrieve(extraFilesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(extraFilesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
 
             // Verifies that the cached layers are up-to-date.
             Assert.AreEqual(
@@ -231,11 +231,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                 fakeLayerConfigurations.get(3).getLayerEntries();
 
             CachedLayer dependenciesCachedLayer =
-                cache.retrieve(dependenciesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(dependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer resourcesCachedLayer =
-                cache.retrieve(resourcesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(resourcesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer classesCachedLayer =
-                cache.retrieve(classesLayerEntries).orElseThrow(() => new AssertionException(""));
+                await cache.retrieveAsync(classesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
 
             // Verifies that the cached layers are up-to-date.
             Assert.AreEqual(

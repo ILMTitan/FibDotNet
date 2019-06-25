@@ -26,6 +26,7 @@ using NodaTime;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
 
 namespace com.google.cloud.tools.jib.cache
@@ -123,41 +124,43 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testGenerateSelector_empty()
-        {
-            DescriptorDigest expectedSelector = Digests.computeJsonDigest(ImmutableArray.Create<object>());
-            Assert.AreEqual(
-                expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create<LayerEntry>()));
-        }
-
-        [Test]
-        public void testGenerateSelector()
+        public async Task testGenerateSelector_emptyAsync()
         {
             DescriptorDigest expectedSelector =
-                Digests.computeJsonDigest(toLayerEntryTemplates(inOrderLayerEntries));
+                await Digests.computeJsonDigestAsync(ImmutableArray.Create<object>()).ConfigureAwait(false);
             Assert.AreEqual(
-                expectedSelector, LayerEntriesSelector.generateSelector(outOfOrderLayerEntries));
+                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create<LayerEntry>()).ConfigureAwait(false));
         }
 
         [Test]
-        public void testGenerateSelector_fileModified()
+        public async Task testGenerateSelectorAsync()
+        {
+            DescriptorDigest expectedSelector =
+                await Digests.computeJsonDigestAsync(toLayerEntryTemplates(inOrderLayerEntries)).ConfigureAwait(false);
+            Assert.AreEqual(
+                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(outOfOrderLayerEntries).ConfigureAwait(false));
+        }
+
+        [Test]
+        public async Task testGenerateSelector_fileModifiedAsync()
         {
             SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
             Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
             Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
             LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
             DescriptorDigest expectedSelector =
-                LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry));
+                await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false);
 
             // Verify that changing modified time generates a different selector
             Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(1)));
             Assert.AreNotEqual(
-                expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
+                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
 
             // Verify that changing modified time back generates same selector
             Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
             Assert.AreEqual(
-                expectedSelector, LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry)));
+                expectedSelector, 
+                await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
         }
 
         [Test]
@@ -180,8 +183,8 @@ namespace com.google.cloud.tools.jib.cache
 
             // Verify that changing permissions generates a different selector
             Assert.AreNotEqual(
-                LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry111)),
-                LayerEntriesSelector.generateSelector(ImmutableArray.Create(layerEntry222)));
+                LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry111)),
+                LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry222)));
         }
     }
 }

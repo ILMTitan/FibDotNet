@@ -214,23 +214,29 @@ namespace com.google.cloud.tools.jib.docker
                 }
             }
 
-            Stream stdoutStream = dockerProcess.getInputStream();
-            using (StreamReader stdout =new StreamReader(stdoutStream, StandardCharsets.UTF_8))
+            using (Stream stdoutStream = dockerProcess.getInputStream())
+            using (StreamReader stdout = new StreamReader(stdoutStream, StandardCharsets.UTF_8))
             {
                 string output = CharStreams.toString(stdout);
 
                 if (dockerProcess.waitFor() != 0)
                 {
-                    using (StreamReader stderr =
-                        new StreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8))
-                    {
-                        throw new IOException(
-                            "'docker load' command failed with output: " + CharStreams.toString(stderr));
-                    }
+                    string errMessage = await GetErrorMessageAsync(dockerProcess).ConfigureAwait(false);
+                    throw new IOException("'docker load' command failed with output: " + errMessage);
                 }
 
                 return output;
             }
+        }
+
+        private static async Task<string> GetErrorMessageAsync(IProcess dockerProcess)
+        {
+            using (Stream stderrStream = dockerProcess.getErrorStream())
+            using (StreamReader stderr = new StreamReader(stderrStream))
+            {
+                return await stderr.ReadToEndAsync().ConfigureAwait(false);
+            }
+
         }
 
         /**

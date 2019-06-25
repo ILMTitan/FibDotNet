@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testWriteMetadata_v21()
+        public async Task testWriteMetadata_v21Async()
         {
             SystemPath manifestJsonFile =
                 Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
@@ -116,7 +116,7 @@ namespace com.google.cloud.tools.jib.cache
                 JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
 
-            new CacheStorageWriter(cacheStorageFiles).writeMetadata(imageReference, manifestTemplate);
+            await new CacheStorageWriter(cacheStorageFiles).writeMetadataAsync(imageReference, manifestTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
                 cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testWriteMetadata_v22()
+        public async Task testWriteMetadata_v22Async()
         {
             SystemPath containerConfigurationJsonFile =
                 Paths.get(
@@ -142,8 +142,8 @@ namespace com.google.cloud.tools.jib.cache
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
 
-            new CacheStorageWriter(cacheStorageFiles)
-                .writeMetadata(imageReference, manifestTemplate, containerConfigurationTemplate);
+            await new CacheStorageWriter(cacheStorageFiles)
+                .writeMetadataAsync(imageReference, manifestTemplate, containerConfigurationTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
                 cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");

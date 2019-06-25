@@ -113,7 +113,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     }
                 }
 
-                DescriptorDigest imageDigest = Digests.computeJsonDigest(manifestTemplate);
+                DescriptorDigest imageDigest =
+                    await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
                 DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
                 BuildResult result = new BuildResult(imageDigest, imageId);
 

@@ -207,10 +207,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 case 1:
                     V21ManifestTemplate v21ManifestTemplate = (V21ManifestTemplate)manifestTemplate;
-                    buildConfiguration
+                    await buildConfiguration
                         .getBaseImageLayersCache()
-                        .writeMetadata(
-                            buildConfiguration.getBaseImageConfiguration().getImage(), v21ManifestTemplate);
+                        .writeMetadataAsync(
+                            buildConfiguration.getBaseImageConfiguration().getImage(), v21ManifestTemplate).ConfigureAwait(false);
                     return JsonToImageTranslator.toImage(v21ManifestTemplate);
 
                 case 2:
@@ -242,12 +242,12 @@ namespace com.google.cloud.tools.jib.builder.steps
                         ContainerConfigurationTemplate containerConfigurationTemplate =
                             JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(
                                 containerConfigurationString);
-                        buildConfiguration
+                        await buildConfiguration
                             .getBaseImageLayersCache()
-                            .writeMetadata(
+                            .writeMetadataAsync(
                                 buildConfiguration.getBaseImageConfiguration().getImage(),
                                 buildableManifestTemplate,
-                                containerConfigurationTemplate);
+                                containerConfigurationTemplate).ConfigureAwait(false);
                         return JsonToImageTranslator.toImage(
                             buildableManifestTemplate, containerConfigurationTemplate);
                     }

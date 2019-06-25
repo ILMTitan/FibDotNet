@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.global;
 using Jib.Net.Core.Global;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
@@ -37,7 +38,7 @@ namespace com.google.cloud.tools.jib.http
      * }
      * }</pre>
      */
-     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed")]
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed")]
     public sealed class Connection : IDisposable, IConnection
     {
         /**
@@ -74,34 +75,37 @@ namespace com.google.cloud.tools.jib.http
         /** The Uri to send the request to. */
         private readonly HttpClient client;
 
-        /**
-         * Make sure to wrap with a try-with-resource to ensure that the connection is closed after usage.
-         *
-         * @param url the url to send the request to
-         */
-        public Connection(Uri url) : this(url, false) { }
+        private static readonly ConcurrentDictionary<Uri, HttpClient> clients = new ConcurrentDictionary<Uri, HttpClient>();
+        private static readonly ConcurrentDictionary<Uri, HttpClient> insecureClients = new ConcurrentDictionary<Uri, HttpClient>();
+        private static readonly HttpMessageHandler insecureHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
+        };
+
+    /**
+     * Make sure to wrap with a try-with-resource to ensure that the connection is closed after usage.
+     *
+     * @param url the url to send the request to
+     */
+    public Connection(Uri url) : this(url, false) { }
 
         public Connection(Uri url, bool insecure)
         {
             if (insecure)
             {
-                HttpMessageHandler handler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
-                };
-                client = new HttpClient(handler)
+                client = insecureClients.GetOrAdd(url, _ => new HttpClient(insecureHandler)
                 {
                     BaseAddress = url,
                     Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
-                };
+                });
             }
             else
             {
-                client = new HttpClient
+                client = clients.GetOrAdd(url, _ => new HttpClient
                 {
                     BaseAddress = url,
                     Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
-                };
+                });
             }
         }
 
@@ -123,7 +127,8 @@ namespace com.google.cloud.tools.jib.http
             try
             {
                 return await client.SendAsync(request).ConfigureAwait(false);
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 Debug.WriteLine("Exception retrieving " + request.RequestUri);
                 throw;

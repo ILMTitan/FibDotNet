@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
@@ -65,17 +66,17 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         [Test]
-        public void testFromImage()
+        public async Task testFromImageAsync()
         {
             Image image1 = Image.builder(ManifestFormat.V22).setUser("user").build();
             Image image2 = Image.builder(ManifestFormat.V22).setUser("user").build();
             Image image3 = Image.builder(ManifestFormat.V22).setUser("anotherUser").build();
             Assert.AreEqual(
-                BuildResult.fromImage(image1, ManifestFormat.V22),
-                BuildResult.fromImage(image2, ManifestFormat.V22));
+                await BuildResult.fromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
+                await BuildResult.fromImageAsync(image2, ManifestFormat.V22).ConfigureAwait(false));
             Assert.AreNotEqual(
-                BuildResult.fromImage(image1, ManifestFormat.V22),
-                BuildResult.fromImage(image3, ManifestFormat.V22));
+                await BuildResult.fromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
+                await BuildResult.fromImageAsync(image3, ManifestFormat.V22).ConfigureAwait(false));
         }
     }
 }

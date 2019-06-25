@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.json
 {
@@ -116,13 +117,15 @@ namespace com.google.cloud.tools.jib.json
             return StandardCharsets.UTF_8.GetBytes(JsonConvert.SerializeObject(template));
         }
 
-        public static void writeTo(object template, Stream @out)
+        public static async Task writeToAsync(object template, Stream stream)
         {
             var jsonString = JsonConvert.SerializeObject(template);
             Debug.WriteLine(jsonString);
-            var writer = new StreamWriter(@out);
-            writer.Write(jsonString);
-            writer.Flush();
+            using (var writer = new StreamWriter(stream))
+            {
+                await writer.WriteAsync(jsonString).ConfigureAwait(false);
+                await writer.FlushAsync().ConfigureAwait(false);
+            }
         }
     }
 }

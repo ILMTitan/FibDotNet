@@ -112,13 +112,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                     if (output.isEmpty())
                     {
-                        using (StreamReader processStderrReader =
-                            new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8))
-                        {
-                            string errorOutput = CharStreams.toString(processStderrReader);
-                            throw new CredentialHelperUnhandledServerUrlException(
-                                credentialHelper, registry, errorOutput);
-                        }
+                        ThrowUnhandledUrlException(process);
                     }
 
                     try
@@ -156,6 +150,17 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 }
 
                 throw;
+            }
+        }
+
+        private void ThrowUnhandledUrlException(IProcess process)
+        {
+            using (StreamReader processStderrReader =
+                new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8))
+            {
+                string errorOutput = processStderrReader.ReadToEnd();
+                throw new CredentialHelperUnhandledServerUrlException(
+                    credentialHelper, registry, errorOutput);
             }
         }
 

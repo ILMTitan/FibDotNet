@@ -270,8 +270,8 @@ namespace com.google.cloud.tools.jib.registry
                         request.Method = HttpMethod.Get;
                     }
 
-                    HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false);
                     string responseString;
+                    using (HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false))
                     using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8))
                     {
                         responseString = CharStreams.toString(reader);

@@ -110,8 +110,8 @@ namespace com.google.cloud.tools.jib.registry
             V22ManifestTemplate manifestTemplateByDigest =
                 await registryClient.pullManifestAsync<V22ManifestTemplate>(imageDigest.toString()).ConfigureAwait(false);
             Assert.AreEqual(
-                Digests.computeJsonDigest(manifestTemplate),
-                Digests.computeJsonDigest(manifestTemplateByDigest));
+                await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false),
+                await Digests.computeJsonDigestAsync(manifestTemplateByDigest).ConfigureAwait(false));
         }
     }
 }

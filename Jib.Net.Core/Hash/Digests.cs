@@ -33,20 +33,22 @@ namespace com.google.cloud.tools.jib.hash
     // more general.
     public static class Digests
     {
-        public static DescriptorDigest computeJsonDigest(object template)
+        public static async Task<DescriptorDigest> computeJsonDigestAsync(object template)
         {
-            return computeJsonDigest(template, Stream.Null).getDigest();
+            var descriptor = await computeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
+            return descriptor.getDigest();
         }
 
-        public static BlobDescriptor computeJsonDescriptor(object template)
+        public static async Task<BlobDescriptor> computeJsonDescriptorAsync(object template)
         {
-            return computeJsonDigest(template, Stream.Null);
+            return await computeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
         }
 
-        public static BlobDescriptor computeJsonDigest(object template, Stream outStream)
+        public static async Task<BlobDescriptor> computeJsonDigestAsync(object template, Stream outStream)
         {
-            void contents(Stream contentsOut) => JsonTemplateMapper.writeTo(template, contentsOut);
-            return computeDigest(contents, outStream);
+            async Task contentsAsync(Stream contentsOut) =>
+                await JsonTemplateMapper.writeToAsync(template, contentsOut).ConfigureAwait(false);
+            return await computeDigestAsync(contentsAsync, outStream).ConfigureAwait(false);
         }
 
         public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream)

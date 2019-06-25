@@ -88,7 +88,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         .writeToAsync(outputStream).ConfigureAwait(false);
                 }
 
-                return BuildResult.fromImage(image, buildConfiguration.getTargetFormat());
+                return await BuildResult.fromImageAsync(image, buildConfiguration.getTargetFormat()).ConfigureAwait(false);
             }
         }
     }

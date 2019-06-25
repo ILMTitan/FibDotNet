@@ -30,6 +30,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -128,17 +129,17 @@ namespace com.google.cloud.tools.jib.image.json
         }
 
         [Test]
-        public void testGetManifest_v22()
+        public async Task testGetManifest_v22Async()
         {
             setUp(ManifestFormat.V22);
-            testGetManifest(ManifestFormat.V22, "core/json/translated_v22manifest.json");
+            await testGetManifestAsync(ManifestFormat.V22, "core/json/translated_v22manifest.json").ConfigureAwait(false);
         }
 
         [Test]
-        public void testGetManifest_oci()
+        public async Task testGetManifest_ociAsync()
         {
             setUp(ManifestFormat.OCI);
-            testGetManifest(ManifestFormat.OCI, "core/json/translated_ocimanifest.json");
+            await testGetManifestAsync(ManifestFormat.OCI, "core/json/translated_ocimanifest.json").ConfigureAwait(false);
         }
 
         [Test]
@@ -179,7 +180,7 @@ namespace com.google.cloud.tools.jib.image.json
         }
 
         /** Tests translation of image to {@link BuildableManifestTemplate}. */
-        private void testGetManifest(
+        private async Task testGetManifestAsync(
             ManifestFormat manifestTemplateClass, string translatedJsonFilename)
         {
             // Loads the expected JSON string.
@@ -188,7 +189,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             // Translates the image to the manifest and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
-            BlobDescriptor blobDescriptor = Digests.computeJsonDescriptor(containerConfiguration);
+            BlobDescriptor blobDescriptor = await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
 
