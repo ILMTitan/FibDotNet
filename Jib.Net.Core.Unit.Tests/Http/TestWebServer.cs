@@ -34,7 +34,7 @@ using NUnit.Framework;
 namespace com.google.cloud.tools.jib.http
 {
     /** Simple local web server for testing. */
-    public class TestWebServer : IDisposable
+    public sealed class TestWebServer : IDisposable
     {
         private readonly bool https;
         private readonly TcpListener serverSocket;

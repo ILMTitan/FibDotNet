@@ -20,7 +20,7 @@ using System.IO;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {
-    public class TemporaryFolder:IDisposable
+    public sealed class TemporaryFolder:IDisposable
     {
         private readonly DirectoryInfo directory;
 

@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib
 {
     /** Testing infrastructure for running code across multiple threads. */
-    public class MultithreadedExecutor : IDisposable
+    public sealed class MultithreadedExecutor : IDisposable
     {
         public async Task<E> invokeAsync<E>(Func<E> callable)
         {

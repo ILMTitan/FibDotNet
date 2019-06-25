@@ -26,7 +26,7 @@ namespace com.google.cloud.tools.jib.http
      * org.mockito.Mockito#mock}; this class is intended to examine the {@link Request) object by
      * calling its non-public package-protected methods.
      */
-    public class MockConnection : IConnection
+    public sealed class MockConnection : IConnection
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> responseSupplier;
 
