@@ -255,7 +255,7 @@ namespace com.google.cloud.tools.jib.registry
                 using (IConnection connection = connectionFactory.apply(url))
                 {
                     var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
-                    foreach(var value in userAgent)
+                    foreach (var value in userAgent)
                     {
                         request.Headers.UserAgent.Add(value);
                     }
@@ -329,6 +329,10 @@ namespace com.google.cloud.tools.jib.registry
                     throw new RegistryBrokenPipeException(ex);
                 }
                 throw;
+            }
+            catch (TimeoutException e)
+            {
+                throw new RegistryNoResponseException("Registry failed to respond", e);
             }
         }
 

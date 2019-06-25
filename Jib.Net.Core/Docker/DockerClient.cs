@@ -198,15 +198,19 @@ namespace com.google.cloud.tools.jib.docker
                         {
                             error = CharStreams.toString(stderr);
                         }
-                        throw new IOException("'docker load' command failed with error: " + error, ex);
                     }
                     catch (IOException e)
                     {
                         // This ignores exceptions from reading stderr and throws the original exception from
                         // writing to stdin.
                         Debug.WriteLine(e);
+                        error = null;
                     }
-                    throw;
+                    if (error is null)
+                    {
+                        throw;
+                    }
+                    throw new IOException("'docker load' command failed with error: " + error, ex);
                 }
             }
 
