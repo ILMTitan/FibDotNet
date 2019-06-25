@@ -26,7 +26,7 @@ namespace com.google.cloud.tools.jib.cache
                   : base(
                         $"{message}. " +
                         $"You may need to clear the cache by deleting the '{cacheDirectory}' directory " +
-                        $"(if this is a bug, please file an issue at {ProjectInfo.GITHUB_NEW_ISSUE_URL})",
+                        $"(if this is a bug, please file an issue at {ProjectInfo.GitHubNewIssueUrl})",
                         cause)
         {
         }
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.cache
                   + ". You may need to clear the cache by deleting the '"
                   + cacheDirectory
                   + "' directory (if this is a bug, please file an issue at "
-                  + ProjectInfo.GITHUB_NEW_ISSUE_URL
+                  + ProjectInfo.GitHubNewIssueUrl
                   + ")")
         {
         }

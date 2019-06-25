@@ -22,12 +22,12 @@ using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api
 {
-    public struct Optional<T> : IEquatable<Optional<T>>
+    public struct Option<T> : IEquatable<Option<T>>
     {
         private readonly bool present;
         private readonly T value;
 
-        public Optional(T value)
+        public Option(T value)
         {
             this.value = value;
             present = true;
@@ -46,14 +46,14 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        internal Optional<R> ifPresent<R>(Func<T, R> func)
+        internal Option<R> ifPresent<R>(Func<T, R> func)
         {
             if (present)
             {
-                return new Optional<R>(func(value));
+                return new Option<R>(func(value));
             } else
             {
-                return new Optional<R>();
+                return new Option<R>();
             }
         }
 
@@ -77,10 +77,10 @@ namespace com.google.cloud.tools.jib.api
 
         public override bool Equals(object obj)
         {
-            return obj is Optional<T> optional && Equals(optional);
+            return obj is Option<T> optional && Equals(optional);
         }
 
-        public bool Equals(Optional<T> other)
+        public bool Equals(Option<T> other)
         {
             return present == other.present &&
                    EqualityComparer<T>.Default.Equals(value, other.value);
@@ -94,40 +94,40 @@ namespace com.google.cloud.tools.jib.api
             return hashCode;
         }
 
-        public static bool operator ==(Optional<T> left, Optional<T> right)
+        public static bool operator ==(Option<T> left, Option<T> right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(Optional<T> left, Optional<T> right)
+        public static bool operator !=(Option<T> left, Option<T> right)
         {
             return !(left == right);
         }
     }
 
-    public static class Optional
+    public static class Option
     {
-        public static Optional<T> of<T>(T value)
+        public static Option<T> of<T>(T value)
         {
-            return new Optional<T>(value);
+            return new Option<T>(value);
         }
 
-        internal static Optional<T> ofNullable<T>(T value)
+        internal static Option<T> ofNullable<T>(T value)
         {
             if (value == null)
             {
-                return Optional.empty<T>();
+                return Option.empty<T>();
             } else {
-                return Optional.of(value);
+                return Option.of(value);
             }
         }
 
-        public static Optional<T> empty<T>()
+        public static Option<T> empty<T>()
         {
-            return new Optional<T>();
+            return new Option<T>();
         }
 
-        public static T orElse<T>(this Optional<T> o, T defaultValue) where T : class
+        public static T orElse<T>(this Option<T> o, T defaultValue) where T : class
         {
             if (o.isPresent())
             {
@@ -139,7 +139,7 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        public static T? asNullable<T>(this Optional<T> o) where T : struct
+        public static T? asNullable<T>(this Option<T> o) where T : struct
         {
             if (o.isPresent())
             {

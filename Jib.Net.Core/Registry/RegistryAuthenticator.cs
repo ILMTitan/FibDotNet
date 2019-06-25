@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -272,7 +273,7 @@ namespace com.google.cloud.tools.jib.registry
 
                     string responseString;
                     using (HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false))
-                    using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8))
+                    using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), Encoding.UTF8))
                     {
                         responseString = CharStreams.toString(reader);
                     }

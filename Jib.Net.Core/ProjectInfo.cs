@@ -22,10 +22,10 @@ namespace com.google.cloud.tools.jib
     public static class ProjectInfo
     {
         /** Link to the GitHub repository. */
-        public static readonly string GITHUB_URL = "https://github.com/GoogleContainerTools/jib";
+        public static readonly string GitHubUrl = "https://github.com/GoogleContainerTools/jib";
 
         /** Link to file an issue against the GitHub repository. */
-        public static readonly string GITHUB_NEW_ISSUE_URL = GITHUB_URL + "/issues/new";
+        public static readonly string GitHubNewIssueUrl = GitHubUrl + "/issues/new";
 
         /** The project version. May be {@code null} if the version cannot be determined. */
         public static readonly string VERSION = "0.0.1-alpha.1";

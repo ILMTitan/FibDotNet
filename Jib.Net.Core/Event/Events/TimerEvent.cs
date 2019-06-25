@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.@event.events
              *
              * @return the parent of this {@link Timer}
              */
-            Optional<ITimer> getParent();
+            Option<ITimer> getParent();
         }
 
         private readonly State state;

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.api
@@ -222,30 +223,30 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testPermissions()
         {
-            Assert.AreEqual(FilePermissions.fromOctalString("644"), FilePermissions.DEFAULT_FILE_PERMISSIONS);
-            Assert.AreEqual(FilePermissions.fromOctalString("755"), FilePermissions.DEFAULT_FOLDER_PERMISSIONS);
+            Assert.AreEqual(FilePermissions.fromOctalString("644"), FilePermissions.DefaultFilePermissions);
+            Assert.AreEqual(FilePermissions.fromOctalString("755"), FilePermissions.DefaultFolderPermissions);
             layerEntriesDo(
                 (layerName, layerEntry) =>
                 {
                     if (layerEntry.isFile())
                     {
-                        const PosixFilePermissions expectedFilePermissions = PosixFilePermissions.OWNER_READ
-                            | PosixFilePermissions.OWNER_WRITE
-                            | PosixFilePermissions.GROUP_READ
-                            | PosixFilePermissions.OTHERS_READ;
+                        const PosixFilePermissions expectedFilePermissions = PosixFilePermissions.OwnerRead
+                            | PosixFilePermissions.OwnerWrite
+                            | PosixFilePermissions.GroupRead
+                            | PosixFilePermissions.OthersRead;
                         Assert.AreEqual(
                             expectedFilePermissions,
-                            layerEntry.getMode() & PosixFilePermissions.ALL,
+                            layerEntry.getMode() & PosixFilePermissions.All,
                             layerName + ": " + layerEntry.getName());
                     }
                     else if (layerEntry.isDirectory())
                     {
-                        const PosixFilePermissions expectedDirectoryPermissions = PosixFilePermissions.OWNER_ALL
-                            | PosixFilePermissions.GROUP_READ_EXECUTE
-                            | PosixFilePermissions.OTHERS_READ_EXECUTE;
+                        const PosixFilePermissions expectedDirectoryPermissions = PosixFilePermissions.OwnerAll
+                            | PosixFilePermissions.GroupReadExecute
+                            | PosixFilePermissions.OthersReadExecute;
                         Assert.AreEqual(
                             expectedDirectoryPermissions,
-                            layerEntry.getMode() & PosixFilePermissions.ALL,
+                            layerEntry.getMode() & PosixFilePermissions.All,
                             layerName + ": " + layerEntry.getName());
                     }
                 });
@@ -339,7 +340,7 @@ namespace com.google.cloud.tools.jib.api
                 {
                     if (filename == imageEntry.getName())
                     {
-                        return CharStreams.toString(new StreamReader(input, StandardCharsets.UTF_8));
+                        return CharStreams.toString(new StreamReader(input, Encoding.UTF8));
                     }
                 }
             }

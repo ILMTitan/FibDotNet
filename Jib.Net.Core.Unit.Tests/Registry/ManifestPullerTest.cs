@@ -181,23 +181,23 @@ namespace com.google.cloud.tools.jib.registry
         {
             Assert.AreEqual(
                 Arrays.asList(
-                    OCIManifestTemplate.MANIFEST_MEDIA_TYPE,
-                    V22ManifestTemplate.MANIFEST_MEDIA_TYPE,
-                    V21ManifestTemplate.MEDIA_TYPE),
+                    OCIManifestTemplate.ManifestMediaType,
+                    V22ManifestTemplate.ManifestMediaType,
+                    V21ManifestTemplate.ManifestMediaType),
                 testManifestPuller.getAccept());
 
             CollectionAssert.AreEqual(
-                Collections.singletonList(OCIManifestTemplate.MANIFEST_MEDIA_TYPE),
+                Collections.singletonList(OCIManifestTemplate.ManifestMediaType),
                 new ManifestPuller<OCIManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
             CollectionAssert.AreEqual(
-                Collections.singletonList(V22ManifestTemplate.MANIFEST_MEDIA_TYPE),
+                Collections.singletonList(V22ManifestTemplate.ManifestMediaType),
                 new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
             CollectionAssert.AreEqual(
-                Collections.singletonList(V21ManifestTemplate.MEDIA_TYPE),
+                Collections.singletonList(V21ManifestTemplate.ManifestMediaType),
                 new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());

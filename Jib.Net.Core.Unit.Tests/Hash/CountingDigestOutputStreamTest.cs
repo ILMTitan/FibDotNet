@@ -22,6 +22,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.hash
 {
@@ -48,7 +49,7 @@ namespace com.google.cloud.tools.jib.hash
                 CountingDigestOutputStream countingDigestOutputStream =
                     new CountingDigestOutputStream(underlyingOutputStream);
 
-                byte[] bytesToHash = toHash.getBytes(StandardCharsets.UTF_8);
+                byte[] bytesToHash = toHash.getBytes(Encoding.UTF8);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
                 await ByteStreams.copyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
 

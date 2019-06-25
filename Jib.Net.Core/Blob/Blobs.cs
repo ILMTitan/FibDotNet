@@ -22,6 +22,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
@@ -74,7 +75,7 @@ namespace com.google.cloud.tools.jib.blob
          */
         public static async Task<string> writeToStringAsync(IBlob blob)
         {
-            return StandardCharsets.UTF_8.GetString(await writeToByteArrayAsync(blob).ConfigureAwait(false));
+            return Encoding.UTF8.GetString(await writeToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
         /**

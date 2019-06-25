@@ -24,6 +24,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.json
 {
@@ -54,7 +55,7 @@ namespace com.google.cloud.tools.jib.json
         public void testWriteJson()
         {
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             TestJson testJson = new TestJson
             {
@@ -131,7 +132,7 @@ namespace com.google.cloud.tools.jib.json
         {
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").toURI());
 
-            string jsonString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
             IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
             TestJson json1 = listofJsons.get(0);
             TestJson json2 = listofJsons.get(1);
@@ -160,7 +161,7 @@ namespace com.google.cloud.tools.jib.json
         {
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").toURI());
 
-            string jsonString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
             List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
 
             Assert.AreEqual(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));

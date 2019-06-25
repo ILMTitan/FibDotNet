@@ -21,6 +21,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.docker.json
 {
@@ -32,7 +33,7 @@ namespace com.google.cloud.tools.jib.docker.json
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/loadmanifest.json").toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
             template.setRepoTags(

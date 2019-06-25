@@ -24,6 +24,7 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 
 namespace Jib.Net.Core.Registry.Credentials
 {
@@ -35,7 +36,7 @@ namespace Jib.Net.Core.Registry.Credentials
      */
     public class DockerCredentialHelper : IDockerCredentialHelper
     {
-        public static readonly string CREDENTIAL_HELPER_PREFIX = "docker-credential-";
+        public static readonly string CredentialHelperPrefix = "docker-credential-";
 
         private readonly string registry;
         private readonly SystemPath credentialHelper;
@@ -68,7 +69,7 @@ namespace Jib.Net.Core.Registry.Credentials
             this.credentialHelper = credentialHelper;
         }
 
-        public DockerCredentialHelper(string registry, string credentialHelperSuffix) : this(registry, Paths.get(CREDENTIAL_HELPER_PREFIX + credentialHelperSuffix))
+        public DockerCredentialHelper(string registry, string credentialHelperSuffix) : this(registry, Paths.get(CredentialHelperPrefix + credentialHelperSuffix))
         {
         }
 
@@ -97,11 +98,11 @@ namespace Jib.Net.Core.Registry.Credentials
                 IProcess process = new ProcessBuilder(credentialHelper.toString(), "get").start();
                 using (Stream processStdin = process.getOutputStream())
                 {
-                    processStdin.write(registry.getBytes(StandardCharsets.UTF_8));
+                    processStdin.write(registry.getBytes(Encoding.UTF8));
                 }
 
                 using (StreamReader processStdoutReader =
-                    new StreamReader(process.getInputStream(), StandardCharsets.UTF_8))
+                    new StreamReader(process.getInputStream(), Encoding.UTF8))
                 {
                     string output = CharStreams.toString(processStdoutReader);
 
@@ -157,7 +158,7 @@ namespace Jib.Net.Core.Registry.Credentials
         private void ThrowUnhandledUrlException(IProcess process)
         {
             using (StreamReader processStderrReader =
-                new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8))
+                new StreamReader(process.getErrorStream(), Encoding.UTF8))
             {
                 string errorOutput = processStderrReader.ReadToEnd();
                 throw new CredentialHelperUnhandledServerUrlException(

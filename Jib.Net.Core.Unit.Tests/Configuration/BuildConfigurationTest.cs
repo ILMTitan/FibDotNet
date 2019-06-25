@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.configuration
             ISet<string> additionalTargetImageTags = ImmutableHashSet.Create("tag1", "tag2", "tag3");
             ISet<string> expectedTargetImageTags = ImmutableHashSet.Create("targettag", "tag1", "tag2", "tag3");
             IList<CredentialRetriever> credentialRetrievers =
-                Collections.singletonList<CredentialRetriever>(() => Optional.of(Credential.from("username", "password")));
+                Collections.singletonList<CredentialRetriever>(() => Option.of(Credential.from("username", "password")));
             Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
             IList<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
             IList<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");

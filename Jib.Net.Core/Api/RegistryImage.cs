@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public RegistryImage addCredential(string username, string password)
         {
-            addCredentialRetriever(() => Optional.of(Credential.from(username, password)));
+            addCredentialRetriever(() => Option.of(Credential.from(username, password)));
             return this;
         }
 

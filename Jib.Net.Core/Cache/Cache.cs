@@ -123,7 +123,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Optional<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
+        public Option<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
         {
             return cacheStorageReader.retrieveMetadata(imageReference);
         }
@@ -136,13 +136,13 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public async Task<Optional<CachedLayer>> retrieveAsync(ImmutableArray<LayerEntry> layerEntries)
+        public async Task<Option<CachedLayer>> retrieveAsync(ImmutableArray<LayerEntry> layerEntries)
         {
             DescriptorDigest selector = await LayerEntriesSelector.generateSelectorAsync(layerEntries).ConfigureAwait(false);
-            Optional<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.select(selector);
+            Option<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.select(selector);
             if (!optionalSelectedLayerDigest.isPresent())
             {
-                return Optional.empty<CachedLayer>();
+                return Option.empty<CachedLayer>();
             }
 
             return cacheStorageReader.retrieve(optionalSelectedLayerDigest.get());
@@ -156,7 +156,7 @@ namespace com.google.cloud.tools.jib.cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public Optional<CachedLayer> retrieve(DescriptorDigest layerDigest)
+        public Option<CachedLayer> retrieve(DescriptorDigest layerDigest)
         {
             return cacheStorageReader.retrieve(layerDigest);
         }

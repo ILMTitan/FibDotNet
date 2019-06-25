@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.image.json
     public class V22ManifestTemplate : IBuildableManifestTemplate
     {
         /** The Docker V2.2 manifest media type. */
-        public static readonly string MANIFEST_MEDIA_TYPE =
+        public static readonly string ManifestMediaType =
             "application/vnd.docker.distribution.manifest.v2+json";
 
         /** The Docker V2.2 container configuration media type. */
@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.image.json
             "application/vnd.docker.image.rootfs.diff.tar.gzip";
 
         public int SchemaVersion { get; } = 2;
-        public string MediaType { get; } = MANIFEST_MEDIA_TYPE;
+        public string MediaType { get; } = ManifestMediaType;
 
         /** The container configuration reference. */
         public ContentDescriptorTemplate Config { get; private set; }
@@ -100,7 +100,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public string getManifestMediaType()
         {
-            return MANIFEST_MEDIA_TYPE;
+            return ManifestMediaType;
         }
 
         public ContentDescriptorTemplate getContainerConfiguration()

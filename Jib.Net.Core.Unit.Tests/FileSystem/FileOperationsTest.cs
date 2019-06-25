@@ -25,6 +25,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -46,7 +47,7 @@ namespace com.google.cloud.tools.jib.filesystem
                     // pass
                 }
 
-                fileOutputStream.write("jib".getBytes(StandardCharsets.UTF_8));
+                fileOutputStream.write("jib".getBytes(Encoding.UTF8));
             }
 
             Assert.AreEqual("jib", File.ReadAllText(file.toString()));

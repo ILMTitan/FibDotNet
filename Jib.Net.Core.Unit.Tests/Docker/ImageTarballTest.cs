@@ -31,6 +31,7 @@ using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
@@ -83,7 +84,7 @@ namespace com.google.cloud.tools.jib.docker
                 Assert.AreEqual(fakeDigestA.getHash() + ".tar.gz", headerFileALayer.getName());
                 string fileAString =
                     CharStreams.toString(
-                        new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
                 Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileA)).ConfigureAwait(false), fileAString);
 
                 // Verifies layer with fileB was added.
@@ -91,7 +92,7 @@ namespace com.google.cloud.tools.jib.docker
                 Assert.AreEqual(fakeDigestB.getHash() + ".tar.gz", headerFileBLayer.getName());
                 string fileBString =
                     CharStreams.toString(
-                        new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
                 Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileB)).ConfigureAwait(false), fileBString);
 
                 // Verifies container configuration was added.
@@ -99,7 +100,7 @@ namespace com.google.cloud.tools.jib.docker
                 Assert.AreEqual("config.json", headerContainerConfiguration.getName());
                 string containerConfigJson =
                     CharStreams.toString(
-                        new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
                 JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(containerConfigJson);
 
                 // Verifies manifest was added.
@@ -107,7 +108,7 @@ namespace com.google.cloud.tools.jib.docker
                 Assert.AreEqual("manifest.json", headerManifest.getName());
                 string manifestJson =
                     CharStreams.toString(
-                        new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
                 JsonTemplateMapper.readListOfJson<DockerLoadManifestEntryTemplate>(manifestJson);
             }
         }

@@ -24,6 +24,7 @@ using com.google.cloud.tools.jib.registry;
 using System.Net;
 using System.Threading.Tasks;
 using System.Security.Authentication;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -41,7 +42,7 @@ namespace com.google.cloud.tools.jib.http
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
-                    "Hello World!".getBytes(StandardCharsets.UTF_8),
+                    "Hello World!".getBytes(Encoding.UTF8),
                     ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
             }
         }
@@ -76,7 +77,7 @@ namespace com.google.cloud.tools.jib.http
 
                 Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
                 CollectionAssert.AreEqual(
-                    "Hello World!".getBytes(StandardCharsets.UTF_8),
+                    "Hello World!".getBytes(Encoding.UTF8),
                     ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
             }
         }

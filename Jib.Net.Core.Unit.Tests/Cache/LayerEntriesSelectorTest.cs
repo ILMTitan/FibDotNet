@@ -26,6 +26,7 @@ using NodaTime;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
+using System.Text;
 using System.Threading.Tasks;
 using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
 
@@ -39,8 +40,8 @@ namespace com.google.cloud.tools.jib.cache
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(source, destination),
-                LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultModifiedTime);
         }
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -74,7 +75,7 @@ namespace com.google.cloud.tools.jib.cache
                     file3,
                     AbsoluteUnixPath.get("/extraction/path"),
                     FilePermissions.fromOctalString("755"),
-                    LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                    LayerConfiguration.DefaultModifiedTime);
             LayerEntry testLayerEntry5 =
                 defaultLayerEntry(file3, AbsoluteUnixPath.get("/extraction/patha"));
             LayerEntry testLayerEntry6 =
@@ -82,7 +83,7 @@ namespace com.google.cloud.tools.jib.cache
                     file3,
                     AbsoluteUnixPath.get("/extraction/patha"),
                     FilePermissions.fromOctalString("755"),
-                    LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                    LayerConfiguration.DefaultModifiedTime);
 
             outOfOrderLayerEntries =
                 ImmutableArray.Create(
@@ -145,7 +146,7 @@ namespace com.google.cloud.tools.jib.cache
         public async Task testGenerateSelector_fileModifiedAsync()
         {
             SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
-            Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
+            Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
             Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
             LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
             DescriptorDigest expectedSelector =
@@ -167,19 +168,19 @@ namespace com.google.cloud.tools.jib.cache
         public void testGenerateSelector_permissionsModified()
         {
             SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
-            Files.write(layerFile, "hello".getBytes(StandardCharsets.UTF_8));
+            Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
             LayerEntry layerEntry111 =
                 new LayerEntry(
                     layerFile,
                     AbsoluteUnixPath.get("/extraction/path"),
                     FilePermissions.fromOctalString("111"),
-                    LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                    LayerConfiguration.DefaultModifiedTime);
             LayerEntry layerEntry222 =
                 new LayerEntry(
                     layerFile,
                     AbsoluteUnixPath.get("/extraction/path"),
                     FilePermissions.fromOctalString("222"),
-                    LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                    LayerConfiguration.DefaultModifiedTime);
 
             // Verify that changing permissions generates a different selector
             Assert.AreNotEqual(

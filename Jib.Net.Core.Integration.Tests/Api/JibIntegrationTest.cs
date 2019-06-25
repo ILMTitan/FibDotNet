@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.api
                         Containerizer.to(
                                 RegistryImage.named(targetImageReference)
                                     .addCredentialRetriever(
-                                        () => Optional.of(Credential.from("username", "password"))))
+                                        () => Option.of(Credential.from("username", "password"))))
                             .setAllowInsecureRegistries(true)
                             .addEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.api
                     Containerizer.to(
                             RegistryImage.named(targetImageReference)
                                 .addCredentialRetriever(
-                                    () => Optional.of(Credential.from("username", "password"))))
+                                    () => Option.of(Credential.from("username", "password"))))
                         .setAllowInsecureRegistries(true)).ConfigureAwait(false);
 
             // Check that resulting image has no layers

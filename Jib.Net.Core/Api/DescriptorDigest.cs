@@ -32,16 +32,16 @@ namespace Jib.Net.Core.Api
      [JsonConverter(typeof(DescriptorDigestConverter))]
     public sealed class DescriptorDigest
     {
-        public static readonly int HASH_LENGTH = 64;
+        public static readonly int HashLength = 64;
 
         /** Pattern matches a SHA-256 hash - 32 bytes in lowercase hexadecimal. */
-        private static readonly string HASH_REGEX = $"[a-f0-9]{{{HASH_LENGTH}}}";
+        private static readonly string HASH_REGEX = $"[a-f0-9]{{{HashLength}}}";
 
         /** The algorithm prefix for the digest string. */
         private const string DIGEST_PREFIX = "sha256:";
 
         /** Pattern matches a SHA-256 digest - a SHA-256 hash prefixed with "sha256:". */
-        public static readonly string DIGEST_REGEX = DIGEST_PREFIX + HASH_REGEX;
+        public static readonly string DigestRegex = DIGEST_PREFIX + HASH_REGEX;
 
         private readonly string hash;
 
@@ -72,7 +72,7 @@ namespace Jib.Net.Core.Api
         public static DescriptorDigest fromDigest(string digest)
         {
             digest = digest ?? throw new ArgumentNullException(nameof(digest));
-            if (!digest.matches(DIGEST_REGEX))
+            if (!digest.matches(DigestRegex))
             {
                 throw new DigestException("Invalid digest: " + digest);
             }

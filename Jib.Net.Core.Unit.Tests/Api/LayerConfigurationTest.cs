@@ -34,8 +34,8 @@ namespace com.google.cloud.tools.jib.api
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(source, destination),
-                LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultModifiedTime);
         }
 
         [Test]

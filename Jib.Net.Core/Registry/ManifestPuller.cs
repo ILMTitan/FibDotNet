@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Registry
@@ -59,11 +60,11 @@ namespace Jib.Net.Core.Registry
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
                 string mediaType = obj.Value<string>("mediaType");
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
+                if (V22ManifestTemplate.ManifestMediaType == mediaType)
                 {
                     return JsonTemplateMapper.readJson<V22ManifestTemplate>(jsonString);
                 }
-                if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
+                if (OCIManifestTemplate.ManifestMediaType == mediaType)
                 {
                     return JsonTemplateMapper.readJson<OCIManifestTemplate>(jsonString);
                 }
@@ -97,20 +98,20 @@ namespace Jib.Net.Core.Registry
         {
             if (typeof(T) == typeof(OCIManifestTemplate))
             {
-                return new[] { OCIManifestTemplate.MANIFEST_MEDIA_TYPE };
+                return new[] { OCIManifestTemplate.ManifestMediaType };
             }
             if (typeof(T) == typeof(V22ManifestTemplate))
             {
-                return new[] { V22ManifestTemplate.MANIFEST_MEDIA_TYPE };
+                return new[] { V22ManifestTemplate.ManifestMediaType };
             }
             if (typeof(T) == typeof(V21ManifestTemplate))
             {
-                return new[] { V21ManifestTemplate.MEDIA_TYPE };
+                return new[] { V21ManifestTemplate.ManifestMediaType };
             }
             return Arrays.asList(
-                OCIManifestTemplate.MANIFEST_MEDIA_TYPE,
-                V22ManifestTemplate.MANIFEST_MEDIA_TYPE,
-                V21ManifestTemplate.MEDIA_TYPE);
+                OCIManifestTemplate.ManifestMediaType,
+                V22ManifestTemplate.ManifestMediaType,
+                V21ManifestTemplate.ManifestMediaType);
         }
 
         /** Parses the response body into a {@link ManifestTemplate}. */
@@ -120,7 +121,7 @@ namespace Jib.Net.Core.Registry
             if (response.IsSuccessStatusCode)
             {
                 string jsonString;
-                using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8))
+                using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), Encoding.UTF8))
                 {
                     jsonString = CharStreams.toString(reader);
                 }

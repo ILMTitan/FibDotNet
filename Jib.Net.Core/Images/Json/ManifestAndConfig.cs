@@ -46,9 +46,9 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the container configuration
          */
-        public Optional<ContainerConfigurationTemplate> getConfig()
+        public Option<ContainerConfigurationTemplate> getConfig()
         {
-            return Optional.ofNullable(config);
+            return Option.ofNullable(config);
         }
     }
 }

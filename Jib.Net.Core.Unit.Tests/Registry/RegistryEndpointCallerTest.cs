@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading.Tasks;
 using Authorization = com.google.cloud.tools.jib.http.Authorization;
 
@@ -70,7 +71,7 @@ namespace com.google.cloud.tools.jib.registry
                 if (response.IsSuccessStatusCode)
                 {
                     return CharStreams.toString(
-                        new StreamReader(await response.getBodyAsync().ConfigureAwait(false), StandardCharsets.UTF_8));
+                        new StreamReader(await response.getBodyAsync().ConfigureAwait(false), Encoding.UTF8));
                 } else
                 {
                     throw new HttpResponseException(response);
@@ -129,8 +130,8 @@ namespace com.google.cloud.tools.jib.registry
         [TearDown]
         public void tearDown()
         {
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, null);
-            Environment.SetEnvironmentVariable(JibSystemProperties.SEND_CREDENTIALS_OVER_HTTP, null);
+            Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, null);
+            Environment.SetEnvironmentVariable(JibSystemProperties.SendCredentialsOverHttp, null);
         }
 
         public void Dispose()
@@ -346,7 +347,7 @@ namespace com.google.cloud.tools.jib.registry
             Mock.Get(mockInsecureConnection).Setup(c => c.sendAsync(It.IsAny<HttpRequestMessage>()))
                 .Throws(new HttpRequestException("", new AuthenticationException())); // server is not HTTPS
 
-            Environment.SetEnvironmentVariable(JibSystemProperties.SEND_CREDENTIALS_OVER_HTTP, "true");
+            Environment.SetEnvironmentVariable(JibSystemProperties.SendCredentialsOverHttp, "true");
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", await insecureEndpointCaller.callAsync().ConfigureAwait(false));
 

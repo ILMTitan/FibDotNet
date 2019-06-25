@@ -56,11 +56,11 @@ namespace com.google.cloud.tools.jib.registry
                 // There may be multiple error objects
                 if (errors?.size() == 1)
                 {
-                    string errorCodeString = errors.get(0).getCode();
+                    var errorCode = errors.get(0).getCode();
                     // May not get an error code back.
-                    if (Enum.TryParse(errorCodeString, out ErrorCode result))
+                    if (errorCode.HasValue)
                     {
-                        return result;
+                        return errorCode.GetValueOrDefault();
                     }
                 }
             }

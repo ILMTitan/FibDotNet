@@ -91,7 +91,7 @@ namespace Jib.Net.Core.Frontend
             return () =>
             {
                 logGotCredentialsFrom(credentialSource);
-                return Optional.of(credential);
+                return Option.of(credential);
             };
         }
 
@@ -124,14 +124,14 @@ namespace Jib.Net.Core.Frontend
 
                 try
                 {
-                    return Optional.of(retrieveFromDockerCredentialHelper(credentialHelper));
+                    return Option.of(retrieveFromDockerCredentialHelper(credentialHelper));
                 }
                 catch (CredentialHelperUnhandledServerUrlException)
                 {
                     logger(
                         LogEvent.info(
                             "No credentials for " + imageReference.getRegistry() + " in " + credentialHelper));
-                    return Optional.empty<Credential>();
+                    return Option.empty<Credential>();
                 }
                 catch (IOException ex)
                 {
@@ -171,10 +171,10 @@ namespace Jib.Net.Core.Frontend
                 {
                     try
                     {
-                        return Optional.of(
+                        return Option.of(
                             retrieveFromDockerCredentialHelper(
                                 Paths.get(
-                                    DockerCredentialHelper.CREDENTIAL_HELPER_PREFIX
+                                    DockerCredentialHelper.CredentialHelperPrefix
                                         + inferredCredentialHelperSuffix)));
                     }
                     catch (Exception ex) when (ex is CredentialHelperNotFoundException || ex is CredentialHelperUnhandledServerUrlException)
@@ -194,7 +194,7 @@ namespace Jib.Net.Core.Frontend
                         throw new CredentialRetrievalException(ex);
                     }
                 }
-                return Optional.empty<Credential>();
+                return Option.empty<Credential>();
             };
         }
 
@@ -231,7 +231,7 @@ namespace Jib.Net.Core.Frontend
             {
                 try
                 {
-                    Optional<Credential> dockerConfigCredentials =
+                    Option<Credential> dockerConfigCredentials =
                         dockerConfigCredentialRetriever.retrieve(logger);
                     if (dockerConfigCredentials.isPresent())
                     {
@@ -245,7 +245,7 @@ namespace Jib.Net.Core.Frontend
                 {
                     logger(LogEvent.info("Unable to parse Docker config"));
                 }
-                return Optional.empty<Credential>();
+                return Option.empty<Credential>();
             };
         }
 

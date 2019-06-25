@@ -30,6 +30,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
@@ -341,7 +342,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 using (Stream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile.Path))
                 {
-                    fileOut.write(layerDigest.getHash().getBytes(StandardCharsets.UTF_8));
+                    fileOut.write(layerDigest.getHash().getBytes(Encoding.UTF8));
                 }
 
                 // Attempts an atomic move first, and falls back to non-atomic if the file system does not

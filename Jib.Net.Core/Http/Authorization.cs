@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core.Global;
 using System;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -57,7 +58,7 @@ namespace com.google.cloud.tools.jib.http
         public static Authorization fromBasicCredentials(string username, string secret)
         {
             string credentials = username + ":" + secret;
-            string token = Convert.ToBase64String(credentials.getBytes(StandardCharsets.UTF_8));
+            string token = Convert.ToBase64String(credentials.getBytes(Encoding.UTF8));
             return new Authorization("Basic", token);
         }
 

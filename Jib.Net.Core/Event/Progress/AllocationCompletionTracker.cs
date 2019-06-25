@@ -182,7 +182,7 @@ namespace com.google.cloud.tools.jib.@event.progress
             foreach (Allocation allocation in allUnfinished)
 
             {
-                Optional<Allocation> parent = allocation.getParent();
+                Option<Allocation> parent = allocation.getParent();
 
                 while (parent.isPresent())
                 {

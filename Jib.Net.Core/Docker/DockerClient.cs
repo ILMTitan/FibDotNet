@@ -24,6 +24,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.docker
@@ -219,7 +220,7 @@ namespace com.google.cloud.tools.jib.docker
             }
 
             using (Stream stdoutStream = dockerProcess.getInputStream())
-            using (StreamReader stdout = new StreamReader(stdoutStream, StandardCharsets.UTF_8))
+            using (StreamReader stdout = new StreamReader(stdoutStream, Encoding.UTF8))
             {
                 string output = CharStreams.toString(stdout);
 
@@ -267,7 +268,7 @@ namespace com.google.cloud.tools.jib.docker
             if (dockerProcess.waitFor() != 0)
             {
                 using (StreamReader stderr =
-                    new StreamReader(dockerProcess.getErrorStream(), StandardCharsets.UTF_8))
+                    new StreamReader(dockerProcess.getErrorStream(), Encoding.UTF8))
                 {
                     throw new IOException(
                         "'docker tag' command failed with error: " + CharStreams.toString(stderr));

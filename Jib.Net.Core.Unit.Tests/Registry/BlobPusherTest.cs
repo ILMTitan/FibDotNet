@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
@@ -161,7 +162,7 @@ namespace com.google.cloud.tools.jib.registry
             await body.writeToAsync(byteArrayOutputStream).ConfigureAwait(false);
 
             Assert.AreEqual(
-                TEST_BLOB_CONTENT, StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
+                TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.toByteArray()));
             Assert.AreEqual(TEST_BLOB_CONTENT.length(), byteCount.sum());
         }
 

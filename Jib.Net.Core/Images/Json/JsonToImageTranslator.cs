@@ -50,7 +50,7 @@ namespace Jib.Net.Core.Images.Json
          * <p>Example matches: NAME=VALUE, A12345=$$$$$
          */
 
-        public static readonly Regex ENVIRONMENT_PATTERN = new Regex("^(?<name>[^=]+)=(?<value>.*)$");
+        public static readonly Regex EnvironmentPattern = new Regex("^(?<name>[^=]+)=(?<value>.*)$");
 
         /**
          * Translates {@link V21ManifestTemplate} to {@link Image}.
@@ -212,7 +212,7 @@ namespace Jib.Net.Core.Images.Json
             {
                 foreach (string environmentVariable in containerConfigurationTemplate.getContainerEnvironment())
                 {
-                    Match matcher = ENVIRONMENT_PATTERN.matcher(environmentVariable);
+                    Match matcher = EnvironmentPattern.matcher(environmentVariable);
                     if (!matcher.matches())
                     {
                         throw new BadContainerConfigurationFormatException(

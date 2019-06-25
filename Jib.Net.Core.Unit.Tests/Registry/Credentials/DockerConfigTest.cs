@@ -23,6 +23,7 @@ using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Buffers.Text;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
@@ -31,7 +32,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
     {
         private static string decodeBase64(string base64String)
         {
-            return StandardCharsets.UTF_8.GetString(Convert.FromBase64String(base64String));
+            return Encoding.UTF8.GetString(Convert.FromBase64String(base64String));
         }
 
         [Test]

@@ -112,12 +112,12 @@ namespace com.google.cloud.tools.jib.json
 
         public static string toUtf8String(object template)
         {
-            return StandardCharsets.UTF_8.GetString(toByteArray(template));
+            return Encoding.UTF8.GetString(toByteArray(template));
         }
 
         public static byte[] toByteArray(object template)
         {
-            return StandardCharsets.UTF_8.GetBytes(JsonConvert.SerializeObject(template));
+            return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(template));
         }
 
         public static async Task writeToAsync(object template, Stream stream)

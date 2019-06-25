@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,7 +49,7 @@ namespace com.google.cloud.tools.jib.docker
             Mock.Get(mockProcessBuilder).Setup(m => m.start()).Returns(mockProcess);
 
             Mock.Get(imageTarball).Setup(i => i.writeToAsync(It.IsAny<Stream>()))
-                .Returns<Stream>(async s => await s.WriteAsync("jib".getBytes(StandardCharsets.UTF_8)));
+                .Returns<Stream>(async s => await s.WriteAsync("jib".getBytes(Encoding.UTF8)));
         }
 
         [Test]
@@ -74,12 +75,12 @@ namespace com.google.cloud.tools.jib.docker
             Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(byteArrayOutputStream);
 
             // Simulates stdout.
-            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("output".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("output".getBytes(Encoding.UTF8)));
 
             string output = await testDockerClient.loadAsync(imageTarball).ConfigureAwait(false);
 
             Assert.AreEqual(
-                "jib", StandardCharsets.UTF_8.GetString(byteArrayOutputStream.toByteArray()));
+                "jib", Encoding.UTF8.GetString(byteArrayOutputStream.toByteArray()));
             Assert.AreEqual("output", output);
         }
 
@@ -137,9 +138,9 @@ namespace com.google.cloud.tools.jib.docker
 
             Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(Stream.Null);
 
-            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("ignored".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("ignored".getBytes(Encoding.UTF8)));
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(Encoding.UTF8)));
 
             try
             {
@@ -212,7 +213,7 @@ namespace com.google.cloud.tools.jib.docker
                     });
             Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(StandardCharsets.UTF_8)));
+            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(Encoding.UTF8)));
 
             try
             {

@@ -29,7 +29,7 @@ namespace com.google.cloud.tools.jib.hash
     /** A {@link DigestOutputStream} that also keeps track of the total number of bytes written. */
     public class CountingDigestOutputStream : DigestStream
     {
-        public const string SHA_256_ALGORITHM = "SHA-256";
+        public const string Sha256Algorithm = "SHA-256";
 
         private long bytesSoFar = 0;
 
@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.hash
          *
          * @param innerStream the {@link OutputStream} to wrap.
          */
-        public CountingDigestOutputStream(Stream outputStream, bool keepOpen = false) : base(outputStream, MessageDigest.getInstance(SHA_256_ALGORITHM), keepOpen) { }
+        public CountingDigestOutputStream(Stream outputStream, bool keepOpen = false) : base(outputStream, MessageDigest.getInstance(Sha256Algorithm), keepOpen) { }
 
         /**
          * Computes the hash and returns it along with the size of the bytes written to compute the hash.

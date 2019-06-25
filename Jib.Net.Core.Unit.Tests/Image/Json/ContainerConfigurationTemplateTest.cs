@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using NodaTime;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Test.Common;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -36,7 +37,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
             ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate();

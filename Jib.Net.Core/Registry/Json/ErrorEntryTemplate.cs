@@ -15,8 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Registry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace com.google.cloud.tools.jib.registry.json
 {
@@ -24,10 +26,11 @@ namespace com.google.cloud.tools.jib.registry.json
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ErrorEntryTemplate 
     {
-        public string Code { get; }
+        [JsonConverter(typeof(TolerantStringEnumConverter<ErrorCode>), typeof(SnakeCaseNamingStrategy))]
+        public ErrorCode? Code { get; }
         public string Message { get; }
 
-        public ErrorEntryTemplate(string code, string message)
+        public ErrorEntryTemplate(ErrorCode? code, string message)
         {
             this.Code = code;
             this.Message = message;
@@ -35,7 +38,7 @@ namespace com.google.cloud.tools.jib.registry.json
 
         private ErrorEntryTemplate() { }
 
-        public string getCode()
+        public ErrorCode? getCode()
         {
             return Code;
         }

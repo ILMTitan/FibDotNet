@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 Cache cache = buildConfiguration.getBaseImageLayersCache();
 
                 // Checks if the layer already exists in the cache.
-                Optional<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
+                Option<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
                 if (optionalCachedLayer.isPresent())
                 {
                     return optionalCachedLayer.get();

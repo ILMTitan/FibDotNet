@@ -32,6 +32,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
@@ -67,14 +68,14 @@ namespace com.google.cloud.tools.jib.registry
             BlobHttpContent body = testManifestPusher.getContent();
 
             Assert.IsNotNull(body);
-            Assert.AreEqual(V22ManifestTemplate.MANIFEST_MEDIA_TYPE, body.Headers.ContentType.MediaType);
+            Assert.AreEqual(V22ManifestTemplate.ManifestMediaType, body.Headers.ContentType.MediaType);
 
             MemoryStream bodyCaptureStream = new MemoryStream();
             await body.writeToAsync(bodyCaptureStream).ConfigureAwait(false);
             string v22manifestJson =
-                StandardCharsets.UTF_8.GetString(Files.readAllBytes(v22manifestJsonFile));
+                Encoding.UTF8.GetString(Files.readAllBytes(v22manifestJsonFile));
             Assert.AreEqual(
-                v22manifestJson, StandardCharsets.UTF_8.GetString(bodyCaptureStream.toByteArray()));
+                v22manifestJson, Encoding.UTF8.GetString(bodyCaptureStream.toByteArray()));
         }
 
         [Test]

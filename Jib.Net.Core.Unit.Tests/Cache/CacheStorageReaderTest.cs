@@ -28,6 +28,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache
@@ -179,11 +180,11 @@ namespace com.google.cloud.tools.jib.cache
             using (Stream @out =
                 Files.newOutputStream(cacheStorageFiles.getLayerFile(layerDigest, layerDiffId)))
             {
-                @out.write("layerBlob".getBytes(StandardCharsets.UTF_8));
+                @out.write("layerBlob".getBytes(Encoding.UTF8));
             }
 
             // Checks that the CachedLayer is retrieved correctly.
-            Optional<CachedLayer> optionalCachedLayer = cacheStorageReader.retrieve(layerDigest);
+            Option<CachedLayer> optionalCachedLayer = cacheStorageReader.retrieve(layerDigest);
             Assert.IsTrue(optionalCachedLayer.isPresent());
             Assert.AreEqual(layerDigest, optionalCachedLayer.get().getDigest());
             Assert.AreEqual(layerDiffId, optionalCachedLayer.get().getDiffId());
@@ -219,7 +220,7 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             Files.createDirectories(selectorFile.getParent());
-            Files.write(selectorFile, "not a valid layer digest".getBytes(StandardCharsets.UTF_8));
+            Files.write(selectorFile, "not a valid layer digest".getBytes(Encoding.UTF8));
 
             try
             {
@@ -248,9 +249,9 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             Files.createDirectories(selectorFile.getParent());
-            Files.write(selectorFile, layerDigest2.getHash().getBytes(StandardCharsets.UTF_8));
+            Files.write(selectorFile, layerDigest2.getHash().getBytes(Encoding.UTF8));
 
-            Optional<DescriptorDigest> selectedLayerDigest = cacheStorageReader.select(selector);
+            Option<DescriptorDigest> selectedLayerDigest = cacheStorageReader.select(selector);
             Assert.IsTrue(selectedLayerDigest.isPresent());
             Assert.AreEqual(layerDigest2, selectedLayerDigest.get());
         }

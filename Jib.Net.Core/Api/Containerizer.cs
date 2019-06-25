@@ -35,7 +35,7 @@ namespace Jib.Net.Core.Api
          * The default directory for caching the base image layers, in {@code [user cache
          * home]/google-cloud-tools-java/jib}.
          */
-        public static readonly SystemPath DEFAULT_BASE_CACHE_DIRECTORY =
+        public static readonly SystemPath DefaultBaseCacheDirectory =
             UserCacheHome.getCacheHome(SystemEnvironment.Instance).resolve("google-cloud-tools-java").resolve("jib");
 
         private const string DEFAULT_TOOL_NAME = "jib-core";
@@ -135,7 +135,7 @@ namespace Jib.Net.Core.Api
         private readonly ISet<string> additionalTags = new HashSet<string>();
         public event Action<IJibEvent> JibEvents = _ => { };
 
-        private SystemPath baseImageLayersCacheDirectory = DEFAULT_BASE_CACHE_DIRECTORY;
+        private SystemPath baseImageLayersCacheDirectory = DefaultBaseCacheDirectory;
         private TemporaryDirectory tempAppLayersCacheDir;
         private SystemPath applicationLayersCacheDirectory;
         private bool allowInsecureRegistries = false;

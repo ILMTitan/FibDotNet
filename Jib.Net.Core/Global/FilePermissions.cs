@@ -26,10 +26,10 @@ namespace com.google.cloud.tools.jib.api
     public class FilePermissions
     {
         /** Default permissions for files added to the container. */
-        public static readonly FilePermissions DEFAULT_FILE_PERMISSIONS = FilePermissions.fromOctalString("644");
+        public static readonly FilePermissions DefaultFilePermissions = FilePermissions.fromOctalString("644");
 
         /** Default permissions for folders added to the container. */
-        public static readonly FilePermissions DEFAULT_FOLDER_PERMISSIONS = FilePermissions.fromOctalString("755");
+        public static readonly FilePermissions DefaultFolderPermissions = FilePermissions.fromOctalString("755");
 
         /**
          * Matches an octal string representation of file permissions. From left to right, each digit

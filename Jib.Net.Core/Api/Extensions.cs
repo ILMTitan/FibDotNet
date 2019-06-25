@@ -71,9 +71,9 @@ namespace Jib.Net.Core.Global
             await c.CopyToAsync(s).ConfigureAwait(false);
         }
 
-        public static string name(this ErrorCode e)
+        public static ErrorCode name(this ErrorCode e)
         {
-            return e.ToString("G");
+            return e;
         }
 
         public static bool isDone(this Task t)
@@ -536,14 +536,14 @@ namespace Jib.Net.Core.Global
             return p(value);
         }
 
-        public static Optional<T> findFirst<T>(this IEnumerable<Optional<T>> e)
+        public static Option<T> findFirst<T>(this IEnumerable<Option<T>> e)
         {
             return e.FirstOrDefault();
         }
 
-        public static Optional<T> findFirst<T>(this IEnumerable<T> e)
+        public static Option<T> findFirst<T>(this IEnumerable<T> e)
         {
-            return e.Select(Optional.of).FirstOrDefault();
+            return e.Select(Option.of).FirstOrDefault();
         }
 
         public static IDictionary<TKey, TValue> entrySet<TKey, TValue>(this IDictionary<TKey, TValue> d)

@@ -23,6 +23,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
@@ -69,11 +70,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return {@link Credential} found for {@code registry}, or {@link Optional#empty} if not found
          * @throws IOException if failed to parse the config JSON
          */
-        public Optional<Credential> retrieve(Action<LogEvent> logger)
+        public Option<Credential> retrieve(Action<LogEvent> logger)
         {
             if (!Files.exists(dockerConfigFile))
             {
-                return Optional.empty<Credential>();
+                return Option.empty<Credential>();
             }
             DockerConfig dockerConfig =
                 new DockerConfig(
@@ -89,7 +90,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the retrieved credentials, or {@code Optional#empty} if none are found
          */
 
-        public Optional<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
+        public Option<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
         {
 
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -100,10 +101,10 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 if (auth != null)
                 {
                     // 'auth' is a basic authentication token that should be parsed back into credentials
-                    string usernameColonPassword = StandardCharsets.UTF_8.GetString(Convert.FromBase64String(auth));
+                    string usernameColonPassword = Encoding.UTF8.GetString(Convert.FromBase64String(auth));
                     string username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
                     string password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
-                    return Optional.of(Credential.from(username, password));
+                    return Option.of(Credential.from(username, password));
                 }
 
                 // Then, tries to use a defined credHelpers credential helper.
@@ -114,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     try
                     {
                         // Tries with the given registry alias (may be the original registry).
-                        return Optional.of(dockerCredentialHelper.retrieve());
+                        return Option.of(dockerCredentialHelper.retrieve());
                     }
                     catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException)
                     {
@@ -130,7 +131,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                 }
             }
-            return Optional.empty<Credential>();
+            return Option.empty<Credential>();
         }
     }
 }

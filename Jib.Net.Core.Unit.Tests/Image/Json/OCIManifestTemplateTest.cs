@@ -21,6 +21,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -32,7 +33,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/ocimanifest.json").toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
             OCIManifestTemplate manifestJson = new OCIManifestTemplate();

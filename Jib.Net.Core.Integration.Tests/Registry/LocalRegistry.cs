@@ -25,6 +25,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,7 +82,7 @@ namespace com.google.cloud.tools.jib.registry
                 // See: https://docs.docker.com/docker-for-mac/osxfs
                 SystemPath tempFolder = Files.createTempDirectory(Paths.get(Path.GetTempPath()), "");
                 Files.write(
-                    tempFolder.resolve("htpasswd"), credentialString.getBytes(StandardCharsets.UTF_8));
+                    tempFolder.resolve("htpasswd"), credentialString.getBytes(Encoding.UTF8));
 
                 // Run the Docker registry
                 dockerTokens.addAll(
@@ -151,7 +152,7 @@ namespace com.google.cloud.tools.jib.registry
             if (username != null && password != null)
             {
                 new Command("docker", string.Join(' ', new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
-                    .run(password.getBytes(StandardCharsets.UTF_8));
+                    .run(password.getBytes(Encoding.UTF8));
             }
         }
 

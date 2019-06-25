@@ -46,10 +46,10 @@ namespace com.google.cloud.tools.jib.api
         {
             Assert.IsTrue(containerizer.getAdditionalTags().isEmpty());
             Assert.AreEqual(
-                Containerizer.DEFAULT_BASE_CACHE_DIRECTORY,
+                Containerizer.DefaultBaseCacheDirectory,
                 containerizer.getBaseImageLayersCacheDirectory());
             Assert.AreNotEqual(
-                Containerizer.DEFAULT_BASE_CACHE_DIRECTORY,
+                Containerizer.DefaultBaseCacheDirectory,
                 containerizer.getApplicationLayersCacheDirectory());
             Assert.IsFalse(containerizer.getAllowInsecureRegistries());
             Assert.AreEqual("jib-core", containerizer.getToolName());

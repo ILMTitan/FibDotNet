@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Jib.Net.Core.Cache
 {
@@ -83,13 +84,13 @@ namespace Jib.Net.Core.Cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Optional<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
+        public Option<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
         {
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             SystemPath manifestPath = imageDirectory.resolve("manifest.json");
             if (!Files.exists(manifestPath))
             {
-                return Optional.empty<ManifestAndConfig>();
+                return Option.empty<ManifestAndConfig>();
             }
 
             // TODO: Consolidate with ManifestPuller
@@ -121,7 +122,7 @@ namespace Jib.Net.Core.Cache
 
             if (schemaVersion == 1)
             {
-                return Optional.of(
+                return Option.of(
                     new ManifestAndConfig(
                         JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestPath),
                         null));
@@ -132,12 +133,12 @@ namespace Jib.Net.Core.Cache
                 string mediaType = node.get("mediaType").Value<string>();
 
                 IManifestTemplate manifestTemplate;
-                if (V22ManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
+                if (V22ManifestTemplate.ManifestMediaType == mediaType)
                 {
                     manifestTemplate =
                         JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestPath);
                 }
-                else if (OCIManifestTemplate.MANIFEST_MEDIA_TYPE == mediaType)
+                else if (OCIManifestTemplate.ManifestMediaType == mediaType)
                 {
                     manifestTemplate =
                         JsonTemplateMapper.readJsonFromFile<OCIManifestTemplate>(manifestPath);
@@ -161,7 +162,7 @@ namespace Jib.Net.Core.Cache
                 ContainerConfigurationTemplate config =
                     JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(configPath);
 
-                return Optional.of(new ManifestAndConfig(manifestTemplate, config));
+                return Option.of(new ManifestAndConfig(manifestTemplate, config));
             }
             throw new CacheCorruptedException(
                 cacheStorageFiles.getCacheDirectory(),
@@ -178,13 +179,13 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public Optional<CachedLayer> retrieve(DescriptorDigest layerDigest)
+        public Option<CachedLayer> retrieve(DescriptorDigest layerDigest)
         {
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
             SystemPath layerDirectory = cacheStorageFiles.getLayerDirectory(layerDigest);
             if (!Files.exists(layerDirectory))
             {
-                return Optional.empty<CachedLayer>();
+                return Option.empty<CachedLayer>();
             }
 
             CachedLayer.Builder cachedLayerBuilder = CachedLayer.builder().setLayerDigest(layerDigest);
@@ -208,7 +209,7 @@ namespace Jib.Net.Core.Cache
                         .setLayerSize(Files.size(fileInLayerDirectory));
                 }
             }
-            return Optional.of(cachedLayerBuilder.build());
+            return Option.of(cachedLayerBuilder.build());
         }
 
         /**
@@ -219,20 +220,20 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the selector file contents was not a valid layer digest
          * @throws IOException if an I/O exception occurs
          */
-        public Optional<DescriptorDigest> select(DescriptorDigest selector)
+        public Option<DescriptorDigest> select(DescriptorDigest selector)
         {
 
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             if (!Files.exists(selectorFile))
             {
-                return Optional.empty<DescriptorDigest>();
+                return Option.empty<DescriptorDigest>();
             }
             string selectorFileContents =
-                    File.ReadAllText(selectorFile.toFile().FullName, StandardCharsets.UTF_8);
+                    File.ReadAllText(selectorFile.toFile().FullName, Encoding.UTF8);
             try
             {
-                return Optional.of(DescriptorDigest.fromHash(selectorFileContents));
+                return Option.of(DescriptorDigest.fromHash(selectorFileContents));
             }
             catch (DigestException)
             {

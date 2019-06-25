@@ -111,7 +111,7 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             ErrorCode errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
-            if (errorCode == ErrorCode.MANIFEST_INVALID || errorCode == ErrorCode.TAG_INVALID)
+            if (errorCode == ErrorCode.ManifestInvalid || errorCode == ErrorCode.TagInvalid)
             {
                 throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
                     .addReason(

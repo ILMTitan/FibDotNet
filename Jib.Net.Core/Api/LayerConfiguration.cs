@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.api
                 return addEntry(
                     sourceFile,
                     pathInContainer,
-                    DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(sourceFile, pathInContainer));
+                    DefaultFilePermissionsProvider.apply(sourceFile, pathInContainer));
             }
 
             /**
@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.api
                     sourceFile,
                     pathInContainer,
                     permissions,
-                    DEFAULT_MODIFIED_TIME_PROVIDER.apply(sourceFile, pathInContainer));
+                    DefaultModifiedTimeProvider.apply(sourceFile, pathInContainer));
             }
 
             /**
@@ -151,7 +151,7 @@ namespace com.google.cloud.tools.jib.api
              */
             public Builder addEntryRecursive(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
             {
-                return addEntryRecursive(sourceFile, pathInContainer, DEFAULT_FILE_PERMISSIONS_PROVIDER);
+                return addEntryRecursive(sourceFile, pathInContainer, DefaultFilePermissionsProvider);
             }
 
             /**
@@ -172,7 +172,7 @@ namespace com.google.cloud.tools.jib.api
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider)
             {
                 return addEntryRecursive(
-                    sourceFile, pathInContainer, filePermissionProvider, DEFAULT_MODIFIED_TIME_PROVIDER);
+                    sourceFile, pathInContainer, filePermissionProvider, DefaultModifiedTimeProvider);
             }
 
             /**
@@ -230,18 +230,18 @@ namespace com.google.cloud.tools.jib.api
 
         /** Provider that returns default file permissions (644 for files, 755 for directories). */
         public static readonly Func<SystemPath, AbsoluteUnixPath, FilePermissions>
-            DEFAULT_FILE_PERMISSIONS_PROVIDER =
+            DefaultFilePermissionsProvider =
                 (sourcePath, _) =>
                     Files.isDirectory(sourcePath)
-                        ? FilePermissions.DEFAULT_FOLDER_PERMISSIONS
-                        : FilePermissions.DEFAULT_FILE_PERMISSIONS;
+                        ? FilePermissions.DefaultFolderPermissions
+                        : FilePermissions.DefaultFilePermissions;
 
         /** Default file modification time (EPOCH + 1 second). */
-        public static readonly Instant DEFAULT_MODIFIED_TIME = Instant.FromUnixTimeSeconds(1);
+        public static readonly Instant DefaultModifiedTime = Instant.FromUnixTimeSeconds(1);
 
         /** Provider that returns default file modification time (EPOCH + 1 second). */
-        public static readonly Func<SystemPath, AbsoluteUnixPath, Instant> DEFAULT_MODIFIED_TIME_PROVIDER =
-            (_, __) => DEFAULT_MODIFIED_TIME;
+        public static readonly Func<SystemPath, AbsoluteUnixPath, Instant> DefaultModifiedTimeProvider =
+            (_, __) => DefaultModifiedTime;
 
         /**
          * Gets a new {@link Builder} for {@link LayerConfiguration}.

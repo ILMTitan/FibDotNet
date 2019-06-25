@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
                 {
-                    Optional<Credential> optionalCredential = credentialRetriever.retrieve();
+                    Option<Credential> optionalCredential = credentialRetriever.retrieve();
                     if (optionalCredential.isPresent())
                     {
                         return optionalCredential.get();

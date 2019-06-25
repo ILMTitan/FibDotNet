@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.http
                     inputRead.AppendLine(line);
                 }
                 const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
-                await socketStream.WriteAsync(response.getBytes(StandardCharsets.UTF_8)).ConfigureAwait(false);
+                await socketStream.WriteAsync(response.getBytes(Encoding.UTF8)).ConfigureAwait(false);
             }
         }
 

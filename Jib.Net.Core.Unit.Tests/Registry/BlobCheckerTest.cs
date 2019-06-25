@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
-                    .addError(new ErrorEntryTemplate(ErrorCode.BLOB_UNKNOWN.name(), "some message"));
+                    .addError(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "some message"));
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
                 Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
@@ -106,8 +106,8 @@ namespace com.google.cloud.tools.jib.registry
         {
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
-                    .addError(new ErrorEntryTemplate(ErrorCode.BLOB_UNKNOWN.name(), "some message"))
-                    .addError(new ErrorEntryTemplate(ErrorCode.MANIFEST_UNKNOWN.name(), "some message"));
+                    .addError(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "some message"))
+                    .addError(new ErrorEntryTemplate(ErrorCode.ManifestUnknown.name(), "some message"));
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
                 Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))

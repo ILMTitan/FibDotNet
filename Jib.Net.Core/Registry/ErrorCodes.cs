@@ -14,6 +14,11 @@
  * the License.
  */
 
+using Jib.Net.Core.Registry;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+
 namespace com.google.cloud.tools.jib.registry
 {
     /**
@@ -27,18 +32,20 @@ namespace com.google.cloud.tools.jib.registry
     public enum ErrorCode
     {
 
+        Unknown = 0,
+
         /**
          * This error may be returned when a blob is unknown to the registry in a specified repository.
          * This can be returned with a standard get or if a manifest references an unknown layer during
          * upload.
          */
-        BLOB_UNKNOWN,
+        BlobUnknown,
 
         /** The blob upload encountered an error and can no longer proceed. */
-        BLOB_UPLOAD_INVALID,
+        BlobUploadInvalid,
 
         /** If a blob upload has been cancelled or was never started, this error code may be returned. */
-        BLOB_UPLOAD_UNKNOWN,
+        BlobUploadUnknown,
 
         /**
          * When a blob is uploaded, the registry will check that the content matches the digest provided
@@ -46,58 +53,58 @@ namespace com.google.cloud.tools.jib.registry
          * invalid digest string. This error may also be returned when a manifest includes an invalid
          * layer digest.
          */
-        DIGEST_INVALID,
+        DigestInvalid,
 
         /** This error may be returned when a manifest blob is unknown to the registry. */
-        MANIFEST_BLOB_UNKNOWN,
+        ManifestBlobUnknown,
 
         /**
          * During upload, manifests undergo several checks ensuring validity. If those checks fail, this
          * error may be returned, unless a more specific error is included. The detail will contain
          * information the failed validation.
          */
-        MANIFEST_INVALID,
+        ManifestInvalid,
 
         /**
          * This error is returned when the manifest, identified by name and tag is unknown to the
          * repository.
          */
-        MANIFEST_UNKNOWN,
+        ManifestUnknown,
 
         /**
          * During manifest upload, if the manifest fails signature verification, this error will be
          * returned.
          */
-        MANIFEST_UNVERIFIED,
+        ManifestUnverified,
 
         /** Invalid repository name encountered either during manifest validation or any API operation. */
-        NAME_INVALID,
+        NameInvalid,
 
         /** This is returned if the name used during an operation is unknown to the registry. */
-        NAME_UNKNOWN,
+        NameUnknown,
 
         /**
          * When a layer is uploaded, the provided size will be checked against the uploaded content. If
          * they do not match, this error will be returned.
          */
-        SIZE_INVALID,
+        SizeInvalid,
 
         /**
          * During a manifest upload, if the tag in the manifest does not match the uri tag, this error
          * will be returned.
          */
-        TAG_INVALID,
+        TagInvalid,
 
         /**
          * The access controller was unable to authenticate the client. Often this will be accompanied by
          * a Www-Authenticate HTTP response header indicating how to authenticate.
          */
-        UNAUTHORIZED,
+        Unauthorized,
 
         /** The access controller denied access for the operation on a resource. */
-        DENIED,
+        Denied,
 
         /** The operation was unsupported due to a missing implementation or invalid set of parameters. */
-        UNSUPPORTED
+        Unsupported
     }
 }

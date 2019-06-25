@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * Returns the first entry matching the given key predicates (short-circuiting in the order of
          * predicates).
          */
-        private static Optional<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
+        private static Option<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
         {
             return keyMatches
                 .stream()
@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         }
 
         /** Returns the first entry matching the given key predicate. */
-        private static Optional<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
+        private static Option<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
         {
             return map.entrySet()
                 .stream()

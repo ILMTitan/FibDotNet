@@ -37,26 +37,26 @@ namespace com.google.cloud.tools.jib.registry
          * @param message the original received error message, which may or may not be used depending on
          *     the {@code errorCode}
          */
-        private static string getReason(string errorCodeString, string message)
+        private static string getReason(ErrorCode? errorCode, string message)
         {
             if (message == null)
             {
                 message = "no details";
             }
 
-            if (!Enum.TryParse<ErrorCode>(errorCodeString, true, out var errorCode))
+            if (!errorCode.HasValue)
             {
                 // Unknown errorCodeString
                 return "unknown: " + message;
             }
 
-            if (errorCode == ErrorCode.MANIFEST_INVALID || errorCode == ErrorCode.BLOB_UNKNOWN)
+            if (errorCode == ErrorCode.ManifestInvalid || errorCode == ErrorCode.BlobUnknown)
             {
                 return message + " (something went wrong)";
             }
-            else if (errorCode == ErrorCode.MANIFEST_UNKNOWN
-              || errorCode == ErrorCode.TAG_INVALID
-              || errorCode == ErrorCode.MANIFEST_UNVERIFIED)
+            else if (errorCode == ErrorCode.ManifestUnknown
+              || errorCode == ErrorCode.TagInvalid
+              || errorCode == ErrorCode.ManifestUnverified)
             {
                 return message;
             }
@@ -112,7 +112,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             // Provides a feedback channel.
             errorMessageBuilder.append(
-                " | If this is a bug, please file an issue at " + ProjectInfo.GITHUB_NEW_ISSUE_URL);
+                " | If this is a bug, please file an issue at " + ProjectInfo.GitHubNewIssueUrl);
             return new RegistryErrorException(errorMessageBuilder.toString(), cause);
         }
     }

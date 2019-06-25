@@ -40,9 +40,9 @@ namespace com.google.cloud.tools.jib.builder
             lapStartTime = startTime;
         }
 
-        public Optional<TimerEvent.ITimer> getParent()
+        public Option<TimerEvent.ITimer> getParent()
         {
-            return Optional.ofNullable<TimerEvent.ITimer>(parentTimer);
+            return Option.ofNullable<TimerEvent.ITimer>(parentTimer);
         }
 
         /**

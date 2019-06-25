@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.hash
         {
             switch (algorithmName)
             {
-                case CountingDigestOutputStream.SHA_256_ALGORITHM:
+                case CountingDigestOutputStream.Sha256Algorithm:
                     return new MessageDigest(SHA256.Create());
                 default:
                     throw new ArgumentException($"unknown name {algorithmName}", nameof(algorithmName));

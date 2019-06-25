@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.api
          * backslashes. The repository is required, but the registry and tag/digest are optional.
          */
         private static readonly string REFERENCE_REGEX =
-            $"^(?:({REGISTRY_REGEX})/)?({REPOSITORY_REGEX})(?:(?::({TAG_REGEX}))|(?:@({DescriptorDigest.DIGEST_REGEX})))?$";
+            $"^(?:({REGISTRY_REGEX})/)?({REPOSITORY_REGEX})(?:(?::({TAG_REGEX}))|(?:@({DescriptorDigest.DigestRegex})))?$";
 
         private static readonly Regex REFERENCE_PATTERN = new Regex(REFERENCE_REGEX);
 
@@ -228,7 +228,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static bool isValidTag(string tag)
         {
-            return tag.matches(TAG_REGEX) || tag.matches(DescriptorDigest.DIGEST_REGEX);
+            return tag.matches(TAG_REGEX) || tag.matches(DescriptorDigest.DigestRegex);
         }
 
         /**
@@ -305,7 +305,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public bool isTagDigest()
         {
-            return tag.matches(DescriptorDigest.DIGEST_REGEX);
+            return tag.matches(DescriptorDigest.DigestRegex);
         }
 
         /**

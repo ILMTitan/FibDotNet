@@ -26,6 +26,7 @@ using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.tar
@@ -98,10 +99,10 @@ namespace com.google.cloud.tools.jib.tar
         [Test]
         public async Task testToBlob_multiByteAsync()
         {
-            testTarStreamBuilder.addByteEntry("日本語".getBytes(StandardCharsets.UTF_8), "test");
-            testTarStreamBuilder.addByteEntry("asdf".getBytes(StandardCharsets.UTF_8), "crepecake");
+            testTarStreamBuilder.addByteEntry("日本語".getBytes(Encoding.UTF8), "test");
+            testTarStreamBuilder.addByteEntry("asdf".getBytes(Encoding.UTF8), "crepecake");
             testTarStreamBuilder.addBlobEntry(
-                Blobs.from("jib"), "jib".getBytes(StandardCharsets.UTF_8).Length, "jib");
+                Blobs.from("jib"), "jib".getBytes(Encoding.UTF8).Length, "jib");
 
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
@@ -118,17 +119,17 @@ namespace com.google.cloud.tools.jib.tar
             TarEntry headerFile = tarArchiveInputStream.getNextTarEntry();
             Assert.AreEqual("test", headerFile.getName());
             Assert.AreEqual(
-                "日本語", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "日本語", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
             headerFile = tarArchiveInputStream.getNextTarEntry();
             Assert.AreEqual("crepecake", headerFile.getName());
             Assert.AreEqual(
-                "asdf", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "asdf", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
             headerFile = tarArchiveInputStream.getNextTarEntry();
             Assert.AreEqual("jib", headerFile.getName());
             Assert.AreEqual(
-                "jib", StandardCharsets.UTF_8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "jib", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
 
             Assert.IsNull(tarArchiveInputStream.getNextTarEntry());
         }

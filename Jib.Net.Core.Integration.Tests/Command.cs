@@ -19,6 +19,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib
 {
@@ -60,7 +61,7 @@ namespace com.google.cloud.tools.jib
 
             // Read in stdout.
             using (StreamReader inputStreamReader =
-                new StreamReader(process.getInputStream(), StandardCharsets.UTF_8))
+                new StreamReader(process.getInputStream(), Encoding.UTF8))
             {
                 string output = CharStreams.toString(inputStreamReader);
 
@@ -68,7 +69,7 @@ namespace com.google.cloud.tools.jib
                 {
                     string stderr =
                         CharStreams.toString(
-                            new StreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+                            new StreamReader(process.getErrorStream(), Encoding.UTF8));
                     throw new Exception("Command '" + command + " " +string.Join(" ", args) + "' failed: " + stderr);
                 }
 

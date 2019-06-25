@@ -8,7 +8,7 @@ namespace Jib.Net.Test.Common
 {
     public static class TaskOptionalExtensions
     {
-        public static async Task<T> orElseThrowAsync<T>(this Task<Optional<T>> optionalTask, Func<Exception> execptionFunc)
+        public static async Task<T> orElseThrowAsync<T>(this Task<Option<T>> optionalTask, Func<Exception> execptionFunc)
         {
             optionalTask = optionalTask ?? throw new ArgumentNullException(nameof(optionalTask));
             var optional = await optionalTask.ConfigureAwait(false);

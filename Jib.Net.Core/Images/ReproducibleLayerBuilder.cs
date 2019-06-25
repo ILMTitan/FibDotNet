@@ -66,12 +66,12 @@ namespace Jib.Net.Core.Images
                 {
                     TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString().Replace(Path.DirectorySeparatorChar, '/'));
                     dir.Name += "/";
-                    dir.setModTime(LayerConfiguration.DEFAULT_MODIFIED_TIME.toEpochMilli());
-                    dir.TarHeader.Mode &= ~(int)PosixFilePermissions.ALL;
+                    dir.setModTime(LayerConfiguration.DefaultModifiedTime.toEpochMilli());
+                    dir.TarHeader.Mode &= ~(int)PosixFilePermissions.All;
                     dir.TarHeader.Mode |= (int)(
-                        PosixFilePermissions.OWNER_ALL
-                        | PosixFilePermissions.GROUP_READ_EXECUTE
-                        | PosixFilePermissions.OTHERS_READ_EXECUTE);
+                        PosixFilePermissions.OwnerAll
+                        | PosixFilePermissions.GroupReadExecute
+                        | PosixFilePermissions.OthersReadExecute);
                     dir.TarHeader.TypeFlag = TarHeader.LF_DIR;
                     add(dir);
                 }
@@ -120,7 +120,7 @@ namespace Jib.Net.Core.Images
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.setMode(entry.getMode() & ~PosixFilePermissions.ALL | layerEntry.getPermissions().getPermissionBits());
+                entry.setMode(entry.getMode() & ~PosixFilePermissions.All | layerEntry.getPermissions().getPermissionBits());
                 entry.setModTime(layerEntry.getLastModifiedTime().toEpochMilli());
 
                 uniqueTarArchiveEntries.add(entry);

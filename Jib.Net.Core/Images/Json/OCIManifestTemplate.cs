@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.image.json
     public class OCIManifestTemplate : IBuildableManifestTemplate
     {
         /** The OCI manifest media type. */
-        public static readonly string MANIFEST_MEDIA_TYPE = "application/vnd.oci.image.manifest.v1+json";
+        public static readonly string ManifestMediaType = "application/vnd.oci.image.manifest.v1+json";
 
         /** The OCI container configuration media type. */
         private const string CONTAINER_CONFIGURATION_MEDIA_TYPE =
@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.image.json
         private const string LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip";
 
         public int SchemaVersion { get; } = 2;
-        public string MediaType { get; } = MANIFEST_MEDIA_TYPE;
+        public string MediaType { get; } = ManifestMediaType;
 
         /** The container configuration reference. */
         public ContentDescriptorTemplate Config { get; set; }
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public string getManifestMediaType()
         {
-            return MANIFEST_MEDIA_TYPE;
+            return ManifestMediaType;
         }
 
         public ContentDescriptorTemplate getContainerConfiguration()

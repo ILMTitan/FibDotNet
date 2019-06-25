@@ -114,7 +114,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 Cache cache = buildConfiguration.getApplicationLayersCache();
 
                 // Don't build the layer if it exists already.
-                Optional<CachedLayer> optionalCachedLayer =
+                Option<CachedLayer> optionalCachedLayer =
                     await cache.retrieveAsync(layerConfiguration.getLayerEntries()).ConfigureAwait(false);
                 if (optionalCachedLayer.isPresent())
                 {

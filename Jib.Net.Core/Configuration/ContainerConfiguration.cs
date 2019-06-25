@@ -27,12 +27,12 @@ namespace com.google.cloud.tools.jib.configuration
     public sealed class ContainerConfiguration : IContainerConfiguration
     {
         /** The default creation time of the container (constant to ensure reproducibility by default). */
-        public static readonly Instant DEFAULT_CREATION_TIME = Instant.FromUnixTimeMilliseconds(0);
+        public static readonly Instant DefaultCreationTime = Instant.FromUnixTimeMilliseconds(0);
 
         /** Builder for instantiating a {@link ContainerConfiguration}. */
         public class Builder
         {
-            private Instant creationTime = DEFAULT_CREATION_TIME;
+            private Instant creationTime = DefaultCreationTime;
             private ImmutableArray<string>? entrypoint;
             private ImmutableArray<string>? programArguments;
             private IDictionary<string, string> environmentMap;

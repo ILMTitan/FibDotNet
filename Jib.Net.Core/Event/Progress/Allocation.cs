@@ -90,9 +90,9 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @return the parent {@link Allocation}
          */
-        public Optional<Allocation> getParent()
+        public Option<Allocation> getParent()
         {
-            return Optional.ofNullable(parent);
+            return Option.ofNullable(parent);
         }
 
         /**

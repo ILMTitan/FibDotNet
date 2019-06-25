@@ -89,9 +89,9 @@ namespace com.google.cloud.tools.jib.api
             return imageReference;
         }
 
-        public Optional<SystemPath> getDockerExecutable()
+        public Option<SystemPath> getDockerExecutable()
         {
-            return Optional.ofNullable(dockerExecutable);
+            return Option.ofNullable(dockerExecutable);
         }
 
         public IDictionary<string, string> getDockerEnvironment()

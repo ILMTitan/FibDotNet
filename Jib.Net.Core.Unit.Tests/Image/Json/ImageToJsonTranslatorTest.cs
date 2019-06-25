@@ -31,6 +31,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.image.json
@@ -121,7 +122,7 @@ namespace com.google.cloud.tools.jib.image.json
 
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the container configuration and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
@@ -186,7 +187,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             // Loads the expected JSON string.
             SystemPath jsonFile = Paths.get(TestResources.getResource(translatedJsonFilename).toURI());
-            string expectedJson = StandardCharsets.UTF_8.GetString(Files.readAllBytes(jsonFile));
+            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the manifest and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();

@@ -146,9 +146,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck interval
          */
-        public Optional<Duration> getInterval()
+        public Option<Duration> getInterval()
         {
-            return Optional.ofNullable(interval);
+            return Option.ofNullable(interval);
         }
 
         /**
@@ -157,9 +157,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck timeout
          */
-        public Optional<Duration> getTimeout()
+        public Option<Duration> getTimeout()
         {
-            return Optional.ofNullable(timeout);
+            return Option.ofNullable(timeout);
         }
 
         /**
@@ -168,9 +168,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck start period
          */
-        public Optional<Duration> getStartPeriod()
+        public Option<Duration> getStartPeriod()
         {
-            return Optional.ofNullable(startPeriod);
+            return Option.ofNullable(startPeriod);
         }
 
         /**
@@ -179,9 +179,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck retry count
          */
-        public Optional<int> getRetries()
+        public Option<int> getRetries()
         {
-            return Optional.ofNullable(retries);
+            return Option.ofNullable(retries);
         }
     }
 }

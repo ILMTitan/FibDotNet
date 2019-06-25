@@ -32,20 +32,20 @@ namespace Jib.Net.Core.Unit.Tests
         [TearDown]
         public void tearDown()
         {
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, null);
+            Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, null);
         }
 
         [Test]
         public void testCheckHttpTimeoutProperty_ok()
         {
-            Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT));
+            Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HttpTimeout));
             JibSystemProperties.checkHttpTimeoutProperty();
         }
 
         [Test]
         public void testCheckHttpTimeoutProperty_stringValue()
         {
-            Environment.SetEnvironmentVariable(JibSystemProperties.HTTP_TIMEOUT, "random string");
+            Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, "random string");
             try
             {
                 JibSystemProperties.checkHttpTimeoutProperty();

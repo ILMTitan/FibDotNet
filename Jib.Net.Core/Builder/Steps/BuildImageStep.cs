@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Add history elements for non-empty layers that don't have one yet
                 Instant layerCreationTime =
                     containerConfiguration == null
-                        ? ContainerConfiguration.DEFAULT_CREATION_TIME
+                        ? ContainerConfiguration.DefaultCreationTime
                         : containerConfiguration.getCreationTime();
                 for (int count = 0; count < baseImageLayers.size() - nonEmptyLayerCount; count++)
                 {

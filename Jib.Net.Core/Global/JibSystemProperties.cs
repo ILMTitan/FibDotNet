@@ -24,9 +24,9 @@ namespace com.google.cloud.tools.jib.global
     public static class JibSystemProperties
     {
         private const int defaultTimeoutMills = 60000;
-        public static readonly string HTTP_TIMEOUT = "jib.httpTimeout";
+        public static readonly string HttpTimeout = "jib.httpTimeout";
 
-        public static readonly string SEND_CREDENTIALS_OVER_HTTP = "sendCredentialsOverHttp";
+        public static readonly string SendCredentialsOverHttp = "sendCredentialsOverHttp";
 
         private const string SERIALIZE = "jibSerialize";
 
@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.global
          */
         public static int getHttpTimeout()
         {
-            if (int.TryParse(Environment.GetEnvironmentVariable(HTTP_TIMEOUT), out int timeoutMills)
+            if (int.TryParse(Environment.GetEnvironmentVariable(HttpTimeout), out int timeoutMills)
                 )
             { return timeoutMills; }
             else
@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.global
          */
         public static bool isSendCredentialsOverHttpEnabled()
         {
-            if (bool.TryParse(Environment.GetEnvironmentVariable(SEND_CREDENTIALS_OVER_HTTP), out bool sendCredentialsOverHttp))
+            if (bool.TryParse(Environment.GetEnvironmentVariable(SendCredentialsOverHttp), out bool sendCredentialsOverHttp))
             {
                 return sendCredentialsOverHttp;
             }
@@ -106,7 +106,7 @@ namespace com.google.cloud.tools.jib.global
          */
         public static void checkHttpTimeoutProperty()
         {
-            checkNumericSystemProperty(HTTP_TIMEOUT, Range.atLeast(0));
+            checkNumericSystemProperty(HttpTimeout, Range.atLeast(0));
         }
 
         private static void checkNumericSystemProperty(string property, Range<int> validRange)

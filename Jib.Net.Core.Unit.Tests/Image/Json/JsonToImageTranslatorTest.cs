@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.image.json
         private void assertGoodEnvironmentPattern(
             string input, string expectedName, string expectedValue)
         {
-            Match matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
+            Match matcher = JsonToImageTranslator.EnvironmentPattern.matcher(input);
             Assert.IsTrue(matcher.matches());
             Assert.AreEqual(expectedName, matcher.group("name"));
             Assert.AreEqual(expectedValue, matcher.group("value"));
@@ -162,7 +162,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         private void assertBadEnvironmentPattern(string input)
         {
-            Match matcher = JsonToImageTranslator.ENVIRONMENT_PATTERN.matcher(input);
+            Match matcher = JsonToImageTranslator.EnvironmentPattern.matcher(input);
             Assert.IsFalse(matcher.matches());
         }
 

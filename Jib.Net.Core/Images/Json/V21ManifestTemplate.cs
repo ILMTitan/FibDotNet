@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.image.json
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class V21ManifestTemplate : IManifestTemplate
     {
-        public static readonly string MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v1+json";
+        public static readonly string ManifestMediaType = "application/vnd.docker.distribution.manifest.v1+json";
 
         public int SchemaVersion { get; } = 1;
 
@@ -129,27 +129,27 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return container configuration if the first history string holds it; {@code null} otherwise
          */
-        public Optional<ContainerConfigurationTemplate> getContainerConfiguration()
+        public Option<ContainerConfigurationTemplate> getContainerConfiguration()
         {
             try
             {
                 if (History.isEmpty())
                 {
-                    return Optional.empty<ContainerConfigurationTemplate>();
+                    return Option.empty<ContainerConfigurationTemplate>();
                 }
                 string v1Compatibility = History.get(0).V1Compatibility;
                 if (v1Compatibility == null)
                 {
-                    return Optional.empty<ContainerConfigurationTemplate>();
+                    return Option.empty<ContainerConfigurationTemplate>();
                 }
 
-                return Optional.of(
+                return Option.of(
                     JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(v1Compatibility));
             }
             catch (IOException)
             {
                 // not a container configuration; ignore and continue
-                return Optional.empty<ContainerConfigurationTemplate>();
+                return Option.empty<ContainerConfigurationTemplate>();
             }
         }
     }

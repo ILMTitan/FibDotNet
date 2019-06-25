@@ -26,6 +26,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Jib.Net.Core.Blob;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -70,7 +71,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponseAsync()
         {
-            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(Encoding.UTF8));
             BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;
@@ -90,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry
             await blobPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
             Assert.AreEqual(
                 "some BLOB content",
-                StandardCharsets.UTF_8.GetString(layerContentOutputStream.toByteArray()));
+                Encoding.UTF8.GetString(layerContentOutputStream.toByteArray()));
             Assert.AreEqual(testBlobDigest, layerOutputStream.computeDigest().getDigest());
             Assert.AreEqual("some BLOB content".length(), byteCount.sum());
         }
@@ -98,7 +99,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_unexpectedDigestAsync()
         {
-            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(StandardCharsets.UTF_8));
+            MemoryStream blobContent = new MemoryStream("some BLOB content".getBytes(Encoding.UTF8));
             BlobDescriptor descriptor = await Digests.computeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.getDigest();
             blobContent.Position = 0;

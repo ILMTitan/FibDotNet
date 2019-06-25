@@ -22,30 +22,30 @@ namespace Jib.Net.Core
     {
         public static string ToOctalString(this PosixFilePermissions permissions)
         {
-            return Convert.ToString((int)(permissions & PosixFilePermissions.ALL), 8).PadLeft(3, '0');
+            return Convert.ToString((int)(permissions & PosixFilePermissions.All), 8).PadLeft(3, '0');
         }
     }
 
     [Flags]
     public enum PosixFilePermissions : int
     {
-        NONE = 0,
-        OTHERS_EXECUTE = 1<< 0,
-        OTHERS_WRITE = 1 << 1,
-        OTHERS_READ = 1 << 2,
-        OTHERS_READ_EXECUTE = OTHERS_READ | OTHERS_EXECUTE,
-        OTHERS_ALL = OTHERS_READ | OTHERS_WRITE | OTHERS_EXECUTE,
-        GROUP_EXECUTE = 1 << 3,
-        GROUP_WRITE = 1 << 4,
-        GROUP_READ = 1 << 5,
-        GROUP_READ_EXECUTE = GROUP_READ | GROUP_EXECUTE,
-        GROUP_ALL = GROUP_READ | GROUP_WRITE | GROUP_EXECUTE,
-        OWNER_EXECUTE = 1 << 6,
-        OWNER_WRITE = 1 << 7,
-        OWNER_READ = 1 << 8,
-        OWNER_READ_EXECUTE = OWNER_READ | OWNER_EXECUTE,
-        OWNER_ALL = OWNER_READ | OWNER_WRITE | OWNER_EXECUTE,
-        ALL = OWNER_ALL | GROUP_ALL | OTHERS_ALL,
+        None = 0,
+        OthersExecute = 1 << 0,
+        OthersWrite = 1 << 1,
+        OthersRead = 1 << 2,
+        OthersReadExecute = OthersRead | OthersExecute,
+        OthersAll = OthersRead | OthersWrite | OthersExecute,
+        GroupExecute = 1 << 3,
+        GroupWrite = 1 << 4,
+        GroupRead = 1 << 5,
+        GroupReadExecute = GroupRead | GroupExecute,
+        GroupAll = GroupRead | GroupWrite | GroupExecute,
+        OwnerExecute = 1 << 6,
+        OwnerWrite = 1 << 7,
+        OwnerRead = 1 << 8,
+        OwnerReadExecute = OwnerRead | OwnerExecute,
+        OwnerAll = OwnerRead | OwnerWrite | OwnerExecute,
+        All = OwnerAll | GroupAll | OthersAll,
 
     }
 }

@@ -6,7 +6,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
 {
     public interface IDockerConfigCredentialRetriever
     {
-        Optional<Credential> retrieve(Action<LogEvent> logger);
-        Optional<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger);
+        Option<Credential> retrieve(Action<LogEvent> logger);
+        Option<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger);
     }
 }

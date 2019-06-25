@@ -31,6 +31,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Text;
 
 namespace com.google.cloud.tools.jib.image
 {
@@ -52,10 +53,10 @@ namespace com.google.cloud.tools.jib.image
             TarEntry header = tarArchiveInputStream.getNextTarEntry();
             Assert.AreEqual(expectedExtractionPath, header.getName());
 
-            string expectedString = StandardCharsets.UTF_8.GetString(Files.readAllBytes(expectedFile));
+            string expectedString = Encoding.UTF8.GetString(Files.readAllBytes(expectedFile));
 
             string extractedString =
-                CharStreams.toString(new StreamReader(tarArchiveInputStream, StandardCharsets.UTF_8));
+                CharStreams.toString(new StreamReader(tarArchiveInputStream, Encoding.UTF8));
 
             Assert.AreEqual(expectedString, extractedString);
         }
@@ -81,8 +82,8 @@ namespace com.google.cloud.tools.jib.image
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DEFAULT_FILE_PERMISSIONS_PROVIDER.apply(source, destination),
-                LayerConfiguration.DEFAULT_MODIFIED_TIME);
+                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultModifiedTime);
         }
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -304,7 +305,7 @@ namespace com.google.cloud.tools.jib.image
                             new LayerEntry(
                                 file,
                                 AbsoluteUnixPath.get("/fileA"),
-                                FilePermissions.DEFAULT_FILE_PERMISSIONS,
+                                FilePermissions.DefaultFilePermissions,
                                 Instant.FromUnixTimeSeconds(123))))
                     .build();
 
@@ -339,12 +340,12 @@ namespace com.google.cloud.tools.jib.image
                                 fileB,
                                 AbsoluteUnixPath.get("/somewhere/fileB"),
                                 FilePermissions.fromOctalString("123"),
-                                LayerConfiguration.DEFAULT_MODIFIED_TIME),
+                                LayerConfiguration.DefaultModifiedTime),
                             new LayerEntry(
                                 folder,
                                 AbsoluteUnixPath.get("/somewhere/folder"),
                                 FilePermissions.fromOctalString("456"),
-                                LayerConfiguration.DEFAULT_MODIFIED_TIME)))
+                                LayerConfiguration.DefaultModifiedTime)))
                     .build();
 
             SystemPath tarFile = temporaryFolder.newFile().toPath();
@@ -375,7 +376,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath newFile =
                 Files.write(
                     root.resolve(filename),
-                    content.getBytes(StandardCharsets.UTF_8));
+                    content.getBytes(Encoding.UTF8));
             Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModifiedTime));
             return newFile;
         }

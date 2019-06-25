@@ -61,11 +61,6 @@ namespace com.google.cloud.tools.jib.configuration
                 return this;
             }
 
-            public Builder add<T>(Type _, Action<T> action) where T : IJibEvent
-            {
-                return add<T>(action);
-            }
-
             public EventHandlers build()
             {
                 return new EventHandlers(handlers.ToImmutableArray());
