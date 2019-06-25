@@ -31,15 +31,5 @@ namespace com.google.cloud.tools.jib.api
         {
             return new Dictionary<TKey, TValue> { [key1] = value1, [key2] = value2 }.ToImmutableDictionary();
         }
-
-        public static ImmutableDictionary<T, T> of<T>(params T[] v1)
-        {
-            var builder = ImmutableDictionary.CreateBuilder<T, T>();
-            for (int i = 0; i + 1 < v1.Length; i += 2)
-            {
-                builder.Add(v1[i], v1[i + 1]);
-            }
-            return builder.ToImmutable();
-        }
     }
 }

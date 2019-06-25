@@ -189,17 +189,20 @@ namespace com.google.cloud.tools.jib.builder.steps
             Assert.AreEqual("wasm", image.getArchitecture());
             Assert.AreEqual("js", image.getOs());
             Assert.AreEqual(
-                ImmutableDic.of(
-                    "BASE_ENV", "BASE_ENV_VALUE", "MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"),
+                new Dictionary<string, string>
+                {
+                    ["BASE_ENV"] = "BASE_ENV_VALUE",
+                    ["MY_ENV"] = "MY_ENV_VALUE",
+                    ["BASE_ENV_2"] = "NEW_VALUE"
+                }.ToImmutableDictionary(),
                 image.getEnvironment());
             Assert.AreEqual(
-                ImmutableDic.of(
-                    "base.label",
-                    "base.label.value",
-                    "my.label",
-                    "my.label.value",
-                    "base.label.2",
-                    "new.value"),
+                new Dictionary<string, string>
+                {
+                    ["base.label"] = "base.label.value",
+                    ["my.label"] = "my.label.value",
+                    ["base.label.2"] = "new.value"
+                }.ToImmutableDictionary(),
                 image.getLabels());
             Assert.IsNotNull(image.getHealthCheck());
             CollectionAssert.AreEqual(

@@ -29,13 +29,12 @@ namespace com.google.cloud.tools.jib.hash
     public class CountingDigestOutputStreamTest
     {
         private readonly IDictionary<string, string> KNOWN_SHA256_HASHES =
-            ImmutableDic.of(
-                "crepecake",
-                "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c",
-                "12345",
-                "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
-                "",
-                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+            new Dictionary<string, string>
+            {
+                ["crepecake"] = "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c",
+                ["12345"] = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+                [""] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            };
 
         [Test]
         public async System.Threading.Tasks.Task test_smokeTestAsync()
