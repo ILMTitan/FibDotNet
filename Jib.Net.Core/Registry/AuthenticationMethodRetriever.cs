@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public string getActionDescription()
         {
-            return "retrieve authentication method for " + registryEndpointRequestProperties.getServerUrl();
+            return "retrieve authentication method for " + registryEndpointRequestProperties.getRegistry();
         }
 
         public RegistryAuthenticator handleHttpResponse(HttpResponseMessage httpResponse)

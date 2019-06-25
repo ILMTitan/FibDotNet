@@ -286,7 +286,7 @@ namespace com.google.cloud.tools.jib.registry
                     else if (ex.getStatusCode() == HttpStatusCode.Forbidden)
                     {
                         throw new RegistryUnauthorizedException(
-                            registryEndpointRequestProperties.getServerUrl(),
+                            registryEndpointRequestProperties.getRegistry(),
                             registryEndpointRequestProperties.getImageName(),
                             ex);
                     }
@@ -296,14 +296,14 @@ namespace com.google.cloud.tools.jib.registry
                         {
                             // Credentials are either missing or wrong.
                             throw new RegistryUnauthorizedException(
-                                registryEndpointRequestProperties.getServerUrl(),
+                                registryEndpointRequestProperties.getRegistry(),
                                 registryEndpointRequestProperties.getImageName(),
                                 ex);
                         }
                         else
                         {
                             throw new RegistryCredentialsNotSentException(
-                                registryEndpointRequestProperties.getServerUrl(),
+                                registryEndpointRequestProperties.getRegistry(),
                                 registryEndpointRequestProperties.getImageName());
                         }
                     }

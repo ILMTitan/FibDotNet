@@ -24,23 +24,23 @@ namespace com.google.cloud.tools.jib.registry.credentials
     {
         public CredentialHelperUnhandledServerUrlException(
             SystemPath credentialHelper,
-            string serverUrl,
+            string registry,
             string credentialHelperOutput,
             Exception cause)
             : base("The credential helper ("
                   + credentialHelper
                   + ") has nothing for server Uri: "
-                  + serverUrl
+                  + registry
                   + "\n\nGot output:\n\n"
                   + credentialHelperOutput, cause)
         {
         }
 
-        public CredentialHelperUnhandledServerUrlException(SystemPath credentialHelper, string serverUrl, string credentialHelperOutput) : base(
+        public CredentialHelperUnhandledServerUrlException(SystemPath credentialHelper, string registry, string credentialHelperOutput) : base(
         "The credential helper ("
             + credentialHelper
             + ") has nothing for server Uri: "
-            + serverUrl
+            + registry
             + "\n\nGot output:\n\n"
             + credentialHelperOutput)
         {

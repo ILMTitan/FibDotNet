@@ -29,7 +29,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             RegistryAuthenticationFailedException exception =
                 new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
-            Assert.AreEqual("serverUrl", exception.getServerUrl());
+            Assert.AreEqual("serverUrl", exception.getRegistry());
             Assert.AreEqual("imageName", exception.getImageName());
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.registry
             Exception cause = new Exception("message");
             RegistryAuthenticationFailedException exception =
                 new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
-            Assert.AreEqual("serverUrl", exception.getServerUrl());
+            Assert.AreEqual("serverUrl", exception.getRegistry());
             Assert.AreEqual("imageName", exception.getImageName());
             Assert.AreSame(cause, exception.getCause());
             Assert.AreEqual(

@@ -64,6 +64,7 @@ namespace com.google.cloud.tools.jib.http
                 TestContext.Out.WriteLine(serveTask.Exception);
             }
             serverSocket.Stop();
+            threadStarted.Dispose();
         }
 
         private TcpListener createServerSocket()

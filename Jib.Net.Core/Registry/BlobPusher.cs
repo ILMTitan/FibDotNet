@@ -271,7 +271,7 @@ namespace com.google.cloud.tools.jib.registry
         private string getActionDescription()
         {
             return "push BLOB for "
-                + registryEndpointRequestProperties.getServerUrl()
+                + registryEndpointRequestProperties.getRegistry()
                 + "/"
                 + registryEndpointRequestProperties.getImageName()
                 + " with digest "

@@ -143,7 +143,7 @@ namespace com.google.cloud.tools.jib.registry
         public string getActionDescription()
         {
             return "pull image manifest for "
-                + registryEndpointRequestProperties.getServerUrl()
+                + registryEndpointRequestProperties.getRegistry()
                 + "/"
                 + registryEndpointRequestProperties.getImageName()
                 + ":"

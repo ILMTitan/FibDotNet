@@ -40,16 +40,18 @@ namespace com.google.cloud.tools.jib.cache
         /** Holds information about a layer that was written. */
         public class WrittenLayer
         {
-            public readonly DescriptorDigest layerDigest;
-            public readonly DescriptorDigest layerDiffId;
-            public readonly long layerSize;
+            public DescriptorDigest LayerDigest { get; }
+
+            public DescriptorDigest LayerDiffId { get; }
+
+            public long LayerSize { get; }
 
             public WrittenLayer(
                 DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize)
             {
-                this.layerDigest = layerDigest;
-                this.layerDiffId = layerDiffId;
-                this.layerSize = layerSize;
+                LayerDigest = layerDigest;
+                LayerDiffId = layerDiffId;
+                LayerSize = layerSize;
             }
         }
 
@@ -83,6 +85,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public static void writeMetadata(object jsonTemplate, SystemPath destination)
         {
+            destination = destination ?? throw new ArgumentNullException(nameof(destination));
             using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent()))
             {
                 using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
@@ -115,6 +118,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public async Task<CachedLayer> writeCompressedAsync(IBlob compressedLayerBlob)
         {
+            compressedLayerBlob = compressedLayerBlob ?? throw new ArgumentNullException(nameof(compressedLayerBlob));
             // Creates the layers directory if it doesn't exist.
             Files.createDirectories(cacheStorageFiles.getLayersDirectory());
 
@@ -130,15 +134,15 @@ namespace com.google.cloud.tools.jib.cache
                     await writeCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
-                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
+                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.LayerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
-                    cacheStorageFiles.getLayerFile(writtenLayer.layerDigest, writtenLayer.layerDiffId);
+                    cacheStorageFiles.getLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
                 return CachedLayer.builder()
-                    .setLayerDigest(writtenLayer.layerDigest)
-                    .setLayerDiffId(writtenLayer.layerDiffId)
-                    .setLayerSize(writtenLayer.layerSize)
+                    .setLayerDigest(writtenLayer.LayerDigest)
+                    .setLayerDiffId(writtenLayer.LayerDiffId)
+                    .setLayerSize(writtenLayer.LayerSize)
                     .setLayerBlob(Blobs.from(layerFile))
                     .build();
             }
@@ -180,22 +184,22 @@ namespace com.google.cloud.tools.jib.cache
                     await writeUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
-                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.layerDigest));
+                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.LayerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
-                    cacheStorageFiles.getLayerFile(writtenLayer.layerDigest, writtenLayer.layerDiffId);
+                    cacheStorageFiles.getLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
                 CachedLayer.Builder cachedLayerBuilder =
                     CachedLayer.builder()
-                        .setLayerDigest(writtenLayer.layerDigest)
-                        .setLayerDiffId(writtenLayer.layerDiffId)
-                        .setLayerSize(writtenLayer.layerSize)
+                        .setLayerDigest(writtenLayer.LayerDigest)
+                        .setLayerDiffId(writtenLayer.LayerDiffId)
+                        .setLayerSize(writtenLayer.LayerSize)
                         .setLayerBlob(Blobs.from(layerFile));
 
                 // Write the selector file.
                 if (selector != null)
                 {
-                    writeSelector(selector, writtenLayer.layerDigest);
+                    writeSelector(selector, writtenLayer.LayerDigest);
                 }
 
                 return cachedLayerBuilder.build();
@@ -214,6 +218,7 @@ namespace com.google.cloud.tools.jib.cache
             IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfiguration)
         {
+            manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
             Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration());
             Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration().getDigest());
 

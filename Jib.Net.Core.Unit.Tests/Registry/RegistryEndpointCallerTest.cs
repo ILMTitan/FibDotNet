@@ -134,6 +134,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public void Dispose()
         {
+            mockResponse?.Dispose();
             mockConnection?.Dispose();
             mockInsecureConnection?.Dispose();
         }

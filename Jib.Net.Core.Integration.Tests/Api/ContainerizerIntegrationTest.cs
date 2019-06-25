@@ -334,7 +334,7 @@ namespace com.google.cloud.tools.jib.api
                 .setApplicationLayersCache(cacheDirectory)
                 .setAllowInsecureRegistries(true)
                 .setToolName("jib-integration-test")
-                .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler);
+                .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler.accept);
             additionalTags.forEach(containerizer.withAdditionalTag);
 
             return await containerBuilder.containerizeAsync(containerizer).ConfigureAwait(false);

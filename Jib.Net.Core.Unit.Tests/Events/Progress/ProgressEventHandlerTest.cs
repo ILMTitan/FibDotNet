@@ -61,7 +61,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 ProgressEventHandler progressEventHandler =
                     new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
                 EventHandlers eventHandlers =
-                    EventHandlers.builder().add<ProgressEvent>(progressEventHandler).build();
+                    EventHandlers.builder().add<ProgressEvent>(progressEventHandler.accept).build();
 
                 // Adds root, child1, and child1Child.
                 await MultithreadedExecutor.invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(root, 0L)))

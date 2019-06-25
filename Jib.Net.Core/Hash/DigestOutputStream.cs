@@ -24,13 +24,12 @@ namespace com.google.cloud.tools.jib.hash
     public class DigestStream : Stream
     {
         private readonly Stream innerStream;
-        protected MessageDigest messageDigest;
         private readonly bool keepOpen;
 
         public DigestStream(Stream innerStream, MessageDigest messageDigest, bool keepOpen = false)
         {
             this.innerStream = innerStream;
-            this.messageDigest = messageDigest;
+            this.MessageDigest = messageDigest;
             this.keepOpen = keepOpen;
         }
 
@@ -49,10 +48,11 @@ namespace com.google.cloud.tools.jib.hash
             get => throw new NotSupportedException();
             set => throw new NotSupportedException();
         }
+        protected MessageDigest MessageDigest { get; set; }
 
         public void setMessageDigest(MessageDigest messageDigest)
         {
-            this.messageDigest = messageDigest;
+            this.MessageDigest = messageDigest;
         }
 
         public override void Flush()
@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.hash
         public override int Read(byte[] buffer, int offset, int count)
         {
             var bytesRead = innerStream.Read(buffer, offset, count);
-            return messageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
+            return MessageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
         }
 
         /// <exception cref="NotSupportedException">The stream does not support seeking.</exception>
@@ -80,7 +80,7 @@ namespace com.google.cloud.tools.jib.hash
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            var newCount = messageDigest.TransformBlock(buffer, offset, count, buffer, offset);
+            var newCount = MessageDigest.TransformBlock(buffer, offset, count, buffer, offset);
             innerStream.Write(buffer, offset, newCount);
         }
 
@@ -92,12 +92,12 @@ namespace com.google.cloud.tools.jib.hash
         public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             var bytesRead = await innerStream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-            return messageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
+            return MessageDigest.TransformBlock(buffer, offset, bytesRead, buffer, offset);
         }
 
         public async override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var newCount = messageDigest.TransformBlock(buffer, offset, count, buffer, offset);
+            var newCount = MessageDigest.TransformBlock(buffer, offset, count, buffer, offset);
             await innerStream.WriteAsync(buffer, offset, newCount, cancellationToken).ConfigureAwait(false);
         }
 

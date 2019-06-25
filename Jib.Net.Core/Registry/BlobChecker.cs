@@ -127,7 +127,7 @@ namespace com.google.cloud.tools.jib.registry
         public string getActionDescription()
         {
             return "check BLOB exists for "
-                + registryEndpointRequestProperties.getServerUrl()
+                + registryEndpointRequestProperties.getRegistry()
                 + "/"
                 + registryEndpointRequestProperties.getImageName()
                 + " with digest "

@@ -155,9 +155,9 @@ namespace com.google.cloud.tools.jib.registry
          * @param imageName the image/repository name (also known as, namespace)
          * @return the new {@link Factory}
          */
-        public static Factory factory(IEventHandlers eventHandlers, string serverUrl, string imageName)
+        public static Factory factory(IEventHandlers eventHandlers, string registry, string imageName)
         {
-            return new Factory(eventHandlers, new RegistryEndpointRequestProperties(serverUrl, imageName));
+            return new Factory(eventHandlers, new RegistryEndpointRequestProperties(registry, imageName));
         }
 
         private readonly IEventHandlers eventHandlers;
@@ -376,7 +376,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public string getApiRouteBase()
         {
-            return registryEndpointRequestProperties.getServerUrl() + "/v2/";
+            return registryEndpointRequestProperties.getRegistry() + "/v2/";
         }
 
         public IEnumerable<ProductInfoHeaderValue> getUserAgent()

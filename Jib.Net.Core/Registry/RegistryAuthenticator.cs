@@ -59,6 +59,11 @@ namespace com.google.cloud.tools.jib.registry
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             IEnumerable<ProductInfoHeaderValue> userAgent)
         {
+            authenticationMethod =
+                authenticationMethod ?? throw new ArgumentNullException(nameof(authenticationMethod));
+            registryEndpointRequestProperties =
+                registryEndpointRequestProperties ??
+                throw new ArgumentNullException(nameof(registryEndpointRequestProperties));
             // If the authentication method starts with 'basic ' (case insensitive), no registry
             // authentication is needed.
             if (authenticationMethod.Scheme.matches("^(?i)(basic)"))
@@ -70,7 +75,7 @@ namespace com.google.cloud.tools.jib.registry
             if (!authenticationMethod.Scheme.matches("^(?i)(bearer)"))
             {
                 throw newRegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getRegistry(),
                     registryEndpointRequestProperties.getImageName(),
                     authenticationMethod.Scheme,
                     "Bearer");
@@ -81,7 +86,7 @@ namespace com.google.cloud.tools.jib.registry
             if (!realmMatcher.find())
             {
                 throw newRegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getRegistry(),
                     registryEndpointRequestProperties.getImageName(),
                     authenticationMethod.Parameter,
                     "realm");
@@ -94,7 +99,7 @@ namespace com.google.cloud.tools.jib.registry
             string service =
                 serviceMatcher.find()
                     ? serviceMatcher.group(1)
-                    : registryEndpointRequestProperties.getServerUrl();
+                    : registryEndpointRequestProperties.getRegistry();
 
             return new RegistryAuthenticator(realm, service, registryEndpointRequestProperties, userAgent);
         }
@@ -278,7 +283,7 @@ namespace com.google.cloud.tools.jib.registry
                     if (responseJson.getToken() == null)
                     {
                         throw new RegistryAuthenticationFailedException(
-                            registryEndpointRequestProperties.getServerUrl(),
+                            registryEndpointRequestProperties.getRegistry(),
                             registryEndpointRequestProperties.getImageName(),
                             "Did not get token in authentication response from "
                                 + getAuthenticationUrl(credential, scope)
@@ -291,7 +296,7 @@ namespace com.google.cloud.tools.jib.registry
             catch (Exception ex) when (ex is IOException || ex is JsonException)
             {
                 throw new RegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getServerUrl(),
+                    registryEndpointRequestProperties.getRegistry(),
                     registryEndpointRequestProperties.getImageName(),
                     ex);
             }

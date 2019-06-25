@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
     {
         public static readonly string CREDENTIAL_HELPER_PREFIX = "docker-credential-";
 
-        private readonly string serverUrl;
+        private readonly string registry;
         private readonly SystemPath credentialHelper;
 
         /** Template for a Docker credential helper output. */
@@ -61,9 +61,9 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @param serverUrl the server Uri to pass into the credential helper
          * @param credentialHelper the path to the credential helper executable
          */
-        public DockerCredentialHelper(string serverUrl, SystemPath credentialHelper)
+        public DockerCredentialHelper(string registry, SystemPath credentialHelper)
         {
-            this.serverUrl = serverUrl;
+            this.registry = registry;
             this.credentialHelper = credentialHelper;
         }
 
@@ -71,9 +71,9 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
         }
 
-        public static DockerCredentialHelper Create(string serverUrl, SystemPath credentialHelper)
+        public static DockerCredentialHelper Create(string registry, SystemPath credentialHelper)
         {
-            return new DockerCredentialHelper(serverUrl, credentialHelper);
+            return new DockerCredentialHelper(registry, credentialHelper);
         }
 
         /**
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 IProcess process = new ProcessBuilder(credentialHelper.toString(), "get").start();
                 using (Stream processStdin = process.getOutputStream())
                 {
-                    processStdin.write(serverUrl.getBytes(StandardCharsets.UTF_8));
+                    processStdin.write(registry.getBytes(StandardCharsets.UTF_8));
                 }
 
                 using (StreamReader processStdoutReader =
@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     if (output.contains("credentials not found in native keychain"))
                     {
                         throw new CredentialHelperUnhandledServerUrlException(
-                            credentialHelper, serverUrl, output);
+                            credentialHelper, registry, output);
                     }
                     if (output.isEmpty())
                     {
@@ -117,7 +117,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                         {
                             string errorOutput = CharStreams.toString(processStderrReader);
                             throw new CredentialHelperUnhandledServerUrlException(
-                                credentialHelper, serverUrl, errorOutput);
+                                credentialHelper, registry, errorOutput);
                         }
                     }
 
@@ -129,7 +129,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                             || Strings.isNullOrEmpty(dockerCredentials.Secret))
                         {
                             throw new CredentialHelperUnhandledServerUrlException(
-                                credentialHelper, serverUrl, output);
+                                credentialHelper, registry, output);
                         }
 
                         return Credential.from(dockerCredentials.Username, dockerCredentials.Secret);
@@ -137,7 +137,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     catch (JsonException ex)
                     {
                         throw new CredentialHelperUnhandledServerUrlException(
-                            credentialHelper, serverUrl, output, ex);
+                            credentialHelper, registry, output, ex);
                     }
                 }
             }

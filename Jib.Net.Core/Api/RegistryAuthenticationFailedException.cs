@@ -24,27 +24,27 @@ namespace com.google.cloud.tools.jib.api
     public class RegistryAuthenticationFailedException : RegistryException
     {
         private const string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
-        private readonly string serverUrl;
+        private readonly string registry;
         private readonly string imageName;
 
-        public RegistryAuthenticationFailedException(string serverUrl, string imageName, Exception cause)
-            : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, cause.getMessage()), cause)
+        public RegistryAuthenticationFailedException(string registry, string imageName, Exception cause)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, cause?.getMessage()), cause)
         {
-            this.serverUrl = serverUrl;
+            this.registry = registry;
             this.imageName = imageName;
         }
 
-        public RegistryAuthenticationFailedException(string serverUrl, string imageName, string reason)
-            : base(string.Format(CultureInfo.CurrentCulture, REASON, serverUrl, imageName, reason))
+        public RegistryAuthenticationFailedException(string registry, string imageName, string reason)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, reason))
         {
-            this.serverUrl = serverUrl;
+            this.registry = registry;
             this.imageName = imageName;
         }
 
         /** @return the server being authenticated */
-        public string getServerUrl()
+        public string getRegistry()
         {
-            return serverUrl;
+            return registry;
         }
 
         /** @return the image being authenticated */

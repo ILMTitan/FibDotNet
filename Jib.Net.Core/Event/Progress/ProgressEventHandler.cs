@@ -29,15 +29,6 @@ namespace com.google.cloud.tools.jib.@event.progress
      */
     public sealed class ProgressEventHandler : IDisposable
     {
-        public static implicit operator Action<ProgressEvent>(ProgressEventHandler h)
-        {
-            if(h is null)
-            {
-                return _ => { };
-            }
-            return h.accept;
-        }
-
         /**
          * Contains the accumulated progress and which "leaf" tasks are not yet complete. Leaf tasks are
          * those that do not have sub-tasks.
@@ -95,6 +86,7 @@ namespace com.google.cloud.tools.jib.@event.progress
 
         public void accept(ProgressEvent progressEvent)
         {
+            progressEvent = progressEvent ?? throw new ArgumentNullException(nameof(progressEvent));
             Allocation allocation = progressEvent.getAllocation();
             long progressUnits = progressEvent.getUnits();
             double allocationFraction = allocation.getFractionOfRoot();

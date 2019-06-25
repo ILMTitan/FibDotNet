@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.hash
             Flush();
             try
             {
-                byte[] hashedBytes = messageDigest.digest();
+                byte[] hashedBytes = MessageDigest.digest();
 
                 // Encodes each hashed byte into 2-character hexadecimal representation.
                 StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.Length);
