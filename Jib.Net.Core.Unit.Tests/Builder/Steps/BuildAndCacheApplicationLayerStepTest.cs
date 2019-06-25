@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             CollectionAssert.AreEqual(await Blobs.writeToByteArrayAsync(expectedBlob).ConfigureAwait(false), await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
-        public TemporaryFolder temporaryFolder;
+        private TemporaryFolder temporaryFolder;
 
         private readonly IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
 

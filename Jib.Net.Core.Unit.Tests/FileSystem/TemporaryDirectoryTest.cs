@@ -45,7 +45,13 @@ namespace com.google.cloud.tools.jib.filesystem
                 });
         }
 
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
+        }
 
         [Test]
         public void testClose_directoryDeleted()

@@ -83,7 +83,13 @@ namespace com.google.cloud.tools.jib.image
                 LayerConfiguration.DEFAULT_MODIFIED_TIME);
         }
 
-        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
+        }
 
         [Test]
         public async System.Threading.Tasks.Task testBuildAsync()

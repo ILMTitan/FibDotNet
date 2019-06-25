@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.filesystem
     /** Tests for {@link UserCacheHome}. */
     public class UserCacheHomeTest
     {
-        public TemporaryFolder temporaryFolder;
+        private TemporaryFolder temporaryFolder;
 
         private string fakeCacheHome;
         private IEnvironment mockEnvironment;

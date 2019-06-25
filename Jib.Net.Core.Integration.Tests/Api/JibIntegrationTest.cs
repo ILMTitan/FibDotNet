@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.api
     {
         public static readonly LocalRegistry localRegistry = new LocalRegistry(5002, "username", "password");
 
-        [Rule] public readonly TemporaryFolder cacheFolder = new TemporaryFolder();
+        private readonly TemporaryFolder cacheFolder = new TemporaryFolder();
 
         /**
          * Pulls a built image and attempts to run it.
@@ -70,6 +70,7 @@ namespace com.google.cloud.tools.jib.api
         public void OneTimeTearDown()
         {
             localRegistry.stop();
+            cacheFolder.Dispose();
         }
 
         [Test]

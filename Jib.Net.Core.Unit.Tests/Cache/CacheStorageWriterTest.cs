@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.cache
             return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
         }
 
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         private CacheStorageFiles cacheStorageFiles;
         private SystemPath cacheRoot;
@@ -66,6 +66,12 @@ namespace com.google.cloud.tools.jib.cache
         {
             cacheRoot = temporaryFolder.newFolder().toPath();
             cacheStorageFiles = new CacheStorageFiles(cacheRoot);
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         [Test]

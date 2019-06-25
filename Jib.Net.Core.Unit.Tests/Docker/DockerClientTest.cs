@@ -35,8 +35,6 @@ namespace com.google.cloud.tools.jib.docker
     /** Tests for {@link DockerClient}. */
     public class DockerClientTest
     {
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
-
         private IProcessBuilder mockProcessBuilder;
         private IProcess mockProcess;
         private IImageTarball imageTarball;

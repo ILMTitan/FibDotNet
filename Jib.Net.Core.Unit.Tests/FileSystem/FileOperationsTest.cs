@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.filesystem
             Assert.AreEqual("jib", File.ReadAllText(file.toString()));
         }
 
-        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         [Test]
         public void testCopy()
@@ -74,6 +74,12 @@ namespace com.google.cloud.tools.jib.filesystem
             assertFilesEqual(
                 dirLayer.resolve("c").resolve("cat"), destDir.resolve("layer").resolve("c").resolve("cat"));
             assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         [Test]

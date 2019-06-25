@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.cache
                 LayerConfiguration.DEFAULT_MODIFIED_TIME);
         }
 
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
         private ImmutableArray<LayerEntry> outOfOrderLayerEntries;
         private ImmutableArray<LayerEntry> inOrderLayerEntries;
 
@@ -98,6 +98,12 @@ namespace com.google.cloud.tools.jib.cache
                     testLayerEntry4,
                     testLayerEntry5,
                     testLayerEntry6);
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         [Test]

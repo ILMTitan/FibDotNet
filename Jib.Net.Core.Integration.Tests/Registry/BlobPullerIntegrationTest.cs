@@ -32,8 +32,6 @@ namespace com.google.cloud.tools.jib.registry
     /** Integration tests for {@link BlobPuller}. */
     public class BlobPullerIntegrationTest : HttpRegistryTest
     {
-        [Rule] public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
         [Test]
         public async Task testPullAsync()
         {

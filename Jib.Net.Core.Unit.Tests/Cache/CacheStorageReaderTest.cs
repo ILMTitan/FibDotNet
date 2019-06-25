@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.cache
                 imageDirectory.resolve("config.json"));
         }
 
-        public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         private DescriptorDigest layerDigest1;
         private DescriptorDigest layerDigest2;
@@ -67,6 +67,12 @@ namespace com.google.cloud.tools.jib.cache
             layerDigest2 =
                 DescriptorDigest.fromHash(
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         [Test]

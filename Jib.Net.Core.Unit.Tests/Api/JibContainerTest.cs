@@ -25,8 +25,6 @@ namespace com.google.cloud.tools.jib.api
 
     public class JibContainerTest
     {
-        public TemporaryFolder temporaryDirectory = new TemporaryFolder();
-
         private DescriptorDigest digest1;
         private DescriptorDigest digest2;
         private DescriptorDigest digest3;

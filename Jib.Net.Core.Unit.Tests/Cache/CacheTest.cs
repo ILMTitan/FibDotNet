@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.cache
                 LayerConfiguration.DEFAULT_MODIFIED_TIME);
         }
 
-        [Rule] public readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
 
         private IBlob layerBlob1;
         private DescriptorDigest layerDigest1;
@@ -142,6 +142,12 @@ namespace com.google.cloud.tools.jib.cache
             layerDiffId2 = await digestOfAsync(layerBlob2).ConfigureAwait(false);
             layerSize2 = await sizeOfAsync(compress(layerBlob2)).ConfigureAwait(false);
             layerEntries2 = ImmutableArray.Create<LayerEntry>();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            temporaryFolder.Dispose();
         }
 
         [Test]
