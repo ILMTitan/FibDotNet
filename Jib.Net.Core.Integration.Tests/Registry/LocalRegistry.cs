@@ -21,6 +21,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -30,9 +31,10 @@ using System.Threading.Tasks;
 namespace com.google.cloud.tools.jib.registry
 {
     /** Runs a local registry. */
-    public class LocalRegistry : IDisposable
+    public sealed class LocalRegistry : IDisposable
     {
-        private readonly string containerName = "registry-" + Guid.NewGuid().ToString("N").ToLowerInvariant();
+        private readonly string containerName =
+            "registry-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).ToLowerInvariant();
         private readonly int port;
         private readonly string username;
         private readonly string password;

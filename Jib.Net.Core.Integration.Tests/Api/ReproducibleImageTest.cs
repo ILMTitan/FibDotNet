@@ -337,7 +337,7 @@ namespace com.google.cloud.tools.jib.api
                 TarEntry imageEntry;
                 while ((imageEntry = input.getNextTarEntry()) != null)
                 {
-                    if (filename.Equals(imageEntry.getName()))
+                    if (filename == imageEntry.getName())
                     {
                         return CharStreams.toString(new StreamReader(input, StandardCharsets.UTF_8));
                     }

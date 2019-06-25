@@ -230,7 +230,7 @@ namespace com.google.cloud.tools.jib.api
                 expectedRegistry = "registry-1.docker.io";
             }
             string expectedRepository = repository;
-            if ("registry-1.docker.io".Equals(expectedRegistry) && repository.indexOf('/') < 0)
+            if ("registry-1.docker.io" == expectedRegistry && repository.indexOf('/') < 0)
             {
                 expectedRepository = "library/" + expectedRepository;
             }
