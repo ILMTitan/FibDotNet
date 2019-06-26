@@ -26,6 +26,7 @@ using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -187,17 +188,17 @@ namespace com.google.cloud.tools.jib.registry
                 testManifestPuller.getAccept());
 
             CollectionAssert.AreEqual(
-                Collections.singletonList(OCIManifestTemplate.ManifestMediaType),
+                new List<string> { OCIManifestTemplate.ManifestMediaType },
                 new ManifestPuller<OCIManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
             CollectionAssert.AreEqual(
-                Collections.singletonList(V22ManifestTemplate.ManifestMediaType),
+                new List<string> { V22ManifestTemplate.ManifestMediaType },
                 new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());
             CollectionAssert.AreEqual(
-                Collections.singletonList(V21ManifestTemplate.ManifestMediaType),
+                new List<string> { V21ManifestTemplate.ManifestMediaType },
                 new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
                     .getAccept());

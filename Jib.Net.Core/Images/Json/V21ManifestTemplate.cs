@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -119,7 +120,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public IReadOnlyList<LayerObjectTemplate> getFsLayers()
         {
-            return Collections.unmodifiableList(FsLayers);
+            return FsLayers as IReadOnlyList<LayerObjectTemplate> ?? FsLayers.ToList();
         }
 
         /**

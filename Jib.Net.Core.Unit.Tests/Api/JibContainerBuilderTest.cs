@@ -241,7 +241,7 @@ namespace com.google.cloud.tools.jib.api
                     DescriptorDigest.fromHash(
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
 
-            Mock.Get(mockContainerizer).Setup(m => m.getAdditionalTags()).Returns(Collections.emptySet<string>());
+            Mock.Get(mockContainerizer).Setup(m => m.getAdditionalTags()).Returns(new HashSet<string>());
 
             Mock.Get(mockContainerizer).Setup(m => m.getBaseImageLayersCacheDirectory()).Returns(Paths.get("/"));
 

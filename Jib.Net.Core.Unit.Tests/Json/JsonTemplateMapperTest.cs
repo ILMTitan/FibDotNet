@@ -80,16 +80,15 @@ namespace com.google.cloud.tools.jib.json
             TestJson.InnerObjectClass innerObject1 = new TestJson.InnerObjectClass
             {
                 Number = 42,
-                Texts = Collections.emptyList<string>()
+                Texts = new List<string>()
             };
             TestJson.InnerObjectClass innerObject2 = new TestJson.InnerObjectClass
             {
                 Number = 99,
-                Texts = Collections.singletonList("some text"),
+                Texts = new List<string> { "some text" },
                 Digests =
-                Collections.singletonList(
-                    DescriptorDigest.fromDigest(
-                        "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e"))
+                new List<DescriptorDigest> {                     DescriptorDigest.fromDigest(
+                        "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e")}
             };
             testJson.List = Arrays.asList(innerObject1, innerObject2);
 

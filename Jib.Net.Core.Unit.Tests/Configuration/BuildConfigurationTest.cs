@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.configuration
             ISet<string> additionalTargetImageTags = ImmutableHashSet.Create("tag1", "tag2", "tag3");
             ISet<string> expectedTargetImageTags = ImmutableHashSet.Create("targettag", "tag1", "tag2", "tag3");
             IList<CredentialRetriever> credentialRetrievers =
-                Collections.singletonList<CredentialRetriever>(() => Option.of(Credential.from("username", "password")));
+                new List<CredentialRetriever> { () => Option.of(Credential.from("username", "password")) };
             Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
             IList<string> expectedEntrypoint = Arrays.asList("some", "entrypoint");
             IList<string> expectedProgramArguments = Arrays.asList("arg1", "arg2");
@@ -54,10 +54,9 @@ namespace com.google.cloud.tools.jib.configuration
             SystemPath expectedApplicationLayersCacheDirectory = Paths.get("application/layers");
             SystemPath expectedBaseImageLayersCacheDirectory = Paths.get("base/image/layers");
             IList<ILayerConfiguration> expectedLayerConfigurations =
-                Collections.singletonList(
-                    LayerConfiguration.builder()
+                new List<ILayerConfiguration> {                     LayerConfiguration.builder()
                         .addEntry(Paths.get("sourceFile"), AbsoluteUnixPath.get("/path/in/container"))
-                        .build());
+                        .build()};
             const string expectedCreatedBy = "createdBy";
 
             ImageConfiguration baseImageConfiguration =
@@ -182,7 +181,7 @@ namespace com.google.cloud.tools.jib.configuration
                 Paths.get("ignored"), buildConfigurationBuilder.getBaseImageLayersCacheDirectory());
             Assert.IsNull(buildConfiguration.getContainerConfiguration());
             Assert.IsFalse(buildConfiguration.getAllowInsecureRegistries());
-            Assert.AreEqual(Collections.emptyList<LayerConfiguration>(), buildConfiguration.getLayerConfigurations());
+            Assert.AreEqual(new List<LayerConfiguration>(), buildConfiguration.getLayerConfigurations());
             Assert.AreEqual(null, buildConfiguration.getToolName());
             Assert.AreEqual(null, buildConfiguration.getToolVersion());
         }

@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.docker
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(Collections.singletonList("load"), subcommand);
+                        Assert.AreEqual(new List<string> { "load" }, subcommand);
                         return mockProcessBuilder;
                     });
             Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(0);
@@ -196,7 +196,7 @@ namespace com.google.cloud.tools.jib.docker
 
             ProcessBuilder processBuilder =
                 DockerClient.defaultProcessBuilderFactory("docker", environment)
-                    .apply(Collections.emptyList<string>());
+                    .apply(new List<string>());
 
             CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.environment());
         }

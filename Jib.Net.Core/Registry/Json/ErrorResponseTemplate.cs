@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.registry.json
 {
@@ -50,7 +51,7 @@ namespace com.google.cloud.tools.jib.registry.json
 
         public IReadOnlyList<ErrorEntryTemplate> getErrors()
         {
-            return Collections.unmodifiableList(Errors);
+            return Errors as IReadOnlyList<ErrorEntryTemplate> ?? Errors.ToList();
         }
 
         public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate)

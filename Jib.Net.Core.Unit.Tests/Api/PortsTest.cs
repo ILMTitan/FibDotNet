@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    Ports.parse(Collections.singletonList(input));
+                    Ports.parse(new List<string> { input });
                     Assert.Fail(input);
                 }
                 catch (FormatException ex)
@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.api
 
             try
             {
-                Ports.parse(Collections.singletonList("4002-4000"));
+                Ports.parse(new List<string> { "4002-4000" });
                 Assert.Fail();
             }
             catch (FormatException ex)
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    Ports.parse(Collections.singletonList(input));
+                    Ports.parse(new List<string> { input });
                     Assert.Fail();
                 }
                 catch (FormatException ex)

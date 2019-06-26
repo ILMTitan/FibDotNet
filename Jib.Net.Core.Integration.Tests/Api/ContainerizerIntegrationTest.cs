@@ -158,7 +158,7 @@ namespace com.google.cloud.tools.jib.api
                 await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
-                    Collections.emptyList<string>()).ConfigureAwait(false);
+                    new List<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -168,7 +168,7 @@ namespace com.google.cloud.tools.jib.api
                 await buildRegistryImageAsync(
                     ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                     ImageReference.of("localhost:5000", "testimage", "testtag"),
-                    Collections.emptyList<string>()).ConfigureAwait(false);
+                    new List<string>()).ConfigureAwait(false);
 
             logger.info("Secondary build time: " + s.Elapsed);
 
@@ -224,7 +224,7 @@ namespace com.google.cloud.tools.jib.api
             await buildRegistryImageAsync(
                 ImageReference.parse("openjdk:8-jre-alpine"),
                 ImageReference.of("localhost:5000", "testimage", "testtag"),
-                Collections.emptyList<string>()).ConfigureAwait(false);
+                new List<string>()).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
             new Command("docker", "pull", imageReference).run();
@@ -238,7 +238,7 @@ namespace com.google.cloud.tools.jib.api
             await buildDockerDaemonImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testdocker", null),
-                Collections.emptyList<string>()).ConfigureAwait(false);
+                new List<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -278,7 +278,7 @@ namespace com.google.cloud.tools.jib.api
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testtar", null),
                 outputPath,
-                Collections.emptyList<string>()).ConfigureAwait(false);
+                new List<string>()).ConfigureAwait(false);
 
             progressChecker.checkCompletion();
 
@@ -322,7 +322,7 @@ namespace com.google.cloud.tools.jib.api
                     .setEntrypoint(
                         Arrays.asList(
                             "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
-                    .setProgramArguments(Collections.singletonList("An argument."))
+                    .setProgramArguments(new List<string> { "An argument." })
                     .setEnvironment(ImmutableDic.of("env1", "envvalue1", "env2", "envvalue2"))
                     .setExposedPorts(Ports.parse(Arrays.asList("1000", "2000-2002/tcp", "3000/udp")))
                     .setLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))

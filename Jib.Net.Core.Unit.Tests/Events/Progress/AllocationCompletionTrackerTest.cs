@@ -22,6 +22,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Unit.Tests.Events.Progress
@@ -57,7 +58,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             Assert.IsTrue(allocationCompletionTracker.updateProgress(root, 0L));
             Assert.AreEqual(
-                Collections.singletonList(root),
+                new List<Allocation> { root },
                 allocationCompletionTracker.getUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.updateProgress(child1, 0L));
@@ -77,7 +78,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             Assert.IsTrue(allocationCompletionTracker.updateProgress(child1Child, 50L));
             Assert.AreEqual(
-                Collections.singletonList(root),
+                new List<Allocation> { root },
                 allocationCompletionTracker.getUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.updateProgress(child2, 100L));
@@ -87,11 +88,11 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             Assert.IsTrue(allocationCompletionTracker.updateProgress(child2, 100L));
             Assert.AreEqual(
-                Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
+                new List<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
 
             Assert.IsFalse(allocationCompletionTracker.updateProgress(child2, 0L));
             Assert.AreEqual(
-                Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
+                new List<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
 
             try
             {
@@ -129,15 +130,12 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             // Adds 50 to child1Child and 100 to child2.
             IList<Func<bool>> callables = new List<Func<bool>>(150);
             callables.addAll(
-                Collections.nCopies<Func<bool>>(
-                    50,
-                    () => allocationCompletionTracker.updateProgress(child1Child, 1L)));
+                Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.updateProgress(child1Child, 1L)), 50));
             callables.addAll(
-                Collections.nCopies<Func<bool>>(
-                    100, () => allocationCompletionTracker.updateProgress(child2, 1L)));
+                Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.updateProgress(child2, 1L)), 100));
 
             CollectionAssert.AreEqual(
-                Collections.nCopies(150, true), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
+                Enumerable.Repeat(true, 150), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
             Assert.AreEqual(
                 Arrays.asList(
                     root,
@@ -148,11 +146,9 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             // 0 progress doesn't do anything.
             Assert.AreEqual(
-                Collections.nCopies(100, false),
+                Enumerable.Repeat(false, 100),
                 await MultithreadedExecutor.invokeAllAsync(
-                    Collections.nCopies<Func<bool>>(
-                        100,
-                        () => allocationCompletionTracker.updateProgress(child1, 0L))).ConfigureAwait(false));
+                    Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.updateProgress(child1, 0L)), 100)).ConfigureAwait(false));
             Assert.AreEqual(
                 Arrays.asList(
                     root,
@@ -163,9 +159,9 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             // Adds 50 to child1Child and 100 to child2 to finish it up.
             CollectionAssert.AreEqual(
-                Collections.nCopies(150, true), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
+                Enumerable.Repeat(true, 150), await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false));
             CollectionAssert.AreEqual(
-                Collections.emptyList<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
+                new List<Allocation>(), allocationCompletionTracker.getUnfinishedAllocations());
         }
 
         [Test]
@@ -194,7 +190,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             Assert.AreEqual(Arrays.asList("child1Child"), tracker.getUnfinishedLeafTasks());
 
             tracker.updateProgress(child1Child, 50);
-            Assert.AreEqual(Collections.emptyList<string>(), tracker.getUnfinishedLeafTasks());
+            Assert.AreEqual(new List<string>(), tracker.getUnfinishedLeafTasks());
         }
 
         [Test]
@@ -223,7 +219,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             Assert.AreEqual(Arrays.asList("child2"), tracker.getUnfinishedLeafTasks());
 
             tracker.updateProgress(child2, 100);
-            Assert.AreEqual(Collections.emptyList<string>(), tracker.getUnfinishedLeafTasks());
+            Assert.AreEqual(new List<string>(), tracker.getUnfinishedLeafTasks());
         }
     }
 }

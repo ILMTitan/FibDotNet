@@ -51,12 +51,12 @@ namespace com.google.cloud.tools.jib.docker.json
     public class DockerLoadManifestEntryTemplate
     {
         public string Config { get; } = "config.json";
-        public List<string> RepoTags { get; set; } = Collections.singletonList<string>(null);
+        public List<string> RepoTags { get; set; } = new List<string> { null };
         public IList<string> Layers { get; } = new List<string>();
 
         public void setRepoTags(string repoTags)
         {
-            RepoTags = Collections.singletonList(repoTags);
+            RepoTags = new List<string> { repoTags };
         }
 
         public void addLayerFile(string layer)

@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.docker.json
             template.addLayerFile("layer2.tar.gz");
             template.addLayerFile("layer3.tar.gz");
 
-            List<DockerLoadManifestEntryTemplate> loadManifest = Collections.singletonList(template);
+            List<DockerLoadManifestEntryTemplate> loadManifest = new List<DockerLoadManifestEntryTemplate> { template };
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
         }
     }

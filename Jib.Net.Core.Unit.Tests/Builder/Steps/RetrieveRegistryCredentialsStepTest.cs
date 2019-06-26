@@ -64,7 +64,8 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             BuildConfiguration buildConfiguration =
                 makeFakeBuildConfiguration(
-                    Arrays.asList<CredentialRetriever>(Option.empty<Credential>, Option.empty<Credential>), Collections.emptyList<CredentialRetriever>());
+                    Arrays.asList<CredentialRetriever>(Option.empty<Credential>, Option.empty<Credential>),
+                    new List<CredentialRetriever>());
             Assert.IsNull(
                 RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
@@ -90,9 +91,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                 Mock.Of<CredentialRetrievalException>();
             BuildConfiguration buildConfiguration =
                 makeFakeBuildConfiguration(
-                    Collections.singletonList<CredentialRetriever>(
-                        () => throw credentialRetrievalException),
-                    Collections.emptyList<CredentialRetriever>());
+                    new List<CredentialRetriever> { () => throw credentialRetrievalException },
+                    new List<CredentialRetriever>());
             try
             {
                 await RetrieveRegistryCredentialsStep.forBaseImage(

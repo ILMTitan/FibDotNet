@@ -21,6 +21,7 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.image.json
 {
@@ -95,7 +96,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public IReadOnlyList<ContentDescriptorTemplate> getLayers()
         {
-            return Collections.unmodifiableList(Layers);
+            return Layers as IReadOnlyList<ContentDescriptorTemplate> ?? Layers.ToList();
         }
 
         public void setContainerConfiguration(long size, DescriptorDigest digest)

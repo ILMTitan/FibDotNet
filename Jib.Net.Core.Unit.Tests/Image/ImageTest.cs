@@ -25,6 +25,7 @@ using Jib.Net.Core.Images;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.image
@@ -80,8 +81,8 @@ namespace com.google.cloud.tools.jib.image
             Image image = Image.builder(ManifestFormat.V22).build();
             Assert.AreEqual("amd64", image.getArchitecture());
             Assert.AreEqual("linux", image.getOs());
-            Assert.AreEqual(Collections.emptyList<ILayer>(), image.getLayers());
-            Assert.AreEqual(Collections.emptyList<HistoryEntry>(), image.getHistory());
+            Assert.AreEqual(new List<ILayer>(), image.getLayers());
+            Assert.AreEqual(new List<HistoryEntry>(), image.getHistory());
         }
 
         [Test]

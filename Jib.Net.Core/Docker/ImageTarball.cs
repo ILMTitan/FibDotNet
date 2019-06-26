@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.tar;
 using Jib.Net.Core.Images;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -78,7 +79,7 @@ namespace com.google.cloud.tools.jib.docker
             // Adds the manifest to tarball.
             manifestTemplate.setRepoTags(imageReference.toStringWithTag());
             tarStreamBuilder.addByteEntry(
-                JsonTemplateMapper.toByteArray(Collections.singletonList(manifestTemplate)),
+                JsonTemplateMapper.toByteArray(new List<DockerLoadManifestEntryTemplate> { manifestTemplate }),
                 MANIFEST_JSON_FILE_NAME);
 
             await tarStreamBuilder.writeAsTarArchiveToAsync(@out).ConfigureAwait(false);

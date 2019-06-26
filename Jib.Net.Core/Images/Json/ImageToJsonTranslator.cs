@@ -119,7 +119,7 @@ namespace com.google.cloud.tools.jib.image.json
             }
 
             return set.stream()
-                .collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => Collections.emptyMap<object, object>(), StringComparer.Ordinal));
+                .collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => (IDictionary<object, object>)new Dictionary<object, object>(), StringComparer.Ordinal));
         }
 
         private readonly Image image;
@@ -220,7 +220,7 @@ namespace com.google.cloud.tools.jib.image.json
                     default:
                         throw new ArgumentOutOfRangeException(nameof(manifestFormat));
                 }
-                IBuildableManifestTemplate buildableTemplate = (IBuildableManifestTemplate)template;
+                IBuildableManifestTemplate buildableTemplate = template;
 
                 // Adds the container configuration reference.
                 DescriptorDigest containerConfigurationDigest =

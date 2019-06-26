@@ -215,7 +215,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             Assert.IsTrue(image.getHealthCheck().getStartPeriod().isPresent());
             Assert.AreEqual(Duration.FromSeconds(1), image.getHealthCheck().getStartPeriod().get());
             Assert.IsTrue(image.getHealthCheck().getRetries().isPresent());
-            Assert.AreEqual(20, (int)image.getHealthCheck().getRetries().get());
+            Assert.AreEqual(20, image.getHealthCheck().getRetries().get());
             Assert.AreEqual(
                 ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000), Port.tcp(3000), Port.udp(4000)),
                 image.getExposedPorts());

@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
                 }
             }
 
-            return Collections.singletonList(registry);
+            return new List<string> { registry };
         }
 
         /**

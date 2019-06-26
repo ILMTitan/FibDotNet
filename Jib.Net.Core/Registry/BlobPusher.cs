@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public IList<string> getAccept()
             {
-                return Collections.emptyList<string>();
+                return new List<string>();
             }
 
             /**
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public IList<string> getAccept()
             {
-                return Collections.emptyList<string>();
+                return new List<string>();
             }
 
             /** @return a Uri to continue pushing the BLOB to */
@@ -175,7 +175,7 @@ namespace com.google.cloud.tools.jib.registry
 
             public IList<string> getAccept()
             {
-                return Collections.emptyList<string>();
+                return new List<string>();
             }
 
             public Task<object> handleResponseAsync(HttpResponseMessage response)

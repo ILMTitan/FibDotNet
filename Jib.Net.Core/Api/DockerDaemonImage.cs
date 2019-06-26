@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.api
 
         private readonly ImageReference imageReference;
         private SystemPath dockerExecutable;
-        private IDictionary<string, string> dockerEnvironment = Collections.emptyMap<string, string>();
+        private IDictionary<string, string> dockerEnvironment = new Dictionary<string, string>();
 
         /** Instantiate with {@link #named}. */
         private DockerDaemonImage(ImageReference imageReference)

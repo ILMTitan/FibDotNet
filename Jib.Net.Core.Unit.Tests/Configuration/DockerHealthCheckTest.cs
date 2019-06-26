@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.configuration
             Assert.IsTrue(healthCheck.getStartPeriod().isPresent());
             Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().get());
             Assert.IsTrue(healthCheck.getRetries().isPresent());
-            Assert.AreEqual(10, (int)healthCheck.getRetries().get());
+            Assert.AreEqual(10, healthCheck.getRetries().get());
         }
 
         [Test]

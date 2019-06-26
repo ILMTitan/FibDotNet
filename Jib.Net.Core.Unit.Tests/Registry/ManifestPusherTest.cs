@@ -29,6 +29,7 @@ using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -84,7 +85,7 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", Collections.singletonList(expectedDigest.toString()) } }
+                Headers = { { "Docker-Content-Digest", new List<string> { expectedDigest.toString() } } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
@@ -96,7 +97,7 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", Collections.emptyList<string>() } }
+                Headers = { { "Docker-Content-Digest", new List<string>() } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
@@ -123,7 +124,7 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", Collections.singletonList("not valid") } }
+                Headers = { { "Docker-Content-Digest", new List<string> { "not valid" } } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));

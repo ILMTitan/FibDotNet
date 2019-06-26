@@ -302,7 +302,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 List<string> sorted = new List<string>(paths);
                 // ReproducibleLayerBuilder sorts by TarArchiveEntry.getName()
-                Collections.sort(sorted);
+                sorted.Sort();
                 Assert.AreEqual(sorted, (List<string>)paths, "layer files are not consistently sorted");
             }
         }

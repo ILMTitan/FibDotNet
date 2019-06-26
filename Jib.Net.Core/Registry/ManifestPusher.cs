@@ -88,7 +88,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public IList<string> getAccept()
         {
-            return Collections.emptyList<string>();
+            return new List<string>();
         }
 
         public async Task<DescriptorDigest> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)

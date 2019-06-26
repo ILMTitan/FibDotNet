@@ -140,7 +140,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 jsonTemplates.add(new LayerEntryTemplate(entry));
             }
-            Collections.sort(jsonTemplates);
+            jsonTemplates.Sort();
             return jsonTemplates;
         }
 

@@ -23,6 +23,7 @@ using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Unit.Tests.Events.Progress
@@ -76,13 +77,9 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 // Adds 50 to child1Child and 100 to child2.
                 IList<Action> callables = new List<Action>(150);
                 callables.addAll(
-                    Collections.nCopies<Action>(
-                        50,
-                        () => eventHandlers.dispatch(new ProgressEvent(child1Child, 1L))));
+                    Enumerable.Repeat((Action)(() => eventHandlers.dispatch(new ProgressEvent(child1Child, 1L))), 50));
                 callables.addAll(
-                    Collections.nCopies<Action>(
-                        100,
-                        () => eventHandlers.dispatch(new ProgressEvent(child2, 1L))));
+                    Enumerable.Repeat((Action)(() => eventHandlers.dispatch(new ProgressEvent(child2, 1L))), 100));
 
                 await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
 
@@ -91,8 +88,8 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
                 // 0 progress doesn't do anything.
                 await MultithreadedExecutor
-                    .invokeAllAsync(Collections.nCopies<Action>(100, () =>
-                        eventHandlers.dispatch(new ProgressEvent(child1, 0L))))
+                    .invokeAllAsync(Enumerable.Repeat((Action)(() =>
+                        eventHandlers.dispatch(new ProgressEvent(child1, 0L))), 100))
                     .ConfigureAwait(false);
                 Assert.AreEqual(
                     1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
