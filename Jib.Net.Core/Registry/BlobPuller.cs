@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.registry
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))
             {
                 BlobDescriptor receivedBlobDescriptor;
-                using (Stream contentStream = await response.GetBodyAsync().ConfigureAwait(false))
+                using (Stream contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                 {
                     receivedBlobDescriptor = await Digests.ComputeDigestAsync(contentStream, outputStream).ConfigureAwait(false);
                 }

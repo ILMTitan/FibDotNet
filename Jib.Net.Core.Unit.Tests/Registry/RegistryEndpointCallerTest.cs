@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.registry
                 if (response.IsSuccessStatusCode)
                 {
                     return CharStreams.ToString(
-                        new StreamReader(await response.GetBodyAsync().ConfigureAwait(false), Encoding.UTF8));
+                        new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8));
                 } else
                 {
                     throw new HttpResponseException(response);

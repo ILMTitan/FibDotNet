@@ -145,7 +145,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
          */
         private void UpdateCompletionMap(Allocation allocation, long units)
         {
-            if (JavaExtensions.ContainsKey(allocationCompletionMap, allocation))
+            if (allocationCompletionMap.ContainsKey(allocation))
             {
                 units += allocationCompletionMap.Get(allocation);
             }

@@ -121,7 +121,7 @@ namespace Jib.Net.Core.Registry
             if (response.IsSuccessStatusCode)
             {
                 string jsonString;
-                using (StreamReader reader = new StreamReader(await response.GetBodyAsync().ConfigureAwait(false), Encoding.UTF8))
+                using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8))
                 {
                     jsonString = CharStreams.ToString(reader);
                 }

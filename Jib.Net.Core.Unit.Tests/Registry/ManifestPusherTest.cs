@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual(V22ManifestTemplate.ManifestMediaType, body.Headers.ContentType.MediaType);
 
             MemoryStream bodyCaptureStream = new MemoryStream();
-            await body.WriteToAsync(bodyCaptureStream).ConfigureAwait(false);
+            await body.CopyToAsync(bodyCaptureStream).ConfigureAwait(false);
             string v22manifestJson =
                 Encoding.UTF8.GetString(Files.ReadAllBytes(v22manifestJsonFile));
             Assert.AreEqual(

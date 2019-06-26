@@ -35,7 +35,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
         public LogEventTest()
         {
             eventHandlers =
-         EventHandlers.CreateBuilder().Add<LogEvent>(receivedLogEvents.Add).Build();
+         EventHandlers.CreateBuilder().Add<LogEvent>(receivedLogEvents.Enqueue).Build();
         }
 
         [Test]

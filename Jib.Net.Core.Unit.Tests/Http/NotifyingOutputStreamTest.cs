@@ -53,29 +53,29 @@ namespace com.google.cloud.tools.jib.http
             IList<long> byteCounts = new List<long>();
 
             Queue<Instant> instantQueue = new Queue<Instant>();
-            instantQueue.Add(Instant.FromUnixTimeSeconds(0));
+            instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0));
 
             using (ThrottledAccumulatingConsumer byteCounter =
                     new ThrottledAccumulatingConsumer(
-                        byteCounts.Add<long>, Duration.FromSeconds(3), instantQueue.Remove))
+                        byteCounts.Add<long>, Duration.FromSeconds(3), instantQueue.Dequeue))
             using (NotifyingOutputStream notifyingOutputStream =
                     new NotifyingOutputStream(byteArrayOutputStream, byteCounter.Accept))
 
             {
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0));
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0));
                 notifyingOutputStream.WriteByte(100);
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0));
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 101, 102, 103 });
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(4));
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(4));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 104, 105, 106 });
 
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 107, 108 });
 
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 109 });
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(13));
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 0, 110 }, 1, 1);
+                instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(13));
+                notifyingOutputStream.Write(new byte[] { 0, 110 }, 1, 1);
             }
 
             Assert.AreEqual(Arrays.AsList(7L, 2L, 2L), byteCounts);

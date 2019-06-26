@@ -41,31 +41,6 @@ namespace Jib.Net.Core.Global
 {
     internal static class JavaExtensions
     {
-        public static async Task WriteToAsync(this BlobHttpContent c, Stream s)
-        {
-            await c.CopyToAsync(s).ConfigureAwait(false);
-        }
-
-        public static bool ContainsKey<TKey, TValue>(this IDictionary<TKey, TValue> d, TKey key)
-        {
-            return d.ContainsKey(key);
-        }
-
-        public static void Write(this Stream s, byte[] buffer, int offset, int count)
-        {
-            s.Write(buffer, offset, count);
-        }
-
-        public static T Remove<T>(this Queue<T> queue)
-        {
-            return queue.Dequeue();
-        }
-
-        public static void Add<T>(this Queue<T> queue, T value)
-        {
-            queue.Enqueue(value);
-        }
-
         public static TValue GetOrDefault<TKey, TValue>(this ImmutableDictionary<TKey, TValue> dic, TKey key, TValue defaultValue)
         {
             if (dic.TryGetValue(key, out var value))
@@ -91,11 +66,6 @@ namespace Jib.Net.Core.Global
         public static bool IsFile(this TarEntry e)
         {
             return e.TarHeader.TypeFlag != TarHeader.LF_DIR;
-        }
-
-        public static async Task<Stream> GetBodyAsync(this HttpResponseMessage m)
-        {
-            return await m.Content.ReadAsStreamAsync().ConfigureAwait(false);
         }
 
         public static int Size<T>(this IReadOnlyCollection<T> c)

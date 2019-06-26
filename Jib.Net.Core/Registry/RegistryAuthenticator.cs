@@ -271,7 +271,7 @@ namespace com.google.cloud.tools.jib.registry
 
                     string responseString;
                     using (HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false))
-                    using (StreamReader reader = new StreamReader(await response.GetBodyAsync().ConfigureAwait(false), Encoding.UTF8))
+                    using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8))
                     {
                         responseString = CharStreams.ToString(reader);
                     }

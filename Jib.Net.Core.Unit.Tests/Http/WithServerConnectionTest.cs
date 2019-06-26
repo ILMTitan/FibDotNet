@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.http
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 CollectionAssert.AreEqual(
                     Encoding.UTF8.GetBytes("Hello World!"),
-                    ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
+                    ByteStreams.ToByteArray(await response.Content.ReadAsStreamAsync().ConfigureAwait(false)));
             }
         }
 
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.http
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 CollectionAssert.AreEqual(
                     Encoding.UTF8.GetBytes("Hello World!"),
-                    ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
+                    ByteStreams.ToByteArray(await response.Content.ReadAsStreamAsync().ConfigureAwait(false)));
             }
         }
     }

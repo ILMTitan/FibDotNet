@@ -159,7 +159,7 @@ namespace com.google.cloud.tools.jib.registry
             Assert.AreEqual("application/octet-stream", body.Headers.ContentType.MediaType);
 
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            await body.WriteToAsync(byteArrayOutputStream).ConfigureAwait(false);
+            await body.CopyToAsync(byteArrayOutputStream).ConfigureAwait(false);
 
             Assert.AreEqual(
                 TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.ToArray()));
