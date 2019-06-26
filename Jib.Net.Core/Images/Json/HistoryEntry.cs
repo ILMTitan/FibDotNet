@@ -40,40 +40,40 @@ namespace com.google.cloud.tools.jib.image.json
             private string comment;
             private bool emptyLayer;
 
-            public Builder setCreationTimestamp(Instant creationTimestamp)
+            public Builder SetCreationTimestamp(Instant creationTimestamp)
             {
                 this.creationTimestamp = creationTimestamp;
                 return this;
             }
 
-            public Builder setAuthor(string author)
+            public Builder SetAuthor(string author)
             {
                 this.author = author;
                 return this;
             }
 
-            public Builder setCreatedBy(string createdBy)
+            public Builder SetCreatedBy(string createdBy)
             {
                 this.createdBy = createdBy;
                 return this;
             }
 
-            public Builder setComment(string comment)
+            public Builder SetComment(string comment)
             {
                 this.comment = comment;
                 return this;
             }
 
-            public Builder setEmptyLayer(bool emptyLayer)
+            public Builder SetEmptyLayer(bool emptyLayer)
             {
                 this.emptyLayer = emptyLayer;
                 return this;
             }
 
-            public HistoryEntry build()
+            public HistoryEntry Build()
             {
                 return new HistoryEntry(
-                    creationTimestamp?.toString(),
+                    creationTimestamp?.ToString(),
                     author,
                     createdBy,
                     comment,
@@ -88,7 +88,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the builder
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -137,7 +137,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return {@code true} if the history object corresponds to a layer in the container
          */
-        public bool hasCorrespondingLayer()
+        public bool HasCorrespondingLayer()
         {
             return emptyLayer;
         }
@@ -162,7 +162,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public override int GetHashCode()
         {
-            return Objects.hash(author, creationTimestamp, createdBy, comment, emptyLayer);
+            return Objects.Hash(author, creationTimestamp, createdBy, comment, emptyLayer);
         }
 
         public override string ToString()

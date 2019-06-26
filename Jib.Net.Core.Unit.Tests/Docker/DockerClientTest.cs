@@ -41,25 +41,25 @@ namespace com.google.cloud.tools.jib.docker
         private IImageTarball imageTarball;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             mockProcessBuilder = Mock.Of<IProcessBuilder>();
             mockProcess = Mock.Of<IProcess>();
             imageTarball = Mock.Of<IImageTarball>();
-            Mock.Get(mockProcessBuilder).Setup(m => m.start()).Returns(mockProcess);
+            Mock.Get(mockProcessBuilder).Setup(m => m.Start()).Returns(mockProcess);
 
             Mock.Get(imageTarball).Setup(i => i.WriteToAsync(It.IsAny<Stream>()))
-                .Returns<Stream>(async s => await s.WriteAsync("jib".getBytes(Encoding.UTF8)));
+                .Returns<Stream>(async s => await s.WriteAsync("jib".GetBytes(Encoding.UTF8)));
         }
 
         [Test]
-        public void testIsDockerInstalled_fail()
+        public void TestIsDockerInstalled_fail()
         {
-            Assert.IsFalse(DockerClient.isDockerInstalled(Paths.get("path/to/nonexistent/file")));
+            Assert.IsFalse(DockerClient.IsDockerInstalled(Paths.Get("path/to/nonexistent/file")));
         }
 
         [Test]
-        public async Task testLoadAsync()
+        public async Task TestLoadAsync()
         {
             DockerClient testDockerClient =
                 new DockerClient(
@@ -68,60 +68,60 @@ namespace com.google.cloud.tools.jib.docker
                         Assert.AreEqual(new List<string> { "load" }, subcommand);
                         return mockProcessBuilder;
                     });
-            Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(0);
+            Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(0);
 
             // Captures stdin.
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(byteArrayOutputStream);
+            Mock.Get(mockProcess).Setup(m => m.GetOutputStream()).Returns(byteArrayOutputStream);
 
             // Simulates stdout.
-            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("output".getBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream("output".GetBytes(Encoding.UTF8)));
 
-            string output = await testDockerClient.loadAsync(imageTarball).ConfigureAwait(false);
+            string output = await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
 
             Assert.AreEqual(
-                "jib", Encoding.UTF8.GetString(byteArrayOutputStream.toByteArray()));
+                "jib", Encoding.UTF8.GetString(byteArrayOutputStream.ToByteArray()));
             Assert.AreEqual("output", output);
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testLoad_stdinFailAsync()
+        public async System.Threading.Tasks.Task TestLoad_stdinFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(_ => mockProcessBuilder);
 
             Mock.Get(mockProcess)
                 .Setup(m =>
-                    m.getOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+                    m.GetOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
                 .Throws<IOException>();
 
             Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Returns("error");
 
             try
             {
-                await testDockerClient.loadAsync(imageTarball).ConfigureAwait(false);
+                await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
                 Assert.Fail("Write should have failed");
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker load' command failed with error: error", ex.getMessage());
+                Assert.AreEqual("'docker load' command failed with error: error", ex.GetMessage());
             }
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testLoad_stdinFail_stderrFailAsync()
+        public async System.Threading.Tasks.Task TestLoad_stdinFail_stderrFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(_ => mockProcessBuilder);
             IOException expectedIOException = new IOException();
 
             Mock.Get(mockProcess)
                 .Setup(m =>
-                    m.getOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+                    m.GetOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
                 .Throws(expectedIOException);
 
             Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Throws<IOException>();
             try
             {
-                await testDockerClient.loadAsync(imageTarball).ConfigureAwait(false);
+                await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
                 Assert.Fail("Write should have failed");
             }
             catch (IOException ex)
@@ -131,98 +131,98 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public async Task testLoad_stdoutFailAsync()
+        public async Task TestLoad_stdoutFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(_ => mockProcessBuilder);
-            Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
+            Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(1);
 
-            Mock.Get(mockProcess).Setup(m => m.getOutputStream()).Returns(Stream.Null);
+            Mock.Get(mockProcess).Setup(m => m.GetOutputStream()).Returns(Stream.Null);
 
-            Mock.Get(mockProcess).Setup(m => m.getInputStream()).Returns(new MemoryStream("ignored".getBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream("ignored".GetBytes(Encoding.UTF8)));
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream("error".GetBytes(Encoding.UTF8)));
 
             try
             {
-                await testDockerClient.loadAsync(imageTarball).ConfigureAwait(false);
+                await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
                 Assert.Fail("Process should have failed");
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker load' command failed with output: error", ex.getMessage());
+                Assert.AreEqual("'docker load' command failed with output: error", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testTag()
+        public void TestTag()
         {
             DockerClient testDockerClient =
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(Arrays.asList("tag", "original", "new"), subcommand);
+                        Assert.AreEqual(Arrays.AsList("tag", "original", "new"), subcommand);
                         return mockProcessBuilder;
                     });
-            Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(0);
+            Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(0);
 
-            testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));
+            testDockerClient.Tag(ImageReference.Of(null, "original", null), ImageReference.Parse("new"));
         }
 
         [Test]
-        public void testDefaultProcessorBuilderFactory_customExecutable()
+        public void TestDefaultProcessorBuilderFactory_customExecutable()
         {
             ProcessBuilder processBuilder =
-                DockerClient.defaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
-                    .apply(Arrays.asList("sub", "command"));
+                DockerClient.DefaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
+                    .Apply(Arrays.AsList("sub", "command"));
 
-            Assert.AreEqual("docker-executable sub command", processBuilder.command());
+            Assert.AreEqual("docker-executable sub command", processBuilder.Command());
             CollectionAssert.AreEquivalent(
                 Environment.GetEnvironmentVariables()
                     .Cast<DictionaryEntry>()
                     .ToDictionary(e => e.Key.ToString(), e=>e.Value.ToString()),
-                processBuilder.environment());
+                processBuilder.GetEnvironment());
         }
 
         [Test]
-        public void testDefaultProcessorBuilderFactory_customEnvironment()
+        public void TestDefaultProcessorBuilderFactory_customEnvironment()
         {
-            ImmutableDictionary<string, string> environment = ImmutableDic.of("Key1", "Value1");
+            ImmutableDictionary<string, string> environment = ImmutableDic.Of("Key1", "Value1");
 
             var expectedEnvironment = new Dictionary<string, string>(
                 Environment.GetEnvironmentVariables()
                     .Cast<DictionaryEntry>()
                     .Select(e => new KeyValuePair<string, string>(e.Key?.ToString(), e.Value?.ToString())));
-            expectedEnvironment.putAll(environment);
+            expectedEnvironment.PutAll(environment);
 
             ProcessBuilder processBuilder =
-                DockerClient.defaultProcessBuilderFactory("docker", environment)
-                    .apply(new List<string>());
+                DockerClient.DefaultProcessBuilderFactory("docker", environment)
+                    .Apply(new List<string>());
 
-            CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.environment());
+            CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.GetEnvironment());
         }
 
         [Test]
-        public void testTag_fail()
+        public void TestTag_fail()
         {
             DockerClient testDockerClient =
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(Arrays.asList("tag", "original", "new"), subcommand);
+                        Assert.AreEqual(Arrays.AsList("tag", "original", "new"), subcommand);
                         return mockProcessBuilder;
                     });
-            Mock.Get(mockProcess).Setup(m => m.waitFor()).Returns(1);
+            Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(1);
 
-            Mock.Get(mockProcess).Setup(m => m.getErrorStream()).Returns(new MemoryStream("error".getBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream("error".GetBytes(Encoding.UTF8)));
 
             try
             {
-                testDockerClient.tag(ImageReference.of(null, "original", null), ImageReference.parse("new"));
+                testDockerClient.Tag(ImageReference.Of(null, "original", null), ImageReference.Parse("new"));
                 Assert.Fail("docker tag should have failed");
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker tag' command failed with error: error", ex.getMessage());
+                Assert.AreEqual("'docker tag' command failed with error: error", ex.GetMessage());
             }
         }
     }

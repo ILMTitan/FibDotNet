@@ -28,49 +28,49 @@ namespace com.google.cloud.tools.jib.registry
     public class ManifestPullerIntegrationTest : HttpRegistryTest
     {
         [Test]
-        public async System.Threading.Tasks.Task testPull_v21Async()
+        public async System.Threading.Tasks.Task TestPull_v21Async()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
+                await registryClient.PullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
-            Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
-            Assert.IsTrue(manifestTemplate.FsLayers.size() > 0);
+            Assert.AreEqual(1, manifestTemplate.SchemaVersion);
+            Assert.IsTrue(manifestTemplate.FsLayers.Size() > 0);
         }
 
         [Test]
-        public async Task testPull_v22Async()
+        public async Task TestPull_v22Async()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "gcr.io", "distroless/java").newRegistryClient();
-            IManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
+                RegistryClient.CreateFactory(EventHandlers.NONE, "gcr.io", "distroless/java").NewRegistryClient();
+            IManifestTemplate manifestTemplate = await registryClient.PullManifestAsync("latest").ConfigureAwait(false);
 
-            Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
+            Assert.AreEqual(2, manifestTemplate.SchemaVersion);
             V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate)manifestTemplate;
-            Assert.IsTrue(v22ManifestTemplate.getLayers().size() > 0);
+            Assert.IsTrue(v22ManifestTemplate.Layers.Size() > 0);
         }
 
         [Test]
-        public async Task testPull_unknownManifestAsync()
+        public async Task TestPull_unknownManifestAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             try
             {
                 RegistryClient registryClient =
-                    RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                        .setAllowInsecureRegistries(true)
-                        .newRegistryClient();
-                await registryClient.pullManifestAsync("nonexistent-tag").ConfigureAwait(false);
+                    RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                        .SetAllowInsecureRegistries(true)
+                        .NewRegistryClient();
+                await registryClient.PullManifestAsync("nonexistent-tag").ConfigureAwait(false);
                 Assert.Fail("Trying to pull nonexistent image should have errored");
             }
             catch (RegistryErrorException ex)
             {
-                Assert.That(ex.getMessage(),
+                Assert.That(ex.GetMessage(),
                     Does.Contain("pull image manifest for localhost:5000/busybox:nonexistent-tag"));
             }
         }

@@ -38,24 +38,24 @@ namespace com.google.cloud.tools.jib.hash
             };
 
         [Test]
-        public async System.Threading.Tasks.Task test_smokeTestAsync()
+        public async System.Threading.Tasks.Task Test_smokeTestAsync()
         {
-            foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES.entrySet())
+            foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES.EntrySet())
             {
-                string toHash = knownHash.getKey();
-                string expectedHash = knownHash.getValue();
+                string toHash = knownHash.GetKey();
+                string expectedHash = knownHash.GetValue();
 
                 Stream underlyingOutputStream = new MemoryStream();
                 CountingDigestOutputStream countingDigestOutputStream =
                     new CountingDigestOutputStream(underlyingOutputStream);
 
-                byte[] bytesToHash = toHash.getBytes(Encoding.UTF8);
+                byte[] bytesToHash = toHash.GetBytes(Encoding.UTF8);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
-                await ByteStreams.copyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
+                await ByteStreams.CopyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
 
-                BlobDescriptor blobDescriptor = countingDigestOutputStream.computeDigest();
-                Assert.AreEqual(DescriptorDigest.fromHash(expectedHash), blobDescriptor.getDigest());
-                Assert.AreEqual(bytesToHash.Length, blobDescriptor.getSize());
+                BlobDescriptor blobDescriptor = countingDigestOutputStream.ComputeDigest();
+                Assert.AreEqual(DescriptorDigest.FromHash(expectedHash), blobDescriptor.GetDigest());
+                Assert.AreEqual(bytesToHash.Length, blobDescriptor.GetSize());
             }
         }
     }

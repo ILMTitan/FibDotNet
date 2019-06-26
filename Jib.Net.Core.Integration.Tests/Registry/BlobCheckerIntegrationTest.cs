@@ -29,33 +29,33 @@ namespace com.google.cloud.tools.jib.registry
     /** Integration tests for {@link BlobChecker}. */
     public class BlobCheckerIntegrationTest : HttpRegistryTest {
         [Test]
-        public async Task testCheck_existsAsync()
+        public async Task TestCheck_existsAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             V22ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
-            DescriptorDigest blobDigest = manifestTemplate.getLayers().get(0).getDigest();
+                await registryClient.PullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
+            DescriptorDigest blobDigest = manifestTemplate.Layers.Get(0).Digest;
 
-            Assert.IsTrue(await registryClient.checkBlobAsync(new BlobDescriptor(blobDigest)).ConfigureAwait(false));
+            Assert.IsTrue(await registryClient.CheckBlobAsync(new BlobDescriptor(blobDigest)).ConfigureAwait(false));
         }
 
         [Test]
-        public async Task testCheck_doesNotExistAsync()
+        public async Task TestCheck_doesNotExistAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             DescriptorDigest fakeBlobDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-            Assert.IsFalse(await registryClient.checkBlobAsync(new BlobDescriptor(fakeBlobDigest)).ConfigureAwait(false));
+            Assert.IsFalse(await registryClient.CheckBlobAsync(new BlobDescriptor(fakeBlobDigest)).ConfigureAwait(false));
         }
     }
 }

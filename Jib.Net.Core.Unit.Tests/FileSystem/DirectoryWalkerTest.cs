@@ -32,21 +32,21 @@ namespace com.google.cloud.tools.jib.filesystem
         private SystemPath testDir;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
-            testDir = Paths.get(TestResources.getResource("core/layer").ToURI());
+            testDir = Paths.Get(TestResources.GetResource("core/layer").ToURI());
             walkedPaths = new HashSet<SystemPath>();
-            addToWalkedPaths = walkedPaths.add;
+            addToWalkedPaths = walkedPaths.Add;
         }
 
         [Test]
-        public void testWalk()
+        public void TestWalk()
         {
-            new DirectoryWalker(testDir).walk(addToWalkedPaths);
+            new DirectoryWalker(testDir).Walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
                 new HashSet<SystemPath>(
-                    Arrays.asList(
+                    Arrays.AsList(
                         testDir,
                         testDir.Resolve("a"),
                         testDir.Resolve("a").Resolve("b"),
@@ -58,27 +58,27 @@ namespace com.google.cloud.tools.jib.filesystem
         }
 
         [Test]
-        public void testWalk_withFilter()
+        public void TestWalk_withFilter()
         {
             // Filters to immediate subdirectories of testDir, and foo.
             new DirectoryWalker(testDir)
-                .filter(path => path.GetParent().Equals(testDir))
-                .filter(path => !path.ToString().endsWith("foo"))
-                .walk(addToWalkedPaths);
+                .Filter(path => path.GetParent().Equals(testDir))
+                .Filter(path => !JavaExtensions.EndsWith(path.ToString(), "foo"))
+                .Walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
-                new HashSet<SystemPath>(Arrays.asList(testDir.Resolve("a"), testDir.Resolve("c")));
+                new HashSet<SystemPath>(Arrays.AsList(testDir.Resolve("a"), testDir.Resolve("c")));
             CollectionAssert.AreEquivalent(expectedPaths, walkedPaths);
         }
 
         [Test]
-        public void testWalk_withFilterRoot()
+        public void TestWalk_withFilterRoot()
         {
-            new DirectoryWalker(testDir).filterRoot().walk(addToWalkedPaths);
+            new DirectoryWalker(testDir).FilterRoot().Walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
                 new HashSet<SystemPath>(
-                    Arrays.asList(
+                    Arrays.AsList(
                         testDir.Resolve("a"),
                         testDir.Resolve("a").Resolve("b"),
                         testDir.Resolve("a").Resolve("b").Resolve("bar"),

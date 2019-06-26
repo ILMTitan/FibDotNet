@@ -49,35 +49,35 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.pullBaseImageStep = pullBaseImageStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<IReadOnlyList<ICachedLayer>> getFuture()
+        public Task<IReadOnlyList<ICachedLayer>> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<IReadOnlyList<ICachedLayer>> callAsync()
+        public async Task<IReadOnlyList<ICachedLayer>> CallAsync()
         {
-            BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.getFuture().ConfigureAwait(false);
-            ImmutableArray<ILayer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
+            BaseImageWithAuthorization pullBaseImageStepResult = await pullBaseImageStep.GetFuture().ConfigureAwait(false);
+            ImmutableArray<ILayer> baseImageLayers = pullBaseImageStepResult.GetBaseImage().GetLayers();
 
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create(
-                        "checking base image layers", baseImageLayers.size()))
+                        "checking base image layers", baseImageLayers.Size()))
             using (TimerEventDispatcher ignored =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
 
             {
                 List<Task<ICachedLayer>> pullAndCacheBaseImageLayerStepsBuilder = new List<Task<ICachedLayer>>();
                 foreach (ILayer layer in baseImageLayers)
                 {
-                    pullAndCacheBaseImageLayerStepsBuilder.add(
-                        new PullAndCacheBaseImageLayerStep(
+                    JavaExtensions.Add(
+pullAndCacheBaseImageLayerStepsBuilder, new PullAndCacheBaseImageLayerStep(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer(),
-                            layer.getBlobDescriptor().getDigest(),
-                            pullBaseImageStepResult.getBaseImageAuthorization()).getFuture());
+                            layer.GetBlobDescriptor().GetDigest(),
+                            pullBaseImageStepResult.GetBaseImageAuthorization()).GetFuture());
                 }
 
                 return await Task.WhenAll(pullAndCacheBaseImageLayerStepsBuilder).ConfigureAwait(false);

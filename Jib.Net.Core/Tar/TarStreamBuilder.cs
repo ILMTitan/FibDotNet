@@ -39,15 +39,15 @@ namespace com.google.cloud.tools.jib.tar
          * @param out the stream to write to.
          * @throws IOException if building the tarball fails.
          */
-        public async Task writeAsTarArchiveToAsync(Stream @out)
+        public async Task WriteAsTarArchiveToAsync(Stream @out)
         {
             using (TarOutputStream tarArchiveOutputStream = new TarOutputStream(@out))
             {
-                foreach (KeyValuePair<TarEntry, IBlob> entry in archiveMap.entrySet())
+                foreach (KeyValuePair<TarEntry, IBlob> entry in archiveMap.EntrySet())
                 {
-                    tarArchiveOutputStream.putArchiveEntry(entry.getKey());
-                    await entry.getValue().writeToAsync(tarArchiveOutputStream).ConfigureAwait(false);
-                    tarArchiveOutputStream.closeArchiveEntry();
+                    tarArchiveOutputStream.PutArchiveEntry(entry.GetKey());
+                    await entry.GetValue().WriteToAsync(tarArchiveOutputStream).ConfigureAwait(false);
+                    tarArchiveOutputStream.CloseArchiveEntry();
                 }
             }
         }
@@ -57,11 +57,11 @@ namespace com.google.cloud.tools.jib.tar
          *
          * @param entry the {@link TarArchiveEntry}
          */
-        public void addTarArchiveEntry(TarEntry entry)
+        public void AddTarArchiveEntry(TarEntry entry)
         {
             entry = entry ?? throw new ArgumentNullException(nameof(entry));
-            archiveMap.put(
-                entry, entry.isFile() ? Blobs.from(entry.getFile().toPath()) : Blobs.from(_ => Task.CompletedTask, 0));
+            archiveMap.Put(
+                entry, entry.IsFile() ? Blobs.From(entry.GetFile().ToPath()) : Blobs.From(_ => Task.CompletedTask, 0));
         }
 
         /**
@@ -71,12 +71,12 @@ namespace com.google.cloud.tools.jib.tar
          * @param contents the bytes to add to the tarball
          * @param name the name of the entry (i.e. filename)
          */
-        public void addByteEntry(byte[] contents, string name)
+        public void AddByteEntry(byte[] contents, string name)
         {
             contents = contents ?? throw new ArgumentNullException(nameof(contents));
             TarEntry entry = TarEntry.CreateTarEntry(name);
-            entry.setSize(contents.Length);
-            archiveMap.put(entry, Blobs.from(contents));
+            entry.SetSize(contents.Length);
+            archiveMap.Put(entry, Blobs.From(contents));
         }
 
         /**
@@ -87,11 +87,11 @@ namespace com.google.cloud.tools.jib.tar
          * @param size the size (in bytes) of {@code blob}
          * @param name the name of the entry (i.e. filename)
          */
-        public void addBlobEntry(IBlob blob, long size, string name)
+        public void AddBlobEntry(IBlob blob, long size, string name)
         {
             TarEntry entry = TarEntry.CreateTarEntry(name);
-            entry.setSize(size);
-            archiveMap.put(entry, blob);
+            entry.SetSize(size);
+            archiveMap.Put(entry, blob);
         }
 
         internal static TarEntry CreateEntryFromFile(FileSystemInfo info, string name)

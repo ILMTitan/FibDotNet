@@ -33,7 +33,7 @@ namespace com.google.cloud.tools.jib.filesystem
          * @param destDir the directory to copy the files to.
          * @throws IOException if the copy fails.
          */
-        public static void copy(ImmutableArray<SystemPath> sourceFiles, SystemPath destDir)
+        public static void Copy(ImmutableArray<SystemPath> sourceFiles, SystemPath destDir)
         {
             foreach (SystemPath sourceFile in sourceFiles)
             {
@@ -42,23 +42,23 @@ namespace com.google.cloud.tools.jib.filesystem
                     {
               // Creates the same path in the destDir.
               SystemPath destPath = destDir.Resolve(sourceFile.GetParent().Relativize(path));
-                        if (Files.isDirectory(path))
+                        if (Files.IsDirectory(path))
                         {
-                            Files.createDirectories(destPath);
+                            Files.CreateDirectories(destPath);
                         }
                         else
                         {
-                            Files.copy(path, destPath);
+                            Files.Copy(path, destPath);
                         }
                     };
 
-                if (Files.isDirectory(sourceFile))
+                if (Files.IsDirectory(sourceFile))
                 {
-                    new DirectoryWalker(sourceFile).walk(copyPathConsumer);
+                    new DirectoryWalker(sourceFile).Walk(copyPathConsumer);
                 }
                 else
                 {
-                    copyPathConsumer.accept(sourceFile);
+                    copyPathConsumer.Accept(sourceFile);
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.filesystem
          * @return an {@link OutputStream} that writes to the file
          * @throws IOException if an I/O exception occurs
          */
-        public static Stream newLockingOutputStream(SystemPath file)
+        public static Stream NewLockingOutputStream(SystemPath file)
         {
             file = file ?? throw new ArgumentNullException(nameof(file));
             return file.ToFile().Create();

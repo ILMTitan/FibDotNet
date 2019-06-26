@@ -51,7 +51,7 @@ namespace Jib.Net.Core.Api
     public class JibContainerBuilder
     {
         private readonly ContainerConfiguration.Builder containerConfigurationBuilder =
-            ContainerConfiguration.builder();
+            ContainerConfiguration.CreateBuilder();
 
         private readonly BuildConfiguration.Builder buildConfigurationBuilder;
 
@@ -59,7 +59,7 @@ namespace Jib.Net.Core.Api
 
         /** Instantiate with {@link Jib#from}. */
         public JibContainerBuilder(RegistryImage baseImage) :
-          this(baseImage, BuildConfiguration.builder())
+          this(baseImage, BuildConfiguration.CreateBuilder())
         {
         }
 
@@ -70,10 +70,10 @@ namespace Jib.Net.Core.Api
                 throw new ArgumentNullException(nameof(buildConfigurationBuilder));
 
             ImageConfiguration imageConfiguration =
-                ImageConfiguration.builder(baseImage.getImageReference())
-                    .setCredentialRetrievers(baseImage.getCredentialRetrievers())
-                    .build();
-            buildConfigurationBuilder.setBaseImageConfiguration(imageConfiguration);
+                ImageConfiguration.CreateBuilder(baseImage.GetImageReference())
+                    .SetCredentialRetrievers(baseImage.GetCredentialRetrievers())
+                    .Build();
+            buildConfigurationBuilder.SetBaseImageConfiguration(imageConfiguration);
         }
 
         /**
@@ -115,11 +115,11 @@ namespace Jib.Net.Core.Api
             foreach (SystemPath file in files)
 
             {
-                layerConfigurationBuilder.addEntryRecursive(
-                    file, pathInContainer.resolve(file.GetFileName()));
+                layerConfigurationBuilder.AddEntryRecursive(
+                    file, pathInContainer.Resolve(file.GetFileName()));
             }
 
-            return AddLayer(layerConfigurationBuilder.build());
+            return AddLayer(layerConfigurationBuilder.Build());
         }
 
         /**
@@ -136,7 +136,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddLayer(IList<SystemPath> files, string pathInContainer)
         {
-            return AddLayer(files, AbsoluteUnixPath.get(pathInContainer));
+            return AddLayer(files, AbsoluteUnixPath.Get(pathInContainer));
         }
 
         /**
@@ -147,7 +147,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddLayer(ILayerConfiguration layerConfiguration)
         {
-            layerConfigurations.add(layerConfiguration);
+            JavaExtensions.Add(layerConfigurations, layerConfiguration);
             return this;
         }
 
@@ -172,7 +172,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetLayers(params ILayerConfiguration[] layerConfigurations)
         {
-            return SetLayers(Arrays.asList(layerConfigurations));
+            return SetLayers(Arrays.AsList(layerConfigurations));
         }
 
         /**
@@ -190,7 +190,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEntrypoint(IList<string> entrypoint)
         {
-            containerConfigurationBuilder.setEntrypoint(entrypoint);
+            containerConfigurationBuilder.SetEntrypoint(entrypoint);
             return this;
         }
 
@@ -203,7 +203,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEntrypoint(params string[] entrypoint)
         {
-            return SetEntrypoint(Arrays.asList(entrypoint));
+            return SetEntrypoint(Arrays.AsList(entrypoint));
         }
 
         /**
@@ -224,7 +224,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetProgramArguments(IList<string> programArguments)
         {
-            containerConfigurationBuilder.setProgramArguments(programArguments);
+            containerConfigurationBuilder.SetProgramArguments(programArguments);
             return this;
         }
 
@@ -237,7 +237,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetProgramArguments(params string[] programArguments)
         {
-            return SetProgramArguments(Arrays.asList(programArguments));
+            return SetProgramArguments(Arrays.AsList(programArguments));
         }
 
         /**
@@ -255,7 +255,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEnvironment(IDictionary<string, string> environmentMap)
         {
-            containerConfigurationBuilder.setEnvironment(environmentMap);
+            containerConfigurationBuilder.SetEnvironment(environmentMap);
             return this;
         }
 
@@ -269,7 +269,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddEnvironmentVariable(string name, string value)
         {
-            containerConfigurationBuilder.addEnvironment(name, value);
+            containerConfigurationBuilder.AddEnvironment(name, value);
             return this;
         }
 
@@ -284,7 +284,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetVolumes(ISet<AbsoluteUnixPath> volumes)
         {
-            containerConfigurationBuilder.setVolumes(volumes);
+            containerConfigurationBuilder.SetVolumes(volumes);
             return this;
         }
 
@@ -297,7 +297,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetVolumes(params AbsoluteUnixPath[] volumes)
         {
-            return SetVolumes(new HashSet<AbsoluteUnixPath>(Arrays.asList(volumes)));
+            return SetVolumes(new HashSet<AbsoluteUnixPath>(Arrays.AsList(volumes)));
         }
 
         /**
@@ -309,7 +309,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddVolume(AbsoluteUnixPath volume)
         {
-            containerConfigurationBuilder.addVolume(volume);
+            containerConfigurationBuilder.AddVolume(volume);
             return this;
         }
 
@@ -330,7 +330,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetExposedPorts(ISet<Port> ports)
         {
-            containerConfigurationBuilder.setExposedPorts(ports);
+            containerConfigurationBuilder.SetExposedPorts(ports);
             return this;
         }
 
@@ -343,7 +343,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetExposedPorts(params Port[] ports)
         {
-            return SetExposedPorts(new HashSet<Port>(Arrays.asList(ports)));
+            return SetExposedPorts(new HashSet<Port>(Arrays.AsList(ports)));
         }
 
         /**
@@ -355,7 +355,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddExposedPort(Port port)
         {
-            containerConfigurationBuilder.addExposedPort(port);
+            containerConfigurationBuilder.AddExposedPort(port);
             return this;
         }
 
@@ -370,7 +370,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetLabels(IDictionary<string, string> labelMap)
         {
-            containerConfigurationBuilder.setLabels(labelMap);
+            containerConfigurationBuilder.SetLabels(labelMap);
             return this;
         }
 
@@ -383,7 +383,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddLabel(string key, string value)
         {
-            containerConfigurationBuilder.addLabel(key, value);
+            containerConfigurationBuilder.AddLabel(key, value);
             return this;
         }
 
@@ -396,7 +396,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetFormat(ImageFormat imageFormat)
         {
-            buildConfigurationBuilder.setTargetFormat(imageFormat);
+            buildConfigurationBuilder.SetTargetFormat(imageFormat);
             return this;
         }
 
@@ -408,7 +408,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetCreationTime(Instant creationTime)
         {
-            containerConfigurationBuilder.setCreationTime(creationTime);
+            containerConfigurationBuilder.SetCreationTime(creationTime);
             return this;
         }
 
@@ -432,7 +432,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetUser(string user)
         {
-            containerConfigurationBuilder.setUser(user);
+            containerConfigurationBuilder.SetUser(user);
             return this;
         }
 
@@ -444,7 +444,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetWorkingDirectory(AbsoluteUnixPath workingDirectory)
         {
-            containerConfigurationBuilder.setWorkingDirectory(workingDirectory);
+            containerConfigurationBuilder.SetWorkingDirectory(workingDirectory);
             return this;
         }
 
@@ -467,27 +467,27 @@ namespace Jib.Net.Core.Api
          * @throws ExecutionException if some other exception occurred during execution
          * @throws InterruptedException if the execution was interrupted
          */
-        public async Task<JibContainer> containerizeAsync(IContainerizer containerizer)
+        public async Task<JibContainer> ContainerizeAsync(IContainerizer containerizer)
         {
             containerizer = containerizer ?? throw new ArgumentNullException(nameof(containerizer));
-            BuildConfiguration buildConfiguration = toBuildConfiguration(containerizer);
+            BuildConfiguration buildConfiguration = ToBuildConfiguration(containerizer);
 
-            IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
-            logSources(eventHandlers);
+            IEventHandlers eventHandlers = buildConfiguration.GetEventHandlers();
+            LogSources(eventHandlers);
 
-            using (new TimerEventDispatcher(eventHandlers, containerizer.getDescription()))
+            using (new TimerEventDispatcher(eventHandlers, containerizer.GetDescription()))
             {
                 try
                 {
-                    IBuildResult result = await containerizer.createStepsRunner(buildConfiguration).runAsync().ConfigureAwait(false);
-                    return new JibContainer(result.getImageDigest(), result.getImageId());
+                    IBuildResult result = await containerizer.CreateStepsRunner(buildConfiguration).RunAsync().ConfigureAwait(false);
+                    return new JibContainer(result.GetImageDigest(), result.GetImageId());
                 }
                 catch (Exception ex)
                 {
                     // If an ExecutionException occurs, re-throw the cause to be more easily handled by the user
-                    if (ex.getCause() is RegistryException)
+                    if (ex.GetCause() is RegistryException)
                     {
-                        throw (RegistryException)ex.getCause();
+                        throw (RegistryException)ex.GetCause();
                     }
                     throw;
                 }
@@ -505,25 +505,25 @@ namespace Jib.Net.Core.Api
          * @throws IOException if an I/O exception occurs
          */
 
-        public BuildConfiguration toBuildConfiguration(
+        public BuildConfiguration ToBuildConfiguration(
             IContainerizer containerizer)
         {
             containerizer = containerizer ?? throw new ArgumentNullException(nameof(containerizer));
             return buildConfigurationBuilder
-                .setTargetImageConfiguration(containerizer.getImageConfiguration())
-                .setAdditionalTargetImageTags(containerizer.getAdditionalTags())
-                .setBaseImageLayersCacheDirectory(containerizer.getBaseImageLayersCacheDirectory())
-                .setApplicationLayersCacheDirectory(containerizer.getApplicationLayersCacheDirectory())
-                .setContainerConfiguration(containerConfigurationBuilder.build())
-                .setLayerConfigurations(layerConfigurations)
-                .setAllowInsecureRegistries(containerizer.getAllowInsecureRegistries())
-                .setOffline(containerizer.isOfflineMode())
-                .setToolName(containerizer.getToolName())
-                .setEventHandlers(containerizer.buildEventHandlers())
-                .build();
+                .SetTargetImageConfiguration(containerizer.GetImageConfiguration())
+                .SetAdditionalTargetImageTags(containerizer.GetAdditionalTags())
+                .SetBaseImageLayersCacheDirectory(containerizer.GetBaseImageLayersCacheDirectory())
+                .SetApplicationLayersCacheDirectory(containerizer.GetApplicationLayersCacheDirectory())
+                .SetContainerConfiguration(containerConfigurationBuilder.Build())
+                .SetLayerConfigurations(layerConfigurations)
+                .SetAllowInsecureRegistries(containerizer.GetAllowInsecureRegistries())
+                .SetOffline(containerizer.IsOfflineMode())
+                .SetToolName(containerizer.GetToolName())
+                .SetEventHandlers(containerizer.BuildEventHandlers())
+                .Build();
         }
 
-        private void logSources(IEventHandlers eventHandlers)
+        private void LogSources(IEventHandlers eventHandlers)
         {
             // Logs the different source files used.
             var message = new StringBuilder(Resources.ContainerBuilderLogSourcesHeader);
@@ -532,19 +532,19 @@ namespace Jib.Net.Core.Api
             foreach (LayerConfiguration layerConfiguration in layerConfigurations)
 
             {
-                if (layerConfiguration.getLayerEntries().isEmpty())
+                if (layerConfiguration.GetLayerEntries().IsEmpty())
                 {
                     continue;
                 }
 
-                message.Append('\t').Append(layerConfiguration.getName()).Append(':');
+                message.Append('\t').Append(layerConfiguration.GetName()).Append(':');
 
-                foreach (LayerEntry layerEntry in layerConfiguration.getLayerEntries())
+                foreach (LayerEntry layerEntry in layerConfiguration.GetLayerEntries())
                 {
-                    message.Append("\t\t").Append(layerEntry.getSourceFile());
+                    message.Append("\t\t").Append(layerEntry.GetSourceFile());
                 }
             }
-            eventHandlers.Dispatch(LogEvent.info(message.ToString()));
+            eventHandlers.Dispatch(LogEvent.Info(message.ToString()));
         }
     }
 }

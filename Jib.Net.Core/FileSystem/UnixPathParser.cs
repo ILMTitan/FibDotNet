@@ -28,19 +28,19 @@ namespace com.google.cloud.tools.jib.filesystem
          * @param unixPath the Unix-style path
          * @return a list of path components
          */
-        public static ImmutableArray<string> parse(string unixPath)
+        public static ImmutableArray<string> Parse(string unixPath)
         {
             ImmutableArray<string>.Builder pathComponents = ImmutableArray.CreateBuilder<string>();
-            foreach (string pathComponent in Splitter.on('/').split(unixPath))
+            foreach (string pathComponent in Splitter.On('/').Split(unixPath))
             {
-                if (pathComponent.isEmpty())
+                if (pathComponent.IsEmpty())
                 {
                     // Skips empty components.
                     continue;
                 }
-                pathComponents.add(pathComponent);
+                JavaExtensions.Add(pathComponents, pathComponent);
             }
-            return pathComponents.build();
+            return pathComponents.Build();
         }
 
         private UnixPathParser() { }

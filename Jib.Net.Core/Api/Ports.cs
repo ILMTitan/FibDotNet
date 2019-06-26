@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.api
          * @return the ports as a list of {@link Port}
          * @throws NumberFormatException if any of the ports are in an invalid format or out of range
          */
-        public static ImmutableHashSet<Port> parse(IList<string> ports)
+        public static ImmutableHashSet<Port> Parse(IList<string> ports)
         {
             ports = ports ?? throw new ArgumentNullException(nameof(ports));
             ImmutableHashSet<Port>.Builder result = ImmutableHashSet.CreateBuilder<Port>();
@@ -53,9 +53,9 @@ namespace com.google.cloud.tools.jib.api
             foreach (string port in ports)
 
             {
-                Match matcher = portPattern.matcher(port);
+                Match matcher = portPattern.Matcher(port);
 
-                if (!matcher.matches())
+                if (!matcher.Matches())
                 {
                     throw new FormatException(
                         "Invalid port configuration: '"
@@ -66,13 +66,13 @@ namespace com.google.cloud.tools.jib.api
                 }
 
                 // Parse protocol
-                int min = int.Parse(matcher.group(1), CultureInfo.InvariantCulture);
+                int min = int.Parse(matcher.Group(1), CultureInfo.InvariantCulture);
                 int max = min;
-                if (!Strings.isNullOrEmpty(matcher.group(2)))
+                if (!Strings.IsNullOrEmpty(matcher.Group(2)))
                 {
-                    max = int.Parse(matcher.group(2), CultureInfo.InvariantCulture);
+                    max = int.Parse(matcher.Group(2), CultureInfo.InvariantCulture);
                 }
-                string protocol = matcher.group(3);
+                string protocol = matcher.Group(3);
 
                 // Error if configured as 'max-min' instead of 'min-max'
                 if (min > max)
@@ -90,11 +90,11 @@ namespace com.google.cloud.tools.jib.api
 
                 for (int portNumber = min; portNumber <= max; portNumber++)
                 {
-                    result.add(Port.parseProtocol(portNumber, protocol));
+                    JavaExtensions.Add(result, Port.ParseProtocol(portNumber, protocol));
                 }
             }
 
-            return result.build();
+            return result.Build();
         }
 
         private Ports() { }

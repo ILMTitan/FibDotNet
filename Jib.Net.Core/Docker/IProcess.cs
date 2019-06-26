@@ -4,10 +4,10 @@ namespace com.google.cloud.tools.jib.docker
 {
     public interface IProcess
     {
-        Stream getOutputStream();
-        int waitFor();
-        Stream getErrorStream();
-        Stream getInputStream();
+        Stream GetOutputStream();
+        int WaitFor();
+        Stream GetErrorStream();
+        Stream GetInputStream();
         TextReader GetErrorReader();
     }
 }

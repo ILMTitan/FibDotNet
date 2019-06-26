@@ -59,39 +59,39 @@ namespace Jib.Net.Core.Builder.Steps
             this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayersStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<BuildResult> getFuture()
+        public Task<BuildResult> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BuildResult> callAsync()
+        public async Task<BuildResult> CallAsync()
         {
-            await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
-            await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
-            await buildImageStep.getFuture().ConfigureAwait(false);
+            await pullAndCacheBaseImageLayersStep.GetFuture().ConfigureAwait(false);
+            await buildAndCacheApplicationLayersStep.GetFuture().ConfigureAwait(false);
+            await buildImageStep.GetFuture().ConfigureAwait(false);
             string description = string.Format(
                 CultureInfo.CurrentCulture,
                 Resources.WriteTarFileStepDescriptionFormat,
                 outputPath.GetFileName());
-            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description));
+            buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Progress(description));
 
             using (progressEventDispatcherFactory.Create(description, 1))
             {
-                Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+                Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
                 // Builds the image to a tarball.
-                Files.createDirectories(outputPath.GetParent());
+                Files.CreateDirectories(outputPath.GetParent());
                 using (Stream outputStream =
-                    new BufferedStream(FileOperations.newLockingOutputStream(outputPath)))
+                    new BufferedStream(FileOperations.NewLockingOutputStream(outputPath)))
                 {
-                    await new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
+                    await new ImageTarball(image, buildConfiguration.GetTargetImageConfiguration().GetImage())
                         .WriteToAsync(outputStream).ConfigureAwait(false);
                 }
 
-                return await BuildResult.fromImageAsync(image, buildConfiguration.getTargetFormat()).ConfigureAwait(false);
+                return await BuildResult.FromImageAsync(image, buildConfiguration.GetTargetFormat()).ConfigureAwait(false);
             }
         }
     }

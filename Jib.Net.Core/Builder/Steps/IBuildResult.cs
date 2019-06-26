@@ -6,7 +6,7 @@ namespace com.google.cloud.tools.jib.builder.steps
     {
         bool Equals(object other);
         int GetHashCode();
-        DescriptorDigest getImageDigest();
-        DescriptorDigest getImageId();
+        DescriptorDigest GetImageDigest();
+        DescriptorDigest GetImageId();
     }
 }

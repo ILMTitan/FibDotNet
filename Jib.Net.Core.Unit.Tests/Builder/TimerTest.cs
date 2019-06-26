@@ -28,32 +28,32 @@ namespace com.google.cloud.tools.jib.builder
         private readonly IClock mockClock = Mock.Of<IClock>();
 
         [Test]
-        public void testLap()
+        public void TestLap()
         {
             Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0));
 
             Timer parentTimer = new Timer(mockClock, null);
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(5));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(5));
 
-            Duration parentDuration1 = parentTimer.lap();
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(15));
+            Duration parentDuration1 = parentTimer.Lap();
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(15));
 
-            Duration parentDuration2 = parentTimer.lap();
+            Duration parentDuration2 = parentTimer.Lap();
 
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16));
 
             Timer childTimer = new Timer(mockClock, parentTimer);
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16).plusNanos(1));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16).PlusNanos(1));
 
-            Duration childDuration = childTimer.lap();
+            Duration childDuration = childTimer.Lap();
 
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(16).plusNanos(2));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16).PlusNanos(2));
 
-            Duration parentDuration3 = parentTimer.lap();
+            Duration parentDuration3 = parentTimer.Lap();
 
-            Assert.IsTrue(parentDuration2.compareTo(parentDuration1) > 0);
-            Assert.IsTrue(parentDuration1.compareTo(parentDuration3) > 0);
-            Assert.IsTrue(parentDuration3.compareTo(childDuration) > 0);
+            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration2, parentDuration1) > 0);
+            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration1, parentDuration3) > 0);
+            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration3, childDuration) > 0);
         }
     }
 }

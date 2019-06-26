@@ -29,100 +29,100 @@ namespace com.google.cloud.tools.jib.api
     public class ContainerizerTest
     {
         [Test]
-        public void testTo()
+        public void TestTo()
         {
-            RegistryImage registryImage = RegistryImage.named(ImageReference.of(null, "repository", null));
+            RegistryImage registryImage = RegistryImage.Named(ImageReference.Of(null, "repository", null));
             DockerDaemonImage dockerDaemonImage =
-                DockerDaemonImage.named(ImageReference.of(null, "repository", null));
+                DockerDaemonImage.Named(ImageReference.Of(null, "repository", null));
             TarImage tarImage =
-                TarImage.named(ImageReference.of(null, "repository", null)).saveTo(Paths.get("ignored"));
+                TarImage.Named(ImageReference.Of(null, "repository", null)).SaveTo(Paths.Get("ignored"));
 
-            verifyTo(Containerizer.To(registryImage));
-            verifyTo(Containerizer.To(dockerDaemonImage));
-            verifyTo(Containerizer.To(tarImage));
+            VerifyTo(Containerizer.To(registryImage));
+            VerifyTo(Containerizer.To(dockerDaemonImage));
+            VerifyTo(Containerizer.To(tarImage));
         }
 
-        private void verifyTo(Containerizer containerizer)
+        private void VerifyTo(Containerizer containerizer)
         {
-            Assert.IsTrue(containerizer.getAdditionalTags().isEmpty());
+            Assert.IsTrue(containerizer.GetAdditionalTags().IsEmpty());
             Assert.AreEqual(
                 Containerizer.DefaultBaseCacheDirectory,
-                containerizer.getBaseImageLayersCacheDirectory());
+                containerizer.GetBaseImageLayersCacheDirectory());
             Assert.AreNotEqual(
                 Containerizer.DefaultBaseCacheDirectory,
-                containerizer.getApplicationLayersCacheDirectory());
-            Assert.IsFalse(containerizer.getAllowInsecureRegistries());
-            Assert.AreEqual("jib-core", containerizer.getToolName());
+                containerizer.GetApplicationLayersCacheDirectory());
+            Assert.IsFalse(containerizer.GetAllowInsecureRegistries());
+            Assert.AreEqual("jib-core", containerizer.GetToolName());
 
             containerizer
-                .withAdditionalTag("tag1")
-                .withAdditionalTag("tag2")
-                .setBaseImageLayersCache(Paths.get("base/image/layers"))
-                .setApplicationLayersCache(Paths.get("application/layers"))
-                .setAllowInsecureRegistries(true)
-                .setToolName("tool");
+                .WithAdditionalTag("tag1")
+                .WithAdditionalTag("tag2")
+                .SetBaseImageLayersCache(Paths.Get("base/image/layers"))
+                .SetApplicationLayersCache(Paths.Get("application/layers"))
+                .SetAllowInsecureRegistries(true)
+                .SetToolName("tool");
 
-            CollectionAssert.AreEquivalent(ImmutableHashSet.Create("tag1", "tag2"), containerizer.getAdditionalTags());
+            CollectionAssert.AreEquivalent(ImmutableHashSet.Create("tag1", "tag2"), containerizer.GetAdditionalTags());
             Assert.AreEqual(
-                Paths.get("base/image/layers"), containerizer.getBaseImageLayersCacheDirectory());
+                Paths.Get("base/image/layers"), containerizer.GetBaseImageLayersCacheDirectory());
             Assert.AreEqual(
-                Paths.get("application/layers"), containerizer.getApplicationLayersCacheDirectory());
-            Assert.IsTrue(containerizer.getAllowInsecureRegistries());
-            Assert.AreEqual("tool", containerizer.getToolName());
+                Paths.Get("application/layers"), containerizer.GetApplicationLayersCacheDirectory());
+            Assert.IsTrue(containerizer.GetAllowInsecureRegistries());
+            Assert.AreEqual("tool", containerizer.GetToolName());
         }
 
         [Test]
-        public void testWithAdditionalTag()
+        public void TestWithAdditionalTag()
         {
             DockerDaemonImage dockerDaemonImage =
-                DockerDaemonImage.named(ImageReference.of(null, "repository", null));
+                DockerDaemonImage.Named(ImageReference.Of(null, "repository", null));
             Containerizer containerizer = Containerizer.To(dockerDaemonImage);
 
-            containerizer.withAdditionalTag("tag");
+            containerizer.WithAdditionalTag("tag");
             try
             {
-                containerizer.withAdditionalTag("+invalid+");
+                containerizer.WithAdditionalTag("+invalid+");
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("invalid tag '+invalid+'", ex.getMessage());
+                Assert.AreEqual("invalid tag '+invalid+'", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testGetImageConfiguration_registryImage()
+        public void TestGetImageConfiguration_registryImage()
         {
             CredentialRetriever credentialRetriever = Mock.Of<CredentialRetriever>();
             Containerizer containerizer =
                 Containerizer.To(
-                    RegistryImage.named("registry/image").addCredentialRetriever(credentialRetriever));
+                    RegistryImage.Named("registry/image").AddCredentialRetriever(credentialRetriever));
 
-            ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
-            Assert.AreEqual("registry/image", imageConfiguration.getImage().toString());
+            ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
+            Assert.AreEqual("registry/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
             Assert.AreEqual(
-                Arrays.asList(credentialRetriever), imageConfiguration.getCredentialRetrievers());
+                Arrays.AsList(credentialRetriever), imageConfiguration.GetCredentialRetrievers());
         }
 
         [Test]
-        public void testGetImageConfiguration_dockerDaemonImage()
+        public void TestGetImageConfiguration_dockerDaemonImage()
         {
-            Containerizer containerizer = Containerizer.To(DockerDaemonImage.named("docker/deamon/image"));
+            Containerizer containerizer = Containerizer.To(DockerDaemonImage.Named("docker/deamon/image"));
 
-            ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
-            Assert.AreEqual("docker/deamon/image", imageConfiguration.getImage().toString());
-            Assert.AreEqual(0, imageConfiguration.getCredentialRetrievers().size());
+            ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
+            Assert.AreEqual("docker/deamon/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
+            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Size());
         }
 
         [Test]
-        public void testGetImageConfiguration_tarImage()
+        public void TestGetImageConfiguration_tarImage()
         {
             Containerizer containerizer =
-                Containerizer.To(TarImage.named("tar/image").saveTo(Paths.get("output/file")));
+                Containerizer.To(TarImage.Named("tar/image").SaveTo(Paths.Get("output/file")));
 
-            ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
-            Assert.AreEqual("tar/image", imageConfiguration.getImage().toString());
-            Assert.AreEqual(0, imageConfiguration.getCredentialRetrievers().size());
+            ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
+            Assert.AreEqual("tar/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
+            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Size());
         }
     }
 }

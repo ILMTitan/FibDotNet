@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         /** Starts the registry */
-        public async Task startAsync()
+        public async Task StartAsync()
         {
             // Runs the Docker registry.
             List<string> dockerTokens = new List<string> {
@@ -76,17 +76,17 @@ namespace com.google.cloud.tools.jib.registry
                             "-Bbn",
                             username,
                             password)
-                        .run();
+                        .Run();
                 // Creates the temporary directory in /tmp since that is one of the default directories
                 // mounted into Docker.
                 // See: https://docs.docker.com/docker-for-mac/osxfs
-                SystemPath tempFolder = Files.createTempDirectory(Paths.get(Path.GetTempPath()), "");
-                Files.write(
-                    tempFolder.Resolve("htpasswd"), credentialString.getBytes(Encoding.UTF8));
+                SystemPath tempFolder = Files.CreateTempDirectory(Paths.Get(Path.GetTempPath()), "");
+                Files.Write(
+                    tempFolder.Resolve("htpasswd"), credentialString.GetBytes(Encoding.UTF8));
 
                 // Run the Docker registry
-                dockerTokens.addAll(
-                    Arrays.asList(
+                dockerTokens.AddAll(
+                    Arrays.AsList(
                         "-v",
                         // Volume mount used for storing credentials
                         tempFolder + ":/auth",
@@ -97,18 +97,18 @@ namespace com.google.cloud.tools.jib.registry
                         "-e",
                         "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
             }
-            dockerTokens.add("registry");
-            new Command("docker", dockerTokens).run();
-            await waitUntilReadyAsync().ConfigureAwait(false);
+            JavaExtensions.Add(dockerTokens, "registry");
+            new Command("docker", dockerTokens).Run();
+            await WaitUntilReadyAsync().ConfigureAwait(false);
         }
 
         /** Stops the registry. */
-        public void stop()
+        public void Stop()
         {
             try
             {
-                logout();
-                new Command("docker", "stop", containerName).run();
+                Logout();
+                new Command("docker", "stop", containerName).Run();
             }
             catch (Exception ex) when (ex is OperationCanceledException || ex is IOException)
             {
@@ -123,11 +123,11 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if the pull command fails
          * @throws InterruptedException if the pull command is interrupted
          */
-        public void pull(string from)
+        public void Pull(string from)
         {
-            login();
-            new Command("docker", "pull", from).run();
-            logout();
+            Login();
+            new Command("docker", "pull", from).Run();
+            Logout();
         }
 
         /**
@@ -138,33 +138,33 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException if the commands fail
          * @throws InterruptedException if the commands are interrupted
          */
-        public void pullAndPushToLocal(string from, string to)
+        public void PullAndPushToLocal(string from, string to)
         {
-            login();
-            new Command("docker", "pull", from).run();
-            new Command("docker", "tag", from, "localhost:" + port + "/" + to).run();
-            new Command("docker", "push", "localhost:" + port + "/" + to).run();
-            logout();
+            Login();
+            new Command("docker", "pull", from).Run();
+            new Command("docker", "tag", from, "localhost:" + port + "/" + to).Run();
+            new Command("docker", "push", "localhost:" + port + "/" + to).Run();
+            Logout();
         }
 
-        private void login()
+        private void Login()
         {
             if (username != null && password != null)
             {
                 new Command("docker", string.Join(' ', new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
-                    .run(password.getBytes(Encoding.UTF8));
+                    .Run(password.GetBytes(Encoding.UTF8));
             }
         }
 
-        private void logout()
+        private void Logout()
         {
             if (username != null && password != null)
             {
-                new Command("docker", "logout", "localhost:" + port).run();
+                new Command("docker", "logout", "localhost:" + port).Run();
             }
         }
 
-        private async Task waitUntilReadyAsync()
+        private async Task WaitUntilReadyAsync()
         {
             Uri queryUrl = new Uri("http://localhost:" + port + "/v2/_catalog");
 
@@ -188,7 +188,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public void Dispose()
         {
-            stop();
+            Stop();
         }
     }
 }

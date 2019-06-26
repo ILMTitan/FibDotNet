@@ -51,33 +51,33 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.retrieveTargetRegistryCredentialsStep = retrieveTargetRegistryCredentialsStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<Authorization> getFuture()
+        public Task<Authorization> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<Authorization> callAsync()
+        public async Task<Authorization> CallAsync()
         {
-            Credential registryCredential = await retrieveTargetRegistryCredentialsStep.getFuture().ConfigureAwait(false);
+            Credential registryCredential = await retrieveTargetRegistryCredentialsStep.GetFuture().ConfigureAwait(false);
 
-            string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
+            string registry = buildConfiguration.GetTargetImageConfiguration().GetImageRegistry();
             try
             {
                 using (progressEventDispatcherFactory.Create("authenticating push to " + registry, 1))
                 using (new TimerEventDispatcher(
-                            buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture,DESCRIPTION, registry)))
+                            buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture,DESCRIPTION, registry)))
                 {
                     RegistryAuthenticator registryAuthenticator =
                         await buildConfiguration
-                            .newTargetImageRegistryClientFactory()
-                            .newRegistryClient()
-                            .getRegistryAuthenticatorAsync().ConfigureAwait(false);
+                            .NewTargetImageRegistryClientFactory()
+                            .NewRegistryClient()
+                            .GetRegistryAuthenticatorAsync().ConfigureAwait(false);
                     if (registryAuthenticator != null)
                     {
-                        return await registryAuthenticator.authenticatePushAsync(registryCredential).ConfigureAwait(false);
+                        return await registryAuthenticator.AuthenticatePushAsync(registryCredential).ConfigureAwait(false);
                     }
                 }
             }
@@ -86,10 +86,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Cannot skip certificate validation or use HTTP; fall through.
             }
 
-            return registryCredential?.isOAuth2RefreshToken() != false
+            return registryCredential?.IsOAuth2RefreshToken() != false
                 ? null
-                : Authorization.fromBasicCredentials(
-                    registryCredential.getUsername(), registryCredential.getPassword());
+                : Authorization.FromBasicCredentials(
+                    registryCredential.GetUsername(), registryCredential.GetPassword());
         }
     }
 }

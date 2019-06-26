@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.hash
 
     public static class WCExtensions
     {
-        public static void writeTo(this WritableContents wc, Stream outputStream)
+        public static void WriteTo(this WritableContents wc, Stream outputStream)
         {
             wc = wc ?? throw new ArgumentNullException(nameof(wc));
             wc(outputStream);

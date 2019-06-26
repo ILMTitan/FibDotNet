@@ -26,47 +26,47 @@ namespace com.google.cloud.tools.jib.configuration
     public class DockerHealthCheckTest
     {
         [Test]
-        public void testBuild()
+        public void TestBuild()
         {
             DockerHealthCheck healthCheck =
-                DockerHealthCheck.fromCommand(ImmutableArray.Create("echo", "hi"))
-                    .setInterval(Duration.FromNanoseconds(123))
-                    .setTimeout(Duration.FromNanoseconds(456))
-                    .setStartPeriod(Duration.FromNanoseconds(789))
-                    .setRetries(10)
-                    .build();
+                DockerHealthCheck.FromCommand(ImmutableArray.Create("echo", "hi"))
+                    .SetInterval(Duration.FromNanoseconds(123))
+                    .SetTimeout(Duration.FromNanoseconds(456))
+                    .SetStartPeriod(Duration.FromNanoseconds(789))
+                    .SetRetries(10)
+                    .Build();
 
-            Assert.IsTrue(healthCheck.getInterval().IsPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.getInterval().Get());
-            Assert.IsTrue(healthCheck.getTimeout().IsPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.getTimeout().Get());
-            Assert.IsTrue(healthCheck.getStartPeriod().IsPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().Get());
-            Assert.IsTrue(healthCheck.getRetries().IsPresent());
-            Assert.AreEqual(10, healthCheck.getRetries().Get());
+            Assert.IsTrue(healthCheck.GetInterval().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.GetInterval().Get());
+            Assert.IsTrue(healthCheck.GetTimeout().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.GetTimeout().Get());
+            Assert.IsTrue(healthCheck.GetStartPeriod().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.GetStartPeriod().Get());
+            Assert.IsTrue(healthCheck.GetRetries().IsPresent());
+            Assert.AreEqual(10, healthCheck.GetRetries().Get());
         }
 
         [Test]
-        public void testBuild_invalidCommand()
+        public void TestBuild_invalidCommand()
         {
             try
             {
-                DockerHealthCheck.fromCommand(ImmutableArray.Create<string>());
+                DockerHealthCheck.FromCommand(ImmutableArray.Create<string>());
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("command must not be empty", ex.getMessage());
+                Assert.AreEqual("command must not be empty", ex.GetMessage());
             }
 
             try
             {
-                DockerHealthCheck.fromCommand(Arrays.asList("CMD", null));
+                DockerHealthCheck.FromCommand(Arrays.AsList("CMD", null));
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("command must not contain null elements", ex.getMessage());
+                Assert.AreEqual("command must not contain null elements", ex.GetMessage());
             }
         }
     }

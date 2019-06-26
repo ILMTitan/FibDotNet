@@ -29,7 +29,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
         /** Test {@link JibEvent}. */
         public interface ITestJibEvent1 : IJibEvent
         {
-            string getPayload();
+            string GetPayload();
         }
 
         /** Test implementation of {@link JibEvent}. */
@@ -37,12 +37,12 @@ namespace Jib.Net.Core.Unit.Tests.Events
         {
             private string message;
 
-            public void assertMessageCorrect(string name)
+            public void AssertMessageCorrect(string name)
             {
                 Assert.AreEqual("Hello " + name, message);
             }
 
-            public void sayHello(string name)
+            public void SayHello(string name)
             {
                 Assert.IsNull(message);
                 message = "Hello " + name;
@@ -53,45 +53,45 @@ namespace Jib.Net.Core.Unit.Tests.Events
         private class TestJibEvent3 : IJibEvent { }
 
         [Test]
-        public void testAdd()
+        public void TestAdd()
         {
             ITestJibEvent1 mockTestJibEvent1 = Mock.Of<ITestJibEvent1>();
-            Mock.Get(mockTestJibEvent1).Setup(m => m.getPayload()).Returns("payload");
+            Mock.Get(mockTestJibEvent1).Setup(m => m.GetPayload()).Returns("payload");
             TestJibEvent2 testJibEvent2 = new TestJibEvent2();
 
             int counter = 0;
             EventHandlers eventHandlers =
-                EventHandlers.builder()
-                    .add<ITestJibEvent1>(
-                        testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.getPayload()))
-                    .add<TestJibEvent2>(e => e.sayHello("Jib"))
-                    .add<IJibEvent>(_ => counter++)
-                    .build();
+                EventHandlers.CreateBuilder()
+                    .Add<ITestJibEvent1>(
+                        testJibEvent1 => Assert.AreEqual("payload", testJibEvent1.GetPayload()))
+                    .Add<TestJibEvent2>(e => e.SayHello("Jib"))
+                    .Add<IJibEvent>(_ => counter++)
+                    .Build();
 
             eventHandlers.Dispatch(mockTestJibEvent1);
             eventHandlers.Dispatch(testJibEvent2);
 
             Assert.AreEqual(2, counter);
-            Mock.Get(mockTestJibEvent1).Verify(m => m.getPayload());
+            Mock.Get(mockTestJibEvent1).Verify(m => m.GetPayload());
             Mock.Get(mockTestJibEvent1).VerifyNoOtherCalls();
-            testJibEvent2.assertMessageCorrect("Jib");
+            testJibEvent2.AssertMessageCorrect("Jib");
         }
 
         [Test]
-        public void testDispatch()
+        public void TestDispatch()
         {
             IList<string> emissions = new List<string>();
 
             EventHandlers eventHandlers =
-                EventHandlers.builder()
-                    .add<TestJibEvent2>(_ => emissions.add("handled 2 first"))
-                    .add<TestJibEvent2>(_ => emissions.add("handled 2 second"))
+                EventHandlers.CreateBuilder()
+                    .Add<TestJibEvent2>(_ => JavaExtensions.Add(emissions, "handled 2 first"))
+                    .Add<TestJibEvent2>(_ => JavaExtensions.Add(emissions, "handled 2 second"))
 
-                    .add<TestJibEvent3>(_ => emissions.add("handled 3"))
+                    .Add<TestJibEvent3>(_ => JavaExtensions.Add(emissions, "handled 3"))
 
-                    .add<IJibEvent>(_ => emissions.add("handled generic"))
+                    .Add<IJibEvent>(_ => JavaExtensions.Add(emissions, "handled generic"))
 
-                    .build();
+                    .Build();
 
             TestJibEvent2 testJibEvent2 = new TestJibEvent2();
             TestJibEvent3 testJibEvent3 = new TestJibEvent3();
@@ -100,7 +100,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
             eventHandlers.Dispatch(testJibEvent3);
 
             CollectionAssert.AreEqual(
-                Arrays.asList(
+                Arrays.AsList(
                     "handled 2 first",
                     "handled 2 second",
                     "handled generic",

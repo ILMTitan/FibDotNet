@@ -11,23 +11,23 @@ namespace Jib.Net.Core.Api
     {
         event Action<IJibEvent> JibEvents;
 
-        Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent;
-        EventHandlers buildEventHandlers();
-        IStepsRunner createStepsRunner(BuildConfiguration buildConfiguration);
+        Containerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent;
+        EventHandlers BuildEventHandlers();
+        IStepsRunner CreateStepsRunner(BuildConfiguration buildConfiguration);
         void Dispose();
-        ISet<string> getAdditionalTags();
-        bool getAllowInsecureRegistries();
-        SystemPath getApplicationLayersCacheDirectory();
-        SystemPath getBaseImageLayersCacheDirectory();
-        string getDescription();
-        ImageConfiguration getImageConfiguration();
-        string getToolName();
-        bool isOfflineMode();
-        Containerizer setAllowInsecureRegistries(bool allowInsecureRegistries);
-        Containerizer setApplicationLayersCache(SystemPath cacheDirectory);
-        Containerizer setBaseImageLayersCache(SystemPath cacheDirectory);
-        Containerizer setOfflineMode(bool offline);
-        Containerizer setToolName(string toolName);
-        Containerizer withAdditionalTag(string tag);
+        ISet<string> GetAdditionalTags();
+        bool GetAllowInsecureRegistries();
+        SystemPath GetApplicationLayersCacheDirectory();
+        SystemPath GetBaseImageLayersCacheDirectory();
+        string GetDescription();
+        ImageConfiguration GetImageConfiguration();
+        string GetToolName();
+        bool IsOfflineMode();
+        Containerizer SetAllowInsecureRegistries(bool allowInsecureRegistries);
+        Containerizer SetApplicationLayersCache(SystemPath cacheDirectory);
+        Containerizer SetBaseImageLayersCache(SystemPath cacheDirectory);
+        Containerizer SetOfflineMode(bool offline);
+        Containerizer SetToolName(string toolName);
+        Containerizer WithAdditionalTag(string tag);
     }
 }

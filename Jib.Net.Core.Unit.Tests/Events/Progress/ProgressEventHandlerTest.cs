@@ -54,48 +54,48 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         }
 
         [Test]
-        public async Task testAcceptAsync()
+        public async Task TestAcceptAsync()
         {
             using (DoubleAccumulator maxProgress = new DoubleAccumulator(0))
             {
                 ProgressEventHandler progressEventHandler =
-                    new ProgressEventHandler(update => maxProgress.accumulate(update.GetProgress()));
+                    new ProgressEventHandler(update => maxProgress.Accumulate(update.GetProgress()));
                 EventHandlers eventHandlers =
-                    EventHandlers.builder().add<ProgressEvent>(progressEventHandler.Accept).build();
+                    EventHandlers.CreateBuilder().Add<ProgressEvent>(progressEventHandler.Accept).Build();
 
                 // Adds root, child1, and child1Child.
-                await MultithreadedExecutor.invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(root, 0L)))
+                await MultithreadedExecutor.InvokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(root, 0L)))
                     .ConfigureAwait(false);
-                await MultithreadedExecutor.invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1, 0L)))
+                await MultithreadedExecutor.InvokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1, 0L)))
                     .ConfigureAwait(false);
                 await MultithreadedExecutor
-                    .invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 0L)))
+                    .InvokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 0L)))
                     .ConfigureAwait(false);
-                Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                Assert.AreEqual(0.0, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2.
                 IList<Action> callables = new List<Action>(150);
-                callables.addAll(
+                callables.AddAll(
                     Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 1L))), 50));
-                callables.addAll(
+                callables.AddAll(
                     Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child2, 1L))), 100));
 
-                await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
+                await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false);
 
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // 0 progress doesn't do anything.
                 await MultithreadedExecutor
-                    .invokeAllAsync(Enumerable.Repeat((Action)(() =>
+                    .InvokeAllAsync(Enumerable.Repeat((Action)(() =>
                         eventHandlers.Dispatch(new ProgressEvent(child1, 0L))), 100))
                     .ConfigureAwait(false);
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
-                await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
-                Assert.AreEqual(1.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
+                await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false);
+                Assert.AreEqual(1.0, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
             }
         }
     }

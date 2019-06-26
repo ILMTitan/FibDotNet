@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 future = p();
             }
 
-            public Task<T> getFuture()
+            public Task<T> GetFuture()
             {
                 return future;
             }

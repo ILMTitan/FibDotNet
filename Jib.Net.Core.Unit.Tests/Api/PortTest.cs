@@ -24,27 +24,27 @@ namespace com.google.cloud.tools.jib.api
     public class PortTest
     {
         [Test]
-        public void testTcp()
+        public void TestTcp()
         {
-            Port port = Port.tcp(5555);
-            Assert.AreEqual(5555, port.getPort());
-            Assert.AreEqual("5555/tcp", port.toString());
+            Port port = Port.Tcp(5555);
+            Assert.AreEqual(5555, port.GetPort());
+            Assert.AreEqual("5555/tcp", JavaExtensions.ToString(port));
         }
 
         [Test]
-        public void testUdp()
+        public void TestUdp()
         {
-            Port port = Port.udp(6666);
-            Assert.AreEqual(6666, port.getPort());
-            Assert.AreEqual("6666/udp", port.toString());
+            Port port = Port.Udp(6666);
+            Assert.AreEqual(6666, port.GetPort());
+            Assert.AreEqual("6666/udp", JavaExtensions.ToString(port));
         }
 
         [Test]
-        public void testParseProtocol()
+        public void TestParseProtocol()
         {
-            Assert.AreEqual(Port.tcp(1111), Port.parseProtocol(1111, "tcp"));
-            Assert.AreEqual(Port.udp(2222), Port.parseProtocol(2222, "udp"));
-            Assert.AreEqual(Port.tcp(3333), Port.parseProtocol(3333, ""));
+            Assert.AreEqual(Port.Tcp(1111), Port.ParseProtocol(1111, "tcp"));
+            Assert.AreEqual(Port.Udp(2222), Port.ParseProtocol(2222, "udp"));
+            Assert.AreEqual(Port.Tcp(3333), Port.ParseProtocol(3333, ""));
         }
     }
 }

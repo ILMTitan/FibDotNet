@@ -45,9 +45,9 @@ namespace com.google.cloud.tools.jib.http
         public TestWebServer(bool https)
         {
             this.https = https;
-            serverSocket = createServerSocket();
-            serveTask = serve200Async();
-            threadStarted.acquire();
+            serverSocket = CreateServerSocket();
+            serveTask = Serve200Async();
+            threadStarted.Acquire();
         }
 
         public string GetAddressAndPort()
@@ -67,45 +67,53 @@ namespace com.google.cloud.tools.jib.http
             threadStarted.Dispose();
         }
 
-        private TcpListener createServerSocket()
+        private TcpListener CreateServerSocket()
         {
             return new TcpListener(IPAddress.Loopback, 0);
         }
 
-        private async Task serve200Async()
+        private async Task Serve200Async()
         {
-            threadStarted.release();
+            threadStarted.Release();
             serverSocket.Start();
             using (var socket = await serverSocket.AcceptTcpClientAsync().ConfigureAwait(false))
             {
                 socket.NoDelay = true;
-                Stream socketStream;
 
-                if (https)
+                using (NetworkStream socketStream = socket.GetStream())
                 {
-                    var sslStream = new SslStream(socket.GetStream(), true);
-                    SystemPath certFile = TestResources.getResource("localhost.2.pfx");
-                    X509Certificate2 serverCertificate = new X509Certificate2(certFile, "password");
+                    Stream authorizedStream;
+                    if (https)
+                    {
+                        var sslStream = new SslStream(socketStream, true);
+                        SystemPath certFile = TestResources.GetResource("localhost.2.pfx");
+                        X509Certificate2 serverCertificate = new X509Certificate2(certFile, "password");
 
-                    await sslStream.AuthenticateAsServerAsync(serverCertificate, false, false).ConfigureAwait(false);
-                    socketStream = sslStream;
+                        await sslStream.AuthenticateAsServerAsync(serverCertificate, false, false).ConfigureAwait(false);
+
+                        authorizedStream = sslStream;
+                    }
+                    else
+                    {
+                        authorizedStream = socket.GetStream();
+                    }
+                    const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
+                    var writeTask = authorizedStream.WriteAsync(response.GetBytes(Encoding.UTF8));
+
+                    using (TextReader reader = new StreamReader(authorizedStream))
+                    {
+                        string line;
+                        while (!string.IsNullOrWhiteSpace(line = await reader.ReadLineAsync().ConfigureAwait(false)))
+                        {
+                            inputRead.AppendLine(line);
+                        }
+                        await writeTask.ConfigureAwait(false);
+                    }
                 }
-                else
-                {
-                    socketStream = socket.GetStream();
-                }
-                TextReader reader = new StreamReader(socketStream);
-                string line;
-                while (!string.IsNullOrWhiteSpace(line = await reader.ReadLineAsync().ConfigureAwait(false)))
-                {
-                    inputRead.AppendLine(line);
-                }
-                const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
-                await socketStream.WriteAsync(response.getBytes(Encoding.UTF8)).ConfigureAwait(false);
             }
         }
 
-        public string getInputRead()
+        public string GetInputRead()
         {
             return inputRead.ToString();
         }

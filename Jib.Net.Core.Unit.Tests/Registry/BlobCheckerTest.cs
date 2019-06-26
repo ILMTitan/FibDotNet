@@ -39,30 +39,30 @@ namespace com.google.cloud.tools.jib.registry
         private DescriptorDigest fakeDigest;
 
         [SetUp]
-        public void setUpFakes()
+        public void SetUpFakes()
         {
             fakeDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
             testBlobChecker = new BlobChecker(fakeRegistryEndpointRequestProperties, new BlobDescriptor(fakeDigest));
         }
 
         [Test]
-        public async Task testHandleResponseAsync()
+        public async Task TestHandleResponseAsync()
         {
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage()
             {
                 Content = new StringContent("")
             };
 
-            bool result = await testBlobChecker.handleResponseAsync(mockHttpResponseException).ConfigureAwait(false);
+            bool result = await testBlobChecker.HandleResponseAsync(mockHttpResponseException).ConfigureAwait(false);
 
             Assert.IsTrue(result);
         }
 
         [Test]
-        public async Task testHandleResponse_noContentLengthAsync()
+        public async Task TestHandleResponse_noContentLengthAsync()
         {
             HttpResponseMessage mockResponse = new HttpResponseMessage()
             {
@@ -74,48 +74,48 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testBlobChecker.handleResponseAsync(mockResponse).ConfigureAwait(false);
+                await testBlobChecker.HandleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("Should throw exception if Content-Length header is not present");
             }
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.getMessage(), Does.Contain("Did not receive Content-Length header"));
+                    ex.GetMessage(), Does.Contain("Did not receive Content-Length header"));
             }
         }
 
         [Test]
-        public async Task testHandleHttpResponseExceptionAsync()
+        public async Task TestHandleHttpResponseExceptionAsync()
         {
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .AddError(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "some message"));
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+                Content = new StringContent(JsonTemplateMapper.ToUtf8String(emptyErrorResponseTemplate))
             };
 
             bool result =
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
+                await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
 
             Assert.IsFalse(result);
         }
 
         [Test]
-        public async Task testHandleHttpResponseException_hasOtherErrorsAsync()
+        public async Task TestHandleHttpResponseException_hasOtherErrorsAsync()
         {
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .AddError(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "some message"))
-                    .AddError(new ErrorEntryTemplate(ErrorCode.ManifestUnknown.name(), "some message"));
+                    .AddError(new ErrorEntryTemplate(ErrorCode.ManifestUnknown.Name(), "some message"));
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+                Content = new StringContent(JsonTemplateMapper.ToUtf8String(emptyErrorResponseTemplate))
             };
 
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
+                await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
             }
             catch (HttpResponseException ex)
@@ -125,17 +125,17 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async Task testHandleHttpResponseException_notBlobUnknownAsync()
+        public async Task TestHandleHttpResponseException_notBlobUnknownAsync()
         {
             ErrorResponseTemplate emptyErrorResponseTemplate = new ErrorResponseTemplate();
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent(JsonTemplateMapper.toUtf8String(emptyErrorResponseTemplate))
+                Content = new StringContent(JsonTemplateMapper.ToUtf8String(emptyErrorResponseTemplate))
             };
 
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
+                await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-BLOB_UNKNOWN errors should not be handled");
             }
             catch (HttpResponseException ex)
@@ -145,12 +145,12 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async Task testHandleHttpResponseException_invalidStatusCodeAsync()
+        public async Task TestHandleHttpResponseException_invalidStatusCodeAsync()
         {
                 HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             try
             {
-                await testBlobChecker.handleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
+                await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);
                 Assert.Fail("Non-404 status codes should not be handled");
             }
             catch (HttpResponseException ex)
@@ -160,37 +160,37 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testGetApiRoute()
+        public void TestGetApiRoute()
         {
             Assert.AreEqual(
                 new Uri("http://someApiBase/someImageName/blobs/" + fakeDigest),
-                testBlobChecker.getApiRoute("http://someApiBase/"));
+                testBlobChecker.GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testGetContent()
+        public void TestGetContent()
         {
-            Assert.IsNull(testBlobChecker.getContent());
+            Assert.IsNull(testBlobChecker.GetContent());
         }
 
         [Test]
-        public void testGetAccept()
+        public void TestGetAccept()
         {
-            Assert.AreEqual(0, testBlobChecker.getAccept().size());
+            Assert.AreEqual(0, testBlobChecker.GetAccept().Size());
         }
 
         [Test]
-        public void testGetActionDescription()
+        public void TestGetActionDescription()
         {
             Assert.AreEqual(
                 "check BLOB exists for someServerUrl/someImageName with digest " + fakeDigest,
-                testBlobChecker.getActionDescription());
+                testBlobChecker.GetActionDescription());
         }
 
         [Test]
-        public void testGetHttpMethod()
+        public void TestGetHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Head, testBlobChecker.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Head, testBlobChecker.GetHttpMethod());
         }
     }
 }

@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.hash
          *
          * @param innerStream the {@link OutputStream} to wrap.
          */
-        public CountingDigestOutputStream(Stream outputStream, bool keepOpen = false) : base(outputStream, MessageDigest.getInstance(Sha256Algorithm), keepOpen) { }
+        public CountingDigestOutputStream(Stream outputStream, bool keepOpen = false) : base(outputStream, MessageDigest.GetInstance(Sha256Algorithm), keepOpen) { }
 
         /**
          * Computes the hash and returns it along with the size of the bytes written to compute the hash.
@@ -47,33 +47,33 @@ namespace com.google.cloud.tools.jib.hash
          *
          * @return the computed hash and the size of the bytes consumed
          */
-        public BlobDescriptor computeDigest()
+        public BlobDescriptor ComputeDigest()
         {
             Flush();
             try
             {
-                byte[] hashedBytes = MessageDigest.digest();
+                byte[] hashedBytes = MessageDigest.Digest();
 
                 // Encodes each hashed byte into 2-character hexadecimal representation.
                 StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.Length);
                 foreach (byte b in hashedBytes)
                 {
-                    stringBuilder.append($"{b:x2}");
+                    JavaExtensions.Append(stringBuilder, $"{b:x2}");
                 }
-                string hash = stringBuilder.toString();
+                string hash = JavaExtensions.ToString(stringBuilder);
 
                 BlobDescriptor blobDescriptor =
-                    new BlobDescriptor(bytesSoFar, DescriptorDigest.fromHash(hash));
+                    new BlobDescriptor(bytesSoFar, DescriptorDigest.FromHash(hash));
                 bytesSoFar = 0;
                 return blobDescriptor;
             }
             catch (DigestException ex)
             {
-                throw new Exception("SHA-256 algorithm produced invalid hash: " + ex.getMessage(), ex);
+                throw new Exception("SHA-256 algorithm produced invalid hash: " + ex.GetMessage(), ex);
             }
         }
 
-        public long getCount()
+        public long GetCount()
         {
             return bytesSoFar;
         }

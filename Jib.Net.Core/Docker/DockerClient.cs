@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.docker
              * @param dockerExecutable path to {@code docker}
              * @return this
              */
-            public Builder setDockerExecutable(SystemPath dockerExecutable)
+            public Builder SetDockerExecutable(SystemPath dockerExecutable)
             {
                 this.dockerExecutable = dockerExecutable;
                 return this;
@@ -58,13 +58,13 @@ namespace com.google.cloud.tools.jib.docker
              * @param dockerEnvironment environment variables for {@code docker}
              * @return this
              */
-            public Builder setDockerEnvironment(ImmutableDictionary<string, string> dockerEnvironment)
+            public Builder SetDockerEnvironment(ImmutableDictionary<string, string> dockerEnvironment)
             {
                 this.dockerEnvironment = dockerEnvironment;
                 return this;
             }
 
-            public DockerClient build()
+            public DockerClient Build()
             {
                 return new DockerClient(dockerExecutable, dockerEnvironment);
             }
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.docker
          *
          * @return a new {@link Builder}
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -85,9 +85,9 @@ namespace com.google.cloud.tools.jib.docker
          *
          * @return a new {@link DockerClient}
          */
-        public static DockerClient newDefaultClient()
+        public static DockerClient NewDefaultClient()
         {
-            return builder().build();
+            return CreateBuilder().Build();
         }
 
         /**
@@ -98,25 +98,25 @@ namespace com.google.cloud.tools.jib.docker
          * @return the default {@link ProcessBuilder} factory for running a {@code docker} subcommand
          */
 
-        public static Func<IList<string>, ProcessBuilder> defaultProcessBuilderFactory(
+        public static Func<IList<string>, ProcessBuilder> DefaultProcessBuilderFactory(
             string dockerExecutable, ImmutableDictionary<string, string> dockerEnvironment)
         {
             return dockerSubCommand =>
             {
-                IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.size());
-                dockerCommand.add(dockerExecutable);
-                dockerCommand.addAll(dockerSubCommand);
+                IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.Size());
+                JavaExtensions.Add(dockerCommand, dockerExecutable);
+                dockerCommand.AddAll(dockerSubCommand);
 
                 ProcessBuilder processBuilder =
                     new ProcessBuilder(dockerExecutable, string.Join(" ", dockerSubCommand));
-                IDictionary<string, string> environment = processBuilder.environment();
-                environment.putAll(dockerEnvironment);
+                IDictionary<string, string> environment = processBuilder.GetEnvironment();
+                environment.PutAll(dockerEnvironment);
 
                 return processBuilder;
             };
         }
 
-        private static readonly SystemPath DEFAULT_DOCKER_CLIENT = Paths.get("docker");
+        private static readonly SystemPath DEFAULT_DOCKER_CLIENT = Paths.Get("docker");
 
         /** Factory for generating the {@link ProcessBuilder} for running {@code docker} commands. */
         private readonly Func<List<string>, IProcessBuilder> processBuilderFactory;
@@ -133,7 +133,7 @@ namespace com.google.cloud.tools.jib.docker
          * @param dockerEnvironment environment variables for {@code docker}
          */
         private DockerClient(SystemPath dockerExecutable, ImmutableDictionary<string, string> dockerEnvironment) :
-          this(defaultProcessBuilderFactory(dockerExecutable.toString(), dockerEnvironment))
+          this(DefaultProcessBuilderFactory(dockerExecutable.ToString(), dockerEnvironment))
         {
         }
 
@@ -143,9 +143,9 @@ namespace com.google.cloud.tools.jib.docker
          *
          * @return {@code true} if Docker is installed on the user's system and accessible
          */
-        public static bool isDefaultDockerInstalled()
+        public static bool IsDefaultDockerInstalled()
         {
-            return isDockerInstalled(DEFAULT_DOCKER_CLIENT);
+            return IsDockerInstalled(DEFAULT_DOCKER_CLIENT);
         }
 
         /**
@@ -155,13 +155,13 @@ namespace com.google.cloud.tools.jib.docker
          * @param dockerExecutable path to the executable to test running
          * @return {@code true} if Docker is installed on the user's system and accessible
          */
-        public static bool isDockerInstalled(SystemPath dockerExecutable)
+        public static bool IsDockerInstalled(SystemPath dockerExecutable)
         {
 
             dockerExecutable = dockerExecutable ?? throw new ArgumentNullException(nameof(dockerExecutable));
             try
             {
-                new ProcessBuilder(dockerExecutable.toString()).start();
+                new ProcessBuilder(JavaExtensions.ToString(dockerExecutable)).Start();
                 return true;
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.FileNotFound)
@@ -180,14 +180,14 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker load' process is interrupted.
          * @throws IOException if streaming the blob to 'docker load' fails.
          */
-        public async Task<string> loadAsync(IImageTarball imageTarball)
+        public async Task<string> LoadAsync(IImageTarball imageTarball)
         {
 
             imageTarball = imageTarball ?? throw new ArgumentNullException(nameof(imageTarball));
             // Runs 'docker load'.
-            IProcess dockerProcess = docker("load");
+            IProcess dockerProcess = Docker("load");
 
-            using (Stream stdin = dockerProcess.getOutputStream())
+            using (Stream stdin = dockerProcess.GetOutputStream())
             {
                 try
                 {
@@ -201,7 +201,7 @@ namespace com.google.cloud.tools.jib.docker
                     {
                         using (TextReader stderr = dockerProcess.GetErrorReader())
                         {
-                            error = CharStreams.toString(stderr);
+                            error = CharStreams.ToString(stderr);
                         }
                     }
                     catch (IOException e)
@@ -219,12 +219,12 @@ namespace com.google.cloud.tools.jib.docker
                 }
             }
 
-            using (Stream stdoutStream = dockerProcess.getInputStream())
+            using (Stream stdoutStream = dockerProcess.GetInputStream())
             using (StreamReader stdout = new StreamReader(stdoutStream, Encoding.UTF8))
             {
-                string output = CharStreams.toString(stdout);
+                string output = CharStreams.ToString(stdout);
 
-                if (dockerProcess.waitFor() != 0)
+                if (dockerProcess.WaitFor() != 0)
                 {
                     string errMessage = await GetErrorMessageAsync(dockerProcess).ConfigureAwait(false);
                     throw new IOException("'docker load' command failed with output: " + errMessage);
@@ -236,7 +236,7 @@ namespace com.google.cloud.tools.jib.docker
 
         private static async Task<string> GetErrorMessageAsync(IProcess dockerProcess)
         {
-            using (Stream stderrStream = dockerProcess.getErrorStream())
+            using (Stream stderrStream = dockerProcess.GetErrorStream())
             using (StreamReader stderr = new StreamReader(stderrStream))
             {
                 return await stderr.ReadToEndAsync().ConfigureAwait(false);
@@ -255,7 +255,7 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker tag' process is interrupted.
          * @throws IOException if an I/O exception occurs or {@code docker tag} failed
          */
-        public void tag(IImageReference originalImageReference, ImageReference newImageReference)
+        public void Tag(IImageReference originalImageReference, ImageReference newImageReference)
         {
 
             originalImageReference = originalImageReference ?? throw new ArgumentNullException(nameof(originalImageReference));
@@ -263,23 +263,23 @@ namespace com.google.cloud.tools.jib.docker
             newImageReference = newImageReference ?? throw new ArgumentNullException(nameof(newImageReference));
             // Runs 'docker tag'.
             IProcess dockerProcess =
-                docker("tag", originalImageReference.toString(), newImageReference.toString());
+                Docker("tag", JavaExtensions.ToString(originalImageReference), JavaExtensions.ToString(newImageReference));
 
-            if (dockerProcess.waitFor() != 0)
+            if (dockerProcess.WaitFor() != 0)
             {
                 using (StreamReader stderr =
-                    new StreamReader(dockerProcess.getErrorStream(), Encoding.UTF8))
+                    new StreamReader(dockerProcess.GetErrorStream(), Encoding.UTF8))
                 {
                     throw new IOException(
-                        "'docker tag' command failed with error: " + CharStreams.toString(stderr));
+                        "'docker tag' command failed with error: " + CharStreams.ToString(stderr));
                 }
             }
         }
 
         /** Runs a {@code docker} command. */
-        private IProcess docker(params string[] subCommand)
+        private IProcess Docker(params string[] subCommand)
         {
-            return processBuilderFactory.apply(Arrays.asList(subCommand)).start();
+            return processBuilderFactory.Apply(Arrays.AsList(subCommand)).Start();
         }
     }
 }

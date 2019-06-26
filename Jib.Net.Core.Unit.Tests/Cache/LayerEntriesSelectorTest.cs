@@ -35,12 +35,12 @@ namespace com.google.cloud.tools.jib.cache
     /** Tests for {@link LayerEntriesSelector}. */
     public class LayerEntriesSelectorTest : IDisposable
     {
-        private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
+        private static LayerEntry DefaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
         {
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultFilePermissionsProvider.Apply(source, destination),
                 LayerConfiguration.DefaultModifiedTime);
         }
 
@@ -48,41 +48,41 @@ namespace com.google.cloud.tools.jib.cache
         private ImmutableArray<LayerEntry> outOfOrderLayerEntries;
         private ImmutableArray<LayerEntry> inOrderLayerEntries;
 
-        private static ImmutableArray<LayerEntryTemplate> toLayerEntryTemplates(
+        private static ImmutableArray<LayerEntryTemplate> ToLayerEntryTemplates(
             ImmutableArray<LayerEntry> layerEntries)
         {
             ImmutableArray<LayerEntryTemplate>.Builder builder = ImmutableArray.CreateBuilder<LayerEntryTemplate>();
             foreach (LayerEntry layerEntry in layerEntries)
             {
-                builder.add(new LayerEntryTemplate(layerEntry));
+                JavaExtensions.Add(builder, new LayerEntryTemplate(layerEntry));
             }
-            return builder.build();
+            return builder.Build();
         }
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
-            SystemPath folder = temporaryFolder.newFolder().toPath();
-            SystemPath file1 = Files.createDirectory(folder.Resolve("files"));
-            SystemPath file2 = Files.createFile(folder.Resolve("files").Resolve("two"));
-            SystemPath file3 = Files.createFile(folder.Resolve("gile"));
+            SystemPath folder = temporaryFolder.NewFolder().ToPath();
+            SystemPath file1 = Files.CreateDirectory(folder.Resolve("files"));
+            SystemPath file2 = Files.CreateFile(folder.Resolve("files").Resolve("two"));
+            SystemPath file3 = Files.CreateFile(folder.Resolve("gile"));
 
-            LayerEntry testLayerEntry1 = defaultLayerEntry(file1, AbsoluteUnixPath.get("/extraction/path"));
-            LayerEntry testLayerEntry2 = defaultLayerEntry(file2, AbsoluteUnixPath.get("/extraction/path"));
-            LayerEntry testLayerEntry3 = defaultLayerEntry(file3, AbsoluteUnixPath.get("/extraction/path"));
+            LayerEntry testLayerEntry1 = DefaultLayerEntry(file1, AbsoluteUnixPath.Get("/extraction/path"));
+            LayerEntry testLayerEntry2 = DefaultLayerEntry(file2, AbsoluteUnixPath.Get("/extraction/path"));
+            LayerEntry testLayerEntry3 = DefaultLayerEntry(file3, AbsoluteUnixPath.Get("/extraction/path"));
             LayerEntry testLayerEntry4 =
                 new LayerEntry(
                     file3,
-                    AbsoluteUnixPath.get("/extraction/path"),
-                    FilePermissions.fromOctalString("755"),
+                    AbsoluteUnixPath.Get("/extraction/path"),
+                    FilePermissions.FromOctalString("755"),
                     LayerConfiguration.DefaultModifiedTime);
             LayerEntry testLayerEntry5 =
-                defaultLayerEntry(file3, AbsoluteUnixPath.get("/extraction/patha"));
+                DefaultLayerEntry(file3, AbsoluteUnixPath.Get("/extraction/patha"));
             LayerEntry testLayerEntry6 =
                 new LayerEntry(
                     file3,
-                    AbsoluteUnixPath.get("/extraction/patha"),
-                    FilePermissions.fromOctalString("755"),
+                    AbsoluteUnixPath.Get("/extraction/patha"),
+                    FilePermissions.FromOctalString("755"),
                     LayerConfiguration.DefaultModifiedTime);
 
             outOfOrderLayerEntries =
@@ -109,83 +109,83 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testLayerEntryTemplate_compareTo()
+        public void TestLayerEntryTemplate_compareTo()
         {
             CollectionAssert.AreEqual(
-                toLayerEntryTemplates(inOrderLayerEntries),
-                ImmutableArray.CreateRange(toLayerEntryTemplates(outOfOrderLayerEntries).sorted()));
+                ToLayerEntryTemplates(inOrderLayerEntries),
+                ImmutableArray.CreateRange(ToLayerEntryTemplates(outOfOrderLayerEntries).Sorted()));
         }
 
         [Test]
-        public void testToSortedJsonTemplates()
+        public void TestToSortedJsonTemplates()
         {
             Assert.AreEqual(
-                toLayerEntryTemplates(inOrderLayerEntries),
-                LayerEntriesSelector.toSortedJsonTemplates(outOfOrderLayerEntries));
+                ToLayerEntryTemplates(inOrderLayerEntries),
+                LayerEntriesSelector.ToSortedJsonTemplates(outOfOrderLayerEntries));
         }
 
         [Test]
-        public async Task testGenerateSelector_emptyAsync()
+        public async Task TestGenerateSelector_emptyAsync()
         {
             DescriptorDigest expectedSelector =
-                await Digests.computeJsonDigestAsync(ImmutableArray.Create<object>()).ConfigureAwait(false);
+                await Digests.ComputeJsonDigestAsync(ImmutableArray.Create<object>()).ConfigureAwait(false);
             Assert.AreEqual(
-                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create<LayerEntry>()).ConfigureAwait(false));
+                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create<LayerEntry>()).ConfigureAwait(false));
         }
 
         [Test]
-        public async Task testGenerateSelectorAsync()
+        public async Task TestGenerateSelectorAsync()
         {
             DescriptorDigest expectedSelector =
-                await Digests.computeJsonDigestAsync(toLayerEntryTemplates(inOrderLayerEntries)).ConfigureAwait(false);
+                await Digests.ComputeJsonDigestAsync(ToLayerEntryTemplates(inOrderLayerEntries)).ConfigureAwait(false);
             Assert.AreEqual(
-                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(outOfOrderLayerEntries).ConfigureAwait(false));
+                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(outOfOrderLayerEntries).ConfigureAwait(false));
         }
 
         [Test]
-        public async Task testGenerateSelector_fileModifiedAsync()
+        public async Task TestGenerateSelector_fileModifiedAsync()
         {
-            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().Resolve("file");
-            Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
-            Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
-            LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
+            SystemPath layerFile = temporaryFolder.NewFolder("testFolder").ToPath().Resolve("file");
+            Files.Write(layerFile, "hello".GetBytes(Encoding.UTF8));
+            Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
+            LayerEntry layerEntry = DefaultLayerEntry(layerFile, AbsoluteUnixPath.Get("/extraction/path"));
             DescriptorDigest expectedSelector =
-                await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false);
+                await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false);
 
             // Verify that changing modified time generates a different selector
-            Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(1)));
+            Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(1)));
             Assert.AreNotEqual(
-                expectedSelector, await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
+                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
 
             // Verify that changing modified time back generates same selector
-            Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
+            Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
             Assert.AreEqual(
                 expectedSelector, 
-                await LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
+                await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
         }
 
         [Test]
-        public void testGenerateSelector_permissionsModified()
+        public void TestGenerateSelector_permissionsModified()
         {
-            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().Resolve("file");
-            Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
+            SystemPath layerFile = temporaryFolder.NewFolder("testFolder").ToPath().Resolve("file");
+            Files.Write(layerFile, "hello".GetBytes(Encoding.UTF8));
             LayerEntry layerEntry111 =
                 new LayerEntry(
                     layerFile,
-                    AbsoluteUnixPath.get("/extraction/path"),
-                    FilePermissions.fromOctalString("111"),
+                    AbsoluteUnixPath.Get("/extraction/path"),
+                    FilePermissions.FromOctalString("111"),
                     LayerConfiguration.DefaultModifiedTime);
             LayerEntry layerEntry222 =
                 new LayerEntry(
                     layerFile,
-                    AbsoluteUnixPath.get("/extraction/path"),
-                    FilePermissions.fromOctalString("222"),
+                    AbsoluteUnixPath.Get("/extraction/path"),
+                    FilePermissions.FromOctalString("222"),
                     LayerConfiguration.DefaultModifiedTime);
 
             // Verify that changing permissions generates a different selector
             Assert.AreNotEqual(
-                LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry111)),
-                LayerEntriesSelector.generateSelectorAsync(ImmutableArray.Create(layerEntry222)));
+                LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry111)),
+                LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry222)));
         }
     }
 }

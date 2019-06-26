@@ -28,27 +28,27 @@ namespace com.google.cloud.tools.jib.image.json
     public class V21ManifestTemplateTest
     {
         [Test]
-        public void testFromJson()
+        public void TestFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/v21manifest.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             V21ManifestTemplate manifestJson =
-                JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(jsonFile);
+                JsonTemplateMapper.ReadJsonFromFile<V21ManifestTemplate>(jsonFile);
 
             Assert.AreEqual(
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                manifestJson.FsLayers.get(0).GetDigest());
+                manifestJson.FsLayers.Get(0).GetDigest());
 
             ContainerConfigurationTemplate containerConfiguration =
                 manifestJson.GetContainerConfiguration().OrElse(null);
             Assert.AreEqual(
-                Arrays.asList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
-                containerConfiguration.getContainerEnvironment());
+                Arrays.AsList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
+                containerConfiguration.GetContainerEnvironment());
             Assert.AreEqual(
-                Arrays.asList("/opt/openjdk/bin/java"), containerConfiguration.getContainerEntrypoint());
+                Arrays.AsList("/opt/openjdk/bin/java"), containerConfiguration.GetContainerEntrypoint());
         }
     }
 }

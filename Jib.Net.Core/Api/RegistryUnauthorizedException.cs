@@ -61,22 +61,22 @@ namespace com.google.cloud.tools.jib.api
         {
         }
 
-        public string getRegistry()
+        public string GetRegistry()
         {
             return registry;
         }
 
-        public string getRepository()
+        public string GetRepository()
         {
             return repository;
         }
 
-        public string getImageReference()
+        public string GetImageReference()
         {
             return registry + "/" + repository;
         }
 
-        public HttpResponseMessage getHttpResponse()
+        public HttpResponseMessage GetHttpResponse()
         {
             return Cause;
         }

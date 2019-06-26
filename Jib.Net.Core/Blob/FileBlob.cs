@@ -35,11 +35,11 @@ namespace com.google.cloud.tools.jib.blob
 
         public long Size => new FileInfo(file).Length;
 
-        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
+        public async Task<BlobDescriptor> WriteToAsync(Stream outputStream)
         {
-            using (Stream fileIn = new BufferedStream(Files.newInputStream(file)))
+            using (Stream fileIn = new BufferedStream(Files.NewInputStream(file)))
             {
-                return await Digests.computeDigestAsync(fileIn, outputStream).ConfigureAwait(false);
+                return await Digests.ComputeDigestAsync(fileIn, outputStream).ConfigureAwait(false);
             }
         }
     }

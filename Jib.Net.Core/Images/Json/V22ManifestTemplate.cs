@@ -57,12 +57,13 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href="https://docs.docker.com/registry/spec/manifest-v2-2/">Image Manifest Version 2,
      *     Schema 2</a>
      */
-     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class V22ManifestTemplate : IBuildableManifestTemplate
     {
         /** The Docker V2.2 manifest media type. */
         public static readonly string ManifestMediaType =
             "application/vnd.docker.distribution.manifest.v2+json";
+        private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
 
         /** The Docker V2.2 container configuration media type. */
         private const string CONTAINER_CONFIGURATION_MEDIA_TYPE =
@@ -79,52 +80,41 @@ namespace com.google.cloud.tools.jib.image.json
         public ContentDescriptorTemplate Config { get; private set; }
 
         /** The list of layer references. */
-        public List<ContentDescriptorTemplate> Layers { get; } = new List<ContentDescriptorTemplate>();
-
+        public IReadOnlyList<ContentDescriptorTemplate> Layers => layers;
         [JsonConstructor]
         public V22ManifestTemplate(ContentDescriptorTemplate config, List<ContentDescriptorTemplate> layers)
         {
             Config = config;
-            Layers = layers;
+            this.layers = layers;
         }
 
         public V22ManifestTemplate()
         {
-            Config =null;
-            Layers = new List<ContentDescriptorTemplate>();
+            Config = null;
+            layers = new List<ContentDescriptorTemplate>();
         }
 
-        public int getSchemaVersion()
-        {
-            return SchemaVersion;
-        }
-
-        public string getManifestMediaType()
+        public string GetManifestMediaType()
         {
             return ManifestMediaType;
         }
 
-        public ContentDescriptorTemplate getContainerConfiguration()
+        public ContentDescriptorTemplate GetContainerConfiguration()
         {
             return Config;
         }
 
-        public IReadOnlyList<ContentDescriptorTemplate> getLayers()
-        {
-            return Layers as IReadOnlyList<ContentDescriptorTemplate> ?? Layers.ToList();
-        }
-
-        public void setContainerConfiguration(long size, DescriptorDigest digest)
+        public void SetContainerConfiguration(long size, DescriptorDigest digest)
         {
             Config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
         }
 
-        public void addLayer(long size, DescriptorDigest digest)
+        public void AddLayer(long size, DescriptorDigest digest)
         {
-            Layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+            JavaExtensions.Add(layers, new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
         }
 
-        public ManifestFormat getFormat()
+        public ManifestFormat GetFormat()
         {
             return ManifestFormat.V22;
         }

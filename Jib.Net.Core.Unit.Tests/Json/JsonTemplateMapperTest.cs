@@ -52,27 +52,27 @@ namespace com.google.cloud.tools.jib.json
         }
 
         [Test]
-        public void testWriteJson()
+        public void TestWriteJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/basic.json").ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             TestJson testJson = new TestJson
             {
                 Number = 54,
                 Text = "crepecake",
                 Digest =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
                 InnerObject = new TestJson.InnerObjectClass
                 {
                     Number = 23,
-                    Texts = Arrays.asList("first text", "second text"),
+                    Texts = Arrays.AsList("first text", "second text"),
                     Digests =
-                Arrays.asList(
-                    DescriptorDigest.fromDigest(
+                Arrays.AsList(
+                    DescriptorDigest.FromDigest(
                         "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
-                    DescriptorDigest.fromHash(
+                    DescriptorDigest.FromHash(
                         "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"))
                 }
             };
@@ -87,60 +87,60 @@ namespace com.google.cloud.tools.jib.json
                 Number = 99,
                 Texts = new List<string> { "some text" },
                 Digests =
-                new List<DescriptorDigest> {                     DescriptorDigest.fromDigest(
+                new List<DescriptorDigest> {                     DescriptorDigest.FromDigest(
                         "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e")}
             };
-            testJson.List = Arrays.asList(innerObject1, innerObject2);
+            testJson.List = Arrays.AsList(innerObject1, innerObject2);
 
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(testJson));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(testJson));
         }
 
         [Test]
-        public void testReadJsonWithLock()
+        public void TestReadJsonWithLock()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/basic.json").ToURI());
 
             // Deserializes into a metadata JSON object.
-            TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock<TestJson>(jsonFile);
+            TestJson testJson = JsonTemplateMapper.ReadJsonFromFileWithLock<TestJson>(jsonFile);
 
             Assert.AreEqual(testJson.Number, 54);
             Assert.AreEqual(testJson.Text, "crepecake");
             Assert.AreEqual(
                 testJson.Digest,
-                    DescriptorDigest.fromDigest(
+                    DescriptorDigest.FromDigest(
                         "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
             Assert.IsInstanceOf<TestJson.InnerObjectClass>(testJson.InnerObject);
             Assert.AreEqual(testJson.InnerObject.Number, 23);
 
             Assert.AreEqual(
-                testJson.InnerObject.Texts, Arrays.asList("first text", "second text"));
+                testJson.InnerObject.Texts, Arrays.AsList("first text", "second text"));
 
             Assert.AreEqual(
                 testJson.InnerObject.Digests,
-                    Arrays.asList(
-                        DescriptorDigest.fromDigest(
+                    Arrays.AsList(
+                        DescriptorDigest.FromDigest(
                             "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
-                        DescriptorDigest.fromHash(
+                        DescriptorDigest.FromHash(
                             "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")));
 
             // ignore testJson.list
         }
 
         [Test]
-        public void testReadListOfJson()
+        public void TestReadListOfJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/basic_list.json").ToURI());
 
-            string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
-            IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
-            TestJson json1 = listofJsons.get(0);
-            TestJson json2 = listofJsons.get(1);
+            string jsonString = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
+            IList<TestJson> listofJsons = JsonTemplateMapper.ReadListOfJson<TestJson>(jsonString);
+            TestJson json1 = listofJsons.Get(0);
+            TestJson json2 = listofJsons.Get(1);
 
             DescriptorDigest digest1 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10");
             DescriptorDigest digest2 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
 
             Assert.AreEqual(1, json1.Number);
@@ -151,19 +151,19 @@ namespace com.google.cloud.tools.jib.json
             Assert.AreEqual(digest2, json2.Digest);
             Assert.AreEqual(10, json1.InnerObject.Number);
             Assert.AreEqual(20, json2.InnerObject.Number);
-            Assert.AreEqual(2, json1.List.size());
-            Assert.IsTrue(json2.List.isEmpty());
+            Assert.AreEqual(2, json1.List.Size());
+            Assert.IsTrue(json2.List.IsEmpty());
         }
 
         [Test]
-        public void testToBlob_listOfJson()
+        public void TestToBlob_listOfJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/basic_list.json").ToURI());
 
-            string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
-            List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
+            string jsonString = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
+            List<TestJson> listOfJson = JsonTemplateMapper.ReadListOfJson<TestJson>(jsonString);
 
-            Assert.AreEqual(jsonString, JsonTemplateMapper.toUtf8String(listOfJson));
+            Assert.AreEqual(jsonString, JsonTemplateMapper.ToUtf8String(listOfJson));
         }
     }
 }

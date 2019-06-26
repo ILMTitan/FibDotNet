@@ -48,32 +48,32 @@ namespace com.google.cloud.tools.jib.api
             DEBUG
         }
 
-        public static LogEvent error(string message)
+        public static LogEvent Error(string message)
         {
             return new LogEvent(Level.ERROR, message);
         }
 
-        public static LogEvent lifecycle(string message)
+        public static LogEvent Lifecycle(string message)
         {
             return new LogEvent(Level.LIFECYCLE, message);
         }
 
-        public static LogEvent progress(string message)
+        public static LogEvent Progress(string message)
         {
             return new LogEvent(Level.PROGRESS, message);
         }
 
-        public static LogEvent warn(string message)
+        public static LogEvent Warn(string message)
         {
             return new LogEvent(Level.WARN, message);
         }
 
-        public static LogEvent info(string message)
+        public static LogEvent Info(string message)
         {
             return new LogEvent(Level.INFO, message);
         }
 
-        public static LogEvent debug(string message)
+        public static LogEvent Debug(string message)
         {
             return new LogEvent(Level.DEBUG, message);
         }
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the log level
          */
-        public Level getLevel()
+        public Level GetLevel()
         {
             return level;
         }
@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the log message
          */
-        public string getMessage()
+        public string GetMessage()
         {
             return message;
         }
@@ -122,7 +122,7 @@ namespace com.google.cloud.tools.jib.api
 
         public override int GetHashCode()
         {
-            return Objects.hash(level, message);
+            return Objects.Hash(level, message);
         }
 
         public override string ToString()

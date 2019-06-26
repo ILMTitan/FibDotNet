@@ -39,12 +39,12 @@ namespace com.google.cloud.tools.jib.configuration
              * @param credentialRetrievers the list of {@link CredentialRetriever}s
              * @return this
              */
-            public Builder setCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers)
+            public Builder SetCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers)
             {
 
                 credentialRetrievers = credentialRetrievers ?? throw new ArgumentNullException(nameof(credentialRetrievers));
                 Preconditions.CheckArgument(
-                    !credentialRetrievers.contains(null), "credential retriever list contains null elements");
+                    !JavaExtensions.Contains(credentialRetrievers, null), "credential retriever list contains null elements");
                 this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);
                 return this;
             }
@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.configuration
              *
              * @return the corresponding {@link ImageConfiguration}
              */
-            public ImageConfiguration build()
+            public ImageConfiguration Build()
             {
                 return new ImageConfiguration(imageReference, credentialRetrievers);
             }
@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.configuration
          * @param imageReference the image reference, which is a required field
          * @return the builder
          */
-        public static Builder builder(IImageReference imageReference)
+        public static Builder CreateBuilder(IImageReference imageReference)
         {
             return new Builder(imageReference);
         }
@@ -86,27 +86,27 @@ namespace com.google.cloud.tools.jib.configuration
             this.credentialRetrievers = credentialRetrievers;
         }
 
-        public IImageReference getImage()
+        public IImageReference GetImage()
         {
             return image;
         }
 
-        public string getImageRegistry()
+        public string GetImageRegistry()
         {
-            return image.getRegistry();
+            return image.GetRegistry();
         }
 
-        public string getImageRepository()
+        public string GetImageRepository()
         {
-            return image.getRepository();
+            return image.GetRepository();
         }
 
-        public string getImageTag()
+        public string GetImageTag()
         {
-            return image.getTag();
+            return image.GetTag();
         }
 
-        public ImmutableArray<CredentialRetriever> getCredentialRetrievers()
+        public ImmutableArray<CredentialRetriever> GetCredentialRetrievers()
         {
             return credentialRetrievers;
         }

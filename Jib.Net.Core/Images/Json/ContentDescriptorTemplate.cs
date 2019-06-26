@@ -47,16 +47,6 @@ namespace com.google.cloud.tools.jib.image.json
         /** Necessary for Jackson to create from JSON. */
         private ContentDescriptorTemplate() { }
 
-        public long getSize()
-        {
-            return Size;
-        }
-
-        public DescriptorDigest getDigest()
-        {
-            return Digest;
-        }
-
         public bool Equals(ContentDescriptorTemplate other)
         {
             if (this == other)

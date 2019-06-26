@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static JibContainerBuilder From(string baseImageReference)
         {
-            return From(RegistryImage.named(baseImageReference));
+            return From(RegistryImage.Named(baseImageReference));
         }
 
         /**
@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static JibContainerBuilder From(ImageReference baseImageReference)
         {
-            return From(RegistryImage.named(baseImageReference));
+            return From(RegistryImage.Named(baseImageReference));
         }
 
         /**
@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static JibContainerBuilder FromScratch()
         {
-            return From(ImageReference.scratch());
+            return From(ImageReference.Scratch());
         }
 
         private Jib() { }

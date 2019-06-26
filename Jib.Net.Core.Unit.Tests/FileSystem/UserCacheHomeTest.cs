@@ -42,37 +42,37 @@ namespace com.google.cloud.tools.jib.filesystem
         }
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
-            fakeCacheHome = temporaryFolder.newFolder().getPath();
+            fakeCacheHome = temporaryFolder.NewFolder().GetPath();
             mockEnvironment = Mock.Of<IEnvironment>();
             Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(It.IsAny<OSPlatform>())).Returns(false);
         }
 
         [Test]
-        public void testGetCacheHome_hasXdgCacheHome()
+        public void TestGetCacheHome_hasXdgCacheHome()
         {
             Mock.Get(mockEnvironment).Setup(e =>e.GetEnvironmentVariable("XDG_CACHE_HOME")).Returns(fakeCacheHome);
 
             Assert.AreEqual(
-                Paths.get(fakeCacheHome),
-                UserCacheHome.getCacheHome(mockEnvironment));
+                Paths.Get(fakeCacheHome),
+                UserCacheHome.GetCacheHome(mockEnvironment));
         }
 
         [Test]
-        public void testGetCacheHome_linux()
+        public void TestGetCacheHome_linux()
         {
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
                 .Returns(fakeCacheHome);
             Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Linux)).Returns(true);
 
             Assert.AreEqual(
-                Paths.get(fakeCacheHome, ".cache"),
-                UserCacheHome.getCacheHome(mockEnvironment));
+                Paths.Get(fakeCacheHome, ".cache"),
+                UserCacheHome.GetCacheHome(mockEnvironment));
         }
 
         [Test]
-        public void testGetCacheHome_windows()
+        public void TestGetCacheHome_windows()
         {
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
                 .Returns("nonexistent");
@@ -81,14 +81,14 @@ namespace com.google.cloud.tools.jib.filesystem
             Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Windows)).Returns(true);
 
             Assert.AreEqual(
-                Paths.get(fakeCacheHome), UserCacheHome.getCacheHome(mockEnvironment));
+                Paths.Get(fakeCacheHome), UserCacheHome.GetCacheHome(mockEnvironment));
         }
 
         [Test]
-        public void testGetCacheHome_mac()
+        public void TestGetCacheHome_mac()
         {
-            SystemPath libraryApplicationSupport = Paths.get(fakeCacheHome, "Library", "Application Support");
-            Files.createDirectories(libraryApplicationSupport);
+            SystemPath libraryApplicationSupport = Paths.Get(fakeCacheHome, "Library", "Application Support");
+            Files.CreateDirectories(libraryApplicationSupport);
 
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
                 .Returns(fakeCacheHome);
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
             Assert.AreEqual(
                 libraryApplicationSupport,
-                UserCacheHome.getCacheHome(mockEnvironment));
+                UserCacheHome.GetCacheHome(mockEnvironment));
         }
     }
 }

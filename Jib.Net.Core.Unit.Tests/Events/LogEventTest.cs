@@ -35,36 +35,36 @@ namespace Jib.Net.Core.Unit.Tests.Events
         public LogEventTest()
         {
             eventHandlers =
-         EventHandlers.builder().add<LogEvent>(receivedLogEvents.add).build();
+         EventHandlers.CreateBuilder().Add<LogEvent>(receivedLogEvents.Add).Build();
         }
 
         [Test]
-        public void testFactories()
+        public void TestFactories()
         {
-            eventHandlers.Dispatch(error("error"));
-            eventHandlers.Dispatch(lifecycle("lifecycle"));
-            eventHandlers.Dispatch(progress("progress"));
-            eventHandlers.Dispatch(warn("warn"));
-            eventHandlers.Dispatch(info("info"));
-            eventHandlers.Dispatch(debug("debug"));
+            eventHandlers.Dispatch(Error("error"));
+            eventHandlers.Dispatch(Lifecycle("lifecycle"));
+            eventHandlers.Dispatch(LogEvent.Progress("progress"));
+            eventHandlers.Dispatch(Warn("warn"));
+            eventHandlers.Dispatch(Info("info"));
+            eventHandlers.Dispatch(Debug("debug"));
 
-            verifyNextLogEvent(Level.ERROR, "error");
-            verifyNextLogEvent(Level.LIFECYCLE, "lifecycle");
-            verifyNextLogEvent(Level.PROGRESS, "progress");
-            verifyNextLogEvent(Level.WARN, "warn");
-            verifyNextLogEvent(Level.INFO, "info");
-            verifyNextLogEvent(Level.DEBUG, "debug");
-            Assert.IsTrue(receivedLogEvents.isEmpty());
+            VerifyNextLogEvent(Level.ERROR, "error");
+            VerifyNextLogEvent(Level.LIFECYCLE, "lifecycle");
+            VerifyNextLogEvent(Level.PROGRESS, "progress");
+            VerifyNextLogEvent(Level.WARN, "warn");
+            VerifyNextLogEvent(Level.INFO, "info");
+            VerifyNextLogEvent(Level.DEBUG, "debug");
+            Assert.IsTrue(receivedLogEvents.IsEmpty());
         }
 
-        private void verifyNextLogEvent(Level level, string message)
+        private void VerifyNextLogEvent(Level level, string message)
         {
-            Assert.IsFalse(receivedLogEvents.isEmpty());
+            Assert.IsFalse(receivedLogEvents.IsEmpty());
 
-            LogEvent logEvent = receivedLogEvents.poll();
+            LogEvent logEvent = receivedLogEvents.Poll();
 
-            Assert.AreEqual(level, logEvent.getLevel());
-            Assert.AreEqual(message, logEvent.getMessage());
+            Assert.AreEqual(level, logEvent.GetLevel());
+            Assert.AreEqual(message, logEvent.GetMessage());
         }
     }
 }

@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.description = description;
         }
 
-        public void dispatchProgress(long progressUnits)
+        public void DispatchProgress(long progressUnits)
         {
             Preconditions.CheckNotNull(throttledDispatcher);
             throttledDispatcher.Accept(progressUnits);
@@ -52,11 +52,11 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public void Dispose()
         {
-            throttledDispatcher?.close();
-            progressEventDispatcher?.close();
+            throttledDispatcher?.Close();
+            progressEventDispatcher?.Close();
         }
 
-        public void setProgressTarget(long allocationUnits)
+        public void SetProgressTarget(long allocationUnits)
         {
             Preconditions.CheckState(progressEventDispatcher == null);
             progressEventDispatcher = progressEventDispatcherFactory.Create(description, allocationUnits);

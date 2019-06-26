@@ -42,17 +42,17 @@ namespace Jib.Net.Core.Blob
         {
         }
 
-        public bool hasSize()
+        public bool HasSize()
         {
             return size >= 0;
         }
 
-        public DescriptorDigest getDigest()
+        public DescriptorDigest GetDigest()
         {
             return digest;
         }
 
-        public long getSize()
+        public long GetSize()
         {
             return size;
         }
@@ -77,12 +77,12 @@ namespace Jib.Net.Core.Blob
                 return false;
             }
 
-            return size == other.getSize() && digest.Equals(other.getDigest());
+            return size == other.GetSize() && digest.Equals(other.GetDigest());
         }
 
         public override int GetHashCode()
         {
-            int result = digest.hashCode();
+            int result = digest.HashCode();
             return (31 * result) + (int)(size ^ size >> 32);
         }
 

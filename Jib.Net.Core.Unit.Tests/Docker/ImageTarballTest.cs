@@ -43,73 +43,73 @@ namespace com.google.cloud.tools.jib.docker
         private readonly ILayer mockLayer2 = Mock.Of<ILayer>();
 
         [Test]
-        public async Task testWriteToAsync()
+        public async Task TestWriteToAsync()
         {
-            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
-            SystemPath fileB = Paths.get(TestResources.getResource("core/fileB").ToURI());
-            long fileASize = Files.size(fileA);
-            long fileBSize = Files.size(fileB);
+            SystemPath fileA = Paths.Get(TestResources.GetResource("core/fileA").ToURI());
+            SystemPath fileB = Paths.Get(TestResources.GetResource("core/fileB").ToURI());
+            long fileASize = Files.Size(fileA);
+            long fileBSize = Files.Size(fileB);
 
             DescriptorDigest fakeDigestA =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
             DescriptorDigest fakeDigestB =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc6");
 
-            Mock.Get(mockLayer1).Setup(m => m.getBlob()).Returns(Blobs.from(fileA));
+            Mock.Get(mockLayer1).Setup(m => m.GetBlob()).Returns(Blobs.From(fileA));
 
-            Mock.Get(mockLayer1).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(fileASize, fakeDigestA));
+            Mock.Get(mockLayer1).Setup(m => m.GetBlobDescriptor()).Returns(new BlobDescriptor(fileASize, fakeDigestA));
 
-            Mock.Get(mockLayer1).Setup(m => m.getDiffId()).Returns(fakeDigestA);
+            Mock.Get(mockLayer1).Setup(m => m.GetDiffId()).Returns(fakeDigestA);
 
-            Mock.Get(mockLayer2).Setup(m => m.getBlob()).Returns(Blobs.from(fileB));
+            Mock.Get(mockLayer2).Setup(m => m.GetBlob()).Returns(Blobs.From(fileB));
 
-            Mock.Get(mockLayer2).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(fileBSize, fakeDigestB));
+            Mock.Get(mockLayer2).Setup(m => m.GetBlobDescriptor()).Returns(new BlobDescriptor(fileBSize, fakeDigestB));
 
-            Mock.Get(mockLayer2).Setup(m => m.getDiffId()).Returns(fakeDigestB);
+            Mock.Get(mockLayer2).Setup(m => m.GetDiffId()).Returns(fakeDigestB);
 
             Image testImage =
-                Image.builder(ManifestFormat.V22).addLayer(mockLayer1).addLayer(mockLayer2).build();
+                Image.CreateBuilder(ManifestFormat.V22).AddLayer(mockLayer1).AddLayer(mockLayer2).Build();
 
-            ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
+            ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.Parse("my/image:tag"));
 
             MemoryStream @out = new MemoryStream();
             await imageToTarball.WriteToAsync(@out).ConfigureAwait(false);
-            MemoryStream @in = new MemoryStream(@out.toByteArray());
+            MemoryStream @in = new MemoryStream(@out.ToByteArray());
             using (TarInputStream tarArchiveInputStream = new TarInputStream(@in))
             {
                 // Verifies layer with fileA was added.
-                TarEntry headerFileALayer = tarArchiveInputStream.getNextTarEntry();
-                Assert.AreEqual(fakeDigestA.getHash() + ".tar.gz", headerFileALayer.getName());
+                TarEntry headerFileALayer = tarArchiveInputStream.GetNextTarEntry();
+                Assert.AreEqual(fakeDigestA.GetHash() + ".tar.gz", headerFileALayer.GetName());
                 string fileAString =
-                    CharStreams.toString(
+                    CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
-                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileA)).ConfigureAwait(false), fileAString);
+                Assert.AreEqual(await Blobs.WriteToStringAsync(Blobs.From(fileA)).ConfigureAwait(false), fileAString);
 
                 // Verifies layer with fileB was added.
-                TarEntry headerFileBLayer = tarArchiveInputStream.getNextTarEntry();
-                Assert.AreEqual(fakeDigestB.getHash() + ".tar.gz", headerFileBLayer.getName());
+                TarEntry headerFileBLayer = tarArchiveInputStream.GetNextTarEntry();
+                Assert.AreEqual(fakeDigestB.GetHash() + ".tar.gz", headerFileBLayer.GetName());
                 string fileBString =
-                    CharStreams.toString(
+                    CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
-                Assert.AreEqual(await Blobs.writeToStringAsync(Blobs.from(fileB)).ConfigureAwait(false), fileBString);
+                Assert.AreEqual(await Blobs.WriteToStringAsync(Blobs.From(fileB)).ConfigureAwait(false), fileBString);
 
                 // Verifies container configuration was added.
-                TarEntry headerContainerConfiguration = tarArchiveInputStream.getNextTarEntry();
-                Assert.AreEqual("config.json", headerContainerConfiguration.getName());
+                TarEntry headerContainerConfiguration = tarArchiveInputStream.GetNextTarEntry();
+                Assert.AreEqual("config.json", headerContainerConfiguration.GetName());
                 string containerConfigJson =
-                    CharStreams.toString(
+                    CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
-                JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(containerConfigJson);
+                JsonTemplateMapper.ReadJson<ContainerConfigurationTemplate>(containerConfigJson);
 
                 // Verifies manifest was added.
-                TarEntry headerManifest = tarArchiveInputStream.getNextTarEntry();
-                Assert.AreEqual("manifest.json", headerManifest.getName());
+                TarEntry headerManifest = tarArchiveInputStream.GetNextTarEntry();
+                Assert.AreEqual("manifest.json", headerManifest.GetName());
                 string manifestJson =
-                    CharStreams.toString(
+                    CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
-                JsonTemplateMapper.readListOfJson<DockerLoadManifestEntryTemplate>(manifestJson);
+                JsonTemplateMapper.ReadListOfJson<DockerLoadManifestEntryTemplate>(manifestJson);
             }
         }
     }

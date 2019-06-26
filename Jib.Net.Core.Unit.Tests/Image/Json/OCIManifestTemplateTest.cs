@@ -29,52 +29,52 @@ namespace com.google.cloud.tools.jib.image.json
     public class OCIManifestTemplateTest
     {
         [Test]
-        public void testToJson()
+        public void TestToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/ocimanifest.json").ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/ocimanifest.json").ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
             OCIManifestTemplate manifestJson = new OCIManifestTemplate();
 
-            manifestJson.setContainerConfiguration(
+            manifestJson.SetContainerConfiguration(
                 1000,
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
 
-            manifestJson.addLayer(
+            manifestJson.AddLayer(
                 1000_000,
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"));
 
             // Serializes the JSON object.
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestJson));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(manifestJson));
         }
 
         [Test]
-        public void testFromJson()
+        public void TestFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/ocimanifest.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/ocimanifest.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             OCIManifestTemplate manifestJson =
-                JsonTemplateMapper.readJsonFromFile<OCIManifestTemplate>(jsonFile);
+                JsonTemplateMapper.ReadJsonFromFile<OCIManifestTemplate>(jsonFile);
 
             Assert.AreEqual(
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                manifestJson.getContainerConfiguration().getDigest());
+                manifestJson.GetContainerConfiguration().Digest);
 
-            Assert.AreEqual(1000, manifestJson.getContainerConfiguration().getSize());
+            Assert.AreEqual(1000, manifestJson.GetContainerConfiguration().Size);
 
             Assert.AreEqual(
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"),
-                manifestJson.getLayers().get(0).getDigest());
+                manifestJson.Layers.Get(0).Digest);
 
-            Assert.AreEqual(1000_000, manifestJson.getLayers().get(0).getSize());
+            Assert.AreEqual(1000_000, manifestJson.Layers.Get(0).Size);
         }
     }
 }

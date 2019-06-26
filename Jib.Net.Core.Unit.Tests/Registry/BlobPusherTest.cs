@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.registry
     public class BlobPusherTest : IDisposable
     {
         private const string TEST_BLOB_CONTENT = "some BLOB content";
-        private static readonly IBlob TEST_BLOB = Blobs.from(TEST_BLOB_CONTENT);
+        private static readonly IBlob TEST_BLOB = Blobs.From(TEST_BLOB_CONTENT);
 
         private readonly Uri mockURL = new Uri("mock://someServerUrl/someImageName");
         private HttpResponseMessage mockResponse = new HttpResponseMessage();
@@ -45,10 +45,10 @@ namespace com.google.cloud.tools.jib.registry
         private BlobPusher testBlobPusher;
 
         [SetUp]
-        public void setUpFakes()
+        public void SetUpFakes()
         {
             fakeDescriptorDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             testBlobPusher =
                 new BlobPusher(
@@ -64,22 +64,22 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testInitializer_getContent()
+        public void TestInitializer_getContent()
         {
-            Assert.IsNull(testBlobPusher.initializer().getContent());
+            Assert.IsNull(testBlobPusher.CreateInitializer().GetContent());
         }
 
         [Test]
-        public void testGetAccept()
+        public void TestGetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.initializer().getAccept().size());
+            Assert.AreEqual(0, testBlobPusher.CreateInitializer().GetAccept().Size());
         }
 
         [Test]
-        public async Task testInitializer_handleResponse_createdAsync()
+        public async Task TestInitializer_handleResponse_createdAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Created);
-            Assert.IsNull(await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false));
+            Assert.IsNull(await testBlobPusher.CreateInitializer().HandleResponseAsync(mockResponse).ConfigureAwait(false));
             mockResponse = new HttpResponseMessage(HttpStatusCode.Accepted)
             {
                 Headers = { Location = new Uri("location", UriKind.Relative) },
@@ -91,34 +91,34 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://someurl/location"),
-                await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false));
+                await testBlobPusher.CreateInitializer().HandleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testInitializer_handleResponse_unrecognizedAsync()
+        public async System.Threading.Tasks.Task TestInitializer_handleResponse_unrecognizedAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Unused);
             try
             {
-                await testBlobPusher.initializer().handleResponseAsync(mockResponse).ConfigureAwait(false);
+                await testBlobPusher.CreateInitializer().HandleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("Multiple 'Location' headers should be a registry error");
             }
             catch (RegistryErrorException ex)
             {
-                Assert.That(ex.getMessage(), Does.Contain("Received unrecognized status code Unused"));
+                Assert.That(ex.GetMessage(), Does.Contain("Received unrecognized status code Unused"));
             }
         }
 
         [Test]
-        public void testInitializer_getApiRoute_nullSource()
+        public void TestInitializer_getApiRoute_nullSource()
         {
             Assert.AreEqual(
                 new Uri("http://someApiBase/someImageName/blobs/uploads/"),
-                testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
+                testBlobPusher.CreateInitializer().GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testInitializer_getApiRoute_sameSource()
+        public void TestInitializer_getApiRoute_sameSource()
         {
             testBlobPusher =
                 new BlobPusher(
@@ -132,48 +132,48 @@ namespace com.google.cloud.tools.jib.registry
                     "http://someApiBase/someImageName/blobs/uploads/?mount="
                         + fakeDescriptorDigest
                         + "&from=sourceImageName"),
-                testBlobPusher.initializer().getApiRoute("http://someApiBase/"));
+                testBlobPusher.CreateInitializer().GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testInitializer_getHttpMethod()
+        public void TestInitializer_getHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Post, testBlobPusher.initializer().getHttpMethod());
+            Assert.AreEqual(HttpMethod.Post, testBlobPusher.CreateInitializer().GetHttpMethod());
         }
 
         [Test]
-        public void testInitializer_getActionDescription()
+        public void TestInitializer_getActionDescription()
         {
             Assert.AreEqual(
                 "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
-                testBlobPusher.initializer().getActionDescription());
+                testBlobPusher.CreateInitializer().GetActionDescription());
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testWriter_getContentAsync()
+        public async System.Threading.Tasks.Task TestWriter_getContentAsync()
         {
             LongAdder byteCount = new LongAdder();
-            BlobHttpContent body = testBlobPusher.writer(mockURL, byteCount.add).getContent();
+            BlobHttpContent body = testBlobPusher.CreateWriter(mockURL, byteCount.Add).GetContent();
 
             Assert.IsNotNull(body);
             Assert.AreEqual("application/octet-stream", body.Headers.ContentType.MediaType);
 
             MemoryStream byteArrayOutputStream = new MemoryStream();
-            await body.writeToAsync(byteArrayOutputStream).ConfigureAwait(false);
+            await body.WriteToAsync(byteArrayOutputStream).ConfigureAwait(false);
 
             Assert.AreEqual(
-                TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.toByteArray()));
-            Assert.AreEqual(TEST_BLOB_CONTENT.length(), byteCount.sum());
+                TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.ToByteArray()));
+            Assert.AreEqual(TEST_BLOB_CONTENT.Length(), byteCount.Sum());
         }
 
         [Test]
-        public void testWriter_GetAccept()
+        public void TestWriter_GetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.writer(mockURL, _ => { }).getAccept().size());
+            Assert.AreEqual(0, testBlobPusher.CreateWriter(mockURL, _ => { }).GetAccept().Size());
         }
 
         [Test]
-        public async Task testWriter_handleResponseAsync()
+        public async Task TestWriter_handleResponseAsync()
         {
             UriBuilder requestUrl = new UriBuilder("https://someurl");
             mockResponse = new HttpResponseMessage
@@ -190,68 +190,68 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 new Uri("https://somenewurl/location"),
-                await testBlobPusher.writer(mockURL, _ => { }).handleResponseAsync(mockResponse).ConfigureAwait(false));
+                await testBlobPusher.CreateWriter(mockURL, _ => { }).HandleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
-        public void testWriter_getApiRoute()
+        public void TestWriter_getApiRoute()
         {
             Uri fakeUrl = new Uri("http://someurl");
-            Assert.AreEqual(fakeUrl, testBlobPusher.writer(fakeUrl, _ => { }).getApiRoute(""));
+            Assert.AreEqual(fakeUrl, testBlobPusher.CreateWriter(fakeUrl, _ => { }).GetApiRoute(""));
         }
 
         [Test]
-        public void testWriter_getHttpMethod()
+        public void TestWriter_getHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Patch, testBlobPusher.writer(mockURL, _ => { }).getHttpMethod());
+            Assert.AreEqual(HttpMethod.Patch, testBlobPusher.CreateWriter(mockURL, _ => { }).GetHttpMethod());
         }
 
         [Test]
-        public void testWriter_getActionDescription()
+        public void TestWriter_getActionDescription()
         {
             Assert.AreEqual(
                 "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
-                testBlobPusher.writer(mockURL, _ => { }).getActionDescription());
+                testBlobPusher.CreateWriter(mockURL, _ => { }).GetActionDescription());
         }
 
         [Test]
-        public void testCommitter_getContent()
+        public void TestCommitter_getContent()
         {
-            Assert.IsNull(testBlobPusher.committer(mockURL).getContent());
+            Assert.IsNull(testBlobPusher.CreateCommitter(mockURL).GetContent());
         }
 
         [Test]
-        public void testCommitter_GetAccept()
+        public void TestCommitter_GetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.committer(mockURL).getAccept().size());
+            Assert.AreEqual(0, testBlobPusher.CreateCommitter(mockURL).GetAccept().Size());
         }
 
         [Test]
-        public async Task testCommitter_handleResponseAsync()
+        public async Task TestCommitter_handleResponseAsync()
         {
-            Assert.IsNull(await testBlobPusher.committer(mockURL).handleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
+            Assert.IsNull(await testBlobPusher.CreateCommitter(mockURL).HandleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
         }
 
         [Test]
-        public void testCommitter_getApiRoute()
+        public void TestCommitter_getApiRoute()
         {
             Assert.AreEqual(
                 new Uri("https://someurl?somequery=somevalue&digest=" + fakeDescriptorDigest),
-                testBlobPusher.committer(new Uri("https://someurl?somequery=somevalue")).getApiRoute(""));
+                testBlobPusher.CreateCommitter(new Uri("https://someurl?somequery=somevalue")).GetApiRoute(""));
         }
 
         [Test]
-        public void testCommitter_getHttpMethod()
+        public void TestCommitter_getHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Put, testBlobPusher.committer(mockURL).getHttpMethod());
+            Assert.AreEqual(HttpMethod.Put, testBlobPusher.CreateCommitter(mockURL).GetHttpMethod());
         }
 
         [Test]
-        public void testCommitter_getActionDescription()
+        public void TestCommitter_getActionDescription()
         {
             Assert.AreEqual(
                 "push BLOB for someServerUrl/someImageName with digest " + fakeDescriptorDigest,
-                testBlobPusher.committer(mockURL).getActionDescription());
+                testBlobPusher.CreateCommitter(mockURL).GetActionDescription());
         }
     }
 }

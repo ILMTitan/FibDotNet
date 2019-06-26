@@ -84,10 +84,15 @@ namespace com.google.cloud.tools.jib.image.json
         /** ISO-8601 formatted combined date and time at which the image was created. */
         public string Created { get; set; }
 
-        /** The CPU architecture to run the binaries in this container. */
+        /** The CPU architecture to run the binaries in this container. See the <a
+         * href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
+         * Configuration specification</a> for acceptable values.*/
         public string Architecture { get; set; } = "amd64";
 
-        /** The operating system to run the container on. */
+        /** The operating system to run the container on.
+         *  See the <a href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
+         *  Configuration specification</a> for acceptable values.
+         */
         public string Os { get; set; } = "linux";
 
         /** Execution parameters that should be used as a base when running the container. */
@@ -170,51 +175,22 @@ namespace com.google.cloud.tools.jib.image.json
             public IList<DescriptorDigest> DiffIds { get; } = new List<DescriptorDigest>();
         }
 
-        public void setCreated(string created)
-        {
-            Created = created;
-        }
-
-        /**
-         * Sets the architecture for which this container was built. See the <a
-         * href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
-         * Configuration specification</a> for acceptable values.
-         *
-         * @param architecture value for the {@code architecture} field
-         */
-        public void setArchitecture(string architecture)
-        {
-            Architecture = architecture;
-        }
-
-        /**
-         * Sets the operating system for which this container was built. See the <a
-         * href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
-         * Configuration specification</a> for acceptable values.
-         *
-         * @param os value for the {@code os} field
-         */
-        public void setOs(string os)
-        {
-            Os = os;
-        }
-
-        public void setContainerEnvironment(IList<string> environment)
+        public void SetContainerEnvironment(IList<string> environment)
         {
             Config.Env = environment;
         }
 
-        public void setContainerEntrypoint(IList<string> command)
+        public void SetContainerEntrypoint(IList<string> command)
         {
             Config.Entrypoint = command;
         }
 
-        public void setContainerCmd(IList<string> cmd)
+        public void SetContainerCmd(IList<string> cmd)
         {
             Config.Cmd = cmd;
         }
 
-        public void setContainerHealthCheckTest(IList<string> test)
+        public void SetContainerHealthCheckTest(IList<string> test)
         {
             if (Config.Healthcheck == null)
             {
@@ -223,7 +199,7 @@ namespace com.google.cloud.tools.jib.image.json
             Preconditions.CheckNotNull(Config.Healthcheck).Test = test;
         }
 
-        public void setContainerHealthCheckInterval(long interval)
+        public void SetContainerHealthCheckInterval(long interval)
         {
             if (Config.Healthcheck == null)
             {
@@ -232,7 +208,7 @@ namespace com.google.cloud.tools.jib.image.json
             Preconditions.CheckNotNull(Config.Healthcheck).Interval = interval;
         }
 
-        public void setContainerHealthCheckTimeout(long timeout)
+        public void SetContainerHealthCheckTimeout(long timeout)
         {
             if (Config.Healthcheck == null)
             {
@@ -241,7 +217,7 @@ namespace com.google.cloud.tools.jib.image.json
             Preconditions.CheckNotNull(Config.Healthcheck).Timeout = timeout;
         }
 
-        public void setContainerHealthCheckStartPeriod(long startPeriod)
+        public void SetContainerHealthCheckStartPeriod(long startPeriod)
         {
             if (Config.Healthcheck == null)
             {
@@ -250,7 +226,7 @@ namespace com.google.cloud.tools.jib.image.json
             Preconditions.CheckNotNull(Config.Healthcheck).StartPeriod = startPeriod;
         }
 
-        public void setContainerHealthCheckRetries(int? retries)
+        public void SetContainerHealthCheckRetries(int? retries)
         {
             if (Config.Healthcheck == null)
             {
@@ -259,148 +235,114 @@ namespace com.google.cloud.tools.jib.image.json
             Preconditions.CheckNotNull(Config.Healthcheck).Retries = retries;
         }
 
-        public void setContainerExposedPorts(IDictionary<string, IDictionary<object, object>> exposedPorts)
+        public void SetContainerExposedPorts(IDictionary<string, IDictionary<object, object>> exposedPorts)
         {
             Config.ExposedPorts = exposedPorts;
         }
 
-        public void setContainerLabels(IDictionary<string, string> labels)
+        public void SetContainerLabels(IDictionary<string, string> labels)
         {
             Config.Labels = labels.ToImmutableSortedDictionary();
         }
 
-        public void setContainerWorkingDir(string workingDirectory)
+        public void SetContainerWorkingDir(string workingDirectory)
         {
             Config.WorkingDir = workingDirectory;
         }
 
-        public void setContainerUser(string user)
+        public void SetContainerUser(string user)
         {
             Config.User = user;
         }
 
-        public void setContainerVolumes(IDictionary<string, IDictionary<object, object>> volumes)
+        public void SetContainerVolumes(IDictionary<string, IDictionary<object, object>> volumes)
         {
             Config.Volumes = volumes.ToImmutableSortedDictionary();
         }
 
-        public void addLayerDiffId(DescriptorDigest diffId)
+        public void AddLayerDiffId(DescriptorDigest diffId)
         {
-            Rootfs.DiffIds.add(diffId);
+            JavaExtensions.Add(Rootfs.DiffIds, diffId);
         }
 
-        public void addHistoryEntry(HistoryEntry historyEntry)
+        public void AddHistoryEntry(HistoryEntry historyEntry)
         {
-            History.add(historyEntry);
+            JavaExtensions.Add(History, historyEntry);
         }
 
-        public IList<DescriptorDigest> getDiffIds()
+        public IList<DescriptorDigest> GetDiffIds()
         {
             return Rootfs.DiffIds;
         }
 
-        public IList<HistoryEntry> getHistory()
-        {
-            return History;
-        }
-
-        public string getCreated()
-        {
-            return Created;
-        }
-
-        /**
-         * Returns the architecture for which this container was built. See the <a
-         * href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
-         * Configuration specification</a> for acceptable values.
-         *
-         * @return the {@code architecture} field
-         */
-        public string getArchitecture()
-        {
-            return Architecture;
-        }
-
-        /**
-         * Returns the operating system for which this container was built. See the <a
-         * href="https://github.com/opencontainers/image-spec/blob/master/config.md#properties">OCI Image
-         * Configuration specification</a> for acceptable values.
-         *
-         * @return the {@code os} field
-         */
-        public string getOs()
-        {
-            return Os;
-        }
-
-        public IList<string> getContainerEnvironment()
+        public IList<string> GetContainerEnvironment()
         {
             return Config.Env;
         }
 
-        public IList<string> getContainerEntrypoint()
+        public IList<string> GetContainerEntrypoint()
         {
             return Config.Entrypoint;
         }
 
-        public IList<string> getContainerCmd()
+        public IList<string> GetContainerCmd()
         {
             return Config.Cmd;
         }
 
-        public IList<string> getContainerHealthTest()
+        public IList<string> GetContainerHealthTest()
         {
             return Config.Healthcheck?.Test;
         }
 
-        public long? getContainerHealthInterval()
+        public long? GetContainerHealthInterval()
         {
             return Config.Healthcheck?.Interval;
         }
 
-        public long? getContainerHealthTimeout()
+        public long? GetContainerHealthTimeout()
         {
             return Config.Healthcheck?.Timeout;
         }
 
-        public long? getContainerHealthStartPeriod()
+        public long? GetContainerHealthStartPeriod()
         {
             return Config.Healthcheck?.StartPeriod;
         }
 
-        public int? getContainerHealthRetries()
+        public int? GetContainerHealthRetries()
         {
             return Config.Healthcheck?.Retries;
         }
 
-        public IDictionary<string, IDictionary<object, object>> getContainerExposedPorts()
+        public IDictionary<string, IDictionary<object, object>> GetContainerExposedPorts()
         {
             return Config.ExposedPorts;
         }
 
-        public IDictionary<string, string> getContainerLabels()
+        public IDictionary<string, string> GetContainerLabels()
         {
             return Config.Labels;
         }
 
-        public string getContainerWorkingDir()
+        public string GetContainerWorkingDir()
         {
             return Config.WorkingDir;
         }
 
-        public string getContainerUser()
+        public string GetContainerUser()
         {
             return Config.User;
         }
 
-        public IDictionary<string, IDictionary<object, object>> getContainerVolumes()
+        public IDictionary<string, IDictionary<object, object>> GetContainerVolumes()
         {
             return Config.Volumes;
         }
 
-        public DescriptorDigest getLayerDiffId(int index)
+        public DescriptorDigest GetLayerDiffId(int index)
         {
-            return Rootfs.DiffIds.get(index);
+            return Rootfs.DiffIds.Get(index);
         }
     }
 }

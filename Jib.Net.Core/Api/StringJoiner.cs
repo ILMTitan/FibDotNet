@@ -33,7 +33,7 @@ namespace Jib.Net.Core.Api
             this.postfix = postfix;
         }
 
-        internal void add(string value)
+        internal void Add(string value)
         {
             strings.Add(value);
         }

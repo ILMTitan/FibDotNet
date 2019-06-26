@@ -36,11 +36,11 @@ namespace com.google.cloud.tools.jib.builder
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             this.parentTimer = parentTimer;
 
-            startTime = clock.instant();
+            startTime = clock.Instant();
             lapStartTime = startTime;
         }
 
-        public Option<TimerEvent.ITimer> getParent()
+        public Option<TimerEvent.ITimer> GetParent()
         {
             return Option.OfNullable<TimerEvent.ITimer>(parentTimer);
         }
@@ -50,9 +50,9 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @return the duration of the last lap, or since creation
          */
-        public Duration lap()
+        public Duration Lap()
         {
-            Instant now = clock.instant();
+            Instant now = clock.Instant();
             Duration duration = now - lapStartTime;
             lapStartTime = now;
             return duration;
@@ -63,9 +63,9 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @return the total elapsed time
          */
-        public Duration getElapsedTime()
+        public Duration GetElapsedTime()
         {
-            return clock.instant() - startTime;
+            return clock.Instant() - startTime;
         }
     }
 }

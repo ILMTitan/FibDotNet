@@ -69,7 +69,7 @@ namespace Jib.Net.Core.Registry.Credentials
             this.credentialHelper = credentialHelper;
         }
 
-        public DockerCredentialHelper(string registry, string credentialHelperSuffix) : this(registry, Paths.get(CredentialHelperPrefix + credentialHelperSuffix))
+        public DockerCredentialHelper(string registry, string credentialHelperSuffix) : this(registry, Paths.Get(CredentialHelperPrefix + credentialHelperSuffix))
         {
         }
 
@@ -91,28 +91,28 @@ namespace Jib.Net.Core.Registry.Credentials
          *     corresponding server
          * @throws CredentialHelperNotFoundException if the credential helper CLI doesn't exist
          */
-        public Credential retrieve()
+        public Credential Retrieve()
         {
             try
             {
-                IProcess process = new ProcessBuilder(credentialHelper.toString(), "get").start();
-                using (Stream processStdin = process.getOutputStream())
+                IProcess process = new ProcessBuilder(JavaExtensions.ToString(credentialHelper), "get").Start();
+                using (Stream processStdin = process.GetOutputStream())
                 {
-                    processStdin.write(registry.getBytes(Encoding.UTF8));
+                    processStdin.Write(registry.GetBytes(Encoding.UTF8));
                 }
 
                 using (StreamReader processStdoutReader =
-                    new StreamReader(process.getInputStream(), Encoding.UTF8))
+                    new StreamReader(process.GetInputStream(), Encoding.UTF8))
                 {
-                    string output = CharStreams.toString(processStdoutReader);
+                    string output = CharStreams.ToString(processStdoutReader);
 
                     // Throws an exception if the credential store does not have credentials for serverUrl.
-                    if (output.contains("credentials not found in native keychain"))
+                    if (JavaExtensions.Contains(output, "credentials not found in native keychain"))
                     {
                         throw new CredentialHelperUnhandledServerUrlException(
                             credentialHelper, registry, output);
                     }
-                    if (output.isEmpty())
+                    if (output.IsEmpty())
                     {
                         ThrowUnhandledUrlException(process);
                     }
@@ -120,15 +120,15 @@ namespace Jib.Net.Core.Registry.Credentials
                     try
                     {
                         DockerCredentialsTemplate dockerCredentials =
-                            JsonTemplateMapper.readJson<DockerCredentialsTemplate>(output);
-                        if (Strings.isNullOrEmpty(dockerCredentials.Username)
-                            || Strings.isNullOrEmpty(dockerCredentials.Secret))
+                            JsonTemplateMapper.ReadJson<DockerCredentialsTemplate>(output);
+                        if (Strings.IsNullOrEmpty(dockerCredentials.Username)
+                            || Strings.IsNullOrEmpty(dockerCredentials.Secret))
                         {
                             throw new CredentialHelperUnhandledServerUrlException(
                                 credentialHelper, registry, output);
                         }
 
-                        return Credential.from(dockerCredentials.Username, dockerCredentials.Secret);
+                        return Credential.From(dockerCredentials.Username, dockerCredentials.Secret);
                     }
                     catch (JsonException ex)
                     {
@@ -139,14 +139,14 @@ namespace Jib.Net.Core.Registry.Credentials
             }
             catch (Win32Exception ex) when (ex.NativeErrorCode == Win32ErrorCodes.FileNotFound)
             {
-                if (ex.getMessage() == null)
+                if (ex.GetMessage() == null)
                 {
                     throw;
                 }
 
                 // Checks if the failure is due to a nonexistent credential helper CLI.
-                if (ex.getMessage().contains("No such file or directory")
-                    || ex.getMessage().contains("cannot find the file"))
+                if (JavaExtensions.Contains(ex.GetMessage(), "No such file or directory")
+                    || JavaExtensions.Contains(ex.GetMessage(), "cannot find the file"))
                 {
                     throw new CredentialHelperNotFoundException(credentialHelper, ex);
                 }
@@ -158,7 +158,7 @@ namespace Jib.Net.Core.Registry.Credentials
         private void ThrowUnhandledUrlException(IProcess process)
         {
             using (StreamReader processStderrReader =
-                new StreamReader(process.getErrorStream(), Encoding.UTF8))
+                new StreamReader(process.GetErrorStream(), Encoding.UTF8))
             {
                 string errorOutput = processStderrReader.ReadToEnd();
                 throw new CredentialHelperUnhandledServerUrlException(
@@ -166,7 +166,7 @@ namespace Jib.Net.Core.Registry.Credentials
             }
         }
 
-        public SystemPath getCredentialHelper()
+        public SystemPath GetCredentialHelper()
         {
             return credentialHelper;
         }

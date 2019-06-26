@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the image digest
          */
-        public DescriptorDigest getDigest()
+        public DescriptorDigest GetDigest()
         {
             return imageDigest;
         }
@@ -46,14 +46,14 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the image ID
          */
-        public DescriptorDigest getImageId()
+        public DescriptorDigest GetImageId()
         {
             return imageId;
         }
 
         public override int GetHashCode()
         {
-            return Objects.hash(imageDigest, imageId);
+            return Objects.Hash(imageDigest, imageId);
         }
 
         public override bool Equals(object other)

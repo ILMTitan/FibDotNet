@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             try
             {
-                await localRegistry.startAsync().ConfigureAwait(false);
+                await localRegistry.StartAsync().ConfigureAwait(false);
             } catch (Exception e)
             {
                 await TestContext.Out.WriteLineAsync(e.ToString()).ConfigureAwait(false);
@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.registry
         [OneTimeTearDown]
         public static void StopLocalRegistry()
         {
-            localRegistry.stop();
+            localRegistry.Stop();
         }
     }
 }

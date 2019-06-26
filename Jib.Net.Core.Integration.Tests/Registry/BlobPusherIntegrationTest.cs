@@ -28,20 +28,20 @@ namespace com.google.cloud.tools.jib.registry
     public class BlobPusherIntegrationTest : HttpRegistryTest
     {
         [Test]
-        public async Task testPushAsync()
+        public async Task TestPushAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
-            IBlob testBlob = Blobs.from("crepecake");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
+            IBlob testBlob = Blobs.From("crepecake");
             // Known digest for 'crepecake'
             DescriptorDigest testBlobDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c");
 
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "testimage")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
-            Assert.IsFalse(await registryClient.pushBlobAsync(testBlobDigest, testBlob, null, _ => { }).ConfigureAwait(false));
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "testimage")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
+            Assert.IsFalse(await registryClient.PushBlobAsync(testBlobDigest, testBlob, null, _ => { }).ConfigureAwait(false));
         }
     }
 }

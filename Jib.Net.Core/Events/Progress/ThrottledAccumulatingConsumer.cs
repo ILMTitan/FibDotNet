@@ -57,16 +57,16 @@ namespace Jib.Net.Core.Events.Progress
             this.delayBetweenCallbacks = delayBetweenCallbacks;
             this.getNow = getNow;
 
-            previousCallback = getNow.get();
+            previousCallback = getNow.Get();
         }
 
         public void Accept(long value)
         {
             valueSoFar += value;
 
-            Instant now = getNow.get();
-            Instant nextFireTime = previousCallback.plus(delayBetweenCallbacks);
-            if (now.isAfter(nextFireTime))
+            Instant now = getNow.Get();
+            Instant nextFireTime = JavaExtensions.Plus(previousCallback, delayBetweenCallbacks);
+            if (now.IsAfter(nextFireTime))
             {
                 consumer(valueSoFar);
                 previousCallback = now;

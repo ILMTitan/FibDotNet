@@ -30,13 +30,13 @@ namespace com.google.cloud.tools.jib.image.json
     public interface IBuildableManifestTemplate : IManifestTemplate
     {
         /** @return the media type for this manifest, specific to the image format */
-        string getManifestMediaType();
+        string GetManifestMediaType();
 
         /** @return the content descriptor of the container configuration */
-        ContentDescriptorTemplate getContainerConfiguration();
+        ContentDescriptorTemplate GetContainerConfiguration();
 
         /** @return an unmodifiable view of the layers */
-        IReadOnlyList<ContentDescriptorTemplate> getLayers();
+        IReadOnlyList<ContentDescriptorTemplate> Layers { get; }
 
         /**
          * Sets the content descriptor of the container configuration.
@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.image.json
          * @param size the size of the container configuration.
          * @param digest the container configuration content descriptor digest.
          */
-        void setContainerConfiguration(long size, DescriptorDigest digest);
+        void SetContainerConfiguration(long size, DescriptorDigest digest);
 
         /**
          * Adds a layer to the manifest.
@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.image.json
          * @param size the size of the layer.
          * @param digest the layer descriptor digest.
          */
-        void addLayer(long size, DescriptorDigest digest);
-        ManifestFormat getFormat();
+        void AddLayer(long size, DescriptorDigest digest);
+        ManifestFormat GetFormat();
     }
 }

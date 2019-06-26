@@ -34,56 +34,56 @@ namespace com.google.cloud.tools.jib.builder
         private readonly IClock mockClock = Mock.Of<IClock>();
 
         [Test]
-        public void testLogging()
+        public void TestLogging()
         {
             EventHandlers eventHandlers =
-                EventHandlers.builder().add<TimerEvent>(timerEventQueue.Enqueue).build();
+                EventHandlers.CreateBuilder().Add<TimerEvent>(timerEventQueue.Enqueue).Build();
 
             Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0));
 
             using (TimerEventDispatcher parentTimerEventDispatcher =
                 new TimerEventDispatcher(eventHandlers, "description", mockClock, null))
             {
-                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1));
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(1));
 
-                parentTimerEventDispatcher.lap();
-                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(1).plusNanos(1));
+                parentTimerEventDispatcher.Lap();
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(1).PlusNanos(1));
 
                 using (TimerEventDispatcher ignored =
-                    parentTimerEventDispatcher.subTimer("child description"))
+                    parentTimerEventDispatcher.SubTimer("child description"))
                 {
-                    Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).plusMillis(2));
+                    Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(2));
 
                     // Laps on close.
                 }
             }
 
-            TimerEvent timerEvent = getNextTimerEvent();
-            verifyNoParent(timerEvent);
-            verifyStartState(timerEvent);
-            verifyDescription(timerEvent, "description");
+            TimerEvent timerEvent = GetNextTimerEvent();
+            VerifyNoParent(timerEvent);
+            VerifyStartState(timerEvent);
+            VerifyDescription(timerEvent, "description");
 
-            TimerEvent.ITimer parentTimer = timerEvent.getTimer();
+            TimerEvent.ITimer parentTimer = timerEvent.GetTimer();
 
-            timerEvent = getNextTimerEvent();
-            verifyNoParent(timerEvent);
-            verifyStateFirstLap(timerEvent, State.LAP);
-            verifyDescription(timerEvent, "description");
+            timerEvent = GetNextTimerEvent();
+            VerifyNoParent(timerEvent);
+            VerifyStateFirstLap(timerEvent, State.LAP);
+            VerifyDescription(timerEvent, "description");
 
-            timerEvent = getNextTimerEvent();
-            verifyParent(timerEvent, parentTimer);
-            verifyStartState(timerEvent);
-            verifyDescription(timerEvent, "child description");
+            timerEvent = GetNextTimerEvent();
+            VerifyParent(timerEvent, parentTimer);
+            VerifyStartState(timerEvent);
+            VerifyDescription(timerEvent, "child description");
 
-            timerEvent = getNextTimerEvent();
-            verifyParent(timerEvent, parentTimer);
-            verifyStateFirstLap(timerEvent, State.FINISHED);
-            verifyDescription(timerEvent, "child description");
+            timerEvent = GetNextTimerEvent();
+            VerifyParent(timerEvent, parentTimer);
+            VerifyStateFirstLap(timerEvent, State.FINISHED);
+            VerifyDescription(timerEvent, "child description");
 
-            timerEvent = getNextTimerEvent();
-            verifyNoParent(timerEvent);
-            verifyStateNotFirstLap(timerEvent, State.FINISHED);
-            verifyDescription(timerEvent, "description");
+            timerEvent = GetNextTimerEvent();
+            VerifyNoParent(timerEvent);
+            VerifyStateNotFirstLap(timerEvent, State.FINISHED);
+            VerifyDescription(timerEvent, "description");
 
             Assert.IsTrue(timerEventQueue.Count == 0);
         }
@@ -93,9 +93,9 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @param timerEvent the {@link TimerEvent} to verify
          */
-        private void verifyNoParent(TimerEvent timerEvent)
+        private void VerifyNoParent(TimerEvent timerEvent)
         {
-            Assert.IsFalse(timerEvent.getTimer().getParent().IsPresent());
+            Assert.IsFalse(timerEvent.GetTimer().GetParent().IsPresent());
         }
 
         /**
@@ -104,10 +104,10 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedParentTimer the expected parent timer
          */
-        private void verifyParent(TimerEvent timerEvent, TimerEvent.ITimer expectedParentTimer)
+        private void VerifyParent(TimerEvent timerEvent, TimerEvent.ITimer expectedParentTimer)
         {
-            Assert.IsTrue(timerEvent.getTimer().getParent().IsPresent());
-            Assert.AreSame(expectedParentTimer, timerEvent.getTimer().getParent().Get());
+            Assert.IsTrue(timerEvent.GetTimer().GetParent().IsPresent());
+            Assert.AreSame(expectedParentTimer, timerEvent.GetTimer().GetParent().Get());
         }
 
         /**
@@ -115,11 +115,11 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @param timerEvent the {@link TimerEvent} to verify
          */
-        private void verifyStartState(TimerEvent timerEvent)
+        private void VerifyStartState(TimerEvent timerEvent)
         {
-            Assert.AreEqual(State.START, timerEvent.getState());
-            Assert.AreEqual(Duration.Zero, timerEvent.getDuration());
-            Assert.AreEqual(Duration.Zero, timerEvent.getElapsed());
+            Assert.AreEqual(State.START, timerEvent.GetState());
+            Assert.AreEqual(Duration.Zero, timerEvent.GetDuration());
+            Assert.AreEqual(Duration.Zero, timerEvent.GetElapsed());
         }
 
         /**
@@ -129,11 +129,11 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedState the expected {@link State}
          */
-        private void verifyStateFirstLap(TimerEvent timerEvent, State expectedState)
+        private void VerifyStateFirstLap(TimerEvent timerEvent, State expectedState)
         {
-            Assert.AreEqual(expectedState, timerEvent.getState());
-            Assert.IsTrue(timerEvent.getDuration()> Duration.Zero, timerEvent.getDuration().ToString());
-            Assert.AreEqual(timerEvent.getElapsed(), timerEvent.getDuration());
+            Assert.AreEqual(expectedState, timerEvent.GetState());
+            Assert.IsTrue(timerEvent.GetDuration()> Duration.Zero, timerEvent.GetDuration().ToString());
+            Assert.AreEqual(timerEvent.GetElapsed(), timerEvent.GetDuration());
         }
 
         /**
@@ -143,11 +143,11 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedState the expected {@link State}
          */
-        private void verifyStateNotFirstLap(TimerEvent timerEvent, State expectedState)
+        private void VerifyStateNotFirstLap(TimerEvent timerEvent, State expectedState)
         {
-            Assert.AreEqual(expectedState, timerEvent.getState());
-            Assert.IsTrue(timerEvent.getDuration().compareTo(Duration.Zero) > 0);
-            Assert.IsTrue(timerEvent.getElapsed().compareTo(timerEvent.getDuration()) > 0);
+            Assert.AreEqual(expectedState, timerEvent.GetState());
+            Assert.IsTrue(JavaExtensions.CompareTo(timerEvent.GetDuration(), Duration.Zero) > 0);
+            Assert.IsTrue(JavaExtensions.CompareTo(timerEvent.GetElapsed(), timerEvent.GetDuration()) > 0);
         }
 
         /**
@@ -156,9 +156,9 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedDescription the expected description
          */
-        private void verifyDescription(TimerEvent timerEvent, string expectedDescription)
+        private void VerifyDescription(TimerEvent timerEvent, string expectedDescription)
         {
-            Assert.AreEqual(expectedDescription, timerEvent.getDescription());
+            Assert.AreEqual(expectedDescription, timerEvent.GetDescription());
         }
 
         /**
@@ -166,9 +166,9 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @return the next {@link TimerEvent}
          */
-        private TimerEvent getNextTimerEvent()
+        private TimerEvent GetNextTimerEvent()
         {
-            TimerEvent timerEvent = timerEventQueue.poll();
+            TimerEvent timerEvent = timerEventQueue.Poll();
             Assert.IsNotNull(timerEvent);
             return timerEvent;
         }

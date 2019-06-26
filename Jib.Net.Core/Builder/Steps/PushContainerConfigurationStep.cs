@@ -51,33 +51,33 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.authenticatePushStep = authenticatePushStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<BlobDescriptor> getFuture()
+        public Task<BlobDescriptor> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BlobDescriptor> callAsync()
+        public async Task<BlobDescriptor> CallAsync()
         {
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create("pushing container configuration", 1))
             using (TimerEventDispatcher ignored =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {
                 ContainerConfigurationTemplate containerConfiguration =
                     new ImageToJsonTranslator(image).GetContainerConfiguration();
                 BlobDescriptor blobDescriptor = 
-                    await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
+                    await Digests.ComputeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
 
                 return await new PushBlobStep(
                     buildConfiguration,
                     progressEventDispatcher.NewChildProducer(),
                     authenticatePushStep,
                     blobDescriptor,
-                    Blobs.fromJson(containerConfiguration)).getFuture().ConfigureAwait(false);
+                    Blobs.FromJson(containerConfiguration)).GetFuture().ConfigureAwait(false);
             }
         }
     }

@@ -29,16 +29,16 @@ namespace com.google.cloud.tools.jib.filesystem
     /** Tests for {@link TemporaryDirectory}. */
     public class TemporaryDirectoryTest : IDisposable
     {
-        private static void createFilesInDirectory(SystemPath directory)
+        private static void CreateFilesInDirectory(SystemPath directory)
         {
-            SystemPath testFilesDirectory = Paths.get(TestResources.getResource("core/layer").ToURI());
+            SystemPath testFilesDirectory = Paths.Get(TestResources.GetResource("core/layer").ToURI());
             new DirectoryWalker(testFilesDirectory)
-                .filterRoot()
-                .walk(path =>
+                .FilterRoot()
+                .Walk(path =>
                 {
                     if (File.Exists(path))
                     {
-                        Files.copy(path, directory.Resolve(testFilesDirectory.Relativize(path)));
+                        Files.Copy(path, directory.Resolve(testFilesDirectory.Relativize(path)));
                     }
                     else if (Directory.Exists(path))
                     {
@@ -55,34 +55,34 @@ namespace com.google.cloud.tools.jib.filesystem
         }
 
         [Test]
-        public void testClose_directoryDeleted()
+        public void TestClose_directoryDeleted()
         {
             using (TemporaryDirectory temporaryDirectory =
-                new TemporaryDirectory(temporaryFolder.newFolder().toPath()))
+                new TemporaryDirectory(temporaryFolder.NewFolder().ToPath()))
             {
-                createFilesInDirectory(temporaryDirectory.getDirectory());
+                CreateFilesInDirectory(temporaryDirectory.GetDirectory());
 
-                temporaryDirectory.close();
-                Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
+                temporaryDirectory.Close();
+                Assert.IsFalse(Files.Exists(temporaryDirectory.GetDirectory()));
             }
         }
 
         [Test]
-        public void testClose_directoryNotDeletedIfMoved()
+        public void TestClose_directoryNotDeletedIfMoved()
         {
-            SystemPath destinationParent = temporaryFolder.newFolder().toPath();
+            SystemPath destinationParent = temporaryFolder.NewFolder().ToPath();
 
             using (TemporaryDirectory temporaryDirectory =
-                new TemporaryDirectory(temporaryFolder.newFolder().toPath()))
+                new TemporaryDirectory(temporaryFolder.NewFolder().ToPath()))
             {
-                createFilesInDirectory(temporaryDirectory.getDirectory());
+                CreateFilesInDirectory(temporaryDirectory.GetDirectory());
 
-                Assert.IsFalse(Files.exists(destinationParent.Resolve("destination")));
-                Files.move(temporaryDirectory.getDirectory(), destinationParent.Resolve("destination"));
+                Assert.IsFalse(Files.Exists(destinationParent.Resolve("destination")));
+                Files.Move(temporaryDirectory.GetDirectory(), destinationParent.Resolve("destination"));
 
-                temporaryDirectory.close();
-                Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
-                Assert.IsTrue(Files.exists(destinationParent.Resolve("destination")));
+                temporaryDirectory.Close();
+                Assert.IsFalse(Files.Exists(temporaryDirectory.GetDirectory()));
+                Assert.IsTrue(Files.Exists(destinationParent.Resolve("destination")));
             }
         }
     }

@@ -28,59 +28,59 @@ namespace com.google.cloud.tools.jib.cache
     /** Tests for {@link CachedLayer}. */
     public class CachedLayerTest
     {
-        private readonly DescriptorDigest mockLayerDigest = DescriptorDigest.fromHash(new string('a', 64));
-        private readonly DescriptorDigest mockLayerDiffId = DescriptorDigest.fromHash(new string('b', 64));
+        private readonly DescriptorDigest mockLayerDigest = DescriptorDigest.FromHash(new string('a', 64));
+        private readonly DescriptorDigest mockLayerDiffId = DescriptorDigest.FromHash(new string('b', 64));
 
         [Test]
-        public void testBuilder_fail()
+        public void TestBuilder_fail()
         {
             try
             {
-                CachedLayer.builder().build();
+                CachedLayer.CreateBuilder().Build();
                 Assert.Fail("missing required");
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.getMessage(), Does.Contain("layerDigest"));
+                Assert.That(ex.GetMessage(), Does.Contain("layerDigest"));
             }
 
             try
             {
-                CachedLayer.builder().setLayerDigest(mockLayerDigest).build();
+                CachedLayer.CreateBuilder().SetLayerDigest(mockLayerDigest).Build();
                 Assert.Fail("missing required");
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.getMessage(), Does.Contain("layerDiffId"));
+                Assert.That(ex.GetMessage(), Does.Contain("layerDiffId"));
             }
 
             try
             {
-                CachedLayer.builder().setLayerDigest(mockLayerDigest).setLayerDiffId(mockLayerDiffId).build();
+                CachedLayer.CreateBuilder().SetLayerDigest(mockLayerDigest).SetLayerDiffId(mockLayerDiffId).Build();
                 Assert.Fail("missing required");
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.getMessage(), Does.Contain("layerBlob"));
+                Assert.That(ex.GetMessage(), Does.Contain("layerBlob"));
             }
         }
 
         [Test]
-        public async Task testBuilder_passAsync()
+        public async Task TestBuilder_passAsync()
         {
             CachedLayer.Builder cachedLayerBuilder =
-                CachedLayer.builder()
-                    .setLayerDigest(mockLayerDigest)
-                    .setLayerDiffId(mockLayerDiffId)
-                    .setLayerSize(1337);
-            Assert.IsFalse(cachedLayerBuilder.hasLayerBlob());
-            cachedLayerBuilder.setLayerBlob(Blobs.from("layerBlob"));
-            Assert.IsTrue(cachedLayerBuilder.hasLayerBlob());
-            CachedLayer cachedLayer = cachedLayerBuilder.build();
-            Assert.AreEqual(mockLayerDigest, cachedLayer.getDigest());
-            Assert.AreEqual(mockLayerDiffId, cachedLayer.getDiffId());
-            Assert.AreEqual(1337, cachedLayer.getSize());
-            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(cachedLayer.getBlob()).ConfigureAwait(false));
+                CachedLayer.CreateBuilder()
+                    .SetLayerDigest(mockLayerDigest)
+                    .SetLayerDiffId(mockLayerDiffId)
+                    .SetLayerSize(1337);
+            Assert.IsFalse(cachedLayerBuilder.HasLayerBlob());
+            cachedLayerBuilder.SetLayerBlob(Blobs.From("layerBlob"));
+            Assert.IsTrue(cachedLayerBuilder.HasLayerBlob());
+            CachedLayer cachedLayer = cachedLayerBuilder.Build();
+            Assert.AreEqual(mockLayerDigest, cachedLayer.GetDigest());
+            Assert.AreEqual(mockLayerDiffId, cachedLayer.GetDiffId());
+            Assert.AreEqual(1337, cachedLayer.GetSize());
+            Assert.AreEqual("layerBlob", await Blobs.WriteToStringAsync(cachedLayer.GetBlob()).ConfigureAwait(false));
         }
     }
 }

@@ -30,22 +30,22 @@ namespace com.google.cloud.tools.jib.registry
     internal interface RegistryEndpointProvider<T>
     {
         /** @return the HTTP method to send the request with */
-        HttpMethod getHttpMethod();
+        HttpMethod GetHttpMethod();
 
         /**
          * @param apiRouteBase the registry's base Uri (for example, {@code https://gcr.io/v2/})
          * @return the registry endpoint Uri
          */
-        Uri getApiRoute(string apiRouteBase);
+        Uri GetApiRoute(string apiRouteBase);
 
         /** @return the {@link BlobHttpContent} to send as the request body */
-        BlobHttpContent getContent();
+        BlobHttpContent GetContent();
 
         /** @return a list of MIME types to pass as an HTTP {@code Accept} header */
-        IList<string> getAccept();
+        IList<string> GetAccept();
 
         /** Handles the response specific to the registry action. */
-        Task<T> handleResponseAsync(HttpResponseMessage response);
-        string getActionDescription();
+        Task<T> HandleResponseAsync(HttpResponseMessage response);
+        string GetActionDescription();
     }
 }

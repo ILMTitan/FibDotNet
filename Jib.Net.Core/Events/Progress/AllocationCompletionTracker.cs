@@ -123,11 +123,11 @@ namespace Jib.Net.Core.Events.Progress
         public IList<Allocation> GetUnfinishedAllocations()
         {
             return completionMap
-                .values()
-                .stream()
-                .filter(u => u.IsUnfinished())
-                .sorted()
-                .map(remainingUnits => remainingUnits.allocation)
+                .Values()
+                .Stream()
+                .Filter(u => u.IsUnfinished())
+                .Sorted()
+                .Map(remainingUnits => remainingUnits.allocation)
                 .ToList();
         }
 
@@ -171,7 +171,7 @@ namespace Jib.Net.Core.Events.Progress
                     .IfPresent(
                         parentAllocation =>
                             UpdateIndexedRemainingUnits(
-                                Preconditions.CheckNotNull(completionMap.get(parentAllocation)), 1L));
+                                Preconditions.CheckNotNull(completionMap.Get(parentAllocation)), 1L));
             }
         }
 
@@ -187,13 +187,13 @@ namespace Jib.Net.Core.Events.Progress
 
                 while (parent.IsPresent())
                 {
-                    unfinishedLeaves.remove(parent.Get());
+                    JavaExtensions.Remove(unfinishedLeaves, parent.Get());
                     parent = parent.Get().GetParent();
                 }
             }
 
             return ImmutableArray.CreateRange(
-                unfinishedLeaves.stream().map(a => a.GetDescription()).ToList());
+                unfinishedLeaves.Stream().Map(a => a.GetDescription()).ToList());
         }
     }
 }

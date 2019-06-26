@@ -42,26 +42,26 @@ namespace com.google.cloud.tools.jib.api
          * @throws IOException if an I/O exception occurs
          * @throws InterruptedException if the process was interrupted
          */
-        private static string pullAndRunBuiltImage(string imageReference)
+        private static string PullAndRunBuiltImage(string imageReference)
         {
-            localRegistry.pull(imageReference);
-            return new Command("docker", "run", "--rm", imageReference).run();
+            localRegistry.Pull(imageReference);
+            return new Command("docker", "run", "--rm", imageReference).Run();
         }
 
         [OneTimeSetUp]
         public async Task OneTimeSetUpAsync()
         {
-            await localRegistry.startAsync().ConfigureAwait(false);
+            await localRegistry.StartAsync().ConfigureAwait(false);
         }
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             Environment.SetEnvironmentVariable("sendCredentialsOverHttp", "true");
         }
 
         [TearDown]
-        public void tearDown()
+        public void TearDown()
         {
             Environment.SetEnvironmentVariable("sendCredentialsOverHttp", null);
         }
@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.api
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            localRegistry.stop();
+            localRegistry.Stop();
         }
 
         public void Dispose()
@@ -78,56 +78,56 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task testBasic_helloWorldAsync()
+        public async Task TestBasic_helloWorldAsync()
         {
             ImageReference targetImageReference =
-                ImageReference.of("localhost:5002", "jib-core", "basic-helloworld");
+                ImageReference.Of("localhost:5002", "jib-core", "basic-helloworld");
             JibContainer jibContainer =
                 await Jib.From("busybox")
                     .SetEntrypoint("echo", "Hello World")
-                    .containerizeAsync(
+                    .ContainerizeAsync(
                         Containerizer.To(
-                                RegistryImage.named(targetImageReference)
-                                    .addCredentialRetriever(
-                                        () => Option.Of(Credential.from("username", "password"))))
-                            .setAllowInsecureRegistries(true)
-                            .addEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
+                                RegistryImage.Named(targetImageReference)
+                                    .AddCredentialRetriever(
+                                        () => Option.Of(Credential.From("username", "password"))))
+                            .SetAllowInsecureRegistries(true)
+                            .AddEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
-            Assert.AreEqual("Hello World\n", pullAndRunBuiltImage(targetImageReference.toString()));
+            Assert.AreEqual("Hello World\n", PullAndRunBuiltImage(JavaExtensions.ToString(targetImageReference)));
             Assert.AreEqual(
                 "Hello World\n",
-                pullAndRunBuiltImage(
-                    targetImageReference.withTag(jibContainer.getDigest().toString()).toString()));
+                PullAndRunBuiltImage(
+                    targetImageReference.WithTag(jibContainer.GetDigest().ToString()).ToString()));
         }
 
         [Test]
-        public async Task testScratchAsync()
+        public async Task TestScratchAsync()
         {
             ImageReference targetImageReference =
-                ImageReference.of("localhost:5002", "jib-core", "basic-scratch");
+                ImageReference.Of("localhost:5002", "jib-core", "basic-scratch");
             await Jib.FromScratch()
-                .containerizeAsync(
+                .ContainerizeAsync(
                     Containerizer.To(
-                            RegistryImage.named(targetImageReference)
-                                .addCredentialRetriever(
-                                    () => Option.Of(Credential.from("username", "password"))))
-                        .setAllowInsecureRegistries(true)).ConfigureAwait(false);
+                            RegistryImage.Named(targetImageReference)
+                                .AddCredentialRetriever(
+                                    () => Option.Of(Credential.From("username", "password"))))
+                        .SetAllowInsecureRegistries(true)).ConfigureAwait(false);
 
             // Check that resulting image has no layers
-            localRegistry.pull(targetImageReference.toString());
-            string inspectOutput = new Command("docker", "inspect", targetImageReference.toString()).run();
-            Assert.IsFalse(inspectOutput.contains("\"Layers\": ["), "docker inspect output contained layers: " + inspectOutput);
+            localRegistry.Pull(JavaExtensions.ToString(targetImageReference));
+            string inspectOutput = new Command("docker", "inspect", JavaExtensions.ToString(targetImageReference)).Run();
+            Assert.IsFalse(JavaExtensions.Contains(inspectOutput, "\"Layers\": ["), "docker inspect output contained layers: " + inspectOutput);
         }
 
         [Test]
-        public async Task testOfflineAsync()
+        public async Task TestOfflineAsync()
         {
-            SystemPath cacheDirectory = cacheFolder.getRoot().toPath();
+            SystemPath cacheDirectory = cacheFolder.GetRoot().ToPath();
 
             ImageReference targetImageReferenceOnline =
-                ImageReference.of("localhost:5001", "jib-core", "basic-online");
+                ImageReference.Of("localhost:5001", "jib-core", "basic-online");
             ImageReference targetImageReferenceOffline =
-                ImageReference.of("localhost:5001", "jib-core", "basic-offline");
+                ImageReference.Of("localhost:5001", "jib-core", "basic-offline");
 
             JibContainerBuilder jibContainerBuilder =
                 Jib.From("localhost:5001/busybox").SetEntrypoint("echo", "Hello World");
@@ -135,52 +135,52 @@ namespace com.google.cloud.tools.jib.api
             // Should fail since Jib can't build to registry offline
             try
             {
-                await jibContainerBuilder.containerizeAsync(
-                    Containerizer.To(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true)).ConfigureAwait(false);
+                await jibContainerBuilder.ContainerizeAsync(
+                    Containerizer.To(RegistryImage.Named(targetImageReferenceOffline)).SetOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (InvalidOperationException ex)
             {
-                Assert.AreEqual("Cannot build to a container registry in offline mode", ex.getMessage());
+                Assert.AreEqual("Cannot build to a container registry in offline mode", ex.GetMessage());
             }
 
             // Should fail since Jib hasn't cached the base image yet
             try
             {
-                await jibContainerBuilder.containerizeAsync(
-                    Containerizer.To(DockerDaemonImage.named(targetImageReferenceOffline))
-                        .setBaseImageLayersCache(cacheDirectory)
-                        .setOfflineMode(true)).ConfigureAwait(false);
+                await jibContainerBuilder.ContainerizeAsync(
+                    Containerizer.To(DockerDaemonImage.Named(targetImageReferenceOffline))
+                        .SetBaseImageLayersCache(cacheDirectory)
+                        .SetOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (IOException ex)
             {
                 Assert.AreEqual(
                     "Cannot run Jib in offline mode; localhost:5001/busybox not found in local Jib cache",
-                    ex.getMessage());
+                    ex.GetMessage());
             }
             using (LocalRegistry tempRegistry = new LocalRegistry(5001))
             {
-                await tempRegistry.startAsync().ConfigureAwait(false);
-                tempRegistry.pullAndPushToLocal("busybox", "busybox");
+                await tempRegistry.StartAsync().ConfigureAwait(false);
+                tempRegistry.PullAndPushToLocal("busybox", "busybox");
 
                 // Run online to cache the base image
-                await jibContainerBuilder.containerizeAsync(
-                    Containerizer.To(DockerDaemonImage.named(targetImageReferenceOnline))
-                        .setBaseImageLayersCache(cacheDirectory)
-                        .setAllowInsecureRegistries(true)).ConfigureAwait(false);
+                await jibContainerBuilder.ContainerizeAsync(
+                    Containerizer.To(DockerDaemonImage.Named(targetImageReferenceOnline))
+                        .SetBaseImageLayersCache(cacheDirectory)
+                        .SetAllowInsecureRegistries(true)).ConfigureAwait(false);
             }
 
             // Run again in offline mode, should succeed this time
-            await jibContainerBuilder.containerizeAsync(
-                Containerizer.To(DockerDaemonImage.named(targetImageReferenceOffline))
-                    .setBaseImageLayersCache(cacheDirectory)
-                    .setOfflineMode(true)).ConfigureAwait(false);
+            await jibContainerBuilder.ContainerizeAsync(
+                Containerizer.To(DockerDaemonImage.Named(targetImageReferenceOffline))
+                    .SetBaseImageLayersCache(cacheDirectory)
+                    .SetOfflineMode(true)).ConfigureAwait(false);
 
             // Verify output
             Assert.AreEqual(
                 "Hello World\n",
-                new Command("docker", "run", "--rm", targetImageReferenceOffline.toString()).run());
+                new Command("docker", "run", "--rm", JavaExtensions.ToString(targetImageReferenceOffline)).Run());
         }
     }
 }

@@ -22,6 +22,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Jib.Net.Core.Images
 {
@@ -47,11 +48,11 @@ namespace Jib.Net.Core.Images
              * @return this
              * @throws LayerPropertyNotFoundException if adding the layer fails
              */
-            public Builder add(ILayer layer)
+            public Builder Add(ILayer layer)
             {
                 layer = layer ?? throw new ArgumentNullException(nameof(layer));
-                layerDigestsBuilder.add(layer.getBlobDescriptor().getDigest());
-                layers.add(layer);
+                JavaExtensions.Add(layerDigestsBuilder, layer.GetBlobDescriptor().GetDigest());
+                JavaExtensions.Add(layers, layer);
                 return this;
             }
 
@@ -62,12 +63,12 @@ namespace Jib.Net.Core.Images
              * @return this
              * @throws LayerPropertyNotFoundException if adding a layer fails
              */
-            public Builder addAll(ImageLayers layers)
+            public Builder AddAll(ImageLayers layers)
             {
                 layers = layers ?? throw new ArgumentNullException(nameof(layers));
                 foreach (ILayer layer in layers)
                 {
-                    add(layer);
+                    Add(layer);
                 }
                 return this;
             }
@@ -77,28 +78,28 @@ namespace Jib.Net.Core.Images
              *
              * @return this
              */
-            public Builder removeDuplicates()
+            public Builder RemoveDuplicates()
             {
                 _removeDuplicates = true;
                 return this;
             }
 
-            public ImageLayers build()
+            public ImageLayers Build()
             {
                 if (!_removeDuplicates)
                 {
-                    return new ImageLayers(ImmutableArray.CreateRange(layers), layerDigestsBuilder.build());
+                    return new ImageLayers(ImmutableArray.CreateRange(layers), layerDigestsBuilder.Build());
                 }
 
                 // LinkedHashSet maintains the order but keeps the first occurrence. Keep last occurrence by
                 // adding elements in reverse, and then reversing the result
-                ISet<ILayer> dedupedButReversed = new LinkedHashSet<ILayer>(layers.reverse());
-                ImmutableArray<ILayer> deduped = ImmutableArray.CreateRange(dedupedButReversed.reverse());
-                return new ImageLayers(deduped, layerDigestsBuilder.build());
+                ISet<ILayer> dedupedButReversed = new LinkedHashSet<ILayer>(layers.Reverse());
+                ImmutableArray<ILayer> deduped = ImmutableArray.CreateRange(dedupedButReversed.Reverse());
+                return new ImageLayers(deduped, layerDigestsBuilder.Build());
             }
         }
 
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -116,29 +117,29 @@ namespace Jib.Net.Core.Images
         }
 
         /** @return a read-only view of the image layers. */
-        public ImmutableArray<ILayer> getLayers()
+        public ImmutableArray<ILayer> GetLayers()
         {
             return layers;
         }
 
         /** @return the layer count */
-        public int size()
+        public int Size()
         {
-            return layers.size();
+            return layers.Size();
         }
 
-        public bool isEmpty()
+        public bool IsEmpty()
         {
-            return layers.isEmpty();
+            return layers.IsEmpty();
         }
 
         /**
          * @param index the index of the layer to get
          * @return the layer at the specified index
          */
-        public ILayer get(int index)
+        public ILayer Get(int index)
         {
-            return layers.get(index);
+            return layers.Get(index);
         }
 
         /**
@@ -146,15 +147,15 @@ namespace Jib.Net.Core.Images
          * @return the layer found, or {@code null} if not found
          * @throws LayerPropertyNotFoundException if getting the layer's blob descriptor fails
          */
-        public ILayer get(DescriptorDigest digest)
+        public ILayer Get(DescriptorDigest digest)
         {
-            if (!has(digest))
+            if (!Has(digest))
             {
                 return null;
             }
             foreach (ILayer layer in layers)
             {
-                if (layer.getBlobDescriptor().getDigest().Equals(digest))
+                if (layer.GetBlobDescriptor().GetDigest().Equals(digest))
                 {
                     return layer;
                 }
@@ -166,14 +167,14 @@ namespace Jib.Net.Core.Images
          * @param digest the digest to check for
          * @return true if the layer with the specified digest exists; false otherwise
          */
-        public bool has(DescriptorDigest digest)
+        public bool Has(DescriptorDigest digest)
         {
-            return layerDigests.contains(digest);
+            return JavaExtensions.Contains(layerDigests, digest);
         }
 
         public Enumerator GetEnumerator()
         {
-            return new Enumerator(getLayers().GetEnumerator());
+            return new Enumerator(GetLayers().GetEnumerator());
         }
 
         IEnumerator<ILayer> IEnumerable<ILayer>.GetEnumerator()

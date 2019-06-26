@@ -36,26 +36,26 @@ namespace com.google.cloud.tools.jib.cache
     /** Tests for {@link CacheStorageWriter}. */
     public class CacheStorageWriterTest : IDisposable
     {
-        private static async Task<BlobDescriptor> getDigestAsync(IBlob blob)
+        private static async Task<BlobDescriptor> GetDigestAsync(IBlob blob)
         {
-            return await blob.writeToAsync(Stream.Null).ConfigureAwait(false);
+            return await blob.WriteToAsync(Stream.Null).ConfigureAwait(false);
         }
 
-        private static IBlob compress(IBlob blob)
+        private static IBlob Compress(IBlob blob)
         {
-            return Blobs.from(
+            return Blobs.From(
                 async outputStream =>
                 {
                     using (GZipStream compressorStream = new GZipStream(outputStream, CompressionMode.Compress, true))
                     {
-                        await blob.writeToAsync(compressorStream).ConfigureAwait(false);
+                        await blob.WriteToAsync(compressorStream).ConfigureAwait(false);
                     }
                 }, -1);
         }
 
-        private static async Task<IBlob> decompressAsync(IBlob blob)
+        private static async Task<IBlob> DecompressAsync(IBlob blob)
         {
-            return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
+            return Blobs.From(new GZipStream(new MemoryStream(await Blobs.WriteToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
         }
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -64,9 +64,9 @@ namespace com.google.cloud.tools.jib.cache
         private SystemPath cacheRoot;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
-            cacheRoot = temporaryFolder.newFolder().toPath();
+            cacheRoot = temporaryFolder.NewFolder().ToPath();
             cacheStorageFiles = new CacheStorageFiles(cacheRoot);
         }
 
@@ -76,111 +76,111 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public async Task testWrite_compressedAsync()
+        public async Task TestWrite_compressedAsync()
         {
-            IBlob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
+            IBlob uncompressedLayerBlob = Blobs.From("uncompressedLayerBlob");
 
             CachedLayer cachedLayer =
-                await new CacheStorageWriter(cacheStorageFiles).writeCompressedAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
+                await new CacheStorageWriter(cacheStorageFiles).WriteCompressedAsync(Compress(uncompressedLayerBlob)).ConfigureAwait(false);
 
-            await verifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob).ConfigureAwait(false);
+            await VerifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testWrite_uncompressedAsync()
+        public async Task TestWrite_uncompressedAsync()
         {
-            IBlob uncompressedLayerBlob = Blobs.from("uncompressedLayerBlob");
-            BlobDescriptor layerDigestDescriptor = await getDigestAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
-            DescriptorDigest layerDigest = layerDigestDescriptor.getDigest();
-            BlobDescriptor selectorDescriptor = await getDigestAsync(Blobs.from("selector")).ConfigureAwait(false);
-            DescriptorDigest selector = selectorDescriptor.getDigest();
+            IBlob uncompressedLayerBlob = Blobs.From("uncompressedLayerBlob");
+            BlobDescriptor layerDigestDescriptor = await GetDigestAsync(Compress(uncompressedLayerBlob)).ConfigureAwait(false);
+            DescriptorDigest layerDigest = layerDigestDescriptor.GetDigest();
+            BlobDescriptor selectorDescriptor = await GetDigestAsync(Blobs.From("selector")).ConfigureAwait(false);
+            DescriptorDigest selector = selectorDescriptor.GetDigest();
 
             CachedLayer cachedLayer =
                 await new CacheStorageWriter(cacheStorageFiles)
-                    .writeUncompressedAsync(uncompressedLayerBlob, selector).ConfigureAwait(false);
+                    .WriteUncompressedAsync(uncompressedLayerBlob, selector).ConfigureAwait(false);
 
-            await verifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob).ConfigureAwait(false);
+            await VerifyCachedLayerAsync(cachedLayer, uncompressedLayerBlob).ConfigureAwait(false);
 
             // Verifies that the files are present.
-            SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
-            Assert.IsTrue(Files.exists(selectorFile));
-            Assert.AreEqual(layerDigest.getHash(), await Blobs.writeToStringAsync(Blobs.from(selectorFile)).ConfigureAwait(false));
+            SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
+            Assert.IsTrue(Files.Exists(selectorFile));
+            Assert.AreEqual(layerDigest.GetHash(), await Blobs.WriteToStringAsync(Blobs.From(selectorFile)).ConfigureAwait(false));
         }
 
         [Test]
-        public async Task testWriteMetadata_v21Async()
+        public async Task TestWriteMetadata_v21Async()
         {
             SystemPath manifestJsonFile =
-                Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
+                Paths.Get(TestResources.GetResource("core/json/v21manifest.json").ToURI());
             V21ManifestTemplate manifestTemplate =
-                JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestJsonFile);
-            ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
+                JsonTemplateMapper.ReadJsonFromFile<V21ManifestTemplate>(manifestJsonFile);
+            ImageReference imageReference = ImageReference.Parse("image.reference/project/thing:tag");
 
-            await new CacheStorageWriter(cacheStorageFiles).writeMetadataAsync(imageReference, manifestTemplate).ConfigureAwait(false);
+            await new CacheStorageWriter(cacheStorageFiles).WriteMetadataAsync(imageReference, manifestTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
                 cacheRoot.Resolve("images/image.reference/project/thing!tag/manifest.json");
-            Assert.IsTrue(Files.exists(savedManifestPath));
+            Assert.IsTrue(Files.Exists(savedManifestPath));
 
             V21ManifestTemplate savedManifest =
-                JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(savedManifestPath);
-            Assert.AreEqual("amd64", savedManifest.GetContainerConfiguration().Get().getArchitecture());
+                JsonTemplateMapper.ReadJsonFromFile<V21ManifestTemplate>(savedManifestPath);
+            Assert.AreEqual("amd64", savedManifest.GetContainerConfiguration().Get().Architecture);
         }
 
         [Test]
-        public async Task testWriteMetadata_v22Async()
+        public async Task TestWriteMetadata_v22Async()
         {
             SystemPath containerConfigurationJsonFile =
-                Paths.get(
-                    TestResources.getResource("core/json/containerconfig.json").ToURI());
+                Paths.Get(
+                    TestResources.GetResource("core/json/containerconfig.json").ToURI());
             ContainerConfigurationTemplate containerConfigurationTemplate =
-                JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
+                JsonTemplateMapper.ReadJsonFromFile<ContainerConfigurationTemplate>(
                     containerConfigurationJsonFile);
             SystemPath manifestJsonFile =
-                Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
+                Paths.Get(TestResources.GetResource("core/json/v22manifest.json").ToURI());
             IBuildableManifestTemplate manifestTemplate =
-                JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
-            ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
+                JsonTemplateMapper.ReadJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
+            ImageReference imageReference = ImageReference.Parse("image.reference/project/thing:tag");
 
             await new CacheStorageWriter(cacheStorageFiles)
-                .writeMetadataAsync(imageReference, manifestTemplate, containerConfigurationTemplate).ConfigureAwait(false);
+                .WriteMetadataAsync(imageReference, manifestTemplate, containerConfigurationTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
                 cacheRoot.Resolve("images/image.reference/project/thing!tag/manifest.json");
             SystemPath savedConfigPath =
                 cacheRoot.Resolve("images/image.reference/project/thing!tag/config.json");
-            Assert.IsTrue(Files.exists(savedManifestPath));
-            Assert.IsTrue(Files.exists(savedConfigPath));
+            Assert.IsTrue(Files.Exists(savedManifestPath));
+            Assert.IsTrue(Files.Exists(savedConfigPath));
 
             V22ManifestTemplate savedManifest =
-                JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(savedManifestPath);
+                JsonTemplateMapper.ReadJsonFromFile<V22ManifestTemplate>(savedManifestPath);
             Assert.AreEqual(
                 "8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad",
-                savedManifest.getContainerConfiguration().getDigest().getHash());
+                savedManifest.GetContainerConfiguration().Digest.GetHash());
 
             ContainerConfigurationTemplate savedContainerConfig =
-                JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(savedConfigPath);
-            Assert.AreEqual("wasm", savedContainerConfig.getArchitecture());
+                JsonTemplateMapper.ReadJsonFromFile<ContainerConfigurationTemplate>(savedConfigPath);
+            Assert.AreEqual("wasm", savedContainerConfig.Architecture);
         }
 
-        private async Task verifyCachedLayerAsync(CachedLayer cachedLayer, IBlob uncompressedLayerBlob)
+        private async Task VerifyCachedLayerAsync(CachedLayer cachedLayer, IBlob uncompressedLayerBlob)
         {
-            BlobDescriptor layerBlobDescriptor = await getDigestAsync(compress(uncompressedLayerBlob)).ConfigureAwait(false);
-            BlobDescriptor layerDiffDescriptor = await getDigestAsync(uncompressedLayerBlob).ConfigureAwait(false);
-            DescriptorDigest layerDiffId = layerDiffDescriptor.getDigest();
+            BlobDescriptor layerBlobDescriptor = await GetDigestAsync(Compress(uncompressedLayerBlob)).ConfigureAwait(false);
+            BlobDescriptor layerDiffDescriptor = await GetDigestAsync(uncompressedLayerBlob).ConfigureAwait(false);
+            DescriptorDigest layerDiffId = layerDiffDescriptor.GetDigest();
 
             // Verifies cachedLayer is correct.
-            Assert.AreEqual(layerBlobDescriptor.getDigest(), cachedLayer.getDigest());
-            Assert.AreEqual(layerDiffId, cachedLayer.getDiffId());
-            Assert.AreEqual(layerBlobDescriptor.getSize(), cachedLayer.getSize());
+            Assert.AreEqual(layerBlobDescriptor.GetDigest(), cachedLayer.GetDigest());
+            Assert.AreEqual(layerDiffId, cachedLayer.GetDiffId());
+            Assert.AreEqual(layerBlobDescriptor.GetSize(), cachedLayer.GetSize());
             CollectionAssert.AreEqual(
-                await Blobs.writeToByteArrayAsync(uncompressedLayerBlob).ConfigureAwait(false),
-                await Blobs.writeToByteArrayAsync(await decompressAsync(cachedLayer.getBlob()).ConfigureAwait(false)).ConfigureAwait(false));
+                await Blobs.WriteToByteArrayAsync(uncompressedLayerBlob).ConfigureAwait(false),
+                await Blobs.WriteToByteArrayAsync(await DecompressAsync(cachedLayer.GetBlob()).ConfigureAwait(false)).ConfigureAwait(false));
 
             // Verifies that the files are present.
             Assert.IsTrue(
-                Files.exists(
-                    cacheStorageFiles.getLayerFile(cachedLayer.getDigest(), cachedLayer.getDiffId())));
+                Files.Exists(
+                    cacheStorageFiles.GetLayerFile(cachedLayer.GetDigest(), cachedLayer.GetDiffId())));
         }
     }
 }

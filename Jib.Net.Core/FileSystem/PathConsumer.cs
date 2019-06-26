@@ -23,7 +23,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
     public static class PathConsumerExtensions
     {
-        public static void accept(this PathConsumer c, SystemPath path)
+        public static void Accept(this PathConsumer c, SystemPath path)
         {
             c = c ?? throw new ArgumentNullException(nameof(c));
             c(path);

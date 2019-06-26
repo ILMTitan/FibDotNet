@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          *     href="https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement">https://docs.docker.com/engine/reference/commandline/login/#privileged-user-requirement</a>
          */
         private static readonly SystemPath DOCKER_CONFIG_FILE =
-            Paths.get(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".docker", "config.json");
+            Paths.Get(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".docker", "config.json");
 
         private readonly string registry;
         private readonly SystemPath dockerConfigFile;
@@ -70,16 +70,16 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return {@link Credential} found for {@code registry}, or {@link Optional#empty} if not found
          * @throws IOException if failed to parse the config JSON
          */
-        public Option<Credential> retrieve(Action<LogEvent> logger)
+        public Option<Credential> Retrieve(Action<LogEvent> logger)
         {
-            if (!Files.exists(dockerConfigFile))
+            if (!Files.Exists(dockerConfigFile))
             {
                 return Option.Empty<Credential>();
             }
             DockerConfig dockerConfig =
                 new DockerConfig(
-                    JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(dockerConfigFile));
-            return retrieve(dockerConfig, logger);
+                    JsonTemplateMapper.ReadJsonFromFile<DockerConfigTemplate>(dockerConfigFile));
+            return Retrieve(dockerConfig, logger);
         }
 
         /**
@@ -90,42 +90,43 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the retrieved credentials, or {@code Optional#empty} if none are found
          */
 
-        public Option<Credential> retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
+        public Option<Credential> Retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
         {
 
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            foreach (string registryAlias in RegistryAliasGroup.getAliasesGroup(registry))
+            foreach (string registryAlias in RegistryAliasGroup.GetAliasesGroup(registry))
             {
                 // First, tries to find defined auth.
-                string auth = dockerConfig.getAuthFor(registryAlias);
+                string auth = dockerConfig.GetAuthFor(registryAlias);
                 if (auth != null)
                 {
                     // 'auth' is a basic authentication token that should be parsed back into credentials
                     string usernameColonPassword = Encoding.UTF8.GetString(Convert.FromBase64String(auth));
-                    string username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
-                    string password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
-                    return Option.Of(Credential.from(username, password));
+                    string username = JavaExtensions.Substring(usernameColonPassword, 0, JavaExtensions.IndexOf(usernameColonPassword, ":"));
+
+                    string password = usernameColonPassword.Substring(usernameColonPassword.IndexOf(":", StringComparison.Ordinal) + 1);
+                    return Option.Of(Credential.From(username, password));
                 }
 
                 // Then, tries to use a defined credHelpers credential helper.
                 IDockerCredentialHelper dockerCredentialHelper =
-                    dockerConfig.getCredentialHelperFor(registryAlias);
+                    dockerConfig.GetCredentialHelperFor(registryAlias);
                 if (dockerCredentialHelper != null)
                 {
                     try
                     {
                         // Tries with the given registry alias (may be the original registry).
-                        return Option.Of(dockerCredentialHelper.retrieve());
+                        return Option.Of(dockerCredentialHelper.Retrieve());
                     }
                     catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException)
                     {
                         // Warns the user that the specified credential helper cannot be used.
-                        if (ex.getMessage() != null)
+                        if (ex.GetMessage() != null)
                         {
-                            logger(LogEvent.warn(ex.getMessage()));
-                            if (ex.getCause()?.getMessage() != null)
+                            logger(LogEvent.Warn(ex.GetMessage()));
+                            if (ex.GetCause()?.GetMessage() != null)
                             {
-                                logger(LogEvent.warn("  Caused by: " + ex.getCause().getMessage()));
+                                logger(LogEvent.Warn("  Caused by: " + ex.GetCause().GetMessage()));
                             }
                         }
                     }

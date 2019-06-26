@@ -51,12 +51,12 @@ namespace Jib.Net.Core.Builder.Steps
                 this.baseImageAuthorization = baseImageAuthorization;
             }
 
-            public Image getBaseImage()
+            public Image GetBaseImage()
             {
                 return baseImage;
             }
 
-            public Authorization getBaseImageAuthorization()
+            public Authorization GetBaseImageAuthorization()
             {
                 return baseImageAuthorization;
             }
@@ -73,71 +73,71 @@ namespace Jib.Net.Core.Builder.Steps
         {
             this.buildConfiguration = buildConfiguration;
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
-            listenableFuture = Task.Run(callAsync);
+            listenableFuture = Task.Run(CallAsync);
         }
 
-        public Task<BaseImageWithAuthorization> getFuture()
+        public Task<BaseImageWithAuthorization> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BaseImageWithAuthorization> callAsync()
+        public async Task<BaseImageWithAuthorization> CallAsync()
         {
-            IEventHandlers eventHandlers = buildConfiguration.getEventHandlers();
+            IEventHandlers eventHandlers = buildConfiguration.GetEventHandlers();
             // Skip this step if this is a scratch image
-            ImageConfiguration baseImageConfiguration = buildConfiguration.getBaseImageConfiguration();
+            ImageConfiguration baseImageConfiguration = buildConfiguration.GetBaseImageConfiguration();
             string description = string.Format(
                 CultureInfo.CurrentCulture,
                 Resources.PullBaseImageStepDescriptionFormat,
-                buildConfiguration.getBaseImageConfiguration().getImage());
-            eventHandlers.Dispatch(LogEvent.progress(description));
-            if (baseImageConfiguration.getImage().isScratch())
+                buildConfiguration.GetBaseImageConfiguration().GetImage());
+            eventHandlers.Dispatch(LogEvent.Progress(description));
+            if (baseImageConfiguration.GetImage().IsScratch())
             {
                 return new BaseImageWithAuthorization(
-                    Image.builder(buildConfiguration.getTargetFormat()).build(), null);
+                    Image.CreateBuilder(buildConfiguration.GetTargetFormat()).Build(), null);
             }
 
-            if (buildConfiguration.isOffline())
+            if (buildConfiguration.IsOffline())
             {
-                return new BaseImageWithAuthorization(pullBaseImageOffline(), null);
+                return new BaseImageWithAuthorization(PullBaseImageOffline(), null);
             }
 
             using (ProgressEventDispatcher progressEventDispatcher = progressEventDispatcherFactory.Create(description, 2))
-            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
+            using (new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), description))
 
             {
                 // First, try with no credentials.
                 try
                 {
-                    return new BaseImageWithAuthorization(await pullBaseImageAsync(null, progressEventDispatcher).ConfigureAwait(false), null);
+                    return new BaseImageWithAuthorization(await PullBaseImageAsync(null, progressEventDispatcher).ConfigureAwait(false), null);
                 }
                 catch (RegistryUnauthorizedException)
                 {
                     eventHandlers.Dispatch(
-                        LogEvent.lifecycle(
+                        LogEvent.Lifecycle(
                             "The base image requires auth. Trying again for "
-                                + buildConfiguration.getBaseImageConfiguration().getImage()
+                                + buildConfiguration.GetBaseImageConfiguration().GetImage()
                                 + "..."));
 
                     // If failed, then, retrieve base registry credentials and try with retrieved credentials.
                     // TODO: Refactor the logic in RetrieveRegistryCredentialsStep out to
                     // registry.credentials.RegistryCredentialsRetriever to avoid this direct executor hack.
                     RetrieveRegistryCredentialsStep retrieveBaseRegistryCredentialsStep =
-                        RetrieveRegistryCredentialsStep.forBaseImage(
+                        RetrieveRegistryCredentialsStep.ForBaseImage(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer());
 
-                    Credential registryCredential = await retrieveBaseRegistryCredentialsStep.getFuture().ConfigureAwait(false);
+                    Credential registryCredential = await retrieveBaseRegistryCredentialsStep.GetFuture().ConfigureAwait(false);
                     Authorization registryAuthorization =
-                        registryCredential?.isOAuth2RefreshToken() != false
+                        registryCredential?.IsOAuth2RefreshToken() != false
                             ? null
-                            : Authorization.fromBasicCredentials(
-                                registryCredential.getUsername(), registryCredential.getPassword());
+                            : Authorization.FromBasicCredentials(
+                                registryCredential.GetUsername(), registryCredential.GetPassword());
 
                     try
                     {
                         return new BaseImageWithAuthorization(
-                            await pullBaseImageAsync(registryAuthorization, progressEventDispatcher).ConfigureAwait(false), registryAuthorization);
+                            await PullBaseImageAsync(registryAuthorization, progressEventDispatcher).ConfigureAwait(false), registryAuthorization);
                     }
                     catch (RegistryUnauthorizedException)
                     {
@@ -147,23 +147,23 @@ namespace Jib.Net.Core.Builder.Steps
                         {
                             RegistryAuthenticator registryAuthenticator =
                                 await buildConfiguration
-                                    .newBaseImageRegistryClientFactory()
-                                    .newRegistryClient()
-                                    .getRegistryAuthenticatorAsync().ConfigureAwait(false);
+                                    .NewBaseImageRegistryClientFactory()
+                                    .NewRegistryClient()
+                                    .GetRegistryAuthenticatorAsync().ConfigureAwait(false);
                             if (registryAuthenticator != null)
                             {
                                 Authorization pullAuthorization =
-                                    await registryAuthenticator.authenticatePullAsync(registryCredential).ConfigureAwait(false);
+                                    await registryAuthenticator.AuthenticatePullAsync(registryCredential).ConfigureAwait(false);
 
                                 return new BaseImageWithAuthorization(
-                                    await pullBaseImageAsync(pullAuthorization, progressEventDispatcher).ConfigureAwait(false), pullAuthorization);
+                                    await PullBaseImageAsync(pullAuthorization, progressEventDispatcher).ConfigureAwait(false), pullAuthorization);
                             }
                         }
                         catch (InsecureRegistryException)
                         {
                             // Cannot skip certificate validation or use HTTP; fall through.
                         }
-                        eventHandlers.Dispatch(LogEvent.error(Resources.PullBaseImageStepAuthenticationErrorMessage));
+                        eventHandlers.Dispatch(LogEvent.Error(Resources.PullBaseImageStepAuthenticationErrorMessage));
                         throw;
                     }
                 }
@@ -185,43 +185,43 @@ namespace Jib.Net.Core.Builder.Steps
          * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
          *     format
          */
-        private async Task<Image> pullBaseImageAsync(
+        private async Task<Image> PullBaseImageAsync(
             Authorization registryAuthorization,
             ProgressEventDispatcher progressEventDispatcher)
         {
             RegistryClient registryClient =
                 buildConfiguration
-                    .newBaseImageRegistryClientFactory()
-                    .setAuthorization(registryAuthorization)
-                    .newRegistryClient();
+                    .NewBaseImageRegistryClientFactory()
+                    .SetAuthorization(registryAuthorization)
+                    .NewRegistryClient();
 
             IManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync(buildConfiguration.getBaseImageConfiguration().getImageTag()).ConfigureAwait(false);
+                await registryClient.PullManifestAsync(buildConfiguration.GetBaseImageConfiguration().GetImageTag()).ConfigureAwait(false);
 
             // TODO: Make schema version be enum.
-            switch (manifestTemplate.getSchemaVersion())
+            switch (manifestTemplate.SchemaVersion)
             {
                 case 1:
                     V21ManifestTemplate v21ManifestTemplate = (V21ManifestTemplate)manifestTemplate;
                     await buildConfiguration
-                        .getBaseImageLayersCache()
-                        .writeMetadataAsync(
-                            buildConfiguration.getBaseImageConfiguration().getImage(), v21ManifestTemplate).ConfigureAwait(false);
-                    return JsonToImageTranslator.toImage(v21ManifestTemplate);
+                        .GetBaseImageLayersCache()
+                        .WriteMetadataAsync(
+                            buildConfiguration.GetBaseImageConfiguration().GetImage(), v21ManifestTemplate).ConfigureAwait(false);
+                    return JsonToImageTranslator.ToImage(v21ManifestTemplate);
 
                 case 2:
                     IBuildableManifestTemplate buildableManifestTemplate =
                         (IBuildableManifestTemplate)manifestTemplate;
-                    if (buildableManifestTemplate.getContainerConfiguration() == null
-                        || buildableManifestTemplate.getContainerConfiguration().getDigest() == null)
+                    if (buildableManifestTemplate.GetContainerConfiguration() == null
+                        || buildableManifestTemplate.GetContainerConfiguration().Digest== null)
                     {
                         throw new UnknownManifestFormatException(
                             "Invalid container configuration in Docker V2.2/OCI manifest: \n"
-                                + JsonTemplateMapper.toUtf8String(buildableManifestTemplate));
+                                + JsonTemplateMapper.ToUtf8String(buildableManifestTemplate));
                     }
 
                     DescriptorDigest containerConfigurationDigest =
-                        buildableManifestTemplate.getContainerConfiguration().getDigest();
+                        buildableManifestTemplate.GetContainerConfiguration().Digest;
 
                     using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
                         new ThrottledProgressEventDispatcherWrapper(
@@ -229,22 +229,22 @@ namespace Jib.Net.Core.Builder.Steps
                             "pull container configuration " + containerConfigurationDigest))
                     {
                         string containerConfigurationString =
-                            await Blobs.writeToStringAsync(
-                                registryClient.pullBlob(
+                            await Blobs.WriteToStringAsync(
+                                registryClient.PullBlob(
                                     containerConfigurationDigest,
-                                    progressEventDispatcherWrapper.setProgressTarget,
-                                    progressEventDispatcherWrapper.dispatchProgress)).ConfigureAwait(false);
+                                    progressEventDispatcherWrapper.SetProgressTarget,
+                                    progressEventDispatcherWrapper.DispatchProgress)).ConfigureAwait(false);
 
                         ContainerConfigurationTemplate containerConfigurationTemplate =
-                            JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(
+                            JsonTemplateMapper.ReadJson<ContainerConfigurationTemplate>(
                                 containerConfigurationString);
                         await buildConfiguration
-                            .getBaseImageLayersCache()
-                            .writeMetadataAsync(
-                                buildConfiguration.getBaseImageConfiguration().getImage(),
+                            .GetBaseImageLayersCache()
+                            .WriteMetadataAsync(
+                                buildConfiguration.GetBaseImageConfiguration().GetImage(),
                                 buildableManifestTemplate,
                                 containerConfigurationTemplate).ConfigureAwait(false);
-                        return JsonToImageTranslator.toImage(
+                        return JsonToImageTranslator.ToImage(
                             buildableManifestTemplate, containerConfigurationTemplate);
                     }
             }
@@ -262,26 +262,26 @@ namespace Jib.Net.Core.Builder.Steps
          * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
          *     format
          */
-        private Image pullBaseImageOffline()
+        private Image PullBaseImageOffline()
         {
-            IImageReference baseImage = buildConfiguration.getBaseImageConfiguration().getImage();
+            IImageReference baseImage = buildConfiguration.GetBaseImageConfiguration().GetImage();
             Option<ManifestAndConfig> metadata =
-                buildConfiguration.getBaseImageLayersCache().retrieveMetadata(baseImage);
+                buildConfiguration.GetBaseImageLayersCache().RetrieveMetadata(baseImage);
             if (!metadata.IsPresent())
             {
                 throw new IOException(
                     "Cannot run Jib in offline mode; " + baseImage + " not found in local Jib cache");
             }
 
-            IManifestTemplate manifestTemplate = metadata.Get().getManifest();
+            IManifestTemplate manifestTemplate = metadata.Get().GetManifest();
             if (manifestTemplate is V21ManifestTemplate v21ManifestTemplate)
             {
-                return JsonToImageTranslator.toImage(v21ManifestTemplate);
+                return JsonToImageTranslator.ToImage(v21ManifestTemplate);
             }
 
             ContainerConfigurationTemplate configurationTemplate =
-                metadata.Get().getConfig().OrElseThrow(() => new InvalidOperationException());
-            return JsonToImageTranslator.toImage(
+                metadata.Get().GetConfig().OrElseThrow(() => new InvalidOperationException());
+            return JsonToImageTranslator.ToImage(
                 (IBuildableManifestTemplate)manifestTemplate, configurationTemplate);
         }
     }

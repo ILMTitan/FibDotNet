@@ -32,17 +32,17 @@ namespace com.google.cloud.tools.jib.registry
 
         public HttpResponseMessage Cause { get; }
 
-        public HttpStatusCode getStatusCode()
+        public HttpStatusCode GetStatusCode()
         {
             return Cause.StatusCode;
         }
 
-        public HttpResponseHeaders getHeaders()
+        public HttpResponseHeaders GetHeaders()
         {
             return Cause.Headers;
         }
 
-        public HttpContent getContent()
+        public HttpContent GetContent()
         {
             return Cause.Content;
         }

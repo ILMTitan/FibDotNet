@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.registry
          * @see <a
          *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
          */
-        public static RegistryAuthenticator fromAuthenticationMethod(
+        public static RegistryAuthenticator FromAuthenticationMethod(
             AuthenticationHeaderValue authenticationMethod,
             RegistryEndpointRequestProperties registryEndpointRequestProperties,
             IEnumerable<ProductInfoHeaderValue> userAgent)
@@ -67,45 +67,45 @@ namespace com.google.cloud.tools.jib.registry
                 throw new ArgumentNullException(nameof(registryEndpointRequestProperties));
             // If the authentication method starts with 'basic ' (case insensitive), no registry
             // authentication is needed.
-            if (authenticationMethod.Scheme.matches("^(?i)(basic)"))
+            if (authenticationMethod.Scheme.Matches("^(?i)(basic)"))
             {
                 return null;
             }
 
             // Checks that the authentication method starts with 'bearer ' (case insensitive).
-            if (!authenticationMethod.Scheme.matches("^(?i)(bearer)"))
+            if (!authenticationMethod.Scheme.Matches("^(?i)(bearer)"))
             {
-                throw newRegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getRegistry(),
-                    registryEndpointRequestProperties.getImageName(),
+                throw NewRegistryAuthenticationFailedException(
+                    registryEndpointRequestProperties.GetRegistry(),
+                    registryEndpointRequestProperties.GetImageName(),
                     authenticationMethod.Scheme,
                     "Bearer");
             }
 
             Regex realmPattern = new Regex("realm=\"(.*?)\"");
-            Match realmMatcher = realmPattern.matcher(authenticationMethod.Parameter);
-            if (!realmMatcher.find())
+            Match realmMatcher = realmPattern.Matcher(authenticationMethod.Parameter);
+            if (!realmMatcher.Find())
             {
-                throw newRegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getRegistry(),
-                    registryEndpointRequestProperties.getImageName(),
+                throw NewRegistryAuthenticationFailedException(
+                    registryEndpointRequestProperties.GetRegistry(),
+                    registryEndpointRequestProperties.GetImageName(),
                     authenticationMethod.Parameter,
                     "realm");
             }
-            string realm = realmMatcher.group(1);
+            string realm = realmMatcher.Group(1);
 
             Regex servicePattern = new Regex("service=\"(.*?)\"");
-            Match serviceMatcher = servicePattern.matcher(authenticationMethod.Parameter);
+            Match serviceMatcher = servicePattern.Matcher(authenticationMethod.Parameter);
             // use the provided registry location when missing service (e.g., for OpenShift)
             string service =
-                serviceMatcher.find()
-                    ? serviceMatcher.group(1)
-                    : registryEndpointRequestProperties.getRegistry();
+                serviceMatcher.Find()
+                    ? serviceMatcher.Group(1)
+                    : registryEndpointRequestProperties.GetRegistry();
 
             return new RegistryAuthenticator(realm, service, registryEndpointRequestProperties, userAgent);
         }
 
-        private static RegistryAuthenticationFailedException newRegistryAuthenticationFailedException(
+        private static RegistryAuthenticationFailedException NewRegistryAuthenticationFailedException(
             string registry, string repository, string authenticationMethod, string authParam)
         {
             return new RegistryAuthenticationFailedException(
@@ -139,7 +139,7 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             /** @return {@link #token} if not null, or {@link #access_token} */
-            public string getToken()
+            public string GetTokenOrAccessToken()
             {
                 return Token ?? AccessToken;
             }
@@ -169,9 +169,9 @@ namespace com.google.cloud.tools.jib.registry
          * @return an {@code Authorization} authenticating the pull
          * @throws RegistryAuthenticationFailedException if authentication fails
          */
-        public async Task<Authorization> authenticatePullAsync(Credential credential)
+        public async Task<Authorization> AuthenticatePullAsync(Credential credential)
         {
-            return await authenticateAsync(credential, "pull").ConfigureAwait(false);
+            return await AuthenticateAsync(credential, "pull").ConfigureAwait(false);
         }
 
         /**
@@ -181,24 +181,24 @@ namespace com.google.cloud.tools.jib.registry
          * @return an {@code Authorization} authenticating the push
          * @throws RegistryAuthenticationFailedException if authentication fails
          */
-        public async Task<Authorization> authenticatePushAsync(Credential credential)
+        public async Task<Authorization> AuthenticatePushAsync(Credential credential)
         {
-            return await authenticateAsync(credential, "pull,push").ConfigureAwait(false);
+            return await AuthenticateAsync(credential, "pull,push").ConfigureAwait(false);
         }
 
-        private string getServiceScopeRequestParameters(string scope)
+        private string GetServiceScopeRequestParameters(string scope)
         {
             return "service="
                 + service
                 + "&scope=repository:"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + ":"
                 + scope;
         }
 
-        public Uri getAuthenticationUrl(Credential credential, string scope)
+        public Uri GetAuthenticationUrl(Credential credential, string scope)
         {
-            if (isOAuth2Auth(credential))
+            if (IsOAuth2Auth(credential))
             {
                 return new Uri(realm);
             }
@@ -206,27 +206,27 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return new UriBuilder(realm)
                 {
-                    Query = "?" + getServiceScopeRequestParameters(scope)
+                    Query = "?" + GetServiceScopeRequestParameters(scope)
                 }.Uri;
             }
         }
 
-        public string getAuthRequestParameters(Credential credential, string scope)
+        public string GetAuthRequestParameters(Credential credential, string scope)
         {
-            string serviceScope = getServiceScopeRequestParameters(scope);
-            return isOAuth2Auth(credential)
+            string serviceScope = GetServiceScopeRequestParameters(scope);
+            return IsOAuth2Auth(credential)
                 ? serviceScope
                     // https://github.com/GoogleContainerTools/jib/pull/1545
                     + "&client_id=jib.da031fe481a93ac107a95a96462358f9"
                     + "&grant_type=refresh_token&refresh_token="
                     // If OAuth2, credential.getPassword() is a refresh token.
-                    + Verify.verifyNotNull(credential).getPassword()
+                    + Verify.VerifyNotNull(credential).GetPassword()
                 : serviceScope;
         }
 
-        public bool isOAuth2Auth(Credential credential)
+        public bool IsOAuth2Auth(Credential credential)
         {
-            return credential?.isOAuth2RefreshToken() == true;
+            return credential?.IsOAuth2RefreshToken() == true;
         }
 
         /**
@@ -239,12 +239,12 @@ namespace com.google.cloud.tools.jib.registry
          * @see <a
          *     href="https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate">https://docs.docker.com/registry/spec/auth/token/#how-to-authenticate</a>
          */
-        private async Task<Authorization> authenticateAsync(Credential credential, string scope)
+        private async Task<Authorization> AuthenticateAsync(Credential credential, string scope)
         {
             try
             {
                 using (Connection connection =
-                    Connection.getConnectionFactory().apply(getAuthenticationUrl(credential, scope)))
+                    Connection.GetConnectionFactory().Apply(GetAuthenticationUrl(credential, scope)))
                 using (var request = new HttpRequestMessage())
                 {
                     foreach (var value in userAgent)
@@ -252,17 +252,17 @@ namespace com.google.cloud.tools.jib.registry
                         request.Headers.UserAgent.Add(value);
                     }
 
-                    if (isOAuth2Auth(credential))
+                    if (IsOAuth2Auth(credential))
                     {
-                        string parameters = getAuthRequestParameters(credential, scope);
-                        request.Content = new BlobHttpContent(Blobs.from(parameters), MediaType.FORM_DATA.toString());
+                        string parameters = GetAuthRequestParameters(credential, scope);
+                        request.Content = new BlobHttpContent(Blobs.From(parameters), JavaExtensions.ToString(MediaType.FORM_DATA));
                     }
                     else if (credential != null)
                     {
-                        Authorization authorization = Authorization.fromBasicCredentials(credential.getUsername(), credential.getPassword());
-                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
+                        Authorization authorization = Authorization.FromBasicCredentials(credential.GetUsername(), credential.GetPassword());
+                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.GetScheme(), authorization.GetToken());
                     }
-                    if (isOAuth2Auth(credential))
+                    if (IsOAuth2Auth(credential))
                     {
                         request.Method = HttpMethod.Post;
                     }
@@ -272,33 +272,33 @@ namespace com.google.cloud.tools.jib.registry
                     }
 
                     string responseString;
-                    using (HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false))
-                    using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), Encoding.UTF8))
+                    using (HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false))
+                    using (StreamReader reader = new StreamReader(await response.GetBodyAsync().ConfigureAwait(false), Encoding.UTF8))
                     {
-                        responseString = CharStreams.toString(reader);
+                        responseString = CharStreams.ToString(reader);
                     }
 
                     AuthenticationResponseTemplate responseJson =
-                        JsonTemplateMapper.readJson<AuthenticationResponseTemplate>(responseString);
+                        JsonTemplateMapper.ReadJson<AuthenticationResponseTemplate>(responseString);
 
-                    if (responseJson.getToken() == null)
+                    if (responseJson.GetTokenOrAccessToken() == null)
                     {
                         throw new RegistryAuthenticationFailedException(
-                            registryEndpointRequestProperties.getRegistry(),
-                            registryEndpointRequestProperties.getImageName(),
+                            registryEndpointRequestProperties.GetRegistry(),
+                            registryEndpointRequestProperties.GetImageName(),
                             "Did not get token in authentication response from "
-                                + getAuthenticationUrl(credential, scope)
+                                + GetAuthenticationUrl(credential, scope)
                                 + "; parameters: "
-                                + getAuthRequestParameters(credential, scope));
+                                + GetAuthRequestParameters(credential, scope));
                     }
-                    return Authorization.fromBearerToken(responseJson.getToken());
+                    return Authorization.FromBearerToken(responseJson.GetTokenOrAccessToken());
                 }
             }
             catch (Exception ex) when (ex is IOException || ex is JsonException)
             {
                 throw new RegistryAuthenticationFailedException(
-                    registryEndpointRequestProperties.getRegistry(),
-                    registryEndpointRequestProperties.getImageName(),
+                    registryEndpointRequestProperties.GetRegistry(),
+                    registryEndpointRequestProperties.GetImageName(),
                     ex);
             }
         }

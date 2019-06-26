@@ -23,10 +23,10 @@ namespace com.google.cloud.tools.jib
     /** Configuration for integration tests. */
     public sealed class IntegrationTestingConfiguration
     {
-        public static string getGCPProject()
+        public static string GetGCPProject()
         {
             string projectId = Environment.GetEnvironmentVariable("JIB_INTEGRATION_TESTING_PROJECT");
-            if (Strings.isNullOrEmpty(projectId))
+            if (Strings.IsNullOrEmpty(projectId))
             {
                 Assert.Fail(
                     "Must set environment variable JIB_INTEGRATION_TESTING_PROJECT to the GCP project to use for integration testing.");

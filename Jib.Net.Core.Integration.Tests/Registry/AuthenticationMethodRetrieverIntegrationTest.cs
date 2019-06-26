@@ -26,20 +26,20 @@ namespace com.google.cloud.tools.jib.registry
     public class AuthenticationMethodRetrieverIntegrationTest
     {
         [Test]
-        public async Task testGetRegistryAuthenticatorAsync()
+        public async Task TestGetRegistryAuthenticatorAsync()
         {
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
-                    .newRegistryClient();
-            RegistryAuthenticator registryAuthenticator = await registryClient.getRegistryAuthenticatorAsync().ConfigureAwait(false);
+                RegistryClient.CreateFactory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
+                    .NewRegistryClient();
+            RegistryAuthenticator registryAuthenticator = await registryClient.GetRegistryAuthenticatorAsync().ConfigureAwait(false);
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null).ConfigureAwait(false);
+            Authorization authorization = await registryAuthenticator.AuthenticatePullAsync(null).ConfigureAwait(false);
 
             RegistryClient authorizedRegistryClient =
-                RegistryClient.factory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
-                    .setAuthorization(authorization)
-                    .newRegistryClient();
-            await authorizedRegistryClient.pullManifestAsync("latest").ConfigureAwait(false);
+                RegistryClient.CreateFactory(EventHandlers.NONE, "registry.hub.docker.com", "library/busybox")
+                    .SetAuthorization(authorization)
+                    .NewRegistryClient();
+            await authorizedRegistryClient.PullManifestAsync("latest").ConfigureAwait(false);
         }
     }
 }

@@ -90,27 +90,27 @@ namespace com.google.cloud.tools.jib.api
          * @return an {@link ImageReference} parsed from the string
          * @throws InvalidImageReferenceException if {@code reference} is formatted incorrectly
          */
-        public static ImageReference parse(string reference)
+        public static ImageReference Parse(string reference)
         {
-            Match matcher = REFERENCE_PATTERN.matcher(reference);
+            Match matcher = REFERENCE_PATTERN.Matcher(reference);
 
-            if (!matcher.find() || matcher.groupCount() < 4)
+            if (!matcher.Find() || matcher.GroupCount() < 4)
             {
                 throw new InvalidImageReferenceException(reference);
             }
 
-            string registry = matcher.group(1);
-            string repository = matcher.group(2);
-            string tag = matcher.group(3);
-            string digest = matcher.group(4);
+            string registry = matcher.Group(1);
+            string repository = matcher.Group(2);
+            string tag = matcher.Group(3);
+            string digest = matcher.Group(4);
 
             // If no registry was matched, use Docker Hub by default.
-            if (Strings.isNullOrEmpty(registry))
+            if (Strings.IsNullOrEmpty(registry))
             {
                 registry = DOCKER_HUB_REGISTRY;
             }
 
-            if (Strings.isNullOrEmpty(repository))
+            if (Strings.IsNullOrEmpty(repository))
             {
                 throw new InvalidImageReferenceException(reference);
             }
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.api
              *
              * See https://github.com/docker/distribution/blob/245ca4659e09e9745f3cc1217bf56e946509220c/reference/normalize.go#L62
              */
-            if (!registry.contains(".") && !registry.contains(":") && "localhost" != registry)
+            if (!JavaExtensions.Contains(registry, ".") && !JavaExtensions.Contains(registry, ":") && "localhost" != registry)
             {
                 repository = registry + "/" + repository;
                 registry = DOCKER_HUB_REGISTRY;
@@ -132,20 +132,20 @@ namespace com.google.cloud.tools.jib.api
              *
              * See https://docs.docker.com/engine/reference/commandline/pull/#pull-an-image-from-docker-hub
              */
-            if (DOCKER_HUB_REGISTRY == registry && repository.indexOf('/') < 0)
+            if (DOCKER_HUB_REGISTRY == registry && JavaExtensions.IndexOf(repository, '/') < 0)
             {
                 repository = LIBRARY_REPOSITORY_PREFIX + repository;
             }
 
-            if (!Strings.isNullOrEmpty(tag))
+            if (!Strings.IsNullOrEmpty(tag))
             {
-                if (!Strings.isNullOrEmpty(digest))
+                if (!Strings.IsNullOrEmpty(digest))
                 {
                     // Cannot have matched both tag and digest.
                     throw new InvalidImageReferenceException(reference);
                 }
             }
-            else if (!Strings.isNullOrEmpty(digest))
+            else if (!Strings.IsNullOrEmpty(digest))
             {
                 tag = digest;
             }
@@ -166,18 +166,18 @@ namespace com.google.cloud.tools.jib.api
          * @param tag the image tag, or {@code null} to use the default tag ({@code latest})
          * @return an {@link ImageReference} built from the given registry, repository, and tag
          */
-        public static ImageReference of(
+        public static ImageReference Of(
             string registry, string repository, string tag)
         {
-            Preconditions.CheckArgument(Strings.isNullOrEmpty(registry) || isValidRegistry(registry));
-            Preconditions.CheckArgument(isValidRepository(repository));
-            Preconditions.CheckArgument(Strings.isNullOrEmpty(tag) || isValidTag(tag));
+            Preconditions.CheckArgument(Strings.IsNullOrEmpty(registry) || IsValidRegistry(registry));
+            Preconditions.CheckArgument(IsValidRepository(repository));
+            Preconditions.CheckArgument(Strings.IsNullOrEmpty(tag) || IsValidTag(tag));
 
-            if (Strings.isNullOrEmpty(registry))
+            if (Strings.IsNullOrEmpty(registry))
             {
                 registry = DOCKER_HUB_REGISTRY;
             }
-            if (Strings.isNullOrEmpty(tag))
+            if (Strings.IsNullOrEmpty(tag))
             {
                 tag = DEFAULT_TAG;
             }
@@ -191,7 +191,7 @@ namespace com.google.cloud.tools.jib.api
          * @return an {@link ImageReference} with an empty registry and tag component, and repository set
          *     to "scratch"
          */
-        public static ImageReference scratch()
+        public static ImageReference Scratch()
         {
             return new ImageReference("", "scratch", "");
         }
@@ -203,9 +203,9 @@ namespace com.google.cloud.tools.jib.api
          * @param registry the registry to check
          * @return {@code true} if is a valid registry; {@code false} otherwise
          */
-        public static bool isValidRegistry(string registry)
+        public static bool IsValidRegistry(string registry)
         {
-            return registry.matches(REGISTRY_REGEX);
+            return registry.Matches(REGISTRY_REGEX);
         }
 
         /**
@@ -215,9 +215,9 @@ namespace com.google.cloud.tools.jib.api
          * @param repository the repository to check
          * @return {@code true} if is a valid repository; {@code false} otherwise
          */
-        public static bool isValidRepository(string repository)
+        public static bool IsValidRepository(string repository)
         {
-            return repository.matches(REPOSITORY_REGEX);
+            return repository.Matches(REPOSITORY_REGEX);
         }
 
         /**
@@ -227,9 +227,9 @@ namespace com.google.cloud.tools.jib.api
          * @param tag the tag to check
          * @return {@code true} if is a valid tag; {@code false} otherwise
          */
-        public static bool isValidTag(string tag)
+        public static bool IsValidTag(string tag)
         {
-            return tag.matches(TAG_REGEX) || tag.matches(DescriptorDigest.DigestRegex);
+            return tag.Matches(TAG_REGEX) || tag.Matches(DescriptorDigest.DigestRegex);
         }
 
         /**
@@ -240,9 +240,9 @@ namespace com.google.cloud.tools.jib.api
          * @return {@code true} if {@code tag} is the default tag ((@code latest} or empty); {@code false}
          *     if not
          */
-        public static bool isDefaultTag(string tag)
+        public static bool IsDefaultTag(string tag)
         {
-            return tag.isEmpty() || DEFAULT_TAG == tag;
+            return tag.IsEmpty() || DEFAULT_TAG == tag;
         }
 
         private readonly string registry;
@@ -252,7 +252,7 @@ namespace com.google.cloud.tools.jib.api
         /** Construct with {@link #parse}. */
         private ImageReference(string registry, string repository, string tag)
         {
-            this.registry = RegistryAliasGroup.getHost(registry);
+            this.registry = RegistryAliasGroup.GetHost(registry);
             this.repository = repository;
             this.tag = tag;
         }
@@ -262,7 +262,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the registry host
          */
-        public string getRegistry()
+        public string GetRegistry()
         {
             return registry;
         }
@@ -272,7 +272,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the repository
          */
-        public string getRepository()
+        public string GetRepository()
         {
             return repository;
         }
@@ -282,7 +282,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the tag
          */
-        public string getTag()
+        public string GetTag()
         {
             return tag;
         }
@@ -293,9 +293,9 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return {@code true} if uses the default tag; {@code false} if not
          */
-        public bool usesDefaultTag()
+        public bool UsesDefaultTag()
         {
-            return isDefaultTag(tag);
+            return IsDefaultTag(tag);
         }
 
         /**
@@ -304,9 +304,9 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return {@code true} if tag is a SHA-256 digest; {@code false} if not
          */
-        public bool isTagDigest()
+        public bool IsTagDigest()
         {
-            return tag.matches(DescriptorDigest.DigestRegex);
+            return tag.Matches(DescriptorDigest.DigestRegex);
         }
 
         /**
@@ -314,7 +314,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return {@code true} if the {@link ImageReference} is a scratch image; {@code false} if not
          */
-        public bool isScratch()
+        public bool IsScratch()
         {
             return string.IsNullOrEmpty(registry) && "scratch" == repository && string.IsNullOrEmpty(tag);
         }
@@ -325,9 +325,9 @@ namespace com.google.cloud.tools.jib.api
          * @param newTag the new tag
          * @return an {@link ImageReference} with the same registry/repository and the new tag
          */
-        public ImageReference withTag(string newTag)
+        public ImageReference WithTag(string newTag)
         {
-            return ImageReference.of(registry, repository, newTag);
+            return ImageReference.Of(registry, repository, newTag);
         }
 
         /**
@@ -344,27 +344,27 @@ namespace com.google.cloud.tools.jib.api
             if (DOCKER_HUB_REGISTRY != registry)
             {
                 // Use registry and repository if not Docker Hub.
-                referenceString.append(registry).append('/').append(repository);
+                referenceString.Append(registry).Append('/').Append(repository);
             }
-            else if (repository.startsWith(LIBRARY_REPOSITORY_PREFIX))
+            else if (JavaExtensions.StartsWith(repository, LIBRARY_REPOSITORY_PREFIX))
             {
                 // If Docker Hub and repository has 'library/' prefix, remove the 'library/' prefix.
-                referenceString.append(repository.substring(LIBRARY_REPOSITORY_PREFIX.length()));
+                referenceString.Append(JavaExtensions.Substring(repository, LIBRARY_REPOSITORY_PREFIX.Length()));
             }
             else
             {
                 // Use just repository if Docker Hub.
-                referenceString.append(repository);
+                referenceString.Append(repository);
             }
 
             // Use tag if not the default tag.
             if (DEFAULT_TAG != tag)
             {
                 // Append with "@tag" instead of ":tag" if tag is a digest
-                referenceString.append(isTagDigest() ? '@' : ':').append(tag);
+                referenceString.Append(IsTagDigest() ? '@' : ':').Append(tag);
             }
 
-            return referenceString.toString();
+            return JavaExtensions.ToString(referenceString);
         }
 
         /**
@@ -372,9 +372,9 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the image reference in Docker-readable format, without hiding the tag
          */
-        public string toStringWithTag()
+        public string ToStringWithTag()
         {
-            return ToString() + (usesDefaultTag() ? ":" + DEFAULT_TAG : "");
+            return ToString() + (UsesDefaultTag() ? ":" + DEFAULT_TAG : "");
         }
     }
 }

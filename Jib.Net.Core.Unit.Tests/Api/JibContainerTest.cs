@@ -30,37 +30,37 @@ namespace com.google.cloud.tools.jib.api
         private DescriptorDigest digest3;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             digest1 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
             digest2 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
             digest3 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210");
         }
 
         [Test]
-        public void testCreation()
+        public void TestCreation()
         {
             JibContainer container = new JibContainer(digest1, digest2);
 
-            Assert.AreEqual(digest1, container.getDigest());
-            Assert.AreEqual(digest2, container.getImageId());
+            Assert.AreEqual(digest1, container.GetDigest());
+            Assert.AreEqual(digest2, container.GetImageId());
         }
 
         [Test]
-        public void testEquality()
+        public void TestEquality()
         {
             JibContainer container1 = new JibContainer(digest1, digest2);
             JibContainer container2 = new JibContainer(digest1, digest2);
             JibContainer container3 = new JibContainer(digest2, digest3);
 
             Assert.AreEqual(container1, container2);
-            Assert.AreEqual(container1.hashCode(), container2.hashCode());
+            Assert.AreEqual(container1.HashCode(), container2.HashCode());
             Assert.AreNotEqual(container1, container3);
         }
     }

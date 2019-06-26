@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param imageConfiguration the {@link ImageConfiguration} describing the base image
              * @return this
              */
-            public Builder setBaseImageConfiguration(ImageConfiguration imageConfiguration)
+            public Builder SetBaseImageConfiguration(ImageConfiguration imageConfiguration)
             {
                 this.baseImageConfiguration = imageConfiguration;
                 return this;
@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param imageConfiguration the {@link ImageConfiguration} describing the target image
              * @return this
              */
-            public Builder setTargetImageConfiguration(ImageConfiguration imageConfiguration)
+            public Builder SetTargetImageConfiguration(ImageConfiguration imageConfiguration)
             {
                 this.targetImageConfiguration = imageConfiguration;
                 return this;
@@ -86,7 +86,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param tags a set of tags
              * @return this
              */
-            public Builder setAdditionalTargetImageTags(ISet<string> tags)
+            public Builder SetAdditionalTargetImageTags(ISet<string> tags)
             {
                 additionalTargetImageTags = ImmutableHashSet.CreateRange(tags);
                 return this;
@@ -98,7 +98,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param containerConfiguration the {@link ContainerConfiguration}
              * @return this
              */
-            public Builder setContainerConfiguration(ContainerConfiguration containerConfiguration)
+            public Builder SetContainerConfiguration(ContainerConfiguration containerConfiguration)
             {
                 this.containerConfiguration = containerConfiguration;
                 return this;
@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param applicationLayersCacheDirectory the application layers cache directory
              * @return this
              */
-            public Builder setApplicationLayersCacheDirectory(SystemPath applicationLayersCacheDirectory)
+            public Builder SetApplicationLayersCacheDirectory(SystemPath applicationLayersCacheDirectory)
             {
                 this.applicationLayersCacheDirectory = applicationLayersCacheDirectory;
                 return this;
@@ -122,7 +122,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param baseImageLayersCacheDirectory the base image layers cache directory
              * @return this
              */
-            public Builder setBaseImageLayersCacheDirectory(SystemPath baseImageLayersCacheDirectory)
+            public Builder SetBaseImageLayersCacheDirectory(SystemPath baseImageLayersCacheDirectory)
             {
                 this.baseImageLayersCacheDirectory = baseImageLayersCacheDirectory;
                 return this;
@@ -134,7 +134,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param targetFormat the target format
              * @return this
              */
-            public Builder setTargetFormat(ImageFormat targetFormat)
+            public Builder SetTargetFormat(ImageFormat targetFormat)
             {
                 this.targetFormat =
                     targetFormat == ImageFormat.Docker
@@ -149,7 +149,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
              * @return this
              */
-            public Builder setAllowInsecureRegistries(bool allowInsecureRegistries)
+            public Builder SetAllowInsecureRegistries(bool allowInsecureRegistries)
             {
                 this.allowInsecureRegistries = allowInsecureRegistries;
                 return this;
@@ -161,7 +161,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param offline if {@code true}, the build will run in offline mode
              * @return this
              */
-            public Builder setOffline(bool offline)
+            public Builder SetOffline(bool offline)
             {
                 this.offline = offline;
                 return this;
@@ -173,7 +173,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param layerConfigurations the configurations for the layers
              * @return this
              */
-            public Builder setLayerConfigurations(IList<ILayerConfiguration> layerConfigurations)
+            public Builder SetLayerConfigurations(IList<ILayerConfiguration> layerConfigurations)
             {
                 this.layerConfigurations = ImmutableArray.CreateRange(layerConfigurations);
                 return this;
@@ -185,7 +185,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param toolName the tool name
              * @return this
              */
-            public Builder setToolName(string toolName)
+            public Builder SetToolName(string toolName)
             {
                 this.toolName = toolName;
                 return this;
@@ -197,7 +197,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param toolName the tool name
              * @return this
              */
-            public Builder setToolVersion(string toolVersion)
+            public Builder SetToolVersion(string toolVersion)
             {
                 this.toolVersion = toolVersion;
                 return this;
@@ -209,7 +209,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param eventHandlers the {@link EventHandlers}
              * @return this
              */
-            public Builder setEventHandlers(IEventHandlers eventHandlers)
+            public Builder SetEventHandlers(IEventHandlers eventHandlers)
             {
                 this.eventHandlers = eventHandlers;
                 return this;
@@ -221,36 +221,36 @@ namespace com.google.cloud.tools.jib.configuration
              * @return the corresponding build configuration
              * @throws IOException if an I/O exception occurs
              */
-            public BuildConfiguration build()
+            public BuildConfiguration Build()
             {
                 // Validates the parameters.
                 IList<string> missingFields = new List<string>();
                 if (baseImageConfiguration == null)
                 {
-                    missingFields.add("base image configuration");
+                    JavaExtensions.Add(missingFields, "base image configuration");
                 }
                 if (targetImageConfiguration == null)
                 {
-                    missingFields.add("target image configuration");
+                    JavaExtensions.Add(missingFields, "target image configuration");
                 }
                 if (baseImageLayersCacheDirectory == null)
                 {
-                    missingFields.add("base image layers cache directory");
+                    JavaExtensions.Add(missingFields, "base image layers cache directory");
                 }
                 if (applicationLayersCacheDirectory == null)
                 {
-                    missingFields.add("application layers cache directory");
+                    JavaExtensions.Add(missingFields, "application layers cache directory");
                 }
 
-                switch (missingFields.size())
+                switch (missingFields.Size())
                 {
                     case 0: // No errors
-                        if (Preconditions.CheckNotNull(baseImageConfiguration).getImage().usesDefaultTag())
+                        if (Preconditions.CheckNotNull(baseImageConfiguration).GetImage().UsesDefaultTag())
                         {
                             eventHandlers.Dispatch(
-                                LogEvent.warn(
+                                LogEvent.Warn(
                                     "Base image '"
-                                        + baseImageConfiguration.getImage()
+                                        + baseImageConfiguration.GetImage()
                                         + "' does not use a specific image digest - build may not be reproducible"));
                         }
 
@@ -259,8 +259,8 @@ namespace com.google.cloud.tools.jib.configuration
                             Preconditions.CheckNotNull(targetImageConfiguration),
                             additionalTargetImageTags,
                             containerConfiguration,
-                            Cache.withDirectory(Preconditions.CheckNotNull(baseImageLayersCacheDirectory)),
-                            Cache.withDirectory(Preconditions.CheckNotNull(applicationLayersCacheDirectory)),
+                            Cache.WithDirectory(Preconditions.CheckNotNull(baseImageLayersCacheDirectory)),
+                            Cache.WithDirectory(Preconditions.CheckNotNull(applicationLayersCacheDirectory)),
                             targetFormat,
                             allowInsecureRegistries,
                             offline,
@@ -270,29 +270,29 @@ namespace com.google.cloud.tools.jib.configuration
                             eventHandlers);
 
                     case 1:
-                        throw new InvalidOperationException(missingFields.get(0) + " is required but not set");
+                        throw new InvalidOperationException(missingFields.Get(0) + " is required but not set");
 
                     case 2:
                         throw new InvalidOperationException(
-                            missingFields.get(0) + " and " + missingFields.get(1) + " are required but not set");
+                            missingFields.Get(0) + " and " + missingFields.Get(1) + " are required but not set");
 
                     default:
-                        missingFields.add("and " + missingFields.remove(missingFields.size() - 1));
+                        JavaExtensions.Add(missingFields, "and " + missingFields.Remove(missingFields.Size() - 1));
                         StringJoiner errorMessage = new StringJoiner(", ", "", " are required but not set");
                         foreach (string missingField in missingFields)
                         {
-                            errorMessage.add(missingField);
+                            errorMessage.Add(missingField);
                         }
                         throw new InvalidOperationException(errorMessage.ToString());
                 }
             }
 
-            public SystemPath getBaseImageLayersCacheDirectory()
+            public SystemPath GetBaseImageLayersCacheDirectory()
             {
                 return baseImageLayersCacheDirectory;
             }
 
-            public SystemPath getApplicationLayersCacheDirectory()
+            public SystemPath GetApplicationLayersCacheDirectory()
             {
                 return applicationLayersCacheDirectory;
             }
@@ -303,7 +303,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return a new {@link Builder}
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -353,45 +353,45 @@ namespace com.google.cloud.tools.jib.configuration
             this.eventHandlers = eventHandlers;
         }
 
-        public ImageConfiguration getBaseImageConfiguration()
+        public ImageConfiguration GetBaseImageConfiguration()
         {
             return baseImageConfiguration;
         }
 
-        public ImageConfiguration getTargetImageConfiguration()
+        public ImageConfiguration GetTargetImageConfiguration()
         {
             return targetImageConfiguration;
         }
 
-        public ImmutableHashSet<string> getAllTargetImageTags()
+        public ImmutableHashSet<string> GetAllTargetImageTags()
         {
             ImmutableHashSet<string>.Builder allTargetImageTags = ImmutableHashSet.CreateBuilder<string>();
-            allTargetImageTags.add(targetImageConfiguration.getImageTag());
-            allTargetImageTags.addAll(additionalTargetImageTags);
-            return allTargetImageTags.build();
+            JavaExtensions.Add(allTargetImageTags, targetImageConfiguration.GetImageTag());
+            allTargetImageTags.AddAll(additionalTargetImageTags);
+            return allTargetImageTags.Build();
         }
 
-        public IContainerConfiguration getContainerConfiguration()
+        public IContainerConfiguration GetContainerConfiguration()
         {
             return containerConfiguration;
         }
 
-        public ManifestFormat getTargetFormat()
+        public ManifestFormat GetTargetFormat()
         {
             return targetFormat;
         }
 
-        public string getToolName()
+        public string GetToolName()
         {
             return toolName;
         }
 
-        public string getToolVersion()
+        public string GetToolVersion()
         {
             return toolVersion;
         }
 
-        public IEventHandlers getEventHandlers()
+        public IEventHandlers GetEventHandlers()
         {
             return eventHandlers;
         }
@@ -401,7 +401,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the {@link Cache} for base image layers
          */
-        public Cache getBaseImageLayersCache()
+        public Cache GetBaseImageLayersCache()
         {
             return baseImageLayersCache;
         }
@@ -411,7 +411,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the {@link Cache} for application layers
          */
-        public Cache getApplicationLayersCache()
+        public Cache GetApplicationLayersCache()
         {
             return applicationLayersCache;
         }
@@ -422,7 +422,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return {@code true} if insecure connections will be allowed; {@code false} otherwise
          */
-        public bool getAllowInsecureRegistries()
+        public bool GetAllowInsecureRegistries()
         {
             return allowInsecureRegistries;
         }
@@ -432,7 +432,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return {@code true} if the build will run in offline mode; {@code false} otherwise
          */
-        public bool isOffline()
+        public bool IsOffline()
         {
             return offline;
         }
@@ -442,7 +442,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the list of layer configurations
          */
-        public ImmutableArray<ILayerConfiguration> getLayerConfigurations()
+        public ImmutableArray<ILayerConfiguration> GetLayerConfigurations()
         {
             return layerConfigurations;
         }
@@ -453,9 +453,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return a new {@link RegistryClient.Factory}
          */
-        public RegistryClient.Factory newBaseImageRegistryClientFactory()
+        public RegistryClient.Factory NewBaseImageRegistryClientFactory()
         {
-            return newRegistryClientFactory(baseImageConfiguration);
+            return NewRegistryClientFactory(baseImageConfiguration);
         }
 
         /**
@@ -464,21 +464,21 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return a new {@link RegistryClient.Factory}
          */
-        public RegistryClient.Factory newTargetImageRegistryClientFactory()
+        public RegistryClient.Factory NewTargetImageRegistryClientFactory()
         {
-            return newRegistryClientFactory(targetImageConfiguration);
+            return NewRegistryClientFactory(targetImageConfiguration);
         }
 
-        private RegistryClient.Factory newRegistryClientFactory(ImageConfiguration imageConfiguration)
+        private RegistryClient.Factory NewRegistryClientFactory(ImageConfiguration imageConfiguration)
         {
-            RegistryClient.Factory factory = RegistryClient.factory(
-                    getEventHandlers(),
-                    imageConfiguration.getImageRegistry(),
-                    imageConfiguration.getImageRepository())
-                .setAllowInsecureRegistries(getAllowInsecureRegistries());
-            if (getToolName() != null)
+            RegistryClient.Factory factory = RegistryClient.CreateFactory(
+                    GetEventHandlers(),
+                    imageConfiguration.GetImageRegistry(),
+                    imageConfiguration.GetImageRepository())
+                .SetAllowInsecureRegistries(GetAllowInsecureRegistries());
+            if (GetToolName() != null)
             {
-                factory.addUserAgentValue(new ProductInfoHeaderValue(getToolName(), getToolVersion()));
+                factory.AddUserAgentValue(new ProductInfoHeaderValue(GetToolName(), GetToolVersion()));
             }
             return factory;
         }

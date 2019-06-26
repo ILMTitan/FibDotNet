@@ -30,22 +30,22 @@ namespace com.google.cloud.tools.jib.blob
     /** Static methods for {@link Blob}. */
     public static class Blobs
     {
-        public static IBlob from(Stream inputStream, long size)
+        public static IBlob From(Stream inputStream, long size)
         {
             return new InputStreamBlob(inputStream, size);
         }
 
-        public static IBlob from(byte[] bytes)
+        public static IBlob From(byte[] bytes)
         {
             return new BytesBlob(bytes);
         }
 
-        public static IBlob from(SystemPath file)
+        public static IBlob From(SystemPath file)
         {
             return new FileBlob(file);
         }
 
-        public static IBlob fromJson(object template)
+        public static IBlob FromJson(object template)
         {
             return new JsonBlob(template);
         }
@@ -56,12 +56,12 @@ namespace com.google.cloud.tools.jib.blob
          * @param content the string to create the blob from
          * @return the {@link StringBlob}
          */
-        public static IBlob from(string content)
+        public static IBlob From(string content)
         {
             return new StringBlob(content);
         }
 
-        public static IBlob from(WritableContentsAsync writable, long size)
+        public static IBlob From(WritableContentsAsync writable, long size)
         {
             return new AsyncWritableContentsBlob(writable, size);
         }
@@ -73,9 +73,9 @@ namespace com.google.cloud.tools.jib.blob
          * @return the BLOB contents as a string
          * @throws IOException if writing out the BLOB contents fails
          */
-        public static async Task<string> writeToStringAsync(IBlob blob)
+        public static async Task<string> WriteToStringAsync(IBlob blob)
         {
-            return Encoding.UTF8.GetString(await writeToByteArrayAsync(blob).ConfigureAwait(false));
+            return Encoding.UTF8.GetString(await WriteToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
         /**
@@ -85,13 +85,13 @@ namespace com.google.cloud.tools.jib.blob
          * @return the BLOB contents as a byte array
          * @throws IOException if writing out the BLOB contents fails
          */
-        public static async Task<byte[]> writeToByteArrayAsync(IBlob blob)
+        public static async Task<byte[]> WriteToByteArrayAsync(IBlob blob)
         {
             blob = blob ?? throw new ArgumentNullException(nameof(blob));
             using (MemoryStream byteArrayOutputStream = new MemoryStream())
             {
-                await blob.writeToAsync(byteArrayOutputStream).ConfigureAwait(false);
-                return byteArrayOutputStream.toByteArray();
+                await blob.WriteToAsync(byteArrayOutputStream).ConfigureAwait(false);
+                return byteArrayOutputStream.ToByteArray();
             }
         }
     }

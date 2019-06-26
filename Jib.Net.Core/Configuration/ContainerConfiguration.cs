@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param creationTime the creation time
              * @return this
              */
-            public Builder setCreationTime(Instant creationTime)
+            public Builder SetCreationTime(Instant creationTime)
             {
                 this.creationTime = creationTime;
                 return this;
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param programArguments the list of arguments
              * @return this
              */
-            public Builder setProgramArguments(IList<string> programArguments)
+            public Builder SetProgramArguments(IList<string> programArguments)
             {
                 if (programArguments == null)
                 {
@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !programArguments.contains(null), "program arguments list contains null elements");
+                        !JavaExtensions.Contains(programArguments, null), "program arguments list contains null elements");
                     this.programArguments = ImmutableArray.CreateRange(programArguments);
                 }
                 return this;
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param environmentMap the map
              * @return this
              */
-            public Builder setEnvironment(IDictionary<string, string> environmentMap)
+            public Builder SetEnvironment(IDictionary<string, string> environmentMap)
             {
                 if (environmentMap == null)
                 {
@@ -91,19 +91,19 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !Iterables.any(environmentMap.keySet(), Objects.isNull),
+                        !Iterables.Any(environmentMap.KeySet(), Objects.IsNull),
                         "environment map contains null keys");
                     Preconditions.CheckArgument(
-                        !Iterables.any(environmentMap.values(), Objects.isNull),
+                        !Iterables.Any(environmentMap.Values(), Objects.IsNull),
                         "environment map contains null values");
                     this.environmentMap = new Dictionary<string, string>(environmentMap);
                 }
                 return this;
             }
 
-            public void addEnvironment(string name, string value)
+            public void AddEnvironment(string name, string value)
             {
-                (environmentMap ?? (environmentMap = new Dictionary<string, string>())).put(name, value);
+                (environmentMap ?? (environmentMap = new Dictionary<string, string>())).Put(name, value);
             }
 
             /**
@@ -112,7 +112,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param exposedPorts the set of ports
              * @return this
              */
-            public Builder setExposedPorts(ISet<Port> exposedPorts)
+            public Builder SetExposedPorts(ISet<Port> exposedPorts)
             {
                 if (exposedPorts == null)
                 {
@@ -121,15 +121,15 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !exposedPorts.contains(null), "ports list contains null elements");
+                        !JavaExtensions.Contains(exposedPorts, null), "ports list contains null elements");
                     this.exposedPorts = new HashSet<Port>(exposedPorts);
                 }
                 return this;
             }
 
-            public void addExposedPort(Port port)
+            public void AddExposedPort(Port port)
             {
-                (exposedPorts ?? (exposedPorts = new HashSet<Port>())).add(port);
+                JavaExtensions.Add((exposedPorts ?? (exposedPorts = new HashSet<Port>())), port);
             }
 
             /**
@@ -138,7 +138,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param volumes the set of volumes
              * @return this
              */
-            public Builder setVolumes(ISet<AbsoluteUnixPath> volumes)
+            public Builder SetVolumes(ISet<AbsoluteUnixPath> volumes)
             {
                 if (volumes == null)
                 {
@@ -146,15 +146,15 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(!volumes.contains(null), "volumes list contains null elements");
+                    Preconditions.CheckArgument(!JavaExtensions.Contains(volumes, null), "volumes list contains null elements");
                     this.volumes = new HashSet<AbsoluteUnixPath>(volumes);
                 }
                 return this;
             }
 
-            public void addVolume(AbsoluteUnixPath volume)
+            public void AddVolume(AbsoluteUnixPath volume)
             {
-                (volumes ?? (volumes = new HashSet<AbsoluteUnixPath>())).add(volume);
+                JavaExtensions.Add((volumes ?? (volumes = new HashSet<AbsoluteUnixPath>())), volume);
             }
 
             /**
@@ -163,7 +163,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param labels the map of labels
              * @return this
              */
-            public Builder setLabels(IDictionary<string, string> labels)
+            public Builder SetLabels(IDictionary<string, string> labels)
             {
                 if (labels == null)
                 {
@@ -172,17 +172,17 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !Iterables.any(labels.keySet(), Objects.isNull), "labels map contains null keys");
+                        !Iterables.Any(labels.KeySet(), Objects.IsNull), "labels map contains null keys");
                     Preconditions.CheckArgument(
-                        !Iterables.any(labels.values(), Objects.isNull), "labels map contains null values");
+                        !Iterables.Any(labels.Values(), Objects.IsNull), "labels map contains null values");
                     this.labels = new Dictionary<string, string>(labels);
                 }
                 return this;
             }
 
-            public void addLabel(string key, string value)
+            public void AddLabel(string key, string value)
             {
-                (labels ?? (labels = new Dictionary<string, string>())).put(key, value);
+                (labels ?? (labels = new Dictionary<string, string>())).Put(key, value);
             }
 
             /**
@@ -191,7 +191,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param entrypoint the tokenized command to run when the container starts
              * @return this
              */
-            public Builder setEntrypoint(IList<string> entrypoint)
+            public Builder SetEntrypoint(IList<string> entrypoint)
             {
                 if (entrypoint == null)
                 {
@@ -200,7 +200,7 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !entrypoint.contains(null), "entrypoint contains null elements");
+                        !JavaExtensions.Contains(entrypoint, null), "entrypoint contains null elements");
                     this.entrypoint = ImmutableArray.CreateRange(entrypoint);
                 }
                 return this;
@@ -214,7 +214,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param user the username/UID and optionally the groupname/GID
              * @return this
              */
-            public Builder setUser(string user)
+            public Builder SetUser(string user)
             {
                 this.user = user;
                 return this;
@@ -226,7 +226,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param workingDirectory the working directory
              * @return this
              */
-            public Builder setWorkingDirectory(AbsoluteUnixPath workingDirectory)
+            public Builder SetWorkingDirectory(AbsoluteUnixPath workingDirectory)
             {
                 this.workingDirectory = workingDirectory;
                 return this;
@@ -237,7 +237,7 @@ namespace com.google.cloud.tools.jib.configuration
              *
              * @return the corresponding {@link ContainerConfiguration}
              */
-            public ContainerConfiguration build()
+            public ContainerConfiguration Build()
             {
                 return new ContainerConfiguration(
                     creationTime,
@@ -259,7 +259,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the builder
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -296,47 +296,47 @@ namespace com.google.cloud.tools.jib.configuration
             this.workingDirectory = workingDirectory;
         }
 
-        public Instant getCreationTime()
+        public Instant GetCreationTime()
         {
             return creationTime;
         }
 
-        public ImmutableArray<string>? getEntrypoint()
+        public ImmutableArray<string>? GetEntrypoint()
         {
             return entrypoint;
         }
 
-        public ImmutableArray<string>? getProgramArguments()
+        public ImmutableArray<string>? GetProgramArguments()
         {
             return programArguments;
         }
 
-        public ImmutableDictionary<string, string> getEnvironmentMap()
+        public ImmutableDictionary<string, string> GetEnvironmentMap()
         {
             return environmentMap;
         }
 
-        public ImmutableHashSet<Port> getExposedPorts()
+        public ImmutableHashSet<Port> GetExposedPorts()
         {
             return exposedPorts;
         }
 
-        public ImmutableHashSet<AbsoluteUnixPath> getVolumes()
+        public ImmutableHashSet<AbsoluteUnixPath> GetVolumes()
         {
             return volumes;
         }
 
-        public string getUser()
+        public string GetUser()
         {
             return user;
         }
 
-        public ImmutableDictionary<string, string> getLabels()
+        public ImmutableDictionary<string, string> GetLabels()
         {
             return labels;
         }
 
-        public AbsoluteUnixPath getWorkingDirectory()
+        public AbsoluteUnixPath GetWorkingDirectory()
         {
             return workingDirectory;
         }
@@ -363,7 +363,7 @@ namespace com.google.cloud.tools.jib.configuration
 
         public override int GetHashCode()
         {
-            return Objects.hash(
+            return Objects.Hash(
                 creationTime, entrypoint, programArguments, environmentMap, exposedPorts, labels, user);
         }
     }

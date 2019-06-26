@@ -45,31 +45,31 @@ namespace com.google.cloud.tools.jib.api
         private static FileInfo imageTar;
 
         [OneTimeSetUp]
-        public static async Task createImageAsync()
+        public static async Task CreateImageAsync()
         {
-            SystemPath root = imageLocation.getRoot().toPath();
-            SystemPath fileA = Files.createFile(root.Resolve("fileA.txt"));
-            SystemPath fileB = Files.createFile(root.Resolve("fileB.txt"));
-            SystemPath fileC = Files.createFile(root.Resolve("fileC.txt"));
-            SystemPath subdir = Files.createDirectory(root.Resolve("dir"));
-            SystemPath subsubdir = Files.createDirectory(subdir.Resolve("subdir"));
-            Files.createFile(subdir.Resolve("fileD.txt"));
-            Files.createFile(subsubdir.Resolve("fileE.txt"));
+            SystemPath root = imageLocation.GetRoot().ToPath();
+            SystemPath fileA = Files.CreateFile(root.Resolve("fileA.txt"));
+            SystemPath fileB = Files.CreateFile(root.Resolve("fileB.txt"));
+            SystemPath fileC = Files.CreateFile(root.Resolve("fileC.txt"));
+            SystemPath subdir = Files.CreateDirectory(root.Resolve("dir"));
+            SystemPath subsubdir = Files.CreateDirectory(subdir.Resolve("subdir"));
+            Files.CreateFile(subdir.Resolve("fileD.txt"));
+            Files.CreateFile(subsubdir.Resolve("fileE.txt"));
 
-            imageTar = new FileInfo(Path.Combine(imageLocation.getRoot().FullName, "image.tar"));
+            imageTar = new FileInfo(Path.Combine(imageLocation.GetRoot().FullName, "image.tar"));
             Containerizer containerizer =
-                Containerizer.To(TarImage.named("jib-core/reproducible").saveTo(imageTar.toPath()));
+                Containerizer.To(TarImage.Named("jib-core/reproducible").SaveTo(imageTar.ToPath()));
 
             await Jib.FromScratch()
                 .SetEntrypoint("echo", "Hello World")
-                .AddLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.get("/app"))
+                .AddLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.Get("/app"))
                 // layer with out-of-order files
                 .AddLayer(ImmutableArray.Create(fileC, fileB), "/app")
                 .AddLayer(
                     LayerConfiguration.builder()
-                        .addEntryRecursive(subdir, AbsoluteUnixPath.get("/app"))
-                        .build())
-                .containerizeAsync(containerizer).ConfigureAwait(false);
+                        .AddEntryRecursive(subdir, AbsoluteUnixPath.Get("/app"))
+                        .Build())
+                .ContainerizeAsync(containerizer).ConfigureAwait(false);
         }
 
         [OneTimeTearDown]
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testTarballStructure()
+        public void TestTarballStructure()
         {
             // known content should produce known results
             IList<string> expected =
@@ -92,12 +92,12 @@ namespace com.google.cloud.tools.jib.api
 
             IList<string> actual = new List<string>();
             using (TarInputStream input =
-                new TarInputStream(Files.newInputStream(imageTar.toPath())))
+                new TarInputStream(Files.NewInputStream(imageTar.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.getNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    actual.add(imageEntry.getName());
+                    JavaExtensions.Add(actual, imageEntry.GetName());
                 }
             }
 
@@ -105,9 +105,9 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testManifest()
+        public void TestManifest()
         {
-            using (Stream input = Files.newInputStream(imageTar.toPath()))
+            using (Stream input = Files.NewInputStream(imageTar.ToPath()))
             {
                 const string exectedManifest =
                     "[{" +
@@ -119,15 +119,15 @@ namespace com.google.cloud.tools.jib.api
                             "\"905f254d440aeb07a4ed7b3d0713b6a005e122aef1b0d46bae6859158b3697cf.tar.gz\"" +
                         "]" +
                     "}]";
-                string generatedManifest = extractFromTarFileAsString(imageTar, "manifest.json");
+                string generatedManifest = ExtractFromTarFileAsString(imageTar, "manifest.json");
                 Assert.AreEqual(exectedManifest, generatedManifest);
             }
         }
 
         [Test]
-        public void testConfiguration()
+        public void TestConfiguration()
         {
-            using (Stream input = Files.newInputStream(imageTar.toPath()))
+            using (Stream input = Files.NewInputStream(imageTar.ToPath()))
             {
                 const string exectedConfig =
                     "{" +
@@ -173,21 +173,21 @@ namespace com.google.cloud.tools.jib.api
                             "]" +
                         "}" +
                     "}";
-                string generatedConfig = extractFromTarFileAsString(imageTar, "config.json");
+                string generatedConfig = ExtractFromTarFileAsString(imageTar, "config.json");
                 Assert.AreEqual(exectedConfig, generatedConfig);
             }
         }
 
         [Test]
-        public void testImageLayout()
+        public void TestImageLayout()
         {
             ISet<string> paths = new HashSet<string>();
-            layerEntriesDo(
+            LayerEntriesDo(
                 (_, layerEntry) =>
                 {
-                    if (layerEntry.isFile())
+                    if (layerEntry.IsFile())
                     {
-                        paths.add(layerEntry.getName());
+                        JavaExtensions.Add(paths, layerEntry.GetName());
                     }
                 });
             CollectionAssert.AreEquivalent(
@@ -201,34 +201,34 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public void testAllFileAndDirectories()
+        public void TestAllFileAndDirectories()
         {
-            layerEntriesDo(
+            LayerEntriesDo(
                 (_, layerEntry) =>
-                    Assert.IsTrue(layerEntry.isFile() || layerEntry.isDirectory()));
+                    Assert.IsTrue(layerEntry.IsFile() || layerEntry.IsDirectory()));
         }
 
         [Test]
-        public void testTimestampsEpochPlus1s()
+        public void TestTimestampsEpochPlus1s()
         {
-            layerEntriesDo(
+            LayerEntriesDo(
                 (layerName, layerEntry) =>
                 {
-                    Instant modificationTime = DateTime.SpecifyKind(layerEntry.getLastModifiedDate(), DateTimeKind.Utc).toInstant();
+                    Instant modificationTime = DateTime.SpecifyKind(layerEntry.GetLastModifiedDate(), DateTimeKind.Utc).ToInstant();
                     Assert.AreEqual(
-                Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.getName());
+                Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.GetName());
                 });
         }
 
         [Test]
-        public void testPermissions()
+        public void TestPermissions()
         {
-            Assert.AreEqual(FilePermissions.fromOctalString("644"), FilePermissions.DefaultFilePermissions);
-            Assert.AreEqual(FilePermissions.fromOctalString("755"), FilePermissions.DefaultFolderPermissions);
-            layerEntriesDo(
+            Assert.AreEqual(FilePermissions.FromOctalString("644"), FilePermissions.DefaultFilePermissions);
+            Assert.AreEqual(FilePermissions.FromOctalString("755"), FilePermissions.DefaultFolderPermissions);
+            LayerEntriesDo(
                 (layerName, layerEntry) =>
                 {
-                    if (layerEntry.isFile())
+                    if (layerEntry.IsFile())
                     {
                         const PosixFilePermissions expectedFilePermissions = PosixFilePermissions.OwnerRead
                             | PosixFilePermissions.OwnerWrite
@@ -236,55 +236,55 @@ namespace com.google.cloud.tools.jib.api
                             | PosixFilePermissions.OthersRead;
                         Assert.AreEqual(
                             expectedFilePermissions,
-                            layerEntry.getMode() & PosixFilePermissions.All,
-                            layerName + ": " + layerEntry.getName());
+                            layerEntry.GetMode() & PosixFilePermissions.All,
+                            layerName + ": " + layerEntry.GetName());
                     }
-                    else if (layerEntry.isDirectory())
+                    else if (layerEntry.IsDirectory())
                     {
                         const PosixFilePermissions expectedDirectoryPermissions = PosixFilePermissions.OwnerAll
                             | PosixFilePermissions.GroupReadExecute
                             | PosixFilePermissions.OthersReadExecute;
                         Assert.AreEqual(
                             expectedDirectoryPermissions,
-                            layerEntry.getMode() & PosixFilePermissions.All,
-                            layerName + ": " + layerEntry.getName());
+                            layerEntry.GetMode() & PosixFilePermissions.All,
+                            layerName + ": " + layerEntry.GetName());
                     }
                 });
         }
 
         [Test]
-        public void testNoImplicitParentDirectories()
+        public void TestNoImplicitParentDirectories()
         {
             ISet<string> directories = new HashSet<string>();
-            layerEntriesDo(
+            LayerEntriesDo(
                 (_, layerEntry) =>
                 {
-                    string entryPath = layerEntry.getName();
-                    if (layerEntry.isDirectory())
+                    string entryPath = layerEntry.GetName();
+                    if (layerEntry.IsDirectory())
                     {
-                        Assert.IsTrue(entryPath.endsWith("/"), "directories in tar end with /");
-                        entryPath = entryPath.substring(0, entryPath.length() - 1);
+                        Assert.IsTrue(JavaExtensions.EndsWith(entryPath, "/"), "directories in tar end with /");
+                        entryPath = JavaExtensions.Substring(entryPath, 0, entryPath.Length() - 1);
                     }
 
-                    int lastSlashPosition = entryPath.lastIndexOf('/');
-                    string parent = entryPath.substring(0, Math.Max(0, lastSlashPosition));
-                    if (!parent.isEmpty())
+                    int lastSlashPosition = JavaExtensions.LastIndexOf(entryPath, '/');
+                    string parent = JavaExtensions.Substring(entryPath, 0, Math.Max(0, lastSlashPosition));
+                    if (!parent.IsEmpty())
                     {
-                        Assert.IsTrue(directories.contains(parent),
+                        Assert.IsTrue(JavaExtensions.Contains(directories, parent),
                     "layer has implicit parent directory: " + parent);
                     }
-                    if (layerEntry.isDirectory())
+                    if (layerEntry.IsDirectory())
                     {
-                        directories.add(entryPath);
+                        JavaExtensions.Add(directories, entryPath);
                     }
                 });
         }
 
         [Test]
-        public void testFileOrdering()
+        public void TestFileOrdering()
         {
             Dictionary<string, List<string>> layerPaths = new Dictionary<string, List<string>>();
-            layerEntriesDo((layerName, layerEntry) =>
+            LayerEntriesDo((layerName, layerEntry) =>
             {
                 List<string> pathsList;
                 if (layerPaths.ContainsKey(layerName))
@@ -296,9 +296,9 @@ namespace com.google.cloud.tools.jib.api
                     pathsList = new List<string>();
                     layerPaths[layerName] = pathsList;
                 }
-                pathsList.Add(layerEntry.getName());
+                pathsList.Add(layerEntry.GetName());
             });
-            foreach (ICollection<string> paths in layerPaths.asMap().values())
+            foreach (ICollection<string> paths in layerPaths.AsMap().Values())
             {
                 List<string> sorted = new List<string>(paths);
                 // ReproducibleLayerBuilder sorts by TarArchiveEntry.getName()
@@ -307,40 +307,40 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        private void layerEntriesDo(Action<string, TarEntry> layerConsumer)
+        private void LayerEntriesDo(Action<string, TarEntry> layerConsumer)
         {
             using (TarInputStream input =
-                new TarInputStream(Files.newInputStream(imageTar.toPath())))
+                new TarInputStream(Files.NewInputStream(imageTar.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.getNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    string imageEntryName = imageEntry.getName();
+                    string imageEntryName = imageEntry.GetName();
                     // assume all .tar.gz files are layers
-                    if (imageEntry.isFile() && imageEntryName.endsWith(".tar.gz"))
+                    if (imageEntry.IsFile() && JavaExtensions.EndsWith(imageEntryName, ".tar.gz"))
                     {
                         TarInputStream layer = new TarInputStream(new GZipStream(input, CompressionMode.Decompress));
                         TarEntry layerEntry;
-                        while ((layerEntry = layer.getNextTarEntry()) != null)
+                        while ((layerEntry = layer.GetNextTarEntry()) != null)
                         {
-                            layerConsumer.accept(imageEntryName, layerEntry);
+                            layerConsumer.Accept(imageEntryName, layerEntry);
                         }
                     }
                 }
             }
         }
 
-        private static string extractFromTarFileAsString(FileInfo tarFile, string filename)
+        private static string ExtractFromTarFileAsString(FileInfo tarFile, string filename)
         {
             using (TarInputStream input =
-                new TarInputStream(Files.newInputStream(tarFile.toPath())))
+                new TarInputStream(Files.NewInputStream(tarFile.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.getNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    if (filename == imageEntry.getName())
+                    if (filename == imageEntry.GetName())
                     {
-                        return CharStreams.toString(new StreamReader(input, Encoding.UTF8));
+                        return CharStreams.ToString(new StreamReader(input, Encoding.UTF8));
                     }
                 }
             }

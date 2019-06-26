@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.api
             this.@out = @out;
         }
 
-        internal void info(string v)
+        internal void Info(string v)
         {
             @out.WriteLine(v);
         }

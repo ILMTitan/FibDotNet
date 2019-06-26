@@ -8,15 +8,15 @@ namespace com.google.cloud.tools.jib.configuration
     public interface IContainerConfiguration
     {
         bool Equals(object other);
-        Instant getCreationTime();
-        ImmutableArray<string>? getEntrypoint();
-        ImmutableDictionary<string, string> getEnvironmentMap();
-        ImmutableHashSet<Port> getExposedPorts();
+        Instant GetCreationTime();
+        ImmutableArray<string>? GetEntrypoint();
+        ImmutableDictionary<string, string> GetEnvironmentMap();
+        ImmutableHashSet<Port> GetExposedPorts();
         int GetHashCode();
-        ImmutableDictionary<string, string> getLabels();
-        ImmutableArray<string>? getProgramArguments();
-        string getUser();
-        ImmutableHashSet<AbsoluteUnixPath> getVolumes();
-        AbsoluteUnixPath getWorkingDirectory();
+        ImmutableDictionary<string, string> GetLabels();
+        ImmutableArray<string>? GetProgramArguments();
+        string GetUser();
+        ImmutableHashSet<AbsoluteUnixPath> GetVolumes();
+        AbsoluteUnixPath GetWorkingDirectory();
     }
 }

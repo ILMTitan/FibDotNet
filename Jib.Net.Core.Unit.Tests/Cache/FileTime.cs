@@ -21,12 +21,12 @@ namespace com.google.cloud.tools.jib.cache
 {
     internal static class FileTime
     {
-        internal static DateTime from(Instant instant)
+        internal static DateTime From(Instant instant)
         {
             return instant.ToDateTimeUtc();
         }
 
-        internal static DateTime fromMillis(long lastModifiedTime)
+        internal static DateTime FromMillis(long lastModifiedTime)
         {
             return Instant.FromUnixTimeMilliseconds(lastModifiedTime).ToDateTimeUtc();
         }

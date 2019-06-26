@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.filesystem
         public DirectoryWalker(SystemPath rootDir)
         {
             rootDir = rootDir ?? throw new ArgumentNullException(nameof(rootDir));
-            if (!Files.isDirectory(rootDir))
+            if (!Files.IsDirectory(rootDir))
             {
                 throw new ArgumentException(rootDir + " is not a directory", nameof(rootDir));
             }
@@ -53,9 +53,9 @@ namespace com.google.cloud.tools.jib.filesystem
          *     accepted and {@code false} otherwise.
          * @return this
          */
-        public DirectoryWalker filter(Func<SystemPath, bool> pathFilter)
+        public DirectoryWalker Filter(Func<SystemPath, bool> pathFilter)
         {
-            this.pathFilter = this.pathFilter.and(pathFilter);
+            this.pathFilter = this.pathFilter.And(pathFilter);
             return this;
         }
 
@@ -64,9 +64,9 @@ namespace com.google.cloud.tools.jib.filesystem
          *
          * @return this
          */
-        public DirectoryWalker filterRoot()
+        public DirectoryWalker FilterRoot()
         {
-            filter(path => !path.Equals(rootDir));
+            Filter(path => !path.Equals(rootDir));
             return this;
         }
 
@@ -78,12 +78,12 @@ namespace com.google.cloud.tools.jib.filesystem
          * @return a list of Paths that were walked.
          * @throws IOException if the walk fails.
          */
-        public ImmutableArray<SystemPath> walk(PathConsumer pathConsumer)
+        public ImmutableArray<SystemPath> Walk(PathConsumer pathConsumer)
         {
-            ImmutableArray<SystemPath> files = walk();
+            ImmutableArray<SystemPath> files = Walk();
             foreach (SystemPath path in files)
             {
-                pathConsumer.accept(path);
+                pathConsumer.Accept(path);
             }
             return files;
         }
@@ -94,11 +94,11 @@ namespace com.google.cloud.tools.jib.filesystem
          * @return the walked files.
          * @throws IOException if walking the files fails.
          */
-        public ImmutableArray<SystemPath> walk()
+        public ImmutableArray<SystemPath> Walk()
         {
-            IEnumerable<SystemPath> fileStream = Files.walk(rootDir);
+            IEnumerable<SystemPath> fileStream = Files.Walk(rootDir);
             {
-                return fileStream.filter(pathFilter).sorted().ToImmutableArray();
+                return fileStream.Filter(pathFilter).Sorted().ToImmutableArray();
             }
         }
     }

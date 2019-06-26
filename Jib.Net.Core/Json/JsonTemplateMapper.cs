@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonFile}
          * @throws IOException if an error occurred during reading the file or parsing the JSON
          */
-        public static T readJsonFromFile<T>(SystemPath jsonFile)
+        public static T ReadJsonFromFile<T>(SystemPath jsonFile)
         {
 
             jsonFile = jsonFile ?? throw new ArgumentNullException(nameof(jsonFile));
@@ -80,9 +80,9 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonFile}
          * @throws IOException if an error occurred during reading the file or parsing the JSON
          */
-        public static T readJsonFromFileWithLock<T>(SystemPath jsonFile)
+        public static T ReadJsonFromFileWithLock<T>(SystemPath jsonFile)
         {
-            return readJsonFromFile<T>(jsonFile);
+            return ReadJsonFromFile<T>(jsonFile);
         }
 
         /**
@@ -94,7 +94,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static T readJson<T>(string jsonString) => objectMapper.readValue<T>(jsonString);
+        public static T ReadJson<T>(string jsonString) => objectMapper.ReadValue<T>(jsonString);
 
         /**
          * Deserializes a JSON object list from a JSON string.
@@ -105,22 +105,22 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static List<T> readListOfJson<T>(string jsonString)
+        public static List<T> ReadListOfJson<T>(string jsonString)
         {
             return JsonConvert.DeserializeObject<List<T>>(jsonString);
         }
 
-        public static string toUtf8String(object template)
+        public static string ToUtf8String(object template)
         {
-            return Encoding.UTF8.GetString(toByteArray(template));
+            return Encoding.UTF8.GetString(ToByteArray(template));
         }
 
-        public static byte[] toByteArray(object template)
+        public static byte[] ToByteArray(object template)
         {
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(template));
         }
 
-        public static async Task writeToAsync(object template, Stream stream)
+        public static async Task WriteToAsync(object template, Stream stream)
         {
             var jsonString = JsonConvert.SerializeObject(template);
             Debug.WriteLine(jsonString);

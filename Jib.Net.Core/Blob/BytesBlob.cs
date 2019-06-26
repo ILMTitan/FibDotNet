@@ -35,9 +35,9 @@ namespace com.google.cloud.tools.jib.blob
 
         public long Size => _bytes.LongLength;
 
-        public Task<BlobDescriptor> writeToAsync(Stream outputStream)
+        public Task<BlobDescriptor> WriteToAsync(Stream outputStream)
         {
-            return Digests.computeDigestAsync(s => s.WriteAsync(_bytes, 0, _bytes.Length), outputStream);
+            return Digests.ComputeDigestAsync(s => s.WriteAsync(_bytes, 0, _bytes.Length), outputStream);
         }
     }
 }

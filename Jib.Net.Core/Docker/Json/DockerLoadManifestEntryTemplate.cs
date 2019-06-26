@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.docker.json
 
         public void AddLayerFile(string layer)
         {
-            Layers.add(layer);
+            JavaExtensions.Add(Layers, layer);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace com.google.cloud.tools.jib.http
 {
     public interface IConnection : IDisposable
     {
-        Task<HttpResponseMessage> sendAsync(HttpRequestMessage request);
+        Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
     }
 }

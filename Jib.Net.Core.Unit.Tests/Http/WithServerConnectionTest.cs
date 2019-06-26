@@ -25,6 +25,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Security.Authentication;
 using System.Text;
+using System.Runtime.ExceptionServices;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -32,31 +33,31 @@ namespace com.google.cloud.tools.jib.http
     public class WithServerConnectionTest
     {
         [Test]
-        public async Task testGetAsync()
+        public async Task TestGetAsync()
         {
             using (TestWebServer server = new TestWebServer(false))
             using (Connection connection =
-                    Connection.getConnectionFactory().apply(new Uri("http://" + server.GetAddressAndPort())))
+                    Connection.GetConnectionFactory().Apply(new Uri("http://" + server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
+                HttpResponseMessage response = await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
-                Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.GetStatusCode());
                 CollectionAssert.AreEqual(
-                    "Hello World!".getBytes(Encoding.UTF8),
-                    ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
+                    "Hello World!".GetBytes(Encoding.UTF8),
+                    ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
             }
         }
 
         [Test]
-        public async Task testSecureConnectionOnInsecureHttpsServerAsync()
+        public async Task TestSecureConnectionOnInsecureHttpsServerAsync()
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                Connection.getConnectionFactory().apply(new Uri("https://" + server.GetAddressAndPort())))
+                Connection.GetConnectionFactory().Apply(new Uri("https://" + server.GetAddressAndPort())))
             {
                 try
                 {
-                    await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
+                    await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
                     Assert.Fail("Should fail if cannot verify peer");
                 }
                 catch (HttpRequestException ex)
@@ -67,18 +68,18 @@ namespace com.google.cloud.tools.jib.http
         }
 
         [Test]
-        public async Task testInsecureConnectionAsync()
+        public async Task TestInsecureConnectionAsync()
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                    Connection.getInsecureConnectionFactory().apply(new Uri("https://"+server.GetAddressAndPort())))
+                    Connection.GetInsecureConnectionFactory().Apply(new Uri("https://" + server.GetAddressAndPort())))
             {
-                HttpResponseMessage response = await connection.sendAsync(new HttpRequestMessage()).ConfigureAwait(false);
+                HttpResponseMessage response = await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
-                Assert.AreEqual(HttpStatusCode.OK, response.getStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.GetStatusCode());
                 CollectionAssert.AreEqual(
-                    "Hello World!".getBytes(Encoding.UTF8),
-                    ByteStreams.toByteArray(await response.getBodyAsync().ConfigureAwait(false)));
+                    "Hello World!".GetBytes(Encoding.UTF8),
+                    ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
             }
         }
     }

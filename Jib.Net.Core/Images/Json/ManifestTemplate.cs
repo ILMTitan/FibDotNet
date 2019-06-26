@@ -26,6 +26,5 @@ namespace com.google.cloud.tools.jib.image.json
     public interface IManifestTemplate
     {
         int SchemaVersion { get; }
-        int getSchemaVersion();
     }
 }

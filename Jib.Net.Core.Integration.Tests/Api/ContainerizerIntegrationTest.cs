@@ -49,10 +49,10 @@ namespace com.google.cloud.tools.jib.api
 
             public ProgressChecker()
             {
-                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().isEmpty(); });
+                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().IsEmpty(); });
             }
 
-            public void checkCompletion()
+            public void CheckCompletion()
             {
                 Assert.AreEqual(1.0, lastProgress, DOUBLE_ERROR_MARGIN);
                 Assert.IsTrue(areTasksFinished);
@@ -77,9 +77,9 @@ namespace com.google.cloud.tools.jib.api
 
         public static readonly ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
-                    makeLayerConfiguration("core/application/dependencies", "/app/libs/"),
-                    makeLayerConfiguration("core/application/resources", "/app/resources/"),
-                    makeLayerConfiguration("core/application/classes", "/app/classes/"));
+                    MakeLayerConfiguration("core/application/dependencies", "/app/libs/"),
+                    MakeLayerConfiguration("core/application/resources", "/app/resources/"),
+                    MakeLayerConfiguration("core/application/classes", "/app/classes/"));
 
         [SetUp]
         public void SetUp()
@@ -97,24 +97,24 @@ namespace com.google.cloud.tools.jib.api
          * Lists the files in the {@code resourcePath} resources directory and builds a {@link
          * LayerConfiguration} from those files.
          */
-        private static ILayerConfiguration makeLayerConfiguration(
+        private static ILayerConfiguration MakeLayerConfiguration(
             string resourcePath, string pathInContainer)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(TestResources.getResource(resourcePath).ToURI()));
+                Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
-                fileStream.forEach(
+                fileStream.ForEach(
                     sourceFile =>
-                        layerConfigurationBuilder.addEntry(
-                            sourceFile, AbsoluteUnixPath.get(pathInContainer + sourceFile.GetFileName())));
-                return layerConfigurationBuilder.build();
+                        layerConfigurationBuilder.AddEntry(
+                            sourceFile, AbsoluteUnixPath.Get(pathInContainer + sourceFile.GetFileName())));
+                return layerConfigurationBuilder.Build();
             }
         }
 
-        private static void assertDockerInspect(string imageReference)
+        private static void AssertDockerInspect(string imageReference)
         {
-            string dockerContainerConfig = new Command("docker", "inspect", imageReference).run();
+            string dockerContainerConfig = new Command("docker", "inspect", imageReference).Run();
             Assert.That(
                 dockerContainerConfig, Does.Contain(
                     "            \"ExposedPorts\": {\n"
@@ -130,213 +130,213 @@ namespace com.google.cloud.tools.jib.api
                         + "                \"key2\": \"value2\"\n"
                         + "            }"));
             string dockerConfigEnv =
-                new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).run();
+                new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).Run();
             Assert.That(dockerConfigEnv, Does.Contain("env1=envvalue1"));
 
             Assert.That(dockerConfigEnv, Does.Contain("env2=envvalue2"));
 
-            string history = new Command("docker", "history", imageReference).run();
+            string history = new Command("docker", "history", imageReference).Run();
             Assert.That(history, Does.Contain("jib-integration-test"));
 
             Assert.That(history, Does.Contain("bazel build ..."));
         }
 
-        private static void assertLayerSizer(int expected, string imageReference)
+        private static void AssertLayerSizer(int expected, string imageReference)
         {
             Command command =
                 new Command("docker", "inspect", "-f", "\"{{json .RootFS.Layers}}\"", imageReference);
-            string layers = command.run().trim();
+            string layers = JavaExtensions.Trim(command.Run());
             Assert.AreEqual(expected, JsonConvert.DeserializeObject<List<string>>(layers).Count);
         }
 
         [Test]
-        public async Task testSteps_forBuildToDockerRegistryAsync()
+        public async Task TestSteps_forBuildToDockerRegistryAsync()
         {
             Stopwatch s = Stopwatch.StartNew();
             JibContainer image1 =
-                await buildRegistryImageAsync(
-                    ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                    ImageReference.of("localhost:5000", "testimage", "testtag"),
+                await BuildRegistryImageAsync(
+                    ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                    ImageReference.Of("localhost:5000", "testimage", "testtag"),
                     new List<string>()).ConfigureAwait(false);
 
-            progressChecker.checkCompletion();
+            progressChecker.CheckCompletion();
 
-            logger.info("Initial build time: " + s.Elapsed);
+            logger.Info("Initial build time: " + s.Elapsed);
             s.Restart();
             JibContainer image2 =
-                await buildRegistryImageAsync(
-                    ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                    ImageReference.of("localhost:5000", "testimage", "testtag"),
+                await BuildRegistryImageAsync(
+                    ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                    ImageReference.Of("localhost:5000", "testimage", "testtag"),
                     new List<string>()).ConfigureAwait(false);
 
-            logger.info("Secondary build time: " + s.Elapsed);
+            logger.Info("Secondary build time: " + s.Elapsed);
 
             Assert.AreEqual(image1, image2);
 
             const string imageReference = "localhost:5000/testimage:testtag";
-            localRegistry.pull(imageReference);
-            assertDockerInspect(imageReference);
-            assertLayerSizer(7, imageReference);
+            localRegistry.Pull(imageReference);
+            AssertDockerInspect(imageReference);
+            AssertLayerSizer(7, imageReference);
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).Run());
 
-            string imageReferenceByDigest = "localhost:5000/testimage@" + image1.getDigest();
-            localRegistry.pull(imageReferenceByDigest);
-            assertDockerInspect(imageReferenceByDigest);
+            string imageReferenceByDigest = "localhost:5000/testimage@" + image1.GetDigest();
+            localRegistry.Pull(imageReferenceByDigest);
+            AssertDockerInspect(imageReferenceByDigest);
             Assert.AreEqual(
                 "Hello, world. An argument.\n",
-                new Command("docker", "run", "--rm", imageReferenceByDigest).run());
+                new Command("docker", "run", "--rm", imageReferenceByDigest).Run());
         }
 
         [Test]
-        public async Task testSteps_forBuildToDockerRegistry_multipleTagsAsync()
+        public async Task TestSteps_forBuildToDockerRegistry_multipleTagsAsync()
         {
-            await buildRegistryImageAsync(
-                ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                ImageReference.of("localhost:5000", "testimage", "testtag"),
-                Arrays.asList("testtag2", "testtag3")).ConfigureAwait(false);
+            await BuildRegistryImageAsync(
+                ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                ImageReference.Of("localhost:5000", "testimage", "testtag"),
+                Arrays.AsList("testtag2", "testtag3")).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
-            localRegistry.pull(imageReference);
-            assertDockerInspect(imageReference);
+            localRegistry.Pull(imageReference);
+            AssertDockerInspect(imageReference);
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).Run());
 
             const string imageReference2 = "localhost:5000/testimage:testtag2";
-            localRegistry.pull(imageReference2);
-            assertDockerInspect(imageReference2);
+            localRegistry.Pull(imageReference2);
+            AssertDockerInspect(imageReference2);
             Assert.AreEqual(
                 "Hello, world. An argument.\n",
-                new Command("docker", "run", "--rm", imageReference2).run());
+                new Command("docker", "run", "--rm", imageReference2).Run());
 
             const string imageReference3 = "localhost:5000/testimage:testtag3";
-            localRegistry.pull(imageReference3);
-            assertDockerInspect(imageReference3);
+            localRegistry.Pull(imageReference3);
+            AssertDockerInspect(imageReference3);
             Assert.AreEqual(
                 "Hello, world. An argument.\n",
-                new Command("docker", "run", "--rm", imageReference3).run());
+                new Command("docker", "run", "--rm", imageReference3).Run());
         }
 
         [Test]
-        public async Task testBuildToDockerRegistry_dockerHubBaseImageAsync()
+        public async Task TestBuildToDockerRegistry_dockerHubBaseImageAsync()
         {
-            await buildRegistryImageAsync(
-                ImageReference.parse("openjdk:8-jre-alpine"),
-                ImageReference.of("localhost:5000", "testimage", "testtag"),
+            await BuildRegistryImageAsync(
+                ImageReference.Parse("openjdk:8-jre-alpine"),
+                ImageReference.Of("localhost:5000", "testimage", "testtag"),
                 new List<string>()).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
-            new Command("docker", "pull", imageReference).run();
+            new Command("docker", "pull", imageReference).Run();
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).Run());
         }
 
         [Test]
-        public async Task testBuildToDockerDaemonAsync()
+        public async Task TestBuildToDockerDaemonAsync()
         {
-            await buildDockerDaemonImageAsync(
-                ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                ImageReference.of(null, "testdocker", null),
+            await BuildDockerDaemonImageAsync(
+                ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                ImageReference.Of(null, "testdocker", null),
                 new List<string>()).ConfigureAwait(false);
 
-            progressChecker.checkCompletion();
+            progressChecker.CheckCompletion();
 
-            assertDockerInspect("testdocker");
-            assertLayerSizer(7, "testdocker");
+            AssertDockerInspect("testdocker");
+            AssertLayerSizer(7, "testdocker");
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testdocker").run());
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testdocker").Run());
         }
 
         [Test]
-        public async Task testBuildToDockerDaemon_multipleTagsAsync()
+        public async Task TestBuildToDockerDaemon_multipleTagsAsync()
         {
             const string imageReference = "testdocker";
-            await buildDockerDaemonImageAsync(
-                ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                ImageReference.of(null, imageReference, null),
-                Arrays.asList("testtag2", "testtag3")).ConfigureAwait(false);
+            await BuildDockerDaemonImageAsync(
+                ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                ImageReference.Of(null, imageReference, null),
+                Arrays.AsList("testtag2", "testtag3")).ConfigureAwait(false);
 
-            assertDockerInspect(imageReference);
+            AssertDockerInspect(imageReference);
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).run());
-            assertDockerInspect(imageReference + ":testtag2");
-            Assert.AreEqual(
-                "Hello, world. An argument.\n",
-                new Command("docker", "run", "--rm", imageReference + ":testtag2").run());
-            assertDockerInspect(imageReference + ":testtag3");
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).Run());
+            AssertDockerInspect(imageReference + ":testtag2");
             Assert.AreEqual(
                 "Hello, world. An argument.\n",
-                new Command("docker", "run", "--rm", imageReference + ":testtag3").run());
+                new Command("docker", "run", "--rm", imageReference + ":testtag2").Run());
+            AssertDockerInspect(imageReference + ":testtag3");
+            Assert.AreEqual(
+                "Hello, world. An argument.\n",
+                new Command("docker", "run", "--rm", imageReference + ":testtag3").Run());
         }
 
         [Test]
-        public async Task testBuildTarballAsync()
+        public async Task TestBuildTarballAsync()
         {
-            SystemPath outputPath = temporaryFolder.newFolder().toPath().Resolve("test.tar");
-            await buildTarImageAsync(
-                ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
-                ImageReference.of(null, "testtar", null),
+            SystemPath outputPath = temporaryFolder.NewFolder().ToPath().Resolve("test.tar");
+            await BuildTarImageAsync(
+                ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
+                ImageReference.Of(null, "testtar", null),
                 outputPath,
                 new List<string>()).ConfigureAwait(false);
 
-            progressChecker.checkCompletion();
+            progressChecker.CheckCompletion();
 
-            new Command("docker", "load", "--input", outputPath.toString()).run();
-            assertLayerSizer(7, "testtar");
+            new Command("docker", "load", "--input", JavaExtensions.ToString(outputPath)).Run();
+            AssertLayerSizer(7, "testtar");
             Assert.AreEqual(
-                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testtar").run());
+                "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testtar").Run());
         }
 
-        private async Task<JibContainer> buildRegistryImageAsync(
+        private async Task<JibContainer> BuildRegistryImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
-            return await buildImageAsync(
-                baseImage, Containerizer.To(RegistryImage.named(targetImage)), additionalTags).ConfigureAwait(false);
+            return await BuildImageAsync(
+                baseImage, Containerizer.To(RegistryImage.Named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
-        private async Task<JibContainer> buildDockerDaemonImageAsync(
+        private async Task<JibContainer> BuildDockerDaemonImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
-            return await buildImageAsync(
-                baseImage, Containerizer.To(DockerDaemonImage.named(targetImage)), additionalTags).ConfigureAwait(false);
+            return await BuildImageAsync(
+                baseImage, Containerizer.To(DockerDaemonImage.Named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
-        private async Task<JibContainer> buildTarImageAsync(
+        private async Task<JibContainer> BuildTarImageAsync(
             ImageReference baseImage,
             ImageReference targetImage,
             SystemPath outputPath,
             List<string> additionalTags)
         {
-            return await buildImageAsync(
+            return await BuildImageAsync(
                 baseImage,
-                Containerizer.To(TarImage.named(targetImage).saveTo(outputPath)),
+                Containerizer.To(TarImage.Named(targetImage).SaveTo(outputPath)),
                 additionalTags).ConfigureAwait(false);
         }
 
-        private async Task<JibContainer> buildImageAsync(
+        private async Task<JibContainer> BuildImageAsync(
             ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
         {
             JibContainerBuilder containerBuilder =
                 Jib.From(baseImage)
                     .SetEntrypoint(
-                        Arrays.asList(
+                        Arrays.AsList(
                             "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
                     .SetProgramArguments(new List<string> { "An argument." })
-                    .SetEnvironment(ImmutableDic.of("env1", "envvalue1", "env2", "envvalue2"))
-                    .SetExposedPorts(Ports.parse(Arrays.asList("1000", "2000-2002/tcp", "3000/udp")))
-                    .SetLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))
+                    .SetEnvironment(ImmutableDic.Of("env1", "envvalue1", "env2", "envvalue2"))
+                    .SetExposedPorts(Ports.Parse(Arrays.AsList("1000", "2000-2002/tcp", "3000/udp")))
+                    .SetLabels(ImmutableDic.Of("key1", "value1", "key2", "value2"))
                     .SetLayers(fakeLayerConfigurations);
 
-            SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
+            SystemPath cacheDirectory = temporaryFolder.NewFolder().ToPath();
             containerizer
-                .setBaseImageLayersCache(cacheDirectory)
-                .setApplicationLayersCache(cacheDirectory)
-                .setAllowInsecureRegistries(true)
-                .setToolName("jib-integration-test")
-                .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler.Accept);
-            additionalTags.forEach(containerizer.withAdditionalTag);
+                .SetBaseImageLayersCache(cacheDirectory)
+                .SetApplicationLayersCache(cacheDirectory)
+                .SetAllowInsecureRegistries(true)
+                .SetToolName("jib-integration-test")
+                .AddEventHandler<ProgressEvent>(progressChecker.progressEventHandler.Accept);
+            additionalTags.ForEach(containerizer.WithAdditionalTag);
 
-            return await containerBuilder.containerizeAsync(containerizer).ConfigureAwait(false);
+            return await containerBuilder.ContainerizeAsync(containerizer).ConfigureAwait(false);
         }
     }
 }

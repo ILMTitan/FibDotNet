@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.api
              * @param outputFile the output file
              * @return a new {@link TarImage}
              */
-            public TarImage saveTo(SystemPath outputFile)
+            public TarImage SaveTo(SystemPath outputFile)
             {
                 return new TarImage(imageReference, outputFile);
             }
@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.api
          * @param imageReference the image reference
          * @return a {@link Builder} to finish constructing a new {@link TarImage}
          */
-        public static Builder named(ImageReference imageReference)
+        public static Builder Named(ImageReference imageReference)
         {
             return new Builder(imageReference);
         }
@@ -74,9 +74,9 @@ namespace com.google.cloud.tools.jib.api
          * @return a {@link Builder} to finish constructing a new {@link TarImage}
          * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
          */
-        public static Builder named(string imageReference)
+        public static Builder Named(string imageReference)
         {
-            return named(ImageReference.parse(imageReference));
+            return Named(ImageReference.Parse(imageReference));
         }
 
         private readonly ImageReference imageReference;
@@ -94,12 +94,12 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the output file
          */
-        public SystemPath getOutputFile()
+        public SystemPath GetOutputFile()
         {
             return outputFile;
         }
 
-        public ImageReference getImageReference()
+        public ImageReference GetImageReference()
         {
             return imageReference;
         }

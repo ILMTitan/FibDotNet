@@ -27,34 +27,34 @@ namespace com.google.cloud.tools.jib.api
     public class PortsTest
     {
         [Test]
-        public void testParse()
+        public void TestParse()
         {
             IList<string> goodInputs =
-                Arrays.asList("1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp");
+                Arrays.AsList("1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp");
             ImmutableHashSet<Port> expected =
                 ImmutableHashSet.CreateBuilder<Port>()
-                    .add(
-                        Port.tcp(1000),
-                        Port.tcp(2000),
-                        Port.tcp(2001),
-                        Port.tcp(2002),
-                        Port.tcp(2003),
-                        Port.tcp(3000),
-                        Port.tcp(4000),
-                        Port.udp(5000),
-                        Port.udp(6000),
-                        Port.udp(6001),
-                        Port.udp(6002))
-                    .build();
-            ImmutableHashSet<Port> result = Ports.parse(goodInputs);
+                    .Add(
+                        Port.Tcp(1000),
+                        Port.Tcp(2000),
+                        Port.Tcp(2001),
+                        Port.Tcp(2002),
+                        Port.Tcp(2003),
+                        Port.Tcp(3000),
+                        Port.Tcp(4000),
+                        Port.Udp(5000),
+                        Port.Udp(6000),
+                        Port.Udp(6001),
+                        Port.Udp(6002))
+                    .Build();
+            ImmutableHashSet<Port> result = Ports.Parse(goodInputs);
             Assert.AreEqual(expected, result);
 
-            IList<string> badInputs = Arrays.asList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
+            IList<string> badInputs = Arrays.AsList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
             foreach (string input in badInputs)
             {
                 try
                 {
-                    Ports.parse(new List<string> { input });
+                    Ports.Parse(new List<string> { input });
                     Assert.Fail(input);
                 }
                 catch (FormatException ex)
@@ -65,33 +65,33 @@ namespace com.google.cloud.tools.jib.api
                             + "'. Make sure the port is a single number or a range of two numbers separated "
                             + "with a '-', with or without protocol specified (e.g. '<portNum>/tcp' or "
                             + "'<portNum>/udp').",
-                        ex.getMessage());
+                        ex.GetMessage());
                 }
             }
 
             try
             {
-                Ports.parse(new List<string> { "4002-4000" });
+                Ports.Parse(new List<string> { "4002-4000" });
                 Assert.Fail();
             }
             catch (FormatException ex)
             {
                 Assert.AreEqual(
-                    "Invalid port range '4002-4000'; smaller number must come first.", ex.getMessage());
+                    "Invalid port range '4002-4000'; smaller number must come first.", ex.GetMessage());
             }
 
-            badInputs = Arrays.asList("0", "70000", "0-400", "1-70000");
+            badInputs = Arrays.AsList("0", "70000", "0-400", "1-70000");
             foreach (string input in badInputs)
             {
                 try
                 {
-                    Ports.parse(new List<string> { input });
+                    Ports.Parse(new List<string> { input });
                     Assert.Fail();
                 }
                 catch (FormatException ex)
                 {
                     Assert.AreEqual(
-                        "Port number '" + input + "' is out of usual range (1-65535).", ex.getMessage());
+                        "Port number '" + input + "' is out of usual range (1-65535).", ex.GetMessage());
                 }
             }
         }

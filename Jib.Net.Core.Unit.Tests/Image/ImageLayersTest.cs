@@ -34,11 +34,11 @@ namespace com.google.cloud.tools.jib.image
         private readonly ILayer mockLayer2 = Mock.Of<ILayer>();
 
         [SetUp]
-        public void setUpFakes()
+        public void SetUpFakes()
         {
-            DescriptorDigest mockDescriptorDigest1 = DescriptorDigest.fromHash(new string('a', 64));
-            DescriptorDigest mockDescriptorDigest2 = DescriptorDigest.fromHash(new string('b', 64));
-            DescriptorDigest mockDescriptorDigest3 = DescriptorDigest.fromHash(new string('c', 64));
+            DescriptorDigest mockDescriptorDigest1 = DescriptorDigest.FromHash(new string('a', 64));
+            DescriptorDigest mockDescriptorDigest2 = DescriptorDigest.FromHash(new string('b', 64));
+            DescriptorDigest mockDescriptorDigest3 = DescriptorDigest.FromHash(new string('c', 64));
 
             BlobDescriptor layerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
             BlobDescriptor referenceLayerBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest2);
@@ -47,67 +47,67 @@ namespace com.google.cloud.tools.jib.image
             // Intentionally the same digest as the mockLayer.
             BlobDescriptor anotherBlobDescriptor = new BlobDescriptor(0, mockDescriptorDigest1);
 
-            Mock.Get(mockLayer).Setup(m => m.getBlobDescriptor()).Returns(layerBlobDescriptor);
+            Mock.Get(mockLayer).Setup(m => m.GetBlobDescriptor()).Returns(layerBlobDescriptor);
 
-            Mock.Get(mockReferenceLayer).Setup(m => m.getBlobDescriptor()).Returns(referenceLayerBlobDescriptor);
+            Mock.Get(mockReferenceLayer).Setup(m => m.GetBlobDescriptor()).Returns(referenceLayerBlobDescriptor);
 
-            Mock.Get(mockDigestOnlyLayer).Setup(m => m.getBlobDescriptor()).Returns(referenceNoDiffIdLayerBlobDescriptor);
+            Mock.Get(mockDigestOnlyLayer).Setup(m => m.GetBlobDescriptor()).Returns(referenceNoDiffIdLayerBlobDescriptor);
 
-            Mock.Get(mockLayer2).Setup(m => m.getBlobDescriptor()).Returns(anotherBlobDescriptor);
+            Mock.Get(mockLayer2).Setup(m => m.GetBlobDescriptor()).Returns(anotherBlobDescriptor);
         }
 
         [Test]
-        public void testAddLayer_success()
+        public void TestAddLayer_success()
         {
-            IList<ILayer> expectedLayers = Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
+            IList<ILayer> expectedLayers = Arrays.AsList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
 
             ImageLayers imageLayers =
-                ImageLayers.builder()
-                    .add(mockLayer)
-                    .add(mockReferenceLayer)
-                    .add(mockDigestOnlyLayer)
-                    .build();
+                ImageLayers.CreateBuilder()
+                    .Add(mockLayer)
+                    .Add(mockReferenceLayer)
+                    .Add(mockDigestOnlyLayer)
+                    .Build();
 
-            Assert.AreEqual(imageLayers.getLayers(), expectedLayers);
+            Assert.AreEqual(imageLayers.GetLayers(), expectedLayers);
         }
 
         [Test]
-        public void testAddLayer_maintainDuplicates()
+        public void TestAddLayer_maintainDuplicates()
         {
             // must maintain duplicate
             IList<ILayer> expectedLayers =
-                Arrays.asList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
+                Arrays.AsList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
             ImageLayers imageLayers =
-                ImageLayers.builder()
-                    .add(mockLayer)
-                    .add(mockReferenceLayer)
-                    .add(mockDigestOnlyLayer)
-                    .add(mockLayer2)
-                    .add(mockLayer)
-                    .build();
+                ImageLayers.CreateBuilder()
+                    .Add(mockLayer)
+                    .Add(mockReferenceLayer)
+                    .Add(mockDigestOnlyLayer)
+                    .Add(mockLayer2)
+                    .Add(mockLayer)
+                    .Build();
 
-            Assert.AreEqual(expectedLayers, imageLayers.getLayers());
+            Assert.AreEqual(expectedLayers, imageLayers.GetLayers());
         }
 
         [Test]
-        public void testAddLayer_removeDuplicates()
+        public void TestAddLayer_removeDuplicates()
         {
             // remove duplicates: last layer should be kept
             IList<ILayer> expectedLayers =
-                Arrays.asList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
+                Arrays.AsList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
 
             ImageLayers imageLayers =
-                ImageLayers.builder()
-                    .removeDuplicates()
-                    .add(mockLayer)
-                    .add(mockReferenceLayer)
-                    .add(mockDigestOnlyLayer)
-                    .add(mockLayer2)
-                    .add(mockLayer)
-                    .build();
+                ImageLayers.CreateBuilder()
+                    .RemoveDuplicates()
+                    .Add(mockLayer)
+                    .Add(mockReferenceLayer)
+                    .Add(mockDigestOnlyLayer)
+                    .Add(mockLayer2)
+                    .Add(mockLayer)
+                    .Build();
 
-            Assert.AreEqual(expectedLayers, imageLayers.getLayers());
+            Assert.AreEqual(expectedLayers, imageLayers.GetLayers());
         }
     }
 }

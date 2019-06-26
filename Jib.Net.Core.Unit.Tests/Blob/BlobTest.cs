@@ -32,62 +32,62 @@ namespace com.google.cloud.tools.jib.blob
     public class BlobTest
     {
         [Test]
-        public async Task testFromInputStreamAsync()
+        public async Task TestFromInputStreamAsync()
         {
             const string expected = "crepecake";
-            Stream inputStream = new MemoryStream(expected.getBytes(Encoding.UTF8));
-            await verifyBlobWriteToAsync(expected, Blobs.from(inputStream, -1)).ConfigureAwait(false);
+            Stream inputStream = new MemoryStream(expected.GetBytes(Encoding.UTF8));
+            await VerifyBlobWriteToAsync(expected, Blobs.From(inputStream, -1)).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testFromFileAsync()
+        public async Task TestFromFileAsync()
         {
-            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
-            string expected = Encoding.UTF8.GetString(Files.readAllBytes(fileA));
-            await verifyBlobWriteToAsync(expected, Blobs.from(fileA)).ConfigureAwait(false);
+            SystemPath fileA = Paths.Get(TestResources.GetResource("core/fileA").ToURI());
+            string expected = Encoding.UTF8.GetString(Files.ReadAllBytes(fileA));
+            await VerifyBlobWriteToAsync(expected, Blobs.From(fileA)).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testFromBytesAsync()
+        public async Task TestFromBytesAsync()
         {
             const string expected = "crepecake";
-            byte[] content = expected.getBytes(Encoding.UTF8);
-            await verifyBlobWriteToAsync(expected, Blobs.from(content)).ConfigureAwait(false);
+            byte[] content = expected.GetBytes(Encoding.UTF8);
+            await VerifyBlobWriteToAsync(expected, Blobs.From(content)).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testFromStringAsync()
+        public async Task TestFromStringAsync()
         {
             const string expected = "crepecake";
-            await verifyBlobWriteToAsync(expected, Blobs.from(expected)).ConfigureAwait(false);
+            await VerifyBlobWriteToAsync(expected, Blobs.From(expected)).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testFromWritableContentsAsync()
+        public async Task TestFromWritableContentsAsync()
         {
             const string expected = "crepecake";
 
-            async Task writableContents(Stream outputStream) => await outputStream.WriteAsync(expected.getBytes(Encoding.UTF8));
+            async Task writableContents(Stream outputStream) => await outputStream.WriteAsync(expected.GetBytes(Encoding.UTF8));
 
-            await verifyBlobWriteToAsync(expected, Blobs.from(writableContents, -1)).ConfigureAwait(false);
+            await VerifyBlobWriteToAsync(expected, Blobs.From(writableContents, -1)).ConfigureAwait(false);
         }
 
         /** Checks that the {@link Blob} streams the expected string. */
-        private async System.Threading.Tasks.Task verifyBlobWriteToAsync(string expected, IBlob blob)
+        private async System.Threading.Tasks.Task VerifyBlobWriteToAsync(string expected, IBlob blob)
         {
             MemoryStream outputStream = new MemoryStream();
-            BlobDescriptor blobDescriptor = await blob.writeToAsync(outputStream).ConfigureAwait(false);
+            BlobDescriptor blobDescriptor = await blob.WriteToAsync(outputStream).ConfigureAwait(false);
 
             string output = Encoding.UTF8.GetString(outputStream.ToArray());
             Assert.AreEqual(expected, output);
 
-            byte[] expectedBytes = expected.getBytes(Encoding.UTF8);
-            Assert.AreEqual(expectedBytes.Length, blobDescriptor.getSize());
+            byte[] expectedBytes = expected.GetBytes(Encoding.UTF8);
+            Assert.AreEqual(expectedBytes.Length, blobDescriptor.GetSize());
 
-            BlobDescriptor digestDescriptor = await Digests.computeDigestAsync(new MemoryStream(expectedBytes)).ConfigureAwait(false);
+            BlobDescriptor digestDescriptor = await Digests.ComputeDigestAsync(new MemoryStream(expectedBytes)).ConfigureAwait(false);
             DescriptorDigest expectedDigest =
-                digestDescriptor.getDigest();
-            Assert.AreEqual(expectedDigest, blobDescriptor.getDigest());
+                digestDescriptor.GetDigest();
+            Assert.AreEqual(expectedDigest, blobDescriptor.GetDigest());
         }
     }
 }

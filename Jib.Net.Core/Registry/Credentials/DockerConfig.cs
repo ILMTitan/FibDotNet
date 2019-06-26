@@ -31,22 +31,22 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * Returns the first entry matching the given key predicates (short-circuiting in the order of
          * predicates).
          */
-        private static Option<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
+        private static Option<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
         {
             return keyMatches
-                .stream()
-                .map(keyMatch => findFirstInMapByKey(map, keyMatch))
-                .filter(o => o.IsPresent())
-                .findFirst();
+                .Stream()
+                .Map(keyMatch => FindFirstInMapByKey(map, keyMatch))
+                .Filter(o => o.IsPresent())
+                .FindFirst();
         }
 
         /** Returns the first entry matching the given key predicate. */
-        private static Option<KeyValuePair<K, T>> findFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
+        private static Option<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
         {
-            return map.entrySet()
-                .stream()
-                .filter(entry => keyMatch(entry.getKey()))
-                .findFirst();
+            return map.EntrySet()
+                .Stream()
+                .Filter(entry => keyMatch(entry.GetKey()))
+                .FindFirst();
         }
 
         private readonly DockerConfigTemplate dockerConfigTemplate;
@@ -71,11 +71,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the base64-encoded {@code Basic} authorization for {@code registry}, or {@code null} if
          *     none exists
          */
-        public string getAuthFor(string registry)
+        public string GetAuthFor(string registry)
         {
             KeyValuePair<string, AuthTemplate>? authEntry =
-                findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry)).AsNullable();
-            return authEntry?.getValue().getAuth();
+                FindFirstInMapByKey(dockerConfigTemplate.Auths, GetRegistryMatchersFor(registry)).AsNullable();
+            return authEntry?.GetValue().Auth;
         }
 
         /**
@@ -92,24 +92,24 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the {@link DockerCredentialHelper} or {@code null} if none is found for the given
          *     registry
          */
-        public IDockerCredentialHelper getCredentialHelperFor(string registry)
+        public IDockerCredentialHelper GetCredentialHelperFor(string registry)
         {
-            IList<Func<string, bool>> registryMatchers = getRegistryMatchersFor(registry);
+            IList<Func<string, bool>> registryMatchers = GetRegistryMatchersFor(registry);
 
             KeyValuePair<string, AuthTemplate>? firstAuthMatch =
-                findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers).AsNullable();
-            if (firstAuthMatch != null && dockerConfigTemplate.getCredsStore() != null)
+                FindFirstInMapByKey(dockerConfigTemplate.Auths, registryMatchers).AsNullable();
+            if (firstAuthMatch != null && dockerConfigTemplate.CredsStore!= null)
             {
                 return new DockerCredentialHelper(
-                    firstAuthMatch.Value.getKey(), dockerConfigTemplate.getCredsStore());
+                    firstAuthMatch.Value.GetKey(), dockerConfigTemplate.CredsStore);
             }
 
             KeyValuePair<string, string>? firstCredHelperMatch =
-                findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers).AsNullable();
+                FindFirstInMapByKey(dockerConfigTemplate.CredHelpers, registryMatchers).AsNullable();
             if (firstCredHelperMatch != null)
             {
                 return new DockerCredentialHelper(
-                    firstCredHelperMatch.Value.getKey(), firstCredHelperMatch.Value.getValue());
+                    firstCredHelperMatch.Value.GetKey(), firstCredHelperMatch.Value.GetValue());
             }
 
             return null;
@@ -128,13 +128,13 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @param registry the registry to get matchers for
          * @return the list of predicates to match possible aliases
          */
-        private IList<Func<string, bool>> getRegistryMatchersFor(string registry)
+        private IList<Func<string, bool>> GetRegistryMatchersFor(string registry)
         {
-            Func<string, bool> exactMatch = registry.equals;
-            Func<string, bool> withHttps = ("https://" + registry).equals;
-            bool withSuffix(string name) => name.startsWith(registry + "/");
-            bool withHttpsAndSuffix(string name) => name.startsWith("https://" + registry + "/");
-            return Arrays.asList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
+            Func<string, bool> exactMatch = registry.Equals;
+            Func<string, bool> withHttps = ("https://" + registry).Equals;
+            bool withSuffix(string name) => JavaExtensions.StartsWith(name, registry + "/");
+            bool withHttpsAndSuffix(string name) => JavaExtensions.StartsWith(name, "https://" + registry + "/");
+            return Arrays.AsList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
         }
     }
 }

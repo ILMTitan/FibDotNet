@@ -37,12 +37,12 @@ namespace com.google.cloud.tools.jib.registry
          * @throws HttpResponseException rethrows the original exception if an error object could not be
          *     parsed, if there were multiple error objects, or if the error code is unknown.
          */
-        public static async Task<ErrorCode> getErrorCodeAsync(HttpResponseMessage httpResponse)
+        public static async Task<ErrorCode> GetErrorCodeAsync(HttpResponseMessage httpResponse)
         {
 
             httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
             // Obtain the error response code.
-            string errorContent = await httpResponse.getContentAsync().ConfigureAwait(false);
+            string errorContent = await httpResponse.GetContentAsync().ConfigureAwait(false);
             if (errorContent == null)
             {
                 throw new HttpResponseException(httpResponse);
@@ -51,12 +51,12 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 ErrorResponseTemplate errorResponse =
-                    JsonTemplateMapper.readJson<ErrorResponseTemplate>(errorContent);
+                    JsonTemplateMapper.ReadJson<ErrorResponseTemplate>(errorContent);
                 IReadOnlyList<ErrorEntryTemplate> errors = errorResponse?.Errors;
                 // There may be multiple error objects
-                if (errors?.size() == 1)
+                if (errors?.Size() == 1)
                 {
-                    var errorCode = errors.get(0).getCode();
+                    var errorCode = errors.Get(0).Code;
                     // May not get an error code back.
                     if (errorCode.HasValue)
                     {

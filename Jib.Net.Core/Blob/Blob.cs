@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.blob
          * @return the {@link BlobDescriptor} of the written BLOB
          * @throws IOException if writing the BLOB fails
          */
-        Task<BlobDescriptor> writeToAsync(Stream outputStream);
+        Task<BlobDescriptor> WriteToAsync(Stream outputStream);
 
         long Size { get; }
     }

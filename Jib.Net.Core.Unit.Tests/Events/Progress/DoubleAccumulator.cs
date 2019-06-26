@@ -29,7 +29,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             values.Value = initialValue;
         }
 
-        internal void accumulate(double value)
+        internal void Accumulate(double value)
         {
             if (values.Value < value)
             {
@@ -37,7 +37,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             }
         }
 
-        internal double get()
+        internal double Get()
         {
             return values.Values.Max();
         }

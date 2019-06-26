@@ -27,27 +27,27 @@ namespace com.google.cloud.tools.jib.api
         private readonly CredentialRetriever mockCredentialRetriever = Mock.Of<CredentialRetriever>();
 
         [Test]
-        public void testGetters_default()
+        public void TestGetters_default()
         {
-            RegistryImage image = RegistryImage.named("registry/image");
+            RegistryImage image = RegistryImage.Named("registry/image");
 
-            Assert.AreEqual("registry/image", image.getImageReference().toString());
-            Assert.AreEqual(0, image.getCredentialRetrievers().size());
+            Assert.AreEqual("registry/image", JavaExtensions.ToString(image.GetImageReference()));
+            Assert.AreEqual(0, image.GetCredentialRetrievers().Size());
         }
 
         [Test]
-        public void testGetters()
+        public void TestGetters()
         {
             RegistryImage image =
-                RegistryImage.named("registry/image")
-                    .addCredentialRetriever(mockCredentialRetriever)
-                    .addCredential("username", "password");
+                RegistryImage.Named("registry/image")
+                    .AddCredentialRetriever(mockCredentialRetriever)
+                    .AddCredential("username", "password");
 
-            Assert.AreEqual(2, image.getCredentialRetrievers().size());
-            Assert.AreSame(mockCredentialRetriever, image.getCredentialRetrievers().get(0));
+            Assert.AreEqual(2, image.GetCredentialRetrievers().Size());
+            Assert.AreSame(mockCredentialRetriever, image.GetCredentialRetrievers().Get(0));
             Assert.AreEqual(
-                Credential.from("username", "password"),
-                image.getCredentialRetrievers().get(1).retrieve().Get());
+                Credential.From("username", "password"),
+                image.GetCredentialRetrievers().Get(1).Retrieve().Get());
         }
     }
 }

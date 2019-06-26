@@ -26,179 +26,179 @@ namespace com.google.cloud.tools.jib.cache
     public class CacheStorageFilesTest
     {
         private static readonly CacheStorageFiles TEST_CACHE_STORAGE_FILES =
-            new CacheStorageFiles(Paths.get("cache/directory"));
+            new CacheStorageFiles(Paths.Get("cache/directory"));
 
         [Test]
-        public void testIsLayerFile()
+        public void TestIsLayerFile()
         {
             Assert.IsTrue(
-                CacheStorageFiles.isLayerFile(
-                    Paths.get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
+                CacheStorageFiles.IsLayerFile(
+                    Paths.Get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
             Assert.IsTrue(
-                CacheStorageFiles.isLayerFile(
-                    Paths.get("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")));
-            Assert.IsFalse(CacheStorageFiles.isLayerFile(Paths.get("is.not.layer.file")));
+                CacheStorageFiles.IsLayerFile(
+                    Paths.Get("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")));
+            Assert.IsFalse(CacheStorageFiles.IsLayerFile(Paths.Get("is.not.layer.file")));
         }
 
         [Test]
-        public void testGetDiffId()
+        public void TestGetDiffId()
         {
             Assert.AreEqual(
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"),
-                TEST_CACHE_STORAGE_FILES.getDiffId(
-                    Paths.get(
+                TEST_CACHE_STORAGE_FILES.GetDiffId(
+                    Paths.Get(
                         "layer",
                         "file",
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")));
             Assert.AreEqual(
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-                TEST_CACHE_STORAGE_FILES.getDiffId(
-                    Paths.get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
+                TEST_CACHE_STORAGE_FILES.GetDiffId(
+                    Paths.Get("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
         }
 
         [Test]
-        public void testGetDiffId_corrupted()
+        public void TestGetDiffId_corrupted()
         {
             try
             {
-                TEST_CACHE_STORAGE_FILES.getDiffId(Paths.get("not long enough"));
+                TEST_CACHE_STORAGE_FILES.GetDiffId(Paths.Get("not long enough"));
                 Assert.Fail("Should have thrown CacheCorruptedException");
             }
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.getMessage(),
+                    ex.GetMessage(),
                     Does.StartWith("Layer file did not include valid diff ID: not long enough"));
 
-                Assert.IsInstanceOf<DigestException>(ex.getCause());
+                Assert.IsInstanceOf<DigestException>(ex.GetCause());
             }
 
             try
             {
-                TEST_CACHE_STORAGE_FILES.getDiffId(
-                    Paths.get(
+                TEST_CACHE_STORAGE_FILES.GetDiffId(
+                    Paths.Get(
                         "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
                 Assert.Fail("Should have thrown CacheCorruptedException");
             }
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.getMessage(),
+                    ex.GetMessage(),
                     Does.StartWith(
                         "Layer file did not include valid diff ID: "
                             + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
 
-                Assert.IsInstanceOf<DigestException>(ex.getCause());
+                Assert.IsInstanceOf<DigestException>(ex.GetCause());
             }
         }
 
         [Test]
-        public void testGetLayerFile()
+        public void TestGetLayerFile()
         {
             DescriptorDigest layerDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             DescriptorDigest diffId =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
             Assert.AreEqual(
-                Paths.get(
+                Paths.Get(
                     "cache",
                     "directory",
                     "layers",
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"),
-                TEST_CACHE_STORAGE_FILES.getLayerFile(layerDigest, diffId));
+                TEST_CACHE_STORAGE_FILES.GetLayerFile(layerDigest, diffId));
         }
 
         [Test]
-        public void testGetLayerFilename()
+        public void TestGetLayerFilename()
         {
             DescriptorDigest diffId =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
             Assert.AreEqual(
                 "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                TEST_CACHE_STORAGE_FILES.getLayerFilename(diffId));
+                TEST_CACHE_STORAGE_FILES.GetLayerFilename(diffId));
         }
 
         [Test]
-        public void testGetSelectorFile()
+        public void TestGetSelectorFile()
         {
             DescriptorDigest selector =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
 
             Assert.AreEqual(
-                Paths.get(
+                Paths.Get(
                     "cache",
                     "directory",
                     "selectors",
                     "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"),
-                TEST_CACHE_STORAGE_FILES.getSelectorFile(selector));
+                TEST_CACHE_STORAGE_FILES.GetSelectorFile(selector));
         }
 
         [Test]
-        public void testGetLayersDirectory()
+        public void TestGetLayersDirectory()
         {
             Assert.AreEqual(
-                Paths.get("cache", "directory", "layers"), TEST_CACHE_STORAGE_FILES.getLayersDirectory());
+                Paths.Get("cache", "directory", "layers"), TEST_CACHE_STORAGE_FILES.GetLayersDirectory());
         }
 
         [Test]
-        public void testGetLayerDirectory()
+        public void TestGetLayerDirectory()
         {
             DescriptorDigest layerDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
             Assert.AreEqual(
-                Paths.get(
+                Paths.Get(
                     "cache",
                     "directory",
                     "layers",
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-                TEST_CACHE_STORAGE_FILES.getLayerDirectory(layerDigest));
+                TEST_CACHE_STORAGE_FILES.GetLayerDirectory(layerDigest));
         }
 
         [Test]
-        public void testGetTemporaryDirectory()
+        public void TestGetTemporaryDirectory()
         {
             Assert.AreEqual(
-                Paths.get("cache/directory/tmp"), TEST_CACHE_STORAGE_FILES.getTemporaryDirectory());
+                Paths.Get("cache/directory/tmp"), TEST_CACHE_STORAGE_FILES.GetTemporaryDirectory());
         }
 
         [Test]
-        public void testGetImagesDirectory()
+        public void TestGetImagesDirectory()
         {
             Assert.AreEqual(
-                Paths.get("cache/directory/images"), TEST_CACHE_STORAGE_FILES.getImagesDirectory());
+                Paths.Get("cache/directory/images"), TEST_CACHE_STORAGE_FILES.GetImagesDirectory());
         }
 
         [Test]
-        public void testGetImageDirectory()
+        public void TestGetImageDirectory()
         {
-            SystemPath imagesDirectory = Paths.get("cache", "directory", "images");
-            Assert.AreEqual(imagesDirectory, TEST_CACHE_STORAGE_FILES.getImagesDirectory());
+            SystemPath imagesDirectory = Paths.Get("cache", "directory", "images");
+            Assert.AreEqual(imagesDirectory, TEST_CACHE_STORAGE_FILES.GetImagesDirectory());
 
             Assert.AreEqual(
                 imagesDirectory.Resolve("reg.istry/repo/sitory!tag"),
-                TEST_CACHE_STORAGE_FILES.getImageDirectory(
-                    ImageReference.parse("reg.istry/repo/sitory:tag")));
+                TEST_CACHE_STORAGE_FILES.GetImageDirectory(
+                    ImageReference.Parse("reg.istry/repo/sitory:tag")));
             Assert.AreEqual(
                 imagesDirectory.Resolve(
                     "reg.istry/repo!sha256!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-                TEST_CACHE_STORAGE_FILES.getImageDirectory(
-                    ImageReference.parse(
+                TEST_CACHE_STORAGE_FILES.GetImageDirectory(
+                    ImageReference.Parse(
                         "reg.istry/repo@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
             Assert.AreEqual(
                 imagesDirectory.Resolve("reg.istry!5000/repo/sitory!tag"),
-                TEST_CACHE_STORAGE_FILES.getImageDirectory(
-                    ImageReference.parse("reg.istry:5000/repo/sitory:tag")));
+                TEST_CACHE_STORAGE_FILES.GetImageDirectory(
+                    ImageReference.Parse("reg.istry:5000/repo/sitory:tag")));
         }
     }
 }

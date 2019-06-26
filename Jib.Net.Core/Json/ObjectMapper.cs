@@ -26,7 +26,7 @@ namespace com.google.cloud.tools.jib.json
         {
         }
 
-        internal T readValue<T>(string jsonString)
+        internal T ReadValue<T>(string jsonString)
         {
             return JsonConvert.DeserializeObject<T>(jsonString);
         }

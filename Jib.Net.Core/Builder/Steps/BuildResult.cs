@@ -37,18 +37,18 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @return a new {@link BuildResult} with the image's digest and id
          * @throws IOException if writing the digest or container configuration fails
          */
-        public static async Task<BuildResult> fromImageAsync(Image image, ManifestFormat targetFormat)
+        public static async Task<BuildResult> FromImageAsync(Image image, ManifestFormat targetFormat)
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
             ContainerConfigurationTemplate configurationTemplate = imageToJsonTranslator.GetContainerConfiguration();
             BlobDescriptor containerConfigurationBlobDescriptor = 
-                await Digests.computeJsonDescriptorAsync(configurationTemplate).ConfigureAwait(false);
+                await Digests.ComputeJsonDescriptorAsync(configurationTemplate).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.GetManifestTemplate(
                     targetFormat, containerConfigurationBlobDescriptor);
             DescriptorDigest imageDigest = 
-                await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
-            DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
+                await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
+            DescriptorDigest imageId = containerConfigurationBlobDescriptor.GetDigest();
             return new BuildResult(imageDigest, imageId);
         }
 
@@ -61,19 +61,19 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.imageId = imageId;
         }
 
-        public DescriptorDigest getImageDigest()
+        public DescriptorDigest GetImageDigest()
         {
             return imageDigest;
         }
 
-        public DescriptorDigest getImageId()
+        public DescriptorDigest GetImageId()
         {
             return imageId;
         }
 
         public override int GetHashCode()
         {
-            return Objects.hash(imageDigest, imageId);
+            return Objects.Hash(imageDigest, imageId);
         }
 
         public override bool Equals(object other)

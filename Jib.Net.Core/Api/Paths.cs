@@ -23,7 +23,7 @@ namespace Jib.Net.Core.Api
 {
     public static class Paths
     {
-        public static SystemPath get(params string[] pathParts)
+        public static SystemPath Get(params string[] pathParts)
         {
             return new SystemPath(
                 pathParts.Select(
@@ -31,7 +31,7 @@ namespace Jib.Net.Core.Api
                 .ToArray());
         }
 
-        internal static SystemPath get(Uri uri)
+        internal static SystemPath Get(Uri uri)
         {
             if(uri.Scheme == "file")
             {

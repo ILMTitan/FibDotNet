@@ -63,16 +63,16 @@ namespace com.google.cloud.tools.jib.cache
          * @return the digest of the decompressed file
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<DescriptorDigest> getDiffIdByDecompressingFileAsync(SystemPath compressedFile)
+        private static async Task<DescriptorDigest> GetDiffIdByDecompressingFileAsync(SystemPath compressedFile)
         {
             using (CountingDigestOutputStream diffIdCaptureOutputStream =
                 new CountingDigestOutputStream(Stream.Null))
             {
-                using (GZipStream decompressorStream = new GZipStream(Files.newInputStream(compressedFile), CompressionMode.Decompress))
+                using (GZipStream decompressorStream = new GZipStream(Files.NewInputStream(compressedFile), CompressionMode.Decompress))
                 {
-                    await ByteStreams.copyAsync(decompressorStream, diffIdCaptureOutputStream).ConfigureAwait(false);
+                    await ByteStreams.CopyAsync(decompressorStream, diffIdCaptureOutputStream).ConfigureAwait(false);
                 }
-                return diffIdCaptureOutputStream.computeDigest().getDigest();
+                return diffIdCaptureOutputStream.ComputeDigest().GetDigest();
             }
         }
 
@@ -84,16 +84,16 @@ namespace com.google.cloud.tools.jib.cache
          * @param destination the destination path
          * @throws IOException if an I/O exception occurs
          */
-        public static async Task writeMetadataAsync(object jsonTemplate, SystemPath destination)
+        public static async Task WriteMetadataAsync(object jsonTemplate, SystemPath destination)
         {
             destination = destination ?? throw new ArgumentNullException(nameof(destination));
-            using (TemporaryFile temporaryFile = Files.createTempFile(destination.GetParent()))
+            using (TemporaryFile temporaryFile = Files.CreateTempFile(destination.GetParent()))
             {
-                using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
+                using (Stream outputStream = Files.NewOutputStream(temporaryFile.Path))
                 {
-                    await JsonTemplateMapper.writeToAsync(jsonTemplate, outputStream).ConfigureAwait(false);
+                    await JsonTemplateMapper.WriteToAsync(jsonTemplate, outputStream).ConfigureAwait(false);
                 }
-                Files.move(
+                Files.Move(
                     temporaryFile.Path,
                     destination,
                     StandardCopyOption.REPLACE_EXISTING);
@@ -117,35 +117,35 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public async Task<CachedLayer> writeCompressedAsync(IBlob compressedLayerBlob)
+        public async Task<CachedLayer> WriteCompressedAsync(IBlob compressedLayerBlob)
         {
             compressedLayerBlob = compressedLayerBlob ?? throw new ArgumentNullException(nameof(compressedLayerBlob));
             // Creates the layers directory if it doesn't exist.
-            Files.createDirectories(cacheStorageFiles.getLayersDirectory());
+            Files.CreateDirectories(cacheStorageFiles.GetLayersDirectory());
 
             // Creates the temporary directory.
-            Files.createDirectories(cacheStorageFiles.getTemporaryDirectory());
+            Files.CreateDirectories(cacheStorageFiles.GetTemporaryDirectory());
             using (TemporaryDirectory temporaryDirectory =
-                new TemporaryDirectory(cacheStorageFiles.getTemporaryDirectory()))
+                new TemporaryDirectory(cacheStorageFiles.GetTemporaryDirectory()))
             {
-                SystemPath temporaryLayerDirectory = temporaryDirectory.getDirectory();
+                SystemPath temporaryLayerDirectory = temporaryDirectory.GetDirectory();
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    await writeCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
+                    await WriteCompressedLayerBlobToDirectoryAsync(compressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
-                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.LayerDigest));
+                temporaryDirectory.MoveIfDoesNotExist(cacheStorageFiles.GetLayerDirectory(writtenLayer.LayerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
-                    cacheStorageFiles.getLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
-                return CachedLayer.builder()
-                    .setLayerDigest(writtenLayer.LayerDigest)
-                    .setLayerDiffId(writtenLayer.LayerDiffId)
-                    .setLayerSize(writtenLayer.LayerSize)
-                    .setLayerBlob(Blobs.from(layerFile))
-                    .build();
+                    cacheStorageFiles.GetLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
+                return CachedLayer.CreateBuilder()
+                    .SetLayerDigest(writtenLayer.LayerDigest)
+                    .SetLayerDiffId(writtenLayer.LayerDiffId)
+                    .SetLayerSize(writtenLayer.LayerSize)
+                    .SetLayerBlob(Blobs.From(layerFile))
+                    .Build();
             }
         }
 
@@ -166,44 +166,44 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link CachedLayer} representing the written entry
          * @throws IOException if an I/O exception occurs
          */
-        public async Task<CachedLayer> writeUncompressedAsync(IBlob uncompressedLayerBlob, DescriptorDigest selector)
+        public async Task<CachedLayer> WriteUncompressedAsync(IBlob uncompressedLayerBlob, DescriptorDigest selector)
         {
             uncompressedLayerBlob = uncompressedLayerBlob ?? throw new ArgumentNullException(nameof(uncompressedLayerBlob));
             // Creates the layers directory if it doesn't exist.
-            Files.createDirectories(cacheStorageFiles.getLayersDirectory());
+            Files.CreateDirectories(cacheStorageFiles.GetLayersDirectory());
 
             // Creates the temporary directory. The temporary directory must be in the same FileStore as the
             // final location for Files.move to work.
-            Files.createDirectories(cacheStorageFiles.getTemporaryDirectory());
+            Files.CreateDirectories(cacheStorageFiles.GetTemporaryDirectory());
             using (TemporaryDirectory temporaryDirectory =
-                new TemporaryDirectory(cacheStorageFiles.getTemporaryDirectory()))
+                new TemporaryDirectory(cacheStorageFiles.GetTemporaryDirectory()))
             {
-                SystemPath temporaryLayerDirectory = temporaryDirectory.getDirectory();
+                SystemPath temporaryLayerDirectory = temporaryDirectory.GetDirectory();
 
                 // Writes the layer file to the temporary directory.
                 WrittenLayer writtenLayer =
-                    await writeUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
+                    await WriteUncompressedLayerBlobToDirectoryAsync(uncompressedLayerBlob, temporaryLayerDirectory).ConfigureAwait(false);
 
                 // Moves the temporary directory to the final location.
-                temporaryDirectory.moveIfDoesNotExist(cacheStorageFiles.getLayerDirectory(writtenLayer.LayerDigest));
+                temporaryDirectory.MoveIfDoesNotExist(cacheStorageFiles.GetLayerDirectory(writtenLayer.LayerDigest));
 
                 // Updates cachedLayer with the blob information.
                 SystemPath layerFile =
-                    cacheStorageFiles.getLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
+                    cacheStorageFiles.GetLayerFile(writtenLayer.LayerDigest, writtenLayer.LayerDiffId);
                 CachedLayer.Builder cachedLayerBuilder =
-                    CachedLayer.builder()
-                        .setLayerDigest(writtenLayer.LayerDigest)
-                        .setLayerDiffId(writtenLayer.LayerDiffId)
-                        .setLayerSize(writtenLayer.LayerSize)
-                        .setLayerBlob(Blobs.from(layerFile));
+                    CachedLayer.CreateBuilder()
+                        .SetLayerDigest(writtenLayer.LayerDigest)
+                        .SetLayerDiffId(writtenLayer.LayerDiffId)
+                        .SetLayerSize(writtenLayer.LayerSize)
+                        .SetLayerBlob(Blobs.From(layerFile));
 
                 // Write the selector file.
                 if (selector != null)
                 {
-                    writeSelector(selector, writtenLayer.LayerDigest);
+                    WriteSelector(selector, writtenLayer.LayerDigest);
                 }
 
-                return cachedLayerBuilder.build();
+                return cachedLayerBuilder.Build();
             }
         }
 
@@ -214,22 +214,22 @@ namespace com.google.cloud.tools.jib.cache
          * @param manifestTemplate the manifest
          * @param containerConfiguration the container configuration
          */
-        public async Task writeMetadataAsync(
+        public async Task WriteMetadataAsync(
             IImageReference imageReference,
             IBuildableManifestTemplate manifestTemplate,
             ContainerConfigurationTemplate containerConfiguration)
         {
             manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
-            Preconditions.CheckNotNull(manifestTemplate.getContainerConfiguration());
-            Preconditions.CheckNotNull(manifestTemplate.getContainerConfiguration().getDigest());
+            Preconditions.CheckNotNull(manifestTemplate.GetContainerConfiguration());
+            Preconditions.CheckNotNull(manifestTemplate.GetContainerConfiguration().Digest);
 
-            SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
-            Files.createDirectories(imageDirectory);
+            SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
+            Files.CreateDirectories(imageDirectory);
 
             using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
             {
-                await writeMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
-                await writeMetadataAsync(containerConfiguration, imageDirectory.Resolve("config.json")).ConfigureAwait(false);
+                await WriteMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
+                await WriteMetadataAsync(containerConfiguration, imageDirectory.Resolve("config.json")).ConfigureAwait(false);
             }
         }
 
@@ -239,14 +239,14 @@ namespace com.google.cloud.tools.jib.cache
          * @param imageReference the image reference to store the metadata for
          * @param manifestTemplate the manifest
          */
-        public async Task writeMetadataAsync(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
+        public async Task WriteMetadataAsync(IImageReference imageReference, V21ManifestTemplate manifestTemplate)
         {
-            SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
-            Files.createDirectories(imageDirectory);
+            SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
+            Files.CreateDirectories(imageDirectory);
 
             using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
             {
-                await writeMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
+                await WriteMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
             }
         }
 
@@ -258,27 +258,27 @@ namespace com.google.cloud.tools.jib.cache
          * @return a {@link WrittenLayer} with the written layer information
          * @throws IOException if an I/O exception occurs
          */
-        private async Task<WrittenLayer> writeCompressedLayerBlobToDirectoryAsync(
+        private async Task<WrittenLayer> WriteCompressedLayerBlobToDirectoryAsync(
             IBlob compressedLayerBlob, SystemPath layerDirectory)
         {
             // Writes the layer file to the temporary directory.
-            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory))
+            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.GetTemporaryLayerFile(layerDirectory))
             {
                 BlobDescriptor layerBlobDescriptor;
-                using (Stream fileOutputStream = Files.newOutputStream(temporaryLayerFile.Path))
+                using (Stream fileOutputStream = Files.NewOutputStream(temporaryLayerFile.Path))
                 {
-                    layerBlobDescriptor = await compressedLayerBlob.writeToAsync(fileOutputStream).ConfigureAwait(false);
+                    layerBlobDescriptor = await compressedLayerBlob.WriteToAsync(fileOutputStream).ConfigureAwait(false);
                 }
 
                 // Gets the diff ID.
-                DescriptorDigest layerDiffId = await getDiffIdByDecompressingFileAsync(temporaryLayerFile.Path).ConfigureAwait(false);
+                DescriptorDigest layerDiffId = await GetDiffIdByDecompressingFileAsync(temporaryLayerFile.Path).ConfigureAwait(false);
 
                 // Renames the temporary layer file to the correct filename.
-                SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
-                temporaryLayerFile.moveIfDoesNotExist( layerFile);
+                SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.GetLayerFilename(layerDiffId));
+                temporaryLayerFile.MoveIfDoesNotExist( layerFile);
 
             return new WrittenLayer(
-                layerBlobDescriptor.getDigest(), layerDiffId, layerBlobDescriptor.getSize());
+                layerBlobDescriptor.GetDigest(), layerDiffId, layerBlobDescriptor.GetSize());
             }
         }
 
@@ -290,10 +290,10 @@ namespace com.google.cloud.tools.jib.cache
          * @return a {@link WrittenLayer} with the written layer information
          * @throws IOException if an I/O exception occurs
          */
-        private async Task<WrittenLayer> writeUncompressedLayerBlobToDirectoryAsync(
+        private async Task<WrittenLayer> WriteUncompressedLayerBlobToDirectoryAsync(
             IBlob uncompressedLayerBlob, SystemPath layerDirectory)
         {
-            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.getTemporaryLayerFile(layerDirectory)) {
+            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.GetTemporaryLayerFile(layerDirectory)) {
                 DescriptorDigest layerDiffId;
                 BlobDescriptor blobDescriptor;
 
@@ -302,21 +302,21 @@ namespace com.google.cloud.tools.jib.cache
                 // content descriptor.
                 using (CountingDigestOutputStream compressedDigestOutputStream =
                     new CountingDigestOutputStream(
-                        Files.newOutputStream(temporaryLayerFile.Path))) {
+                        Files.NewOutputStream(temporaryLayerFile.Path))) {
                     using (GZipStream compressorStream = new GZipStream(compressedDigestOutputStream, CompressionMode.Compress, true))
                     {
-                        BlobDescriptor descriptor = await uncompressedLayerBlob.writeToAsync(compressorStream).ConfigureAwait(false);
-                        layerDiffId = descriptor.getDigest();
+                        BlobDescriptor descriptor = await uncompressedLayerBlob.WriteToAsync(compressorStream).ConfigureAwait(false);
+                        layerDiffId = descriptor.GetDigest();
                     }
                     // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
-                    blobDescriptor = compressedDigestOutputStream.computeDigest();
+                    blobDescriptor = compressedDigestOutputStream.ComputeDigest();
                 }
-                    DescriptorDigest layerDigest = blobDescriptor.getDigest();
-                    long layerSize = blobDescriptor.getSize();
+                    DescriptorDigest layerDigest = blobDescriptor.GetDigest();
+                    long layerSize = blobDescriptor.GetSize();
 
                     // Renames the temporary layer file to the correct filename.
-                    SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
-                temporaryLayerFile.moveIfDoesNotExist(layerFile);
+                    SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.GetLayerFilename(layerDiffId));
+                temporaryLayerFile.MoveIfDoesNotExist(layerFile);
 
                 return new WrittenLayer(layerDigest, layerDiffId, layerSize);
             }
@@ -330,24 +330,24 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDigest the layer digest it selects
          * @throws IOException if an I/O exception occurs
          */
-        private void writeSelector(DescriptorDigest selector, DescriptorDigest layerDigest)
+        private void WriteSelector(DescriptorDigest selector, DescriptorDigest layerDigest)
         {
-            SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
+            SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
 
             // Creates the selectors directory if it doesn't exist.
-            Files.createDirectories(selectorFile.GetParent());
+            Files.CreateDirectories(selectorFile.GetParent());
 
             // Writes the selector to a temporary file and then moves the file to the intended location.
-            using (TemporaryFile temporarySelectorFile = Files.createTempFile())
+            using (TemporaryFile temporarySelectorFile = Files.CreateTempFile())
             {
-                using (Stream fileOut = FileOperations.newLockingOutputStream(temporarySelectorFile.Path))
+                using (Stream fileOut = FileOperations.NewLockingOutputStream(temporarySelectorFile.Path))
                 {
-                    fileOut.write(layerDigest.getHash().getBytes(Encoding.UTF8));
+                    fileOut.Write(layerDigest.GetHash().GetBytes(Encoding.UTF8));
                 }
 
                 // Attempts an atomic move first, and falls back to non-atomic if the file system does not
                 // support atomic moves.
-                Files.move(
+                Files.Move(
                     temporarySelectorFile.Path,
                     selectorFile,
                     StandardCopyOption.REPLACE_EXISTING);

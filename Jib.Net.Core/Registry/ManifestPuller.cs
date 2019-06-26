@@ -36,7 +36,7 @@ namespace Jib.Net.Core.Registry
         {
         }
 
-        protected override IManifestTemplate getManifestTemplateFromJson(string jsonString)
+        protected override IManifestTemplate GetManifestTemplateFromJson(string jsonString)
         {
             var token = JToken.Parse(jsonString);
             if (!(token is JObject obj))
@@ -54,7 +54,7 @@ namespace Jib.Net.Core.Registry
             int schemaVersion = schemaVersionToken.Value<int>();
             if (schemaVersion == 1)
             {
-                return JsonTemplateMapper.readJson<V21ManifestTemplate>(jsonString);
+                return JsonTemplateMapper.ReadJson<V21ManifestTemplate>(jsonString);
             }
             if (schemaVersion == 2)
             {
@@ -62,11 +62,11 @@ namespace Jib.Net.Core.Registry
                 string mediaType = obj.Value<string>("mediaType");
                 if (V22ManifestTemplate.ManifestMediaType == mediaType)
                 {
-                    return JsonTemplateMapper.readJson<V22ManifestTemplate>(jsonString);
+                    return JsonTemplateMapper.ReadJson<V22ManifestTemplate>(jsonString);
                 }
                 if (OCIManifestTemplate.ManifestMediaType == mediaType)
                 {
-                    return JsonTemplateMapper.readJson<OCIManifestTemplate>(jsonString);
+                    return JsonTemplateMapper.ReadJson<OCIManifestTemplate>(jsonString);
                 }
                 throw new UnknownManifestFormatException("Unknown mediaType: " + mediaType);
             }
@@ -89,12 +89,12 @@ namespace Jib.Net.Core.Registry
             this.imageTag = imageTag;
         }
 
-        public BlobHttpContent getContent()
+        public BlobHttpContent GetContent()
         {
             return null;
         }
 
-        public IList<string> getAccept()
+        public IList<string> GetAccept()
         {
             if (typeof(T) == typeof(OCIManifestTemplate))
             {
@@ -108,7 +108,7 @@ namespace Jib.Net.Core.Registry
             {
                 return new[] { V21ManifestTemplate.ManifestMediaType };
             }
-            return Arrays.asList(
+            return Arrays.AsList(
                 OCIManifestTemplate.ManifestMediaType,
                 V22ManifestTemplate.ManifestMediaType,
                 V21ManifestTemplate.ManifestMediaType);
@@ -116,16 +116,16 @@ namespace Jib.Net.Core.Registry
 
         /** Parses the response body into a {@link ManifestTemplate}. */
 
-        public async Task<T> handleResponseAsync(HttpResponseMessage response)
+        public async Task<T> HandleResponseAsync(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
                 string jsonString;
-                using (StreamReader reader = new StreamReader(await response.getBodyAsync().ConfigureAwait(false), Encoding.UTF8))
+                using (StreamReader reader = new StreamReader(await response.GetBodyAsync().ConfigureAwait(false), Encoding.UTF8))
                 {
-                    jsonString = CharStreams.toString(reader);
+                    jsonString = CharStreams.ToString(reader);
                 }
-                return getManifestTemplateFromJson(jsonString);
+                return GetManifestTemplateFromJson(jsonString);
             }
             else
             {
@@ -133,23 +133,23 @@ namespace Jib.Net.Core.Registry
             }
         }
 
-        public Uri getApiRoute(string apiRouteBase)
+        public Uri GetApiRoute(string apiRouteBase)
         {
             return new Uri(
-                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/manifests/" + imageTag);
+                apiRouteBase + registryEndpointRequestProperties.GetImageName() + "/manifests/" + imageTag);
         }
 
-        public HttpMethod getHttpMethod()
+        public HttpMethod GetHttpMethod()
         {
             return HttpMethod.Get;
         }
 
-        public string getActionDescription()
+        public string GetActionDescription()
         {
             return "pull image manifest for "
-                + registryEndpointRequestProperties.getRegistry()
+                + registryEndpointRequestProperties.GetRegistry()
                 + "/"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + ":"
                 + imageTag;
         }
@@ -158,9 +158,9 @@ namespace Jib.Net.Core.Registry
          * Instantiates a {@link ManifestTemplate} from a JSON string. This checks the {@code
          * schemaVersion} field of the JSON to determine which manifest version to use.
          */
-        protected virtual T getManifestTemplateFromJson(string jsonString)
+        protected virtual T GetManifestTemplateFromJson(string jsonString)
         {
-            return JsonTemplateMapper.readJson<T>(jsonString);
+            return JsonTemplateMapper.ReadJson<T>(jsonString);
         }
     }
 }

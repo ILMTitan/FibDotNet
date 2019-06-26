@@ -21,7 +21,7 @@ namespace com.google.cloud.tools.jib.api
 {
     internal static class Objects
     {
-        internal static int hash(params object[] values)
+        internal static int Hash(params object[] values)
         {
             int nullHashValue = EqualityComparer<object>.Default.GetHashCode(null);
             int hashValue = nullHashValue;
@@ -33,17 +33,17 @@ namespace com.google.cloud.tools.jib.api
             return hashValue;
         }
 
-        internal static bool isNull(object arg)
+        internal static bool IsNull(object arg)
         {
             return arg == null;
         }
 
-        internal static bool nonNull(object arg)
+        internal static bool NonNull(object arg)
         {
             return arg != null;
         }
 
-        internal static bool nonNull<T>(T? arg) where T : struct
+        internal static bool NonNull<T>(T? arg) where T : struct
         {
             return arg != null;
         }

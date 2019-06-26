@@ -34,71 +34,71 @@ namespace com.google.cloud.tools.jib.builder.steps
         private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         [Test]
-        public void testCall_retrieved()
+        public void TestCall_retrieved()
         {
             BuildConfiguration buildConfiguration =
-                makeFakeBuildConfiguration(
-                    Arrays.asList<CredentialRetriever>(
+                MakeFakeBuildConfiguration(
+                    Arrays.AsList<CredentialRetriever>(
                         Option.Empty<Credential>,
-                        () => Option.Of(Credential.from("baseusername", "basepassword"))),
-                    Arrays.asList<CredentialRetriever>(
-                        () => Option.Of(Credential.from("targetusername", "targetpassword")),
-                        () => Option.Of(Credential.from("ignored", "ignored"))));
+                        () => Option.Of(Credential.From("baseusername", "basepassword"))),
+                    Arrays.AsList<CredentialRetriever>(
+                        () => Option.Of(Credential.From("targetusername", "targetpassword")),
+                        () => Option.Of(Credential.From("ignored", "ignored"))));
 
             Assert.AreEqual(
-                Credential.from("baseusername", "basepassword"),
-                RetrieveRegistryCredentialsStep.forBaseImage(
+                Credential.From("baseusername", "basepassword"),
+                RetrieveRegistryCredentialsStep.ForBaseImage(
                         buildConfiguration,
                         ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
-                    .call());
+                    .Call());
             Assert.AreEqual(
-                Credential.from("targetusername", "targetpassword"),
-                RetrieveRegistryCredentialsStep.forTargetImage(
+                Credential.From("targetusername", "targetpassword"),
+                RetrieveRegistryCredentialsStep.ForTargetImage(
                         buildConfiguration,
                         ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
-                    .call());
+                    .Call());
         }
 
         [Test]
-        public void testCall_none()
+        public void TestCall_none()
         {
             BuildConfiguration buildConfiguration =
-                makeFakeBuildConfiguration(
-                    Arrays.asList<CredentialRetriever>(Option.Empty<Credential>, Option.Empty<Credential>),
+                MakeFakeBuildConfiguration(
+                    Arrays.AsList<CredentialRetriever>(Option.Empty<Credential>, Option.Empty<Credential>),
                     new List<CredentialRetriever>());
             Assert.IsNull(
-                RetrieveRegistryCredentialsStep.forBaseImage(
+                RetrieveRegistryCredentialsStep.ForBaseImage(
                         buildConfiguration,
                         ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
-                    .call());
+                    .Call());
 
             Mock.Get(mockEventHandlers).Verify(e => e.Dispatch(It.IsAny<ProgressEvent>()), Times.AtLeastOnce);
-            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.Info("No credentials could be retrieved for registry baseregistry")));
 
             Assert.IsNull(
-                RetrieveRegistryCredentialsStep.forTargetImage(
+                RetrieveRegistryCredentialsStep.ForTargetImage(
                         buildConfiguration,
                         ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
-                    .call());
+                    .Call());
 
-            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.Info("No credentials could be retrieved for registry baseregistry")));
         }
 
         [Test]
-        public async Task testCall_exceptionAsync()
+        public async Task TestCall_exceptionAsync()
         {
             CredentialRetrievalException credentialRetrievalException =
                 Mock.Of<CredentialRetrievalException>();
             BuildConfiguration buildConfiguration =
-                makeFakeBuildConfiguration(
+                MakeFakeBuildConfiguration(
                     new List<CredentialRetriever> { () => throw credentialRetrievalException },
                     new List<CredentialRetriever>());
             try
             {
-                await RetrieveRegistryCredentialsStep.forBaseImage(
+                await RetrieveRegistryCredentialsStep.ForBaseImage(
                         buildConfiguration,
                         ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
-                    .getFuture().ConfigureAwait(false);
+                    .GetFuture().ConfigureAwait(false);
                 Assert.Fail("Should have thrown exception");
             }
             catch (CredentialRetrievalException ex)
@@ -107,25 +107,25 @@ namespace com.google.cloud.tools.jib.builder.steps
             }
         }
 
-        private BuildConfiguration makeFakeBuildConfiguration(
+        private BuildConfiguration MakeFakeBuildConfiguration(
             List<CredentialRetriever> baseCredentialRetrievers,
             IList<CredentialRetriever> targetCredentialRetrievers)
         {
-            ImageReference baseImage = ImageReference.of("baseregistry", "ignored", null);
-            ImageReference targetImage = ImageReference.of("targetregistry", "ignored", null);
-            return BuildConfiguration.builder()
-                .setEventHandlers(mockEventHandlers)
-                .setBaseImageConfiguration(
-                    ImageConfiguration.builder(baseImage)
-                        .setCredentialRetrievers(baseCredentialRetrievers)
-                        .build())
-                .setTargetImageConfiguration(
-                    ImageConfiguration.builder(targetImage)
-                        .setCredentialRetrievers(targetCredentialRetrievers)
-                        .build())
-                .setBaseImageLayersCacheDirectory(Paths.get("ignored"))
-                .setApplicationLayersCacheDirectory(Paths.get("ignored"))
-                .build();
+            ImageReference baseImage = ImageReference.Of("baseregistry", "ignored", null);
+            ImageReference targetImage = ImageReference.Of("targetregistry", "ignored", null);
+            return BuildConfiguration.CreateBuilder()
+                .SetEventHandlers(mockEventHandlers)
+                .SetBaseImageConfiguration(
+                    ImageConfiguration.CreateBuilder(baseImage)
+                        .SetCredentialRetrievers(baseCredentialRetrievers)
+                        .Build())
+                .SetTargetImageConfiguration(
+                    ImageConfiguration.CreateBuilder(targetImage)
+                        .SetCredentialRetrievers(targetCredentialRetrievers)
+                        .Build())
+                .SetBaseImageLayersCacheDirectory(Paths.Get("ignored"))
+                .SetApplicationLayersCacheDirectory(Paths.Get("ignored"))
+                .Build();
         }
     }
 }

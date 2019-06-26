@@ -41,34 +41,34 @@ namespace com.google.cloud.tools.jib.builder.steps
     {
         // TODO: Consolidate with BuildStepsIntegrationTest.
         private static readonly AbsoluteUnixPath EXTRACTION_PATH_ROOT =
-            AbsoluteUnixPath.get("/some/extraction/path/");
+            AbsoluteUnixPath.Get("/some/extraction/path/");
 
         private static readonly AbsoluteUnixPath EXTRA_FILES_LAYER_EXTRACTION_PATH =
-            AbsoluteUnixPath.get("/extra");
+            AbsoluteUnixPath.Get("/extra");
 
         /**
          * Lists the files in the {@code resourcePath} resources directory and creates a {@link
          * LayerConfiguration} with entries from those files.
          */
-        private static ILayerConfiguration makeLayerConfiguration(
+        private static ILayerConfiguration MakeLayerConfiguration(
             string resourcePath, AbsoluteUnixPath extractionPath)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(TestResources.getResource(resourcePath).ToURI()));
+                Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
-                    layerConfigurationBuilder.setName(Path.GetFileName(resourcePath));
-                fileStream.forEach(
+                    layerConfigurationBuilder.SetName(Path.GetFileName(resourcePath));
+                fileStream.ForEach(
                     sourceFile =>
-                        layerConfigurationBuilder.addEntry(
-                            sourceFile, extractionPath.resolve(sourceFile.GetFileName())));
-                return layerConfigurationBuilder.build();
+                        layerConfigurationBuilder.AddEntry(
+                            sourceFile, extractionPath.Resolve(sourceFile.GetFileName())));
+                return layerConfigurationBuilder.Build();
             }
         }
 
-        private static async Task assertBlobsEqualAsync(IBlob expectedBlob, IBlob blob)
+        private static async Task AssertBlobsEqualAsync(IBlob expectedBlob, IBlob blob)
         {
-            CollectionAssert.AreEqual(await Blobs.writeToByteArrayAsync(expectedBlob).ConfigureAwait(false), await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false));
+            CollectionAssert.AreEqual(await Blobs.WriteToByteArrayAsync(expectedBlob).ConfigureAwait(false), await Blobs.WriteToByteArrayAsync(blob).ConfigureAwait(false));
         }
 
         private TemporaryFolder temporaryFolder;
@@ -97,57 +97,57 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             fakeDependenciesLayerConfiguration =
-                makeLayerConfiguration(
-                    "core/application/dependencies", EXTRACTION_PATH_ROOT.resolve("libs"));
+                MakeLayerConfiguration(
+                    "core/application/dependencies", EXTRACTION_PATH_ROOT.Resolve("libs"));
             fakeSnapshotDependenciesLayerConfiguration =
-                makeLayerConfiguration(
-                    "core/application/snapshot-dependencies", EXTRACTION_PATH_ROOT.resolve("libs"));
+                MakeLayerConfiguration(
+                    "core/application/snapshot-dependencies", EXTRACTION_PATH_ROOT.Resolve("libs"));
             fakeResourcesLayerConfiguration =
-                makeLayerConfiguration(
-                    "core/application/resources", EXTRACTION_PATH_ROOT.resolve("resources"));
+                MakeLayerConfiguration(
+                    "core/application/resources", EXTRACTION_PATH_ROOT.Resolve("resources"));
             fakeClassesLayerConfiguration =
-                makeLayerConfiguration("core/application/classes", EXTRACTION_PATH_ROOT.resolve("classes"));
+                MakeLayerConfiguration("core/application/classes", EXTRACTION_PATH_ROOT.Resolve("classes"));
             fakeExtraFilesLayerConfiguration =
                 LayerConfiguration.builder()
-                    .addEntry(
-                        Paths.get(TestResources.getResource("core/fileA").ToURI()),
-                        EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileA"))
-                    .addEntry(
-                        Paths.get(TestResources.getResource("core/fileB").ToURI()),
-                        EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileB"))
-                    .build();
-            emptyLayerConfiguration = LayerConfiguration.builder().build();
+                    .AddEntry(
+                        Paths.Get(TestResources.GetResource("core/fileA").ToURI()),
+                        EXTRA_FILES_LAYER_EXTRACTION_PATH.Resolve("fileA"))
+                    .AddEntry(
+                        Paths.Get(TestResources.GetResource("core/fileB").ToURI()),
+                        EXTRA_FILES_LAYER_EXTRACTION_PATH.Resolve("fileB"))
+                    .Build();
+            emptyLayerConfiguration = LayerConfiguration.builder().Build();
 
-            cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
+            cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getEventHandlers()).Returns(mockEventHandlers);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetEventHandlers()).Returns(mockEventHandlers);
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getApplicationLayersCache()).Returns(cache);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetApplicationLayersCache()).Returns(cache);
         }
 
-        private async Task<ImageLayers> buildFakeLayersToCacheAsync()
+        private async Task<ImageLayers> BuildFakeLayersToCacheAsync()
         {
-            ImageLayers.Builder applicationLayersBuilder = ImageLayers.builder();
+            ImageLayers.Builder applicationLayersBuilder = ImageLayers.CreateBuilder();
 
             IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep =
-                BuildAndCacheApplicationLayerStep.makeList(
+                BuildAndCacheApplicationLayerStep.MakeList(
                     mockBuildConfiguration,
                     ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer());
 
-            foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false))
+            foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.GetFuture().ConfigureAwait(false))
 
             {
-                applicationLayersBuilder.add(applicationLayer);
+                applicationLayersBuilder.Add(applicationLayer);
             }
 
-            return applicationLayersBuilder.build();
+            return applicationLayersBuilder.Build();
         }
 
         [Test]
-        public async Task testRunAsync()
+        public async Task TestRunAsync()
         {
             ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
@@ -156,59 +156,59 @@ namespace com.google.cloud.tools.jib.builder.steps
                     fakeResourcesLayerConfiguration,
                     fakeClassesLayerConfiguration,
                     fakeExtraFilesLayerConfiguration);
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetLayerConfigurations()).Returns(fakeLayerConfigurations);
 
             // Populates the cache.
-            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync().ConfigureAwait(false);
-            Assert.AreEqual(5, applicationLayers.size());
+            ImageLayers applicationLayers = await BuildFakeLayersToCacheAsync().ConfigureAwait(false);
+            Assert.AreEqual(5, applicationLayers.Size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
-                fakeLayerConfigurations.get(0).getLayerEntries();
+                fakeLayerConfigurations.Get(0).GetLayerEntries();
             ImmutableArray<LayerEntry> snapshotDependenciesLayerEntries =
-                fakeLayerConfigurations.get(1).getLayerEntries();
+                fakeLayerConfigurations.Get(1).GetLayerEntries();
             ImmutableArray<LayerEntry> resourcesLayerEntries =
-                fakeLayerConfigurations.get(2).getLayerEntries();
+                fakeLayerConfigurations.Get(2).GetLayerEntries();
             ImmutableArray<LayerEntry> classesLayerEntries =
-                fakeLayerConfigurations.get(3).getLayerEntries();
+                fakeLayerConfigurations.Get(3).GetLayerEntries();
             ImmutableArray<LayerEntry> extraFilesLayerEntries =
-                fakeLayerConfigurations.get(4).getLayerEntries();
+                fakeLayerConfigurations.Get(4).GetLayerEntries();
 
             CachedLayer dependenciesCachedLayer =
-                await cache.retrieveAsync(dependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(dependenciesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer snapshotDependenciesCachedLayer =
-                await cache.retrieveAsync(snapshotDependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(snapshotDependenciesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer resourcesCachedLayer =
-                await cache.retrieveAsync(resourcesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(resourcesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer classesCachedLayer =
-                await cache.retrieveAsync(classesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(classesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer extraFilesCachedLayer =
-                await cache.retrieveAsync(extraFilesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(extraFilesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
 
             // Verifies that the cached layers are up-to-date.
             Assert.AreEqual(
-                applicationLayers.get(0).getBlobDescriptor().getDigest(),
-                dependenciesCachedLayer.getDigest());
+                applicationLayers.Get(0).GetBlobDescriptor().GetDigest(),
+                dependenciesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(1).getBlobDescriptor().getDigest(),
-                snapshotDependenciesCachedLayer.getDigest());
+                applicationLayers.Get(1).GetBlobDescriptor().GetDigest(),
+                snapshotDependenciesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(2).getBlobDescriptor().getDigest(), resourcesCachedLayer.getDigest());
+                applicationLayers.Get(2).GetBlobDescriptor().GetDigest(), resourcesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(3).getBlobDescriptor().getDigest(), classesCachedLayer.getDigest());
+                applicationLayers.Get(3).GetBlobDescriptor().GetDigest(), classesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(4).getBlobDescriptor().getDigest(),
-                extraFilesCachedLayer.getDigest());
+                applicationLayers.Get(4).GetBlobDescriptor().GetDigest(),
+                extraFilesCachedLayer.GetDigest());
 
             // Verifies that the cache reader gets the same layers as the newest application layers.
-            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), snapshotDependenciesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), resourcesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(3).getBlob(), classesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(4).getBlob(), extraFilesCachedLayer.getBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(0).GetBlob(), dependenciesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(1).GetBlob(), snapshotDependenciesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(2).GetBlob(), resourcesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(3).GetBlob(), classesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(4).GetBlob(), extraFilesCachedLayer.GetBlob()).ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testRun_emptyLayersIgnoredAsync()
+        public async Task TestRun_emptyLayersIgnoredAsync()
         {
             ImmutableArray<ILayerConfiguration> fakeLayerConfigurations =
                 ImmutableArray.Create(
@@ -217,39 +217,39 @@ namespace com.google.cloud.tools.jib.builder.steps
                     fakeResourcesLayerConfiguration,
                     fakeClassesLayerConfiguration,
                     emptyLayerConfiguration);
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getLayerConfigurations()).Returns(fakeLayerConfigurations);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetLayerConfigurations()).Returns(fakeLayerConfigurations);
 
             // Populates the cache.
-            ImageLayers applicationLayers = await buildFakeLayersToCacheAsync().ConfigureAwait(false);
-            Assert.AreEqual(3, applicationLayers.size());
+            ImageLayers applicationLayers = await BuildFakeLayersToCacheAsync().ConfigureAwait(false);
+            Assert.AreEqual(3, applicationLayers.Size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
-                fakeLayerConfigurations.get(0).getLayerEntries();
+                fakeLayerConfigurations.Get(0).GetLayerEntries();
             ImmutableArray<LayerEntry> resourcesLayerEntries =
-                fakeLayerConfigurations.get(2).getLayerEntries();
+                fakeLayerConfigurations.Get(2).GetLayerEntries();
             ImmutableArray<LayerEntry> classesLayerEntries =
-                fakeLayerConfigurations.get(3).getLayerEntries();
+                fakeLayerConfigurations.Get(3).GetLayerEntries();
 
             CachedLayer dependenciesCachedLayer =
-                await cache.retrieveAsync(dependenciesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(dependenciesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer resourcesCachedLayer =
-                await cache.retrieveAsync(resourcesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(resourcesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
             CachedLayer classesCachedLayer =
-                await cache.retrieveAsync(classesLayerEntries).orElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
+                await cache.RetrieveAsync(classesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
 
             // Verifies that the cached layers are up-to-date.
             Assert.AreEqual(
-                applicationLayers.get(0).getBlobDescriptor().getDigest(),
-                dependenciesCachedLayer.getDigest());
+                applicationLayers.Get(0).GetBlobDescriptor().GetDigest(),
+                dependenciesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(1).getBlobDescriptor().getDigest(), resourcesCachedLayer.getDigest());
+                applicationLayers.Get(1).GetBlobDescriptor().GetDigest(), resourcesCachedLayer.GetDigest());
             Assert.AreEqual(
-                applicationLayers.get(2).getBlobDescriptor().getDigest(), classesCachedLayer.getDigest());
+                applicationLayers.Get(2).GetBlobDescriptor().GetDigest(), classesCachedLayer.GetDigest());
 
             // Verifies that the cache reader gets the same layers as the newest application layers.
-            await assertBlobsEqualAsync(applicationLayers.get(0).getBlob(), dependenciesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(1).getBlob(), resourcesCachedLayer.getBlob()).ConfigureAwait(false);
-            await assertBlobsEqualAsync(applicationLayers.get(2).getBlob(), classesCachedLayer.getBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(0).GetBlob(), dependenciesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(1).GetBlob(), resourcesCachedLayer.GetBlob()).ConfigureAwait(false);
+            await AssertBlobsEqualAsync(applicationLayers.Get(2).GetBlob(), classesCachedLayer.GetBlob()).ConfigureAwait(false);
         }
     }
 }

@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the modification time
          */
-        public Instant getLastModifiedTime()
+        public Instant GetLastModifiedTime()
         {
             return lastModifiedTime;
         }
@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the source file
          */
-        public SystemPath getSourceFile()
+        public SystemPath GetSourceFile()
         {
             return sourceFile;
         }
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the extraction path
          */
-        public AbsoluteUnixPath getExtractionPath()
+        public AbsoluteUnixPath GetExtractionPath()
         {
             return extractionPath;
         }
@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the file permissions on the container
          */
-        public FilePermissions getPermissions()
+        public FilePermissions GetPermissions()
         {
             return permissions;
         }
@@ -130,7 +130,7 @@ namespace com.google.cloud.tools.jib.api
 
         public override int GetHashCode()
         {
-            return Objects.hash(sourceFile, extractionPath, permissions, lastModifiedTime);
+            return Objects.Hash(sourceFile, extractionPath, permissions, lastModifiedTime);
         }
 
         public override string ToString()

@@ -28,21 +28,21 @@ namespace com.google.cloud.tools.jib.registry
     public class RegistryAuthenticatorIntegrationTest
     {
         [Test]
-        public async Task testAuthenticateAsync()
+        public async Task TestAuthenticateAsync()
         {
-            ImageReference dockerHubImageReference = ImageReference.parse("library/busybox");
+            ImageReference dockerHubImageReference = ImageReference.Parse("library/busybox");
             RegistryAuthenticator registryAuthenticator =
-                await RegistryClient.factory(
+                await RegistryClient.CreateFactory(
                         EventHandlers.NONE,
-                        dockerHubImageReference.getRegistry(),
-                        dockerHubImageReference.getRepository())
-                    .newRegistryClient()
-                    .getRegistryAuthenticatorAsync().ConfigureAwait(false);
+                        dockerHubImageReference.GetRegistry(),
+                        dockerHubImageReference.GetRepository())
+                    .NewRegistryClient()
+                    .GetRegistryAuthenticatorAsync().ConfigureAwait(false);
             Assert.IsNotNull(registryAuthenticator);
-            Authorization authorization = await registryAuthenticator.authenticatePullAsync(null).ConfigureAwait(false);
+            Authorization authorization = await registryAuthenticator.AuthenticatePullAsync(null).ConfigureAwait(false);
 
             // Checks that some token was received.
-            Assert.IsTrue(0 < authorization.getToken().length());
+            Assert.IsTrue(0 < authorization.GetToken().Length());
         }
     }
 }

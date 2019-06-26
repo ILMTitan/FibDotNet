@@ -33,121 +33,121 @@ namespace com.google.cloud.tools.jib.registry
         private RegistryAuthenticator registryAuthenticator;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             registryAuthenticator =
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("Bearer", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
         }
 
         [Test]
-        public void testFromAuthenticationMethod_bearer()
+        public void TestFromAuthenticationMethod_bearer()
         {
             RegistryAuthenticator registryAuthenticator =
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("Bearer", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someservice&scope=repository:someimage:scope"),
-                registryAuthenticator.getAuthenticationUrl(null, "scope"));
+                registryAuthenticator.GetAuthenticationUrl(null, "scope"));
 
             registryAuthenticator =
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("bEaReR", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someservice&scope=repository:someimage:scope"),
-                registryAuthenticator.getAuthenticationUrl(null, "scope"));
+                registryAuthenticator.GetAuthenticationUrl(null, "scope"));
         }
 
         [Test]
-        public void testAuthRequestParameters_basicAuth()
+        public void TestAuthRequestParameters_basicAuth()
         {
             Assert.AreEqual(
                 "service=someservice&scope=repository:someimage:scope",
-                registryAuthenticator.getAuthRequestParameters(null, "scope"));
+                registryAuthenticator.GetAuthRequestParameters(null, "scope"));
         }
 
         [Test]
-        public void testAuthRequestParameters_oauth2()
+        public void TestAuthRequestParameters_oauth2()
         {
-            Credential credential = Credential.from("<token>", "oauth2_access_token");
+            Credential credential = Credential.From("<token>", "oauth2_access_token");
             Assert.AreEqual(
                 "service=someservice&scope=repository:someimage:scope"
                     + "&client_id=jib.da031fe481a93ac107a95a96462358f9"
                     + "&grant_type=refresh_token&refresh_token=oauth2_access_token",
-                registryAuthenticator.getAuthRequestParameters(credential, "scope"));
+                registryAuthenticator.GetAuthRequestParameters(credential, "scope"));
         }
 
         [Test]
-        public void isOAuth2Auth_nullCredential()
+        public void IsOAuth2Auth_nullCredential()
         {
-            Assert.IsFalse(registryAuthenticator.isOAuth2Auth(null));
+            Assert.IsFalse(registryAuthenticator.IsOAuth2Auth(null));
         }
 
         [Test]
-        public void isOAuth2Auth_basicAuth()
+        public void IsOAuth2Auth_basicAuth()
         {
-            Credential credential = Credential.from("name", "password");
-            Assert.IsFalse(registryAuthenticator.isOAuth2Auth(credential));
+            Credential credential = Credential.From("name", "password");
+            Assert.IsFalse(registryAuthenticator.IsOAuth2Auth(credential));
         }
 
         [Test]
-        public void isOAuth2Auth_oauth2()
+        public void IsOAuth2Auth_oauth2()
         {
-            Credential credential = Credential.from("<token>", "oauth2_token");
-            Assert.IsTrue(registryAuthenticator.isOAuth2Auth(credential));
+            Credential credential = Credential.From("<token>", "oauth2_token");
+            Assert.IsTrue(registryAuthenticator.IsOAuth2Auth(credential));
         }
 
         [Test]
-        public void getAuthenticationUrl_basicAuth()
+        public void GetAuthenticationUrl_basicAuth()
         {
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someservice&scope=repository:someimage:scope"),
-                registryAuthenticator.getAuthenticationUrl(null, "scope"));
+                registryAuthenticator.GetAuthenticationUrl(null, "scope"));
         }
 
         [Test]
-        public void istAuthenticationUrl_oauth2()
+        public void IstAuthenticationUrl_oauth2()
         {
-            Credential credential = Credential.from("<token>", "oauth2_token");
+            Credential credential = Credential.From("<token>", "oauth2_token");
             Assert.AreEqual(
                 new Uri("https://somerealm"),
-                registryAuthenticator.getAuthenticationUrl(credential, "scope"));
+                registryAuthenticator.GetAuthenticationUrl(credential, "scope"));
         }
 
         [Test]
-        public void testFromAuthenticationMethod_basic()
+        public void TestFromAuthenticationMethod_basic()
         {
             Assert.IsNull(
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("Basic","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) }));
 
             Assert.IsNull(
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("BASIC", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) }));
 
             Assert.IsNull(
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("bASIC","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) }));
         }
 
         [Test]
-        public void testFromAuthenticationMethod_noBearer()
+        public void TestFromAuthenticationMethod_noBearer()
         {
             try
             {
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("unknown", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
@@ -157,16 +157,16 @@ namespace com.google.cloud.tools.jib.registry
             {
                 Assert.AreEqual(
                     "Failed to authenticate with registry someserver/someimage because: 'Bearer' was not found in the 'WWW-Authenticate' header, tried to parse: unknown",
-                    ex.getMessage());
+                    ex.GetMessage());
             }
         }
 
         [Test]
-        public void testFromAuthenticationMethod_noRealm()
+        public void TestFromAuthenticationMethod_noRealm()
         {
             try
             {
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("Bearer","scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
@@ -176,43 +176,43 @@ namespace com.google.cloud.tools.jib.registry
             {
                 Assert.AreEqual(
                     "Failed to authenticate with registry someserver/someimage because: 'realm' was not found in the 'WWW-Authenticate' header, tried to parse: scope=\"somescope\"",
-                    ex.getMessage());
+                    ex.GetMessage());
             }
         }
 
         [Test]
-        public void testFromAuthenticationMethod_noService()
+        public void TestFromAuthenticationMethod_noService()
         {
             RegistryAuthenticator registryAuthenticator =
-                RegistryAuthenticator.fromAuthenticationMethod(
+                RegistryAuthenticator.FromAuthenticationMethod(
                     new AuthenticationHeaderValue("Bearer","realm=\"https://somerealm\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
 
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someserver&scope=repository:someimage:scope"),
-                registryAuthenticator.getAuthenticationUrl(null, "scope"));
+                registryAuthenticator.GetAuthenticationUrl(null, "scope"));
         }
 
         [Test]
-        public async Task testUserAgentAsync()
+        public async Task TestUserAgentAsync()
         {
             using (TestWebServer server = new TestWebServer(false))
             {
                 try
                 {
                     RegistryAuthenticator authenticator =
-                        RegistryAuthenticator.fromAuthenticationMethod(
+                        RegistryAuthenticator.FromAuthenticationMethod(
                             new AuthenticationHeaderValue("Bearer","realm=\"" + server.GetAddressAndPort() + "\""),
                             registryEndpointRequestProperties,
                             new[] { new ProductInfoHeaderValue(new ProductHeaderValue("Competent-Agent")) });
-                    await authenticator.authenticatePushAsync(null).ConfigureAwait(false);
+                    await authenticator.AuthenticatePushAsync(null).ConfigureAwait(false);
                 }
                 catch (RegistryAuthenticationFailedException)
                 {
                     // Doesn't matter if auth fails. We only examine what we sent.
                 }
-                Assert.That(server.getInputRead(), Does.Contain("User-Agent: Competent-Agent"));
+                Assert.That(server.GetInputRead(), Does.Contain("User-Agent: Competent-Agent"));
             }
         }
     }

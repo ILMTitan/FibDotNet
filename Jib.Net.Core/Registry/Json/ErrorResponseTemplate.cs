@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.registry.json
 
         public ErrorResponseTemplate AddError(ErrorEntryTemplate errorEntryTemplate)
         {
-            _errors.add(errorEntryTemplate);
+            JavaExtensions.Add(_errors, errorEntryTemplate);
             return this;
         }
     }

@@ -2,6 +2,6 @@
 {
     public interface IProcessBuilder
     {
-        IProcess start();
+        IProcess Start();
     }
 }

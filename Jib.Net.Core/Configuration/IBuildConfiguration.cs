@@ -7,20 +7,20 @@ namespace com.google.cloud.tools.jib.configuration
 {
     public interface IBuildConfiguration
     {
-        bool getAllowInsecureRegistries();
-        ImmutableHashSet<string> getAllTargetImageTags();
-        Cache getApplicationLayersCache();
-        ImageConfiguration getBaseImageConfiguration();
-        Cache getBaseImageLayersCache();
-        IContainerConfiguration getContainerConfiguration();
-        IEventHandlers getEventHandlers();
-        ImmutableArray<ILayerConfiguration> getLayerConfigurations();
-        ManifestFormat getTargetFormat();
-        ImageConfiguration getTargetImageConfiguration();
-        string getToolName();
-        bool isOffline();
-        RegistryClient.Factory newBaseImageRegistryClientFactory();
-        RegistryClient.Factory newTargetImageRegistryClientFactory();
-        string getToolVersion();
+        bool GetAllowInsecureRegistries();
+        ImmutableHashSet<string> GetAllTargetImageTags();
+        Cache GetApplicationLayersCache();
+        ImageConfiguration GetBaseImageConfiguration();
+        Cache GetBaseImageLayersCache();
+        IContainerConfiguration GetContainerConfiguration();
+        IEventHandlers GetEventHandlers();
+        ImmutableArray<ILayerConfiguration> GetLayerConfigurations();
+        ManifestFormat GetTargetFormat();
+        ImageConfiguration GetTargetImageConfiguration();
+        string GetToolName();
+        bool IsOffline();
+        RegistryClient.Factory NewBaseImageRegistryClientFactory();
+        RegistryClient.Factory NewTargetImageRegistryClientFactory();
+        string GetToolVersion();
     }
 }

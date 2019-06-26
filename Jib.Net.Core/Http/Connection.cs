@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.http
          *
          * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
          */
-        public static Func<Uri, Connection> getConnectionFactory()
+        public static Func<Uri, Connection> GetConnectionFactory()
         {
             /*
              * Do not use {@link NetHttpTransport}. It does not process response errors properly. A new
@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.http
          * @throws GeneralSecurityException if unable to turn off TLS peer verification
          * @return {@link Connection} factory, a function that generates a {@link Connection} to a Uri
          */
-        public static Func<Uri, Connection> getInsecureConnectionFactory()
+        public static Func<Uri, Connection> GetInsecureConnectionFactory()
         {
             // Do not use {@link NetHttpTransport}. See {@link getConnectionFactory} for details.
 
@@ -121,7 +121,7 @@ namespace com.google.cloud.tools.jib.http
          * @return the response to the sent request
          * @throws IOException if building the HTTP request fails.
          */
-        public async Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
             request = request ?? throw new ArgumentNullException(nameof(request));
             try

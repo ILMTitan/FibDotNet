@@ -26,25 +26,25 @@ namespace com.google.cloud.tools.jib.api
     public class RelativeUnixPathTest
     {
         [Test]
-        public void testGet_absolute()
+        public void TestGet_absolute()
         {
             try
             {
-                RelativeUnixPath.get("/absolute");
+                RelativeUnixPath.Get("/absolute");
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("Path starts with forward slash (/): /absolute", ex.getMessage());
+                Assert.AreEqual("Path starts with forward slash (/): /absolute", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testGet()
+        public void TestGet()
         {
             CollectionAssert.AreEqual(
                 ImmutableArray.Create("some", "relative", "path"),
-                RelativeUnixPath.get("some/relative///path").getRelativePathComponents());
+                RelativeUnixPath.Get("some/relative///path").GetRelativePathComponents());
         }
     }
 }

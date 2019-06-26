@@ -35,84 +35,84 @@ namespace com.google.cloud.tools.jib.registry
         private static readonly EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
 
         [Test]
-        public async System.Threading.Tasks.Task testPush_missingBlobsAsync()
+        public async System.Threading.Tasks.Task TestPush_missingBlobsAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
 
             RegistryClient registryClient =
-                RegistryClient.factory(EVENT_HANDLERS, "gcr.io", "distroless/java").newRegistryClient();
-            IManifestTemplate manifestTemplate = await registryClient.pullManifestAsync("latest").ConfigureAwait(false);
+                RegistryClient.CreateFactory(EVENT_HANDLERS, "gcr.io", "distroless/java").NewRegistryClient();
+            IManifestTemplate manifestTemplate = await registryClient.PullManifestAsync("latest").ConfigureAwait(false);
 
             registryClient =
-                RegistryClient.factory(EVENT_HANDLERS, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EVENT_HANDLERS, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             try
             {
-                await registryClient.pushManifestAsync((V22ManifestTemplate)manifestTemplate, "latest").ConfigureAwait(false);
+                await registryClient.PushManifestAsync((V22ManifestTemplate)manifestTemplate, "latest").ConfigureAwait(false);
                 Assert.Fail("Pushing manifest without its BLOBs should fail");
             }
             catch (RegistryErrorException ex)
             {
                 HttpResponseMessage httpResponse = ex.Cause;
                 Assert.AreEqual(
-                    HttpStatusCode.BadRequest, httpResponse.getStatusCode());
+                    HttpStatusCode.BadRequest, httpResponse.GetStatusCode());
             }
         }
 
         /** Tests manifest pushing. This test is a comprehensive test of push and pull. */
         [Test]
-        public async Task testPushAsync()
+        public async Task TestPushAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
-            IBlob testLayerBlob = Blobs.from("crepecake");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
+            IBlob testLayerBlob = Blobs.From("crepecake");
             // Known digest for 'crepecake'
             DescriptorDigest testLayerBlobDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "52a9e4d4ba4333ce593707f98564fee1e6d898db0d3602408c0b2a6a424d357c");
-            IBlob testContainerConfigurationBlob = Blobs.from("12345");
+            IBlob testContainerConfigurationBlob = Blobs.From("12345");
             DescriptorDigest testContainerConfigurationBlobDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5");
 
             // Creates a valid image manifest.
             V22ManifestTemplate expectedManifestTemplate = new V22ManifestTemplate();
-            expectedManifestTemplate.addLayer(9, testLayerBlobDigest);
-            expectedManifestTemplate.setContainerConfiguration(5, testContainerConfigurationBlobDigest);
+            expectedManifestTemplate.AddLayer(9, testLayerBlobDigest);
+            expectedManifestTemplate.SetContainerConfiguration(5, testContainerConfigurationBlobDigest);
 
             // Pushes the BLOBs.
             RegistryClient registryClient =
-                RegistryClient.factory(EVENT_HANDLERS, "localhost:5000", "testimage")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EVENT_HANDLERS, "localhost:5000", "testimage")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             Assert.IsFalse(
-                await registryClient.pushBlobAsync(testLayerBlobDigest, testLayerBlob, null, _ => { }).ConfigureAwait(false));
+                await registryClient.PushBlobAsync(testLayerBlobDigest, testLayerBlob, null, _ => { }).ConfigureAwait(false));
             Assert.IsFalse(
-                await registryClient.pushBlobAsync(
+                await registryClient.PushBlobAsync(
                     testContainerConfigurationBlobDigest,
                     testContainerConfigurationBlob,
                     null,
                     _ => { }).ConfigureAwait(false));
 
             // Pushes the manifest.
-                DescriptorDigest imageDigest = await registryClient.pushManifestAsync(expectedManifestTemplate, "latest").ConfigureAwait(false);
+                DescriptorDigest imageDigest = await registryClient.PushManifestAsync(expectedManifestTemplate, "latest").ConfigureAwait(false);
 
             // Pulls the manifest.
             V22ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
-            Assert.AreEqual(1, manifestTemplate.getLayers().size());
-            Assert.AreEqual(testLayerBlobDigest, manifestTemplate.getLayers().get(0).getDigest());
-            Assert.IsNotNull(manifestTemplate.getContainerConfiguration());
+                await registryClient.PullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
+            Assert.AreEqual(1, manifestTemplate.Layers.Size());
+            Assert.AreEqual(testLayerBlobDigest, manifestTemplate.Layers.Get(0).Digest);
+            Assert.IsNotNull(manifestTemplate.GetContainerConfiguration());
             Assert.AreEqual(
                 testContainerConfigurationBlobDigest,
-                manifestTemplate.getContainerConfiguration().getDigest());
+                manifestTemplate.GetContainerConfiguration().Digest);
 
             // Pulls the manifest by digest.
             V22ManifestTemplate manifestTemplateByDigest =
-                await registryClient.pullManifestAsync<V22ManifestTemplate>(imageDigest.toString()).ConfigureAwait(false);
+                await registryClient.PullManifestAsync<V22ManifestTemplate>(JavaExtensions.ToString(imageDigest)).ConfigureAwait(false);
             Assert.AreEqual(
-                await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false),
-                await Digests.computeJsonDigestAsync(manifestTemplateByDigest).ConfigureAwait(false));
+                await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false),
+                await Digests.ComputeJsonDigestAsync(manifestTemplateByDigest).ConfigureAwait(false));
         }
     }
 }

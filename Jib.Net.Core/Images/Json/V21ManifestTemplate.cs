@@ -100,22 +100,12 @@ namespace com.google.cloud.tools.jib.image.json
             }
         }
 
-        public List<DescriptorDigest> GetLayerDigests()
+        public IEnumerable<DescriptorDigest> GetLayerDigests()
         {
-            List<DescriptorDigest> layerDigests = new List<DescriptorDigest>();
-
             foreach (LayerObjectTemplate layerObjectTemplate in FsLayers)
-
             {
-                layerDigests.add(layerObjectTemplate.BlobSum);
+                yield return layerObjectTemplate.BlobSum;
             }
-
-            return layerDigests;
-        }
-
-        public int getSchemaVersion()
-        {
-            return SchemaVersion;
         }
 
         /**
@@ -129,18 +119,18 @@ namespace com.google.cloud.tools.jib.image.json
         {
             try
             {
-                if (History.isEmpty())
+                if (History.IsEmpty())
                 {
                     return Option.Empty<ContainerConfigurationTemplate>();
                 }
-                string v1Compatibility = History.get(0).V1Compatibility;
+                string v1Compatibility = History.Get(0).V1Compatibility;
                 if (v1Compatibility == null)
                 {
                     return Option.Empty<ContainerConfigurationTemplate>();
                 }
 
                 return Option.Of(
-                    JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(v1Compatibility));
+                    JsonTemplateMapper.ReadJson<ContainerConfigurationTemplate>(v1Compatibility));
             }
             catch (IOException)
             {

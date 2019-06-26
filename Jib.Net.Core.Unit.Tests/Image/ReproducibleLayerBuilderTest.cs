@@ -47,16 +47,16 @@ namespace com.google.cloud.tools.jib.image
          * @param expectedFile the file to match against the contents of the next entry
          * @throws IOException if an I/O exception occurs
          */
-        private static void verifyNextTarArchiveEntry(
+        private static void VerifyNextTarArchiveEntry(
             TarInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
         {
-            TarEntry header = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual(expectedExtractionPath, header.getName());
+            TarEntry header = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual(expectedExtractionPath, header.GetName());
 
-            string expectedString = Encoding.UTF8.GetString(Files.readAllBytes(expectedFile));
+            string expectedString = Encoding.UTF8.GetString(Files.ReadAllBytes(expectedFile));
 
             string extractedString =
-                CharStreams.toString(new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+                CharStreams.ToString(new StreamReader(tarArchiveInputStream, Encoding.UTF8));
 
             Assert.AreEqual(expectedString, extractedString);
         }
@@ -69,20 +69,20 @@ namespace com.google.cloud.tools.jib.image
          * @param expectedExtractionPath the expected extraction path of the next entry
          * @throws IOException if an I/O exception occurs
          */
-        private static void verifyNextTarArchiveEntryIsDirectory(
+        private static void VerifyNextTarArchiveEntryIsDirectory(
             TarInputStream tarArchiveInputStream, string expectedExtractionPath)
         {
-            TarEntry extractionPathEntry = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual(expectedExtractionPath, extractionPathEntry.getName());
-            Assert.IsTrue(extractionPathEntry.isDirectory());
+            TarEntry extractionPathEntry = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual(expectedExtractionPath, extractionPathEntry.GetName());
+            Assert.IsTrue(extractionPathEntry.IsDirectory());
         }
 
-        private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
+        private static LayerEntry DefaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
         {
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultFilePermissionsProvider.Apply(source, destination),
                 LayerConfiguration.DefaultModifiedTime);
         }
 
@@ -94,290 +94,290 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testBuildAsync()
+        public async System.Threading.Tasks.Task TestBuildAsync()
         {
-            SystemPath layerDirectory = Paths.get(TestResources.getResource("core/layer").ToURI());
-            SystemPath blobA = Paths.get(TestResources.getResource("core/blobA").ToURI());
+            SystemPath layerDirectory = Paths.Get(TestResources.GetResource("core/layer").ToURI());
+            SystemPath blobA = Paths.Get(TestResources.GetResource("core/blobA").ToURI());
 
             ReproducibleLayerBuilder layerBuilder =
                 new ReproducibleLayerBuilder(
                     LayerConfiguration.builder()
-                        .addEntryRecursive(
-                            layerDirectory, AbsoluteUnixPath.get("/extract/here/apple/layer"))
-                        .addEntry(blobA, AbsoluteUnixPath.get("/extract/here/apple/blobA"))
-                        .addEntry(blobA, AbsoluteUnixPath.get("/extract/here/banana/blobA"))
-                        .build()
-                        .getLayerEntries());
+                        .AddEntryRecursive(
+                            layerDirectory, AbsoluteUnixPath.Get("/extract/here/apple/layer"))
+                        .AddEntry(blobA, AbsoluteUnixPath.Get("/extract/here/apple/blobA"))
+                        .AddEntry(blobA, AbsoluteUnixPath.Get("/extract/here/banana/blobA"))
+                        .Build()
+                        .GetLayerEntries());
 
             // Writes the layer tar to a temporary file.
-            IBlob unwrittenBlob = layerBuilder.build();
-            SystemPath temporaryFile = temporaryFolder.newFile().toPath();
+            IBlob unwrittenBlob = layerBuilder.Build();
+            SystemPath temporaryFile = temporaryFolder.NewFile().ToPath();
             using (Stream temporaryFileOutputStream =
-                new BufferedStream(Files.newOutputStream(temporaryFile)))
+                new BufferedStream(Files.NewOutputStream(temporaryFile)))
             {
-                await unwrittenBlob.writeToAsync(temporaryFileOutputStream).ConfigureAwait(false);
+                await unwrittenBlob.WriteToAsync(temporaryFileOutputStream).ConfigureAwait(false);
             }
 
             // Reads the file back.
             using (TarInputStream tarArchiveInputStream =
-                new TarInputStream(Files.newInputStream(temporaryFile)))
+                new TarInputStream(Files.NewInputStream(temporaryFile)))
             {
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/");
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/");
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/");
-                verifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/apple/blobA", blobA);
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/");
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/a/");
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/a/b/");
-                verifyNextTarArchiveEntry(
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/");
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/");
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/");
+                VerifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/apple/blobA", blobA);
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/");
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/a/");
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/a/b/");
+                VerifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/a/b/bar",
-                    Paths.get(TestResources.getResource("core/layer/a/b/bar").ToURI()));
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/c/");
-                verifyNextTarArchiveEntry(
+                    Paths.Get(TestResources.GetResource("core/layer/a/b/bar").ToURI()));
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/c/");
+                VerifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/c/cat",
-                    Paths.get(TestResources.getResource("core/layer/c/cat").ToURI()));
-                verifyNextTarArchiveEntry(
+                    Paths.Get(TestResources.GetResource("core/layer/c/cat").ToURI()));
+                VerifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/foo",
-                    Paths.get(TestResources.getResource("core/layer/foo").ToURI()));
-                verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/banana/");
-                verifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/banana/blobA", blobA);
+                    Paths.Get(TestResources.GetResource("core/layer/foo").ToURI()));
+                VerifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/banana/");
+                VerifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/banana/blobA", blobA);
             }
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testToBlob_reproducibilityAsync()
+        public async System.Threading.Tasks.Task TestToBlob_reproducibilityAsync()
         {
-            SystemPath testRoot = temporaryFolder.getRoot().toPath();
-            SystemPath root1 = Files.createDirectories(testRoot.Resolve("files1"));
-            SystemPath root2 = Files.createDirectories(testRoot.Resolve("files2"));
+            SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
+            SystemPath root1 = Files.CreateDirectories(testRoot.Resolve("files1"));
+            SystemPath root2 = Files.CreateDirectories(testRoot.Resolve("files2"));
 
             // TODO: Currently this test only covers variation in order and modified time, even though
             // TODO: the code is designed to clean up userid/groupid, this test does not check that yet.
             const string contentA = "abcabc";
-            SystemPath fileA1 = createFile(root1, "fileA", contentA, 10000);
-            SystemPath fileA2 = createFile(root2, "fileA", contentA, 20000);
+            SystemPath fileA1 = CreateFile(root1, "fileA", contentA, 10000);
+            SystemPath fileA2 = CreateFile(root2, "fileA", contentA, 20000);
             const string contentB = "yumyum";
-            SystemPath fileB1 = createFile(root1, "fileB", contentB, 10000);
-            SystemPath fileB2 = createFile(root2, "fileB", contentB, 20000);
+            SystemPath fileB1 = CreateFile(root1, "fileB", contentB, 10000);
+            SystemPath fileB2 = CreateFile(root2, "fileB", contentB, 20000);
 
             // check if modified times are off
-            Assert.AreNotEqual(Files.getLastModifiedTime(fileA1), Files.getLastModifiedTime(fileA2));
-            Assert.AreNotEqual(Files.getLastModifiedTime(fileB1), Files.getLastModifiedTime(fileB2));
+            Assert.AreNotEqual(Files.GetLastModifiedTime(fileA1), Files.GetLastModifiedTime(fileA2));
+            Assert.AreNotEqual(Files.GetLastModifiedTime(fileB1), Files.GetLastModifiedTime(fileB2));
 
             // create layers of exact same content but ordered differently and with different timestamps
             IBlob layer =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
-                            defaultLayerEntry(fileA1, AbsoluteUnixPath.get("/somewhere/fileA")),
-                            defaultLayerEntry(fileB1, AbsoluteUnixPath.get("/somewhere/fileB"))))
-                    .build();
+                            DefaultLayerEntry(fileA1, AbsoluteUnixPath.Get("/somewhere/fileA")),
+                            DefaultLayerEntry(fileB1, AbsoluteUnixPath.Get("/somewhere/fileB"))))
+                    .Build();
             IBlob reproduced =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
-                            defaultLayerEntry(fileB2, AbsoluteUnixPath.get("/somewhere/fileB")),
-                            defaultLayerEntry(fileA2, AbsoluteUnixPath.get("/somewhere/fileA"))))
-                    .build();
+                            DefaultLayerEntry(fileB2, AbsoluteUnixPath.Get("/somewhere/fileB")),
+                            DefaultLayerEntry(fileA2, AbsoluteUnixPath.Get("/somewhere/fileA"))))
+                    .Build();
 
-            byte[] layerContent = await Blobs.writeToByteArrayAsync(layer).ConfigureAwait(false);
-            byte[] reproducedLayerContent = await Blobs.writeToByteArrayAsync(reproduced).ConfigureAwait(false);
+            byte[] layerContent = await Blobs.WriteToByteArrayAsync(layer).ConfigureAwait(false);
+            byte[] reproducedLayerContent = await Blobs.WriteToByteArrayAsync(reproduced).ConfigureAwait(false);
 
             Assert.AreEqual(layerContent, reproducedLayerContent);
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testBuild_parentDirBehaviorAsync()
+        public async System.Threading.Tasks.Task TestBuild_parentDirBehaviorAsync()
         {
-            SystemPath testRoot = temporaryFolder.getRoot().toPath();
+            SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
 
             // the path doesn't really matter on source files, but these are structured
-            SystemPath parent = Files.createDirectories(testRoot.Resolve("aaa"));
-            SystemPath fileA = Files.createFile(parent.Resolve("fileA"));
-            SystemPath ignoredParent = Files.createDirectories(testRoot.Resolve("bbb-ignored"));
-            SystemPath fileB = Files.createFile(ignoredParent.Resolve("fileB"));
+            SystemPath parent = Files.CreateDirectories(testRoot.Resolve("aaa"));
+            SystemPath fileA = Files.CreateFile(parent.Resolve("fileA"));
+            SystemPath ignoredParent = Files.CreateDirectories(testRoot.Resolve("bbb-ignored"));
+            SystemPath fileB = Files.CreateFile(ignoredParent.Resolve("fileB"));
             SystemPath fileC =
-                Files.createFile(Files.createDirectories(testRoot.Resolve("ccc-absent")).Resolve("fileC"));
+                Files.CreateFile(Files.CreateDirectories(testRoot.Resolve("ccc-absent")).Resolve("fileC"));
 
             IBlob layer =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             new LayerEntry(
                                 parent,
-                                AbsoluteUnixPath.get("/root/aaa"),
-                                FilePermissions.fromOctalString("111"),
+                                AbsoluteUnixPath.Get("/root/aaa"),
+                                FilePermissions.FromOctalString("111"),
                                 Instant.FromUnixTimeSeconds(10)),
                             new LayerEntry(
                                 fileA,
-                                AbsoluteUnixPath.get("/root/aaa/fileA"),
-                                FilePermissions.fromOctalString("222"),
+                                AbsoluteUnixPath.Get("/root/aaa/fileA"),
+                                FilePermissions.FromOctalString("222"),
                                 Instant.FromUnixTimeSeconds(20)),
                             new LayerEntry(
                                 fileB,
-                                AbsoluteUnixPath.get("/root/bbb-ignored/fileB"),
-                                FilePermissions.fromOctalString("333"),
+                                AbsoluteUnixPath.Get("/root/bbb-ignored/fileB"),
+                                FilePermissions.FromOctalString("333"),
                                 Instant.FromUnixTimeSeconds(30)),
                             new LayerEntry(
                                 ignoredParent,
-                                AbsoluteUnixPath.get("/root/bbb-ignored"),
-                                FilePermissions.fromOctalString("444"),
+                                AbsoluteUnixPath.Get("/root/bbb-ignored"),
+                                FilePermissions.FromOctalString("444"),
                                 Instant.FromUnixTimeSeconds(40)),
                             new LayerEntry(
                                 fileC,
-                                AbsoluteUnixPath.get("/root/ccc-absent/file3"),
-                                FilePermissions.fromOctalString("555"),
+                                AbsoluteUnixPath.Get("/root/ccc-absent/file3"),
+                                FilePermissions.FromOctalString("555"),
                                 Instant.FromUnixTimeSeconds(50))))
-                    .build();
+                    .Build();
 
-            SystemPath tarFile = temporaryFolder.newFile().toPath();
-            using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
+            SystemPath tarFile = temporaryFolder.NewFile().ToPath();
+            using (Stream @out = new BufferedStream(Files.NewOutputStream(tarFile)))
             {
-                await layer.writeToAsync(@out).ConfigureAwait(false);
+                await layer.WriteToAsync(@out).ConfigureAwait(false);
             }
 
-            using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
+            using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 // root (default folder permissions)
-                TarEntry root = @in.getNextTarEntry();
-                Assert.AreEqual("755", root.getMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+                TarEntry root = @in.GetNextTarEntry();
+                Assert.AreEqual("755", root.GetMode().ToOctalString());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
 
                 // parentAAA (custom permissions, custom timestamp)
-                TarEntry rootParentAAA = @in.getNextTarEntry();
-                Assert.AreEqual("111", rootParentAAA.getMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.getModTime().toInstant());
+                TarEntry rootParentAAA = @in.GetNextTarEntry();
+                Assert.AreEqual("111", rootParentAAA.GetMode().ToOctalString());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.GetModTime().ToInstant());
 
                 // skip over fileA
-                @in.getNextTarEntry();
+                @in.GetNextTarEntry();
 
                 // parentBBB (default permissions - ignored custom permissions, since fileB added first)
-                TarEntry rootParentBBB = @in.getNextTarEntry();
+                TarEntry rootParentBBB = @in.GetNextTarEntry();
                 // TODO (#1650): we want 040444 here.
-                Assert.AreEqual("755", rootParentBBB.getMode().ToOctalString());
+                Assert.AreEqual("755", rootParentBBB.GetMode().ToOctalString());
                 // TODO (#1650): we want Instant.ofEpochSecond(40) here.
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
 
                 // skip over fileB
-                @in.getNextTarEntry();
+                @in.GetNextTarEntry();
 
                 // parentCCC (default permissions - no entry provided)
-                TarEntry rootParentCCC = @in.getNextTarEntry();
-                Assert.AreEqual("755", rootParentCCC.getMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.getModTime().toInstant());
+                TarEntry rootParentCCC = @in.GetNextTarEntry();
+                Assert.AreEqual("755", rootParentCCC.GetMode().ToOctalString());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
 
                 // we don't care about fileC
             }
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testBuild_timestampDefaultAsync()
+        public async System.Threading.Tasks.Task TestBuild_timestampDefaultAsync()
         {
-            SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
+            SystemPath file = CreateFile(temporaryFolder.GetRoot().ToPath(), "fileA", "some content", 54321);
 
             IBlob blob =
                 new ReproducibleLayerBuilder(
-                        ImmutableArray.Create(defaultLayerEntry(file, AbsoluteUnixPath.get("/fileA"))))
-                    .build();
+                        ImmutableArray.Create(DefaultLayerEntry(file, AbsoluteUnixPath.Get("/fileA"))))
+                    .Build();
 
-            SystemPath tarFile = temporaryFolder.newFile().toPath();
-            using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
+            SystemPath tarFile = temporaryFolder.NewFile().ToPath();
+            using (Stream @out = new BufferedStream(Files.NewOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out).ConfigureAwait(false);
+                await blob.WriteToAsync(@out).ConfigureAwait(false);
             }
 
             // Reads the file back.
-            using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
+            using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 Assert.AreEqual(
-                    Instant.FromUnixTimeSeconds(0).plusSeconds(1).ToDateTimeUtc(), @in.getNextEntry().getLastModifiedDate());
+                    Instant.FromUnixTimeSeconds(0).PlusSeconds(1).ToDateTimeUtc(), JavaExtensions.GetNextEntry(@in).GetLastModifiedDate());
             }
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testBuild_timestampNonDefaultAsync()
+        public async System.Threading.Tasks.Task TestBuild_timestampNonDefaultAsync()
         {
-            SystemPath file = createFile(temporaryFolder.getRoot().toPath(), "fileA", "some content", 54321);
+            SystemPath file = CreateFile(temporaryFolder.GetRoot().ToPath(), "fileA", "some content", 54321);
 
             IBlob blob =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
                             new LayerEntry(
                                 file,
-                                AbsoluteUnixPath.get("/fileA"),
+                                AbsoluteUnixPath.Get("/fileA"),
                                 FilePermissions.DefaultFilePermissions,
                                 Instant.FromUnixTimeSeconds(123))))
-                    .build();
+                    .Build();
 
-            SystemPath tarFile = temporaryFolder.newFile().toPath();
-            using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
+            SystemPath tarFile = temporaryFolder.NewFile().ToPath();
+            using (Stream @out = new BufferedStream(Files.NewOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out).ConfigureAwait(false);
+                await blob.WriteToAsync(@out).ConfigureAwait(false);
             }
 
             // Reads the file back.
-            using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
+            using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 Assert.AreEqual(
-                    Instant.FromUnixTimeSeconds(0).plusSeconds(123).ToDateTimeUtc(),
-                    @in.getNextEntry().getLastModifiedDate());
+                    Instant.FromUnixTimeSeconds(0).PlusSeconds(123).ToDateTimeUtc(),
+                    JavaExtensions.GetNextEntry(@in).GetLastModifiedDate());
             }
         }
 
         [Test]
-        public async System.Threading.Tasks.Task testBuild_permissionsAsync()
+        public async System.Threading.Tasks.Task TestBuild_permissionsAsync()
         {
-            SystemPath testRoot = temporaryFolder.getRoot().toPath();
-            SystemPath folder = Files.createDirectories(testRoot.Resolve("files1"));
-            SystemPath fileA = createFile(testRoot, "fileA", "abc", 54321);
-            SystemPath fileB = createFile(testRoot, "fileB", "def", 54321);
+            SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
+            SystemPath folder = Files.CreateDirectories(testRoot.Resolve("files1"));
+            SystemPath fileA = CreateFile(testRoot, "fileA", "abc", 54321);
+            SystemPath fileB = CreateFile(testRoot, "fileB", "def", 54321);
 
             IBlob blob =
                 new ReproducibleLayerBuilder(
                         ImmutableArray.Create(
-                            defaultLayerEntry(fileA, AbsoluteUnixPath.get("/somewhere/fileA")),
+                            DefaultLayerEntry(fileA, AbsoluteUnixPath.Get("/somewhere/fileA")),
                             new LayerEntry(
                                 fileB,
-                                AbsoluteUnixPath.get("/somewhere/fileB"),
-                                FilePermissions.fromOctalString("123"),
+                                AbsoluteUnixPath.Get("/somewhere/fileB"),
+                                FilePermissions.FromOctalString("123"),
                                 LayerConfiguration.DefaultModifiedTime),
                             new LayerEntry(
                                 folder,
-                                AbsoluteUnixPath.get("/somewhere/folder"),
-                                FilePermissions.fromOctalString("456"),
+                                AbsoluteUnixPath.Get("/somewhere/folder"),
+                                FilePermissions.FromOctalString("456"),
                                 LayerConfiguration.DefaultModifiedTime)))
-                    .build();
+                    .Build();
 
-            SystemPath tarFile = temporaryFolder.newFile().toPath();
-            using (Stream @out = new BufferedStream(Files.newOutputStream(tarFile)))
+            SystemPath tarFile = temporaryFolder.NewFile().ToPath();
+            using (Stream @out = new BufferedStream(Files.NewOutputStream(tarFile)))
             {
-                await blob.writeToAsync(@out).ConfigureAwait(false);
+                await blob.WriteToAsync(@out).ConfigureAwait(false);
             }
 
-            using (TarInputStream @in = new TarInputStream(Files.newInputStream(tarFile)))
+            using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 // Root folder (default folder permissions)
-                TarEntry rootEntry = @in.getNextTarEntry();
+                TarEntry rootEntry = @in.GetNextTarEntry();
                 // fileA (default file permissions)
-                TarEntry fileAEntry = @in.getNextTarEntry();
+                TarEntry fileAEntry = @in.GetNextTarEntry();
                 // fileB (custom file permissions)
-                TarEntry fileBEntry = @in.getNextTarEntry();
+                TarEntry fileBEntry = @in.GetNextTarEntry();
                 // folder (custom folder permissions)
-                TarEntry folderEntry = @in.getNextTarEntry();
-                Assert.AreEqual("755", rootEntry.getMode().ToOctalString());
-                Assert.AreEqual("644", fileAEntry.getMode().ToOctalString());
-                Assert.AreEqual("123", fileBEntry.getMode().ToOctalString());
-                Assert.AreEqual("456", folderEntry.getMode().ToOctalString());
+                TarEntry folderEntry = @in.GetNextTarEntry();
+                Assert.AreEqual("755", rootEntry.GetMode().ToOctalString());
+                Assert.AreEqual("644", fileAEntry.GetMode().ToOctalString());
+                Assert.AreEqual("123", fileBEntry.GetMode().ToOctalString());
+                Assert.AreEqual("456", folderEntry.GetMode().ToOctalString());
             }
         }
 
-        private SystemPath createFile(SystemPath root, string filename, string content, long lastModifiedTime)
+        private SystemPath CreateFile(SystemPath root, string filename, string content, long lastModifiedTime)
         {
             SystemPath newFile =
-                Files.write(
+                Files.Write(
                     root.Resolve(filename),
-                    content.getBytes(Encoding.UTF8));
-            Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModifiedTime));
+                    content.GetBytes(Encoding.UTF8));
+            Files.SetLastModifiedTime(newFile, FileTime.FromMillis(lastModifiedTime));
             return newFile;
         }
     }

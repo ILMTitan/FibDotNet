@@ -32,20 +32,10 @@ namespace com.google.cloud.tools.jib.registry.json
 
         public ErrorEntryTemplate(ErrorCode? code, string message)
         {
-            this.Code = code;
-            this.Message = message;
+            Code = code;
+            Message = message;
         }
 
         private ErrorEntryTemplate() { }
-
-        public ErrorCode? getCode()
-        {
-            return Code;
-        }
-
-        public string getMessage()
-        {
-            return Message;
-        }
     }
 }

@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public static IDictionary<string, IDictionary<object, object>> PortSetToMap(ISet<Port> exposedPorts)
         {
-            return SetToMap(exposedPorts, port => port.getPort() + "/" + port.getProtocol());
+            return SetToMap(exposedPorts, port => port.GetPort() + "/" + port.GetProtocol());
         }
 
         /**
@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public static ImmutableSortedDictionary<string, IDictionary<object, object>> VolumesSetToMap(ISet<AbsoluteUnixPath> volumes)
         {
-            return SetToMap(volumes, p => p.toString());
+            return SetToMap(volumes, p => JavaExtensions.ToString(p));
         }
 
         /**
@@ -85,14 +85,14 @@ namespace com.google.cloud.tools.jib.image.json
                 return ImmutableArray<string>.Empty;
             }
             Preconditions.CheckArgument(
-                environment.keySet().stream().noneMatch(key => key.contains("=")),
+                environment.KeySet().Stream().NoneMatch(key => JavaExtensions.Contains(key, "=")),
                 "Illegal environment variable: name cannot contain '='");
             return environment
-                .entrySet()
-                .stream()
-                .map(entry => entry.getKey() + "=" + entry.getValue())
-                .sorted()
-                .collect(ImmutableArray.ToImmutableArray);
+                .EntrySet()
+                .Stream()
+                .Map(entry => entry.GetKey() + "=" + entry.GetValue())
+                .Sorted()
+                .Collect(ImmutableArray.ToImmutableArray);
         }
 
         /**
@@ -119,8 +119,8 @@ namespace com.google.cloud.tools.jib.image.json
                 return null;
             }
 
-            return set.stream()
-                .collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => (IDictionary<object, object>)new Dictionary<object, object>(), StringComparer.Ordinal));
+            return set.Stream()
+                .Collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => (IDictionary<object, object>)new Dictionary<object, object>(), StringComparer.Ordinal));
         }
 
         private readonly Image image;
@@ -146,45 +146,45 @@ namespace com.google.cloud.tools.jib.image.json
             ContainerConfigurationTemplate template = new ContainerConfigurationTemplate();
 
             // Adds the layer diff IDs.
-            foreach (ILayer layer in image.getLayers())
+            foreach (ILayer layer in image.GetLayers())
             {
-                template.addLayerDiffId(layer.getDiffId());
+                template.AddLayerDiffId(layer.GetDiffId());
             }
 
             // Adds the history.
-            foreach (HistoryEntry historyObject in image.getHistory())
+            foreach (HistoryEntry historyObject in image.GetHistory())
             {
-                template.addHistoryEntry(historyObject);
+                template.AddHistoryEntry(historyObject);
             }
 
-            template.setCreated(image.getCreated()?.toString());
-            template.setArchitecture(image.getArchitecture());
-            template.setOs(image.getOs());
-            template.setContainerEnvironment(EnvironmentMapToList(image.getEnvironment()));
-            template.setContainerEntrypoint(image.getEntrypoint());
-            template.setContainerCmd(image.getProgramArguments());
-            template.setContainerExposedPorts(PortSetToMap(image.getExposedPorts()));
-            template.setContainerVolumes(VolumesSetToMap(image.getVolumes()));
-            template.setContainerLabels(image.getLabels());
-            template.setContainerWorkingDir(image.getWorkingDirectory());
-            template.setContainerUser(image.getUser());
+            template.Created = image.GetCreated()?.ToString();
+            template.Architecture = image.GetArchitecture();
+            template.Os = image.GetOs();
+            template.SetContainerEnvironment(EnvironmentMapToList(image.GetEnvironment()));
+            template.SetContainerEntrypoint(image.GetEntrypoint());
+            template.SetContainerCmd(image.GetProgramArguments());
+            template.SetContainerExposedPorts(PortSetToMap(image.GetExposedPorts()));
+            template.SetContainerVolumes(VolumesSetToMap(image.GetVolumes()));
+            template.SetContainerLabels(image.GetLabels());
+            template.SetContainerWorkingDir(image.GetWorkingDirectory());
+            template.SetContainerUser(image.GetUser());
 
             // Ignore healthcheck if not Docker/command is empty
-            DockerHealthCheck healthCheck = image.getHealthCheck();
-            if (image.getImageFormat()== ManifestFormat.V22 && healthCheck != null)
+            DockerHealthCheck healthCheck = image.GetHealthCheck();
+            if (image.GetImageFormat()== ManifestFormat.V22 && healthCheck != null)
             {
-                template.setContainerHealthCheckTest(healthCheck.getCommand());
+                template.SetContainerHealthCheckTest(healthCheck.GetCommand());
                 healthCheck
-                    .getInterval()
-                    .IfPresent(interval => template.setContainerHealthCheckInterval(interval.toNanos()));
+                    .GetInterval()
+                    .IfPresent(interval => template.SetContainerHealthCheckInterval(interval.ToNanos()));
                 healthCheck
-                    .getTimeout()
-                    .IfPresent(timeout => template.setContainerHealthCheckTimeout(timeout.toNanos()));
+                    .GetTimeout()
+                    .IfPresent(timeout => template.SetContainerHealthCheckTimeout(timeout.ToNanos()));
                 healthCheck
-                    .getStartPeriod()
+                    .GetStartPeriod()
                     .IfPresent(
-                        startPeriod => template.setContainerHealthCheckStartPeriod(startPeriod.toNanos()));
-                template.setContainerHealthCheckRetries(healthCheck.getRetries().AsNullable());
+                        startPeriod => template.SetContainerHealthCheckStartPeriod(startPeriod.ToNanos()));
+                template.SetContainerHealthCheckRetries(healthCheck.GetRetries().AsNullable());
             }
 
             return template;
@@ -225,15 +225,15 @@ namespace com.google.cloud.tools.jib.image.json
 
                 // Adds the container configuration reference.
                 DescriptorDigest containerConfigurationDigest =
-                    containerConfigurationBlobDescriptor.getDigest();
-                long containerConfigurationSize = containerConfigurationBlobDescriptor.getSize();
-                buildableTemplate.setContainerConfiguration(containerConfigurationSize, containerConfigurationDigest);
+                    containerConfigurationBlobDescriptor.GetDigest();
+                long containerConfigurationSize = containerConfigurationBlobDescriptor.GetSize();
+                buildableTemplate.SetContainerConfiguration(containerConfigurationSize, containerConfigurationDigest);
 
                 // Adds the layers.
-                foreach (ILayer layer in image.getLayers())
+                foreach (ILayer layer in image.GetLayers())
                 {
-                    buildableTemplate.addLayer(
-            layer.getBlobDescriptor().getSize(), layer.getBlobDescriptor().getDigest());
+                    buildableTemplate.AddLayer(
+            layer.GetBlobDescriptor().GetSize(), layer.GetBlobDescriptor().GetDigest());
                 }
 
                 // Serializes into JSON.

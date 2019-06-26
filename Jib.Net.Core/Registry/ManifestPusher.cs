@@ -45,10 +45,10 @@ namespace com.google.cloud.tools.jib.registry
          * @param receivedDigests the received image digests
          * @return the warning message
          */
-        private static string makeUnexpectedImageDigestWarning(
+        private static string MakeUnexpectedImageDigestWarning(
             DescriptorDigest expectedDigest, IList<string> receivedDigests)
         {
-            if (receivedDigests.isEmpty())
+            if (receivedDigests.IsEmpty())
             {
                 return "Expected image digest " + expectedDigest + ", but received none";
             }
@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.registry
                 new StringJoiner(", ", "Expected image digest " + expectedDigest + ", but received: ", "");
             foreach (string receivedDigest in receivedDigests)
             {
-                message.add(receivedDigest);
+                message.Add(receivedDigest);
             }
             return message.ToString();
         }
@@ -79,19 +79,19 @@ namespace com.google.cloud.tools.jib.registry
             this.eventHandlers = eventHandlers;
         }
 
-        public BlobHttpContent getContent()
+        public BlobHttpContent GetContent()
         {
             // TODO: Consider giving progress on manifest push as well?
             return new BlobHttpContent(
-                Blobs.fromJson(manifestTemplate), manifestTemplate.getManifestMediaType());
+                Blobs.FromJson(manifestTemplate), manifestTemplate.GetManifestMediaType());
         }
 
-        public IList<string> getAccept()
+        public IList<string> GetAccept()
         {
             return new List<string>();
         }
 
-        public async Task<DescriptorDigest> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
+        public async Task<DescriptorDigest> HandleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
             // docker registry 2.0 and 2.1 returns:
             //   400 Bad Request
@@ -104,38 +104,38 @@ namespace com.google.cloud.tools.jib.registry
             //   {"errors":[{"code":"MANIFEST_INVALID","detail":
             //   {"message":"manifest schema version not supported"},"message":"manifest invalid"}]}
 
-            if (httpResponse.getStatusCode() != HttpStatusCode.BadRequest
-                && httpResponse.getStatusCode() != HttpStatusCode.UnsupportedMediaType)
+            if (httpResponse.GetStatusCode() != HttpStatusCode.BadRequest
+                && httpResponse.GetStatusCode() != HttpStatusCode.UnsupportedMediaType)
             {
                 throw new HttpResponseException(httpResponse);
             }
 
-            ErrorCode errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
+            ErrorCode errorCode = await ErrorResponseUtil.GetErrorCodeAsync(httpResponse).ConfigureAwait(false);
             if (errorCode == ErrorCode.ManifestInvalid || errorCode == ErrorCode.TagInvalid)
             {
-                throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
-                    .addReason(
+                throw new RegistryErrorExceptionBuilder(GetActionDescription(), httpResponse)
+                    .AddReason(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2")
-                    .build();
+                    .Build();
             }
             // rethrow: unhandled error response code.
             throw new HttpResponseException(httpResponse);
         }
 
-        public async Task<DescriptorDigest> handleResponseAsync(HttpResponseMessage response)
+        public async Task<DescriptorDigest> HandleResponseAsync(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
-                return await handleHttpResponseExceptionAsync(response).ConfigureAwait(false);
+                return await HandleHttpResponseExceptionAsync(response).ConfigureAwait(false);
             }
-            return await handleSuccessResponseAsync(response).ConfigureAwait(false);
+            return await HandleSuccessResponseAsync(response).ConfigureAwait(false);
         }
 
-        public async Task<DescriptorDigest> handleSuccessResponseAsync(HttpResponseMessage response)
+        public async Task<DescriptorDigest> HandleSuccessResponseAsync(HttpResponseMessage response)
         {
             // Checks if the image digest is as expected.
-            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
+            DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
 
             if (response.Headers.TryGetValues(RESPONSE_DIGEST_HEADER, out var receivedDigestEnum))
             {
@@ -144,7 +144,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     try
                     {
-                        if (expectedDigest.Equals(DescriptorDigest.fromDigest(receivedDigests[0])))
+                        if (expectedDigest.Equals(DescriptorDigest.FromDigest(receivedDigests[0])))
                         {
                             return expectedDigest;
                         }
@@ -155,33 +155,33 @@ namespace com.google.cloud.tools.jib.registry
                     }
                 }
                 eventHandlers.Dispatch(
-                    LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, receivedDigests)));
+                    LogEvent.Warn(MakeUnexpectedImageDigestWarning(expectedDigest, receivedDigests)));
                 return expectedDigest;
             }
 
             eventHandlers.Dispatch(
-                LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, Array.Empty<string>())));
+                LogEvent.Warn(MakeUnexpectedImageDigestWarning(expectedDigest, Array.Empty<string>())));
             // The received digest is not as expected. Warns about this.
             return expectedDigest;
         }
 
-        public Uri getApiRoute(string apiRouteBase)
+        public Uri GetApiRoute(string apiRouteBase)
         {
             return new Uri(
-                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/manifests/" + imageTag);
+                apiRouteBase + registryEndpointRequestProperties.GetImageName() + "/manifests/" + imageTag);
         }
 
-        public HttpMethod getHttpMethod()
+        public HttpMethod GetHttpMethod()
         {
             return HttpMethod.Put;
         }
 
-        public string getActionDescription()
+        public string GetActionDescription()
         {
             return "push image manifest for "
-                + registryEndpointRequestProperties.getRegistry()
+                + registryEndpointRequestProperties.GetRegistry()
                 + "/"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + ":"
                 + imageTag;
         }

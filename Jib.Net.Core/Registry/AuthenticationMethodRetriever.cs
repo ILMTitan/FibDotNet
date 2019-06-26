@@ -40,12 +40,12 @@ namespace com.google.cloud.tools.jib.registry
             this.userAgent = userAgent;
         }
 
-        public BlobHttpContent getContent()
+        public BlobHttpContent GetContent()
         {
             return null;
         }
 
-        public IList<string> getAccept()
+        public IList<string> GetAccept()
         {
             return new List<string>();
         }
@@ -57,58 +57,58 @@ namespace com.google.cloud.tools.jib.registry
          * @return {@code null}
          */
 
-        public Task<RegistryAuthenticator> handleResponseAsync(HttpResponseMessage response)
+        public Task<RegistryAuthenticator> HandleResponseAsync(HttpResponseMessage response)
         {
-            return Task.FromResult(handleHttpResponse(response));
+            return Task.FromResult(HandleHttpResponse(response));
         }
 
-        public Uri getApiRoute(string apiRouteBase)
+        public Uri GetApiRoute(string apiRouteBase)
         {
             return new Uri(apiRouteBase);
         }
 
-        public HttpMethod getHttpMethod()
+        public HttpMethod GetHttpMethod()
         {
             return HttpMethod.Get;
         }
 
-        public string getActionDescription()
+        public string GetActionDescription()
         {
-            return "retrieve authentication method for " + registryEndpointRequestProperties.getRegistry();
+            return "retrieve authentication method for " + registryEndpointRequestProperties.GetRegistry();
         }
 
-        public RegistryAuthenticator handleHttpResponse(HttpResponseMessage httpResponse)
+        public RegistryAuthenticator HandleHttpResponse(HttpResponseMessage httpResponse)
         {
             if (httpResponse.IsSuccessStatusCode)
             {
                 return null;
             }
             // Only valid for status code of '401 Unauthorized'.
-            if (httpResponse.getStatusCode() != HttpStatusCode.Unauthorized)
+            if (httpResponse.GetStatusCode() != HttpStatusCode.Unauthorized)
             {
                 throw new HttpResponseException(httpResponse);
             }
 
             // Checks if the 'WWW-Authenticate' header is present.
-            AuthenticationHeaderValue authenticationMethod = httpResponse.getHeaders().getAuthenticate().FirstOrDefault();
+            AuthenticationHeaderValue authenticationMethod = httpResponse.GetHeaders().GetAuthenticate().FirstOrDefault();
             if (authenticationMethod == null)
             {
-                throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
-                    .addReason("'WWW-Authenticate' header not found")
-                    .build();
+                throw new RegistryErrorExceptionBuilder(GetActionDescription(), httpResponse)
+                    .AddReason("'WWW-Authenticate' header not found")
+                    .Build();
             }
 
             // Parses the header to retrieve the components.
             try
             {
-                return RegistryAuthenticator.fromAuthenticationMethod(
+                return RegistryAuthenticator.FromAuthenticationMethod(
                     authenticationMethod, registryEndpointRequestProperties, userAgent);
             }
             catch (RegistryAuthenticationFailedException)
             {
-                throw new RegistryErrorExceptionBuilder(getActionDescription(), httpResponse)
-                    .addReason("Failed get authentication method from 'WWW-Authenticate' header")
-                    .build();
+                throw new RegistryErrorExceptionBuilder(GetActionDescription(), httpResponse)
+                    .AddReason("Failed get authentication method from 'WWW-Authenticate' header")
+                    .Build();
             }
         }
     }

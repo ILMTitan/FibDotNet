@@ -68,32 +68,32 @@ namespace com.google.cloud.tools.jib.cache
 
             public LayerEntryTemplate(LayerEntry layerEntry)
             {
-                SourceFile = layerEntry.getSourceFile().ToAbsolutePath().toString();
-                ExtractionPath = layerEntry.getExtractionPath().toString();
-                LastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile());
-                Permissions = layerEntry.getPermissions().toOctalString();
+                SourceFile = JavaExtensions.ToString(layerEntry.GetSourceFile().ToAbsolutePath());
+                ExtractionPath = JavaExtensions.ToString(layerEntry.GetExtractionPath());
+                LastModifiedTime = Files.GetLastModifiedTime(layerEntry.GetSourceFile());
+                Permissions = layerEntry.GetPermissions().ToOctalString();
             }
 
             public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate)
             {
-                int sourceFileComparison = SourceFile.compareTo(otherLayerEntryTemplate.SourceFile);
+                int sourceFileComparison = JavaExtensions.CompareTo(SourceFile, otherLayerEntryTemplate.SourceFile);
                 if (sourceFileComparison != 0)
                 {
                     return sourceFileComparison;
                 }
                 int extractionPathComparison =
-                    ExtractionPath.compareTo(otherLayerEntryTemplate.ExtractionPath);
+                    JavaExtensions.CompareTo(ExtractionPath, otherLayerEntryTemplate.ExtractionPath);
                 if (extractionPathComparison != 0)
                 {
                     return extractionPathComparison;
                 }
                 int lastModifiedTimeComparison =
-                    LastModifiedTime.compareTo(otherLayerEntryTemplate.LastModifiedTime);
+                    JavaExtensions.CompareTo(LastModifiedTime, otherLayerEntryTemplate.LastModifiedTime);
                 if (lastModifiedTimeComparison != 0)
                 {
                     return lastModifiedTimeComparison;
                 }
-                return Permissions.compareTo(otherLayerEntryTemplate.Permissions);
+                return JavaExtensions.CompareTo(Permissions, otherLayerEntryTemplate.Permissions);
             }
 
             public override bool Equals(object other)
@@ -115,7 +115,7 @@ namespace com.google.cloud.tools.jib.cache
 
             public override int GetHashCode()
             {
-                return Objects.hash(SourceFile, ExtractionPath, LastModifiedTime, Permissions);
+                return Objects.Hash(SourceFile, ExtractionPath, LastModifiedTime, Permissions);
             }
 
             public override string ToString()
@@ -133,12 +133,12 @@ namespace com.google.cloud.tools.jib.cache
          * @throws IOException if checking the file creation time of a layer entry fails
          */
 
-        public static List<LayerEntryTemplate> toSortedJsonTemplates(IList<LayerEntry> layerEntries)
+        public static List<LayerEntryTemplate> ToSortedJsonTemplates(IList<LayerEntry> layerEntries)
         {
             List<LayerEntryTemplate> jsonTemplates = new List<LayerEntryTemplate>();
             foreach (LayerEntry entry in layerEntries)
             {
-                jsonTemplates.add(new LayerEntryTemplate(entry));
+                JavaExtensions.Add(jsonTemplates, new LayerEntryTemplate(entry));
             }
             jsonTemplates.Sort();
             return jsonTemplates;
@@ -152,9 +152,9 @@ namespace com.google.cloud.tools.jib.cache
          * @return the selector
          * @throws IOException if an I/O exception occurs
          */
-        public static async Task<DescriptorDigest> generateSelectorAsync(ImmutableArray<LayerEntry> layerEntries)
+        public static async Task<DescriptorDigest> GenerateSelectorAsync(ImmutableArray<LayerEntry> layerEntries)
         {
-            return await Digests.computeJsonDigestAsync(toSortedJsonTemplates(layerEntries)).ConfigureAwait(false);
+            return await Digests.ComputeJsonDigestAsync(ToSortedJsonTemplates(layerEntries)).ConfigureAwait(false);
         }
     }
 }

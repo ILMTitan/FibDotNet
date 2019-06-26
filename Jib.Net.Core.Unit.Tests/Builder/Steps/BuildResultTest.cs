@@ -32,51 +32,51 @@ namespace com.google.cloud.tools.jib.builder.steps
         private DescriptorDigest id;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             digest1 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
             digest2 =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
             id =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba");
         }
 
         [Test]
-        public void testCreated()
+        public void TestCreated()
         {
             BuildResult container = new BuildResult(digest1, id);
-            Assert.AreEqual(digest1, container.getImageDigest());
-            Assert.AreEqual(id, container.getImageId());
+            Assert.AreEqual(digest1, container.GetImageDigest());
+            Assert.AreEqual(id, container.GetImageId());
         }
 
         [Test]
-        public void testEquality()
+        public void TestEquality()
         {
             BuildResult container1 = new BuildResult(digest1, id);
             BuildResult container2 = new BuildResult(digest1, id);
             BuildResult container3 = new BuildResult(digest2, id);
 
             Assert.AreEqual(container1, container2);
-            Assert.AreEqual(container1.hashCode(), container2.hashCode());
+            Assert.AreEqual(container1.HashCode(), container2.HashCode());
             Assert.AreNotEqual(container1, container3);
         }
 
         [Test]
-        public async Task testFromImageAsync()
+        public async Task TestFromImageAsync()
         {
-            Image image1 = Image.builder(ManifestFormat.V22).setUser("user").build();
-            Image image2 = Image.builder(ManifestFormat.V22).setUser("user").build();
-            Image image3 = Image.builder(ManifestFormat.V22).setUser("anotherUser").build();
+            Image image1 = Image.CreateBuilder(ManifestFormat.V22).SetUser("user").Build();
+            Image image2 = Image.CreateBuilder(ManifestFormat.V22).SetUser("user").Build();
+            Image image3 = Image.CreateBuilder(ManifestFormat.V22).SetUser("anotherUser").Build();
             Assert.AreEqual(
-                await BuildResult.fromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
-                await BuildResult.fromImageAsync(image2, ManifestFormat.V22).ConfigureAwait(false));
+                await BuildResult.FromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
+                await BuildResult.FromImageAsync(image2, ManifestFormat.V22).ConfigureAwait(false));
             Assert.AreNotEqual(
-                await BuildResult.fromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
-                await BuildResult.fromImageAsync(image3, ManifestFormat.V22).ConfigureAwait(false));
+                await BuildResult.FromImageAsync(image1, ManifestFormat.V22).ConfigureAwait(false),
+                await BuildResult.FromImageAsync(image3, ManifestFormat.V22).ConfigureAwait(false));
         }
     }
 }

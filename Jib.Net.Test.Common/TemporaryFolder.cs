@@ -29,23 +29,23 @@ namespace com.google.cloud.tools.jib.builder.steps
             directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
         }
 
-        public DirectoryInfo newFolder()
+        public DirectoryInfo NewFolder()
         {
             return directory.CreateSubdirectory(Path.GetRandomFileName());
         }
 
-        public FileInfo newFile()
+        public FileInfo NewFile()
         { var fileInfo = new FileInfo(Path.Combine(directory.FullName, Path.GetRandomFileName()));
             fileInfo.Create().Dispose();
             return fileInfo;
         }
 
-        public DirectoryInfo getRoot()
+        public DirectoryInfo GetRoot()
         {
             return directory;
         }
 
-        public DirectoryInfo newFolder(string folderName)
+        public DirectoryInfo NewFolder(string folderName)
         {
             return directory.CreateSubdirectory(folderName);
         }

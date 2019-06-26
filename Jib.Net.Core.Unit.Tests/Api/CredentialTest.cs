@@ -25,12 +25,12 @@ namespace com.google.cloud.tools.jib.api
     public class CredentialTest
     {
         [Test]
-        public void testCredentialsHash()
+        public void TestCredentialsHash()
         {
-            Credential credentialA1 = Credential.from("username", "password");
-            Credential credentialA2 = Credential.from("username", "password");
-            Credential credentialB1 = Credential.from("", "");
-            Credential credentialB2 = Credential.from("", "");
+            Credential credentialA1 = Credential.From("username", "password");
+            Credential credentialA2 = Credential.From("username", "password");
+            Credential credentialB1 = Credential.From("", "");
+            Credential credentialB2 = Credential.From("", "");
 
             Assert.AreEqual(credentialA1, credentialA2);
             Assert.AreEqual(credentialB1, credentialB2);
@@ -38,20 +38,20 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreNotEqual(credentialA1, credentialB2);
 
             ISet<Credential> credentialSet =
-                new HashSet<Credential>(Arrays.asList(credentialA1, credentialA2, credentialB1, credentialB2));
-            CollectionAssert.AreEquivalent(new HashSet<Credential>(Arrays.asList(credentialA2, credentialB1)), credentialSet);
+                new HashSet<Credential>(Arrays.AsList(credentialA1, credentialA2, credentialB1, credentialB2));
+            CollectionAssert.AreEquivalent(new HashSet<Credential>(Arrays.AsList(credentialA2, credentialB1)), credentialSet);
         }
 
         [Test]
-        public void testCredentialsOAuth2RefreshToken()
+        public void TestCredentialsOAuth2RefreshToken()
         {
-            Credential oauth2Credential = Credential.from("<token>", "eyJhbGciOi...3gw");
+            Credential oauth2Credential = Credential.From("<token>", "eyJhbGciOi...3gw");
             Assert.IsTrue(
-                oauth2Credential.isOAuth2RefreshToken(),
+                oauth2Credential.IsOAuth2RefreshToken(),
                 "Credential should be an auth2 token when username is <token>");
             Assert.AreEqual(
                 "eyJhbGciOi...3gw",
-                oauth2Credential.getPassword(),
+                oauth2Credential.GetPassword(),
                 "OAuth2 token credential should take password as refresh token");
         }
     }

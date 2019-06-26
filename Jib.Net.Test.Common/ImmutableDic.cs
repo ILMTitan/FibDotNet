@@ -22,12 +22,12 @@ namespace com.google.cloud.tools.jib.api
 {
     public static class ImmutableDic
     {
-        public static ImmutableDictionary<TKey, TValue> of<TKey, TValue>(TKey key, TValue value)
+        public static ImmutableDictionary<TKey, TValue> Of<TKey, TValue>(TKey key, TValue value)
         {
             return new Dictionary<TKey, TValue> { [key] = value }.ToImmutableDictionary();
         }
 
-        public static ImmutableDictionary<TKey, TValue> of<TKey, TValue>(TKey key1, TValue value1, TKey key2, TValue value2)
+        public static ImmutableDictionary<TKey, TValue> Of<TKey, TValue>(TKey key1, TValue value1, TKey key2, TValue value2)
         {
             return new Dictionary<TKey, TValue> { [key1] = value1, [key2] = value2 }.ToImmutableDictionary();
         }

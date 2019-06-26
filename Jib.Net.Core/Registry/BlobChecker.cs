@@ -46,54 +46,54 @@ namespace com.google.cloud.tools.jib.registry
 
         /** @return the BLOB's content descriptor */
 
-        public async Task<bool> handleResponseAsync(HttpResponseMessage response)
+        public async Task<bool> HandleResponseAsync(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
-                return handleResponseSuccess(response);
+                return HandleResponseSuccess(response);
             }
             else
             {
-                return await handleHttpResponseExceptionAsync(response).ConfigureAwait(false);
+                return await HandleHttpResponseExceptionAsync(response).ConfigureAwait(false);
             }
         }
 
-        public bool handleResponseSuccess(HttpResponseMessage response)
+        public bool HandleResponseSuccess(HttpResponseMessage response)
         {
-            long? contentLength = response.getContentLength();
+            long? contentLength = response.GetContentLength();
             if (contentLength < 0 || contentLength == null)
             {
-                throw new RegistryErrorExceptionBuilder(getActionDescription())
-                    .addReason("Did not receive Content-Length header")
-                    .build();
+                throw new RegistryErrorExceptionBuilder(GetActionDescription())
+                    .AddReason("Did not receive Content-Length header")
+                    .Build();
             }
 
-            if(blobDescriptor.getSize() > 0 && contentLength.GetValueOrDefault() != blobDescriptor.getSize())
+            if(blobDescriptor.GetSize() > 0 && contentLength.GetValueOrDefault() != blobDescriptor.GetSize())
             {
-                throw new RegistryErrorExceptionBuilder(getActionDescription())
-                    .addReason($"Expected size {blobDescriptor.getSize()} but got {contentLength.GetValueOrDefault()}")
-                    .build();
+                throw new RegistryErrorExceptionBuilder(GetActionDescription())
+                    .AddReason($"Expected size {blobDescriptor.GetSize()} but got {contentLength.GetValueOrDefault()}")
+                    .Build();
             }
 
             return true;
         }
 
-        public async Task<bool> handleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
+        public async Task<bool> HandleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
-            if (httpResponse.getStatusCode() != HttpStatusCode.NotFound)
+            if (httpResponse.GetStatusCode() != HttpStatusCode.NotFound)
             {
                 throw new HttpResponseException(httpResponse);
             }
 
             // Finds a BLOB_UNKNOWN error response code.
-            if (string.IsNullOrEmpty(await httpResponse.getContentAsync().ConfigureAwait(false)))
+            if (string.IsNullOrEmpty(await httpResponse.GetContentAsync().ConfigureAwait(false)))
             {
                 // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
                 // be null, even for HEAD requests.
                 return false;
             }
 
-            ErrorCode errorCode = await ErrorResponseUtil.getErrorCodeAsync(httpResponse).ConfigureAwait(false);
+            ErrorCode errorCode = await ErrorResponseUtil.GetErrorCodeAsync(httpResponse).ConfigureAwait(false);
             if (errorCode == ErrorCode.BlobUnknown)
             {
                 return false;
@@ -103,35 +103,35 @@ namespace com.google.cloud.tools.jib.registry
             throw new HttpResponseException(httpResponse);
         }
 
-        public Uri getApiRoute(string apiRouteBase)
+        public Uri GetApiRoute(string apiRouteBase)
         {
             return new Uri(
-                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDescriptor.getDigest());
+                apiRouteBase + registryEndpointRequestProperties.GetImageName() + "/blobs/" + blobDescriptor.GetDigest());
         }
 
-        public BlobHttpContent getContent()
+        public BlobHttpContent GetContent()
         {
             return null;
         }
 
-        public IList<string> getAccept()
+        public IList<string> GetAccept()
         {
             return new List<string>();
         }
 
-        public HttpMethod getHttpMethod()
+        public HttpMethod GetHttpMethod()
         {
             return HttpMethod.Head;
         }
 
-        public string getActionDescription()
+        public string GetActionDescription()
         {
             return "check BLOB exists for "
-                + registryEndpointRequestProperties.getRegistry()
+                + registryEndpointRequestProperties.GetRegistry()
                 + "/"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + " with digest "
-                + blobDescriptor.getDigest();
+                + blobDescriptor.GetDigest();
         }
     }
 }

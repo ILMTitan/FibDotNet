@@ -52,31 +52,31 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.layerDigest = layerDigest;
             this.pullAuthorization = pullAuthorization;
 
-            listenableFuture = Task.Run(callAsync);
+            listenableFuture = Task.Run(CallAsync);
         }
 
-        public Task<ICachedLayer> getFuture()
+        public Task<ICachedLayer> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<ICachedLayer> callAsync()
+        public async Task<ICachedLayer> CallAsync()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create("checking base image layer " + layerDigest, 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
-                        buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
+                        buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
             {
-                Cache cache = buildConfiguration.getBaseImageLayersCache();
+                Cache cache = buildConfiguration.GetBaseImageLayersCache();
 
                 // Checks if the layer already exists in the cache.
-                Option<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
+                Option<CachedLayer> optionalCachedLayer = cache.Retrieve(layerDigest);
                 if (optionalCachedLayer.IsPresent())
                 {
                     return optionalCachedLayer.Get();
                 }
-                else if (buildConfiguration.isOffline())
+                else if (buildConfiguration.IsOffline())
                 {
                     throw new IOException(
                         "Cannot run Jib in offline mode; local Jib cache for base image is missing image layer "
@@ -86,20 +86,20 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 RegistryClient registryClient =
                     buildConfiguration
-                        .newBaseImageRegistryClientFactory()
-                        .setAuthorization(pullAuthorization)
-                        .newRegistryClient();
+                        .NewBaseImageRegistryClientFactory()
+                        .SetAuthorization(pullAuthorization)
+                        .NewRegistryClient();
 
                 using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
                     new ThrottledProgressEventDispatcherWrapper(
                         progressEventDispatcher.NewChildProducer(),
                         "pulling base image layer " + layerDigest))
                 {
-                    return await cache.writeCompressedLayerAsync(
-                        registryClient.pullBlob(
+                    return await cache.WriteCompressedLayerAsync(
+                        registryClient.PullBlob(
                             layerDigest,
-                            progressEventDispatcherWrapper.setProgressTarget,
-                            progressEventDispatcherWrapper.dispatchProgress)).ConfigureAwait(false);
+                            progressEventDispatcherWrapper.SetProgressTarget,
+                            progressEventDispatcherWrapper.DispatchProgress)).ConfigureAwait(false);
                 }
             }
         }

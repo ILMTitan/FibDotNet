@@ -154,12 +154,12 @@ namespace Jib.Net.Core.FileSystem
 
         public RelativeUnixPath GetFileName()
         {
-            return RelativeUnixPath.get(Path.GetFileName(path));
+            return RelativeUnixPath.Get(Path.GetFileName(path));
         }
 
         internal AbsoluteUnixPath ToAbsolutePath()
         {
-            return AbsoluteUnixPath.fromPath(this);
+            return AbsoluteUnixPath.FromPath(this);
         }
 
         public static bool operator == (SystemPath path1, SystemPath path2)

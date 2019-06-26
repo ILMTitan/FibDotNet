@@ -28,21 +28,21 @@ namespace com.google.cloud.tools.jib.api
     public class FilePermissionsTest
     {
         [Test]
-        public void testFromOctalString()
+        public void TestFromOctalString()
         {
             Assert.AreEqual(
                 new FilePermissions(
                     PosixFilePermissions.OwnerAll | PosixFilePermissions.GroupAll | PosixFilePermissions.OthersAll),
-                FilePermissions.fromOctalString("777"));
+                FilePermissions.FromOctalString("777"));
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.None),
-                FilePermissions.fromOctalString("000"));
+                FilePermissions.FromOctalString("000"));
             Assert.AreEqual(
                 new FilePermissions(
                     PosixFilePermissions.OwnerExecute |
                     PosixFilePermissions.GroupWrite |
                     PosixFilePermissions.OthersRead),
-                FilePermissions.fromOctalString("124"));
+                FilePermissions.FromOctalString("124"));
             Assert.AreEqual(
                 new FilePermissions(
                     PosixFilePermissions.OwnerAll |
@@ -50,47 +50,47 @@ namespace com.google.cloud.tools.jib.api
                     PosixFilePermissions.GroupExecute |
                     PosixFilePermissions.OthersRead |
                     PosixFilePermissions.OthersExecute),
-                FilePermissions.fromOctalString("755"));
+                FilePermissions.FromOctalString("755"));
             Assert.AreEqual(
                 new FilePermissions((PosixFilePermissions)0b110_100_100),
-                FilePermissions.fromOctalString("644"));
+                FilePermissions.FromOctalString("644"));
 
             ImmutableArray<string> badStrings = ImmutableArray.Create("abc", "-123", "777444333", "987", "3");
             foreach (string badString in badStrings)
             {
                 try
                 {
-                    FilePermissions.fromOctalString(badString);
+                    FilePermissions.FromOctalString(badString);
                     Assert.Fail();
                 }
                 catch (ArgumentException ex)
                 {
                     Assert.AreEqual(
-                        "octalPermissions must be a 3-digit octal number (000-777)", ex.getMessage());
+                        "octalPermissions must be a 3-digit octal number (000-777)", ex.GetMessage());
                 }
             }
         }
 
         [Test]
-        public void testFromPosixFilePermissions()
+        public void TestFromPosixFilePermissions()
         {
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermissions.None), FilePermissions.fromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermissions>()));
+                new FilePermissions(PosixFilePermissions.None), FilePermissions.FromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermissions>()));
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.OwnerExecute| PosixFilePermissions.GroupExecute),
-                FilePermissions.fromPosixFilePermissions(
+                FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.OwnerExecute, PosixFilePermissions.GroupExecute)));
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.OwnerWrite| PosixFilePermissions.OthersWrite),
-                FilePermissions.fromPosixFilePermissions(
+                FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.OwnerWrite, PosixFilePermissions.OthersWrite)));
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.GroupRead| PosixFilePermissions.OthersRead),
-                FilePermissions.fromPosixFilePermissions(
+                FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.GroupRead, PosixFilePermissions.OthersRead)));
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.OwnerAll | PosixFilePermissions.GroupAll | PosixFilePermissions.OthersAll),
-                FilePermissions.fromPosixFilePermissions(
+                FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.CreateRange(Enum.GetValues(typeof(PosixFilePermissions)).Cast<PosixFilePermissions>())));
         }
     }

@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.registry
          * @param message the original received error message, which may or may not be used depending on
          *     the {@code errorCode}
          */
-        private static string getReason(ErrorCode? errorCode, string message)
+        private static string GetReason(ErrorCode? errorCode, string message)
         {
             if (message == null)
             {
@@ -71,9 +71,9 @@ namespace com.google.cloud.tools.jib.registry
         {
             this.cause = cause;
 
-            errorMessageBuilder.append("Tried to ");
-            errorMessageBuilder.append(method);
-            errorMessageBuilder.append(" but failed because: ");
+            JavaExtensions.Append(errorMessageBuilder, "Tried to ");
+            JavaExtensions.Append(errorMessageBuilder, method);
+            JavaExtensions.Append(errorMessageBuilder, " but failed because: ");
         }
 
         /** @param method the registry method that errored */
@@ -87,33 +87,33 @@ namespace com.google.cloud.tools.jib.registry
          *
          * @param errorEntry the {@link ErrorEntryTemplate} to add
          */
-        public RegistryErrorExceptionBuilder addReason(ErrorEntryTemplate errorEntry)
+        public RegistryErrorExceptionBuilder AddReason(ErrorEntryTemplate errorEntry)
         {
 
             errorEntry = errorEntry ?? throw new ArgumentNullException(nameof(errorEntry));
-            string reason = getReason(errorEntry.getCode(), errorEntry.getMessage());
-            addReason(reason);
+            string reason = GetReason(errorEntry.Code, errorEntry.Message);
+            AddReason(reason);
             return this;
         }
 
         /** Adds an entry to the error reasons. */
-        public RegistryErrorExceptionBuilder addReason(string reason)
+        public RegistryErrorExceptionBuilder AddReason(string reason)
         {
             if (!firstErrorReason)
             {
-                errorMessageBuilder.append(", ");
+                JavaExtensions.Append(errorMessageBuilder, ", ");
             }
-            errorMessageBuilder.append(reason);
+            JavaExtensions.Append(errorMessageBuilder, reason);
             firstErrorReason = false;
             return this;
         }
 
-        public RegistryErrorException build()
+        public RegistryErrorException Build()
         {
             // Provides a feedback channel.
-            errorMessageBuilder.append(
-                " | If this is a bug, please file an issue at " + ProjectInfo.GitHubNewIssueUrl);
-            return new RegistryErrorException(errorMessageBuilder.toString(), cause);
+            JavaExtensions.Append(
+errorMessageBuilder, " | If this is a bug, please file an issue at " + ProjectInfo.GitHubNewIssueUrl);
+            return new RegistryErrorException(JavaExtensions.ToString(errorMessageBuilder), cause);
         }
     }
 }

@@ -37,38 +37,38 @@ namespace com.google.cloud.tools.jib.builder.steps
          * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
          * classes layers. Optionally adds an extra layer if configured to do so.
          */
-        public static IAsyncStep<IReadOnlyList<ICachedLayer>> makeList(
+        public static IAsyncStep<IReadOnlyList<ICachedLayer>> MakeList(
             IBuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
 
             buildConfiguration = buildConfiguration ?? throw new ArgumentNullException(nameof(buildConfiguration));
-            int layerCount = buildConfiguration.getLayerConfigurations().size();
+            int layerCount = buildConfiguration.GetLayerConfigurations().Size();
 
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create(
                         "setting up to build application layers", layerCount))
             using (TimerEventDispatcher ignored =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
 
             {
                 List<Task<ICachedLayer>> buildAndCacheApplicationLayerSteps = new List<Task<ICachedLayer>>();
-                foreach (LayerConfiguration layerConfiguration in buildConfiguration.getLayerConfigurations())
+                foreach (LayerConfiguration layerConfiguration in buildConfiguration.GetLayerConfigurations())
                 {
                     // Skips the layer if empty.
-                    if (layerConfiguration.getLayerEntries().isEmpty())
+                    if (layerConfiguration.GetLayerEntries().IsEmpty())
                     {
                         continue;
                     }
 
-                    buildAndCacheApplicationLayerSteps.add(
-                        new BuildAndCacheApplicationLayerStep(
+                    JavaExtensions.Add(
+buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer(),
-                            layerConfiguration.getName(),
-                            layerConfiguration).getFuture());
+                            layerConfiguration.GetName(),
+                            layerConfiguration).GetFuture());
                 }
-                return AsyncSteps.fromTasks(buildAndCacheApplicationLayerSteps);
+                return AsyncSteps.FromTasks(buildAndCacheApplicationLayerSteps);
             }
         }
 
@@ -91,49 +91,49 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.layerType = layerType;
             this.layerConfiguration = layerConfiguration;
 
-            listenableFuture = Task.Run(callAsync);
+            listenableFuture = Task.Run(CallAsync);
         }
 
-        public Task<ICachedLayer> getFuture()
+        public Task<ICachedLayer> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<ICachedLayer> callAsync()
+        public async Task<ICachedLayer> CallAsync()
         {
             string description = "Building " + layerType + " layer";
 
-            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description + "..."));
+            buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Progress(description + "..."));
 
             using (ProgressEventDispatcher ignored =
                     progressEventDispatcherFactory.Create("building " + layerType + " layer", 1))
             using (TimerEventDispatcher ignored2 =
-                    new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
+                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), description))
 
             {
-                Cache cache = buildConfiguration.getApplicationLayersCache();
+                Cache cache = buildConfiguration.GetApplicationLayersCache();
 
                 // Don't build the layer if it exists already.
                 Option<CachedLayer> optionalCachedLayer =
-                    await cache.retrieveAsync(layerConfiguration.getLayerEntries()).ConfigureAwait(false);
+                    await cache.RetrieveAsync(layerConfiguration.GetLayerEntries()).ConfigureAwait(false);
                 if (optionalCachedLayer.IsPresent())
                 {
-                    return new CachedLayerWithType(optionalCachedLayer.Get(), getLayerType());
+                    return new CachedLayerWithType(optionalCachedLayer.Get(), GetLayerType());
                 }
 
-                IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
+                IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.GetLayerEntries()).Build();
                 CachedLayer cachedLayer =
-                    await cache.writeUncompressedLayerAsync(layerBlob, layerConfiguration.getLayerEntries()).ConfigureAwait(false);
+                    await cache.WriteUncompressedLayerAsync(layerBlob, layerConfiguration.GetLayerEntries()).ConfigureAwait(false);
 
                 buildConfiguration
-                    .getEventHandlers()
-                    .Dispatch(LogEvent.debug(description + " built " + cachedLayer.getDigest()));
+                    .GetEventHandlers()
+                    .Dispatch(LogEvent.Debug(description + " built " + cachedLayer.GetDigest()));
 
-                return new CachedLayerWithType(cachedLayer, getLayerType());
+                return new CachedLayerWithType(cachedLayer, GetLayerType());
             }
         }
 
-        public string getLayerType()
+        public string GetLayerType()
         {
             return layerType;
         }

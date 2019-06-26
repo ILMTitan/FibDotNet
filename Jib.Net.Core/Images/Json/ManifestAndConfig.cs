@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the manifest
          */
-        public IManifestTemplate getManifest()
+        public IManifestTemplate GetManifest()
         {
             return manifest;
         }
@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the container configuration
          */
-        public Option<ContainerConfigurationTemplate> getConfig()
+        public Option<ContainerConfigurationTemplate> GetConfig()
         {
             return Option.OfNullable(config);
         }

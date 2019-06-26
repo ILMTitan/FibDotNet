@@ -65,40 +65,40 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.pushContainerConfigurationStep = pushContainerConfigurationStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<BuildResult> getFuture()
+        public Task<BuildResult> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BuildResult> callAsync()
+        public async Task<BuildResult> CallAsync()
         {
-            IReadOnlyList<BlobDescriptor> baseImageDescriptors = await pushBaseImageLayersStep.getFuture().ConfigureAwait(false);
-            IReadOnlyList<BlobDescriptor> appLayerDescriptors = await pushApplicationLayersStep.getFuture().ConfigureAwait(false);
-            BlobDescriptor containerConfigurationBlobDescriptor = await pushContainerConfigurationStep.getFuture().ConfigureAwait(false);
-            ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
+            IReadOnlyList<BlobDescriptor> baseImageDescriptors = await pushBaseImageLayersStep.GetFuture().ConfigureAwait(false);
+            IReadOnlyList<BlobDescriptor> appLayerDescriptors = await pushApplicationLayersStep.GetFuture().ConfigureAwait(false);
+            BlobDescriptor containerConfigurationBlobDescriptor = await pushContainerConfigurationStep.GetFuture().ConfigureAwait(false);
+            ImmutableHashSet<string> targetImageTags = buildConfiguration.GetAllTargetImageTags();
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                progressEventDispatcherFactory.Create("pushing image manifest", targetImageTags.size()))
+                progressEventDispatcherFactory.Create("pushing image manifest", targetImageTags.Size()))
             using (TimerEventDispatcher ignored =
-                new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+                new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {
                 RegistryClient registryClient =
                     buildConfiguration
-                        .newTargetImageRegistryClientFactory()
-                        .setAuthorization(await authenticatePushStep.getFuture().ConfigureAwait(false))
-                        .newRegistryClient();
+                        .NewTargetImageRegistryClientFactory()
+                        .SetAuthorization(await authenticatePushStep.GetFuture().ConfigureAwait(false))
+                        .NewRegistryClient();
 
                 // Constructs the image.
                 ImageToJsonTranslator imageToJsonTranslator =
-                    new ImageToJsonTranslator(await buildImageStep.getFuture().ConfigureAwait(false));
+                    new ImageToJsonTranslator(await buildImageStep.GetFuture().ConfigureAwait(false));
 
                 // Gets the image manifest to push.
                 IBuildableManifestTemplate manifestTemplate =
                     imageToJsonTranslator.GetManifestTemplate(
-                        buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
+                        buildConfiguration.GetTargetFormat(), containerConfigurationBlobDescriptor);
 
                 // Pushes to all target image tags.
                 IList<Task<DescriptorDigest>> pushAllTagsFutures = new List<Task<DescriptorDigest>>();
@@ -108,14 +108,14 @@ namespace com.google.cloud.tools.jib.builder.steps
                         progressEventDispatcher.NewChildProducer();
                     using (progressEventDispatcherFactory.Create("tagging with " + tag, 1))
                     {
-                        buildConfiguration.getEventHandlers().Dispatch(LogEvent.info("Tagging with " + tag + "..."));
-                        pushAllTagsFutures.add(registryClient.pushManifestAsync(manifestTemplate, tag));
+                        buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Info("Tagging with " + tag + "..."));
+                        JavaExtensions.Add(pushAllTagsFutures, registryClient.PushManifestAsync(manifestTemplate, tag));
                     }
                 }
 
                 DescriptorDigest imageDigest =
-                    await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
-                DescriptorDigest imageId = containerConfigurationBlobDescriptor.getDigest();
+                    await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
+                DescriptorDigest imageId = containerConfigurationBlobDescriptor.GetDigest();
                 BuildResult result = new BuildResult(imageDigest, imageId);
 
                 await Task.WhenAll(pushAllTagsFutures).ConfigureAwait(false);

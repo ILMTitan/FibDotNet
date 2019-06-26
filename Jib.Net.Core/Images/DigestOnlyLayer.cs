@@ -36,17 +36,17 @@ namespace Jib.Net.Core.Images
             blobDescriptor = new BlobDescriptor(digest);
         }
 
-        public IBlob getBlob()
+        public IBlob GetBlob()
         {
             throw new LayerPropertyNotFoundException(Resources.DigestOnlyLayerGetBlobExceptionMessage);
         }
 
-        public BlobDescriptor getBlobDescriptor()
+        public BlobDescriptor GetBlobDescriptor()
         {
             return blobDescriptor;
         }
 
-        public DescriptorDigest getDiffId()
+        public DescriptorDigest GetDiffId()
         {
             throw new LayerPropertyNotFoundException(Resources.DigestOnlyLayerGetDiffIdExceptionMessage);
         }

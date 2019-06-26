@@ -62,6 +62,7 @@ namespace com.google.cloud.tools.jib.image.json
     {
         /** The OCI manifest media type. */
         public static readonly string ManifestMediaType = "application/vnd.oci.image.manifest.v1+json";
+        private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
 
         /** The OCI container configuration media type. */
         private const string CONTAINER_CONFIGURATION_MEDIA_TYPE =
@@ -77,39 +78,29 @@ namespace com.google.cloud.tools.jib.image.json
         public ContentDescriptorTemplate Config { get; set; }
 
         /** The list of layer references. */
-        public List<ContentDescriptorTemplate> Layers { get; } = new List<ContentDescriptorTemplate>();
+        public IReadOnlyList<ContentDescriptorTemplate> Layers => layers;
 
-        public int getSchemaVersion()
-        {
-            return SchemaVersion;
-        }
-
-        public string getManifestMediaType()
+        public string GetManifestMediaType()
         {
             return ManifestMediaType;
         }
 
-        public ContentDescriptorTemplate getContainerConfiguration()
+        public ContentDescriptorTemplate GetContainerConfiguration()
         {
             return Config;
         }
 
-        public IReadOnlyList<ContentDescriptorTemplate> getLayers()
-        {
-            return Layers as IReadOnlyList<ContentDescriptorTemplate> ?? Layers.ToList();
-        }
-
-        public void setContainerConfiguration(long size, DescriptorDigest digest)
+        public void SetContainerConfiguration(long size, DescriptorDigest digest)
         {
             Config = new ContentDescriptorTemplate(CONTAINER_CONFIGURATION_MEDIA_TYPE, size, digest);
         }
 
-        public void addLayer(long size, DescriptorDigest digest)
+        public void AddLayer(long size, DescriptorDigest digest)
         {
-            Layers.add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+            JavaExtensions.Add(layers, new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
         }
 
-        public ManifestFormat getFormat()
+        public ManifestFormat GetFormat()
         {
             return ManifestFormat.OCI;
         }

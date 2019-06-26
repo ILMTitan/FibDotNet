@@ -25,25 +25,25 @@ namespace Jib.Net.Core.Unit.Tests
     public class JibSystemPropertiesTest
     {
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
         }
 
         [TearDown]
-        public void tearDown()
+        public void TearDown()
         {
             Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, null);
         }
 
         [Test]
-        public void testCheckHttpTimeoutProperty_ok()
+        public void TestCheckHttpTimeoutProperty_ok()
         {
             Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HttpTimeout));
             JibSystemProperties.CheckHttpTimeoutProperty();
         }
 
         [Test]
-        public void testCheckHttpTimeoutProperty_stringValue()
+        public void TestCheckHttpTimeoutProperty_stringValue()
         {
             Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, "random string");
             try
@@ -53,7 +53,7 @@ namespace Jib.Net.Core.Unit.Tests
             }
             catch (FormatException ex)
             {
-                Assert.AreEqual("jib.httpTimeout must be an integer: random string", ex.getMessage());
+                Assert.AreEqual("jib.httpTimeout must be an integer: random string", ex.GetMessage());
             }
         }
     }

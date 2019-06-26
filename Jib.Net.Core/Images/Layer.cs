@@ -55,18 +55,18 @@ namespace Jib.Net.Core.Images
          * @return the layer's content BLOB
          * @throws LayerPropertyNotFoundException if not available
          */
-        IBlob getBlob();
+        IBlob GetBlob();
         // TODO: Remove this
         /**
          * @return the layer's content {@link BlobDescriptor}
          * @throws LayerPropertyNotFoundException if not available
          */
-        BlobDescriptor getBlobDescriptor();
+        BlobDescriptor GetBlobDescriptor();
 
         /**
          * @return the layer's diff ID
          * @throws LayerPropertyNotFoundException if not available
          */
-        DescriptorDigest getDiffId();
+        DescriptorDigest GetDiffId();
     }
 }

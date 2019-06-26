@@ -7,8 +7,8 @@ namespace com.google.cloud.tools.jib.cache
 {
     public interface ICachedLayer: ILayer
     {
-        DescriptorDigest getDigest();
-        long getSize();
-        string getLayerType();
+        DescriptorDigest GetDigest();
+        long GetSize();
+        string GetLayerType();
     }
 }

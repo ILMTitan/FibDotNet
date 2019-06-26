@@ -39,9 +39,9 @@ namespace com.google.cloud.tools.jib.cache
          * @param file the file to check
          * @return {@code true} if {@code file} is a layer contents file; {@code false} otherwise
          */
-        public static bool isLayerFile(SystemPath file)
+        public static bool IsLayerFile(SystemPath file)
         {
-            return file?.GetFileName().toString().length() == DescriptorDigest.HashLength;
+            return file?.GetFileName().ToString().Length() == DescriptorDigest.HashLength;
         }
 
         private readonly SystemPath cacheDirectory;
@@ -58,14 +58,14 @@ namespace com.google.cloud.tools.jib.cache
          * @return the diff ID portion of the layer file filename
          * @throws CacheCorruptedException if no valid diff ID could be parsed
          */
-        public DescriptorDigest getDiffId(SystemPath layerFile)
+        public DescriptorDigest GetDiffId(SystemPath layerFile)
         {
             try
             {
 
                 layerFile = layerFile ?? throw new ArgumentNullException(nameof(layerFile));
-                string diffId = layerFile.GetFileName().toString();
-                return DescriptorDigest.fromHash(diffId);
+                string diffId = JavaExtensions.ToString(layerFile.GetFileName());
+                return DescriptorDigest.FromHash(diffId);
             }
             catch (Exception ex) when (ex is DigestException || ex is IndexOutOfRangeException)
             {
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the cache directory
          */
-        public SystemPath getCacheDirectory()
+        public SystemPath GetCacheDirectory()
         {
             return cacheDirectory;
         }
@@ -91,9 +91,9 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDiffId the layer diff Id
          * @return the layer contents file
          */
-        public SystemPath getLayerFile(DescriptorDigest layerDigest, DescriptorDigest layerDiffId)
+        public SystemPath GetLayerFile(DescriptorDigest layerDigest, DescriptorDigest layerDiffId)
         {
-            return getLayerDirectory(layerDigest).Resolve(getLayerFilename(layerDiffId));
+            return GetLayerDirectory(layerDigest).Resolve(GetLayerFilename(layerDiffId));
         }
 
         /**
@@ -103,11 +103,11 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDiffId the layer's diff ID
          * @return the layer filename
          */
-        public string getLayerFilename(DescriptorDigest layerDiffId)
+        public string GetLayerFilename(DescriptorDigest layerDiffId)
         {
 
             layerDiffId = layerDiffId ?? throw new ArgumentNullException(nameof(layerDiffId));
-            return layerDiffId.getHash();
+            return layerDiffId.GetHash();
         }
 
         /**
@@ -116,11 +116,11 @@ namespace com.google.cloud.tools.jib.cache
          * @param selector the selector digest
          * @return the selector file
          */
-        public SystemPath getSelectorFile(DescriptorDigest selector)
+        public SystemPath GetSelectorFile(DescriptorDigest selector)
         {
 
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            return cacheDirectory.Resolve(SELECTORS_DIRECTORY).Resolve(selector.getHash());
+            return cacheDirectory.Resolve(SELECTORS_DIRECTORY).Resolve(selector.GetHash());
         }
 
         /**
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the directory containing all the layer directories
          */
-        public SystemPath getLayersDirectory()
+        public SystemPath GetLayersDirectory()
         {
             return cacheDirectory.Resolve(LAYERS_DIRECTORY);
         }
@@ -139,11 +139,11 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDigest the digest of the layer
          * @return the directory for that {@code layerDigest}
          */
-        public SystemPath getLayerDirectory(DescriptorDigest layerDigest)
+        public SystemPath GetLayerDirectory(DescriptorDigest layerDigest)
         {
 
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
-            return getLayersDirectory().Resolve(layerDigest.getHash());
+            return GetLayersDirectory().Resolve(layerDigest.GetHash());
         }
 
         /**
@@ -151,7 +151,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the directory for the image manifest and configuration
          */
-        public SystemPath getImagesDirectory()
+        public SystemPath GetImagesDirectory()
         {
             return cacheDirectory.Resolve(IMAGES_DIRECTORY);
         }
@@ -163,16 +163,16 @@ namespace com.google.cloud.tools.jib.cache
          * @return a path in the form of {@code
          *     (jib-cache)/images/registry[!port]/repository!(tag|digest-type!digest)}
          */
-        public SystemPath getImageDirectory(IImageReference imageReference)
+        public SystemPath GetImageDirectory(IImageReference imageReference)
         {
 
             imageReference = imageReference ?? throw new ArgumentNullException(nameof(imageReference));
             // Replace ':' and '@' with '!' to avoid directory-naming restrictions
-            string replacedReference = imageReference.toStringWithTag().replace(':', '!').replace('@', '!');
+            string replacedReference = JavaExtensions.Replace(JavaExtensions.Replace(imageReference.ToStringWithTag(), ':', '!'), '@', '!');
 
             // Split image reference on '/' to build directory structure
-            IEnumerable<string> directories = Splitter.on('/').split(replacedReference);
-            SystemPath destination = getImagesDirectory();
+            IEnumerable<string> directories = Splitter.On('/').Split(replacedReference);
+            SystemPath destination = GetImagesDirectory();
             foreach (string dir in directories)
             {
                 destination = destination.Resolve(dir);
@@ -185,7 +185,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the directory for temporary files
          */
-        public SystemPath getTemporaryDirectory()
+        public SystemPath GetTemporaryDirectory()
         {
             return cacheDirectory.Resolve(TEMPORARY_DIRECTORY);
         }
@@ -196,7 +196,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDirectory the directory in which to resolve the temporary layer file
          * @return the temporary layer file
          */
-        public TemporaryFile getTemporaryLayerFile(SystemPath layerDirectory)
+        public TemporaryFile GetTemporaryLayerFile(SystemPath layerDirectory)
         {
 
             layerDirectory = layerDirectory ?? throw new ArgumentNullException(nameof(layerDirectory));

@@ -28,7 +28,7 @@ namespace com.google.cloud.tools.jib.api
         private readonly string imageName;
 
         public RegistryAuthenticationFailedException(string registry, string imageName, Exception cause)
-            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, cause?.getMessage()), cause)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, cause?.GetMessage()), cause)
         {
             this.registry = registry;
             this.imageName = imageName;
@@ -42,13 +42,13 @@ namespace com.google.cloud.tools.jib.api
         }
 
         /** @return the server being authenticated */
-        public string getRegistry()
+        public string GetRegistry()
         {
             return registry;
         }
 
         /** @return the image being authenticated */
-        public string getImageName()
+        public string GetImageName()
         {
             return imageName;
         }

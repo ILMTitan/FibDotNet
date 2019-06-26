@@ -29,21 +29,21 @@ namespace com.google.cloud.tools.jib.docker.json
     public class DockerLoadManifestTemplateTest
     {
         [Test]
-        public void testToJson()
+        public void TestToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/loadmanifest.json").ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/loadmanifest.json").ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
             template.SetRepoTags(
-                ImageReference.of("testregistry", "testrepo", "testtag").toStringWithTag());
+                ImageReference.Of("testregistry", "testrepo", "testtag").ToStringWithTag());
             template.AddLayerFile("layer1.tar.gz");
             template.AddLayerFile("layer2.tar.gz");
             template.AddLayerFile("layer3.tar.gz");
 
             List<DockerLoadManifestEntryTemplate> loadManifest = new List<DockerLoadManifestEntryTemplate> { template };
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(loadManifest));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Jib.Net.Core.Images
 {
     internal static class Comparator
     {
-        internal static IComparer<TEntry> comparing<TEntry, TToCompare>(Func<TEntry, TToCompare> getValue)
+        internal static IComparer<TEntry> Comparing<TEntry, TToCompare>(Func<TEntry, TToCompare> getValue)
         {
             return Comparer<TEntry>.Create((first, second) => Comparer<TToCompare>.Default.Compare(getValue(first), getValue(second)));
         }

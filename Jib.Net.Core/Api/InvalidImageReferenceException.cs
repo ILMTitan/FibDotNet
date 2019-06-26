@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.api
         {
         }
 
-        public string getInvalidReference()
+        public string GetInvalidReference()
         {
             return reference;
         }

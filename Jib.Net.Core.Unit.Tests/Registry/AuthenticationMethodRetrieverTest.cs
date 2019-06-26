@@ -44,53 +44,53 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void testGetContent()
+        public void TestGetContent()
         {
-            Assert.IsNull(testAuthenticationMethodRetriever.getContent());
+            Assert.IsNull(testAuthenticationMethodRetriever.GetContent());
         }
 
         [Test]
-        public void testGetAccept()
+        public void TestGetAccept()
         {
-            Assert.AreEqual(0, testAuthenticationMethodRetriever.getAccept().size());
+            Assert.AreEqual(0, testAuthenticationMethodRetriever.GetAccept().Size());
         }
 
         [Test]
-        public async Task testHandleResponseAsync()
+        public async Task TestHandleResponseAsync()
         {
-            Assert.IsNull(await testAuthenticationMethodRetriever.handleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
+            Assert.IsNull(await testAuthenticationMethodRetriever.HandleResponseAsync(Mock.Of<HttpResponseMessage>()).ConfigureAwait(false));
         }
 
         [Test]
-        public void testGetApiRoute()
+        public void TestGetApiRoute()
         {
             Assert.AreEqual(
                 new Uri("http://someApiBase/"),
-                testAuthenticationMethodRetriever.getApiRoute("http://someApiBase/"));
+                testAuthenticationMethodRetriever.GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testGetHttpMethod()
+        public void TestGetHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Get, testAuthenticationMethodRetriever.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Get, testAuthenticationMethodRetriever.GetHttpMethod());
         }
 
         [Test]
-        public void testGetActionDescription()
+        public void TestGetActionDescription()
         {
             Assert.AreEqual(
                 "retrieve authentication method for someServerUrl",
-                testAuthenticationMethodRetriever.getActionDescription());
+                testAuthenticationMethodRetriever.GetActionDescription());
         }
 
         [Test]
-        public void testHandleHttpResponseException_invalidStatusCode()
+        public void TestHandleHttpResponseException_invalidStatusCode()
         {
             var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError);
 
             try
             {
-                testAuthenticationMethodRetriever.handleHttpResponse(mockHttpResponse);
+                testAuthenticationMethodRetriever.HandleHttpResponse(mockHttpResponse);
                 Assert.Fail(
                     "Authentication method retriever should only handle HTTP 401 Unauthorized errors");
             }
@@ -101,26 +101,26 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public void tsetHandleHttpResponseException_noHeader()
+        public void TsetHandleHttpResponseException_noHeader()
         {
             var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
             mockHttpResponse.Headers.WwwAuthenticate.Clear();
 
             try
             {
-                testAuthenticationMethodRetriever.handleHttpResponse(mockHttpResponse);
+                testAuthenticationMethodRetriever.HandleHttpResponse(mockHttpResponse);
                 Assert.Fail(
                     "Authentication method retriever should fail if 'WWW-Authenticate' header is not found");
             }
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.getMessage(), Does.Contain("'WWW-Authenticate' header not found"));
+                    ex.GetMessage(), Does.Contain("'WWW-Authenticate' header not found"));
             }
         }
 
         [Test]
-        public void testHandleHttpResponseException_pass()
+        public void TestHandleHttpResponseException_pass()
         {
             const string authScheme = "Bearer";
             const string authParamter = "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\"";
@@ -135,11 +135,11 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             RegistryAuthenticator registryAuthenticator =
-                testAuthenticationMethodRetriever.handleHttpResponse(mockHttpResponse);
+                testAuthenticationMethodRetriever.HandleHttpResponse(mockHttpResponse);
 
             Assert.AreEqual(
                 new Uri("https://somerealm?service=someservice&scope=repository:someImageName:someScope"),
-                registryAuthenticator.getAuthenticationUrl(null, "someScope"));
+                registryAuthenticator.GetAuthenticationUrl(null, "someScope"));
         }
     }
 }

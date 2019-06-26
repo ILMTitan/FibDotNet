@@ -47,10 +47,10 @@ namespace Jib.Net.Core.Frontend
          * @param logger a consumer for handling log events
          * @return a new {@link CredentialRetrieverFactory}
          */
-        public static CredentialRetrieverFactory forImage(
+        public static CredentialRetrieverFactory ForImage(
             ImageReference imageReference, Action<LogEvent> logger)
         {
-            return new CredentialRetrieverFactory(imageReference, logger, DockerCredentialHelper.Create);
+            return new CredentialRetrieverFactory(imageReference, logger, Registry.Credentials.DockerCredentialHelper.Create);
         }
 
         /**
@@ -59,10 +59,10 @@ namespace Jib.Net.Core.Frontend
          * @param imageReference the image the credential are for
          * @return a new {@link CredentialRetrieverFactory}
          */
-        public static CredentialRetrieverFactory forImage(ImageReference imageReference)
+        public static CredentialRetrieverFactory ForImage(ImageReference imageReference)
         {
             return new CredentialRetrieverFactory(
-                imageReference, _ => { }, DockerCredentialHelper.Create);
+                imageReference, _ => { }, Registry.Credentials.DockerCredentialHelper.Create);
         }
 
         private readonly ImageReference imageReference;
@@ -86,11 +86,11 @@ namespace Jib.Net.Core.Frontend
          * @param credentialSource the source of the credentials (for logging)
          * @return a new {@link CredentialRetriever}
          */
-        public CredentialRetriever known(Credential credential, string credentialSource)
+        public CredentialRetriever Known(Credential credential, string credentialSource)
         {
             return () =>
             {
-                logGotCredentialsFrom(credentialSource);
+                LogGotCredentialsFrom(credentialSource);
                 return Option.Of(credential);
             };
         }
@@ -102,9 +102,9 @@ namespace Jib.Net.Core.Frontend
          * @param credentialHelper the credential helper executable
          * @return a new {@link CredentialRetriever}
          */
-        public CredentialRetriever dockerCredentialHelper(string credentialHelper)
+        public CredentialRetriever DockerCredentialHelper(string credentialHelper)
         {
-            return dockerCredentialHelper(Paths.get(credentialHelper));
+            return DockerCredentialHelper(Paths.Get(credentialHelper));
         }
 
         /**
@@ -116,21 +116,21 @@ namespace Jib.Net.Core.Frontend
          * @see <a
          *     href="https://github.com/docker/docker-credential-helpers#development">https://github.com/docker/docker-credential-helpers#development</a>
          */
-        public CredentialRetriever dockerCredentialHelper(SystemPath credentialHelper)
+        public CredentialRetriever DockerCredentialHelper(SystemPath credentialHelper)
         {
             return () =>
             {
-                logger(LogEvent.info("Checking credentials from " + credentialHelper));
+                logger(LogEvent.Info("Checking credentials from " + credentialHelper));
 
                 try
                 {
-                    return Option.Of(retrieveFromDockerCredentialHelper(credentialHelper));
+                    return Option.Of(RetrieveFromDockerCredentialHelper(credentialHelper));
                 }
                 catch (CredentialHelperUnhandledServerUrlException)
                 {
                     logger(
-                        LogEvent.info(
-                            "No credentials for " + imageReference.getRegistry() + " in " + credentialHelper));
+                        LogEvent.Info(
+                            "No credentials for " + imageReference.GetRegistry() + " in " + credentialHelper));
                     return Option.Empty<Credential>();
                 }
                 catch (IOException ex)
@@ -147,22 +147,22 @@ namespace Jib.Net.Core.Frontend
          *
          * @return a new {@link CredentialRetriever}
          */
-        public CredentialRetriever inferCredentialHelper()
+        public CredentialRetriever InferCredentialHelper()
         {
             IList<string> inferredCredentialHelperSuffixes = new List<string>();
-            foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.keySet())
+            foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.KeySet())
             {
-                if (!imageReference.getRegistry().endsWith(registrySuffix))
+                if (!JavaExtensions.EndsWith(imageReference.GetRegistry(), registrySuffix))
                 {
                     continue;
                 }
-                string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.get(registrySuffix);
+                string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.Get(registrySuffix);
                 if (inferredCredentialHelperSuffix == null)
                 {
                     throw new InvalidOperationException(
                         Resources.CredentialRetrieverFactoryCommonCredentialNullExceptionMessage);
                 }
-                inferredCredentialHelperSuffixes.add(inferredCredentialHelperSuffix);
+                JavaExtensions.Add(inferredCredentialHelperSuffixes, inferredCredentialHelperSuffix);
             }
 
             return () =>
@@ -172,20 +172,20 @@ namespace Jib.Net.Core.Frontend
                     try
                     {
                         return Option.Of(
-                            retrieveFromDockerCredentialHelper(
-                                Paths.get(
-                                    DockerCredentialHelper.CredentialHelperPrefix
+                            RetrieveFromDockerCredentialHelper(
+                                Paths.Get(
+                                    Registry.Credentials.DockerCredentialHelper.CredentialHelperPrefix
                                         + inferredCredentialHelperSuffix)));
                     }
                     catch (Exception ex) when (ex is CredentialHelperNotFoundException || ex is CredentialHelperUnhandledServerUrlException)
                     {
-                        if (ex.getMessage() != null)
+                        if (ex.GetMessage() != null)
                         {
                             // Warns the user that the specified (or inferred) credential helper cannot be used.
-                            logger(LogEvent.info(ex.getMessage()));
-                            if (ex.getCause()?.getMessage() != null)
+                            logger(LogEvent.Info(ex.GetMessage()));
+                            if (ex.GetCause()?.GetMessage() != null)
                             {
-                                logger(LogEvent.info("  Caused by: " + ex.getCause().getMessage()));
+                                logger(LogEvent.Info("  Caused by: " + ex.GetCause().GetMessage()));
                             }
                         }
                     }
@@ -205,9 +205,9 @@ namespace Jib.Net.Core.Frontend
          * @return a new {@link CredentialRetriever}
          * @see DockerConfigCredentialRetriever
          */
-        public CredentialRetriever dockerConfig()
+        public CredentialRetriever DockerConfig()
         {
-            return dockerConfig(new DockerConfigCredentialRetriever(imageReference.getRegistry()));
+            return DockerConfig(new DockerConfigCredentialRetriever(imageReference.GetRegistry()));
         }
 
         /**
@@ -218,13 +218,13 @@ namespace Jib.Net.Core.Frontend
          * @return a new {@link CredentialRetriever}
          * @see DockerConfigCredentialRetriever
          */
-        public CredentialRetriever dockerConfig(SystemPath dockerConfigFile)
+        public CredentialRetriever DockerConfig(SystemPath dockerConfigFile)
         {
-            return dockerConfig(
-                new DockerConfigCredentialRetriever(imageReference.getRegistry(), dockerConfigFile));
+            return DockerConfig(
+                new DockerConfigCredentialRetriever(imageReference.GetRegistry(), dockerConfigFile));
         }
 
-        public CredentialRetriever dockerConfig(
+        public CredentialRetriever DockerConfig(
             IDockerConfigCredentialRetriever dockerConfigCredentialRetriever)
         {
             return () =>
@@ -232,36 +232,36 @@ namespace Jib.Net.Core.Frontend
                 try
                 {
                     Option<Credential> dockerConfigCredentials =
-                        dockerConfigCredentialRetriever.retrieve(logger);
+                        dockerConfigCredentialRetriever.Retrieve(logger);
                     if (dockerConfigCredentials.IsPresent())
                     {
                         logger(
-                            LogEvent.info(
-                                "Using credentials from Docker config for " + imageReference.getRegistry()));
+                            LogEvent.Info(
+                                "Using credentials from Docker config for " + imageReference.GetRegistry()));
                         return dockerConfigCredentials;
                     }
                 }
                 catch (IOException)
                 {
-                    logger(LogEvent.info("Unable to parse Docker config"));
+                    logger(LogEvent.Info("Unable to parse Docker config"));
                 }
                 return Option.Empty<Credential>();
             };
         }
 
-        private Credential retrieveFromDockerCredentialHelper(SystemPath credentialHelper)
+        private Credential RetrieveFromDockerCredentialHelper(SystemPath credentialHelper)
         {
             Credential credentials =
-                dockerCredentialHelperFactory(imageReference.getRegistry(), credentialHelper)
-                    .retrieve();
-            logGotCredentialsFrom(credentialHelper.GetFileName().toString());
+                dockerCredentialHelperFactory(imageReference.GetRegistry(), credentialHelper)
+                    .Retrieve();
+            LogGotCredentialsFrom(JavaExtensions.ToString(credentialHelper.GetFileName()));
             return credentials;
         }
 
-        private void logGotCredentialsFrom(string credentialSource)
+        private void LogGotCredentialsFrom(string credentialSource)
         {
             logger(
-                LogEvent.info("Using " + credentialSource + " for " + imageReference.getRegistry()));
+                LogEvent.Info("Using " + credentialSource + " for " + imageReference.GetRegistry()));
         }
     }
 }

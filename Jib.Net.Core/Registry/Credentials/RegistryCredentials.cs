@@ -39,12 +39,12 @@ namespace com.google.cloud.tools.jib.registry.credentials
             this.credentialSource = credentialSource;
         }
 
-        public Authorization getAuthorization()
+        public Authorization GetAuthorization()
         {
             return authorization;
         }
 
-        public string getCredentialSource()
+        public string GetCredentialSource()
         {
             return credentialSource;
         }

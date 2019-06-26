@@ -29,32 +29,32 @@ namespace com.google.cloud.tools.jib.registry
         private readonly HttpResponseMessage mockHttpResponseException = Mock.Of<HttpResponseMessage>();
 
         [Test]
-        public void testAddErrorEntry()
+        public void TestAddErrorEntry()
         {
             RegistryErrorExceptionBuilder builder =
                 new RegistryErrorExceptionBuilder("do something", mockHttpResponseException);
 
-            builder.addReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestInvalid.name(), "manifest invalid"));
-            builder.addReason(new ErrorEntryTemplate(ErrorCode.BlobUnknown.name(), "blob unknown"));
-            builder.addReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestUnknown.name(), "manifest unknown"));
-            builder.addReason(new ErrorEntryTemplate(ErrorCode.TagInvalid.name(), "tag invalid"));
-            builder.addReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestUnverified.name(), "manifest unverified"));
-            builder.addReason(
-                new ErrorEntryTemplate(ErrorCode.Unsupported.name(), "some other error happened"));
-            builder.addReason(new ErrorEntryTemplate(null, "some unknown error happened"));
+            builder.AddReason(
+                new ErrorEntryTemplate(ErrorCode.ManifestInvalid.Name(), "manifest invalid"));
+            builder.AddReason(new ErrorEntryTemplate(ErrorCode.BlobUnknown.Name(), "blob unknown"));
+            builder.AddReason(
+                new ErrorEntryTemplate(ErrorCode.ManifestUnknown.Name(), "manifest unknown"));
+            builder.AddReason(new ErrorEntryTemplate(ErrorCode.TagInvalid.Name(), "tag invalid"));
+            builder.AddReason(
+                new ErrorEntryTemplate(ErrorCode.ManifestUnverified.Name(), "manifest unverified"));
+            builder.AddReason(
+                new ErrorEntryTemplate(ErrorCode.Unsupported.Name(), "some other error happened"));
+            builder.AddReason(new ErrorEntryTemplate(null, "some unknown error happened"));
 
             try
             {
-                throw builder.build();
+                throw builder.Build();
             }
             catch (RegistryErrorException ex)
             {
                 Assert.AreEqual(
                     "Tried to do something but failed because: manifest invalid (something went wrong), blob unknown (something went wrong), manifest unknown, tag invalid, manifest unverified, other: some other error happened, unknown: some unknown error happened | If this is a bug, please file an issue at https://github.com/GoogleContainerTools/jib/issues/new",
-                    ex.getMessage());
+                    ex.GetMessage());
             }
         }
     }

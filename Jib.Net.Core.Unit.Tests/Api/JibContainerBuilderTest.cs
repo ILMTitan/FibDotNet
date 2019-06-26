@@ -41,217 +41,217 @@ namespace com.google.cloud.tools.jib.api
         private readonly IJibEvent mockJibEvent = Mock.Of<IJibEvent>();
 
         [Test]
-        public void testToBuildConfiguration_containerConfigurationSet()
+        public void TestToBuildConfiguration_containerConfigurationSet()
         {
             JibContainerBuilder jibContainerBuilder =
-                new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.asList("entry", "point"))
+                new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
+                    .SetEntrypoint(Arrays.AsList("entry", "point"))
                     .SetEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }))
-                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }))
-                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
-                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
+                    .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
 
             BuildConfiguration buildConfiguration =
-                jibContainerBuilder.toBuildConfiguration(
-                    Containerizer.To(RegistryImage.named("target/image")));
-            IContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
-            Assert.AreEqual(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
+                jibContainerBuilder.ToBuildConfiguration(
+                    Containerizer.To(RegistryImage.Named("target/image")));
+            IContainerConfiguration containerConfiguration = buildConfiguration.GetContainerConfiguration();
+            Assert.AreEqual(Arrays.AsList("entry", "point"), containerConfiguration.GetEntrypoint());
             Assert.AreEqual(
-                ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }), containerConfiguration.getEnvironmentMap());
+                ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }), containerConfiguration.GetEnvironmentMap());
             Assert.AreEqual(
-                ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)), containerConfiguration.getExposedPorts());
-            Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), containerConfiguration.getLabels());
+                ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)), containerConfiguration.GetExposedPorts());
+            Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), containerConfiguration.GetLabels());
             Assert.AreEqual(
-                Arrays.asList("program", "arguments"), containerConfiguration.getProgramArguments());
-            Assert.AreEqual(Instant.FromUnixTimeMilliseconds(1000), containerConfiguration.getCreationTime());
-            Assert.AreEqual("user", containerConfiguration.getUser());
+                Arrays.AsList("program", "arguments"), containerConfiguration.GetProgramArguments());
+            Assert.AreEqual(Instant.FromUnixTimeMilliseconds(1000), containerConfiguration.GetCreationTime());
+            Assert.AreEqual("user", containerConfiguration.GetUser());
             Assert.AreEqual(
-                AbsoluteUnixPath.get("/working/directory"), containerConfiguration.getWorkingDirectory());
+                AbsoluteUnixPath.Get("/working/directory"), containerConfiguration.GetWorkingDirectory());
         }
 
         [Test]
-        public void testToBuildConfiguration_containerConfigurationAdd()
+        public void TestToBuildConfiguration_containerConfigurationAdd()
         {
             JibContainerBuilder jibContainerBuilder =
-                new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
+                new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
                     .SetEntrypoint("entry", "point")
-                    .SetEnvironment(ImmutableDic.of("name", "value"))
+                    .SetEnvironment(ImmutableDic.Of("name", "value"))
                     .AddEnvironmentVariable("environment", "variable")
-                    .SetExposedPorts(Port.tcp(1234), Port.udp(5678))
-                    .AddExposedPort(Port.tcp(1337))
-                    .SetLabels(ImmutableDic.of("key", "value"))
+                    .SetExposedPorts(Port.Tcp(1234), Port.Udp(5678))
+                    .AddExposedPort(Port.Tcp(1337))
+                    .SetLabels(ImmutableDic.Of("key", "value"))
                     .AddLabel("added", "label")
                     .SetProgramArguments("program", "arguments");
 
             BuildConfiguration buildConfiguration =
-                jibContainerBuilder.toBuildConfiguration(
-                    Containerizer.To(RegistryImage.named("target/image")));
-            IContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
-            Assert.AreEqual(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
+                jibContainerBuilder.ToBuildConfiguration(
+                    Containerizer.To(RegistryImage.Named("target/image")));
+            IContainerConfiguration containerConfiguration = buildConfiguration.GetContainerConfiguration();
+            Assert.AreEqual(Arrays.AsList("entry", "point"), containerConfiguration.GetEntrypoint());
             Assert.AreEqual(
-                ImmutableDic.of("name", "value", "environment", "variable"),
-                containerConfiguration.getEnvironmentMap());
+                ImmutableDic.Of("name", "value", "environment", "variable"),
+                containerConfiguration.GetEnvironmentMap());
             Assert.AreEqual(
-                ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678), Port.tcp(1337)),
-                containerConfiguration.getExposedPorts());
+                ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678), Port.Tcp(1337)),
+                containerConfiguration.GetExposedPorts());
             Assert.AreEqual(
-                ImmutableDic.of("key", "value", "added", "label"), containerConfiguration.getLabels());
+                ImmutableDic.Of("key", "value", "added", "label"), containerConfiguration.GetLabels());
             Assert.AreEqual(
-                Arrays.asList("program", "arguments"), containerConfiguration.getProgramArguments());
-            Assert.AreEqual(Instant.FromUnixTimeSeconds(0), containerConfiguration.getCreationTime());
+                Arrays.AsList("program", "arguments"), containerConfiguration.GetProgramArguments());
+            Assert.AreEqual(Instant.FromUnixTimeSeconds(0), containerConfiguration.GetCreationTime());
         }
 
         [Test]
-        public void testToBuildConfiguration()
+        public void TestToBuildConfiguration()
         {
             RegistryImage targetImage =
-                RegistryImage.named(ImageReference.of("gcr.io", "my-project/my-app", null))
-                    .addCredential("username", "password");
+                RegistryImage.Named(ImageReference.Of("gcr.io", "my-project/my-app", null))
+                    .AddCredential("username", "password");
             Containerizer containerizer =
                 Containerizer.To(targetImage)
-                    .setBaseImageLayersCache(Paths.get("base/image/layers"))
-                    .setApplicationLayersCache(Paths.get("application/layers"))
-                    .addEventHandler(mockJibEventConsumer);
+                    .SetBaseImageLayersCache(Paths.Get("base/image/layers"))
+                    .SetApplicationLayersCache(Paths.Get("application/layers"))
+                    .AddEventHandler(mockJibEventConsumer);
 
             RegistryImage baseImage =
-                RegistryImage.named("base/image").addCredentialRetriever(mockCredentialRetriever);
+                RegistryImage.Named("base/image").AddCredentialRetriever(mockCredentialRetriever);
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(baseImage, buildConfigurationBuilder)
-                    .SetLayers(Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2));
+                    .SetLayers(Arrays.AsList(mockLayerConfiguration1, mockLayerConfiguration2));
             BuildConfiguration buildConfiguration =
-                jibContainerBuilder.toBuildConfiguration(
+                jibContainerBuilder.ToBuildConfiguration(
                     containerizer);
 
             Assert.AreEqual(
-                buildConfigurationBuilder.build().getContainerConfiguration(),
-                buildConfiguration.getContainerConfiguration());
+                buildConfigurationBuilder.Build().GetContainerConfiguration(),
+                buildConfiguration.GetContainerConfiguration());
 
             Assert.AreEqual(
-                "base/image", buildConfiguration.getBaseImageConfiguration().getImage().toString());
+                "base/image", JavaExtensions.ToString(buildConfiguration.GetBaseImageConfiguration().GetImage()));
             Assert.AreEqual(
-                Arrays.asList(mockCredentialRetriever),
-                buildConfiguration.getBaseImageConfiguration().getCredentialRetrievers());
+                Arrays.AsList(mockCredentialRetriever),
+                buildConfiguration.GetBaseImageConfiguration().GetCredentialRetrievers());
 
             Assert.AreEqual(
                 "gcr.io/my-project/my-app",
-                buildConfiguration.getTargetImageConfiguration().getImage().toString());
+                JavaExtensions.ToString(buildConfiguration.GetTargetImageConfiguration().GetImage()));
             Assert.AreEqual(
-                1, buildConfiguration.getTargetImageConfiguration().getCredentialRetrievers().size());
+                1, buildConfiguration.GetTargetImageConfiguration().GetCredentialRetrievers().Size());
             Assert.AreEqual(
-                Credential.from("username", "password"),
+                Credential.From("username", "password"),
                 buildConfiguration
-                    .getTargetImageConfiguration()
-                    .getCredentialRetrievers()
-                    .get(0)
-                    .retrieve()
+                    .GetTargetImageConfiguration()
+                    .GetCredentialRetrievers()
+                    .Get(0)
+                    .Retrieve()
                     .OrElseThrow(() => new AssertionException("")));
 
-            Assert.AreEqual(ImmutableHashSet.Create("latest"), buildConfiguration.getAllTargetImageTags());
+            Assert.AreEqual(ImmutableHashSet.Create("latest"), buildConfiguration.GetAllTargetImageTags());
 
             Assert.AreEqual(
-                Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2),
-                buildConfiguration.getLayerConfigurations());
+                Arrays.AsList(mockLayerConfiguration1, mockLayerConfiguration2),
+                buildConfiguration.GetLayerConfigurations());
 
-            buildConfiguration.getEventHandlers().Dispatch(mockJibEvent);
+            buildConfiguration.GetEventHandlers().Dispatch(mockJibEvent);
             Mock.Get(mockJibEventConsumer).Verify(m => m(mockJibEvent));
 
-            Assert.AreEqual("jib-core", buildConfiguration.getToolName());
+            Assert.AreEqual("jib-core", buildConfiguration.GetToolName());
 
-            Assert.AreEqual(ManifestFormat.V22, buildConfiguration.getTargetFormat());
+            Assert.AreEqual(ManifestFormat.V22, buildConfiguration.GetTargetFormat());
 
-            Assert.AreEqual("jib-core", buildConfiguration.getToolName());
+            Assert.AreEqual("jib-core", buildConfiguration.GetToolName());
 
             // Changes jibContainerBuilder.
             buildConfiguration =
                 jibContainerBuilder
                     .SetFormat(ImageFormat.OCI)
-                    .toBuildConfiguration(
+                    .ToBuildConfiguration(
                         containerizer
-                            .withAdditionalTag("tag1")
-                            .withAdditionalTag("tag2")
-                            .setToolName("toolName"));
-            Assert.AreEqual(ManifestFormat.OCI, buildConfiguration.getTargetFormat());
+                            .WithAdditionalTag("tag1")
+                            .WithAdditionalTag("tag2")
+                            .SetToolName("toolName"));
+            Assert.AreEqual(ManifestFormat.OCI, buildConfiguration.GetTargetFormat());
             Assert.AreEqual(
-                ImmutableHashSet.Create("latest", "tag1", "tag2"), buildConfiguration.getAllTargetImageTags());
-            Assert.AreEqual("toolName", buildConfiguration.getToolName());
+                ImmutableHashSet.Create("latest", "tag1", "tag2"), buildConfiguration.GetAllTargetImageTags());
+            Assert.AreEqual("toolName", buildConfiguration.GetToolName());
         }
 
         /** Verify that an internally-created ExecutorService is shutdown. */
 
         [Test]
-        public async Task testContainerize_executorCreatedAsync()
+        public async Task TestContainerize_executorCreatedAsync()
         {
             JibContainerBuilder jibContainerBuilder =
-                new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.asList("entry", "point"))
-                    .SetEnvironment(ImmutableDic.of("name", "value"))
-                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
-                    .SetLabels(ImmutableDic.of("key", "value"))
-                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
+                    .SetEntrypoint(Arrays.AsList("entry", "point"))
+                    .SetEnvironment(ImmutableDic.Of("name", "value"))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
+                    .SetLabels(ImmutableDic.Of("key", "value"))
+                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
-                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
+                    .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
 
-            IContainerizer mockContainerizer = createMockContainerizer();
+            IContainerizer mockContainerizer = CreateMockContainerizer();
 
-            await jibContainerBuilder.containerizeAsync(mockContainerizer).ConfigureAwait(false);
+            await jibContainerBuilder.ContainerizeAsync(mockContainerizer).ConfigureAwait(false);
         }
 
         /** Verify that a provided ExecutorService is not shutdown. */
 
         [Test]
-        public async Task testContainerize_configuredExecutorAsync()
+        public async Task TestContainerize_configuredExecutorAsync()
         {
             JibContainerBuilder jibContainerBuilder =
-                new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.asList("entry", "point"))
-                    .SetEnvironment(ImmutableDic.of("name", "value"))
-                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
-                    .SetLabels(ImmutableDic.of("key", "value"))
-                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
+                    .SetEntrypoint(Arrays.AsList("entry", "point"))
+                    .SetEnvironment(ImmutableDic.Of("name", "value"))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
+                    .SetLabels(ImmutableDic.Of("key", "value"))
+                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
-                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
-            IContainerizer mockContainerizer = createMockContainerizer();
+                    .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
+            IContainerizer mockContainerizer = CreateMockContainerizer();
 
-            await jibContainerBuilder.containerizeAsync(mockContainerizer).ConfigureAwait(false);
+            await jibContainerBuilder.ContainerizeAsync(mockContainerizer).ConfigureAwait(false);
         }
 
-        private IContainerizer createMockContainerizer()
+        private IContainerizer CreateMockContainerizer()
         {
-            ImageReference targetImage = ImageReference.parse("target-image");
+            ImageReference targetImage = ImageReference.Parse("target-image");
             IContainerizer mockContainerizer = Mock.Of<IContainerizer>();
             IStepsRunner stepsRunner = Mock.Of<IStepsRunner>();
             IBuildResult mockBuildResult = Mock.Of<IBuildResult>();
 
-            Mock.Get(mockContainerizer).Setup(m => m.getImageConfiguration()).Returns(ImageConfiguration.builder(targetImage).build());
+            Mock.Get(mockContainerizer).Setup(m => m.GetImageConfiguration()).Returns(ImageConfiguration.CreateBuilder(targetImage).Build());
 
-            Mock.Get(mockContainerizer).Setup(m => m.createStepsRunner(It.IsAny<BuildConfiguration>())).Returns(stepsRunner);
+            Mock.Get(mockContainerizer).Setup(m => m.CreateStepsRunner(It.IsAny<BuildConfiguration>())).Returns(stepsRunner);
 
-            Mock.Get(stepsRunner).Setup(s => s.runAsync()).Returns(Task.FromResult(mockBuildResult));
+            Mock.Get(stepsRunner).Setup(s => s.RunAsync()).Returns(Task.FromResult(mockBuildResult));
 
-            Mock.Get(mockBuildResult).Setup(m => m.getImageDigest()).Returns(
-                    DescriptorDigest.fromHash(
+            Mock.Get(mockBuildResult).Setup(m => m.GetImageDigest()).Returns(
+                    DescriptorDigest.FromHash(
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
-            Mock.Get(mockBuildResult).Setup(m => m.getImageId()).Returns(
-                    DescriptorDigest.fromHash(
+            Mock.Get(mockBuildResult).Setup(m => m.GetImageId()).Returns(
+                    DescriptorDigest.FromHash(
                         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
 
-            Mock.Get(mockContainerizer).Setup(m => m.getAdditionalTags()).Returns(new HashSet<string>());
+            Mock.Get(mockContainerizer).Setup(m => m.GetAdditionalTags()).Returns(new HashSet<string>());
 
-            Mock.Get(mockContainerizer).Setup(m => m.getBaseImageLayersCacheDirectory()).Returns(Paths.get("/"));
+            Mock.Get(mockContainerizer).Setup(m => m.GetBaseImageLayersCacheDirectory()).Returns(Paths.Get("/"));
 
-            Mock.Get(mockContainerizer).Setup(m => m.getApplicationLayersCacheDirectory()).Returns(Paths.get("/"));
+            Mock.Get(mockContainerizer).Setup(m => m.GetApplicationLayersCacheDirectory()).Returns(Paths.Get("/"));
 
-            Mock.Get(mockContainerizer).Setup(m => m.getAllowInsecureRegistries()).Returns(false);
+            Mock.Get(mockContainerizer).Setup(m => m.GetAllowInsecureRegistries()).Returns(false);
 
-            Mock.Get(mockContainerizer).Setup(m => m.getToolName()).Returns("mocktool");
+            Mock.Get(mockContainerizer).Setup(m => m.GetToolName()).Returns("mocktool");
 
-            Mock.Get(mockContainerizer).Setup(m => m.buildEventHandlers()).Returns(EventHandlers.NONE);
+            Mock.Get(mockContainerizer).Setup(m => m.BuildEventHandlers()).Returns(EventHandlers.NONE);
 
             return mockContainerizer;
         }

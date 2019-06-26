@@ -33,27 +33,27 @@ namespace com.google.cloud.tools.jib.image.json
     public class ContainerConfigurationTemplateTest
     {
         [Test]
-        public void testToJson()
+        public void TestToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/containerconfig.json").ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
             ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate();
 
-            containerConfigJson.setCreated("1970-01-01T00:00:20Z");
-            containerConfigJson.setArchitecture("wasm");
-            containerConfigJson.setOs("js");
-            containerConfigJson.setContainerEnvironment(Arrays.asList("VAR1=VAL1", "VAR2=VAL2"));
-            containerConfigJson.setContainerEntrypoint(Arrays.asList("some", "entrypoint", "command"));
-            containerConfigJson.setContainerCmd(Arrays.asList("arg1", "arg2"));
-            containerConfigJson.setContainerHealthCheckTest(Arrays.asList("CMD-SHELL", "/checkhealth"));
-            containerConfigJson.setContainerHealthCheckInterval(3000000000L);
-            containerConfigJson.setContainerHealthCheckTimeout(1000000000L);
-            containerConfigJson.setContainerHealthCheckStartPeriod(2000000000L);
-            containerConfigJson.setContainerHealthCheckRetries(3);
-            containerConfigJson.setContainerExposedPorts(
+            containerConfigJson.Created = "1970-01-01T00:00:20Z";
+            containerConfigJson.Architecture = "wasm";
+            containerConfigJson.Os = "js";
+            containerConfigJson.SetContainerEnvironment(Arrays.AsList("VAR1=VAL1", "VAR2=VAL2"));
+            containerConfigJson.SetContainerEntrypoint(Arrays.AsList("some", "entrypoint", "command"));
+            containerConfigJson.SetContainerCmd(Arrays.AsList("arg1", "arg2"));
+            containerConfigJson.SetContainerHealthCheckTest(Arrays.AsList("CMD-SHELL", "/checkhealth"));
+            containerConfigJson.SetContainerHealthCheckInterval(3000000000L);
+            containerConfigJson.SetContainerHealthCheckTimeout(1000000000L);
+            containerConfigJson.SetContainerHealthCheckStartPeriod(2000000000L);
+            containerConfigJson.SetContainerHealthCheckRetries(3);
+            containerConfigJson.SetContainerExposedPorts(
                 new Dictionary<string, IDictionary<object, object>>
                 {
                     ["1000/tcp"] =
@@ -63,88 +63,88 @@ namespace com.google.cloud.tools.jib.image.json
                     ["3000/udp"] =
                     ImmutableDictionary.Create<object, object>()
                 }.ToImmutableSortedDictionary());
-            containerConfigJson.setContainerLabels(ImmutableDic.of("key1", "value1", "key2", "value2"));
-            containerConfigJson.setContainerVolumes(
-                ImmutableDic.of<string, IDictionary<object, object>>(
+            containerConfigJson.SetContainerLabels(ImmutableDic.Of("key1", "value1", "key2", "value2"));
+            containerConfigJson.SetContainerVolumes(
+                ImmutableDic.Of<string, IDictionary<object, object>>(
                     "/var/job-result-data", ImmutableDictionary.Create<object, object>(), "/var/log/my-app-logs", ImmutableDictionary.Create<object, object>()));
-            containerConfigJson.setContainerWorkingDir("/some/workspace");
-            containerConfigJson.setContainerUser("tomcat");
+            containerConfigJson.SetContainerWorkingDir("/some/workspace");
+            containerConfigJson.SetContainerUser("tomcat");
 
-            containerConfigJson.addLayerDiffId(
-                DescriptorDigest.fromDigest(
+            containerConfigJson.AddLayerDiffId(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"));
-            containerConfigJson.addHistoryEntry(
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Bazel")
-                    .setCreatedBy("bazel build ...")
-                    .setEmptyLayer(true)
-                    .build());
-            containerConfigJson.addHistoryEntry(
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
-                    .setAuthor("Jib")
-                    .setCreatedBy("jib")
-                    .build());
+            containerConfigJson.AddHistoryEntry(
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Bazel")
+                    .SetCreatedBy("bazel build ...")
+                    .SetEmptyLayer(true)
+                    .Build());
+            containerConfigJson.AddHistoryEntry(
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(20))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy("jib")
+                    .Build());
 
             // Serializes the JSON object.
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfigJson));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(containerConfigJson));
         }
 
         [Test]
-        public void testFromJson()
+        public void TestFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/containerconfig.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             ContainerConfigurationTemplate containerConfigJson =
-                JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(jsonFile);
+                JsonTemplateMapper.ReadJsonFromFile<ContainerConfigurationTemplate>(jsonFile);
 
-            Assert.AreEqual("1970-01-01T00:00:20Z", containerConfigJson.getCreated());
-            Assert.AreEqual("wasm", containerConfigJson.getArchitecture());
-            Assert.AreEqual("js", containerConfigJson.getOs());
+            Assert.AreEqual("1970-01-01T00:00:20Z", containerConfigJson.Created);
+            Assert.AreEqual("wasm", containerConfigJson.Architecture);
+            Assert.AreEqual("js", containerConfigJson.Os);
             Assert.AreEqual(
-                Arrays.asList("VAR1=VAL1", "VAR2=VAL2"), containerConfigJson.getContainerEnvironment());
+                Arrays.AsList("VAR1=VAL1", "VAR2=VAL2"), containerConfigJson.GetContainerEnvironment());
             Assert.AreEqual(
-                Arrays.asList("some", "entrypoint", "command"),
-                containerConfigJson.getContainerEntrypoint());
-            Assert.AreEqual(Arrays.asList("arg1", "arg2"), containerConfigJson.getContainerCmd());
-
-            Assert.AreEqual(
-                Arrays.asList("CMD-SHELL", "/checkhealth"), containerConfigJson.getContainerHealthTest());
-            Assert.IsNotNull(containerConfigJson.getContainerHealthInterval());
-            Assert.AreEqual(3000000000L, containerConfigJson.getContainerHealthInterval().longValue());
-            Assert.IsNotNull(containerConfigJson.getContainerHealthTimeout());
-            Assert.AreEqual(1000000000L, containerConfigJson.getContainerHealthTimeout().longValue());
-            Assert.IsNotNull(containerConfigJson.getContainerHealthStartPeriod());
-            Assert.AreEqual(
-                2000000000L, containerConfigJson.getContainerHealthStartPeriod().longValue());
-            Assert.IsNotNull(containerConfigJson.getContainerHealthRetries());
-            Assert.AreEqual(3, containerConfigJson.getContainerHealthRetries().intValue());
+                Arrays.AsList("some", "entrypoint", "command"),
+                containerConfigJson.GetContainerEntrypoint());
+            Assert.AreEqual(Arrays.AsList("arg1", "arg2"), containerConfigJson.GetContainerCmd());
 
             Assert.AreEqual(
-                ImmutableDic.of("key1", "value1", "key2", "value2"),
-                containerConfigJson.getContainerLabels());
-            Assert.AreEqual("/some/workspace", containerConfigJson.getContainerWorkingDir());
+                Arrays.AsList("CMD-SHELL", "/checkhealth"), containerConfigJson.GetContainerHealthTest());
+            Assert.IsNotNull(containerConfigJson.GetContainerHealthInterval());
+            Assert.AreEqual(3000000000L, containerConfigJson.GetContainerHealthInterval().LongValue());
+            Assert.IsNotNull(containerConfigJson.GetContainerHealthTimeout());
+            Assert.AreEqual(1000000000L, containerConfigJson.GetContainerHealthTimeout().LongValue());
+            Assert.IsNotNull(containerConfigJson.GetContainerHealthStartPeriod());
             Assert.AreEqual(
-                DescriptorDigest.fromDigest(
+                2000000000L, containerConfigJson.GetContainerHealthStartPeriod().LongValue());
+            Assert.IsNotNull(containerConfigJson.GetContainerHealthRetries());
+            Assert.AreEqual(3, containerConfigJson.GetContainerHealthRetries().IntValue());
+
+            Assert.AreEqual(
+                ImmutableDic.Of("key1", "value1", "key2", "value2"),
+                containerConfigJson.GetContainerLabels());
+            Assert.AreEqual("/some/workspace", containerConfigJson.GetContainerWorkingDir());
+            Assert.AreEqual(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                containerConfigJson.getLayerDiffId(0));
+                containerConfigJson.GetLayerDiffId(0));
             Assert.AreEqual(
                 ImmutableArray.Create(
-                    HistoryEntry.builder()
-                        .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                        .setAuthor("Bazel")
-                        .setCreatedBy("bazel build ...")
-                        .setEmptyLayer(true)
-                        .build(),
-                    HistoryEntry.builder()
-                        .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
-                        .setAuthor("Jib")
-                        .setCreatedBy("jib")
-                        .build()),
-                containerConfigJson.getHistory());
+                    HistoryEntry.CreateBuilder()
+                        .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                        .SetAuthor("Bazel")
+                        .SetCreatedBy("bazel build ...")
+                        .SetEmptyLayer(true)
+                        .Build(),
+                    HistoryEntry.CreateBuilder()
+                        .SetCreationTimestamp(Instant.FromUnixTimeSeconds(20))
+                        .SetAuthor("Jib")
+                        .SetCreatedBy("jib")
+                        .Build()),
+                containerConfigJson.History);
         }
     }
 }

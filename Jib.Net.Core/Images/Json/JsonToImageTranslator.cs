@@ -61,24 +61,24 @@ namespace Jib.Net.Core.Images.Json
          * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
          *     format
          */
-        public static Image toImage(V21ManifestTemplate manifestTemplate)
+        public static Image ToImage(V21ManifestTemplate manifestTemplate)
         {
 
             manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
-            Image.Builder imageBuilder = Image.builder(ManifestFormat.V21);
+            Image.Builder imageBuilder = Image.CreateBuilder(ManifestFormat.V21);
 
             // V21 layers are in reverse order of V22. (The first layer is the latest one.)
-            foreach (DescriptorDigest digest in manifestTemplate.GetLayerDigests().reverse())
+            foreach (DescriptorDigest digest in manifestTemplate.GetLayerDigests().ToImmutableList().Reverse())
             {
-                imageBuilder.addLayer(new DigestOnlyLayer(digest));
+                imageBuilder.AddLayer(new DigestOnlyLayer(digest));
             }
 
             if (manifestTemplate.GetContainerConfiguration().IsPresent())
             {
-                configureBuilderWithContainerConfiguration(
+                ConfigureBuilderWithContainerConfiguration(
                     imageBuilder, manifestTemplate.GetContainerConfiguration().Get());
             }
-            return imageBuilder.build();
+            return imageBuilder.Build();
         }
 
         /**
@@ -95,7 +95,7 @@ namespace Jib.Net.Core.Images.Json
          * @throws BadContainerConfigurationFormatException if the container configuration is in a bad
          *     format
          */
-        public static Image toImage<T>(
+        public static Image ToImage<T>(
             T manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate) where T : IBuildableManifestTemplate
         {
@@ -105,126 +105,126 @@ namespace Jib.Net.Core.Images.Json
                 ?? throw new ArgumentNullException(nameof(containerConfigurationTemplate));
             IList<ReferenceNoDiffIdLayer> layers = new List<ReferenceNoDiffIdLayer>();
             foreach (ContentDescriptorTemplate layerObjectTemplate in
-                manifestTemplate.getLayers())
+                manifestTemplate.Layers)
             {
-                if (layerObjectTemplate.getDigest() == null)
+                if (layerObjectTemplate.Digest== null)
                 {
                     throw new ArgumentException(Resources.JsonToImageTranslatorMissingDigestExceptionMessage);
                 }
 
-                layers.add(
-                    new ReferenceNoDiffIdLayer(
-                        new BlobDescriptor(layerObjectTemplate.getSize(), layerObjectTemplate.getDigest())));
+                JavaExtensions.Add(
+layers, new ReferenceNoDiffIdLayer(
+                        new BlobDescriptor(layerObjectTemplate.Size, layerObjectTemplate.Digest)));
             }
 
-            IList<DescriptorDigest> diffIds = containerConfigurationTemplate.getDiffIds();
-            if (layers.size() != diffIds.size())
+            IList<DescriptorDigest> diffIds = containerConfigurationTemplate.GetDiffIds();
+            if (layers.Size() != diffIds.Size())
             {
                 throw new LayerCountMismatchException(Resources.JsonToImageTranslatorDiffIdMismatchExceptionMessage);
             }
 
-            Image.Builder imageBuilder = Image.builder(manifestTemplate.getFormat());
+            Image.Builder imageBuilder = Image.CreateBuilder(manifestTemplate.GetFormat());
 
-            for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++)
+            for (int layerIndex = 0; layerIndex < layers.Size(); layerIndex++)
             {
-                ReferenceNoDiffIdLayer noDiffIdLayer = layers.get(layerIndex);
-                DescriptorDigest diffId = diffIds.get(layerIndex);
+                ReferenceNoDiffIdLayer noDiffIdLayer = layers.Get(layerIndex);
+                DescriptorDigest diffId = diffIds.Get(layerIndex);
 
-                imageBuilder.addLayer(new ReferenceLayer(noDiffIdLayer.getBlobDescriptor(), diffId));
+                imageBuilder.AddLayer(new ReferenceLayer(noDiffIdLayer.GetBlobDescriptor(), diffId));
             }
 
-            configureBuilderWithContainerConfiguration(imageBuilder, containerConfigurationTemplate);
-            return imageBuilder.build();
+            ConfigureBuilderWithContainerConfiguration(imageBuilder, containerConfigurationTemplate);
+            return imageBuilder.Build();
         }
 
-        private static void configureBuilderWithContainerConfiguration(
+        private static void ConfigureBuilderWithContainerConfiguration(
             Image.Builder imageBuilder, ContainerConfigurationTemplate containerConfigurationTemplate)
         {
-            containerConfigurationTemplate.getHistory().forEach(imageBuilder.addHistory);
+            containerConfigurationTemplate.History.ForEach(imageBuilder.AddHistory);
 
-            if (containerConfigurationTemplate.getCreated() != null)
+            if (containerConfigurationTemplate.Created!= null)
             {
                 try
                 {
-                    imageBuilder.setCreated(
+                    imageBuilder.SetCreated(
                         Instant.FromDateTimeOffset(
                             DateTimeOffset.Parse(
-                                containerConfigurationTemplate.getCreated(),
+                                containerConfigurationTemplate.Created,
                                 CultureInfo.InvariantCulture)));
                 }
                 catch (FormatException ex)
                 {
                     throw new BadContainerConfigurationFormatException(
-                        "Invalid image creation time: " + containerConfigurationTemplate.getCreated(), ex);
+                        "Invalid image creation time: " + containerConfigurationTemplate.Created, ex);
                 }
             }
 
-            if (containerConfigurationTemplate.getArchitecture() != null)
+            if (containerConfigurationTemplate.Architecture!= null)
             {
-                imageBuilder.setArchitecture(containerConfigurationTemplate.getArchitecture());
+                imageBuilder.SetArchitecture(containerConfigurationTemplate.Architecture);
             }
-            if (containerConfigurationTemplate.getOs() != null)
+            if (containerConfigurationTemplate.Os!= null)
             {
-                imageBuilder.setOs(containerConfigurationTemplate.getOs());
+                imageBuilder.SetOs(containerConfigurationTemplate.Os);
             }
 
-            imageBuilder.setEntrypoint(containerConfigurationTemplate.getContainerEntrypoint());
-            imageBuilder.setProgramArguments(containerConfigurationTemplate.getContainerCmd());
+            imageBuilder.SetEntrypoint(containerConfigurationTemplate.GetContainerEntrypoint());
+            imageBuilder.SetProgramArguments(containerConfigurationTemplate.GetContainerCmd());
 
-            IList<string> baseHealthCheckCommand = containerConfigurationTemplate.getContainerHealthTest();
+            IList<string> baseHealthCheckCommand = containerConfigurationTemplate.GetContainerHealthTest();
             if (baseHealthCheckCommand != null)
             {
-                DockerHealthCheck.Builder builder = DockerHealthCheck.fromCommand(baseHealthCheckCommand);
-                if (containerConfigurationTemplate.getContainerHealthInterval() != null)
+                DockerHealthCheck.Builder builder = DockerHealthCheck.FromCommand(baseHealthCheckCommand);
+                if (containerConfigurationTemplate.GetContainerHealthInterval() != null)
                 {
-                    builder.setInterval(
-                        Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthInterval().GetValueOrDefault()));
+                    builder.SetInterval(
+                        Duration.FromNanoseconds(containerConfigurationTemplate.GetContainerHealthInterval().GetValueOrDefault()));
                 }
-                if (containerConfigurationTemplate.getContainerHealthTimeout() != null)
+                if (containerConfigurationTemplate.GetContainerHealthTimeout() != null)
                 {
-                    builder.setTimeout(
-                        Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthTimeout().GetValueOrDefault()));
+                    builder.SetTimeout(
+                        Duration.FromNanoseconds(containerConfigurationTemplate.GetContainerHealthTimeout().GetValueOrDefault()));
                 }
-                if (containerConfigurationTemplate.getContainerHealthStartPeriod() != null)
+                if (containerConfigurationTemplate.GetContainerHealthStartPeriod() != null)
                 {
-                    builder.setStartPeriod(
-                        Duration.FromNanoseconds(containerConfigurationTemplate.getContainerHealthStartPeriod().GetValueOrDefault()));
+                    builder.SetStartPeriod(
+                        Duration.FromNanoseconds(containerConfigurationTemplate.GetContainerHealthStartPeriod().GetValueOrDefault()));
                 }
-                if (containerConfigurationTemplate.getContainerHealthRetries() != null)
+                if (containerConfigurationTemplate.GetContainerHealthRetries() != null)
                 {
-                    builder.setRetries(containerConfigurationTemplate.getContainerHealthRetries().GetValueOrDefault());
+                    builder.SetRetries(containerConfigurationTemplate.GetContainerHealthRetries().GetValueOrDefault());
                 }
-                imageBuilder.setHealthCheck(builder.build());
+                imageBuilder.SetHealthCheck(builder.Build());
             }
 
-            if (containerConfigurationTemplate.getContainerExposedPorts() != null)
+            if (containerConfigurationTemplate.GetContainerExposedPorts() != null)
             {
-                imageBuilder.addExposedPorts(
-                    portMapToSet(containerConfigurationTemplate.getContainerExposedPorts()));
+                imageBuilder.AddExposedPorts(
+                    PortMapToSet(containerConfigurationTemplate.GetContainerExposedPorts()));
             }
 
-            if (containerConfigurationTemplate.getContainerVolumes() != null)
+            if (containerConfigurationTemplate.GetContainerVolumes() != null)
             {
-                imageBuilder.addVolumes(volumeMapToSet(containerConfigurationTemplate.getContainerVolumes()));
+                imageBuilder.AddVolumes(VolumeMapToSet(containerConfigurationTemplate.GetContainerVolumes()));
             }
 
-            if (containerConfigurationTemplate.getContainerEnvironment() != null)
+            if (containerConfigurationTemplate.GetContainerEnvironment() != null)
             {
-                foreach (string environmentVariable in containerConfigurationTemplate.getContainerEnvironment())
+                foreach (string environmentVariable in containerConfigurationTemplate.GetContainerEnvironment())
                 {
-                    Match matcher = EnvironmentPattern.matcher(environmentVariable);
-                    if (!matcher.matches())
+                    Match matcher = EnvironmentPattern.Matcher(environmentVariable);
+                    if (!matcher.Matches())
                     {
                         throw new BadContainerConfigurationFormatException(
                             "Invalid environment variable definition: " + environmentVariable);
                     }
-                    imageBuilder.addEnvironmentVariable(matcher.group("name"), matcher.group("value"));
+                    imageBuilder.AddEnvironmentVariable(matcher.Group("name"), matcher.Group("value"));
                 }
             }
 
-            imageBuilder.addLabels(containerConfigurationTemplate.getContainerLabels());
-            imageBuilder.setWorkingDirectory(containerConfigurationTemplate.getContainerWorkingDir());
-            imageBuilder.setUser(containerConfigurationTemplate.getContainerUser());
+            imageBuilder.AddLabels(containerConfigurationTemplate.GetContainerLabels());
+            imageBuilder.SetWorkingDirectory(containerConfigurationTemplate.GetContainerWorkingDir());
+            imageBuilder.SetUser(containerConfigurationTemplate.GetContainerUser());
         }
 
         /**
@@ -235,28 +235,28 @@ namespace Jib.Net.Core.Images.Json
          * @return a set of {@link Port}s
          */
 
-        public static ImmutableHashSet<Port> portMapToSet(IDictionary<string, IDictionary<object, object>> portMap)
+        public static ImmutableHashSet<Port> PortMapToSet(IDictionary<string, IDictionary<object, object>> portMap)
         {
             if (portMap == null)
             {
                 return ImmutableHashSet.Create<Port>();
             }
             ImmutableHashSet<Port>.Builder ports = ImmutableHashSet.CreateBuilder<Port>();
-            foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap.entrySet())
+            foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap.EntrySet())
             {
-                string port = entry.getKey();
-                Match matcher = PORT_PATTERN.matcher(port);
-                if (!matcher.matches())
+                string port = entry.GetKey();
+                Match matcher = PORT_PATTERN.Matcher(port);
+                if (!matcher.Matches())
                 {
                     throw new BadContainerConfigurationFormatException(
                         "Invalid port configuration: '" + port + "'.");
                 }
 
-                int portNumber = int.Parse(matcher.group("portNum"), CultureInfo.InvariantCulture);
-                string protocol = matcher.group("protocol");
-                ports.add(Port.parseProtocol(portNumber, protocol));
+                int portNumber = int.Parse(matcher.Group("portNum"), CultureInfo.InvariantCulture);
+                string protocol = matcher.Group("protocol");
+                JavaExtensions.Add(ports, Port.ParseProtocol(portNumber, protocol));
             }
-            return ports.build();
+            return ports.Build();
         }
 
         /**
@@ -267,7 +267,7 @@ namespace Jib.Net.Core.Images.Json
          * @return a set of {@link AbsoluteUnixPath}s
          */
 
-        public static ImmutableHashSet<AbsoluteUnixPath> volumeMapToSet(IDictionary<string, IDictionary<object, object>> volumeMap)
+        public static ImmutableHashSet<AbsoluteUnixPath> VolumeMapToSet(IDictionary<string, IDictionary<object, object>> volumeMap)
         {
             if (volumeMap == null)
             {
@@ -275,11 +275,11 @@ namespace Jib.Net.Core.Images.Json
             }
 
             ImmutableHashSet<AbsoluteUnixPath>.Builder volumeList = ImmutableHashSet.CreateBuilder<AbsoluteUnixPath>();
-            foreach (string volume in volumeMap.keySet())
+            foreach (string volume in volumeMap.KeySet())
             {
                 try
                 {
-                    volumeList.add(AbsoluteUnixPath.get(volume));
+                    JavaExtensions.Add(volumeList, AbsoluteUnixPath.Get(volume));
                 }
                 catch (ArgumentException)
                 {
@@ -287,7 +287,7 @@ namespace Jib.Net.Core.Images.Json
                 }
             }
 
-            return volumeList.build();
+            return volumeList.Build();
         }
 
         private JsonToImageTranslator() { }

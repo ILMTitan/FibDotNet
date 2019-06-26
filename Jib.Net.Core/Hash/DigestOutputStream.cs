@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.hash
         }
         protected MessageDigest MessageDigest { get; set; }
 
-        public void setMessageDigest(MessageDigest messageDigest)
+        public void SetMessageDigest(MessageDigest messageDigest)
         {
             this.MessageDigest = messageDigest;
         }

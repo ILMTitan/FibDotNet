@@ -33,7 +33,7 @@ namespace Jib.Net.Core.Images
         public class Builder
         {
             private readonly ManifestFormat imageFormat;
-            private readonly ImageLayers.Builder imageLayersBuilder = ImageLayers.builder();
+            private readonly ImageLayers.Builder imageLayersBuilder = ImageLayers.CreateBuilder();
             private readonly ImmutableArray<HistoryEntry>.Builder historyBuilder = ImmutableArray.CreateBuilder<HistoryEntry>();
 
             // Don't use ImmutableDictionary.Builder because it does not allow for replacing existing keys with new
@@ -63,7 +63,7 @@ namespace Jib.Net.Core.Images
              * @param created the creation time
              * @return this
              */
-            public Builder setCreated(Instant created)
+            public Builder SetCreated(Instant created)
             {
                 this.created = created;
                 return this;
@@ -75,7 +75,7 @@ namespace Jib.Net.Core.Images
              * @param architecture the architecture
              * @return this
              */
-            public Builder setArchitecture(string architecture)
+            public Builder SetArchitecture(string architecture)
             {
                 this.architecture = architecture;
                 return this;
@@ -87,7 +87,7 @@ namespace Jib.Net.Core.Images
              * @param os the operating system
              * @return this
              */
-            public Builder setOs(string os)
+            public Builder SetOs(string os)
             {
                 this.os = os;
                 return this;
@@ -99,11 +99,11 @@ namespace Jib.Net.Core.Images
              * @param environment the map of environment variables
              * @return this
              */
-            public Builder addEnvironment(IDictionary<string, string> environment)
+            public Builder AddEnvironment(IDictionary<string, string> environment)
             {
                 if (environment != null)
                 {
-                    environmentBuilder.putAll(environment);
+                    environmentBuilder.PutAll(environment);
                 }
                 return this;
             }
@@ -115,9 +115,9 @@ namespace Jib.Net.Core.Images
              * @param value the value to set it to
              * @return this
              */
-            public Builder addEnvironmentVariable(string name, string value)
+            public Builder AddEnvironmentVariable(string name, string value)
             {
-                environmentBuilder.put(name, value);
+                environmentBuilder.Put(name, value);
                 return this;
             }
 
@@ -127,7 +127,7 @@ namespace Jib.Net.Core.Images
              * @param entrypoint the list of entrypoint tokens
              * @return this
              */
-            public Builder setEntrypoint(IList<string> entrypoint)
+            public Builder SetEntrypoint(IList<string> entrypoint)
             {
                 this.entrypoint = entrypoint?.ToImmutableArray();
                 return this;
@@ -139,7 +139,7 @@ namespace Jib.Net.Core.Images
              * @param user the username/UID and optionally the groupname/GID
              * @return this
              */
-            public Builder setUser(string user)
+            public Builder SetUser(string user)
             {
                 this.user = user;
                 return this;
@@ -151,7 +151,7 @@ namespace Jib.Net.Core.Images
              * @param programArguments the list of arguments to append to the image entrypoint
              * @return this
              */
-            public Builder setProgramArguments(IList<string> programArguments)
+            public Builder SetProgramArguments(IList<string> programArguments)
             {
                 this.programArguments = programArguments?.ToImmutableArray();
                 return this;
@@ -163,7 +163,7 @@ namespace Jib.Net.Core.Images
              * @param healthCheck the healthcheck configuration
              * @return this
              */
-            public Builder setHealthCheck(DockerHealthCheck healthCheck)
+            public Builder SetHealthCheck(DockerHealthCheck healthCheck)
             {
                 this.healthCheck = healthCheck;
                 return this;
@@ -175,11 +175,11 @@ namespace Jib.Net.Core.Images
              * @param exposedPorts the exposed ports to add
              * @return this
              */
-            public Builder addExposedPorts(ISet<Port> exposedPorts)
+            public Builder AddExposedPorts(ISet<Port> exposedPorts)
             {
                 if (exposedPorts != null)
                 {
-                    exposedPortsBuilder.addAll(exposedPorts);
+                    exposedPortsBuilder.AddAll(exposedPorts);
                 }
                 return this;
             }
@@ -190,11 +190,11 @@ namespace Jib.Net.Core.Images
              * @param volumes the directories to create volumes
              * @return this
              */
-            public Builder addVolumes(ISet<AbsoluteUnixPath> volumes)
+            public Builder AddVolumes(ISet<AbsoluteUnixPath> volumes)
             {
                 if (volumes != null)
                 {
-                    volumesBuilder.addAll(ImmutableHashSet.CreateRange(volumes));
+                    volumesBuilder.AddAll(ImmutableHashSet.CreateRange(volumes));
                 }
                 return this;
             }
@@ -205,11 +205,11 @@ namespace Jib.Net.Core.Images
              * @param labels the map of labels to add
              * @return this
              */
-            public Builder addLabels(IDictionary<string, string> labels)
+            public Builder AddLabels(IDictionary<string, string> labels)
             {
                 if (labels != null)
                 {
-                    labelsBuilder.putAll(labels);
+                    labelsBuilder.PutAll(labels);
                 }
                 return this;
             }
@@ -221,9 +221,9 @@ namespace Jib.Net.Core.Images
              * @param value the value of the label
              * @return this
              */
-            public Builder addLabel(string name, string value)
+            public Builder AddLabel(string name, string value)
             {
-                labelsBuilder.put(name, value);
+                labelsBuilder.Put(name, value);
                 return this;
             }
 
@@ -233,7 +233,7 @@ namespace Jib.Net.Core.Images
              * @param workingDirectory the working directory
              * @return this
              */
-            public Builder setWorkingDirectory(string workingDirectory)
+            public Builder SetWorkingDirectory(string workingDirectory)
             {
                 this.workingDirectory = workingDirectory;
                 return this;
@@ -246,9 +246,9 @@ namespace Jib.Net.Core.Images
              * @return this
              * @throws LayerPropertyNotFoundException if adding the layer fails
              */
-            public Builder addLayer(ILayer layer)
+            public Builder AddLayer(ILayer layer)
             {
-                imageLayersBuilder.add(layer);
+                imageLayersBuilder.Add(layer);
                 return this;
             }
 
@@ -258,21 +258,21 @@ namespace Jib.Net.Core.Images
              * @param history the history object to add
              * @return this
              */
-            public Builder addHistory(HistoryEntry history)
+            public Builder AddHistory(HistoryEntry history)
             {
-                historyBuilder.add(history);
+                JavaExtensions.Add(historyBuilder, history);
                 return this;
             }
 
-            public Image build()
+            public Image Build()
             {
                 return new Image(
                     imageFormat,
                     created,
                     architecture,
                     os,
-                    imageLayersBuilder.build(),
-                    historyBuilder.build(),
+                    imageLayersBuilder.Build(),
+                    historyBuilder.Build(),
                     ImmutableDictionary.CreateRange(environmentBuilder),
                     entrypoint,
                     programArguments,
@@ -285,7 +285,7 @@ namespace Jib.Net.Core.Images
             }
         }
 
-        public static Builder builder(ManifestFormat imageFormat)
+        public static Builder CreateBuilder(ManifestFormat imageFormat)
         {
             return new Builder(imageFormat);
         }
@@ -369,77 +369,77 @@ namespace Jib.Net.Core.Images
             this.user = user;
         }
 
-        public ManifestFormat getImageFormat()
+        public ManifestFormat GetImageFormat()
         {
             return imageFormat;
         }
 
-        public Instant? getCreated()
+        public Instant? GetCreated()
         {
             return created;
         }
 
-        public string getArchitecture()
+        public string GetArchitecture()
         {
             return architecture;
         }
 
-        public string getOs()
+        public string GetOs()
         {
             return os;
         }
 
-        public ImmutableDictionary<string, string> getEnvironment()
+        public ImmutableDictionary<string, string> GetEnvironment()
         {
             return environment;
         }
 
-        public ImmutableArray<string>? getEntrypoint()
+        public ImmutableArray<string>? GetEntrypoint()
         {
             return entrypoint;
         }
 
-        public ImmutableArray<string>? getProgramArguments()
+        public ImmutableArray<string>? GetProgramArguments()
         {
             return programArguments;
         }
 
-        public DockerHealthCheck getHealthCheck()
+        public DockerHealthCheck GetHealthCheck()
         {
             return healthCheck;
         }
 
-        public ImmutableHashSet<Port> getExposedPorts()
+        public ImmutableHashSet<Port> GetExposedPorts()
         {
             return exposedPorts;
         }
 
-        public ImmutableHashSet<AbsoluteUnixPath> getVolumes()
+        public ImmutableHashSet<AbsoluteUnixPath> GetVolumes()
         {
             return volumes;
         }
 
-        public ImmutableDictionary<string, string> getLabels()
+        public ImmutableDictionary<string, string> GetLabels()
         {
             return labels;
         }
 
-        public string getWorkingDirectory()
+        public string GetWorkingDirectory()
         {
             return workingDirectory;
         }
 
-        public string getUser()
+        public string GetUser()
         {
             return user;
         }
 
-        public ImmutableArray<ILayer> getLayers()
+        public ImmutableArray<ILayer> GetLayers()
         {
-            return layers.getLayers();
+            return layers.GetLayers();
         }
 
-        public ImmutableArray<HistoryEntry> getHistory()
+        public ImmutableArray<HistoryEntry> GetHistory()
         {
             return history;
         }

@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.@event.events
              *
              * @return the parent of this {@link Timer}
              */
-            Option<ITimer> getParent();
+            Option<ITimer> GetParent();
         }
 
         private readonly State state;
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.@event.events
          * @return the state of the timer
          * @see State
          */
-        public State getState()
+        public State GetState()
         {
             return state;
         }
@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the timer
          */
-        public ITimer getTimer()
+        public ITimer GetTimer()
         {
             return timer;
         }
@@ -112,7 +112,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the duration since the last {@link TimerEvent} for this timer.
          */
-        public Duration getDuration()
+        public Duration GetDuration()
         {
             return duration;
         }
@@ -122,7 +122,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the duration since this timer was created
          */
-        public Duration getElapsed()
+        public Duration GetElapsed()
         {
             return elapsed;
         }
@@ -132,7 +132,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the description
          */
-        public string getDescription()
+        public string GetDescription()
         {
             return description;
         }

@@ -39,14 +39,14 @@ namespace com.google.cloud.tools.jib.http
 
         public AuthenticationHeaderValue ToAuthenticationHeaderValue()
         {
-            return new AuthenticationHeaderValue(getScheme(), getToken());
+            return new AuthenticationHeaderValue(GetScheme(), GetToken());
         }
 
         /**
          * @param token the token
          * @return an {@link Authorization} with a {@code Bearer} token
          */
-        public static Authorization fromBearerToken(string token)
+        public static Authorization FromBearerToken(string token)
         {
             return new Authorization("Bearer", token);
         }
@@ -56,10 +56,10 @@ namespace com.google.cloud.tools.jib.http
          * @param secret the secret
          * @return an {@link Authorization} with a {@code Basic} credentials
          */
-        public static Authorization fromBasicCredentials(string username, string secret)
+        public static Authorization FromBasicCredentials(string username, string secret)
         {
             string credentials = username + ":" + secret;
-            string token = Convert.ToBase64String(credentials.getBytes(Encoding.UTF8));
+            string token = Convert.ToBase64String(credentials.GetBytes(Encoding.UTF8));
             return new Authorization("Basic", token);
         }
 
@@ -67,7 +67,7 @@ namespace com.google.cloud.tools.jib.http
          * @param token the token
          * @return an {@link Authorization} with a base64-encoded {@code username:password} string
          */
-        public static Authorization fromBasicToken(string token)
+        public static Authorization FromBasicToken(string token)
         {
             return new Authorization("Basic", token);
         }
@@ -81,12 +81,12 @@ namespace com.google.cloud.tools.jib.http
             this.token = token;
         }
 
-        public string getScheme()
+        public string GetScheme()
         {
             return scheme;
         }
 
-        public string getToken()
+        public string GetToken()
         {
             return token;
         }
@@ -113,7 +113,7 @@ namespace com.google.cloud.tools.jib.http
 
         public override int GetHashCode()
         {
-            return Objects.hash(scheme, token);
+            return Objects.Hash(scheme, token);
         }
     }
 }

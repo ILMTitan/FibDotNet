@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @param buildConfiguration the {@link BuildConfiguration}
          * @return a new {@link StepsRunner}
          */
-        public static StepsRunner begin(BuildConfiguration buildConfiguration)
+        public static StepsRunner Begin(BuildConfiguration buildConfiguration)
         {
             return new StepsRunner(buildConfiguration);
         }
@@ -86,19 +86,19 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.buildConfiguration = buildConfiguration;
         }
 
-        public StepsRunner retrieveTargetRegistryCredentials()
+        public StepsRunner RetrieveTargetRegistryCredentials()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.retrieveTargetRegistryCredentialsStep =
-                        RetrieveRegistryCredentialsStep.forTargetImage(
+                        RetrieveRegistryCredentialsStep.ForTargetImage(
                             buildConfiguration,
                             Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
-        public StepsRunner authenticatePush()
+        public StepsRunner AuthenticatePush()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.authenticatePushStep =
                         new AuthenticatePushStep(
@@ -107,9 +107,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.retrieveTargetRegistryCredentialsStep)));
         }
 
-        public StepsRunner pullBaseImage()
+        public StepsRunner PullBaseImage()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.pullBaseImageStep =
                         new PullBaseImageStep(
@@ -117,9 +117,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
-        public StepsRunner pullAndCacheBaseImageLayers()
+        public StepsRunner PullAndCacheBaseImageLayers()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.pullAndCacheBaseImageLayersStep =
                         new PullAndCacheBaseImageLayersStep(
@@ -128,9 +128,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.pullBaseImageStep)));
         }
 
-        public StepsRunner pushBaseImageLayers()
+        public StepsRunner PushBaseImageLayers()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.pushBaseImageLayersStep =
                         new PushLayersStep(
@@ -140,19 +140,19 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.pullAndCacheBaseImageLayersStep)));
         }
 
-        public StepsRunner buildAndCacheApplicationLayers()
+        public StepsRunner BuildAndCacheApplicationLayers()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.buildAndCacheApplicationLayerSteps =
-                        BuildAndCacheApplicationLayerStep.makeList(
+                        BuildAndCacheApplicationLayerStep.MakeList(
                             buildConfiguration,
                             Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
-        public StepsRunner buildImage()
+        public StepsRunner BuildImage()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.buildImageStep =
                         new BuildImageStep(
@@ -163,9 +163,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps)));
         }
 
-        public StepsRunner pushContainerConfiguration()
+        public StepsRunner PushContainerConfiguration()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.pushContainerConfigurationStep =
                         new PushContainerConfigurationStep(
@@ -175,9 +175,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
-        public StepsRunner pushApplicationLayers()
+        public StepsRunner PushApplicationLayers()
         {
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.pushApplicationLayersStep =
                         new PushLayersStep(
@@ -187,11 +187,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps)));
         }
 
-        public StepsRunner pushImage()
+        public StepsRunner PushImage()
         {
             rootProgressAllocationDescription = "building image to registry";
 
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.finalStep =
                         new PushImageStep(
@@ -204,11 +204,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
-        public StepsRunner loadDocker(DockerClient dockerClient)
+        public StepsRunner LoadDocker(DockerClient dockerClient)
         {
             rootProgressAllocationDescription = "building image to Docker daemon";
 
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.finalStep =
                         new LoadDockerStep(
@@ -220,11 +220,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
-        public StepsRunner writeTarFile(SystemPath outputPath)
+        public StepsRunner WriteTarFile(SystemPath outputPath)
         {
             rootProgressAllocationDescription = "building image to tar file";
 
-            return enqueueStep(
+            return EnqueueStep(
                 () =>
                     steps.finalStep =
                         new WriteTarFileStep(
@@ -236,28 +236,28 @@ namespace com.google.cloud.tools.jib.builder.steps
                             Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
-        public async Task<IBuildResult> runAsync()
+        public async Task<IBuildResult> RunAsync()
         {
             Preconditions.CheckNotNull(rootProgressAllocationDescription);
 
             using (ProgressEventDispatcher progressEventDispatcher =
                 ProgressEventDispatcher.NewRoot(
-                    buildConfiguration.getEventHandlers(), rootProgressAllocationDescription, stepsCount))
+                    buildConfiguration.GetEventHandlers(), rootProgressAllocationDescription, stepsCount))
             {
                 rootProgressEventDispatcher = progressEventDispatcher;
-                stepsRunnable.run();
-                return await Preconditions.CheckNotNull(steps.finalStep).getFuture().ConfigureAwait(false);
+                stepsRunnable.Run();
+                return await Preconditions.CheckNotNull(steps.finalStep).GetFuture().ConfigureAwait(false);
             }
         }
 
-        private StepsRunner enqueueStep(Runnable stepRunnable)
+        private StepsRunner EnqueueStep(Runnable stepRunnable)
         {
             Runnable previousStepsRunnable = stepsRunnable;
             stepsRunnable =
                 () =>
                 {
-                    previousStepsRunnable.run();
-                    stepRunnable.run();
+                    previousStepsRunnable.Run();
+                    stepRunnable.Run();
                 };
             stepsCount++;
             return this;

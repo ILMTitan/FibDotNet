@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.cache
             }
         }
 
-        internal void moveIfDoesNotExist(SystemPath destination)
+        internal void MoveIfDoesNotExist(SystemPath destination)
         {
             // If the file already exists, we skip renaming and use the existing file. This happens if a
             // new layer happens to have the same content as a previously-cached layer.

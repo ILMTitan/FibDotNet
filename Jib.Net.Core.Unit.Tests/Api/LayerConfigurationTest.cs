@@ -29,113 +29,113 @@ namespace com.google.cloud.tools.jib.api
 
     public class LayerConfigurationTest
     {
-        private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
+        private static LayerEntry DefaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
         {
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DefaultFilePermissionsProvider.apply(source, destination),
+                LayerConfiguration.DefaultFilePermissionsProvider.Apply(source, destination),
                 LayerConfiguration.DefaultModifiedTime);
         }
 
         [Test]
-        public void testAddEntryRecursive_defaults()
+        public void TestAddEntryRecursive_defaults()
         {
-            SystemPath testDirectory = TestResources.getResource("core/layer");
-            SystemPath testFile = TestResources.getResource("core/fileA");
+            SystemPath testDirectory = TestResources.GetResource("core/layer");
+            SystemPath testFile = TestResources.GetResource("core/fileA");
 
             ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
-                    .addEntryRecursive(testDirectory, AbsoluteUnixPath.get("/app/layer/"))
-                    .addEntryRecursive(testFile, AbsoluteUnixPath.get("/app/fileA"))
-                    .build();
+                    .AddEntryRecursive(testDirectory, AbsoluteUnixPath.Get("/app/layer/"))
+                    .AddEntryRecursive(testFile, AbsoluteUnixPath.Get("/app/fileA"))
+                    .Build();
 
             ImmutableHashSet<LayerEntry> expectedLayerEntries =
                 ImmutableHashSet.Create(
-                    defaultLayerEntry(testDirectory, AbsoluteUnixPath.get("/app/layer/")),
-                    defaultLayerEntry(testDirectory.Resolve("a"), AbsoluteUnixPath.get("/app/layer/a/")),
-                    defaultLayerEntry(
-                        testDirectory.Resolve("a/b"), AbsoluteUnixPath.get("/app/layer/a/b/")),
-                    defaultLayerEntry(
-                        testDirectory.Resolve("a/b/bar"), AbsoluteUnixPath.get("/app/layer/a/b/bar/")),
-                    defaultLayerEntry(testDirectory.Resolve("c/"), AbsoluteUnixPath.get("/app/layer/c")),
-                    defaultLayerEntry(
-                        testDirectory.Resolve("c/cat/"), AbsoluteUnixPath.get("/app/layer/c/cat")),
-                    defaultLayerEntry(testDirectory.Resolve("foo"), AbsoluteUnixPath.get("/app/layer/foo")),
-                    defaultLayerEntry(testFile, AbsoluteUnixPath.get("/app/fileA")));
+                    DefaultLayerEntry(testDirectory, AbsoluteUnixPath.Get("/app/layer/")),
+                    DefaultLayerEntry(testDirectory.Resolve("a"), AbsoluteUnixPath.Get("/app/layer/a/")),
+                    DefaultLayerEntry(
+                        testDirectory.Resolve("a/b"), AbsoluteUnixPath.Get("/app/layer/a/b/")),
+                    DefaultLayerEntry(
+                        testDirectory.Resolve("a/b/bar"), AbsoluteUnixPath.Get("/app/layer/a/b/bar/")),
+                    DefaultLayerEntry(testDirectory.Resolve("c/"), AbsoluteUnixPath.Get("/app/layer/c")),
+                    DefaultLayerEntry(
+                        testDirectory.Resolve("c/cat/"), AbsoluteUnixPath.Get("/app/layer/c/cat")),
+                    DefaultLayerEntry(testDirectory.Resolve("foo"), AbsoluteUnixPath.Get("/app/layer/foo")),
+                    DefaultLayerEntry(testFile, AbsoluteUnixPath.Get("/app/fileA")));
 
             CollectionAssert.AreEquivalent(
-                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.getLayerEntries()));
+                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.GetLayerEntries()));
         }
 
         [Test]
-        public void testAddEntryRecursive_permissionsAndTimestamps()
+        public void TestAddEntryRecursive_permissionsAndTimestamps()
         {
-            SystemPath testDirectory = TestResources.getResource("core/layer");
-            SystemPath testFile = TestResources.getResource("core/fileA");
+            SystemPath testDirectory = TestResources.GetResource("core/layer");
+            SystemPath testFile = TestResources.GetResource("core/fileA");
 
-            FilePermissions permissions1 = FilePermissions.fromOctalString("111");
-            FilePermissions permissions2 = FilePermissions.fromOctalString("777");
+            FilePermissions permissions1 = FilePermissions.FromOctalString("111");
+            FilePermissions permissions2 = FilePermissions.FromOctalString("777");
             Instant timestamp1 = Instant.FromUnixTimeSeconds(123);
             Instant timestamp2 = Instant.FromUnixTimeSeconds(987);
 
             FilePermissions permissionsProvider(SystemPath _, AbsoluteUnixPath destination) =>
-                    destination.toString().startsWith("/app/layer/a") ? permissions1 : permissions2;
+                    JavaExtensions.StartsWith(destination.ToString(), "/app/layer/a") ? permissions1 : permissions2;
             Instant timestampProvider(SystemPath _, AbsoluteUnixPath destination) =>
-                    destination.toString().startsWith("/app/layer/a") ? timestamp1 : timestamp2;
+                    JavaExtensions.StartsWith(destination.ToString(), "/app/layer/a") ? timestamp1 : timestamp2;
 
             ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
-                    .addEntryRecursive(
+                    .AddEntryRecursive(
                         testDirectory,
-                        AbsoluteUnixPath.get("/app/layer/"),
+                        AbsoluteUnixPath.Get("/app/layer/"),
                         permissionsProvider,
                         timestampProvider)
-                    .addEntryRecursive(
+                    .AddEntryRecursive(
                         testFile,
-                        AbsoluteUnixPath.get("/app/fileA"),
+                        AbsoluteUnixPath.Get("/app/fileA"),
                         permissionsProvider,
                         timestampProvider)
-                    .build();
+                    .Build();
 
             ImmutableHashSet<LayerEntry> expectedLayerEntries =
                 ImmutableHashSet.Create(
                     new LayerEntry(
-                        testDirectory, AbsoluteUnixPath.get("/app/layer/"), permissions2, timestamp2),
+                        testDirectory, AbsoluteUnixPath.Get("/app/layer/"), permissions2, timestamp2),
                     new LayerEntry(
                         testDirectory.Resolve("a"),
-                        AbsoluteUnixPath.get("/app/layer/a/"),
+                        AbsoluteUnixPath.Get("/app/layer/a/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
                         testDirectory.Resolve("a/b"),
-                        AbsoluteUnixPath.get("/app/layer/a/b/"),
+                        AbsoluteUnixPath.Get("/app/layer/a/b/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
                         testDirectory.Resolve("a/b/bar"),
-                        AbsoluteUnixPath.get("/app/layer/a/b/bar/"),
+                        AbsoluteUnixPath.Get("/app/layer/a/b/bar/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
                         testDirectory.Resolve("c/"),
-                        AbsoluteUnixPath.get("/app/layer/c"),
+                        AbsoluteUnixPath.Get("/app/layer/c"),
                         permissions2,
                         timestamp2),
                     new LayerEntry(
                         testDirectory.Resolve("c/cat/"),
-                        AbsoluteUnixPath.get("/app/layer/c/cat"),
+                        AbsoluteUnixPath.Get("/app/layer/c/cat"),
                         permissions2,
                         timestamp2),
                     new LayerEntry(
                         testDirectory.Resolve("foo"),
-                        AbsoluteUnixPath.get("/app/layer/foo"),
+                        AbsoluteUnixPath.Get("/app/layer/foo"),
                         permissions2,
                         timestamp2),
-                    new LayerEntry(testFile, AbsoluteUnixPath.get("/app/fileA"), permissions2, timestamp2));
+                    new LayerEntry(testFile, AbsoluteUnixPath.Get("/app/fileA"), permissions2, timestamp2));
 
             CollectionAssert.AreEquivalent(
-                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.getLayerEntries()));
+                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.GetLayerEntries()));
         }
     }
 }

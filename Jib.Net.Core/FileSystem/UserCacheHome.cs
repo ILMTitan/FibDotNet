@@ -50,35 +50,35 @@ namespace com.google.cloud.tools.jib.filesystem
          * <p>For macOS, this is {@code $HOME/Library/Application Support/}.
          */
 
-        public static SystemPath getCacheHome(IEnvironment environment)
+        public static SystemPath GetCacheHome(IEnvironment environment)
         {
             environment = environment ?? throw new ArgumentNullException(nameof(environment));
             // Use environment variable $XDG_CACHE_HOME if set and not empty.
             string xdgCacheHome = environment.GetEnvironmentVariable("XDG_CACHE_HOME");
             if (!string.IsNullOrWhiteSpace(xdgCacheHome))
             {
-                return Paths.get(xdgCacheHome);
+                return Paths.Get(xdgCacheHome);
             }
 
             // Next, try using localAppData.
             string localAppData = environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (!string.IsNullOrWhiteSpace(localAppData))
             {
-                return Paths.get(localAppData);
+                return Paths.Get(localAppData);
             }
             string userHome = environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             if (environment.IsOSPlatform(OSPlatform.OSX))
             {
                 // Use '~/Library/Application Support/' for macOS.
-                SystemPath applicationSupport = Paths.get(userHome, "Library", "Application Support");
-                if (Files.exists(applicationSupport))
+                SystemPath applicationSupport = Paths.Get(userHome, "Library", "Application Support");
+                if (Files.Exists(applicationSupport))
                 {
                     return applicationSupport;
                 }
             }
             if (!string.IsNullOrWhiteSpace(userHome))
             {
-                return Paths.get(userHome, ".cache");
+                return Paths.Get(userHome, ".cache");
             }
 
             throw new InvalidOperationException("Unknown OS: " + RuntimeInformation.OSDescription);

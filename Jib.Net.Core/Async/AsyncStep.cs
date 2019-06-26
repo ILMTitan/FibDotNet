@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.async
         /** @return the submitted future */
         // TODO: Consider changing this to be orchestrated by an AsyncStepsBuilder.
 #pragma warning disable VSTHRD200 // Use "Async" suffix for async methods
-        Task<T> getFuture();
+        Task<T> GetFuture();
 #pragma warning restore VSTHRD200 // Use "Async" suffix for async methods
     }
 }

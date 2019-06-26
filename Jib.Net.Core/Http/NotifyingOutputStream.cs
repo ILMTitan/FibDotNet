@@ -68,11 +68,11 @@ namespace com.google.cloud.tools.jib.http
                 {
                     underlyingOutputStream.Dispose();
                 }
-                countAndCallListener(0);
+                CountAndCallListener(0);
             }
         }
 
-        private void countAndCallListener(int written)
+        private void CountAndCallListener(int written)
         {
             this.byteCount += written;
             if (byteCount == 0)
@@ -87,13 +87,13 @@ namespace com.google.cloud.tools.jib.http
         public override void Flush()
         {
             underlyingOutputStream.Flush();
-            countAndCallListener(0);
+            CountAndCallListener(0);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
             int bytesRead = underlyingOutputStream.Read(buffer, offset, count);
-            countAndCallListener(bytesRead);
+            CountAndCallListener(bytesRead);
             return bytesRead;
         }
 
@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.http
         public override void Write(byte[] buffer, int offset, int count)
         {
             underlyingOutputStream.Write(buffer, offset, count);
-            countAndCallListener(count);
+            CountAndCallListener(count);
         }
     }
 }

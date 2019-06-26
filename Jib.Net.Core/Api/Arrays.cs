@@ -22,7 +22,7 @@ namespace Jib.Net.Core.Global
 {
     public static class Arrays
     {
-        public static List<T> asList<T>(params T[] items)
+        public static List<T> AsList<T>(params T[] items)
         {
             return items.ToList();
         }

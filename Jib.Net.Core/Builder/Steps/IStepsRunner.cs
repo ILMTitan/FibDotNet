@@ -6,18 +6,18 @@ namespace com.google.cloud.tools.jib.builder.steps
 {
     public interface IStepsRunner
     {
-        StepsRunner authenticatePush();
-        StepsRunner buildAndCacheApplicationLayers();
-        StepsRunner buildImage();
-        StepsRunner loadDocker(DockerClient dockerClient);
-        StepsRunner pullAndCacheBaseImageLayers();
-        StepsRunner pullBaseImage();
-        StepsRunner pushApplicationLayers();
-        StepsRunner pushBaseImageLayers();
-        StepsRunner pushContainerConfiguration();
-        StepsRunner pushImage();
-        StepsRunner retrieveTargetRegistryCredentials();
-        Task<IBuildResult> runAsync();
-        StepsRunner writeTarFile(SystemPath outputPath);
+        StepsRunner AuthenticatePush();
+        StepsRunner BuildAndCacheApplicationLayers();
+        StepsRunner BuildImage();
+        StepsRunner LoadDocker(DockerClient dockerClient);
+        StepsRunner PullAndCacheBaseImageLayers();
+        StepsRunner PullBaseImage();
+        StepsRunner PushApplicationLayers();
+        StepsRunner PushBaseImageLayers();
+        StepsRunner PushContainerConfiguration();
+        StepsRunner PushImage();
+        StepsRunner RetrieveTargetRegistryCredentials();
+        Task<IBuildResult> RunAsync();
+        StepsRunner WriteTarFile(SystemPath outputPath);
     }
 }

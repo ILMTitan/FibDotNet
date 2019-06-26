@@ -38,7 +38,7 @@ namespace Jib.Net.Core.Blob
 
         public long Size { get; }
 
-        public async Task<BlobDescriptor> writeToAsync(Stream outputStream)
+        public async Task<BlobDescriptor> WriteToAsync(Stream outputStream)
         {
             // Cannot rewrite.
             if (isWritten)
@@ -49,7 +49,7 @@ namespace Jib.Net.Core.Blob
             {
                 using (Stream inputStream = this.inputStream)
                 {
-                    return await Digests.computeDigestAsync(inputStream, outputStream).ConfigureAwait(false);
+                    return await Digests.ComputeDigestAsync(inputStream, outputStream).ConfigureAwait(false);
                 }
             }
             finally

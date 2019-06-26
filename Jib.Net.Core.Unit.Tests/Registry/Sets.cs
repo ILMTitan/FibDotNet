@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.registry
 {
     internal static class Sets
     {
-        internal static ISet<T> newHashSet<T>(params T[] v)
+        internal static ISet<T> NewHashSet<T>(params T[] v)
         {
             return v.ToHashSet();
         }

@@ -2,14 +2,14 @@
 {
     public interface IImageReference
     {
-        string getRegistry();
-        string getRepository();
-        string getTag();
-        bool isScratch();
-        bool isTagDigest();
+        string GetRegistry();
+        string GetRepository();
+        string GetTag();
+        bool IsScratch();
+        bool IsTagDigest();
         string ToString();
-        string toStringWithTag();
-        bool usesDefaultTag();
-        ImageReference withTag(string newTag);
+        string ToStringWithTag();
+        bool UsesDefaultTag();
+        ImageReference WithTag(string newTag);
     }
 }

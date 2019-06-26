@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.api
          *     with this provider
          * @throws CredentialRetrievalException if the credential retrieval encountered an exception
          */
-        public static Option<Credential> retrieve(this CredentialRetriever c)
+        public static Option<Credential> Retrieve(this CredentialRetriever c)
         {
             c = c ?? throw new ArgumentNullException(nameof(c));
             return c();

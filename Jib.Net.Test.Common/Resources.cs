@@ -23,9 +23,9 @@ namespace Jib.Net.Test.Common
 {
     public static class TestResources
     {
-        public static SystemPath getResource(string resourcePath)
+        public static SystemPath GetResource(string resourcePath)
         {
-            return Paths.get(TestContext.CurrentContext.TestDirectory, "Resources", resourcePath);
+            return Paths.Get(TestContext.CurrentContext.TestDirectory, "Resources", resourcePath);
         }
     }
 }

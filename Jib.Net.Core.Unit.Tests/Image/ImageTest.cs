@@ -34,64 +34,64 @@ namespace com.google.cloud.tools.jib.image
     public class ImageTest
     {
         private readonly ILayer mockLayer = Mock.Of<ILayer>();
-        private readonly DescriptorDigest mockDescriptorDigest = DescriptorDigest.fromHash(new string('a', 64));
+        private readonly DescriptorDigest mockDescriptorDigest = DescriptorDigest.FromHash(new string('a', 64));
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
-            Mock.Get(mockLayer).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(mockDescriptorDigest));
+            Mock.Get(mockLayer).Setup(m => m.GetBlobDescriptor()).Returns(new BlobDescriptor(mockDescriptorDigest));
         }
 
         [Test]
-        public void test_smokeTest()
+        public void Test_smokeTest()
         {
             Image image =
-                Image.builder(ManifestFormat.V22)
-                    .setCreated(Instant.FromUnixTimeSeconds(10000))
-                    .addEnvironmentVariable("crepecake", "is great")
-                    .addEnvironmentVariable("VARIABLE", "VALUE")
-                    .setEntrypoint(Arrays.asList("some", "command"))
-                    .setProgramArguments(Arrays.asList("arg1", "arg2"))
-                    .addExposedPorts(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000)))
-                    .addVolumes(
+                Image.CreateBuilder(ManifestFormat.V22)
+                    .SetCreated(Instant.FromUnixTimeSeconds(10000))
+                    .AddEnvironmentVariable("crepecake", "is great")
+                    .AddEnvironmentVariable("VARIABLE", "VALUE")
+                    .SetEntrypoint(Arrays.AsList("some", "command"))
+                    .SetProgramArguments(Arrays.AsList("arg1", "arg2"))
+                    .AddExposedPorts(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)))
+                    .AddVolumes(
                         ImmutableHashSet.Create(
-                            AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")))
-                    .setUser("john")
-                    .addLayer(mockLayer)
-                    .build();
+                            AbsoluteUnixPath.Get("/a/path"), AbsoluteUnixPath.Get("/another/path")))
+                    .SetUser("john")
+                    .AddLayer(mockLayer)
+                    .Build();
 
-            Assert.AreEqual(ManifestFormat.V22, image.getImageFormat());
+            Assert.AreEqual(ManifestFormat.V22, image.GetImageFormat());
             Assert.AreEqual(
-                mockDescriptorDigest, image.getLayers().get(0).getBlobDescriptor().getDigest());
-            Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.getCreated());
+                mockDescriptorDigest, image.GetLayers().Get(0).GetBlobDescriptor().GetDigest());
+            Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.GetCreated());
             Assert.AreEqual(
-                ImmutableDic.of("crepecake", "is great", "VARIABLE", "VALUE"), image.getEnvironment());
-            Assert.AreEqual(Arrays.asList("some", "command"), image.getEntrypoint());
-            Assert.AreEqual(Arrays.asList("arg1", "arg2"), image.getProgramArguments());
-            Assert.AreEqual(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000)), image.getExposedPorts());
+                ImmutableDic.Of("crepecake", "is great", "VARIABLE", "VALUE"), image.GetEnvironment());
+            Assert.AreEqual(Arrays.AsList("some", "command"), image.GetEntrypoint());
+            Assert.AreEqual(Arrays.AsList("arg1", "arg2"), image.GetProgramArguments());
+            Assert.AreEqual(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)), image.GetExposedPorts());
             Assert.AreEqual(
-                ImmutableHashSet.Create(AbsoluteUnixPath.get("/a/path"), AbsoluteUnixPath.get("/another/path")),
-                image.getVolumes());
-            Assert.AreEqual("john", image.getUser());
+                ImmutableHashSet.Create(AbsoluteUnixPath.Get("/a/path"), AbsoluteUnixPath.Get("/another/path")),
+                image.GetVolumes());
+            Assert.AreEqual("john", image.GetUser());
         }
 
         [Test]
-        public void testDefaults()
+        public void TestDefaults()
         {
-            Image image = Image.builder(ManifestFormat.V22).build();
-            Assert.AreEqual("amd64", image.getArchitecture());
-            Assert.AreEqual("linux", image.getOs());
-            Assert.AreEqual(new List<ILayer>(), image.getLayers());
-            Assert.AreEqual(new List<HistoryEntry>(), image.getHistory());
+            Image image = Image.CreateBuilder(ManifestFormat.V22).Build();
+            Assert.AreEqual("amd64", image.GetArchitecture());
+            Assert.AreEqual("linux", image.GetOs());
+            Assert.AreEqual(new List<ILayer>(), image.GetLayers());
+            Assert.AreEqual(new List<HistoryEntry>(), image.GetHistory());
         }
 
         [Test]
-        public void testOsArch()
+        public void TestOsArch()
         {
             Image image =
-                Image.builder(ManifestFormat.V22).setArchitecture("wasm").setOs("js").build();
-            Assert.AreEqual("wasm", image.getArchitecture());
-            Assert.AreEqual("js", image.getOs());
+                Image.CreateBuilder(ManifestFormat.V22).SetArchitecture("wasm").SetOs("js").Build();
+            Assert.AreEqual("wasm", image.GetArchitecture());
+            Assert.AreEqual("js", image.GetOs());
         }
     }
 }

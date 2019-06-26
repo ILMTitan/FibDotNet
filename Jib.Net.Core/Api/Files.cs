@@ -26,12 +26,12 @@ namespace Jib.Net.Core.Api
 {
     public static class Files
     {
-        internal static SystemPath createTempDirectory(SystemPath basePath, string name)
+        internal static SystemPath CreateTempDirectory(SystemPath basePath, string name)
         {
-            return createTempDirectory(basePath.ToString(), name);
+            return CreateTempDirectory(basePath.ToString(), name);
         }
 
-        internal static SystemPath createTempDirectory(string basePath, string name)
+        internal static SystemPath CreateTempDirectory(string basePath, string name)
         {
             string newPath;
             if (string.IsNullOrWhiteSpace(name))
@@ -46,28 +46,28 @@ namespace Jib.Net.Core.Api
             return new SystemPath(newPath);
         }
 
-        internal static SystemPath createTempDirectory(string p)
+        internal static SystemPath CreateTempDirectory(string p)
         {
-            return createTempDirectory(Path.GetTempPath(), p);
+            return CreateTempDirectory(Path.GetTempPath(), p);
         }
 
-        internal static bool isDirectory(SystemPath sourceFile)
+        internal static bool IsDirectory(SystemPath sourceFile)
         {
             return Directory.Exists(sourceFile.ToString());
         }
 
-        public static void copy(SystemPath source, SystemPath destination)
+        public static void Copy(SystemPath source, SystemPath destination)
         {
                 File.Copy(source, destination);
         }
 
-        public static SystemPath createDirectories(SystemPath directory)
+        public static SystemPath CreateDirectories(SystemPath directory)
         {
             directory = directory ?? throw new ArgumentNullException(directory);
             return new SystemPath(Directory.CreateDirectory(directory.ToString()));
         }
 
-        public static IEnumerable<SystemPath> list(SystemPath sourceFile)
+        public static IEnumerable<SystemPath> List(SystemPath sourceFile)
         {
             sourceFile = sourceFile ?? throw new ArgumentNullException(nameof(sourceFile));
             foreach (var entry in sourceFile.ToDirectory().EnumerateFileSystemInfos())
@@ -76,12 +76,12 @@ namespace Jib.Net.Core.Api
             }
         }
 
-        internal static Instant getLastModifiedTime(SystemPath systemPath)
+        internal static Instant GetLastModifiedTime(SystemPath systemPath)
         {
             return Instant.FromDateTimeUtc(File.GetLastWriteTimeUtc(systemPath.ToString()));
         }
 
-        internal static IEnumerable<SystemPath> walk(SystemPath rootDir)
+        internal static IEnumerable<SystemPath> Walk(SystemPath rootDir)
         {
             Stack<SystemPath> pathStack = new Stack<SystemPath>();
             pathStack.Push(rootDir);
@@ -99,37 +99,37 @@ namespace Jib.Net.Core.Api
             }
         }
 
-        internal static byte[] readAllBytes(SystemPath file)
+        internal static byte[] ReadAllBytes(SystemPath file)
         {
             return File.ReadAllBytes(file.ToString());
         }
 
-        public static bool exists(SystemPath path)
+        public static bool Exists(SystemPath path)
         {
             return File.Exists(path?.ToString()) || Directory.Exists(path?.ToString());
         }
 
-        internal static Stream newInputStream(SystemPath file)
+        internal static Stream NewInputStream(SystemPath file)
         {
             return File.OpenRead(file.ToString());
         }
 
-        internal static void move(SystemPath source, SystemPath destination)
+        internal static void Move(SystemPath source, SystemPath destination)
         {
             Directory.Move(source, destination);
         }
 
-        internal static TemporaryFile createTempFile(SystemPath systemPath)
+        internal static TemporaryFile CreateTempFile(SystemPath systemPath)
         {
             return new TemporaryFile(systemPath.Resolve(Path.GetRandomFileName()));
         }
 
-        public static Stream newOutputStream(SystemPath path)
+        public static Stream NewOutputStream(SystemPath path)
         {
             return File.OpenWrite(path);
         }
 
-        internal static void move(SystemPath source, SystemPath destination, StandardCopyOption copyOption)
+        internal static void Move(SystemPath source, SystemPath destination, StandardCopyOption copyOption)
         {
             try
             {
@@ -153,41 +153,41 @@ namespace Jib.Net.Core.Api
             }
         }
 
-        public static SystemPath createDirectory(SystemPath path)
+        public static SystemPath CreateDirectory(SystemPath path)
         {
             return new SystemPath(Directory.CreateDirectory(path));
         }
 
-        internal static void deleteIfExists(SystemPath file)
+        internal static void DeleteIfExists(SystemPath file)
         {
             File.Delete(file);
         }
 
-        internal static TemporaryFile createTempFile()
+        internal static TemporaryFile CreateTempFile()
         {
             TemporaryFile temporaryFile = new TemporaryFile();
             File.Create(temporaryFile.Path).Dispose();
             return temporaryFile;
         }
 
-        internal static long size(SystemPath path)
+        internal static long Size(SystemPath path)
         {
             return new FileInfo(path).Length;
         }
 
-        public static SystemPath createFile(SystemPath path)
+        public static SystemPath CreateFile(SystemPath path)
         {
             File.Create(path).Dispose();
             return path;
         }
 
-        public static SystemPath write(SystemPath path, byte[] bytes)
+        public static SystemPath Write(SystemPath path, byte[] bytes)
         {
             File.WriteAllBytes(path, bytes);
             return path;
         }
 
-        public static void setLastModifiedTime(SystemPath path, DateTime newWriteTime)
+        public static void SetLastModifiedTime(SystemPath path, DateTime newWriteTime)
         {
             new FileInfo(path).LastWriteTimeUtc = newWriteTime;
         }

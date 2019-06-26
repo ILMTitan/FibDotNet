@@ -54,44 +54,44 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.blobDescriptor = blobDescriptor;
             this.blob = blob;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<BlobDescriptor> getFuture()
+        public Task<BlobDescriptor> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BlobDescriptor> callAsync()
+        public async Task<BlobDescriptor> CallAsync()
         {
-            Authorization authorization = await authenticatePushStep.getFuture().ConfigureAwait(false);
+            Authorization authorization = await authenticatePushStep.GetFuture().ConfigureAwait(false);
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDipatcherFactory.Create(
-                        "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
+                        "pushing blob " + blobDescriptor.GetDigest(), blobDescriptor.GetSize()))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
-                        buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor))
+                        buildConfiguration.GetEventHandlers(), DESCRIPTION + blobDescriptor))
             using (
     ThrottledAccumulatingConsumer throttledProgressReporter =
         new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress))
             {
                 RegistryClient registryClient =
                     buildConfiguration
-                        .newTargetImageRegistryClientFactory()
-                        .setAuthorization(authorization)
-                        .newRegistryClient();
+                        .NewTargetImageRegistryClientFactory()
+                        .SetAuthorization(authorization)
+                        .NewRegistryClient();
 
                 // check if the BLOB is available
-                if (await registryClient.checkBlobAsync(blobDescriptor).ConfigureAwait(false))
+                if (await registryClient.CheckBlobAsync(blobDescriptor).ConfigureAwait(false))
                 {
                     buildConfiguration
-                        .getEventHandlers()
-                        .Dispatch(LogEvent.info("BLOB : " + blobDescriptor + " already exists on registry"));
+                        .GetEventHandlers()
+                        .Dispatch(LogEvent.Info("BLOB : " + blobDescriptor + " already exists on registry"));
                     return blobDescriptor;
                 }
 
                 // todo: leverage cross-repository mounts
-                await registryClient.pushBlobAsync(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.Accept).ConfigureAwait(false);
+                await registryClient.PushBlobAsync(blobDescriptor.GetDigest(), blob, null, throttledProgressReporter.Accept).ConfigureAwait(false);
 
                 return blobDescriptor;
             }

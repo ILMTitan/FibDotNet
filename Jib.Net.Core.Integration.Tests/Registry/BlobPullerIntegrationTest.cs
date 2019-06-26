@@ -26,6 +26,7 @@ using Jib.Net.Core.Global;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry
@@ -34,65 +35,65 @@ namespace com.google.cloud.tools.jib.registry
     public class BlobPullerIntegrationTest : HttpRegistryTest
     {
         [Test]
-        public async Task testPullAsync()
+        public async Task TestPullAsync()
         {
             // Pulls the busybox image.
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
             V21ManifestTemplate manifestTemplate =
-                await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
+                await registryClient.PullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
-            DescriptorDigest realDigest = manifestTemplate.GetLayerDigests().get(0);
+            DescriptorDigest realDigest = manifestTemplate.GetLayerDigests().First();
 
             // Pulls a layer BLOB of the busybox image.
             LongAdder totalByteCount = new LongAdder();
             LongAdder expectedSize = new LongAdder();
             IBlob pulledBlob =
-                registryClient.pullBlob(
+                registryClient.PullBlob(
                     realDigest,
                     size =>
                     {
-                        Assert.AreEqual(0, expectedSize.sum());
-                        expectedSize.add(size);
+                        Assert.AreEqual(0, expectedSize.Sum());
+                        expectedSize.Add(size);
                     },
-                    totalByteCount.add);
-            BlobDescriptor blobDescriptor = await pulledBlob.writeToAsync(Stream.Null).ConfigureAwait(false);
-            Assert.AreEqual(realDigest, blobDescriptor.getDigest());
-            Assert.IsTrue(expectedSize.sum() > 0);
-            Assert.AreEqual(expectedSize.sum(), totalByteCount.sum());
+                    totalByteCount.Add);
+            BlobDescriptor blobDescriptor = await pulledBlob.WriteToAsync(Stream.Null).ConfigureAwait(false);
+            Assert.AreEqual(realDigest, blobDescriptor.GetDigest());
+            Assert.IsTrue(expectedSize.Sum() > 0);
+            Assert.AreEqual(expectedSize.Sum(), totalByteCount.Sum());
         }
 
         [Test]
-        public async Task testPull_unknownBlobAsync()
+        public async Task TestPull_unknownBlobAsync()
         {
-            localRegistry.pullAndPushToLocal("busybox", "busybox");
+            localRegistry.PullAndPushToLocal("busybox", "busybox");
             DescriptorDigest nonexistentDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
             RegistryClient registryClient =
-                RegistryClient.factory(EventHandlers.NONE, "localhost:5000", "busybox")
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient();
+                RegistryClient.CreateFactory(EventHandlers.NONE, "localhost:5000", "busybox")
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient();
 
             try
             {
                 await registryClient
-                    .pullBlob(nonexistentDigest, _ => { }, _ => { })
-                    .writeToAsync(Stream.Null).ConfigureAwait(false);
+                    .PullBlob(nonexistentDigest, _ => { }, _ => { })
+                    .WriteToAsync(Stream.Null).ConfigureAwait(false);
                 Assert.Fail("Trying to pull nonexistent blob should have errored");
             }
             catch (IOException ex)
             {
-                if (!(ex.getCause() is RegistryErrorException))
+                if (!(ex.GetCause() is RegistryErrorException))
                 {
                     throw;
                 }
                 StringAssert.Contains(
-                    ex.getMessage(),
+                    ex.GetMessage(),
                         "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest);
             }
         }

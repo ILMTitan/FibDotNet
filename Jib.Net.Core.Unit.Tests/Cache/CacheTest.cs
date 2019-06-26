@@ -42,14 +42,14 @@ namespace com.google.cloud.tools.jib.cache
          * @param blob the {@link Blob} to compress
          * @return the compressed {@link Blob}
          */
-        private static IBlob compress(IBlob blob)
+        private static IBlob Compress(IBlob blob)
         {
-            return Blobs.from(
+            return Blobs.From(
                 async outputStream =>
                 {
                     using (GZipStream compressorStream = new GZipStream(outputStream, CompressionMode.Compress, true))
                     {
-                        await blob.writeToAsync(compressorStream).ConfigureAwait(false);
+                        await blob.WriteToAsync(compressorStream).ConfigureAwait(false);
                     }
                 }, -1);
         }
@@ -61,9 +61,9 @@ namespace com.google.cloud.tools.jib.cache
          * @return the decompressed {@link Blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<IBlob> decompressAsync(IBlob blob)
+        private static async Task<IBlob> DecompressAsync(IBlob blob)
         {
-            return Blobs.from(new GZipStream(new MemoryStream(await Blobs.writeToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
+            return Blobs.From(new GZipStream(new MemoryStream(await Blobs.WriteToByteArrayAsync(blob).ConfigureAwait(false)), CompressionMode.Decompress), -1);
         }
 
         /**
@@ -73,10 +73,10 @@ namespace com.google.cloud.tools.jib.cache
          * @return the {@link DescriptorDigest} of {@code blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<DescriptorDigest> digestOfAsync(IBlob blob)
+        private static async Task<DescriptorDigest> DigestOfAsync(IBlob blob)
         {
-            BlobDescriptor descriptor = await blob.writeToAsync(Stream.Null).ConfigureAwait(false);
-            return descriptor.getDigest();
+            BlobDescriptor descriptor = await blob.WriteToAsync(Stream.Null).ConfigureAwait(false);
+            return descriptor.GetDigest();
         }
 
         /**
@@ -86,15 +86,15 @@ namespace com.google.cloud.tools.jib.cache
          * @return the size (in bytes) of {@code blob}
          * @throws IOException if an I/O exception occurs
          */
-        private static async Task<long> sizeOfAsync(IBlob blob)
+        private static async Task<long> SizeOfAsync(IBlob blob)
         {
             CountingDigestOutputStream countingOutputStream =
                 new CountingDigestOutputStream(Stream.Null);
-            await blob.writeToAsync(countingOutputStream).ConfigureAwait(false);
-            return countingOutputStream.getCount();
+            await blob.WriteToAsync(countingOutputStream).ConfigureAwait(false);
+            return countingOutputStream.GetCount();
         }
 
-        private static LayerEntry defaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
+        private static LayerEntry DefaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
         {
             return new LayerEntry(
                 source,
@@ -118,30 +118,30 @@ namespace com.google.cloud.tools.jib.cache
         private ImmutableArray<LayerEntry> layerEntries2;
 
         [SetUp]
-        public async Task setUpAsync()
+        public async Task SetUpAsync()
         {
-            SystemPath directory = temporaryFolder.newFolder().toPath();
-            Files.createDirectory(directory.Resolve("source"));
-            Files.createFile(directory.Resolve("source/file"));
-            Files.createDirectories(directory.Resolve("another/source"));
-            Files.createFile(directory.Resolve("another/source/file"));
+            SystemPath directory = temporaryFolder.NewFolder().ToPath();
+            Files.CreateDirectory(directory.Resolve("source"));
+            Files.CreateFile(directory.Resolve("source/file"));
+            Files.CreateDirectories(directory.Resolve("another/source"));
+            Files.CreateFile(directory.Resolve("another/source/file"));
 
-            layerBlob1 = Blobs.from("layerBlob1");
-            layerDigest1 = await digestOfAsync(compress(layerBlob1)).ConfigureAwait(false);
-            layerDiffId1 = await digestOfAsync(layerBlob1).ConfigureAwait(false);
-            layerSize1 = await sizeOfAsync(compress(layerBlob1)).ConfigureAwait(false);
+            layerBlob1 = Blobs.From("layerBlob1");
+            layerDigest1 = await DigestOfAsync(Compress(layerBlob1)).ConfigureAwait(false);
+            layerDiffId1 = await DigestOfAsync(layerBlob1).ConfigureAwait(false);
+            layerSize1 = await SizeOfAsync(Compress(layerBlob1)).ConfigureAwait(false);
             layerEntries1 =
                 ImmutableArray.Create(
-                    defaultLayerEntry(
-                        directory.Resolve("source/file"), AbsoluteUnixPath.get("/extraction/path")),
-                    defaultLayerEntry(
+                    DefaultLayerEntry(
+                        directory.Resolve("source/file"), AbsoluteUnixPath.Get("/extraction/path")),
+                    DefaultLayerEntry(
                         directory.Resolve("another/source/file"),
-                        AbsoluteUnixPath.get("/another/extraction/path")));
+                        AbsoluteUnixPath.Get("/another/extraction/path")));
 
-            layerBlob2 = Blobs.from("layerBlob2");
-            layerDigest2 = await digestOfAsync(compress(layerBlob2)).ConfigureAwait(false);
-            layerDiffId2 = await digestOfAsync(layerBlob2).ConfigureAwait(false);
-            layerSize2 = await sizeOfAsync(compress(layerBlob2)).ConfigureAwait(false);
+            layerBlob2 = Blobs.From("layerBlob2");
+            layerDigest2 = await DigestOfAsync(Compress(layerBlob2)).ConfigureAwait(false);
+            layerDiffId2 = await DigestOfAsync(layerBlob2).ConfigureAwait(false);
+            layerSize2 = await SizeOfAsync(Compress(layerBlob2)).ConfigureAwait(false);
             layerEntries2 = ImmutableArray.Create<LayerEntry>();
         }
 
@@ -151,13 +151,13 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public void testWithDirectory_existsButNotDirectory()
+        public void TestWithDirectory_existsButNotDirectory()
         {
-            SystemPath file = temporaryFolder.newFile().toPath();
+            SystemPath file = temporaryFolder.NewFile().ToPath();
 
             try
             {
-                Cache.withDirectory(file);
+                Cache.WithDirectory(file);
                 Assert.Fail();
             }
             catch (IOException)
@@ -167,55 +167,55 @@ namespace com.google.cloud.tools.jib.cache
         }
 
         [Test]
-        public async Task testWriteCompressed_retrieveByLayerDigestAsync()
+        public async Task TestWriteCompressed_retrieveByLayerDigestAsync()
         {
-            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
+            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
-            await verifyIsLayer1Async(await cache.writeCompressedLayerAsync(compress(layerBlob1)).ConfigureAwait(false)).ConfigureAwait(false);
-            await verifyIsLayer1Async(cache.retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Assert.IsFalse(cache.retrieve(layerDigest2).IsPresent());
+            await VerifyIsLayer1Async(await cache.WriteCompressedLayerAsync(Compress(layerBlob1)).ConfigureAwait(false)).ConfigureAwait(false);
+            await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            Assert.IsFalse(cache.Retrieve(layerDigest2).IsPresent());
         }
 
         [Test]
-        public async Task testWriteUncompressedWithLayerEntries_retrieveByLayerDigestAsync()
+        public async Task TestWriteUncompressedWithLayerEntries_retrieveByLayerDigestAsync()
         {
-            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
+            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
-            await verifyIsLayer1Async(await cache.writeUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
-            await verifyIsLayer1Async(cache.retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Assert.IsFalse(cache.retrieve(layerDigest2).IsPresent());
+            await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
+            await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            Assert.IsFalse(cache.Retrieve(layerDigest2).IsPresent());
         }
 
         [Test]
-        public async Task testWriteUncompressedWithLayerEntries_retrieveByLayerEntriesAsync()
+        public async Task TestWriteUncompressedWithLayerEntries_retrieveByLayerEntriesAsync()
         {
-            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
+            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
-            await verifyIsLayer1Async(await cache.writeUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
-            Option<CachedLayer> layer = await cache.retrieveAsync(layerEntries1).ConfigureAwait(false);
-            await verifyIsLayer1Async(layer.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Assert.IsFalse(cache.retrieve(layerDigest2).IsPresent());
+            await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
+            Option<CachedLayer> layer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
+            await VerifyIsLayer1Async(layer.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            Assert.IsFalse(cache.Retrieve(layerDigest2).IsPresent());
 
             // A source file modification results in the cached layer to be out-of-date and not retrieved.
-            Files.setLastModifiedTime(
-                layerEntries1.get(0).getSourceFile(), FileTime.from(SystemClock.Instance.GetCurrentInstant().plusSeconds(1)));
-            Option<CachedLayer> outOfDateLayer = await cache.retrieveAsync(layerEntries1).ConfigureAwait(false);
+            Files.SetLastModifiedTime(
+                layerEntries1.Get(0).GetSourceFile(), FileTime.From(SystemClock.Instance.GetCurrentInstant().PlusSeconds(1)));
+            Option<CachedLayer> outOfDateLayer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
             Assert.IsFalse(outOfDateLayer.IsPresent());
         }
 
         [Test]
-        public async Task testRetrieveWithTwoEntriesInCacheAsync()
+        public async Task TestRetrieveWithTwoEntriesInCacheAsync()
         {
-            Cache cache = Cache.withDirectory(temporaryFolder.newFolder().toPath());
+            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
-            await verifyIsLayer1Async(await cache.writeUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
-            await verifyIsLayer2Async(await cache.writeUncompressedLayerAsync(layerBlob2, layerEntries2).ConfigureAwait(false)).ConfigureAwait(false);
-            await verifyIsLayer1Async(cache.retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            await verifyIsLayer2Async(cache.retrieve(layerDigest2).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Option<CachedLayer> cachedLayer1 = await cache.retrieveAsync(layerEntries1).ConfigureAwait(false);
-            await verifyIsLayer1Async(cachedLayer1.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Option<CachedLayer> cachedLayer2 = await cache.retrieveAsync(layerEntries2).ConfigureAwait(false);
-            await verifyIsLayer2Async(cachedLayer2.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
+            await VerifyIsLayer2Async(await cache.WriteUncompressedLayerAsync(layerBlob2, layerEntries2).ConfigureAwait(false)).ConfigureAwait(false);
+            await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            await VerifyIsLayer2Async(cache.Retrieve(layerDigest2).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            Option<CachedLayer> cachedLayer1 = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
+            await VerifyIsLayer1Async(cachedLayer1.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
+            Option<CachedLayer> cachedLayer2 = await cache.RetrieveAsync(layerEntries2).ConfigureAwait(false);
+            await VerifyIsLayer2Async(cachedLayer2.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
         }
 
         /**
@@ -224,12 +224,12 @@ namespace com.google.cloud.tools.jib.cache
          * @param cachedLayer the {@link CachedLayer} to verify
          * @throws IOException if an I/O exception occurs
          */
-        private async Task verifyIsLayer1Async(CachedLayer cachedLayer)
+        private async Task VerifyIsLayer1Async(CachedLayer cachedLayer)
         {
-            Assert.AreEqual("layerBlob1", await Blobs.writeToStringAsync(await decompressAsync(cachedLayer.getBlob()).ConfigureAwait(false)).ConfigureAwait(false));
-            Assert.AreEqual(layerDigest1, cachedLayer.getDigest());
-            Assert.AreEqual(layerDiffId1, cachedLayer.getDiffId());
-            Assert.AreEqual(layerSize1, cachedLayer.getSize());
+            Assert.AreEqual("layerBlob1", await Blobs.WriteToStringAsync(await DecompressAsync(cachedLayer.GetBlob()).ConfigureAwait(false)).ConfigureAwait(false));
+            Assert.AreEqual(layerDigest1, cachedLayer.GetDigest());
+            Assert.AreEqual(layerDiffId1, cachedLayer.GetDiffId());
+            Assert.AreEqual(layerSize1, cachedLayer.GetSize());
         }
 
         /**
@@ -238,12 +238,12 @@ namespace com.google.cloud.tools.jib.cache
          * @param cachedLayer the {@link CachedLayer} to verify
          * @throws IOException if an I/O exception occurs
          */
-        private async Task verifyIsLayer2Async(CachedLayer cachedLayer)
+        private async Task VerifyIsLayer2Async(CachedLayer cachedLayer)
         {
-            Assert.AreEqual("layerBlob2", await Blobs.writeToStringAsync(await decompressAsync(cachedLayer.getBlob()).ConfigureAwait(false)).ConfigureAwait(false));
-            Assert.AreEqual(layerDigest2, cachedLayer.getDigest());
-            Assert.AreEqual(layerDiffId2, cachedLayer.getDiffId());
-            Assert.AreEqual(layerSize2, cachedLayer.getSize());
+            Assert.AreEqual("layerBlob2", await Blobs.WriteToStringAsync(await DecompressAsync(cachedLayer.GetBlob()).ConfigureAwait(false)).ConfigureAwait(false));
+            Assert.AreEqual(layerDigest2, cachedLayer.GetDigest());
+            Assert.AreEqual(layerDiffId2, cachedLayer.GetDiffId());
+            Assert.AreEqual(layerSize2, cachedLayer.GetSize());
         }
     }
 }

@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.api
          * @param port the port number
          * @return the new {@link Port}
          */
-        public static Port tcp(int port)
+        public static Port Tcp(int port)
         {
             return new Port(port, TCP_PROTOCOL);
         }
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.api
          * @param port the port number
          * @return the new {@link Port}
          */
-        public static Port udp(int port)
+        public static Port Udp(int port)
         {
             return new Port(port, UDP_PROTOCOL);
         }
@@ -55,9 +55,9 @@ namespace com.google.cloud.tools.jib.api
          * @param protocolString the case insensitive string (e.g. "tcp", "udp")
          * @return the {@link Port}
          */
-        public static Port parseProtocol(int port, string protocolString)
+        public static Port ParseProtocol(int port, string protocolString)
         {
-            string protocol = UDP_PROTOCOL.equalsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
+            string protocol = UDP_PROTOCOL.EqualsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
             return new Port(port, protocol);
         }
 
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the port number
          */
-        public int getPort()
+        public int GetPort()
         {
             return port;
         }
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the protocol
          */
-        public string getProtocol()
+        public string GetProtocol()
         {
             return protocol;
         }
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.api
 
         public override int GetHashCode()
         {
-            return Objects.hash(port, protocol);
+            return Objects.Hash(port, protocol);
         }
 
         /**

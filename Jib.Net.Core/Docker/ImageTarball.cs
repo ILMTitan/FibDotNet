@@ -60,29 +60,29 @@ namespace com.google.cloud.tools.jib.docker
             DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
 
             // Adds all the layers to the tarball and manifest.
-            foreach (ILayer layer in image.getLayers())
+            foreach (ILayer layer in image.GetLayers())
             {
-                string layerName = layer.getBlobDescriptor().getDigest().getHash() + LAYER_FILE_EXTENSION;
+                string layerName = layer.GetBlobDescriptor().GetDigest().GetHash() + LAYER_FILE_EXTENSION;
 
-                tarStreamBuilder.addBlobEntry(
-                    layer.getBlob(), layer.getBlobDescriptor().getSize(), layerName);
+                tarStreamBuilder.AddBlobEntry(
+                    layer.GetBlob(), layer.GetBlobDescriptor().GetSize(), layerName);
                 manifestTemplate.AddLayerFile(layerName);
             }
 
             // Adds the container configuration to the tarball.
             ContainerConfigurationTemplate containerConfiguration =
                 new ImageToJsonTranslator(image).GetContainerConfiguration();
-            tarStreamBuilder.addByteEntry(
-                JsonTemplateMapper.toByteArray(containerConfiguration),
+            tarStreamBuilder.AddByteEntry(
+                JsonTemplateMapper.ToByteArray(containerConfiguration),
                 CONTAINER_CONFIGURATION_JSON_FILE_NAME);
 
             // Adds the manifest to tarball.
-            manifestTemplate.SetRepoTags(imageReference.toStringWithTag());
-            tarStreamBuilder.addByteEntry(
-                JsonTemplateMapper.toByteArray(new List<DockerLoadManifestEntryTemplate> { manifestTemplate }),
+            manifestTemplate.SetRepoTags(imageReference.ToStringWithTag());
+            tarStreamBuilder.AddByteEntry(
+                JsonTemplateMapper.ToByteArray(new List<DockerLoadManifestEntryTemplate> { manifestTemplate }),
                 MANIFEST_JSON_FILE_NAME);
 
-            await tarStreamBuilder.writeAsTarArchiveToAsync(@out).ConfigureAwait(false);
+            await tarStreamBuilder.WriteAsTarArchiveToAsync(@out).ConfigureAwait(false);
         }
     }
 }

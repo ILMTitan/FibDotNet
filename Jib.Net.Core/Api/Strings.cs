@@ -20,7 +20,7 @@ namespace com.google.cloud.tools.jib.api
 {
     public static class Strings
     {
-        public static bool isNullOrEmpty(string registry)
+        public static bool IsNullOrEmpty(string registry)
         {
             return string.IsNullOrEmpty(registry);
         }

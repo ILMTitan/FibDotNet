@@ -25,12 +25,12 @@ namespace com.google.cloud.tools.jib.hash
 {
     internal static class ByteStreams
     {
-        internal static async Task copyAsync(Stream inStream, Stream contentsOut)
+        internal static async Task CopyAsync(Stream inStream, Stream contentsOut)
         {
             await inStream.CopyToAsync(contentsOut).ConfigureAwait(false);
         }
 
-        internal static byte[] toByteArray(Stream stream)
+        internal static byte[] ToByteArray(Stream stream)
         {
             return ReadBytes(stream).ToArray();
 

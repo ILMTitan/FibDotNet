@@ -65,7 +65,7 @@ namespace Jib.Net.Core.Registry
              * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
              * @return this
              */
-            public Factory setAllowInsecureRegistries(bool allowInsecureRegistries)
+            public Factory SetAllowInsecureRegistries(bool allowInsecureRegistries)
             {
                 this.allowInsecureRegistries = allowInsecureRegistries;
                 return this;
@@ -77,7 +77,7 @@ namespace Jib.Net.Core.Registry
              * @param authorization the {@link Authorization} to access the registry/repository
              * @return this
              */
-            public Factory setAuthorization(Authorization authorization)
+            public Factory SetAuthorization(Authorization authorization)
             {
                 this.authorization = authorization;
                 return this;
@@ -89,7 +89,7 @@ namespace Jib.Net.Core.Registry
              * @param userAgentSuffix the suffix to append
              * @return this
              */
-            public Factory addUserAgentValues(IEnumerable<ProductInfoHeaderValue> userAgentSuffix)
+            public Factory AddUserAgentValues(IEnumerable<ProductInfoHeaderValue> userAgentSuffix)
             {
                 additionalUserAgentValues.AddRange(userAgentSuffix);
                 return this;
@@ -101,7 +101,7 @@ namespace Jib.Net.Core.Registry
              * @param userAgentSuffix the suffix to append
              * @return this
              */
-            public Factory addUserAgentValue(ProductInfoHeaderValue userAgentSuffix)
+            public Factory AddUserAgentValue(ProductInfoHeaderValue userAgentSuffix)
             {
                 if (userAgentSuffix != null)
                 {
@@ -115,14 +115,14 @@ namespace Jib.Net.Core.Registry
              *
              * @return the new {@link RegistryClient}
              */
-            public RegistryClient newRegistryClient()
+            public RegistryClient NewRegistryClient()
             {
                 return new RegistryClient(
                     eventHandlers,
                     authorization,
                     registryEndpointRequestProperties,
                     allowInsecureRegistries,
-                    makeUserAgent());
+                    MakeUserAgent());
             }
 
             /**
@@ -133,7 +133,7 @@ namespace Jib.Net.Core.Registry
              *     setting the system property variable {@code _JIB_DISABLE_USER_AGENT} to any non-empty
              *     string.
              */
-            private IEnumerable<ProductInfoHeaderValue> makeUserAgent()
+            private IEnumerable<ProductInfoHeaderValue> MakeUserAgent()
             {
                 if (!JibSystemProperties.IsUserAgentEnabled())
                 {
@@ -156,7 +156,7 @@ namespace Jib.Net.Core.Registry
          * @param imageName the image/repository name (also known as, namespace)
          * @return the new {@link Factory}
          */
-        public static Factory factory(IEventHandlers eventHandlers, string registry, string imageName)
+        public static Factory CreateFactory(IEventHandlers eventHandlers, string registry, string imageName)
         {
             return new Factory(eventHandlers, new RegistryEndpointRequestProperties(registry, imageName));
         }
@@ -195,12 +195,12 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<RegistryAuthenticator> getRegistryAuthenticatorAsync()
+        public async Task<RegistryAuthenticator> GetRegistryAuthenticatorAsync()
         {
             // Gets the WWW-Authenticate header (eg. 'WWW-Authenticate: Bearer
             // realm="https://gcr.io/v2/token",service="gcr.io"')
-            return await callRegistryEndpointAsync(
-                new AuthenticationMethodRetriever(registryEndpointRequestProperties, getUserAgent())).ConfigureAwait(false);
+            return await CallRegistryEndpointAsync(
+                new AuthenticationMethodRetriever(registryEndpointRequestProperties, GetUserAgent())).ConfigureAwait(false);
         }
 
         /**
@@ -214,12 +214,12 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<T> pullManifestAsync<T>(
+        public async Task<T> PullManifestAsync<T>(
             string imageTag) where T : IManifestTemplate
         {
             ManifestPuller<T> manifestPuller =
                 new ManifestPuller<T>(registryEndpointRequestProperties, imageTag);
-            T manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
+            T manifestTemplate = await CallRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException(Resources.RegistryClientManifestPullerReturnedNullExceptionMessage);
@@ -227,9 +227,9 @@ namespace Jib.Net.Core.Registry
             return manifestTemplate;
         }
 
-        public async Task<IManifestTemplate> pullManifestAsync(string imageTag)
+        public async Task<IManifestTemplate> PullManifestAsync(string imageTag)
         {
-            return await pullAnyManifestAsync(imageTag).ConfigureAwait(false);
+            return await PullAnyManifestAsync(imageTag).ConfigureAwait(false);
         }
 
         /**
@@ -243,11 +243,11 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<IManifestTemplate> pullAnyManifestAsync(string imageTag)
+        public async Task<IManifestTemplate> PullAnyManifestAsync(string imageTag)
         {
             ManifestPuller manifestPuller =
                 new ManifestPuller(registryEndpointRequestProperties, imageTag);
-            IManifestTemplate manifestTemplate = await callRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
+            IManifestTemplate manifestTemplate = await CallRegistryEndpointAsync(manifestPuller).ConfigureAwait(false);
             if (manifestTemplate == null)
             {
                 throw new InvalidOperationException(Resources.RegistryClientManifestPullerReturnedNullExceptionMessage);
@@ -264,9 +264,9 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<DescriptorDigest> pushManifestAsync(IBuildableManifestTemplate manifestTemplate, string imageTag)
+        public async Task<DescriptorDigest> PushManifestAsync(IBuildableManifestTemplate manifestTemplate, string imageTag)
         {
-            return Verify.verifyNotNull(await callRegistryEndpointAsync(
+            return Verify.VerifyNotNull(await CallRegistryEndpointAsync(
                     new ManifestPusher(
                         registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers)).ConfigureAwait(false));
         }
@@ -278,10 +278,10 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<bool> checkBlobAsync(BlobDescriptor blobDigest)
+        public async Task<bool> CheckBlobAsync(BlobDescriptor blobDigest)
         {
             BlobChecker blobChecker = new BlobChecker(registryEndpointRequestProperties, blobDigest);
-            return await callRegistryEndpointAsync(blobChecker).ConfigureAwait(false);
+            return await CallRegistryEndpointAsync(blobChecker).ConfigureAwait(false);
         }
 
         /**
@@ -294,17 +294,17 @@ namespace Jib.Net.Core.Registry
          *     pull
          * @return a {@link Blob}
          */
-        public IBlob pullBlob(
+        public IBlob PullBlob(
             DescriptorDigest blobDigest,
             Action<long> blobSizeListener,
             Action<long> writtenByteCountListener)
         {
-            return Blobs.from(
+            return Blobs.From(
                 async outputStream =>
                 {
                     try
                     {
-                        await callRegistryEndpointAsync(new BlobPuller(
+                        await CallRegistryEndpointAsync(new BlobPuller(
                         registryEndpointRequestProperties,
                         blobDigest,
                         outputStream,
@@ -332,7 +332,7 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        public async Task<bool> pushBlobAsync(
+        public async Task<bool> PushBlobAsync(
             DescriptorDigest blobDigest,
             IBlob blob,
             string sourceRepository,
@@ -345,28 +345,28 @@ namespace Jib.Net.Core.Registry
                 new TimerEventDispatcher(eventHandlers, "pushBlob"))
             {
                 using (TimerEventDispatcher timerEventDispatcher2 =
-                    timerEventDispatcher.subTimer("pushBlob POST " + blobDigest))
+                    timerEventDispatcher.SubTimer("pushBlob POST " + blobDigest))
                 {
                     // POST /v2/<name>/blobs/uploads/ OR
                     // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
-                    Uri patchLocation = await callRegistryEndpointAsync(blobPusher.initializer()).ConfigureAwait(false);
+                    Uri patchLocation = await CallRegistryEndpointAsync(blobPusher.CreateInitializer()).ConfigureAwait(false);
                     if (patchLocation == null)
                     {
                         // The BLOB exists already.
                         return true;
                     }
 
-                    timerEventDispatcher2.lap("pushBlob PATCH " + blobDigest);
+                    timerEventDispatcher2.Lap("pushBlob PATCH " + blobDigest);
 
                     // PATCH <Location> with BLOB
                     Uri putLocation =
-                        await callRegistryEndpointAsync(blobPusher.writer(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
+                        await CallRegistryEndpointAsync(blobPusher.CreateWriter(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
                     Preconditions.CheckNotNull(putLocation);
 
-                    timerEventDispatcher2.lap("pushBlob PUT " + blobDigest);
+                    timerEventDispatcher2.Lap("pushBlob PUT " + blobDigest);
 
                     // PUT <Location>?digest={blob.digest}
-                    await callRegistryEndpointAsync(blobPusher.committer(putLocation)).ConfigureAwait(false);
+                    await CallRegistryEndpointAsync(blobPusher.CreateCommitter(putLocation)).ConfigureAwait(false);
 
                     return false;
                 }
@@ -375,12 +375,12 @@ namespace Jib.Net.Core.Registry
 
         /** @return the registry endpoint's API root, without the protocol */
 
-        public string getApiRouteBase()
+        public string GetApiRouteBase()
         {
-            return registryEndpointRequestProperties.getRegistry() + "/v2/";
+            return registryEndpointRequestProperties.GetRegistry() + "/v2/";
         }
 
-        public IEnumerable<ProductInfoHeaderValue> getUserAgent()
+        public IEnumerable<ProductInfoHeaderValue> GetUserAgent()
         {
             return userAgent;
         }
@@ -392,17 +392,17 @@ namespace Jib.Net.Core.Registry
          * @throws IOException if communicating with the endpoint fails
          * @throws RegistryException if communicating with the endpoint fails
          */
-        private async Task<T> callRegistryEndpointAsync<T>(RegistryEndpointProvider<T> registryEndpointProvider)
+        private async Task<T> CallRegistryEndpointAsync<T>(RegistryEndpointProvider<T> registryEndpointProvider)
         {
             return await new RegistryEndpointCaller<T>(
                     eventHandlers,
                     userAgent,
-                    getApiRouteBase(),
+                    GetApiRouteBase(),
                     registryEndpointProvider,
                     authorization,
                     registryEndpointRequestProperties,
                     allowInsecureRegistries)
-                .callAsync().ConfigureAwait(false);
+                .CallAsync().ConfigureAwait(false);
         }
     }
 }

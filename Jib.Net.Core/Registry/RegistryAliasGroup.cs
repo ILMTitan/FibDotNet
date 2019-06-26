@@ -45,15 +45,15 @@ namespace com.google.cloud.tools.jib.registry
          * @param registry the registry for which the alias group is requested
          * @return non-empty list of registries where {@code registry} is the first element
          */
-        public static IList<string> getAliasesGroup(string registry)
+        public static IList<string> GetAliasesGroup(string registry)
         {
             foreach (ImmutableHashSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
             {
-                if (aliasGroup.contains(registry))
+                if (JavaExtensions.Contains(aliasGroup, registry))
                 {
                     // Found a group. Move the requested "registry" to the front before returning it.
                     IEnumerable<string> self = new[] { registry };
-                    IEnumerable<string> withoutSelf = aliasGroup.stream().filter(alias => registry != alias);
+                    IEnumerable<string> withoutSelf = aliasGroup.Stream().Filter(alias => registry != alias);
                     return self.Concat(withoutSelf).ToList();
                 }
             }
@@ -67,9 +67,9 @@ namespace com.google.cloud.tools.jib.registry
          * @param registry the name of the registry
          * @return the registry host
          */
-        public static string getHost(string registry)
+        public static string GetHost(string registry)
         {
-            return REGISTRY_HOST_MAP.getOrDefault(registry, registry);
+            return REGISTRY_HOST_MAP.GetOrDefault(registry, registry);
         }
     }
 }

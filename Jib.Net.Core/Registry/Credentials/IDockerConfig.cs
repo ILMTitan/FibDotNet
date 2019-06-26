@@ -2,7 +2,7 @@
 {
     public interface IDockerConfig
     {
-        string getAuthFor(string registry);
-        IDockerCredentialHelper getCredentialHelperFor(string registry);
+        string GetAuthFor(string registry);
+        IDockerCredentialHelper GetCredentialHelperFor(string registry);
     }
 }

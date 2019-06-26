@@ -42,52 +42,52 @@ namespace com.google.cloud.tools.jib.image.json
         private ImageToJsonTranslator imageToJsonTranslator;
         //private static DescriptorDigest fakeDigest = DescriptorDigest.fromHash(new string('a', 64));
 
-        private void setUp(ManifestFormat imageFormat)
+        private void SetUp(ManifestFormat imageFormat)
         {
             Image.Builder testImageBuilder =
-                Image.builder(imageFormat)
-                    .setCreated(Instant.FromUnixTimeSeconds(20))
-                    .setArchitecture("wasm")
-                    .setOs("js")
-                    .addEnvironmentVariable("VAR1", "VAL1")
-                    .addEnvironmentVariable("VAR2", "VAL2")
-                    .setEntrypoint(Arrays.asList("some", "entrypoint", "command"))
-                    .setProgramArguments(Arrays.asList("arg1", "arg2"))
-                    .setHealthCheck(
-                        DockerHealthCheck.fromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
-                            .setInterval(Duration.FromSeconds(3))
-                            .setTimeout(Duration.FromSeconds(1))
-                            .setStartPeriod(Duration.FromSeconds(2))
-                            .setRetries(3)
-                            .build())
-                    .addExposedPorts(ImmutableHashSet.Create(Port.tcp(1000), Port.tcp(2000), Port.udp(3000)))
-                    .addVolumes(
+                Image.CreateBuilder(imageFormat)
+                    .SetCreated(Instant.FromUnixTimeSeconds(20))
+                    .SetArchitecture("wasm")
+                    .SetOs("js")
+                    .AddEnvironmentVariable("VAR1", "VAL1")
+                    .AddEnvironmentVariable("VAR2", "VAL2")
+                    .SetEntrypoint(Arrays.AsList("some", "entrypoint", "command"))
+                    .SetProgramArguments(Arrays.AsList("arg1", "arg2"))
+                    .SetHealthCheck(
+                        DockerHealthCheck.FromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
+                            .SetInterval(Duration.FromSeconds(3))
+                            .SetTimeout(Duration.FromSeconds(1))
+                            .SetStartPeriod(Duration.FromSeconds(2))
+                            .SetRetries(3)
+                            .Build())
+                    .AddExposedPorts(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000), Port.Udp(3000)))
+                    .AddVolumes(
                         ImmutableHashSet.Create(
-                            AbsoluteUnixPath.get("/var/job-result-data"),
-                            AbsoluteUnixPath.get("/var/log/my-app-logs")))
-                    .addLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))
-                    .setWorkingDirectory("/some/workspace")
-                    .setUser("tomcat");
+                            AbsoluteUnixPath.Get("/var/job-result-data"),
+                            AbsoluteUnixPath.Get("/var/log/my-app-logs")))
+                    .AddLabels(ImmutableDic.Of("key1", "value1", "key2", "value2"))
+                    .SetWorkingDirectory("/some/workspace")
+                    .SetUser("tomcat");
 
             DescriptorDigest fakeDigest =
-                DescriptorDigest.fromDigest(
+                DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad");
-            testImageBuilder.addLayer(
+            testImageBuilder.AddLayer(
                 new FakeLayer(fakeDigest));
-            testImageBuilder.addHistory(
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Bazel")
-                    .setCreatedBy("bazel build ...")
-                    .setEmptyLayer(true)
-                    .build());
-            testImageBuilder.addHistory(
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(20))
-                    .setAuthor("Jib")
-                    .setCreatedBy("jib")
-                    .build());
-            imageToJsonTranslator = new ImageToJsonTranslator(testImageBuilder.build());
+            testImageBuilder.AddHistory(
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Bazel")
+                    .SetCreatedBy("bazel build ...")
+                    .SetEmptyLayer(true)
+                    .Build());
+            testImageBuilder.AddHistory(
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(20))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy("jib")
+                    .Build());
+            imageToJsonTranslator = new ImageToJsonTranslator(testImageBuilder.Build());
         }
 
         private class FakeLayer : ILayer
@@ -99,55 +99,55 @@ namespace com.google.cloud.tools.jib.image.json
                 this.fakeDigest = fakeDigest;
             }
 
-            public IBlob getBlob()
+            public IBlob GetBlob()
             {
-                return Blobs.from("ignored");
+                return Blobs.From("ignored");
             }
 
-            public BlobDescriptor getBlobDescriptor()
+            public BlobDescriptor GetBlobDescriptor()
             {
                 return new BlobDescriptor(1000, fakeDigest);
             }
 
-            public DescriptorDigest getDiffId()
+            public DescriptorDigest GetDiffId()
             {
                 return fakeDigest;
             }
         }
 
         [Test]
-        public void testGetContainerConfiguration()
+        public void TestGetContainerConfiguration()
         {
-            setUp(ManifestFormat.V22);
+            SetUp(ManifestFormat.V22);
 
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource("core/json/containerconfig.json").ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             // Translates the image to the container configuration and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.GetContainerConfiguration();
 
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(containerConfiguration));
         }
 
         [Test]
-        public async Task testGetManifest_v22Async()
+        public async Task TestGetManifest_v22Async()
         {
-            setUp(ManifestFormat.V22);
-            await testGetManifestAsync(ManifestFormat.V22, "core/json/translated_v22manifest.json").ConfigureAwait(false);
+            SetUp(ManifestFormat.V22);
+            await TestGetManifestAsync(ManifestFormat.V22, "core/json/translated_v22manifest.json").ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testGetManifest_ociAsync()
+        public async Task TestGetManifest_ociAsync()
         {
-            setUp(ManifestFormat.OCI);
-            await testGetManifestAsync(ManifestFormat.OCI, "core/json/translated_ocimanifest.json").ConfigureAwait(false);
+            SetUp(ManifestFormat.OCI);
+            await TestGetManifestAsync(ManifestFormat.OCI, "core/json/translated_ocimanifest.json").ConfigureAwait(false);
         }
 
         [Test]
-        public void testPortListToMap()
+        public void TestPortListToMap()
         {
-            ImmutableHashSet<Port> input = ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000));
+            ImmutableHashSet<Port> input = ImmutableHashSet.Create(Port.Tcp(1000), Port.Udp(2000));
             ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
                 new Dictionary<string, IDictionary<object, object>>
                 {
@@ -158,12 +158,12 @@ namespace com.google.cloud.tools.jib.image.json
         }
 
         [Test]
-        public void testVolumeListToMap()
+        public void TestVolumeListToMap()
         {
             ImmutableHashSet<AbsoluteUnixPath> input =
                 ImmutableHashSet.Create(
-                    AbsoluteUnixPath.get("/var/job-result-data"),
-                    AbsoluteUnixPath.get("/var/log/my-app-logs"));
+                    AbsoluteUnixPath.Get("/var/job-result-data"),
+                    AbsoluteUnixPath.Get("/var/log/my-app-logs"));
             ImmutableSortedDictionary<string, IDictionary<object, object>> expected =
                 new Dictionary<string, IDictionary<object, object>>
                 {
@@ -174,28 +174,28 @@ namespace com.google.cloud.tools.jib.image.json
         }
 
         [Test]
-        public void testEnvironmentMapToList()
+        public void TestEnvironmentMapToList()
         {
-            ImmutableDictionary<string, string> input = ImmutableDic.of("NAME1", "VALUE1", "NAME2", "VALUE2");
+            ImmutableDictionary<string, string> input = ImmutableDic.Of("NAME1", "VALUE1", "NAME2", "VALUE2");
             ImmutableArray<string> expected = ImmutableArray.Create("NAME1=VALUE1", "NAME2=VALUE2");
             CollectionAssert.AreEqual(expected, ImageToJsonTranslator.EnvironmentMapToList(input));
         }
 
         /** Tests translation of image to {@link BuildableManifestTemplate}. */
-        private async Task testGetManifestAsync(
+        private async Task TestGetManifestAsync(
             ManifestFormat manifestTemplateClass, string translatedJsonFilename)
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource(translatedJsonFilename).ToURI());
-            string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
+            SystemPath jsonFile = Paths.Get(TestResources.GetResource(translatedJsonFilename).ToURI());
+            string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             // Translates the image to the manifest and writes the JSON string.
             ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.GetContainerConfiguration();
-            BlobDescriptor blobDescriptor = await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
+            BlobDescriptor blobDescriptor = await Digests.ComputeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.GetManifestTemplate(manifestTemplateClass, blobDescriptor);
 
-            Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));
+            Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(manifestTemplate));
         }
     }
 }

@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.filesystem
         public TemporaryDirectory(SystemPath parentDirectory)
         {
             parentDirectory = parentDirectory ?? throw new ArgumentNullException(nameof(parentDirectory));
-            path = Files.createTempDirectory(parentDirectory, null);
+            path = Files.CreateTempDirectory(parentDirectory, null);
         }
 
         /**
@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.filesystem
          */
         public TemporaryDirectory(string parentDirectory)
         {
-            path = Files.createTempDirectory(parentDirectory, null);
+            path = Files.CreateTempDirectory(parentDirectory, null);
         }
 
         /**
@@ -58,18 +58,18 @@ namespace com.google.cloud.tools.jib.filesystem
          *
          * @return the temporary directory.
          */
-        public SystemPath getDirectory()
+        public SystemPath GetDirectory()
         {
             return path;
         }
 
         public void Dispose()
         {
-            if (Files.exists(path))
+            if (Files.Exists(path))
             {
                 try
                 {
-                    MoreFiles.deleteRecursively(path);
+                    MoreFiles.DeleteRecursively(path);
                 }
                 catch (IOException e)
                 {
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.filesystem
             }
         }
 
-        internal void moveIfDoesNotExist(SystemPath destination)
+        internal void MoveIfDoesNotExist(SystemPath destination)
         {
             if(Directory.Exists(destination) || File.Exists(destination))
             {

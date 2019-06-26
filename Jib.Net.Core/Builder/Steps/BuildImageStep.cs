@@ -58,107 +58,107 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
             this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayerSteps;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<Image> getFuture()
+        public Task<Image> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<Image> callAsync()
+        public async Task<Image> CallAsync()
         {
-            BaseImageWithAuthorization baseImageWithAuthorization = await pullBaseImageStep.getFuture().ConfigureAwait(false);
-            IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
-            IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
+            BaseImageWithAuthorization baseImageWithAuthorization = await pullBaseImageStep.GetFuture().ConfigureAwait(false);
+            IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.GetFuture().ConfigureAwait(false);
+            IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.GetFuture().ConfigureAwait(false);
 
             using (progressEventDispatcherFactory.Create("building image format", 1))
-            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+            using (new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {
                 // Constructs the image.
-                Image.Builder imageBuilder = Image.builder(buildConfiguration.getTargetFormat());
-                Image baseImage = baseImageWithAuthorization.getBaseImage();
+                Image.Builder imageBuilder = Image.CreateBuilder(buildConfiguration.GetTargetFormat());
+                Image baseImage = baseImageWithAuthorization.GetBaseImage();
                 IContainerConfiguration containerConfiguration =
-                    buildConfiguration.getContainerConfiguration();
+                    buildConfiguration.GetContainerConfiguration();
 
                 // Base image layers
                 foreach (ICachedLayer pullAndCacheBaseImageLayer in baseImageLayers)
                 {
-                    imageBuilder.addLayer(pullAndCacheBaseImageLayer);
+                    imageBuilder.AddLayer(pullAndCacheBaseImageLayer);
                 }
 
                 // Passthrough config and count non-empty history entries
                 int nonEmptyLayerCount = 0;
-                foreach (HistoryEntry historyObject in baseImage.getHistory())
+                foreach (HistoryEntry historyObject in baseImage.GetHistory())
                 {
-                    imageBuilder.addHistory(historyObject);
-                    if (!historyObject.hasCorrespondingLayer())
+                    imageBuilder.AddHistory(historyObject);
+                    if (!historyObject.HasCorrespondingLayer())
                     {
                         nonEmptyLayerCount++;
                     }
                 }
                 imageBuilder
-                    .setArchitecture(baseImage.getArchitecture())
-                    .setOs(baseImage.getOs())
-                    .addEnvironment(baseImage.getEnvironment())
-                    .addLabels(baseImage.getLabels())
-                    .setHealthCheck(baseImage.getHealthCheck())
-                    .addExposedPorts(baseImage.getExposedPorts())
-                    .addVolumes(baseImage.getVolumes())
-                    .setWorkingDirectory(baseImage.getWorkingDirectory());
+                    .SetArchitecture(baseImage.GetArchitecture())
+                    .SetOs(baseImage.GetOs())
+                    .AddEnvironment(baseImage.GetEnvironment())
+                    .AddLabels(baseImage.GetLabels())
+                    .SetHealthCheck(baseImage.GetHealthCheck())
+                    .AddExposedPorts(baseImage.GetExposedPorts())
+                    .AddVolumes(baseImage.GetVolumes())
+                    .SetWorkingDirectory(baseImage.GetWorkingDirectory());
 
                 // Add history elements for non-empty layers that don't have one yet
                 Instant layerCreationTime =
                     containerConfiguration == null
                         ? ContainerConfiguration.DefaultCreationTime
-                        : containerConfiguration.getCreationTime();
-                for (int count = 0; count < baseImageLayers.size() - nonEmptyLayerCount; count++)
+                        : containerConfiguration.GetCreationTime();
+                for (int count = 0; count < baseImageLayers.Size() - nonEmptyLayerCount; count++)
                 {
-                    imageBuilder.addHistory(
-                        HistoryEntry.builder()
-                            .setCreationTimestamp(layerCreationTime)
-                            .setComment("auto-generated by Jib")
-                            .build());
+                    imageBuilder.AddHistory(
+                        HistoryEntry.CreateBuilder()
+                            .SetCreationTimestamp(layerCreationTime)
+                            .SetComment("auto-generated by Jib")
+                            .Build());
                 }
 
                 // Add built layers/configuration
                 foreach (ICachedLayer applicationLayer in applicationLayers)
                 {
-                    HistoryEntry.Builder historyBuilder = HistoryEntry.builder();
-                    if (buildConfiguration.getToolName() != null) {
-                        historyBuilder.setCreatedBy(buildConfiguration.getToolName() + ":" + (buildConfiguration.getToolVersion()??"null"));
+                    HistoryEntry.Builder historyBuilder = HistoryEntry.CreateBuilder();
+                    if (buildConfiguration.GetToolName() != null) {
+                        historyBuilder.SetCreatedBy(buildConfiguration.GetToolName() + ":" + (buildConfiguration.GetToolVersion()??"null"));
                     } else
                     {
-                        historyBuilder.setCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
+                        historyBuilder.SetCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
                     }
                     imageBuilder
-                        .addLayer(applicationLayer)
-                        .addHistory(
+                        .AddLayer(applicationLayer)
+                        .AddHistory(
                             historyBuilder
-                                .setCreationTimestamp(layerCreationTime)
-                                .setAuthor("Jib")
-                                .setComment(applicationLayer.getLayerType())
-                                .build());
+                                .SetCreationTimestamp(layerCreationTime)
+                                .SetAuthor("Jib")
+                                .SetComment(applicationLayer.GetLayerType())
+                                .Build());
                 }
                 if (containerConfiguration != null)
                 {
                     imageBuilder
-                        .addEnvironment(containerConfiguration.getEnvironmentMap())
-                        .setCreated(containerConfiguration.getCreationTime())
-                        .setUser(containerConfiguration.getUser())
-                        .setEntrypoint(computeEntrypoint(baseImage, containerConfiguration))
-                        .setProgramArguments(computeProgramArguments(baseImage, containerConfiguration))
-                        .addExposedPorts(containerConfiguration.getExposedPorts())
-                        .addVolumes(containerConfiguration.getVolumes())
-                        .addLabels(containerConfiguration.getLabels());
-                    if (containerConfiguration.getWorkingDirectory() != null)
+                        .AddEnvironment(containerConfiguration.GetEnvironmentMap())
+                        .SetCreated(containerConfiguration.GetCreationTime())
+                        .SetUser(containerConfiguration.GetUser())
+                        .SetEntrypoint(ComputeEntrypoint(baseImage, containerConfiguration))
+                        .SetProgramArguments(ComputeProgramArguments(baseImage, containerConfiguration))
+                        .AddExposedPorts(containerConfiguration.GetExposedPorts())
+                        .AddVolumes(containerConfiguration.GetVolumes())
+                        .AddLabels(containerConfiguration.GetLabels());
+                    if (containerConfiguration.GetWorkingDirectory() != null)
                     {
-                        imageBuilder.setWorkingDirectory(containerConfiguration.getWorkingDirectory().toString());
+                        imageBuilder.SetWorkingDirectory(JavaExtensions.ToString(containerConfiguration.GetWorkingDirectory()));
                     }
                 }
 
                 // Gets the container configuration content descriptor.
-                return imageBuilder.build();
+                return imageBuilder.Build();
             }
         }
 
@@ -171,21 +171,21 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @param containerConfiguration the container configuration
          * @return the container entrypoint
          */
-        private ImmutableArray<string>? computeEntrypoint(
+        private ImmutableArray<string>? ComputeEntrypoint(
             Image baseImage, IContainerConfiguration containerConfiguration)
         {
             bool shouldInherit =
-                baseImage.getEntrypoint() != null && containerConfiguration.getEntrypoint() == null;
+                baseImage.GetEntrypoint() != null && containerConfiguration.GetEntrypoint() == null;
 
             ImmutableArray<string>? entrypointToUse =
-                shouldInherit ? baseImage.getEntrypoint() : containerConfiguration.getEntrypoint();
+                shouldInherit ? baseImage.GetEntrypoint() : containerConfiguration.GetEntrypoint();
 
             if (entrypointToUse != null)
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
                 string message = "Container entrypoint set to " + entrypointToUse + logSuffix;
-                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(""));
-                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(message));
+                buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(""));
+                buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(message));
             }
 
             return entrypointToUse;
@@ -201,25 +201,25 @@ namespace com.google.cloud.tools.jib.builder.steps
          * @param containerConfiguration the container configuration
          * @return the container program arguments
          */
-        private ImmutableArray<string>? computeProgramArguments(
+        private ImmutableArray<string>? ComputeProgramArguments(
             Image baseImage, IContainerConfiguration containerConfiguration)
         {
             bool shouldInherit =
-                baseImage.getProgramArguments() != null
+                baseImage.GetProgramArguments() != null
                     // Inherit CMD only when inheriting ENTRYPOINT.
-                    && containerConfiguration.getEntrypoint() == null
-                    && containerConfiguration.getProgramArguments() == null;
+                    && containerConfiguration.GetEntrypoint() == null
+                    && containerConfiguration.GetProgramArguments() == null;
 
             ImmutableArray<string>? programArgumentsToUse =
                 shouldInherit
-                    ? baseImage.getProgramArguments()
-                    : containerConfiguration.getProgramArguments();
+                    ? baseImage.GetProgramArguments()
+                    : containerConfiguration.GetProgramArguments();
 
             if (programArgumentsToUse != null)
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
                 string message = "Container program arguments set to " + programArgumentsToUse + logSuffix;
-                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(message));
+                buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(message));
             }
 
             return programArgumentsToUse;

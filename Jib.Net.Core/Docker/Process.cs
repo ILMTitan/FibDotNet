@@ -29,12 +29,12 @@ namespace com.google.cloud.tools.jib.docker
             this.process = process;
         }
 
-        public Stream getOutputStream()
+        public Stream GetOutputStream()
         {
             return process.StandardInput.BaseStream;
         }
 
-        public Stream getErrorStream()
+        public Stream GetErrorStream()
         {
             return process.StandardError.BaseStream;
         }
@@ -44,12 +44,12 @@ namespace com.google.cloud.tools.jib.docker
             return process.StandardError;
         }
 
-        public Stream getInputStream()
+        public Stream GetInputStream()
         {
             return process.StandardOutput.BaseStream;
         }
 
-        public int waitFor()
+        public int WaitFor()
         {
             process.WaitForExit();
             return process.ExitCode;

@@ -25,29 +25,29 @@ namespace com.google.cloud.tools.jib.registry
     public class RegistryAuthenticationFailedExceptionTest
     {
         [Test]
-        public void testRegistryAuthenticationFailedException_message()
+        public void TestRegistryAuthenticationFailedException_message()
         {
             RegistryAuthenticationFailedException exception =
                 new RegistryAuthenticationFailedException("serverUrl", "imageName", "message");
-            Assert.AreEqual("serverUrl", exception.getRegistry());
-            Assert.AreEqual("imageName", exception.getImageName());
+            Assert.AreEqual("serverUrl", exception.GetRegistry());
+            Assert.AreEqual("imageName", exception.GetImageName());
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
-                exception.getMessage());
+                exception.GetMessage());
         }
 
         [Test]
-        public void testRegistryAuthenticationFailedException_exception()
+        public void TestRegistryAuthenticationFailedException_exception()
         {
             Exception cause = new Exception("message");
             RegistryAuthenticationFailedException exception =
                 new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
-            Assert.AreEqual("serverUrl", exception.getRegistry());
-            Assert.AreEqual("imageName", exception.getImageName());
-            Assert.AreSame(cause, exception.getCause());
+            Assert.AreEqual("serverUrl", exception.GetRegistry());
+            Assert.AreEqual("imageName", exception.GetImageName());
+            Assert.AreSame(cause, exception.GetCause());
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
-                exception.getMessage());
+                exception.GetMessage());
         }
     }
 }

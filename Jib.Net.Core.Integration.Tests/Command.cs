@@ -40,36 +40,36 @@ namespace com.google.cloud.tools.jib
         }
 
         /** Runs the command. */
-        public string run()
+        public string Run()
         {
-            return run(null);
+            return Run(null);
         }
 
         /** Runs the command and pipes in {@code stdin}. */
-        public string run(byte[] stdin)
+        public string Run(byte[] stdin)
         {
-            IProcess process = new ProcessBuilder(command, args).start();
+            IProcess process = new ProcessBuilder(command, args).Start();
 
             if (stdin != null)
             {
                 // Write out stdin.
-                using (Stream outputStream = process.getOutputStream())
+                using (Stream outputStream = process.GetOutputStream())
                 {
-                    outputStream.write(stdin);
+                    JavaExtensions.Write(outputStream, stdin);
                 }
             }
 
             // Read in stdout.
             using (StreamReader inputStreamReader =
-                new StreamReader(process.getInputStream(), Encoding.UTF8))
+                new StreamReader(process.GetInputStream(), Encoding.UTF8))
             {
-                string output = CharStreams.toString(inputStreamReader);
+                string output = CharStreams.ToString(inputStreamReader);
 
-                if (process.waitFor() != 0)
+                if (process.WaitFor() != 0)
                 {
                     string stderr =
-                        CharStreams.toString(
-                            new StreamReader(process.getErrorStream(), Encoding.UTF8));
+                        CharStreams.ToString(
+                            new StreamReader(process.GetErrorStream(), Encoding.UTF8));
                     throw new Exception("Command '" + command + " " +string.Join(" ", args) + "' failed: " + stderr);
                 }
 

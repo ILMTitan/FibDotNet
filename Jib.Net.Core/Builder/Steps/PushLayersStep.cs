@@ -50,22 +50,22 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.authenticatePushStep = authenticatePushStep;
             this.cachedLayerStep = cachedLayerStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<IReadOnlyList<BlobDescriptor>> getFuture()
+        public Task<IReadOnlyList<BlobDescriptor>> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<IReadOnlyList<BlobDescriptor>> callAsync()
+        public async Task<IReadOnlyList<BlobDescriptor>> CallAsync()
         {
-            IReadOnlyList<ICachedLayer> cachedLayers = await cachedLayerStep.getFuture().ConfigureAwait(false);
+            IReadOnlyList<ICachedLayer> cachedLayers = await cachedLayerStep.GetFuture().ConfigureAwait(false);
             using (TimerEventDispatcher ignored =
-                new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
+                new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {
                 using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.Create("setting up to push layers", cachedLayers.size()))
+                    progressEventDispatcherFactory.Create("setting up to push layers", cachedLayers.Size()))
                 {
                     // Constructs a PushBlobStep for each layer.
                     var pushBlobSteps = new List<Task<BlobDescriptor>>();
@@ -74,8 +74,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                         ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
                             progressEventDispatcher.NewChildProducer();
                         Task<BlobDescriptor> pushBlobStepFuture =
-                            pushBlobAsync(cachedLayer, childProgressEventDispatcherFactory);
-                        pushBlobSteps.add(pushBlobStepFuture);
+                            PushBlobAsync(cachedLayer, childProgressEventDispatcherFactory);
+                        JavaExtensions.Add(pushBlobSteps, pushBlobStepFuture);
                     }
 
                     return await Task.WhenAll(pushBlobSteps).ConfigureAwait(false);
@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             }
         }
 
-        private async Task<BlobDescriptor> pushBlobAsync(
+        private async Task<BlobDescriptor> PushBlobAsync(
             ICachedLayer cachedLayer,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
@@ -91,8 +91,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                 buildConfiguration,
                 progressEventDispatcherFactory,
                 authenticatePushStep,
-                new BlobDescriptor(cachedLayer.getSize(), cachedLayer.getDigest()),
-                cachedLayer.getBlob()).getFuture().ConfigureAwait(false);
+                new BlobDescriptor(cachedLayer.GetSize(), cachedLayer.GetDigest()),
+                cachedLayer.GetBlob()).GetFuture().ConfigureAwait(false);
         }
     }
 }

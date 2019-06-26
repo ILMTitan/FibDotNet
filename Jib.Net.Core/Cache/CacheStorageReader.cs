@@ -53,9 +53,9 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public ISet<DescriptorDigest> fetchDigests()
+        public ISet<DescriptorDigest> FetchDigests()
         {
-            IEnumerable<SystemPath> layerDirectories = Files.list(cacheStorageFiles.getLayersDirectory());
+            IEnumerable<SystemPath> layerDirectories = Files.List(cacheStorageFiles.GetLayersDirectory());
 
             IList<SystemPath> layerDirectoriesList = layerDirectories.ToList();
             ISet<DescriptorDigest> layerDigests = new HashSet<DescriptorDigest>();
@@ -63,12 +63,12 @@ namespace Jib.Net.Core.Cache
             {
                 try
                 {
-                    layerDigests.add(DescriptorDigest.fromHash(layerDirectory.GetFileName().toString()));
+                    JavaExtensions.Add(layerDigests, DescriptorDigest.FromHash(JavaExtensions.ToString(layerDirectory.GetFileName())));
                 }
                 catch (DigestException ex)
                 {
                     throw new CacheCorruptedException(
-                        cacheStorageFiles.getCacheDirectory(),
+                        cacheStorageFiles.GetCacheDirectory(),
                         Resources.CacheStorageReaderNonDigestFileExceptionMessage,
                         ex);
                 }
@@ -84,11 +84,11 @@ namespace Jib.Net.Core.Cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Option<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
+        public Option<ManifestAndConfig> RetrieveMetadata(IImageReference imageReference)
         {
-            SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
+            SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
             SystemPath manifestPath = imageDirectory.Resolve("manifest.json");
-            if (!Files.exists(manifestPath))
+            if (!Files.Exists(manifestPath))
             {
                 return Option.Empty<ManifestAndConfig>();
             }
@@ -102,21 +102,21 @@ namespace Jib.Net.Core.Cache
             if (!(token is JObject node))
             {
                 throw new CacheCorruptedException(
-                    cacheStorageFiles.getCacheDirectory(),
+                    cacheStorageFiles.GetCacheDirectory(),
                     Resources.CacheStorageReaderNotJsonExecpetionMessage);
             }
             if (!node.ContainsKey("schemaVersion"))
             {
                 throw new CacheCorruptedException(
-                    cacheStorageFiles.getCacheDirectory(),
+                    cacheStorageFiles.GetCacheDirectory(),
                     Resources.CacheStorageReaderSchemaVersionMissingExecpetionMessage);
             }
 
-            int schemaVersion = node.get("schemaVersion").Value<int>();
+            int schemaVersion = node.Get("schemaVersion").Value<int>();
             if (schemaVersion == -1)
             {
                 throw new CacheCorruptedException(
-                    cacheStorageFiles.getCacheDirectory(),
+                    cacheStorageFiles.GetCacheDirectory(),
                     Resources.CacheStorageReaderInvalidSchemaVersionExecpetionMessageFormat);
             }
 
@@ -124,48 +124,48 @@ namespace Jib.Net.Core.Cache
             {
                 return Option.Of(
                     new ManifestAndConfig(
-                        JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestPath),
+                        JsonTemplateMapper.ReadJsonFromFile<V21ManifestTemplate>(manifestPath),
                         null));
             }
             if (schemaVersion == 2)
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
-                string mediaType = node.get("mediaType").Value<string>();
+                string mediaType = node.Get("mediaType").Value<string>();
 
                 IManifestTemplate manifestTemplate;
                 if (V22ManifestTemplate.ManifestMediaType == mediaType)
                 {
                     manifestTemplate =
-                        JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestPath);
+                        JsonTemplateMapper.ReadJsonFromFile<V22ManifestTemplate>(manifestPath);
                 }
                 else if (OCIManifestTemplate.ManifestMediaType == mediaType)
                 {
                     manifestTemplate =
-                        JsonTemplateMapper.readJsonFromFile<OCIManifestTemplate>(manifestPath);
+                        JsonTemplateMapper.ReadJsonFromFile<OCIManifestTemplate>(manifestPath);
                 }
                 else
                 {
                     throw new CacheCorruptedException(
-                        cacheStorageFiles.getCacheDirectory(),
+                        cacheStorageFiles.GetCacheDirectory(),
                         string.Format(
                             CultureInfo.CurrentCulture,
                             Resources.CacheStorageReaderUnknownMediaTypeExecpetionMessageFormat, mediaType));
                 }
 
                 SystemPath configPath = imageDirectory.Resolve("config.json");
-                if (!Files.exists(configPath))
+                if (!Files.Exists(configPath))
                 {
                     throw new CacheCorruptedException(
-                        cacheStorageFiles.getCacheDirectory(),
+                        cacheStorageFiles.GetCacheDirectory(),
                        Resources.CacheStorageReaderContainerConfigurationMissingExecpetionMessage);
                 }
                 ContainerConfigurationTemplate config =
-                    JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(configPath);
+                    JsonTemplateMapper.ReadJsonFromFile<ContainerConfigurationTemplate>(configPath);
 
                 return Option.Of(new ManifestAndConfig(manifestTemplate, config));
             }
             throw new CacheCorruptedException(
-                cacheStorageFiles.getCacheDirectory(),
+                cacheStorageFiles.GetCacheDirectory(),
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.CacheStorageReaderInvalidSchemaVersionExecpetionMessageFormat, schemaVersion));
@@ -179,37 +179,37 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public Option<CachedLayer> retrieve(DescriptorDigest layerDigest)
+        public Option<CachedLayer> Retrieve(DescriptorDigest layerDigest)
         {
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
-            SystemPath layerDirectory = cacheStorageFiles.getLayerDirectory(layerDigest);
-            if (!Files.exists(layerDirectory))
+            SystemPath layerDirectory = cacheStorageFiles.GetLayerDirectory(layerDigest);
+            if (!Files.Exists(layerDirectory))
             {
                 return Option.Empty<CachedLayer>();
             }
 
-            CachedLayer.Builder cachedLayerBuilder = CachedLayer.builder().setLayerDigest(layerDigest);
+            CachedLayer.Builder cachedLayerBuilder = CachedLayer.CreateBuilder().SetLayerDigest(layerDigest);
 
-            foreach (SystemPath fileInLayerDirectory in Files.list(layerDirectory))
+            foreach (SystemPath fileInLayerDirectory in Files.List(layerDirectory))
             {
-                if (CacheStorageFiles.isLayerFile(fileInLayerDirectory))
+                if (CacheStorageFiles.IsLayerFile(fileInLayerDirectory))
                 {
-                    if (cachedLayerBuilder.hasLayerBlob())
+                    if (cachedLayerBuilder.HasLayerBlob())
                     {
                         throw new CacheCorruptedException(
-                            cacheStorageFiles.getCacheDirectory(),
+                            cacheStorageFiles.GetCacheDirectory(),
                             "Multiple layer files found for layer with digest "
-                                + layerDigest.getHash()
+                                + layerDigest.GetHash()
                                 + " in directory: "
                                 + layerDirectory);
                     }
                     cachedLayerBuilder
-                        .setLayerBlob(Blobs.from(fileInLayerDirectory))
-                        .setLayerDiffId(cacheStorageFiles.getDiffId(fileInLayerDirectory))
-                        .setLayerSize(Files.size(fileInLayerDirectory));
+                        .SetLayerBlob(Blobs.From(fileInLayerDirectory))
+                        .SetLayerDiffId(cacheStorageFiles.GetDiffId(fileInLayerDirectory))
+                        .SetLayerSize(Files.Size(fileInLayerDirectory));
                 }
             }
-            return Option.Of(cachedLayerBuilder.build());
+            return Option.Of(cachedLayerBuilder.Build());
         }
 
         /**
@@ -220,12 +220,12 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the selector file contents was not a valid layer digest
          * @throws IOException if an I/O exception occurs
          */
-        public Option<DescriptorDigest> select(DescriptorDigest selector)
+        public Option<DescriptorDigest> Select(DescriptorDigest selector)
         {
 
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
-            if (!Files.exists(selectorFile))
+            SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
+            if (!Files.Exists(selectorFile))
             {
                 return Option.Empty<DescriptorDigest>();
             }
@@ -233,16 +233,16 @@ namespace Jib.Net.Core.Cache
                     File.ReadAllText(selectorFile.ToFile().FullName, Encoding.UTF8);
             try
             {
-                return Option.Of(DescriptorDigest.fromHash(selectorFileContents));
+                return Option.Of(DescriptorDigest.FromHash(selectorFileContents));
             }
             catch (DigestException)
             {
                 throw new CacheCorruptedException(
-                    cacheStorageFiles.getCacheDirectory(),
+                    cacheStorageFiles.GetCacheDirectory(),
                     "Expected valid layer digest as contents of selector file `"
                         + selectorFile
                         + "` for selector `"
-                        + selector.getHash()
+                        + selector.GetHash()
                         + "`, but got: "
                         + selectorFileContents);
             }

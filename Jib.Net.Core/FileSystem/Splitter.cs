@@ -30,27 +30,27 @@ namespace com.google.cloud.tools.jib.filesystem
                 this.v = v;
             }
 
-            internal override IList<string> splitToList(string s)
+            internal override IList<string> SplitToList(string s)
             {
                 return s.Split(new[] { v }, StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
-        internal static Splitter on(char v)
+        internal static Splitter On(char v)
         {
             return new CharSplitter(v);
         }
 
-        internal static Splitter on(string v)
+        internal static Splitter On(string v)
         {
             return new StringSplitter(v);
         }
 
-        internal abstract IList<string> splitToList(string s);
+        internal abstract IList<string> SplitToList(string s);
 
-        internal IEnumerable<string> split(string s)
+        internal IEnumerable<string> Split(string s)
         {
-            return splitToList(s);
+            return SplitToList(s);
         }
 
         private class StringSplitter : Splitter
@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.filesystem
                 this.v = v;
             }
 
-            internal override IList<string> splitToList(string s)
+            internal override IList<string> SplitToList(string s)
             {
                 return s.Split(new[] { v }, StringSplitOptions.RemoveEmptyEntries);
             }

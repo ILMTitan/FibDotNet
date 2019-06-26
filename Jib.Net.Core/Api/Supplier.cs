@@ -22,7 +22,7 @@ namespace Jib.Net.Core
 
     public static class SupplierExtensions
     {
-        public static T get<T>(this Supplier<T> s)
+        public static T Get<T>(this Supplier<T> s)
         {
             s = s ?? throw new ArgumentNullException(nameof(s));
             return s();

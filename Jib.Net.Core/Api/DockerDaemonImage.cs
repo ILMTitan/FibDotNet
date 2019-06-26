@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.api
          * @param imageReference the image reference
          * @return a new {@link DockerDaemonImage}
          */
-        public static DockerDaemonImage named(ImageReference imageReference)
+        public static DockerDaemonImage Named(ImageReference imageReference)
         {
             return new DockerDaemonImage(imageReference);
         }
@@ -45,9 +45,9 @@ namespace com.google.cloud.tools.jib.api
          * @return a new {@link DockerDaemonImage}
          * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
          */
-        public static DockerDaemonImage named(string imageReference)
+        public static DockerDaemonImage Named(string imageReference)
         {
-            return named(ImageReference.parse(imageReference));
+            return Named(ImageReference.Parse(imageReference));
         }
 
         private readonly ImageReference imageReference;
@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.api
          * @param dockerExecutable the path to the {@code docker} CLI
          * @return this
          */
-        public DockerDaemonImage setDockerExecutable(SystemPath dockerExecutable)
+        public DockerDaemonImage SetDockerExecutable(SystemPath dockerExecutable)
         {
             this.dockerExecutable = dockerExecutable;
             return this;
@@ -78,23 +78,23 @@ namespace com.google.cloud.tools.jib.api
          * @param dockerEnvironment additional environment variables
          * @return this
          */
-        public DockerDaemonImage setDockerEnvironment(IDictionary<string, string> dockerEnvironment)
+        public DockerDaemonImage SetDockerEnvironment(IDictionary<string, string> dockerEnvironment)
         {
             this.dockerEnvironment = dockerEnvironment;
             return this;
         }
 
-        public ImageReference getImageReference()
+        public ImageReference GetImageReference()
         {
             return imageReference;
         }
 
-        public Option<SystemPath> getDockerExecutable()
+        public Option<SystemPath> GetDockerExecutable()
         {
             return Option.OfNullable(dockerExecutable);
         }
 
-        public IDictionary<string, string> getDockerEnvironment()
+        public IDictionary<string, string> GetDockerEnvironment()
         {
             return dockerEnvironment;
         }

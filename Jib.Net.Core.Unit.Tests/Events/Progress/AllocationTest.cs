@@ -26,7 +26,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         private const double DOUBLE_ERROR_MARGIN = 1e-10;
 
         [Test]
-        public void testSmoke_linear()
+        public void TestSmoke_linear()
         {
             Allocation root = Allocation.NewRoot("root", 1);
             Allocation node1 = root.NewChild("node1", 2);
@@ -49,7 +49,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         }
 
         [Test]
-        public void testFractionOfRoot_tree_partial()
+        public void TestFractionOfRoot_tree_partial()
         {
             Allocation root = Allocation.NewRoot("ignored", 10);
             Allocation left = root.NewChild("ignored", 2);
@@ -70,7 +70,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         }
 
         [Test]
-        public void testFractionOfRoot_tree_complete()
+        public void TestFractionOfRoot_tree_complete()
         {
             Allocation root = Allocation.NewRoot("ignored", 2);
 

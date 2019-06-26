@@ -27,122 +27,122 @@ namespace com.google.cloud.tools.jib.api
     public class DescriptorDigestTest
     {
         [Test]
-        public void testCreateFromHash_pass()
+        public void TestCreateFromHash_pass()
         {
-            string goodHash = createGoodHash('a');
+            string goodHash = CreateGoodHash('a');
 
-            DescriptorDigest descriptorDigest = DescriptorDigest.fromHash(goodHash);
+            DescriptorDigest descriptorDigest = DescriptorDigest.FromHash(goodHash);
 
-            Assert.AreEqual(goodHash, descriptorDigest.getHash());
-            Assert.AreEqual("sha256:" + goodHash, descriptorDigest.toString());
+            Assert.AreEqual(goodHash, descriptorDigest.GetHash());
+            Assert.AreEqual("sha256:" + goodHash, JavaExtensions.ToString(descriptorDigest));
         }
 
         [Test]
-        public void testCreateFromHash_fail()
+        public void TestCreateFromHash_fail()
         {
             const string badHash = "not a valid hash";
 
             try
             {
-                DescriptorDigest.fromHash(badHash);
+                DescriptorDigest.FromHash(badHash);
                 Assert.Fail("Invalid hash should have caused digest creation failure.");
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid hash: " + badHash, ex.getMessage());
+                Assert.AreEqual("Invalid hash: " + badHash, ex.GetMessage());
             }
         }
 
         [Test]
-        public void testCreateFromHash_failIncorrectLength()
+        public void TestCreateFromHash_failIncorrectLength()
         {
-            string badHash = createGoodHash('a') + 'a';
+            string badHash = CreateGoodHash('a') + 'a';
 
             try
             {
-                DescriptorDigest.fromHash(badHash);
+                DescriptorDigest.FromHash(badHash);
                 Assert.Fail("Invalid hash should have caused digest creation failure.");
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid hash: " + badHash, ex.getMessage());
+                Assert.AreEqual("Invalid hash: " + badHash, ex.GetMessage());
             }
         }
 
         [Test]
-        public void testCreateFromDigest_pass()
+        public void TestCreateFromDigest_pass()
         {
-            string goodHash = createGoodHash('a');
-            string goodDigest = "sha256:" + createGoodHash('a');
+            string goodHash = CreateGoodHash('a');
+            string goodDigest = "sha256:" + CreateGoodHash('a');
 
-            DescriptorDigest descriptorDigest = DescriptorDigest.fromDigest(goodDigest);
+            DescriptorDigest descriptorDigest = DescriptorDigest.FromDigest(goodDigest);
 
-            Assert.AreEqual(goodHash, descriptorDigest.getHash());
-            Assert.AreEqual(goodDigest, descriptorDigest.toString());
+            Assert.AreEqual(goodHash, descriptorDigest.GetHash());
+            Assert.AreEqual(goodDigest, JavaExtensions.ToString(descriptorDigest));
         }
 
         [Test]
-        public void testCreateFromDigest_fail()
+        public void TestCreateFromDigest_fail()
         {
             const string badDigest = "sha256:not a valid digest";
 
             try
             {
-                DescriptorDigest.fromDigest(badDigest);
+                DescriptorDigest.FromDigest(badDigest);
                 Assert.Fail("Invalid digest should have caused digest creation failure.");
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid digest: " + badDigest, ex.getMessage());
+                Assert.AreEqual("Invalid digest: " + badDigest, ex.GetMessage());
             }
         }
 
         [Test]
-        public void testUseAsMapKey()
+        public void TestUseAsMapKey()
         {
-            DescriptorDigest descriptorDigestA1 = DescriptorDigest.fromHash(createGoodHash('a'));
-            DescriptorDigest descriptorDigestA2 = DescriptorDigest.fromHash(createGoodHash('a'));
+            DescriptorDigest descriptorDigestA1 = DescriptorDigest.FromHash(CreateGoodHash('a'));
+            DescriptorDigest descriptorDigestA2 = DescriptorDigest.FromHash(CreateGoodHash('a'));
             DescriptorDigest descriptorDigestA3 =
-                DescriptorDigest.fromDigest("sha256:" + createGoodHash('a'));
-            DescriptorDigest descriptorDigestB = DescriptorDigest.fromHash(createGoodHash('b'));
+                DescriptorDigest.FromDigest("sha256:" + CreateGoodHash('a'));
+            DescriptorDigest descriptorDigestB = DescriptorDigest.FromHash(CreateGoodHash('b'));
 
             IDictionary<DescriptorDigest, string> digestMap = new Dictionary<DescriptorDigest, string>();
 
-            digestMap.put(descriptorDigestA1, "digest with a");
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
-            Assert.IsNull(digestMap.get(descriptorDigestB));
+            digestMap.Put(descriptorDigestA1, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
+            Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.put(descriptorDigestA2, "digest with a");
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
-            Assert.IsNull(digestMap.get(descriptorDigestB));
+            digestMap.Put(descriptorDigestA2, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
+            Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.put(descriptorDigestA3, "digest with a");
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
-            Assert.IsNull(digestMap.get(descriptorDigestB));
+            digestMap.Put(descriptorDigestA3, "digest with a");
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
+            Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.put(descriptorDigestB, "digest with b");
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.get(descriptorDigestA3));
-            Assert.AreEqual("digest with b", digestMap.get(descriptorDigestB));
+            digestMap.Put(descriptorDigestB, "digest with b");
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
+            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
+            Assert.AreEqual("digest with b", digestMap.Get(descriptorDigestB));
         }
 
         /** Creates a 32 byte hexademical string to fit valid hash pattern. */
 
-        private static string createGoodHash(char character)
+        private static string CreateGoodHash(char character)
         {
             StringBuilder goodHashBuffer = new StringBuilder(64);
             for (int i = 0; i < 64; i++)
             {
-                goodHashBuffer.append(character);
+                JavaExtensions.Append(goodHashBuffer, character);
             }
-            return goodHashBuffer.toString();
+            return JavaExtensions.ToString(goodHashBuffer);
         }
     }
 }

@@ -26,10 +26,10 @@ namespace com.google.cloud.tools.jib.api
     public class FilePermissions
     {
         /** Default permissions for files added to the container. */
-        public static readonly FilePermissions DefaultFilePermissions = FilePermissions.fromOctalString("644");
+        public static readonly FilePermissions DefaultFilePermissions = FilePermissions.FromOctalString("644");
 
         /** Default permissions for folders added to the container. */
-        public static readonly FilePermissions DefaultFolderPermissions = FilePermissions.fromOctalString("755");
+        public static readonly FilePermissions DefaultFolderPermissions = FilePermissions.FromOctalString("755");
 
         /**
          * Matches an octal string representation of file permissions. From left to right, each digit
@@ -44,10 +44,10 @@ namespace com.google.cloud.tools.jib.api
          * @param octalPermissions the octal string representation of the permissions
          * @return a new {@link FilePermissions} with the given permissions
          */
-        public static FilePermissions fromOctalString(string octalPermissions)
+        public static FilePermissions FromOctalString(string octalPermissions)
         {
             Preconditions.CheckArgument(
-                octalPermissions.matches(OCTAL_PATTERN),
+                octalPermissions.Matches(OCTAL_PATTERN),
                 "octalPermissions must be a 3-digit octal number (000-777)");
 
             return new FilePermissions((PosixFilePermissions)Convert.ToInt32(octalPermissions, 8));
@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.api
          * @param posixFilePermissions the set of {@link PosixFilePermission}
          * @return a new {@link FilePermissions} with the given permissions
          */
-        public static FilePermissions fromPosixFilePermissions(
+        public static FilePermissions FromPosixFilePermissions(
             ISet<PosixFilePermissions> posixFilePermissions)
         {
             posixFilePermissions = posixFilePermissions ?? throw new ArgumentNullException(nameof(posixFilePermissions));
@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the permission bits
          */
-        public PosixFilePermissions getPermissionBits()
+        public PosixFilePermissions GetPermissionBits()
         {
             return permissionBits;
         }
@@ -93,7 +93,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the octal string representation of the permissions
          */
-        public string toOctalString()
+        public string ToOctalString()
         {
             return permissionBits.ToOctalString();
         }

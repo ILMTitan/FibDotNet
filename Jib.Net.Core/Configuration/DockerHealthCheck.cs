@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param interval the duration to wait between healthchecks.
              * @return this
              */
-            public Builder setInterval(Duration interval)
+            public Builder SetInterval(Duration interval)
             {
                 this.interval = interval;
                 return this;
@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param timeout the duration to wait until considering the healthcheck to be hung.
              * @return this
              */
-            public Builder setTimeout(Duration timeout)
+            public Builder SetTimeout(Duration timeout)
             {
                 this.timeout = timeout;
                 return this;
@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param startPeriod the duration to wait before using healthchecks
              * @return this
              */
-            public Builder setStartPeriod(Duration startPeriod)
+            public Builder SetStartPeriod(Duration startPeriod)
             {
                 this.startPeriod = startPeriod;
                 return this;
@@ -84,13 +84,13 @@ namespace com.google.cloud.tools.jib.configuration
              * @param retries the number of retries before the container is considered to be unhealthy
              * @return this
              */
-            public Builder setRetries(int retries)
+            public Builder SetRetries(int retries)
             {
                 this.retries = retries;
                 return this;
             }
 
-            public DockerHealthCheck build()
+            public DockerHealthCheck Build()
             {
                 return new DockerHealthCheck(command, interval, timeout, startPeriod, retries);
             }
@@ -102,11 +102,11 @@ namespace com.google.cloud.tools.jib.configuration
          * @param command the command
          * @return a new {@link DockerHealthCheck.Builder}
          */
-        public static DockerHealthCheck.Builder fromCommand(IList<string> command)
+        public static DockerHealthCheck.Builder FromCommand(IList<string> command)
         {
             command = command ?? throw new ArgumentNullException(nameof(command));
-            Preconditions.CheckArgument(command.size() > 0, "command must not be empty");
-            Preconditions.CheckArgument(!command.contains(null), "command must not contain null elements");
+            Preconditions.CheckArgument(command.Size() > 0, "command must not be empty");
+            Preconditions.CheckArgument(!JavaExtensions.Contains(command, null), "command must not contain null elements");
             return new Builder(ImmutableArray.CreateRange(command));
         }
 
@@ -136,7 +136,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck command
          */
-        public IList<string> getCommand()
+        public IList<string> GetCommand()
         {
             return command;
         }
@@ -147,7 +147,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck interval
          */
-        public Option<Duration> getInterval()
+        public Option<Duration> GetInterval()
         {
             return Option.OfNullable(interval);
         }
@@ -158,7 +158,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck timeout
          */
-        public Option<Duration> getTimeout()
+        public Option<Duration> GetTimeout()
         {
             return Option.OfNullable(timeout);
         }
@@ -169,7 +169,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck start period
          */
-        public Option<Duration> getStartPeriod()
+        public Option<Duration> GetStartPeriod()
         {
             return Option.OfNullable(startPeriod);
         }
@@ -180,7 +180,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck retry count
          */
-        public Option<int> getRetries()
+        public Option<int> GetRetries()
         {
             return Option.OfNullable(retries);
         }

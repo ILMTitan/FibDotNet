@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.http
             this.writtenByteCountListener = writtenByteCountListener;
         }
 
-        public long getLength()
+        public long GetLength()
         {
             // Returns negative value for unknown length.
             return blob.Size;
@@ -53,14 +53,14 @@ namespace com.google.cloud.tools.jib.http
             stream = stream ?? throw new ArgumentNullException(nameof(stream));
             using (NotifyingOutputStream outputStream = new NotifyingOutputStream(stream, writtenByteCountListener))
             {
-                await blob.writeToAsync(outputStream).ConfigureAwait(false);
+                await blob.WriteToAsync(outputStream).ConfigureAwait(false);
                 await stream.FlushAsync().ConfigureAwait(false);
             }
         }
 
         protected override bool TryComputeLength(out long length)
         {
-            length = getLength();
+            length = GetLength();
             return length >= 0;
         }
     }

@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.builder
             this.clock = clock;
             this.timer = new Timer(clock, parentTimer);
 
-            dispatchTimerEvent(State.START, Duration.Zero, description);
+            DispatchTimerEvent(State.START, Duration.Zero, description);
         }
 
         /**
@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.builder
          * @param description a new description
          * @return the new {@link TimerEventDispatcher}
          */
-        public TimerEventDispatcher subTimer(string description)
+        public TimerEventDispatcher SubTimer(string description)
         {
             return new TimerEventDispatcher(eventHandlers, description, clock, timer);
         }
@@ -71,9 +71,9 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @see #lap(string)
          */
-        public void lap()
+        public void Lap()
         {
-            dispatchTimerEvent(State.LAP, timer.lap(), description);
+            DispatchTimerEvent(State.LAP, timer.Lap(), description);
         }
 
         /**
@@ -83,22 +83,22 @@ namespace com.google.cloud.tools.jib.builder
          * @param newDescription the description to use instead of the {@link TimerEventDispatcher}'s
          *     description
          */
-        public void lap(string newDescription)
+        public void Lap(string newDescription)
         {
-            dispatchTimerEvent(State.LAP, timer.lap(), newDescription);
+            DispatchTimerEvent(State.LAP, timer.Lap(), newDescription);
         }
 
         /** Laps and dispatches a {@link State#FINISHED} {@link TimerEvent} upon close. */
 
         public void Dispose()
         {
-            dispatchTimerEvent(State.FINISHED, timer.lap(), description);
+            DispatchTimerEvent(State.FINISHED, timer.Lap(), description);
         }
 
-        private void dispatchTimerEvent(State state, Duration duration, string eventDescription)
+        private void DispatchTimerEvent(State state, Duration duration, string eventDescription)
         {
             eventHandlers.Dispatch(
-                new TimerEvent(state, timer, duration, timer.getElapsedTime(), eventDescription));
+                new TimerEvent(state, timer, duration, timer.GetElapsedTime(), eventDescription));
         }
     }
 }

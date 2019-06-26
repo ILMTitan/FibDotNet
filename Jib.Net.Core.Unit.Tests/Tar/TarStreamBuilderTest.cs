@@ -42,199 +42,199 @@ namespace com.google.cloud.tools.jib.tar
         private TarStreamBuilder testTarStreamBuilder;
 
         [SetUp]
-        public void setup()
+        public void Setup()
         {
             testTarStreamBuilder = new TarStreamBuilder();
             // Gets the test resource files.
-            fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
-            fileB = Paths.get(TestResources.getResource("core/fileB").ToURI());
-            directoryA = Paths.get(TestResources.getResource("core/directoryA").ToURI());
+            fileA = Paths.Get(TestResources.GetResource("core/fileA").ToURI());
+            fileB = Paths.Get(TestResources.GetResource("core/fileB").ToURI());
+            directoryA = Paths.Get(TestResources.GetResource("core/directoryA").ToURI());
 
-            fileAContents = Files.readAllBytes(fileA);
-            fileBContents = Files.readAllBytes(fileB);
+            fileAContents = Files.ReadAllBytes(fileA);
+            fileBContents = Files.ReadAllBytes(fileB);
         }
 
         [Test]
-        public async Task testToBlob_tarArchiveEntriesAsync()
+        public async Task TestToBlob_tarArchiveEntriesAsync()
         {
-            setUpWithTarEntries();
-            await verifyBlobWithoutCompressionAsync().ConfigureAwait(false);
+            SetUpWithTarEntries();
+            await VerifyBlobWithoutCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_stringsAsync()
+        public async Task TestToBlob_stringsAsync()
         {
-            setUpWithStrings();
-            await verifyBlobWithoutCompressionAsync().ConfigureAwait(false);
+            SetUpWithStrings();
+            await VerifyBlobWithoutCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_stringsAndTarArchiveEntriesAsync()
+        public async Task TestToBlob_stringsAndTarArchiveEntriesAsync()
         {
-            setUpWithStringsAndTarEntries();
-            await verifyBlobWithoutCompressionAsync().ConfigureAwait(false);
+            SetUpWithStringsAndTarEntries();
+            await VerifyBlobWithoutCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_tarArchiveEntriesWithCompressionAsync()
+        public async Task TestToBlob_tarArchiveEntriesWithCompressionAsync()
         {
-            setUpWithTarEntries();
-            await verifyBlobWithCompressionAsync().ConfigureAwait(false);
+            SetUpWithTarEntries();
+            await VerifyBlobWithCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_stringsWithCompressionAsync()
+        public async Task TestToBlob_stringsWithCompressionAsync()
         {
-            setUpWithStrings();
-            await verifyBlobWithCompressionAsync().ConfigureAwait(false);
+            SetUpWithStrings();
+            await VerifyBlobWithCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_stringsAndTarArchiveEntriesWithCompressionAsync()
+        public async Task TestToBlob_stringsAndTarArchiveEntriesWithCompressionAsync()
         {
-            setUpWithStringsAndTarEntries();
-            await verifyBlobWithCompressionAsync().ConfigureAwait(false);
+            SetUpWithStringsAndTarEntries();
+            await VerifyBlobWithCompressionAsync().ConfigureAwait(false);
         }
 
         [Test]
-        public async Task testToBlob_multiByteAsync()
+        public async Task TestToBlob_multiByteAsync()
         {
-            testTarStreamBuilder.addByteEntry("日本語".getBytes(Encoding.UTF8), "test");
-            testTarStreamBuilder.addByteEntry("asdf".getBytes(Encoding.UTF8), "crepecake");
-            testTarStreamBuilder.addBlobEntry(
-                Blobs.from("jib"), "jib".getBytes(Encoding.UTF8).Length, "jib");
+            testTarStreamBuilder.AddByteEntry("日本語".GetBytes(Encoding.UTF8), "test");
+            testTarStreamBuilder.AddByteEntry("asdf".GetBytes(Encoding.UTF8), "crepecake");
+            testTarStreamBuilder.AddBlobEntry(
+                Blobs.From("jib"), "jib".GetBytes(Encoding.UTF8).Length, "jib");
 
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
             Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
-            await testTarStreamBuilder.writeAsTarArchiveToAsync(compressorStream).ConfigureAwait(false);
+            await testTarStreamBuilder.WriteAsTarArchiveToAsync(compressorStream).ConfigureAwait(false);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.toByteArray());
+                new MemoryStream(tarByteOutputStream.ToByteArray());
             Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
 
             // Verify multi-byte characters are written/read correctly
-            TarEntry headerFile = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("test", headerFile.getName());
+            TarEntry headerFile = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("test", headerFile.GetName());
             Assert.AreEqual(
-                "日本語", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "日本語", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            headerFile = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("crepecake", headerFile.getName());
+            headerFile = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("crepecake", headerFile.GetName());
             Assert.AreEqual(
-                "asdf", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "asdf", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            headerFile = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("jib", headerFile.getName());
+            headerFile = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("jib", headerFile.GetName());
             Assert.AreEqual(
-                "jib", Encoding.UTF8.GetString(ByteStreams.toByteArray(tarArchiveInputStream)));
+                "jib", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            Assert.IsNull(tarArchiveInputStream.getNextTarEntry());
+            Assert.IsNull(tarArchiveInputStream.GetNextTarEntry());
         }
 
         /** Creates a TarStreamBuilder using TarArchiveEntries. */
-        private void setUpWithTarEntries()
+        private void SetUpWithTarEntries()
         {
             // Prepares a test TarStreamBuilder.
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.ToFile(), "some/path/to/resourceFileA"));
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
-            testTarStreamBuilder.addTarArchiveEntry(
+            testTarStreamBuilder.AddTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.ToFile(), "some/path/to/resourceFileA"));
+            testTarStreamBuilder.AddTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
+            testTarStreamBuilder.AddTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
-            testTarStreamBuilder.addTarArchiveEntry(
+            testTarStreamBuilder.AddTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(
                     fileA.ToFile(),
                     "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890"));
         }
 
         /** Creates a TarStreamBuilder using Strings. */
-        private void setUpWithStrings()
+        private void SetUpWithStrings()
         {
             // Prepares a test TarStreamBuilder.
-            testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
-            testTarStreamBuilder.addByteEntry(fileBContents, "crepecake");
-            testTarStreamBuilder.addTarArchiveEntry(
+            testTarStreamBuilder.AddByteEntry(fileAContents, "some/path/to/resourceFileA");
+            testTarStreamBuilder.AddByteEntry(fileBContents, "crepecake");
+            testTarStreamBuilder.AddTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
-            testTarStreamBuilder.addByteEntry(
+            testTarStreamBuilder.AddByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
         }
 
         /** Creates a TarStreamBuilder using Strings and TarArchiveEntries. */
-        private void setUpWithStringsAndTarEntries()
+        private void SetUpWithStringsAndTarEntries()
         {
             // Prepares a test TarStreamBuilder.
-            testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
-            testTarStreamBuilder.addTarArchiveEntry(
+            testTarStreamBuilder.AddByteEntry(fileAContents, "some/path/to/resourceFileA");
+            testTarStreamBuilder.AddTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
+            testTarStreamBuilder.AddTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
-            testTarStreamBuilder.addByteEntry(
+            testTarStreamBuilder.AddByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
         }
 
         /** Creates a compressed blob from the TarStreamBuilder and verifies it. */
-        private async Task verifyBlobWithCompressionAsync()
+        private async Task VerifyBlobWithCompressionAsync()
         {
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
             Stream compressorStream = new GZipStream(tarByteOutputStream, CompressionMode.Compress);
-            await testTarStreamBuilder.writeAsTarArchiveToAsync(compressorStream).ConfigureAwait(false);
+            await testTarStreamBuilder.WriteAsTarArchiveToAsync(compressorStream).ConfigureAwait(false);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.toByteArray());
+                new MemoryStream(tarByteOutputStream.ToByteArray());
             Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
-            verifyTarArchive(tarArchiveInputStream);
+            VerifyTarArchive(tarArchiveInputStream);
         }
 
         /** Creates an uncompressed blob from the TarStreamBuilder and verifies it. */
-        private async Task verifyBlobWithoutCompressionAsync()
+        private async Task VerifyBlobWithoutCompressionAsync()
         {
             // Writes the BLOB and captures the output.
             MemoryStream tarByteOutputStream = new MemoryStream();
-            await testTarStreamBuilder.writeAsTarArchiveToAsync(tarByteOutputStream).ConfigureAwait(false);
+            await testTarStreamBuilder.WriteAsTarArchiveToAsync(tarByteOutputStream).ConfigureAwait(false);
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.toByteArray());
+                new MemoryStream(tarByteOutputStream.ToByteArray());
             TarInputStream tarArchiveInputStream = new TarInputStream(byteArrayInputStream);
-            verifyTarArchive(tarArchiveInputStream);
+            VerifyTarArchive(tarArchiveInputStream);
         }
 
         /**
          * Helper method to verify that the files were archived correctly by reading {@code
          * tarArchiveInputStream}.
          */
-        private void verifyTarArchive(TarInputStream tarArchiveInputStream)
+        private void VerifyTarArchive(TarInputStream tarArchiveInputStream)
         {
             // Verifies fileA was archived correctly.
-            TarEntry headerFileA = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("some/path/to/resourceFileA", headerFileA.getName());
-            byte[] fileAString = ByteStreams.toByteArray(tarArchiveInputStream);
+            TarEntry headerFileA = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("some/path/to/resourceFileA", headerFileA.GetName());
+            byte[] fileAString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileAContents, fileAString);
 
             // Verifies fileB was archived correctly.
-            TarEntry headerFileB = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("crepecake", headerFileB.getName());
-            byte[] fileBString = ByteStreams.toByteArray(tarArchiveInputStream);
+            TarEntry headerFileB = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("crepecake", headerFileB.GetName());
+            byte[] fileBString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileBContents, fileBString);
 
             // Verifies directoryA was archived correctly.
-            TarEntry headerDirectoryA = tarArchiveInputStream.getNextTarEntry();
-            Assert.AreEqual("some/path/to/", headerDirectoryA.getName());
+            TarEntry headerDirectoryA = tarArchiveInputStream.GetNextTarEntry();
+            Assert.AreEqual("some/path/to/", headerDirectoryA.GetName());
 
             // Verifies the long file was archived correctly.
-            TarEntry headerFileALong = tarArchiveInputStream.getNextTarEntry();
+            TarEntry headerFileALong = tarArchiveInputStream.GetNextTarEntry();
             Assert.AreEqual(
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890",
-                headerFileALong.getName());
-            byte[] fileALongString = ByteStreams.toByteArray(tarArchiveInputStream);
+                headerFileALong.GetName());
+            byte[] fileALongString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileAContents, fileALongString);
 
-            Assert.IsNull(tarArchiveInputStream.getNextTarEntry());
+            Assert.IsNull(tarArchiveInputStream.GetNextTarEntry());
         }
     }
 }

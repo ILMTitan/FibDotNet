@@ -28,104 +28,104 @@ namespace com.google.cloud.tools.jib.configuration
     public class ContainerConfigurationTest
     {
         [Test]
-        public void testBuilder_nullValues()
+        public void TestBuilder_nullValues()
         {
             // Java arguments element should not be null.
             try
             {
-                ContainerConfiguration.builder().setProgramArguments(Arrays.asList("first", null));
+                ContainerConfiguration.CreateBuilder().SetProgramArguments(Arrays.AsList("first", null));
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("program arguments list contains null elements", ex.getMessage());
+                Assert.AreEqual("program arguments list contains null elements", ex.GetMessage());
             }
 
             // Entrypoint element should not be null.
             try
             {
-                ContainerConfiguration.builder().setEntrypoint(Arrays.asList("first", null));
+                ContainerConfiguration.CreateBuilder().SetEntrypoint(Arrays.AsList("first", null));
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("entrypoint contains null elements", ex.getMessage());
+                Assert.AreEqual("entrypoint contains null elements", ex.GetMessage());
             }
 
             // Exposed ports element should not be null.
-            ISet<Port> badPorts = new HashSet<Port>(Arrays.asList(Port.tcp(1000), null));
+            ISet<Port> badPorts = new HashSet<Port>(Arrays.AsList(Port.Tcp(1000), null));
             try
             {
-                ContainerConfiguration.builder().setExposedPorts(badPorts);
+                ContainerConfiguration.CreateBuilder().SetExposedPorts(badPorts);
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("ports list contains null elements", ex.getMessage());
+                Assert.AreEqual("ports list contains null elements", ex.GetMessage());
             }
 
             // Volume element should not be null.
             ISet<AbsoluteUnixPath> badVolumes =
-                new HashSet<AbsoluteUnixPath>(Arrays.asList(AbsoluteUnixPath.get("/"), null));
+                new HashSet<AbsoluteUnixPath>(Arrays.AsList(AbsoluteUnixPath.Get("/"), null));
             try
             {
-                ContainerConfiguration.builder().setVolumes(badVolumes);
+                ContainerConfiguration.CreateBuilder().SetVolumes(badVolumes);
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("volumes list contains null elements", ex.getMessage());
+                Assert.AreEqual("volumes list contains null elements", ex.GetMessage());
             }
 
             IDictionary<string, string> nullValueMap = new Dictionary<string, string>();
-            nullValueMap.put("key", null);
+            nullValueMap.Put("key", null);
 
             // Labels values should not be null.
             try
             {
-                ContainerConfiguration.builder().setLabels(nullValueMap);
+                ContainerConfiguration.CreateBuilder().SetLabels(nullValueMap);
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("labels map contains null values", ex.getMessage());
+                Assert.AreEqual("labels map contains null values", ex.GetMessage());
             }
 
             // Environment values should not be null.
             try
             {
-                ContainerConfiguration.builder().setEnvironment(nullValueMap);
+                ContainerConfiguration.CreateBuilder().SetEnvironment(nullValueMap);
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("environment map contains null values", ex.getMessage());
+                Assert.AreEqual("environment map contains null values", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testBuilder_environmentMapTypes()
+        public void TestBuilder_environmentMapTypes()
         {
             // Can accept empty environment.
-            ContainerConfiguration.builder().setEnvironment(ImmutableDictionary.Create<string, string>()).build();
+            ContainerConfiguration.CreateBuilder().SetEnvironment(ImmutableDictionary.Create<string, string>()).Build();
 
             // Can handle other map types (https://github.com/GoogleContainerTools/jib/issues/632)
-            ContainerConfiguration.builder().setEnvironment(new SortedDictionary<string, string>());
+            ContainerConfiguration.CreateBuilder().SetEnvironment(new SortedDictionary<string, string>());
         }
 
         [Test]
-        public void testBuilder_user()
+        public void TestBuilder_user()
         {
-            ContainerConfiguration configuration = ContainerConfiguration.builder().setUser("john").build();
-            Assert.AreEqual("john", configuration.getUser());
+            ContainerConfiguration configuration = ContainerConfiguration.CreateBuilder().SetUser("john").Build();
+            Assert.AreEqual("john", configuration.GetUser());
         }
 
         [Test]
-        public void testBuilder_workingDirectory()
+        public void TestBuilder_workingDirectory()
         {
             ContainerConfiguration configuration =
-                ContainerConfiguration.builder().setWorkingDirectory(AbsoluteUnixPath.get("/path")).build();
-            Assert.AreEqual(AbsoluteUnixPath.get("/path"), configuration.getWorkingDirectory());
+                ContainerConfiguration.CreateBuilder().SetWorkingDirectory(AbsoluteUnixPath.Get("/path")).Build();
+            Assert.AreEqual(AbsoluteUnixPath.Get("/path"), configuration.GetWorkingDirectory());
         }
     }
 }

@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.hash
             hashLazy = new Lazy<byte[]>(ComputeHash);
         }
 
-        internal static MessageDigest getInstance(string algorithmName)
+        internal static MessageDigest GetInstance(string algorithmName)
         {
             switch (algorithmName)
             {
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.hash
             }
         }
 
-        internal byte[] digest()
+        internal byte[] Digest()
         {
             return hashLazy.Value;
         }

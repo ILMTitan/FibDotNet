@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.http
         {
         }
 
-        public Task<HttpResponseMessage> sendAsync(HttpRequestMessage request)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
             return Task.FromResult(responseSupplier(request));
         }

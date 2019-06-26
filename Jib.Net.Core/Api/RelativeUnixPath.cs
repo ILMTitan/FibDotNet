@@ -39,13 +39,13 @@ namespace com.google.cloud.tools.jib.api
          * @param relativePath the relative path
          * @return a new {@link RelativeUnixPath}
          */
-        public static RelativeUnixPath get(string relativePath)
+        public static RelativeUnixPath Get(string relativePath)
         {
             relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             Preconditions.CheckArgument(
                 !relativePath.StartsWith("/", StringComparison.Ordinal), "Path starts with forward slash (/): " + relativePath);
 
-            return new RelativeUnixPath(UnixPathParser.parse(relativePath));
+            return new RelativeUnixPath(UnixPathParser.Parse(relativePath));
         }
 
         private readonly ImmutableArray<string> pathComponents;
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the relative path this represents, in a list of components
          */
-        public ImmutableArray<string> getRelativePathComponents()
+        public ImmutableArray<string> GetRelativePathComponents()
         {
             return pathComponents;
         }

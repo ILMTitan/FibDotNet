@@ -58,12 +58,12 @@ namespace com.google.cloud.tools.jib.registry
                 this.parent = parent;
             }
 
-            public BlobHttpContent getContent()
+            public BlobHttpContent GetContent()
             {
                 return null;
             }
 
-            public IList<string> getAccept()
+            public IList<string> GetAccept()
             {
                 return new List<string>();
             }
@@ -72,45 +72,45 @@ namespace com.google.cloud.tools.jib.registry
              * @return a Uri to continue pushing the BLOB to, or {@code null} if the BLOB already exists on
              *     the registry
              */
-            public Task<Uri> handleResponseAsync(HttpResponseMessage response)
+            public Task<Uri> HandleResponseAsync(HttpResponseMessage response)
             {
-                switch (response.getStatusCode())
+                switch (response.GetStatusCode())
                 {
                     case HttpStatusCode.Created:
                         // The BLOB exists in the registry.
                         return Task.FromResult(default(Uri));
 
                     case HttpStatusCode.Accepted:
-                        return Task.FromResult(getRedirectLocation(response));
+                        return Task.FromResult(GetRedirectLocation(response));
 
                     default:
-                        throw parent.buildRegistryErrorException(
-                            "Received unrecognized status code " + response.getStatusCode());
+                        throw parent.BuildRegistryErrorException(
+                            "Received unrecognized status code " + response.GetStatusCode());
                 }
             }
 
-            public Uri getApiRoute(string apiRouteBase)
+            public Uri GetApiRoute(string apiRouteBase)
             {
                 StringBuilder url =
-                    new StringBuilder(apiRouteBase)
-                        .append(parent.registryEndpointRequestProperties.getImageName())
-                        .append("/blobs/uploads/");
+                    JavaExtensions.Append(JavaExtensions.Append(new StringBuilder(apiRouteBase)
+, parent.registryEndpointRequestProperties.GetImageName())
+, "/blobs/uploads/");
                 if (parent.sourceRepository != null)
                 {
-                    url.append("?mount=").append(parent.blobDigest).append("&from=").append(parent.sourceRepository);
+                    JavaExtensions.Append(JavaExtensions.Append(JavaExtensions.Append(JavaExtensions.Append(url, "?mount="), parent.blobDigest), "&from="), parent.sourceRepository);
                 }
 
-                return new Uri(url.toString());
+                return new Uri(JavaExtensions.ToString(url));
             }
 
-            public HttpMethod getHttpMethod()
+            public HttpMethod GetHttpMethod()
             {
                 return HttpMethod.Post;
             }
 
-            public string getActionDescription()
+            public string GetActionDescription()
             {
-                return parent.getActionDescription();
+                return parent.GetActionDescription();
             }
         }
 
@@ -121,37 +121,37 @@ namespace com.google.cloud.tools.jib.registry
             private readonly Uri location;
             private readonly Action<long> writtenByteCountListener;
 
-            public BlobHttpContent getContent()
+            public BlobHttpContent GetContent()
             {
                 return new BlobHttpContent(parent.blob, MediaTypeNames.Application.Octet, writtenByteCountListener);
             }
 
-            public IList<string> getAccept()
+            public IList<string> GetAccept()
             {
                 return new List<string>();
             }
 
             /** @return a Uri to continue pushing the BLOB to */
 
-            public Task<Uri> handleResponseAsync(HttpResponseMessage response)
+            public Task<Uri> HandleResponseAsync(HttpResponseMessage response)
             {
                 // TODO: Handle 204 No Content
-                return Task.FromResult(getRedirectLocation(response));
+                return Task.FromResult(GetRedirectLocation(response));
             }
 
-            public Uri getApiRoute(string apiRouteBase)
+            public Uri GetApiRoute(string apiRouteBase)
             {
                 return location;
             }
 
-            public HttpMethod getHttpMethod()
+            public HttpMethod GetHttpMethod()
             {
                 return new HttpMethod("patch");
             }
 
-            public string getActionDescription()
+            public string GetActionDescription()
             {
-                return parent.getActionDescription();
+                return parent.GetActionDescription();
             }
 
             public Writer(Uri location, Action<long> writtenByteCountListener, BlobPusher parent)
@@ -168,24 +168,24 @@ namespace com.google.cloud.tools.jib.registry
             private readonly Uri location;
             private readonly BlobPusher parent;
 
-            public BlobHttpContent getContent()
+            public BlobHttpContent GetContent()
             {
                 return null;
             }
 
-            public IList<string> getAccept()
+            public IList<string> GetAccept()
             {
                 return new List<string>();
             }
 
-            public Task<object> handleResponseAsync(HttpResponseMessage response)
+            public Task<object> HandleResponseAsync(HttpResponseMessage response)
             {
                 return Task.FromResult(default(object));
             }
 
             /** @return {@code location} with query parameter 'digest' set to the BLOB's digest */
 
-            public Uri getApiRoute(string apiRouteBase)
+            public Uri GetApiRoute(string apiRouteBase)
             {
                 UriBuilder builder = new UriBuilder(location);
                 if (string.IsNullOrEmpty(builder.Query))
@@ -199,14 +199,14 @@ namespace com.google.cloud.tools.jib.registry
                 return builder.Uri;
             }
 
-            public HttpMethod getHttpMethod()
+            public HttpMethod GetHttpMethod()
             {
                 return HttpMethod.Put;
             }
 
-            public string getActionDescription()
+            public string GetActionDescription()
             {
-                return parent.getActionDescription();
+                return parent.GetActionDescription();
             }
 
             public Committer(Uri location, BlobPusher parent)
@@ -232,7 +232,7 @@ namespace com.google.cloud.tools.jib.registry
          * @return a {@link RegistryEndpointProvider} for initializing the BLOB upload with an existence
          *     check
          */
-        public RegistryEndpointProvider<Uri> initializer()
+        public RegistryEndpointProvider<Uri> CreateInitializer()
         {
             return new Initializer(this);
         }
@@ -242,7 +242,7 @@ namespace com.google.cloud.tools.jib.registry
          * @param blobProgressListener the listener for {@link Blob} push progress
          * @return a {@link RegistryEndpointProvider} for writing the BLOB to an upload location
          */
-        public RegistryEndpointProvider<Uri> writer(Uri location, Action<long> writtenByteCountListener)
+        public RegistryEndpointProvider<Uri> CreateWriter(Uri location, Action<long> writtenByteCountListener)
         {
             return new Writer(location, writtenByteCountListener, this);
         }
@@ -251,29 +251,29 @@ namespace com.google.cloud.tools.jib.registry
          * @param location the upload Uri
          * @return a {@link RegistryEndpointProvider} for committing the written BLOB with its digest
          */
-        public RegistryEndpointProvider<object> committer(Uri location)
+        public RegistryEndpointProvider<object> CreateCommitter(Uri location)
         {
             return new Committer(location, this);
         }
 
-        private RegistryErrorException buildRegistryErrorException(string reason)
+        private RegistryErrorException BuildRegistryErrorException(string reason)
         {
             RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
-                new RegistryErrorExceptionBuilder(getActionDescription());
-            registryErrorExceptionBuilder.addReason(reason);
-            return registryErrorExceptionBuilder.build();
+                new RegistryErrorExceptionBuilder(GetActionDescription());
+            registryErrorExceptionBuilder.AddReason(reason);
+            return registryErrorExceptionBuilder.Build();
         }
 
         /**
          * @return the common action description for {@link Initializer}, {@link Writer}, and {@link
          *     Committer}
          */
-        private string getActionDescription()
+        private string GetActionDescription()
         {
             return "push BLOB for "
-                + registryEndpointRequestProperties.getRegistry()
+                + registryEndpointRequestProperties.GetRegistry()
                 + "/"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + " with digest "
                 + blobDigest;
         }
@@ -290,9 +290,9 @@ namespace com.google.cloud.tools.jib.registry
          * @return the new location for the next request
          * @throws RegistryErrorException if there was not a single 'Location' header
          */
-        public static Uri getRedirectLocation(HttpResponseMessage response)
+        public static Uri GetRedirectLocation(HttpResponseMessage response)
         {
-            return new Uri(response.getRequestUrl(), response.Headers.Location);
+            return new Uri(response.GetRequestUrl(), response.Headers.Location);
         }
     }
 }

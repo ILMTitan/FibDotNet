@@ -56,10 +56,10 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async Task testHandleResponse_v21Async()
+        public async Task TestHandleResponse_v21Async()
         {
-            SystemPath v21ManifestFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
-            Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
+            SystemPath v21ManifestFile = Paths.Get(TestResources.GetResource("core/json/v21manifest.json").ToURI());
+            Stream v21Manifest = new MemoryStream(Files.ReadAllBytes(v21ManifestFile));
 
             mockResponse = new HttpResponseMessage
             {
@@ -69,16 +69,16 @@ namespace com.google.cloud.tools.jib.registry
             IManifestTemplate manifestTemplate =
                 await new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponseAsync(mockResponse).ConfigureAwait(false);
+                    .HandleResponseAsync(mockResponse).ConfigureAwait(false);
 
             Assert.IsInstanceOf<V21ManifestTemplate>(manifestTemplate);
         }
 
         [Test]
-        public async Task testHandleResponse_v22Async()
+        public async Task TestHandleResponse_v22Async()
         {
-            SystemPath v22ManifestFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
-            Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
+            SystemPath v22ManifestFile = Paths.Get(TestResources.GetResource("core/json/v22manifest.json").ToURI());
+            Stream v22Manifest = new MemoryStream(Files.ReadAllBytes(v22ManifestFile));
             mockResponse = new HttpResponseMessage
             {
                 Content = new StreamContent(v22Manifest)
@@ -87,13 +87,13 @@ namespace com.google.cloud.tools.jib.registry
             IManifestTemplate manifestTemplate =
                 await new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .handleResponseAsync(mockResponse).ConfigureAwait(false);
+                    .HandleResponseAsync(mockResponse).ConfigureAwait(false);
 
             Assert.IsInstanceOf<V22ManifestTemplate>(manifestTemplate);
         }
 
         [Test]
-        public async Task testHandleResponse_noSchemaVersionAsync()
+        public async Task TestHandleResponse_noSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -102,17 +102,17 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
+                await testManifestPuller.HandleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("An empty manifest should throw an error");
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("Cannot find field 'schemaVersion' in manifest", ex.getMessage());
+                Assert.AreEqual("Cannot find field 'schemaVersion' in manifest", ex.GetMessage());
             }
         }
 
         [Test]
-        public async Task testHandleResponse_invalidSchemaVersionAsync()
+        public async Task TestHandleResponse_invalidSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -121,17 +121,17 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
+                await testManifestPuller.HandleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("A non-integer schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("`schemaVersion` field is not an integer", ex.getMessage());
+                Assert.AreEqual("`schemaVersion` field is not an integer", ex.GetMessage());
             }
         }
 
         [Test]
-        public async Task testHandleResponse_unknownSchemaVersionAsync()
+        public async Task TestHandleResponse_unknownSchemaVersionAsync()
         {
             mockResponse = new HttpResponseMessage
             {
@@ -140,68 +140,68 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPuller.handleResponseAsync(mockResponse).ConfigureAwait(false);
+                await testManifestPuller.HandleResponseAsync(mockResponse).ConfigureAwait(false);
                 Assert.Fail("An unknown manifest schemaVersion should throw an error");
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.getMessage());
+                Assert.AreEqual("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testGetApiRoute()
+        public void TestGetApiRoute()
         {
             Assert.AreEqual(
                 new Uri("http://someApiBase/someImageName/manifests/test-image-tag"),
-                testManifestPuller.getApiRoute("http://someApiBase/"));
+                testManifestPuller.GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testGetHttpMethod()
+        public void TestGetHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Get, testManifestPuller.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Get, testManifestPuller.GetHttpMethod());
         }
 
         [Test]
-        public void testGetActionDescription()
+        public void TestGetActionDescription()
         {
             Assert.AreEqual(
                 "pull image manifest for someServerUrl/someImageName:test-image-tag",
-                testManifestPuller.getActionDescription());
+                testManifestPuller.GetActionDescription());
         }
 
         [Test]
-        public void testGetContent()
+        public void TestGetContent()
         {
-            Assert.IsNull(testManifestPuller.getContent());
+            Assert.IsNull(testManifestPuller.GetContent());
         }
 
         [Test]
-        public void testGetAccept()
+        public void TestGetAccept()
         {
             Assert.AreEqual(
-                Arrays.asList(
+                Arrays.AsList(
                     OCIManifestTemplate.ManifestMediaType,
                     V22ManifestTemplate.ManifestMediaType,
                     V21ManifestTemplate.ManifestMediaType),
-                testManifestPuller.getAccept());
+                testManifestPuller.GetAccept());
 
             CollectionAssert.AreEqual(
                 new List<string> { OCIManifestTemplate.ManifestMediaType },
                 new ManifestPuller<OCIManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .getAccept());
+                    .GetAccept());
             CollectionAssert.AreEqual(
                 new List<string> { V22ManifestTemplate.ManifestMediaType },
                 new ManifestPuller<V22ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .getAccept());
+                    .GetAccept());
             CollectionAssert.AreEqual(
                 new List<string> { V21ManifestTemplate.ManifestMediaType },
                 new ManifestPuller<V21ManifestTemplate>(
                         fakeRegistryEndpointRequestProperties, "test-image-tag")
-                    .getAccept());
+                    .GetAccept());
         }
     }
 }

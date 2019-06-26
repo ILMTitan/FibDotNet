@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.configuration
 {
     internal static class Iterables
     {
-        internal static bool any<T>(IEnumerable<T> collection, Func<T, bool> isNull)
+        internal static bool Any<T>(IEnumerable<T> collection, Func<T, bool> isNull)
         {
             return collection.Any(isNull);
         }

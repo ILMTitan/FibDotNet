@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.registry
 
         // https://github.com/GoogleContainerTools/jib/issues/1316
 
-        public static bool isBrokenPipe(Exception original)
+        public static bool IsBrokenPipe(Exception original)
         {
             Exception exception = original;
             while (exception != null)
@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.registry
                     return true;
                 }
 
-                exception = exception.getCause();
+                exception = exception.GetCause();
             }
             return false;
         }
@@ -78,9 +78,9 @@ namespace com.google.cloud.tools.jib.registry
     {
         private const string DEFAULT_PROTOCOL = "https";
 
-        private static bool isHttpsProtocol(Uri url)
+        private static bool IsHttpsProtocol(Uri url)
         {
-            return "https" == url.getProtocol();
+            return "https" == url.GetProtocol();
         }
 
         private readonly IEventHandlers eventHandlers;
@@ -125,7 +125,7 @@ namespace com.google.cloud.tools.jib.registry
               authorization,
               registryEndpointRequestProperties,
               allowInsecureRegistries,
-              Connection.getConnectionFactory(),
+              Connection.GetConnectionFactory(),
               null /* might never be used, so create lazily to delay throwing potential GeneralSecurityException */)
         {
         }
@@ -143,7 +143,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             this.eventHandlers = eventHandlers;
             this.initialRequestUrl =
-                registryEndpointProvider.getApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
+                registryEndpointProvider.GetApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
             this.userAgent = userAgent;
             this.registryEndpointProvider = registryEndpointProvider;
             this.authorization = authorization;
@@ -160,39 +160,39 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        public async Task<T> callAsync()
+        public async Task<T> CallAsync()
         {
-            return await callWithAllowInsecureRegistryHandlingAsync(initialRequestUrl).ConfigureAwait(false);
+            return await CallWithAllowInsecureRegistryHandlingAsync(initialRequestUrl).ConfigureAwait(false);
         }
 
-        private async Task<T> callWithAllowInsecureRegistryHandlingAsync(Uri url)
+        private async Task<T> CallWithAllowInsecureRegistryHandlingAsync(Uri url)
         {
-            if (!isHttpsProtocol(url) && !allowInsecureRegistries)
+            if (!IsHttpsProtocol(url) && !allowInsecureRegistries)
             {
                 throw new InsecureRegistryException(url);
             }
 
             try
             {
-                return await callAsync(url, connectionFactory).ConfigureAwait(false);
+                return await CallAsync(url, connectionFactory).ConfigureAwait(false);
             }
             catch (HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
             {
-                return await handleUnverifiableServerExceptionAsync(url).ConfigureAwait(false);
+                return await HandleUnverifiableServerExceptionAsync(url).ConfigureAwait(false);
             }
             catch (ConnectException)
             {
-                if (allowInsecureRegistries && isHttpsProtocol(url) && url.IsDefaultPort)
+                if (allowInsecureRegistries && IsHttpsProtocol(url) && url.IsDefaultPort)
                 {
                     // Fall back to HTTP only if "url" had no port specified (i.e., we tried the default HTTPS
                     // port 443) and we could not connect to 443. It's worth trying port 80.
-                    return await fallBackToHttpAsync(url).ConfigureAwait(false);
+                    return await FallBackToHttpAsync(url).ConfigureAwait(false);
                 }
                 throw;
             }
         }
 
-        private async Task<T> handleUnverifiableServerExceptionAsync(Uri url)
+        private async Task<T> HandleUnverifiableServerExceptionAsync(Uri url)
         {
             if (!allowInsecureRegistries)
             {
@@ -202,21 +202,21 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 eventHandlers.Dispatch(
-                    LogEvent.info(
+                    LogEvent.Info(
                         "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
-                return await callAsync(url, getInsecureConnectionFactory()).ConfigureAwait(false);
+                return await CallAsync(url, GetInsecureConnectionFactory()).ConfigureAwait(false);
             }
             catch (AuthenticationException)
             {
-                return await fallBackToHttpAsync(url).ConfigureAwait(false);
+                return await FallBackToHttpAsync(url).ConfigureAwait(false);
             }
             catch(HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
             {
-                return await fallBackToHttpAsync(url).ConfigureAwait(false);
+                return await FallBackToHttpAsync(url).ConfigureAwait(false);
             }
         }
 
-        private async Task<T> fallBackToHttpAsync(Uri url)
+        private async Task<T> FallBackToHttpAsync(Uri url)
         {
             UriBuilder httpUrl = new UriBuilder(url)
             {
@@ -224,16 +224,16 @@ namespace com.google.cloud.tools.jib.registry
                 Port = url.IsDefaultPort ? -1 : url.Port
             };
             eventHandlers.Dispatch(
-                LogEvent.info(
+                LogEvent.Info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
-            return await callAsync(httpUrl.toURL(), connectionFactory).ConfigureAwait(false);
+            return await CallAsync(httpUrl.ToURL(), connectionFactory).ConfigureAwait(false);
         }
 
-        private Func<Uri, IConnection> getInsecureConnectionFactory()
+        private Func<Uri, IConnection> GetInsecureConnectionFactory()
         {
             if (insecureConnectionFactory == null)
             {
-                insecureConnectionFactory = Connection.getInsecureConnectionFactory();
+                insecureConnectionFactory = Connection.GetInsecureConnectionFactory();
             }
             return insecureConnectionFactory;
         }
@@ -246,75 +246,75 @@ namespace com.google.cloud.tools.jib.registry
          * @throws IOException for most I/O exceptions when making the request
          * @throws RegistryException for known exceptions when interacting with the registry
          */
-        private async Task<T> callAsync(Uri url, Func<Uri, IConnection> connectionFactory)
+        private async Task<T> CallAsync(Uri url, Func<Uri, IConnection> connectionFactory)
         {
             // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
             bool sendCredentials =
-                isHttpsProtocol(url) || JibSystemProperties.IsSendCredentialsOverHttpEnabled();
+                IsHttpsProtocol(url) || JibSystemProperties.IsSendCredentialsOverHttpEnabled();
             try
             {
-                using (IConnection connection = connectionFactory.apply(url))
+                using (IConnection connection = connectionFactory.Apply(url))
                 {
-                    var request = new HttpRequestMessage(registryEndpointProvider.getHttpMethod(), url);
+                    var request = new HttpRequestMessage(registryEndpointProvider.GetHttpMethod(), url);
                     foreach (var value in userAgent)
                     {
                         request.Headers.UserAgent.Add(value);
                     }
-                    foreach (var accept in registryEndpointProvider.getAccept())
+                    foreach (var accept in registryEndpointProvider.GetAccept())
                     {
                         request.Headers.Accept.ParseAdd(accept);
                     }
-                    request.Content = registryEndpointProvider.getContent();
+                    request.Content = registryEndpointProvider.GetContent();
                     if (sendCredentials && authorization != null)
                     {
-                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.getScheme(), authorization.getToken());
+                        request.Headers.Authorization = new AuthenticationHeaderValue(authorization.GetScheme(), authorization.GetToken());
                     }
-                    HttpResponseMessage response = await connection.sendAsync(request).ConfigureAwait(false);
+                    HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false);
 
-                    return await registryEndpointProvider.handleResponseAsync(response).ConfigureAwait(false);
+                    return await registryEndpointProvider.HandleResponseAsync(response).ConfigureAwait(false);
                 }
             }
             catch (HttpResponseException ex)
             {
                 {
-                    if (ex.getStatusCode() == HttpStatusCode.BadRequest
-                        || ex.getStatusCode() == HttpStatusCode.NotFound
-                        || ex.getStatusCode() == HttpStatusCode.MethodNotAllowed)
+                    if (ex.GetStatusCode() == HttpStatusCode.BadRequest
+                        || ex.GetStatusCode() == HttpStatusCode.NotFound
+                        || ex.GetStatusCode() == HttpStatusCode.MethodNotAllowed)
                     {
                         // The name or reference was invalid.
-                        throw await newRegistryErrorExceptionAsync(ex).ConfigureAwait(false);
+                        throw await NewRegistryErrorExceptionAsync(ex).ConfigureAwait(false);
                     }
-                    else if (ex.getStatusCode() == HttpStatusCode.Forbidden)
+                    else if (ex.GetStatusCode() == HttpStatusCode.Forbidden)
                     {
                         throw new RegistryUnauthorizedException(
-                            registryEndpointRequestProperties.getRegistry(),
-                            registryEndpointRequestProperties.getImageName(),
+                            registryEndpointRequestProperties.GetRegistry(),
+                            registryEndpointRequestProperties.GetImageName(),
                             ex);
                     }
-                    else if (ex.getStatusCode() == HttpStatusCode.Unauthorized)
+                    else if (ex.GetStatusCode() == HttpStatusCode.Unauthorized)
                     {
                         if (sendCredentials)
                         {
                             // Credentials are either missing or wrong.
                             throw new RegistryUnauthorizedException(
-                                registryEndpointRequestProperties.getRegistry(),
-                                registryEndpointRequestProperties.getImageName(),
+                                registryEndpointRequestProperties.GetRegistry(),
+                                registryEndpointRequestProperties.GetImageName(),
                                 ex);
                         }
                         else
                         {
                             throw new RegistryCredentialsNotSentException(
-                                registryEndpointRequestProperties.getRegistry(),
-                                registryEndpointRequestProperties.getImageName());
+                                registryEndpointRequestProperties.GetRegistry(),
+                                registryEndpointRequestProperties.GetImageName());
                         }
                     }
-                    else if (ex.getStatusCode() == HttpStatusCode.TemporaryRedirect ||
-                        ex.getStatusCode() == HttpStatusCode.MovedPermanently ||
-                        ex.getStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
+                    else if (ex.GetStatusCode() == HttpStatusCode.TemporaryRedirect ||
+                        ex.GetStatusCode() == HttpStatusCode.MovedPermanently ||
+                        ex.GetStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
                     {
                         // 'Location' header can be relative or absolute.
-                        Uri redirectLocation = new Uri(url, ex.getHeaders().getLocation());
-                        return await callWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
+                        Uri redirectLocation = new Uri(url, ex.GetHeaders().GetLocation());
+                        return await CallWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
                     }
                     else
                     {
@@ -325,7 +325,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (IOException ex)
             {
-                if (RegistryEndpointCaller.isBrokenPipe(ex))
+                if (RegistryEndpointCaller.IsBrokenPipe(ex))
                 {
                     throw new RegistryBrokenPipeException(ex);
                 }
@@ -337,31 +337,31 @@ namespace com.google.cloud.tools.jib.registry
             }
         }
 
-        public async Task<RegistryErrorException> newRegistryErrorExceptionAsync(HttpResponseException httpResponseException)
+        public async Task<RegistryErrorException> NewRegistryErrorExceptionAsync(HttpResponseException httpResponseException)
         {
             RegistryErrorExceptionBuilder registryErrorExceptionBuilder =
                 new RegistryErrorExceptionBuilder(
-                    registryEndpointProvider.getActionDescription(), httpResponseException.Cause);
+                    registryEndpointProvider.GetActionDescription(), httpResponseException.Cause);
 
-            string stringContent = await httpResponseException.getContent().ReadAsStringAsync().ConfigureAwait(false);
+            string stringContent = await httpResponseException.GetContent().ReadAsStringAsync().ConfigureAwait(false);
             try
             {
                 ErrorResponseTemplate errorResponse =
-                    JsonTemplateMapper.readJson<ErrorResponseTemplate>(stringContent);
+                    JsonTemplateMapper.ReadJson<ErrorResponseTemplate>(stringContent);
                 foreach (ErrorEntryTemplate errorEntry in errorResponse?.Errors ?? Enumerable.Empty<ErrorEntryTemplate>())
                 {
-                    registryErrorExceptionBuilder.addReason(errorEntry);
+                    registryErrorExceptionBuilder.AddReason(errorEntry);
                 }
             }
             catch (Exception e) when (e is IOException || e is JsonException)
             {
-                registryErrorExceptionBuilder.addReason(
-                    $"registry returned error code {httpResponseException.getStatusCode():D}; " +
+                registryErrorExceptionBuilder.AddReason(
+                    $"registry returned error code {httpResponseException.GetStatusCode():D}; " +
                     $"possible causes include invalid or wrong reference. " +
                     $"Actual error output follows:\n{stringContent}\n");
             }
 
-            return registryErrorExceptionBuilder.build();
+            return registryErrorExceptionBuilder.Build();
         }
     }
 }

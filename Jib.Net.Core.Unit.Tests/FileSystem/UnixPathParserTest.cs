@@ -23,17 +23,17 @@ namespace com.google.cloud.tools.jib.filesystem
     public class UnixPathParserTest
     {
         [Test]
-        public void testParse()
+        public void TestParse()
         {
-            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.parse("/some/path"));
-            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.parse("some/path/"));
-            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.parse("some///path///"));
+            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.Parse("/some/path"));
+            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.Parse("some/path/"));
+            CollectionAssert.AreEqual(ImmutableArray.Create("some", "path"), UnixPathParser.Parse("some///path///"));
             // Windows-style paths are resolved in Unix semantics.
             CollectionAssert.AreEqual(
-                ImmutableArray.Create("\\windows\\path"), UnixPathParser.parse("\\windows\\path"));
-            CollectionAssert.AreEqual(ImmutableArray.Create("T:\\dir"), UnixPathParser.parse("T:\\dir"));
+                ImmutableArray.Create("\\windows\\path"), UnixPathParser.Parse("\\windows\\path"));
+            CollectionAssert.AreEqual(ImmutableArray.Create("T:\\dir"), UnixPathParser.Parse("T:\\dir"));
             CollectionAssert.AreEqual(
-                ImmutableArray.Create("T:\\dir", "real", "path"), UnixPathParser.parse("T:\\dir/real/path"));
+                ImmutableArray.Create("T:\\dir", "real", "path"), UnixPathParser.Parse("T:\\dir/real/path"));
         }
     }
 }

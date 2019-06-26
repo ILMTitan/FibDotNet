@@ -27,92 +27,92 @@ namespace com.google.cloud.tools.jib.api
     public class AbsoluteUnixPathTest
     {
         [Test]
-        public void testGet_notAbsolute()
+        public void TestGet_notAbsolute()
         {
             try
             {
-                AbsoluteUnixPath.get("not/absolute");
+                AbsoluteUnixPath.Get("not/absolute");
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(
-                    "Path does not start with forward slash (/): not/absolute", ex.getMessage());
+                    "Path does not start with forward slash (/): not/absolute", ex.GetMessage());
             }
         }
 
         [Test]
-        public void testFromPath()
+        public void TestFromPath()
         {
             Assert.AreEqual(
-                "/absolute/path", AbsoluteUnixPath.fromPath(Paths.get("/absolute/path")).toString());
+                "/absolute/path", JavaExtensions.ToString(AbsoluteUnixPath.FromPath(Paths.Get("/absolute/path"))));
         }
 
         [Test]
-        public void testFromPath_windows()
+        public void TestFromPath_windows()
         {
             Assume.That(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
             Assert.AreEqual(
-                "/absolute/path", AbsoluteUnixPath.fromPath(Paths.get("T:\\absolute\\path")).toString());
+                "/absolute/path", JavaExtensions.ToString(AbsoluteUnixPath.FromPath(Paths.Get("T:\\absolute\\path"))));
         }
 
         [Test]
-        public void testEquals()
+        public void TestEquals()
         {
-            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/absolute/path");
-            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.get("/absolute/path/");
-            AbsoluteUnixPath absoluteUnixPath3 = AbsoluteUnixPath.get("/another/path");
+            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.Get("/absolute/path");
+            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.Get("/absolute/path/");
+            AbsoluteUnixPath absoluteUnixPath3 = AbsoluteUnixPath.Get("/another/path");
             Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath2);
             Assert.AreNotEqual(absoluteUnixPath1, absoluteUnixPath3);
         }
 
         [Test]
-        public void testResolve_relativeUnixPath()
+        public void TestResolve_relativeUnixPath()
         {
-            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/");
-            Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.resolve(""));
-            Assert.AreEqual("/file", absoluteUnixPath1.resolve("file").toString());
-            Assert.AreEqual("/relative/path", absoluteUnixPath1.resolve("relative/path").toString());
+            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.Get("/");
+            Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.Resolve(""));
+            Assert.AreEqual("/file", JavaExtensions.ToString(absoluteUnixPath1.Resolve("file")));
+            Assert.AreEqual("/relative/path", JavaExtensions.ToString(absoluteUnixPath1.Resolve("relative/path")));
 
-            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.get("/some/path");
-            Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.resolve(""));
-            Assert.AreEqual("/some/path/file", absoluteUnixPath2.resolve("file").toString());
+            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.Get("/some/path");
+            Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.Resolve(""));
+            Assert.AreEqual("/some/path/file", JavaExtensions.ToString(absoluteUnixPath2.Resolve("file")));
             Assert.AreEqual(
-                "/some/path/relative/path", absoluteUnixPath2.resolve("relative/path").toString());
+                "/some/path/relative/path", JavaExtensions.ToString(absoluteUnixPath2.Resolve("relative/path")));
         }
 
         [Test]
-        public void testResolve_Path_notRelative()
+        public void TestResolve_Path_notRelative()
         {
             try
             {
-                AbsoluteUnixPath.get("/").resolve(Paths.get("/not/relative"));
+                AbsoluteUnixPath.Get("/").Resolve(Paths.Get("/not/relative"));
                 Assert.Fail();
             }
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(
-                    "Cannot resolve against absolute Path: " + Paths.get("/not/relative"), ex.getMessage());
+                    "Cannot resolve against absolute Path: " + Paths.Get("/not/relative"), ex.GetMessage());
             }
         }
 
         [Test]
-        public void testResolve_Path()
+        public void TestResolve_Path()
         {
-            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.get("/");
-            Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.resolve(Paths.get("")));
-            Assert.AreEqual("/file", absoluteUnixPath1.resolve(Paths.get("file")).toString());
+            AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.Get("/");
+            Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.Resolve(Paths.Get("")));
+            Assert.AreEqual("/file", JavaExtensions.ToString(absoluteUnixPath1.Resolve(Paths.Get("file"))));
             Assert.AreEqual(
-                "/relative/path", absoluteUnixPath1.resolve(Paths.get("relative/path")).toString());
+                "/relative/path", JavaExtensions.ToString(absoluteUnixPath1.Resolve(Paths.Get("relative/path"))));
 
-            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.get("/some/path");
-            Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.resolve(Paths.get("")));
+            AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.Get("/some/path");
+            Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.Resolve(Paths.Get("")));
             Assert.AreEqual(
-                "/some/path/file", absoluteUnixPath2.resolve(Paths.get("file///")).toString());
+                "/some/path/file", JavaExtensions.ToString(absoluteUnixPath2.Resolve(Paths.Get("file///"))));
             Assert.AreEqual(
                 "/some/path/relative/path",
-                absoluteUnixPath2.resolve(Paths.get("relative//path/")).toString());
+                JavaExtensions.ToString(absoluteUnixPath2.Resolve(Paths.Get("relative//path/"))));
         }
     }
 }

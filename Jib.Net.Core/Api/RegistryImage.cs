@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.api
          * @param imageReference the image reference
          * @return a new {@link RegistryImage}
          */
-        public static RegistryImage named(ImageReference imageReference)
+        public static RegistryImage Named(ImageReference imageReference)
         {
             return new RegistryImage(imageReference);
         }
@@ -53,9 +53,9 @@ namespace com.google.cloud.tools.jib.api
          * @return a new {@link RegistryImage}
          * @throws InvalidImageReferenceException if {@code imageReference} is not a valid image reference
          */
-        public static RegistryImage named(string imageReference)
+        public static RegistryImage Named(string imageReference)
         {
-            return named(ImageReference.parse(imageReference));
+            return Named(ImageReference.Parse(imageReference));
         }
 
         private readonly ImageReference imageReference;
@@ -75,9 +75,9 @@ namespace com.google.cloud.tools.jib.api
          * @param password the password
          * @return this
          */
-        public RegistryImage addCredential(string username, string password)
+        public RegistryImage AddCredential(string username, string password)
         {
-            addCredentialRetriever(() => Option.Of(Credential.from(username, password)));
+            AddCredentialRetriever(() => Option.Of(Credential.From(username, password)));
             return this;
         }
 
@@ -106,18 +106,18 @@ namespace com.google.cloud.tools.jib.api
          * @param credentialRetriever the {@link CredentialRetriever} to add
          * @return this
          */
-        public RegistryImage addCredentialRetriever(CredentialRetriever credentialRetriever)
+        public RegistryImage AddCredentialRetriever(CredentialRetriever credentialRetriever)
         {
-            credentialRetrievers.add(credentialRetriever);
+            JavaExtensions.Add(credentialRetrievers, credentialRetriever);
             return this;
         }
 
-        public ImageReference getImageReference()
+        public ImageReference GetImageReference()
         {
             return imageReference;
         }
 
-        public IList<CredentialRetriever> getCredentialRetrievers()
+        public IList<CredentialRetriever> GetCredentialRetrievers()
         {
             return credentialRetrievers;
         }

@@ -21,17 +21,9 @@ namespace com.google.cloud.tools.jib.registry
 {
     internal static class Verify
     {
-        internal static T verifyNotNull<T>(T credential) where T : class
+        internal static T VerifyNotNull<T>(T credential) where T : class
         {
             return credential ?? throw new ArgumentNullException();
-        }
-
-        internal static void verify(bool v)
-        {
-            if (!v)
-            {
-                throw new ArgumentException();
-            }
         }
     }
 }

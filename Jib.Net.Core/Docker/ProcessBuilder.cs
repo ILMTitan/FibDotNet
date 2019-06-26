@@ -43,12 +43,12 @@ namespace com.google.cloud.tools.jib.docker
             _cmd = command;
         }
 
-        internal IDictionary<string, string> environment()
+        internal IDictionary<string, string> GetEnvironment()
         {
             return env;
         }
 
-        public IProcess start()
+        public IProcess Start()
         {
             var startInfo = new ProcessStartInfo(_cmd, _args)
             {
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.docker
             return new Process(System.Diagnostics.Process.Start(startInfo));
         }
 
-        public string command()
+        public string Command()
         {
             if (string.IsNullOrWhiteSpace(_args))
             {

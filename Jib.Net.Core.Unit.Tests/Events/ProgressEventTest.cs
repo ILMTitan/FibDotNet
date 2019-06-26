@@ -49,9 +49,9 @@ namespace Jib.Net.Core.Unit.Tests.Events
             child2 = root.NewChild("ignored", 200);
         }
 
-        private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer)
+        private static EventHandlers MakeEventHandlers(Action<ProgressEvent> progressEventConsumer)
         {
-            return EventHandlers.builder().add(progressEventConsumer).build();
+            return EventHandlers.CreateBuilder().Add(progressEventConsumer).Build();
         }
 
         private const double DOUBLE_ERROR_MARGIN = 1e-10;
@@ -61,7 +61,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
         private double progress = 0.0;
 
         [Test]
-        public void testAccumulateProgress()
+        public void TestAccumulateProgress()
         {
             void progressEventConsumer(ProgressEvent progressEvent)
             {
@@ -71,7 +71,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
                 progress += units * fractionOfRoot;
             }
 
-            EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
+            EventHandlers eventHandlers = MakeEventHandlers(progressEventConsumer);
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
             Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
@@ -87,41 +87,41 @@ namespace Jib.Net.Core.Unit.Tests.Events
         }
 
         [Test]
-        public void testSmoke()
+        public void TestSmoke()
         {
             void progressEventConsumer(ProgressEvent progressEvent)
             {
                 Allocation allocation = progressEvent.GetAllocation();
                 long units = progressEvent.GetUnits();
 
-                updateCompletionMap(allocation, units);
+                UpdateCompletionMap(allocation, units);
             }
 
-            EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
+            EventHandlers eventHandlers = MakeEventHandlers(progressEventConsumer);
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
-            Assert.AreEqual(1, allocationCompletionMap.size());
-            Assert.AreEqual(50, allocationCompletionMap.get(child1Child).longValue());
+            Assert.AreEqual(1, allocationCompletionMap.Size());
+            Assert.AreEqual(50, allocationCompletionMap.Get(child1Child).LongValue());
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
-            Assert.AreEqual(3, allocationCompletionMap.size());
-            Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(child1).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(root).longValue());
+            Assert.AreEqual(3, allocationCompletionMap.Size());
+            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
+            Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
+            Assert.AreEqual(1, allocationCompletionMap.Get(root).LongValue());
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 200));
 
-            Assert.AreEqual(4, allocationCompletionMap.size());
-            Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
-            Assert.AreEqual(1, allocationCompletionMap.get(child1).longValue());
-            Assert.AreEqual(200, allocationCompletionMap.get(child2).longValue());
-            Assert.AreEqual(2, allocationCompletionMap.get(root).longValue());
+            Assert.AreEqual(4, allocationCompletionMap.Size());
+            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
+            Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
+            Assert.AreEqual(200, allocationCompletionMap.Get(child2).LongValue());
+            Assert.AreEqual(2, allocationCompletionMap.Get(root).LongValue());
         }
 
         [Test]
-        public void testType()
+        public void TestType()
         {
             // Used to test whether or not progress event was consumed
             bool[] called = new bool[] { false };
@@ -130,7 +130,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
                 called[0] = true;
             }
 
-            EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
+            EventHandlers eventHandlers = MakeEventHandlers(buildImageConsumer);
             eventHandlers.Dispatch(new ProgressEvent(child1, 50));
             Assert.IsTrue(called[0]);
         }
@@ -143,19 +143,19 @@ namespace Jib.Net.Core.Unit.Tests.Events
          * @param allocation the allocation the progress is made on
          * @param units the progress units
          */
-        private void updateCompletionMap(Allocation allocation, long units)
+        private void UpdateCompletionMap(Allocation allocation, long units)
         {
-            if (allocationCompletionMap.containsKey(allocation))
+            if (JavaExtensions.ContainsKey(allocationCompletionMap, allocation))
             {
-                units += allocationCompletionMap.get(allocation);
+                units += allocationCompletionMap.Get(allocation);
             }
-            allocationCompletionMap.put(allocation, units);
+            allocationCompletionMap.Put(allocation, units);
 
             if (allocation.GetAllocationUnits() == units)
             {
                 allocation
                     .GetParent()
-                    .IfPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
+                    .IfPresent(parentAllocation => UpdateCompletionMap(parentAllocation, 1));
             }
         }
     }

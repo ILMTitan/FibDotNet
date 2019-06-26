@@ -27,13 +27,13 @@ namespace com.google.cloud.tools.jib.builder.steps
     /** Attempts to retrieve registry credentials. */
     public sealed class RetrieveRegistryCredentialsStep : IAsyncStep<Credential>
     {
-        private static string makeDescription(string registry)
+        private static string MakeDescription(string registry)
         {
             return "Retrieving registry credentials for " + registry;
         }
 
         /** Retrieves credentials for the base image. */
-        public static RetrieveRegistryCredentialsStep forBaseImage(
+        public static RetrieveRegistryCredentialsStep ForBaseImage(
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
@@ -42,12 +42,12 @@ namespace com.google.cloud.tools.jib.builder.steps
             return new RetrieveRegistryCredentialsStep(
                 buildConfiguration,
                 progressEventDispatcherFactory,
-                buildConfiguration.getBaseImageConfiguration().getImageRegistry(),
-                buildConfiguration.getBaseImageConfiguration().getCredentialRetrievers());
+                buildConfiguration.GetBaseImageConfiguration().GetImageRegistry(),
+                buildConfiguration.GetBaseImageConfiguration().GetCredentialRetrievers());
         }
 
         /** Retrieves credentials for the target image. */
-        public static RetrieveRegistryCredentialsStep forTargetImage(
+        public static RetrieveRegistryCredentialsStep ForTargetImage(
             BuildConfiguration buildConfiguration,
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
@@ -55,8 +55,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             return new RetrieveRegistryCredentialsStep(
                 buildConfiguration,
                 progressEventDispatcherFactory,
-                buildConfiguration.getTargetImageConfiguration().getImageRegistry(),
-                buildConfiguration.getTargetImageConfiguration().getCredentialRetrievers());
+                buildConfiguration.GetTargetImageConfiguration().GetImageRegistry(),
+                buildConfiguration.GetTargetImageConfiguration().GetCredentialRetrievers());
         }
 
         private readonly BuildConfiguration buildConfiguration;
@@ -77,26 +77,26 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.registry = registry;
             this.credentialRetrievers = credentialRetrievers;
-            listenableFuture = Task.Run(call);
+            listenableFuture = Task.Run(Call);
         }
 
-        public Task<Credential> getFuture()
+        public Task<Credential> GetFuture()
         {
             return listenableFuture;
         }
 
-        public Credential call()
+        public Credential Call()
         {
-            string description = makeDescription(registry);
+            string description = MakeDescription(registry);
 
-            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description + "..."));
+            buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Progress(description + "..."));
 
             using (progressEventDispatcherFactory.Create("retrieving credentials for " + registry, 1))
-            using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
+            using (new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), description))
             {
                 foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
                 {
-                    Option<Credential> optionalCredential = credentialRetriever.retrieve();
+                    Option<Credential> optionalCredential = credentialRetriever.Retrieve();
                     if (optionalCredential.IsPresent())
                     {
                         return optionalCredential.Get();
@@ -106,8 +106,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // If no credentials found, give an info (not warning because in most cases, the base image is
                 // public and does not need extra credentials) and return null.
                 buildConfiguration
-                    .getEventHandlers()
-                    .Dispatch(LogEvent.info("No credentials could be retrieved for registry " + registry));
+                    .GetEventHandlers()
+                    .Dispatch(LogEvent.Info("No credentials could be retrieved for registry " + registry));
                 return null;
             }
         }

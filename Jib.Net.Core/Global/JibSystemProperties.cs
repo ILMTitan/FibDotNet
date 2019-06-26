@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.global
          */
         public static bool IsUserAgentEnabled()
         {
-            return Strings.isNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
+            return Strings.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
         }
 
         /**

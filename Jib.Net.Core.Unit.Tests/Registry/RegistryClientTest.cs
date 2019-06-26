@@ -32,59 +32,59 @@ namespace com.google.cloud.tools.jib.registry
     public class RegistryClientTest
     {
         private readonly IEventHandlers eventHandlers = Mock.Of<IEventHandlers>();
-        private readonly Authorization mockAuthorization = Authorization.fromBasicCredentials("username", "password");
+        private readonly Authorization mockAuthorization = Authorization.FromBasicCredentials("username", "password");
 
         private RegistryClient.Factory testRegistryClientFactory;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             testRegistryClientFactory =
-                RegistryClient.factory(eventHandlers, "some.server.url", "some image name");
+                RegistryClient.CreateFactory(eventHandlers, "some.server.url", "some image name");
         }
 
         [Test]
-        public void testGetUserAgent_null()
+        public void TestGetUserAgent_null()
         {
             var defaultUserAgent = new ProductHeaderValue("jib", "0.0.1-alpha.1");
             Assert.AreEqual(defaultUserAgent,
                 testRegistryClientFactory
-                    .setAuthorization(mockAuthorization)
-                    .newRegistryClient()
-                    .getUserAgent().Single().Product);
+                    .SetAuthorization(mockAuthorization)
+                    .NewRegistryClient()
+                    .GetUserAgent().Single().Product);
 
             Assert.AreEqual(defaultUserAgent,
                 testRegistryClientFactory
-                    .setAuthorization(mockAuthorization)
-                    .addUserAgentValue(null)
-                    .newRegistryClient()
-                    .getUserAgent().Single().Product);
+                    .SetAuthorization(mockAuthorization)
+                    .AddUserAgentValue(null)
+                    .NewRegistryClient()
+                    .GetUserAgent().Single().Product);
         }
 
         [Test]
-        public void testGetUserAgent()
+        public void TestGetUserAgent()
         {
             var defaultUserAgent = new ProductHeaderValue("jib", "0.0.1-alpha.1");
             RegistryClient registryClient =
                 testRegistryClientFactory
-                    .setAllowInsecureRegistries(true)
-                    .addUserAgentValue(new ProductInfoHeaderValue("someUserAgent", "someAgentVersion"))
-                    .newRegistryClient();
+                    .SetAllowInsecureRegistries(true)
+                    .AddUserAgentValue(new ProductInfoHeaderValue("someUserAgent", "someAgentVersion"))
+                    .NewRegistryClient();
 
-            Assert.AreEqual(defaultUserAgent, registryClient.getUserAgent().First().Product);
-            Assert.AreEqual("someUserAgent", registryClient.getUserAgent().Skip(1).First().Product.Name);
-            Assert.AreEqual("someAgentVersion", registryClient.getUserAgent().Skip(1).First().Product.Version);
+            Assert.AreEqual(defaultUserAgent, registryClient.GetUserAgent().First().Product);
+            Assert.AreEqual("someUserAgent", registryClient.GetUserAgent().Skip(1).First().Product.Name);
+            Assert.AreEqual("someAgentVersion", registryClient.GetUserAgent().Skip(1).First().Product.Version);
         }
 
         [Test]
-        public void testGetApiRouteBase()
+        public void TestGetApiRouteBase()
         {
             Assert.AreEqual(
                 "some.server.url/v2/",
                 testRegistryClientFactory
-                    .setAllowInsecureRegistries(true)
-                    .newRegistryClient()
-                    .getApiRouteBase());
+                    .SetAllowInsecureRegistries(true)
+                    .NewRegistryClient()
+                    .GetApiRouteBase());
         }
     }
 }

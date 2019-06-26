@@ -2,6 +2,6 @@
 {
     public interface IConstructor<out T>
     {
-        T newInstance();
+        T NewInstance();
     }
 }

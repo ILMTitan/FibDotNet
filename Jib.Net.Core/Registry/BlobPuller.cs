@@ -58,28 +58,28 @@ namespace com.google.cloud.tools.jib.registry
             this.writtenByteCountListener = writtenByteCountListener;
         }
 
-        public async Task<object> handleResponseAsync(HttpResponseMessage response)
+        public async Task<object> HandleResponseAsync(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpResponseException(response);
             }
-            blobSizeListener(response.getContentLength() ?? 0);
+            blobSizeListener(response.GetContentLength() ?? 0);
 
             using (Stream outputStream =
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))
             {
                 BlobDescriptor receivedBlobDescriptor;
-                using (Stream contentStream = await response.getBodyAsync().ConfigureAwait(false))
+                using (Stream contentStream = await response.GetBodyAsync().ConfigureAwait(false))
                 {
-                    receivedBlobDescriptor = await Digests.computeDigestAsync(contentStream, outputStream).ConfigureAwait(false);
+                    receivedBlobDescriptor = await Digests.ComputeDigestAsync(contentStream, outputStream).ConfigureAwait(false);
                 }
 
-                if (!blobDigest.Equals(receivedBlobDescriptor.getDigest()))
+                if (!blobDigest.Equals(receivedBlobDescriptor.GetDigest()))
                 {
                     throw new UnexpectedBlobDigestException(
                         "The pulled BLOB has digest '"
-                            + receivedBlobDescriptor.getDigest()
+                            + receivedBlobDescriptor.GetDigest()
                             + "', but the request digest was '"
                             + blobDigest
                             + "'");
@@ -89,33 +89,33 @@ namespace com.google.cloud.tools.jib.registry
             return null;
         }
 
-        public BlobHttpContent getContent()
+        public BlobHttpContent GetContent()
         {
             return null;
         }
 
-        public IList<string> getAccept()
+        public IList<string> GetAccept()
         {
             return new List<string>();
         }
 
-        public Uri getApiRoute(string apiRouteBase)
+        public Uri GetApiRoute(string apiRouteBase)
         {
             return new Uri(
-                apiRouteBase + registryEndpointRequestProperties.getImageName() + "/blobs/" + blobDigest);
+                apiRouteBase + registryEndpointRequestProperties.GetImageName() + "/blobs/" + blobDigest);
         }
 
-        public HttpMethod getHttpMethod()
+        public HttpMethod GetHttpMethod()
         {
             return HttpMethod.Get;
         }
 
-        public string getActionDescription()
+        public string GetActionDescription()
         {
             return "pull BLOB for "
-                + registryEndpointRequestProperties.getRegistry()
+                + registryEndpointRequestProperties.GetRegistry()
                 + "/"
-                + registryEndpointRequestProperties.getImageName()
+                + registryEndpointRequestProperties.GetImageName()
                 + " with digest "
                 + blobDigest;
         }

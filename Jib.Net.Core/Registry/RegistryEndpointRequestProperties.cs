@@ -32,12 +32,12 @@ namespace com.google.cloud.tools.jib.registry
             this.imageName = imageName;
         }
 
-        public string getRegistry()
+        public string GetRegistry()
         {
             return registry;
         }
 
-        public string getImageName()
+        public string GetImageName()
         {
             return imageName;
         }

@@ -52,9 +52,9 @@ namespace Jib.Net.Core.Api
          * @return a new {@link DescriptorDigest} created from the hash
          * @throws DigestException if the hash is invalid
          */
-        public static DescriptorDigest fromHash(string hash)
+        public static DescriptorDigest FromHash(string hash)
         {
-            if (!hash.matches(HASH_REGEX))
+            if (!hash.Matches(HASH_REGEX))
             {
                 throw new DigestException("Invalid hash: " + hash);
             }
@@ -69,16 +69,16 @@ namespace Jib.Net.Core.Api
          * @return a new {@link DescriptorDigest} created from the digest
          * @throws DigestException if the digest is invalid
          */
-        public static DescriptorDigest fromDigest(string digest)
+        public static DescriptorDigest FromDigest(string digest)
         {
             digest = digest ?? throw new ArgumentNullException(nameof(digest));
-            if (!digest.matches(DigestRegex))
+            if (!digest.Matches(DigestRegex))
             {
                 throw new DigestException("Invalid digest: " + digest);
             }
 
             // Extracts the hash portion of the digest.
-            string hash = digest.substring(DIGEST_PREFIX.length());
+            string hash = JavaExtensions.Substring(digest, DIGEST_PREFIX.Length());
             return new DescriptorDigest(hash);
         }
 
@@ -87,7 +87,7 @@ namespace Jib.Net.Core.Api
             this.hash = hash;
         }
 
-        public string getHash()
+        public string GetHash()
         {
             return hash;
         }
@@ -101,7 +101,7 @@ namespace Jib.Net.Core.Api
 
         public override int GetHashCode()
         {
-            return hash.hashCode();
+            return hash.HashCode();
         }
 
         /** Two digest objects are equal if their digest strings are equal. */

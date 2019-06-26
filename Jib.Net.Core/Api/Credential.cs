@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.api
          * @param password the password
          * @return a new {@link Credential}
          */
-        public static Credential from(string username, string password)
+        public static Credential From(string username, string password)
         {
             return new Credential(username, password);
         }
@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the username
          */
-        public string getUsername()
+        public string GetUsername()
         {
             return username;
         }
@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the password
          */
-        public string getPassword()
+        public string GetPassword()
         {
             return password;
         }
@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return true if this credential is an OAuth 2.0 refresh token.
          */
-        public bool isOAuth2RefreshToken()
+        public bool IsOAuth2RefreshToken()
         {
             return OAUTH2_TOKEN_USER_NAME == username;
         }
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.api
 
         public override int GetHashCode()
         {
-            return Objects.hash(username, password);
+            return Objects.Hash(username, password);
         }
 
         public override string ToString()

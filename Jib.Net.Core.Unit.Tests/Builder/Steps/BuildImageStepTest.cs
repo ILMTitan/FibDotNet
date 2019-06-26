@@ -56,82 +56,82 @@ namespace com.google.cloud.tools.jib.builder.steps
             Mock.Of<IAsyncStep<IReadOnlyList<ICachedLayer>>>();
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             testDescriptorDigest =
-                DescriptorDigest.fromHash(
+                DescriptorDigest.FromHash(
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getEventHandlers()).Returns(mockEventHandlers);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetEventHandlers()).Returns(mockEventHandlers);
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getContainerConfiguration()).Returns(mockContainerConfiguration);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetContainerConfiguration()).Returns(mockContainerConfiguration);
 
-            Mock.Get(mockBuildConfiguration).Setup(m => m.getToolName()).Returns(() => null);
+            Mock.Get(mockBuildConfiguration).Setup(m => m.GetToolName()).Returns(() => null);
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getCreationTime()).Returns(Instant.FromUnixTimeSeconds(0));
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetCreationTime()).Returns(Instant.FromUnixTimeSeconds(0));
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEnvironmentMap()).Returns(ImmutableDictionary.Create<string, string>());
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEnvironmentMap()).Returns(ImmutableDictionary.Create<string, string>());
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(ImmutableArray.Create<string>());
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetProgramArguments()).Returns(ImmutableArray.Create<string>());
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getExposedPorts()).Returns(ImmutableHashSet.Create<Port>());
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetExposedPorts()).Returns(ImmutableHashSet.Create<Port>());
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(ImmutableArray.Create<string>());
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEntrypoint()).Returns(ImmutableArray.Create<string>());
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getUser()).Returns("root");
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetUser()).Returns("root");
 
-            Mock.Get(mockCachedLayer).Setup(m => m.getBlobDescriptor()).Returns(new BlobDescriptor(0, testDescriptorDigest));
+            Mock.Get(mockCachedLayer).Setup(m => m.GetBlobDescriptor()).Returns(new BlobDescriptor(0, testDescriptorDigest));
 
             nonEmptyLayerHistory =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("JibBase")
-                    .setCreatedBy("jib-test")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("JibBase")
+                    .SetCreatedBy("jib-test")
+                    .Build();
             emptyLayerHistory =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("JibBase")
-                    .setCreatedBy("jib-test")
-                    .setEmptyLayer(true)
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("JibBase")
+                    .SetCreatedBy("jib-test")
+                    .SetEmptyLayer(true)
+                    .Build();
 
             Image baseImage =
-                Image.builder(ManifestFormat.V22)
-                    .setArchitecture("wasm")
-                    .setOs("js")
-                    .addEnvironment(ImmutableDic.of("BASE_ENV", "BASE_ENV_VALUE", "BASE_ENV_2", "DEFAULT"))
-                    .addLabel("base.label", "base.label.value")
-                    .addLabel("base.label.2", "default")
-                    .setWorkingDirectory("/base/working/directory")
-                    .setEntrypoint(ImmutableArray.Create("baseImageEntrypoint"))
-                    .setProgramArguments(ImmutableArray.Create("catalina.sh", "run"))
-                    .setHealthCheck(
-                        DockerHealthCheck.fromCommand(ImmutableArray.Create("CMD-SHELL", "echo hi"))
-                            .setInterval(Duration.FromSeconds(3))
-                            .setTimeout(Duration.FromSeconds(2))
-                            .setStartPeriod(Duration.FromSeconds(1))
-                            .setRetries(20)
-                            .build())
-                    .addExposedPorts(ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000)))
-                    .addVolumes(
+                Image.CreateBuilder(ManifestFormat.V22)
+                    .SetArchitecture("wasm")
+                    .SetOs("js")
+                    .AddEnvironment(ImmutableDic.Of("BASE_ENV", "BASE_ENV_VALUE", "BASE_ENV_2", "DEFAULT"))
+                    .AddLabel("base.label", "base.label.value")
+                    .AddLabel("base.label.2", "default")
+                    .SetWorkingDirectory("/base/working/directory")
+                    .SetEntrypoint(ImmutableArray.Create("baseImageEntrypoint"))
+                    .SetProgramArguments(ImmutableArray.Create("catalina.sh", "run"))
+                    .SetHealthCheck(
+                        DockerHealthCheck.FromCommand(ImmutableArray.Create("CMD-SHELL", "echo hi"))
+                            .SetInterval(Duration.FromSeconds(3))
+                            .SetTimeout(Duration.FromSeconds(2))
+                            .SetStartPeriod(Duration.FromSeconds(1))
+                            .SetRetries(20)
+                            .Build())
+                    .AddExposedPorts(ImmutableHashSet.Create(Port.Tcp(1000), Port.Udp(2000)))
+                    .AddVolumes(
                         ImmutableHashSet.Create(
-                            AbsoluteUnixPath.get("/base/path1"), AbsoluteUnixPath.get("/base/path2")))
-                    .addHistory(nonEmptyLayerHistory)
-                    .addHistory(emptyLayerHistory)
-                    .addHistory(emptyLayerHistory)
-                    .build();
-            Mock.Get(mockPullAndCacheBaseImageLayerStep).Setup(m => m.getFuture()).Returns(Futures.immediateFutureAsync(mockCachedLayer));
+                            AbsoluteUnixPath.Get("/base/path1"), AbsoluteUnixPath.Get("/base/path2")))
+                    .AddHistory(nonEmptyLayerHistory)
+                    .AddHistory(emptyLayerHistory)
+                    .AddHistory(emptyLayerHistory)
+                    .Build();
+            Mock.Get(mockPullAndCacheBaseImageLayerStep).Setup(m => m.GetFuture()).Returns(Futures.ImmediateFutureAsync(mockCachedLayer));
 
-            Mock.Get(mockPullAndCacheBaseImageLayersStep).Setup(m => m.getFuture()).Returns(
-                    Futures.immediateFutureAsync<IReadOnlyList<ICachedLayer>>(
+            Mock.Get(mockPullAndCacheBaseImageLayersStep).Setup(m => m.GetFuture()).Returns(
+                    Futures.ImmediateFutureAsync<IReadOnlyList<ICachedLayer>>(
                         ImmutableArray.Create(
                             mockCachedLayer,
                             mockCachedLayer,
                             mockCachedLayer)));
 
-            Mock.Get(mockPullBaseImageStep).Setup(m => m.getFuture()).Returns(
-                    Futures.immediateFutureAsync(
+            Mock.Get(mockPullBaseImageStep).Setup(m => m.GetFuture()).Returns(
+                    Futures.ImmediateFutureAsync(
                         new PullBaseImageStep.BaseImageWithAuthorization(baseImage, null)));
 
             mockClassesLayer = new CachedLayerWithType(mockCachedLayer, "classes");
@@ -144,9 +144,9 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         [Test]
-        public async Task test_validateAsyncDependenciesAsync()
+        public async Task Test_validateAsyncDependenciesAsync()
         {
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -157,24 +157,24 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
             Assert.AreEqual(
-                testDescriptorDigest, image.getLayers().asList().get(0).getBlobDescriptor().getDigest());
+                testDescriptorDigest, image.GetLayers().AsList().Get(0).GetBlobDescriptor().GetDigest());
         }
 
         [Test]
-        public async Task test_propagateBaseImageConfigurationAsync()
+        public async Task Test_propagateBaseImageConfigurationAsync()
         {
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEnvironmentMap()).Returns(ImmutableDic.of("MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"));
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEnvironmentMap()).Returns(ImmutableDic.Of("MY_ENV", "MY_ENV_VALUE", "BASE_ENV_2", "NEW_VALUE"));
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getLabels()).Returns(ImmutableDic.of("my.label", "my.label.value", "base.label.2", "new.value"));
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetLabels()).Returns(ImmutableDic.Of("my.label", "my.label.value", "base.label.2", "new.value"));
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getExposedPorts()).Returns(ImmutableHashSet.Create(Port.tcp(3000), Port.udp(4000)));
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetExposedPorts()).Returns(ImmutableHashSet.Create(Port.Tcp(3000), Port.Udp(4000)));
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getVolumes()).Returns(
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetVolumes()).Returns(
                     ImmutableHashSet.Create(
-                        AbsoluteUnixPath.get("/new/path1"), AbsoluteUnixPath.get("/new/path2")));
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+                        AbsoluteUnixPath.Get("/new/path1"), AbsoluteUnixPath.Get("/new/path2")));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -186,9 +186,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
-            Assert.AreEqual("wasm", image.getArchitecture());
-            Assert.AreEqual("js", image.getOs());
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
+            Assert.AreEqual("wasm", image.GetArchitecture());
+            Assert.AreEqual("js", image.GetOs());
             Assert.AreEqual(
                 new Dictionary<string, string>
                 {
@@ -196,7 +196,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ["MY_ENV"] = "MY_ENV_VALUE",
                     ["BASE_ENV_2"] = "NEW_VALUE"
                 }.ToImmutableDictionary(),
-                image.getEnvironment());
+                image.GetEnvironment());
             Assert.AreEqual(
                 new Dictionary<string, string>
                 {
@@ -204,43 +204,43 @@ namespace com.google.cloud.tools.jib.builder.steps
                     ["my.label"] = "my.label.value",
                     ["base.label.2"] = "new.value"
                 }.ToImmutableDictionary(),
-                image.getLabels());
-            Assert.IsNotNull(image.getHealthCheck());
+                image.GetLabels());
+            Assert.IsNotNull(image.GetHealthCheck());
             CollectionAssert.AreEqual(
-                ImmutableArray.Create("CMD-SHELL", "echo hi"), image.getHealthCheck().getCommand());
-            Assert.IsTrue(image.getHealthCheck().getInterval().IsPresent());
-            Assert.AreEqual(Duration.FromSeconds(3), image.getHealthCheck().getInterval().Get());
-            Assert.IsTrue(image.getHealthCheck().getTimeout().IsPresent());
-            Assert.AreEqual(Duration.FromSeconds(2), image.getHealthCheck().getTimeout().Get());
-            Assert.IsTrue(image.getHealthCheck().getStartPeriod().IsPresent());
-            Assert.AreEqual(Duration.FromSeconds(1), image.getHealthCheck().getStartPeriod().Get());
-            Assert.IsTrue(image.getHealthCheck().getRetries().IsPresent());
-            Assert.AreEqual(20, image.getHealthCheck().getRetries().Get());
+                ImmutableArray.Create("CMD-SHELL", "echo hi"), image.GetHealthCheck().GetCommand());
+            Assert.IsTrue(image.GetHealthCheck().GetInterval().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(3), image.GetHealthCheck().GetInterval().Get());
+            Assert.IsTrue(image.GetHealthCheck().GetTimeout().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(2), image.GetHealthCheck().GetTimeout().Get());
+            Assert.IsTrue(image.GetHealthCheck().GetStartPeriod().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(1), image.GetHealthCheck().GetStartPeriod().Get());
+            Assert.IsTrue(image.GetHealthCheck().GetRetries().IsPresent());
+            Assert.AreEqual(20, image.GetHealthCheck().GetRetries().Get());
             Assert.AreEqual(
-                ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000), Port.tcp(3000), Port.udp(4000)),
-                image.getExposedPorts());
+                ImmutableHashSet.Create(Port.Tcp(1000), Port.Udp(2000), Port.Tcp(3000), Port.Udp(4000)),
+                image.GetExposedPorts());
             Assert.AreEqual(
                 ImmutableHashSet.Create(
-                    AbsoluteUnixPath.get("/base/path1"),
-                    AbsoluteUnixPath.get("/base/path2"),
-                    AbsoluteUnixPath.get("/new/path1"),
-                    AbsoluteUnixPath.get("/new/path2")),
-                image.getVolumes());
-            Assert.AreEqual("/base/working/directory", image.getWorkingDirectory());
-            Assert.AreEqual("root", image.getUser());
+                    AbsoluteUnixPath.Get("/base/path1"),
+                    AbsoluteUnixPath.Get("/base/path2"),
+                    AbsoluteUnixPath.Get("/new/path1"),
+                    AbsoluteUnixPath.Get("/new/path2")),
+                image.GetVolumes());
+            Assert.AreEqual("/base/working/directory", image.GetWorkingDirectory());
+            Assert.AreEqual("root", image.GetUser());
 
-            Assert.AreEqual(image.getHistory().get(0), nonEmptyLayerHistory);
-            Assert.AreEqual(image.getHistory().get(1), emptyLayerHistory);
-            Assert.AreEqual(image.getHistory().get(2), emptyLayerHistory);
-            Assert.AreEqual(ImmutableArray.Create<string>(), image.getEntrypoint());
-            Assert.AreEqual(ImmutableArray.Create<string>(), image.getProgramArguments());
+            Assert.AreEqual(image.GetHistory().Get(0), nonEmptyLayerHistory);
+            Assert.AreEqual(image.GetHistory().Get(1), emptyLayerHistory);
+            Assert.AreEqual(image.GetHistory().Get(2), emptyLayerHistory);
+            Assert.AreEqual(ImmutableArray.Create<string>(), image.GetEntrypoint());
+            Assert.AreEqual(ImmutableArray.Create<string>(), image.GetProgramArguments());
         }
 
         [Test]
-        public async Task testOverrideWorkingDirectoryAsync()
+        public async Task TestOverrideWorkingDirectoryAsync()
         {
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getWorkingDirectory()).Returns(AbsoluteUnixPath.get("/my/directory"));
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetWorkingDirectory()).Returns(AbsoluteUnixPath.Get("/my/directory"));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -252,18 +252,18 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
-            Assert.AreEqual("/my/directory", image.getWorkingDirectory());
+            Assert.AreEqual("/my/directory", image.GetWorkingDirectory());
         }
 
         [Test]
-        public async Task test_inheritedEntrypointAsync()
+        public async Task Test_inheritedEntrypointAsync()
         {
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(() => null);
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEntrypoint()).Returns(() => null);
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(ImmutableArray.Create("test"));
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetProgramArguments()).Returns(ImmutableArray.Create("test"));
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -275,19 +275,19 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
-            CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
-            CollectionAssert.AreEqual(ImmutableArray.Create("test"), image.getProgramArguments());
+            CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.GetEntrypoint());
+            CollectionAssert.AreEqual(ImmutableArray.Create("test"), image.GetProgramArguments());
         }
 
         [Test]
-        public async Task test_inheritedEntrypointAndProgramArgumentsAsync()
+        public async Task Test_inheritedEntrypointAndProgramArgumentsAsync()
         {
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(() => null);
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEntrypoint()).Returns(() => null);
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(() => null);
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetProgramArguments()).Returns(() => null);
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -299,19 +299,19 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
-            CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.getEntrypoint());
-            CollectionAssert.AreEqual(ImmutableArray.Create("catalina.sh", "run"), image.getProgramArguments());
+            CollectionAssert.AreEqual(ImmutableArray.Create("baseImageEntrypoint"), image.GetEntrypoint());
+            CollectionAssert.AreEqual(ImmutableArray.Create("catalina.sh", "run"), image.GetProgramArguments());
         }
 
         [Test]
-        public async Task test_notInheritedProgramArgumentsAsync()
+        public async Task Test_notInheritedProgramArgumentsAsync()
         {
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getEntrypoint()).Returns(ImmutableArray.Create("myEntrypoint"));
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetEntrypoint()).Returns(ImmutableArray.Create("myEntrypoint"));
 
-            Mock.Get(mockContainerConfiguration).Setup(m => m.getProgramArguments()).Returns(() => null);
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockContainerConfiguration).Setup(m => m.GetProgramArguments()).Returns(() => null);
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer)));
@@ -323,16 +323,16 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
-            CollectionAssert.AreEqual(ImmutableArray.Create("myEntrypoint"), image.getEntrypoint());
-            Assert.IsNull(image.getProgramArguments());
+            CollectionAssert.AreEqual(ImmutableArray.Create("myEntrypoint"), image.GetEntrypoint());
+            Assert.IsNull(image.GetProgramArguments());
         }
 
         [Test]
-        public async Task test_generateHistoryObjectsAsync()
+        public async Task Test_generateHistoryObjectsAsync()
         {
-            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.getFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
+            Mock.Get(mockBuildAndCacheApplicationLayersStep).Setup(s => s.GetFuture()).Returns(Task.FromResult<IReadOnlyList<ICachedLayer>>(ImmutableArray.Create(
                         mockDependenciesLayer,
                         mockResourcesLayer,
                         mockClassesLayer,
@@ -345,62 +345,62 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
-            Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+            Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
 
             // Make sure history is as expected
             HistoryEntry expectedAddedBaseLayerHistory =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setComment("auto-generated by Jib")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetComment("auto-generated by Jib")
+                    .Build();
 
             HistoryEntry expectedApplicationLayerHistoryDependencies =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Jib")
-                    .setCreatedBy(createdBy)
-                    .setComment("dependencies")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy(createdBy)
+                    .SetComment("dependencies")
+                    .Build();
 
             HistoryEntry expectedApplicationLayerHistoryResources =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Jib")
-                    .setCreatedBy(createdBy)
-                    .setComment("resources")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy(createdBy)
+                    .SetComment("resources")
+                    .Build();
 
             HistoryEntry expectedApplicationLayerHistoryClasses =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Jib")
-                    .setCreatedBy(createdBy)
-                    .setComment("classes")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy(createdBy)
+                    .SetComment("classes")
+                    .Build();
 
             HistoryEntry expectedApplicationLayerHistoryExtrafiles =
-                HistoryEntry.builder()
-                    .setCreationTimestamp(Instant.FromUnixTimeSeconds(0))
-                    .setAuthor("Jib")
-                    .setCreatedBy(createdBy)
-                    .setComment("extra files")
-                    .build();
+                HistoryEntry.CreateBuilder()
+                    .SetCreationTimestamp(Instant.FromUnixTimeSeconds(0))
+                    .SetAuthor("Jib")
+                    .SetCreatedBy(createdBy)
+                    .SetComment("extra files")
+                    .Build();
 
             // Base layers (1 non-empty propagated, 2 empty propagated, 2 non-empty generated)
-            Assert.AreEqual(nonEmptyLayerHistory, image.getHistory().get(0));
-            Assert.AreEqual(emptyLayerHistory, image.getHistory().get(1));
-            Assert.AreEqual(emptyLayerHistory, image.getHistory().get(2));
-            Assert.AreEqual(expectedAddedBaseLayerHistory, image.getHistory().get(3));
-            Assert.AreEqual(expectedAddedBaseLayerHistory, image.getHistory().get(4));
+            Assert.AreEqual(nonEmptyLayerHistory, image.GetHistory().Get(0));
+            Assert.AreEqual(emptyLayerHistory, image.GetHistory().Get(1));
+            Assert.AreEqual(emptyLayerHistory, image.GetHistory().Get(2));
+            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory().Get(3));
+            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory().Get(4));
 
             // Application layers (4 generated)
-            Assert.AreEqual(expectedApplicationLayerHistoryDependencies, image.getHistory().get(5));
-            Assert.AreEqual(expectedApplicationLayerHistoryResources, image.getHistory().get(6));
-            Assert.AreEqual(expectedApplicationLayerHistoryClasses, image.getHistory().get(7));
-            Assert.AreEqual(expectedApplicationLayerHistoryExtrafiles, image.getHistory().get(8));
+            Assert.AreEqual(expectedApplicationLayerHistoryDependencies, image.GetHistory().Get(5));
+            Assert.AreEqual(expectedApplicationLayerHistoryResources, image.GetHistory().Get(6));
+            Assert.AreEqual(expectedApplicationLayerHistoryClasses, image.GetHistory().Get(7));
+            Assert.AreEqual(expectedApplicationLayerHistoryExtrafiles, image.GetHistory().Get(8));
 
             // Should be exactly 9 total
-            Assert.AreEqual(9, image.getHistory().size());
+            Assert.AreEqual(9, image.GetHistory().Size());
         }
     }
 }

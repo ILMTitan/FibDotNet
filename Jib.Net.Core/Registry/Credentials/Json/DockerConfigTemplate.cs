@@ -65,11 +65,6 @@ namespace com.google.cloud.tools.jib.registry.credentials.json
         public class AuthTemplate
         {
             public string Auth { get; set; }
-
-            public string getAuth()
-            {
-                return Auth;
-            }
         }
 
         /** Maps from registry to its {@link AuthTemplate}. */
@@ -78,21 +73,6 @@ namespace com.google.cloud.tools.jib.registry.credentials.json
         public string CredsStore { get; set; }
 
         /** Maps from registry to credential helper name. */
-        public IDictionary<string, string> CredHelpers { get; }= new Dictionary<string, string>();
-
-        public IDictionary<string, AuthTemplate> getAuths()
-        {
-            return Auths;
-        }
-
-        public string getCredsStore()
-        {
-            return CredsStore;
-        }
-
-        public IDictionary<string, string> getCredHelpers()
-        {
-            return CredHelpers;
-        }
+        public IDictionary<string, string> CredHelpers { get; } = new Dictionary<string, string>();
     }
 }

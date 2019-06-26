@@ -36,7 +36,7 @@ namespace Jib.Net.Core.Api
          * home]/google-cloud-tools-java/jib}.
          */
         public static readonly SystemPath DefaultBaseCacheDirectory =
-            UserCacheHome.getCacheHome(SystemEnvironment.Instance).Resolve("google-cloud-tools-java").Resolve("jib");
+            UserCacheHome.GetCacheHome(SystemEnvironment.Instance).Resolve("google-cloud-tools-java").Resolve("jib");
 
         private const string DEFAULT_TOOL_NAME = "jib-core";
 
@@ -55,25 +55,25 @@ namespace Jib.Net.Core.Api
         {
             registryImage = registryImage ?? throw new ArgumentNullException(nameof(registryImage));
             ImageConfiguration imageConfiguration =
-                ImageConfiguration.builder(registryImage.getImageReference())
-                    .setCredentialRetrievers(registryImage.getCredentialRetrievers())
-                    .build();
+                ImageConfiguration.CreateBuilder(registryImage.GetImageReference())
+                    .SetCredentialRetrievers(registryImage.GetCredentialRetrievers())
+                    .Build();
 
             return new Containerizer(
                 DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
 
             StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
-                    StepsRunner.begin(buildConfiguration)
-                        .retrieveTargetRegistryCredentials()
-                        .authenticatePush()
-                        .pullBaseImage()
-                        .pullAndCacheBaseImageLayers()
-                        .pushBaseImageLayers()
-                        .buildAndCacheApplicationLayers()
-                        .buildImage()
-                        .pushContainerConfiguration()
-                        .pushApplicationLayers()
-                        .pushImage();
+                    StepsRunner.Begin(buildConfiguration)
+                        .RetrieveTargetRegistryCredentials()
+                        .AuthenticatePush()
+                        .PullBaseImage()
+                        .PullAndCacheBaseImageLayers()
+                        .PushBaseImageLayers()
+                        .BuildAndCacheApplicationLayers()
+                        .BuildImage()
+                        .PushContainerConfiguration()
+                        .PushApplicationLayers()
+                        .PushImage();
         }
 
         /**
@@ -86,22 +86,22 @@ namespace Jib.Net.Core.Api
         {
             dockerDaemonImage = dockerDaemonImage ?? throw new ArgumentNullException(nameof(dockerDaemonImage));
             ImageConfiguration imageConfiguration =
-                ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
+                ImageConfiguration.CreateBuilder(dockerDaemonImage.GetImageReference()).Build();
 
-            DockerClient.Builder dockerClientBuilder = DockerClient.builder();
-            dockerDaemonImage.getDockerExecutable().IfPresent(dockerClientBuilder.setDockerExecutable);
-            dockerClientBuilder.setDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.getDockerEnvironment()));
+            DockerClient.Builder dockerClientBuilder = DockerClient.CreateBuilder();
+            dockerDaemonImage.GetDockerExecutable().IfPresent(dockerClientBuilder.SetDockerExecutable);
+            dockerClientBuilder.SetDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.GetDockerEnvironment()));
 
             return new Containerizer(
                 DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
 
             StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
-                    StepsRunner.begin(buildConfiguration)
-                        .pullBaseImage()
-                        .pullAndCacheBaseImageLayers()
-                        .buildAndCacheApplicationLayers()
-                        .buildImage()
-                        .loadDocker(dockerClientBuilder.build());
+                    StepsRunner.Begin(buildConfiguration)
+                        .PullBaseImage()
+                        .PullAndCacheBaseImageLayers()
+                        .BuildAndCacheApplicationLayers()
+                        .BuildImage()
+                        .LoadDocker(dockerClientBuilder.Build());
         }
 
         /**
@@ -114,18 +114,18 @@ namespace Jib.Net.Core.Api
         {
             tarImage = tarImage ?? throw new ArgumentNullException(nameof(tarImage));
             ImageConfiguration imageConfiguration =
-                ImageConfiguration.builder(tarImage.getImageReference()).build();
+                ImageConfiguration.CreateBuilder(tarImage.GetImageReference()).Build();
 
             return new Containerizer(
                 DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
 
             StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
-                    StepsRunner.begin(buildConfiguration)
-                        .pullBaseImage()
-                        .pullAndCacheBaseImageLayers()
-                        .buildAndCacheApplicationLayers()
-                        .buildImage()
-                        .writeTarFile(tarImage.getOutputFile());
+                    StepsRunner.Begin(buildConfiguration)
+                        .PullBaseImage()
+                        .PullAndCacheBaseImageLayers()
+                        .BuildAndCacheApplicationLayers()
+                        .BuildImage()
+                        .WriteTarFile(tarImage.GetOutputFile());
         }
 
         private readonly string description;
@@ -167,10 +167,10 @@ namespace Jib.Net.Core.Api
          * @param tag the additional tag to push to
          * @return this
          */
-        public Containerizer withAdditionalTag(string tag)
+        public Containerizer WithAdditionalTag(string tag)
         {
-            Preconditions.CheckArgument(ImageReference.isValidTag(tag), "invalid tag '{0}'", tag);
-            additionalTags.add(tag);
+            Preconditions.CheckArgument(ImageReference.IsValidTag(tag), "invalid tag '{0}'", tag);
+            JavaExtensions.Add(additionalTags, tag);
             return this;
         }
 
@@ -183,7 +183,7 @@ namespace Jib.Net.Core.Api
          * @param cacheDirectory the cache directory
          * @return this
          */
-        public Containerizer setBaseImageLayersCache(SystemPath cacheDirectory)
+        public Containerizer SetBaseImageLayersCache(SystemPath cacheDirectory)
         {
             baseImageLayersCacheDirectory = cacheDirectory;
             return this;
@@ -197,13 +197,13 @@ namespace Jib.Net.Core.Api
          * @param cacheDirectory the cache directory
          * @return this
          */
-        public Containerizer setApplicationLayersCache(SystemPath cacheDirectory)
+        public Containerizer SetApplicationLayersCache(SystemPath cacheDirectory)
         {
             applicationLayersCacheDirectory = cacheDirectory;
             return this;
         }
 
-        public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
+        public Containerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
         {
             return AddEventHandler(je =>
             {
@@ -233,7 +233,7 @@ namespace Jib.Net.Core.Api
          * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
          * @return this
          */
-        public Containerizer setAllowInsecureRegistries(bool allowInsecureRegistries)
+        public Containerizer SetAllowInsecureRegistries(bool allowInsecureRegistries)
         {
             this.allowInsecureRegistries = allowInsecureRegistries;
             return this;
@@ -247,7 +247,7 @@ namespace Jib.Net.Core.Api
          * @param offline if {@code true}, the build will run in offline mode
          * @return this
          */
-        public Containerizer setOfflineMode(bool offline)
+        public Containerizer SetOfflineMode(bool offline)
         {
             if (mustBeOnline && offline)
             {
@@ -265,23 +265,23 @@ namespace Jib.Net.Core.Api
          * @param toolName the name of the tool using this library
          * @return this
          */
-        public Containerizer setToolName(string toolName)
+        public Containerizer SetToolName(string toolName)
         {
             this.toolName = toolName;
             return this;
         }
 
-        public ISet<string> getAdditionalTags()
+        public ISet<string> GetAdditionalTags()
         {
             return additionalTags;
         }
 
-        public SystemPath getBaseImageLayersCacheDirectory()
+        public SystemPath GetBaseImageLayersCacheDirectory()
         {
             return baseImageLayersCacheDirectory;
         }
 
-        public SystemPath getApplicationLayersCacheDirectory()
+        public SystemPath GetApplicationLayersCacheDirectory()
         {
             if (applicationLayersCacheDirectory == null)
             {
@@ -289,7 +289,7 @@ namespace Jib.Net.Core.Api
                 try
                 {
                     tempAppLayersCacheDir = new TemporaryDirectory(Path.GetTempPath());
-                    applicationLayersCacheDirectory = tempAppLayersCacheDir.getDirectory();
+                    applicationLayersCacheDirectory = tempAppLayersCacheDir.GetDirectory();
                 }
                 catch (IOException ex)
                 {
@@ -299,39 +299,39 @@ namespace Jib.Net.Core.Api
             return applicationLayersCacheDirectory;
         }
 
-        public bool getAllowInsecureRegistries()
+        public bool GetAllowInsecureRegistries()
         {
             return allowInsecureRegistries;
         }
 
-        public bool isOfflineMode()
+        public bool IsOfflineMode()
         {
             return offline;
         }
 
-        public string getToolName()
+        public string GetToolName()
         {
             return toolName;
         }
 
-        public string getDescription()
+        public string GetDescription()
         {
             return description;
         }
 
-        public ImageConfiguration getImageConfiguration()
+        public ImageConfiguration GetImageConfiguration()
         {
             return imageConfiguration;
         }
 
-        public IStepsRunner createStepsRunner(BuildConfiguration buildConfiguration)
+        public IStepsRunner CreateStepsRunner(BuildConfiguration buildConfiguration)
         {
-            return stepsRunnerFactory.apply(buildConfiguration);
+            return stepsRunnerFactory.Apply(buildConfiguration);
         }
 
-        public EventHandlers buildEventHandlers()
+        public EventHandlers BuildEventHandlers()
         {
-            return new EventHandlers.Builder().add<IJibEvent>(e => JibEvents(e)).build();
+            return new EventHandlers.Builder().Add<IJibEvent>(e => JibEvents(e)).Build();
         }
 
         public void Dispose()

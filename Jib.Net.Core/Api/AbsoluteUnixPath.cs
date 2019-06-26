@@ -38,14 +38,14 @@ namespace Jib.Net.Core.Api
          * @param unixPath the Unix-style path string in absolute form
          * @return a new {@link AbsoluteUnixPath}
          */
-        public static AbsoluteUnixPath get(string unixPath)
+        public static AbsoluteUnixPath Get(string unixPath)
         {
             Preconditions.CheckNotNull(unixPath);
             Preconditions.CheckArgument(
                 unixPath.StartsWith("/", StringComparison.InvariantCulture),
                 "Path does not start with forward slash (/): " + unixPath);
 
-            return new AbsoluteUnixPath(UnixPathParser.parse(unixPath), null);
+            return new AbsoluteUnixPath(UnixPathParser.Parse(unixPath), null);
         }
 
         /**
@@ -55,7 +55,7 @@ namespace Jib.Net.Core.Api
          * @param path the absolute {@link Path} to convert to an {@link AbsoluteUnixPath}.
          * @return a new {@link AbsoluteUnixPath}
          */
-        public static AbsoluteUnixPath fromPath(SystemPath path)
+        public static AbsoluteUnixPath FromPath(SystemPath path)
         {
             path = path ?? throw new ArgumentNullException(nameof(path));
             Preconditions.CheckArgument(
@@ -89,7 +89,7 @@ namespace Jib.Net.Core.Api
             StringJoiner pathJoiner = new StringJoiner("/", "/", "");
             foreach (string pathComponent in pathComponents)
             {
-                pathJoiner.add(pathComponent);
+                pathJoiner.Add(pathComponent);
             }
             unixPath = pathJoiner.ToString();
         }
@@ -102,13 +102,13 @@ namespace Jib.Net.Core.Api
          * @param relativeUnixPath the relative path to resolve against
          * @return a new {@link AbsoluteUnixPath} representing the resolved path
          */
-        public AbsoluteUnixPath resolve(RelativeUnixPath relativeUnixPath)
+        public AbsoluteUnixPath Resolve(RelativeUnixPath relativeUnixPath)
         {
             relativeUnixPath = relativeUnixPath ?? throw new ArgumentNullException(nameof(relativeUnixPath));
             ImmutableArray<string>.Builder newPathComponents =
                 ImmutableArray.CreateBuilder<string>();
             newPathComponents.AddRange(PathComponents);
-            newPathComponents.AddRange(relativeUnixPath.getRelativePathComponents());
+            newPathComponents.AddRange(relativeUnixPath.GetRelativePathComponents());
             return new AbsoluteUnixPath(newPathComponents.ToImmutable());
         }
 
@@ -119,13 +119,13 @@ namespace Jib.Net.Core.Api
          * @param relativePath the relative path to resolve against
          * @return a new {@link AbsoluteUnixPath} representing the resolved path
          */
-        public AbsoluteUnixPath resolve(SystemPath relativePath)
+        public AbsoluteUnixPath Resolve(SystemPath relativePath)
         {
             relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             Preconditions.CheckArgument(
                 relativePath.GetRoot() == null, "Cannot resolve against absolute Path: " + relativePath);
 
-            return AbsoluteUnixPath.fromPath(Paths.get(unixPath).Resolve(relativePath));
+            return AbsoluteUnixPath.FromPath(Paths.Get(unixPath).Resolve(relativePath));
         }
 
         /**
@@ -134,9 +134,9 @@ namespace Jib.Net.Core.Api
          * @param relativeUnixPath the relative path to resolve against
          * @return a new {@link AbsoluteUnixPath} representing the resolved path
          */
-        public AbsoluteUnixPath resolve(string relativeUnixPath)
+        public AbsoluteUnixPath Resolve(string relativeUnixPath)
         {
-            return resolve(RelativeUnixPath.get(relativeUnixPath));
+            return Resolve(RelativeUnixPath.Get(relativeUnixPath));
         }
 
         /**

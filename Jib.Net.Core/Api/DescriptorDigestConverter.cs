@@ -24,7 +24,7 @@ namespace Jib.Net.Core.Api
         public override DescriptorDigest ReadJson(JsonReader reader, Type objectType, DescriptorDigest existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var stringValue = serializer.Deserialize<string>(reader);
-            return DescriptorDigest.fromDigest(stringValue);
+            return DescriptorDigest.FromDigest(stringValue);
         }
 
         public override void WriteJson(JsonWriter writer, DescriptorDigest value, JsonSerializer serializer)

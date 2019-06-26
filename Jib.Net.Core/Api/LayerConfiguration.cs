@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.api
              * @param name the name
              * @return this
              */
-            public Builder setName(string name)
+            public Builder SetName(string name)
             {
                 this.name = name;
                 return this;
@@ -54,9 +54,9 @@ namespace com.google.cloud.tools.jib.api
              * @param entry the layer entry to add
              * @return this
              */
-            public Builder addEntry(LayerEntry entry)
+            public Builder AddEntry(LayerEntry entry)
             {
-                layerEntries.add(entry);
+                JavaExtensions.Add(layerEntries, entry);
                 return this;
             }
 
@@ -78,12 +78,12 @@ namespace com.google.cloud.tools.jib.api
              *     sourceFile}
              * @return this
              */
-            public Builder addEntry(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
+            public Builder AddEntry(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
             {
-                return addEntry(
+                return AddEntry(
                     sourceFile,
                     pathInContainer,
-                    DefaultFilePermissionsProvider.apply(sourceFile, pathInContainer));
+                    DefaultFilePermissionsProvider.Apply(sourceFile, pathInContainer));
             }
 
             /**
@@ -100,14 +100,14 @@ namespace com.google.cloud.tools.jib.api
              * @see FilePermissions#DEFAULT_FILE_PERMISSIONS
              * @see FilePermissions#DEFAULT_FOLDER_PERMISSIONS
              */
-            public Builder addEntry(
+            public Builder AddEntry(
                 SystemPath sourceFile, AbsoluteUnixPath pathInContainer, FilePermissions permissions)
             {
-                return addEntry(
+                return AddEntry(
                     sourceFile,
                     pathInContainer,
                     permissions,
-                    DefaultModifiedTimeProvider.apply(sourceFile, pathInContainer));
+                    DefaultModifiedTimeProvider.Apply(sourceFile, pathInContainer));
             }
 
             /**
@@ -125,13 +125,13 @@ namespace com.google.cloud.tools.jib.api
              * @see FilePermissions#DEFAULT_FILE_PERMISSIONS
              * @see FilePermissions#DEFAULT_FOLDER_PERMISSIONS
              */
-            public Builder addEntry(
+            public Builder AddEntry(
                 SystemPath sourceFile,
                 AbsoluteUnixPath pathInContainer,
                 FilePermissions permissions,
                 Instant lastModifiedTime)
             {
-                return addEntry(new LayerEntry(sourceFile, pathInContainer, permissions, lastModifiedTime));
+                return AddEntry(new LayerEntry(sourceFile, pathInContainer, permissions, lastModifiedTime));
             }
 
             /**
@@ -149,9 +149,9 @@ namespace com.google.cloud.tools.jib.api
              * @return this
              * @throws IOException if an exception occurred when recursively listing the directory
              */
-            public Builder addEntryRecursive(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
+            public Builder AddEntryRecursive(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
             {
-                return addEntryRecursive(sourceFile, pathInContainer, DefaultFilePermissionsProvider);
+                return AddEntryRecursive(sourceFile, pathInContainer, DefaultFilePermissionsProvider);
             }
 
             /**
@@ -166,12 +166,12 @@ namespace com.google.cloud.tools.jib.api
              * @return this
              * @throws IOException if an exception occurred when recursively listing the directory
              */
-            public Builder addEntryRecursive(
+            public Builder AddEntryRecursive(
                 SystemPath sourceFile,
                 AbsoluteUnixPath pathInContainer,
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider)
             {
-                return addEntryRecursive(
+                return AddEntryRecursive(
                     sourceFile, pathInContainer, filePermissionProvider, DefaultModifiedTimeProvider);
             }
 
@@ -189,27 +189,27 @@ namespace com.google.cloud.tools.jib.api
              * @return this
              * @throws IOException if an exception occurred when recursively listing the directory
              */
-            public Builder addEntryRecursive(
+            public Builder AddEntryRecursive(
                 SystemPath sourceFile,
                 AbsoluteUnixPath pathInContainer,
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
                 Func<SystemPath, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
             {
 
-                FilePermissions permissions = filePermissionProvider?.apply(sourceFile, pathInContainer);
-                Instant modifiedTime = lastModifiedTimeProvider.apply(sourceFile, pathInContainer);
-                addEntry(sourceFile, pathInContainer, permissions, modifiedTime);
-                if (!Files.isDirectory(sourceFile))
+                FilePermissions permissions = filePermissionProvider?.Apply(sourceFile, pathInContainer);
+                Instant modifiedTime = lastModifiedTimeProvider.Apply(sourceFile, pathInContainer);
+                AddEntry(sourceFile, pathInContainer, permissions, modifiedTime);
+                if (!Files.IsDirectory(sourceFile))
                 {
                     return this;
                 }
-                IEnumerable<SystemPath> files = Files.list(sourceFile);
+                IEnumerable<SystemPath> files = Files.List(sourceFile);
                 {
                     foreach (SystemPath file in files.ToList())
                     {
-                        addEntryRecursive(
+                        AddEntryRecursive(
                             file,
-                            pathInContainer.resolve(file.GetFileName()),
+                            pathInContainer.Resolve(file.GetFileName()),
                             filePermissionProvider,
                             lastModifiedTimeProvider);
                     }
@@ -222,9 +222,9 @@ namespace com.google.cloud.tools.jib.api
              *
              * @return the built {@link LayerConfiguration}
              */
-            public ILayerConfiguration build()
+            public ILayerConfiguration Build()
             {
-                return new LayerConfiguration(name, layerEntries.build());
+                return new LayerConfiguration(name, layerEntries.Build());
             }
         }
 
@@ -232,7 +232,7 @@ namespace com.google.cloud.tools.jib.api
         public static readonly Func<SystemPath, AbsoluteUnixPath, FilePermissions>
             DefaultFilePermissionsProvider =
                 (sourcePath, _) =>
-                    Files.isDirectory(sourcePath)
+                    Files.IsDirectory(sourcePath)
                         ? FilePermissions.DefaultFolderPermissions
                         : FilePermissions.DefaultFilePermissions;
 
@@ -273,7 +273,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the name
          */
-        public string getName()
+        public string GetName()
         {
             return name;
         }
@@ -283,7 +283,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return the list of layer entries
          */
-        public ImmutableArray<LayerEntry> getLayerEntries()
+        public ImmutableArray<LayerEntry> GetLayerEntries()
         {
             return layerEntries;
         }

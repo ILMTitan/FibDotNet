@@ -48,12 +48,12 @@ namespace com.google.cloud.tools.jib.registry
         private ManifestPusher testManifestPusher;
 
         [SetUp]
-        public void setUp()
+        public void SetUp()
         {
             mockEventHandlers = Mock.Of<IEventHandlers>();
-            v22manifestJsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
+            v22manifestJsonFile = Paths.Get(TestResources.GetResource("core/json/v22manifest.json").ToURI());
             fakeManifestTemplate =
-                JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(v22manifestJsonFile);
+                JsonTemplateMapper.ReadJsonFromFile<V22ManifestTemplate>(v22manifestJsonFile);
 
             testManifestPusher =
                 new ManifestPusher(
@@ -64,105 +64,105 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async Task testGetContentAsync()
+        public async Task TestGetContentAsync()
         {
-            BlobHttpContent body = testManifestPusher.getContent();
+            BlobHttpContent body = testManifestPusher.GetContent();
 
             Assert.IsNotNull(body);
             Assert.AreEqual(V22ManifestTemplate.ManifestMediaType, body.Headers.ContentType.MediaType);
 
             MemoryStream bodyCaptureStream = new MemoryStream();
-            await body.writeToAsync(bodyCaptureStream).ConfigureAwait(false);
+            await body.WriteToAsync(bodyCaptureStream).ConfigureAwait(false);
             string v22manifestJson =
-                Encoding.UTF8.GetString(Files.readAllBytes(v22manifestJsonFile));
+                Encoding.UTF8.GetString(Files.ReadAllBytes(v22manifestJsonFile));
             Assert.AreEqual(
-                v22manifestJson, Encoding.UTF8.GetString(bodyCaptureStream.toByteArray()));
+                v22manifestJson, Encoding.UTF8.GetString(bodyCaptureStream.ToByteArray()));
         }
 
         [Test]
-        public async Task testHandleResponse_validAsync()
+        public async Task TestHandleResponse_validAsync()
         {
-            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
+            DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", new List<string> { expectedDigest.toString() } } }
+                Headers = { { "Docker-Content-Digest", new List<string> { JavaExtensions.ToString(expectedDigest) } } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));
         }
 
         [Test]
-        public async Task testHandleResponse_noDigestAsync()
+        public async Task TestHandleResponse_noDigestAsync()
         {
-            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
+            DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", new List<string>() } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
-            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.Warn("Expected image digest " + expectedDigest + ", but received none")));
         }
 
         [Test]
-        public async Task testHandleResponse_multipleDigestsAsync()
+        public async Task TestHandleResponse_multipleDigestsAsync()
         {
-            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
+            DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", Arrays.asList("too", "many") } }
+                Headers = { { "Docker-Content-Digest", Arrays.AsList("too", "many") } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));
             Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
-                    LogEvent.warn("Expected image digest " + expectedDigest + ", but received: too, many")));
+                    LogEvent.Warn("Expected image digest " + expectedDigest + ", but received: too, many")));
         }
 
         [Test]
-        public async Task testHandleResponse_invalidDigestAsync()
+        public async Task TestHandleResponse_invalidDigestAsync()
         {
-            DescriptorDigest expectedDigest = await Digests.computeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
+            DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
                 Headers = { { "Docker-Content-Digest", new List<string> { "not valid" } } }
             };
 
-            Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
+            Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));
             Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
-                    LogEvent.warn("Expected image digest " + expectedDigest + ", but received: not valid")));
+                    LogEvent.Warn("Expected image digest " + expectedDigest + ", but received: not valid")));
         }
 
         [Test]
-        public void testApiRoute()
+        public void TestApiRoute()
         {
             Assert.AreEqual(
                 new Uri("http://someApiBase/someImageName/manifests/test-image-tag"),
-                testManifestPusher.getApiRoute("http://someApiBase/"));
+                testManifestPusher.GetApiRoute("http://someApiBase/"));
         }
 
         [Test]
-        public void testGetHttpMethod()
+        public void TestGetHttpMethod()
         {
-            Assert.AreEqual(HttpMethod.Put, testManifestPusher.getHttpMethod());
+            Assert.AreEqual(HttpMethod.Put, testManifestPusher.GetHttpMethod());
         }
 
         [Test]
-        public void testGetActionDescription()
+        public void TestGetActionDescription()
         {
             Assert.AreEqual(
                 "push image manifest for someServerUrl/someImageName:test-image-tag",
-                testManifestPusher.getActionDescription());
+                testManifestPusher.GetActionDescription());
         }
 
         [Test]
-        public void testGetAccept()
+        public void TestGetAccept()
         {
-            Assert.AreEqual(0, testManifestPusher.getAccept().size());
+            Assert.AreEqual(0, testManifestPusher.GetAccept().Size());
         }
 
         /** Docker Registry 2.0 and 2.1 return 400 / TAG_INVALID. */
         [Test]
-        public async Task testHandleHttpResponseException_dockerRegistry_tagInvalidAsync()
+        public async Task TestHandleHttpResponseException_dockerRegistry_tagInvalidAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -172,13 +172,13 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
+                await testManifestPusher.HandleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.getMessage(), Does.Contain(
+                    ex.GetMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }
@@ -186,7 +186,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Docker Registry 2.2 returns a 400 / MANIFEST_INVALID. */
         [Test]
-        public async Task testHandleHttpResponseException_dockerRegistry_manifestInvalidAsync()
+        public async Task TestHandleHttpResponseException_dockerRegistry_manifestInvalidAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -196,13 +196,13 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
+                await testManifestPusher.HandleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.getMessage(), Does.Contain(
+                    ex.GetMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }
@@ -210,7 +210,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Quay.io returns an undocumented 415 / MANIFEST_INVALID. */
         [Test]
-        public async Task testHandleHttpResponseException_quayIoAsync()
+        public async Task TestHandleHttpResponseException_quayIoAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.UnsupportedMediaType)
             {
@@ -221,20 +221,20 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
+                await testManifestPusher.HandleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.getMessage(), Does.Contain(
+                    ex.GetMessage(), Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }
         }
 
         [Test]
-        public async Task testHandleHttpResponseException_otherErrorAsync()
+        public async Task TestHandleHttpResponseException_otherErrorAsync()
         {
             HttpResponseMessage exception = new HttpResponseMessage(HttpStatusCode.Unauthorized)
             {
@@ -243,7 +243,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                await testManifestPusher.handleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
+                await testManifestPusher.HandleHttpResponseExceptionAsync(exception).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (HttpResponseException ex)

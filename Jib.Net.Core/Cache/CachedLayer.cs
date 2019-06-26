@@ -35,32 +35,32 @@ namespace com.google.cloud.tools.jib.cache
 
         public ICachedLayer CachedLayer { get; set; }
 
-        public IBlob getBlob()
+        public IBlob GetBlob()
         {
-            return CachedLayer.getBlob();
+            return CachedLayer.GetBlob();
         }
 
-        public BlobDescriptor getBlobDescriptor()
+        public BlobDescriptor GetBlobDescriptor()
         {
-            return CachedLayer.getBlobDescriptor();
+            return CachedLayer.GetBlobDescriptor();
         }
 
-        public DescriptorDigest getDiffId()
+        public DescriptorDigest GetDiffId()
         {
-            return CachedLayer.getDiffId();
+            return CachedLayer.GetDiffId();
         }
 
-        public DescriptorDigest getDigest()
+        public DescriptorDigest GetDigest()
         {
-            return CachedLayer.getDigest();
+            return CachedLayer.GetDigest();
         }
 
-        public long getSize()
+        public long GetSize()
         {
-            return CachedLayer.getSize();
+            return CachedLayer.GetSize();
         }
 
-        public string getLayerType()
+        public string GetLayerType()
         {
             return layerType;
         }
@@ -79,36 +79,36 @@ namespace com.google.cloud.tools.jib.cache
 
             public Builder() { }
 
-            public Builder setLayerDigest(DescriptorDigest layerDigest)
+            public Builder SetLayerDigest(DescriptorDigest layerDigest)
             {
                 this.layerDigest = layerDigest;
                 return this;
             }
 
-            public Builder setLayerDiffId(DescriptorDigest layerDiffId)
+            public Builder SetLayerDiffId(DescriptorDigest layerDiffId)
             {
                 this.layerDiffId = layerDiffId;
                 return this;
             }
 
-            public Builder setLayerSize(long layerSize)
+            public Builder SetLayerSize(long layerSize)
             {
                 this.layerSize = layerSize;
                 return this;
             }
 
-            public Builder setLayerBlob(IBlob layerBlob)
+            public Builder SetLayerBlob(IBlob layerBlob)
             {
                 this.layerBlob = layerBlob;
                 return this;
             }
 
-            public bool hasLayerBlob()
+            public bool HasLayerBlob()
             {
                 return layerBlob != null;
             }
 
-            public CachedLayer build()
+            public CachedLayer Build()
             {
                 return new CachedLayer(
                     Preconditions.CheckNotNull(layerDigest, "layerDigest required"),
@@ -123,7 +123,7 @@ namespace com.google.cloud.tools.jib.cache
          *
          * @return the new {@link Builder}
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }
@@ -140,32 +140,32 @@ namespace com.google.cloud.tools.jib.cache
             this.blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
         }
 
-        public DescriptorDigest getDigest()
+        public DescriptorDigest GetDigest()
         {
-            return blobDescriptor.getDigest();
+            return blobDescriptor.GetDigest();
         }
 
-        public long getSize()
+        public long GetSize()
         {
-            return blobDescriptor.getSize();
+            return blobDescriptor.GetSize();
         }
 
-        public DescriptorDigest getDiffId()
+        public DescriptorDigest GetDiffId()
         {
             return layerDiffId;
         }
 
-        public IBlob getBlob()
+        public IBlob GetBlob()
         {
             return layerBlob;
         }
 
-        public BlobDescriptor getBlobDescriptor()
+        public BlobDescriptor GetBlobDescriptor()
         {
             return blobDescriptor;
         }
 
-        public string getLayerType()
+        public string GetLayerType()
         {
             throw new NotSupportedException();
         }

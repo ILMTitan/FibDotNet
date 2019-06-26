@@ -23,12 +23,12 @@ namespace com.google.cloud.tools.jib.registry
     {
         private long value = 0;
 
-        public void add(long byteCount)
+        public void Add(long byteCount)
         {
             Interlocked.Add(ref value, byteCount);
         }
 
-        public long sum()
+        public long Sum()
         {
             return Interlocked.Read(ref value);
         }

@@ -25,11 +25,11 @@ namespace com.google.cloud.tools.jib.api
     public class TarImageTest
     {
         [Test]
-        public void testGetters()
+        public void TestGetters()
         {
-            TarImage tarImage = TarImage.named("tar/image").saveTo(Paths.get("output/file"));
-            Assert.AreEqual("tar/image", tarImage.getImageReference().toString());
-            Assert.AreEqual(Paths.get("output/file"), tarImage.getOutputFile());
+            TarImage tarImage = TarImage.Named("tar/image").SaveTo(Paths.Get("output/file"));
+            Assert.AreEqual("tar/image", JavaExtensions.ToString(tarImage.GetImageReference()));
+            Assert.AreEqual(Paths.Get("output/file"), tarImage.GetOutputFile());
         }
     }
 }

@@ -58,47 +58,47 @@ namespace Jib.Net.Core.Builder.Steps
             this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayersStep;
             this.buildImageStep = buildImageStep;
 
-            listenableFuture = callAsync();
+            listenableFuture = CallAsync();
         }
 
-        public Task<BuildResult> getFuture()
+        public Task<BuildResult> GetFuture()
         {
             return listenableFuture;
         }
 
-        public async Task<BuildResult> callAsync()
+        public async Task<BuildResult> CallAsync()
         {
-            await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
-            await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
-            await buildImageStep.getFuture().ConfigureAwait(false);
+            await pullAndCacheBaseImageLayersStep.GetFuture().ConfigureAwait(false);
+            await buildAndCacheApplicationLayersStep.GetFuture().ConfigureAwait(false);
+            await buildImageStep.GetFuture().ConfigureAwait(false);
             buildConfiguration
-                .getEventHandlers()
-                .Dispatch(LogEvent.progress(Resources.LoadDockerStepDescription));
+                .GetEventHandlers()
+                .Dispatch(LogEvent.Progress(Resources.LoadDockerStepDescription));
 
             using (progressEventDispatcherFactory.Create(Resources.LoadDockerStepDescription, 1))
             {
-                Image image = await buildImageStep.getFuture().ConfigureAwait(false);
+                Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
                 IImageReference targetImageReference =
-                    buildConfiguration.getTargetImageConfiguration().getImage();
+                    buildConfiguration.GetTargetImageConfiguration().GetImage();
 
                 // Load the image to docker daemon.
                 buildConfiguration
-                    .getEventHandlers()
+                    .GetEventHandlers()
                     .Dispatch(
-                        LogEvent.debug(await dockerClient.loadAsync(new ImageTarball(image, targetImageReference)).ConfigureAwait(false)));
+                        LogEvent.Debug(await dockerClient.LoadAsync(new ImageTarball(image, targetImageReference)).ConfigureAwait(false)));
 
                 // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.
-                foreach (string tag in buildConfiguration.getAllTargetImageTags())
+                foreach (string tag in buildConfiguration.GetAllTargetImageTags())
                 {
-                    if (tag.Equals(targetImageReference.getTag(), StringComparison.Ordinal))
+                    if (tag.Equals(targetImageReference.GetTag(), StringComparison.Ordinal))
                     {
                         continue;
                     }
 
-                    dockerClient.tag(targetImageReference, targetImageReference.withTag(tag));
+                    dockerClient.Tag(targetImageReference, targetImageReference.WithTag(tag));
                 }
 
-                return await BuildResult.fromImageAsync(image, buildConfiguration.getTargetFormat()).ConfigureAwait(false);
+                return await BuildResult.FromImageAsync(image, buildConfiguration.GetTargetFormat()).ConfigureAwait(false);
             }
         }
     }

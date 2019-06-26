@@ -33,39 +33,27 @@ namespace com.google.cloud.tools.jib.hash
     // more general.
     public static class Digests
     {
-        public static async Task<DescriptorDigest> computeJsonDigestAsync(object template)
+        public static async Task<DescriptorDigest> ComputeJsonDigestAsync(object template)
         {
-            var descriptor = await computeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
-            return descriptor.getDigest();
+            var descriptor = await ComputeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
+            return descriptor.GetDigest();
         }
 
-        public static async Task<BlobDescriptor> computeJsonDescriptorAsync(object template)
+        public static async Task<BlobDescriptor> ComputeJsonDescriptorAsync(object template)
         {
-            return await computeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
+            return await ComputeJsonDigestAsync(template, Stream.Null).ConfigureAwait(false);
         }
 
-        public static async Task<BlobDescriptor> computeJsonDigestAsync(object template, Stream outStream)
+        public static async Task<BlobDescriptor> ComputeJsonDigestAsync(object template, Stream outStream)
         {
             async Task contentsAsync(Stream contentsOut) =>
-                await JsonTemplateMapper.writeToAsync(template, contentsOut).ConfigureAwait(false);
-            return await computeDigestAsync(contentsAsync, outStream).ConfigureAwait(false);
+                await JsonTemplateMapper.WriteToAsync(template, contentsOut).ConfigureAwait(false);
+            return await ComputeDigestAsync(contentsAsync, outStream).ConfigureAwait(false);
         }
 
-        public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream)
+        public static async Task<BlobDescriptor> ComputeDigestAsync(Stream inStream)
         {
-            return await computeDigestAsync(inStream, Stream.Null).ConfigureAwait(false);
-        }
-
-        /**
-         * Computes the digest by consuming the contents.
-         *
-         * @param contents the contents for which the digest is computed
-         * @return computed digest and bytes consumed
-         * @throws IOException if reading fails
-         */
-        public static BlobDescriptor computeDigest(WritableContents contents)
-        {
-            return computeDigest(contents, Stream.Null);
+            return await ComputeDigestAsync(inStream, Stream.Null).ConfigureAwait(false);
         }
 
         /**
@@ -75,9 +63,21 @@ namespace com.google.cloud.tools.jib.hash
          * @return computed digest and bytes consumed
          * @throws IOException if reading fails
          */
-        public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents)
+        public static BlobDescriptor ComputeDigest(WritableContents contents)
         {
-            return await computeDigestAsync(contents, Stream.Null).ConfigureAwait(false);
+            return ComputeDigest(contents, Stream.Null);
+        }
+
+        /**
+         * Computes the digest by consuming the contents.
+         *
+         * @param contents the contents for which the digest is computed
+         * @return computed digest and bytes consumed
+         * @throws IOException if reading fails
+         */
+        public static async Task<BlobDescriptor> ComputeDigestAsync(WritableContentsAsync contents)
+        {
+            return await ComputeDigestAsync(contents, Stream.Null).ConfigureAwait(false);
         }
 
         /**
@@ -90,10 +90,10 @@ namespace com.google.cloud.tools.jib.hash
          * @return computed digest and bytes consumed
          * @throws IOException if reading from or writing fails
          */
-        public static async Task<BlobDescriptor> computeDigestAsync(Stream inStream, Stream outStream)
+        public static async Task<BlobDescriptor> ComputeDigestAsync(Stream inStream, Stream outStream)
         {
-            async Task contents(Stream contentsOut) => await ByteStreams.copyAsync(inStream, contentsOut).ConfigureAwait(false);
-            return await computeDigestAsync(contents, outStream).ConfigureAwait(false);
+            async Task contents(Stream contentsOut) => await ByteStreams.CopyAsync(inStream, contentsOut).ConfigureAwait(false);
+            return await ComputeDigestAsync(contents, outStream).ConfigureAwait(false);
         }
 
         /**
@@ -106,12 +106,12 @@ namespace com.google.cloud.tools.jib.hash
          * @return computed digest and bytes consumed
          * @throws IOException if reading from or writing fails
          */
-        public static BlobDescriptor computeDigest(WritableContents contents, Stream outStream)
+        public static BlobDescriptor ComputeDigest(WritableContents contents, Stream outStream)
         {
             using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
             {
-                contents.writeTo(digestOutStream);
-                return digestOutStream.computeDigest();
+                contents.WriteTo(digestOutStream);
+                return digestOutStream.ComputeDigest();
             }
         }
 
@@ -125,13 +125,13 @@ namespace com.google.cloud.tools.jib.hash
          * @return computed digest and bytes consumed
          * @throws IOException if reading from or writing fails
          */
-        public static async Task<BlobDescriptor> computeDigestAsync(WritableContentsAsync contents, Stream outStream)
+        public static async Task<BlobDescriptor> ComputeDigestAsync(WritableContentsAsync contents, Stream outStream)
         {
             contents = contents ?? throw new ArgumentNullException(nameof(contents));
             using (CountingDigestOutputStream digestOutStream = new CountingDigestOutputStream(outStream, true))
             {
                 await contents(digestOutStream).ConfigureAwait(false);
-                return digestOutStream.computeDigest();
+                return digestOutStream.ComputeDigest();
             }
         }
     }

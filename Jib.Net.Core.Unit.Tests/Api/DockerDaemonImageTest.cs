@@ -28,25 +28,25 @@ namespace com.google.cloud.tools.jib.api
     public class DockerDaemonImageTest
     {
         [Test]
-        public void testGetters_default()
+        public void TestGetters_default()
         {
-            DockerDaemonImage dockerDaemonImage = DockerDaemonImage.named("docker/daemon/image");
+            DockerDaemonImage dockerDaemonImage = DockerDaemonImage.Named("docker/daemon/image");
 
-            Assert.AreEqual("docker/daemon/image", dockerDaemonImage.getImageReference().toString());
-            Assert.AreEqual(Option.Empty<SystemPath>(), dockerDaemonImage.getDockerExecutable());
-            Assert.AreEqual(0, dockerDaemonImage.getDockerEnvironment().size());
+            Assert.AreEqual("docker/daemon/image", JavaExtensions.ToString(dockerDaemonImage.GetImageReference()));
+            Assert.AreEqual(Option.Empty<SystemPath>(), dockerDaemonImage.GetDockerExecutable());
+            Assert.AreEqual(0, dockerDaemonImage.GetDockerEnvironment().Size());
         }
 
         [Test]
-        public void testGetters()
+        public void TestGetters()
         {
             DockerDaemonImage dockerDaemonImage =
-                DockerDaemonImage.named("docker/daemon/image")
-                    .setDockerExecutable(Paths.get("docker/binary"))
-                    .setDockerEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }));
+                DockerDaemonImage.Named("docker/daemon/image")
+                    .SetDockerExecutable(Paths.Get("docker/binary"))
+                    .SetDockerEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }));
 
-            Assert.AreEqual(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().Get());
-            Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), dockerDaemonImage.getDockerEnvironment());
+            Assert.AreEqual(Paths.Get("docker/binary"), dockerDaemonImage.GetDockerExecutable().Get());
+            Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), dockerDaemonImage.GetDockerEnvironment());
         }
     }
 }
