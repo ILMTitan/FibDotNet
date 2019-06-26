@@ -26,8 +26,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * Translates an {@link Image} into a manifest or container configuration JSON BLOB.
@@ -85,14 +86,12 @@ namespace com.google.cloud.tools.jib.image.json
                 return ImmutableArray<string>.Empty;
             }
             Preconditions.CheckArgument(
-                environment.KeySet().Stream().NoneMatch(key => JavaExtensions.Contains(key, "=")),
+                !environment.Keys.Any((Func<string, bool>)(key => JavaExtensions.Contains(key, "="))),
                 "Illegal environment variable: name cannot contain '='");
             return environment
-                .EntrySet()
-                .Stream()
-                .Map(entry => entry.GetKey() + "=" + entry.GetValue())
-                .Sorted()
-                .Collect(ImmutableArray.ToImmutableArray);
+                .Select(entry => entry.GetKey() + "=" + entry.GetValue())
+                .OrderBy(i => i)
+                .ToImmutableArray();
         }
 
         /**
@@ -119,8 +118,10 @@ namespace com.google.cloud.tools.jib.image.json
                 return null;
             }
 
-            return set.Stream()
-                .Collect(e => e.ToImmutableSortedDictionary(keyMapper, _ => (IDictionary<object, object>)new Dictionary<object, object>(), StringComparer.Ordinal));
+            return set.ToImmutableSortedDictionary(
+                keyMapper,
+                _ => (IDictionary<object, object>)new Dictionary<object, object>(),
+                StringComparer.Ordinal);
         }
 
         private readonly Image image;
@@ -171,19 +172,19 @@ namespace com.google.cloud.tools.jib.image.json
 
             // Ignore healthcheck if not Docker/command is empty
             DockerHealthCheck healthCheck = image.GetHealthCheck();
-            if (image.GetImageFormat()== ManifestFormat.V22 && healthCheck != null)
+            if (image.GetImageFormat() == ManifestFormat.V22 && healthCheck != null)
             {
                 template.SetContainerHealthCheckTest(healthCheck.GetCommand());
                 healthCheck
                     .GetInterval()
-                    .IfPresent(interval => template.SetContainerHealthCheckInterval(interval.ToNanos()));
+                    .IfPresent(interval => template.SetContainerHealthCheckInterval((long)interval.TotalNanoseconds));
                 healthCheck
                     .GetTimeout()
-                    .IfPresent(timeout => template.SetContainerHealthCheckTimeout(timeout.ToNanos()));
+                    .IfPresent(timeout => template.SetContainerHealthCheckTimeout((long)timeout.TotalNanoseconds));
                 healthCheck
                     .GetStartPeriod()
                     .IfPresent(
-                        startPeriod => template.SetContainerHealthCheckStartPeriod(startPeriod.ToNanos()));
+                        startPeriod => template.SetContainerHealthCheckStartPeriod((long)startPeriod.TotalNanoseconds));
                 template.SetContainerHealthCheckRetries(healthCheck.GetRetries().AsNullable());
             }
 

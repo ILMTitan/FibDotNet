@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 throw new HttpResponseException(response);
             }
-            blobSizeListener(response.GetContentLength() ?? 0);
+            blobSizeListener(response.Content.Headers.ContentLength ?? 0);
 
             using (Stream outputStream =
                 new NotifyingOutputStream(destinationOutputStream, writtenByteCountListener, true))

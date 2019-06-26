@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.registry
                     return true;
                 }
 
-                exception = exception.GetCause();
+                exception = exception.InnerException;
             }
             return false;
         }
@@ -80,7 +80,7 @@ namespace com.google.cloud.tools.jib.registry
 
         private static bool IsHttpsProtocol(Uri url)
         {
-            return "https" == url.GetProtocol();
+            return "https" == url.Scheme;
         }
 
         private readonly IEventHandlers eventHandlers;
@@ -231,11 +231,7 @@ namespace com.google.cloud.tools.jib.registry
 
         private Func<Uri, IConnection> GetInsecureConnectionFactory()
         {
-            if (insecureConnectionFactory == null)
-            {
-                insecureConnectionFactory = Connection.GetInsecureConnectionFactory();
-            }
-            return insecureConnectionFactory;
+            return insecureConnectionFactory ?? (insecureConnectionFactory = Connection.GetInsecureConnectionFactory());
         }
 
         /**
@@ -253,7 +249,7 @@ namespace com.google.cloud.tools.jib.registry
                 IsHttpsProtocol(url) || JibSystemProperties.IsSendCredentialsOverHttpEnabled();
             try
             {
-                using (IConnection connection = connectionFactory.Apply(url))
+                using (IConnection connection = connectionFactory(url))
                 {
                     var request = new HttpRequestMessage(registryEndpointProvider.GetHttpMethod(), url);
                     foreach (var value in userAgent)

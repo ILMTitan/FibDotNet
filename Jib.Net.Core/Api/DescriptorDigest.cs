@@ -16,7 +16,6 @@
 
 using System;
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 
@@ -78,7 +77,7 @@ namespace Jib.Net.Core.Api
             }
 
             // Extracts the hash portion of the digest.
-            string hash = JavaExtensions.Substring(digest, DIGEST_PREFIX.Length());
+            string hash = digest.Substring(DIGEST_PREFIX.Length);
             return new DescriptorDigest(hash);
         }
 
@@ -101,7 +100,7 @@ namespace Jib.Net.Core.Api
 
         public override int GetHashCode()
         {
-            return hash.HashCode();
+            return hash.GetHashCode();
         }
 
         /** Two digest objects are equal if their digest strings are equal. */

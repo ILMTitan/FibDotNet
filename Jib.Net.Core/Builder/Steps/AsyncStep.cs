@@ -17,7 +17,6 @@
 using System;
 using System.Threading.Tasks;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.image;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {

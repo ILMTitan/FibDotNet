@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry
              */
             public Task<Uri> HandleResponseAsync(HttpResponseMessage response)
             {
-                switch (response.GetStatusCode())
+                switch (response.StatusCode)
                 {
                     case HttpStatusCode.Created:
                         // The BLOB exists in the registry.
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.registry
 
                     default:
                         throw parent.BuildRegistryErrorException(
-                            "Received unrecognized status code " + response.GetStatusCode());
+                            "Received unrecognized status code " + response.StatusCode);
                 }
             }
 

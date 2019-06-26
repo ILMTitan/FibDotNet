@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.filesystem
                     // pass
                 }
 
-                JavaExtensions.Write(fileOutputStream, "jib".GetBytes(Encoding.UTF8));
+                JavaExtensions.Write(fileOutputStream, Encoding.UTF8.GetBytes("jib"));
             }
 
             Assert.AreEqual("jib", File.ReadAllText(JavaExtensions.ToString(file)));

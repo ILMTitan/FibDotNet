@@ -17,10 +17,10 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
 using System;
 using System.Threading.Tasks;
 

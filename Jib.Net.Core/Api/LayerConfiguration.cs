@@ -56,7 +56,7 @@ namespace Jib.Net.Core.Api
              */
             public Builder AddEntry(LayerEntry entry)
             {
-                JavaExtensions.Add(layerEntries, entry);
+                layerEntries.Add(entry);
                 return this;
             }
 
@@ -223,7 +223,7 @@ namespace Jib.Net.Core.Api
              */
             public ILayerConfiguration Build()
             {
-                return new LayerConfiguration(name, layerEntries.Build());
+                return new LayerConfiguration(name, layerEntries.ToImmutable());
             }
         }
 

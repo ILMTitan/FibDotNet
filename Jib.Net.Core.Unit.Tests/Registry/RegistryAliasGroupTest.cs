@@ -27,8 +27,8 @@ namespace com.google.cloud.tools.jib.registry
         public void TestGetAliasesGroup_noKnownAliases()
         {
             IList<string> singleton = RegistryAliasGroup.GetAliasesGroup("something.gcr.io");
-            Assert.AreEqual(1, singleton.Size());
-            Assert.AreEqual("something.gcr.io", singleton.Get(0));
+            Assert.AreEqual(1, singleton.Count);
+            Assert.AreEqual("something.gcr.io", singleton[0]);
         }
 
         [Test]

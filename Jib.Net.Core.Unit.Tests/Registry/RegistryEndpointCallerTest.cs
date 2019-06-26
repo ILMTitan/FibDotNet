@@ -279,7 +279,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (RegistryNoResponseException ex)
             {
-                Assert.AreSame(mockNoHttpResponseException, ex.GetCause());
+                Assert.AreSame(mockNoHttpResponseException, ex.InnerException);
             }
         }
 

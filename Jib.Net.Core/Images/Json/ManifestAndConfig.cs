@@ -16,7 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /** Stores a manifest and container config. */
     public class ManifestAndConfig

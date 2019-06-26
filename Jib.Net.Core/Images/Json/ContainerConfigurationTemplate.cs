@@ -24,7 +24,7 @@ using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * JSON Template for Docker Container Configuration referenced in Docker Manifest Schema V2.2
@@ -342,7 +342,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         public DescriptorDigest GetLayerDiffId(int index)
         {
-            return Rootfs.DiffIds.Get(index);
+            return Rootfs.DiffIds[index];
         }
     }
 }

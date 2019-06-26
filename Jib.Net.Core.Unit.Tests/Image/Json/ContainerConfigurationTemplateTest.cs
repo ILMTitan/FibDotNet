@@ -26,6 +26,7 @@ using NodaTime;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Test.Common;
 using System.Text;
+using Jib.Net.Core.Images.Json;
 
 namespace com.google.cloud.tools.jib.image.json
 {

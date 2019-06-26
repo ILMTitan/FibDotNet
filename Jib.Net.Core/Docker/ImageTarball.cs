@@ -16,10 +16,10 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.docker.json;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.tar;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;

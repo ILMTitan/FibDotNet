@@ -23,6 +23,7 @@ using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -54,19 +55,19 @@ namespace Jib.Net.Core.Images
              */
             public void Add(TarEntry tarArchiveEntry)
             {
-                if (JavaExtensions.Contains(names, tarArchiveEntry.GetName()))
+                if (JavaExtensions.Contains(names, tarArchiveEntry.Name))
                 {
                     return;
                 }
 
                 // Adds all directories along extraction paths to explicitly set permissions for those
                 // directories.
-                SystemPath namePath = Paths.Get(tarArchiveEntry.GetName());
+                SystemPath namePath = Paths.Get(tarArchiveEntry.Name);
                 if (namePath.GetParent() != namePath.GetRoot())
                 {
                     TarEntry dir = TarEntry.CreateTarEntry(JavaExtensions.ToString(namePath.GetParent()).Replace(Path.DirectorySeparatorChar, '/'));
                     dir.Name += "/";
-                    dir.SetModTime(LayerConfiguration.DefaultModifiedTime.ToEpochMilli());
+                    dir.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(LayerConfiguration.DefaultModifiedTime.ToUnixTimeMilliseconds()).DateTime;
                     dir.TarHeader.Mode &= ~(int)PosixFilePermissions.All;
                     dir.TarHeader.Mode |= (int)(
                         PosixFilePermissions.OwnerAll
@@ -77,13 +78,13 @@ namespace Jib.Net.Core.Images
                 }
 
                 JavaExtensions.Add(entries, tarArchiveEntry);
-                JavaExtensions.Add(names, tarArchiveEntry.GetName());
+                JavaExtensions.Add(names, tarArchiveEntry.Name);
             }
 
             public List<TarEntry> GetSortedEntries()
             {
                 List<TarEntry> sortedEntries = new List<TarEntry>(entries);
-                JavaExtensions.Sort(sortedEntries, Comparator.Comparing((TarEntry e) => e.GetName()));
+                sortedEntries.Sort(Comparator.Comparing((TarEntry e) => e.Name));
                 return sortedEntries;
             }
         }
@@ -121,7 +122,7 @@ namespace Jib.Net.Core.Images
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
                 entry.SetMode((entry.GetMode() & ~PosixFilePermissions.All) | layerEntry.GetPermissions().GetPermissionBits());
-                entry.SetModTime(layerEntry.GetLastModifiedTime().ToEpochMilli());
+                entry.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(layerEntry.GetLastModifiedTime().ToUnixTimeMilliseconds()).DateTime;
 
                 uniqueTarArchiveEntries.Add(entry);
             }
@@ -142,8 +143,8 @@ namespace Jib.Net.Core.Images
                 entry.SetUserName("");
                 entry.SetGroupName("");
 
-                Preconditions.CheckState(!JavaExtensions.Contains(names, entry.GetName()));
-                JavaExtensions.Add(names, entry.GetName());
+                Preconditions.CheckState(!JavaExtensions.Contains(names, entry.Name));
+                JavaExtensions.Add(names, entry.Name);
 
                 tarStreamBuilder.AddTarArchiveEntry(entry);
             }

@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using Jib.Net.Core.Registry.Credentials;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
 
 namespace com.google.cloud.tools.jib.registry.credentials
@@ -34,18 +35,16 @@ namespace com.google.cloud.tools.jib.registry.credentials
         private static Option<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
         {
             return keyMatches
-                .Stream()
-                .Map(keyMatch => FindFirstInMapByKey(map, keyMatch))
-                .Filter(o => o.IsPresent())
+                .Select(keyMatch => FindFirstInMapByKey(map, keyMatch))
+                .Where(o => o.IsPresent())
                 .FindFirst();
         }
 
         /** Returns the first entry matching the given key predicate. */
         private static Option<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
         {
-            return map.EntrySet()
-                .Stream()
-                .Filter(entry => keyMatch(entry.GetKey()))
+            return map
+                .Where(entry => keyMatch(entry.GetKey()))
                 .FindFirst();
         }
 

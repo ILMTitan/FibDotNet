@@ -18,11 +18,11 @@ using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.builder.steps

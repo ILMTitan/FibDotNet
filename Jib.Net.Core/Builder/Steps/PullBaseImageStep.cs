@@ -21,7 +21,6 @@ using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;

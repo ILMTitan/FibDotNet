@@ -98,7 +98,7 @@ namespace Jib.Net.Core.Registry.Credentials
                 IProcess process = new ProcessBuilder(JavaExtensions.ToString(credentialHelper), "get").Start();
                 using (Stream processStdin = process.GetOutputStream())
                 {
-                    processStdin.Write(registry.GetBytes(Encoding.UTF8));
+                    processStdin.Write(Encoding.UTF8.GetBytes(registry));
                 }
 
                 using (StreamReader processStdoutReader =

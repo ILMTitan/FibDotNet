@@ -101,19 +101,19 @@ namespace Jib.Net.Core.Unit.Tests.Events
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
-            Assert.AreEqual(1, allocationCompletionMap.Size());
+            Assert.AreEqual(1, allocationCompletionMap.Count);
             Assert.AreEqual(50, allocationCompletionMap.Get(child1Child).LongValue());
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
-            Assert.AreEqual(3, allocationCompletionMap.Size());
+            Assert.AreEqual(3, allocationCompletionMap.Count);
             Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
             Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
             Assert.AreEqual(1, allocationCompletionMap.Get(root).LongValue());
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 200));
 
-            Assert.AreEqual(4, allocationCompletionMap.Size());
+            Assert.AreEqual(4, allocationCompletionMap.Count);
             Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
             Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
             Assert.AreEqual(200, allocationCompletionMap.Get(child2).LongValue());
@@ -149,7 +149,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
             {
                 units += allocationCompletionMap.Get(allocation);
             }
-            allocationCompletionMap.Put(allocation, units);
+            allocationCompletionMap[allocation] = units;
 
             if (allocation.GetAllocationUnits() == units)
             {

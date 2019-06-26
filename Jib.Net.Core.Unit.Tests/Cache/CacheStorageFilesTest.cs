@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.cache
                     ex.GetMessage(),
                     Does.StartWith("Layer file did not include valid diff ID: not long enough"));
 
-                Assert.IsInstanceOf<DigestException>(ex.GetCause());
+                Assert.IsInstanceOf<DigestException>(ex.InnerException);
             }
 
             try
@@ -90,7 +90,7 @@ namespace com.google.cloud.tools.jib.cache
                         "Layer file did not include valid diff ID: "
                             + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
 
-                Assert.IsInstanceOf<DigestException>(ex.GetCause());
+                Assert.IsInstanceOf<DigestException>(ex.InnerException);
             }
         }
 

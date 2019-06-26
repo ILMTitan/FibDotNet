@@ -23,7 +23,7 @@ using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * JSON Template for OCI Manifest Schema

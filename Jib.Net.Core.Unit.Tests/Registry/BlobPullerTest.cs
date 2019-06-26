@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task TestHandleResponseAsync()
         {
-            MemoryStream blobContent = new MemoryStream("some BLOB content".GetBytes(Encoding.UTF8));
+            MemoryStream blobContent = new MemoryStream(Encoding.UTF8.GetBytes("some BLOB content"));
             BlobDescriptor descriptor = await Digests.ComputeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.GetDigest();
             blobContent.Position = 0;
@@ -86,20 +86,20 @@ namespace com.google.cloud.tools.jib.registry
                     fakeRegistryEndpointRequestProperties,
                     testBlobDigest,
                     layerOutputStream,
-                    size => Assert.AreEqual("some BLOB content".Length(), size.LongValue()),
+                    size => Assert.AreEqual("some BLOB content".Length, size.LongValue()),
                     byteCount.Add);
             await blobPuller.HandleResponseAsync(mockResponse).ConfigureAwait(false);
             Assert.AreEqual(
                 "some BLOB content",
                 Encoding.UTF8.GetString(layerContentOutputStream.ToByteArray()));
             Assert.AreEqual(testBlobDigest, layerOutputStream.ComputeDigest().GetDigest());
-            Assert.AreEqual("some BLOB content".Length(), byteCount.Sum());
+            Assert.AreEqual("some BLOB content".Length, byteCount.Sum());
         }
 
         [Test]
         public async Task TestHandleResponse_unexpectedDigestAsync()
         {
-            MemoryStream blobContent = new MemoryStream("some BLOB content".GetBytes(Encoding.UTF8));
+            MemoryStream blobContent = new MemoryStream(Encoding.UTF8.GetBytes("some BLOB content"));
             BlobDescriptor descriptor = await Digests.ComputeDigestAsync(blobContent).ConfigureAwait(false);
             DescriptorDigest testBlobDigest = descriptor.GetDigest();
             blobContent.Position = 0;
@@ -157,7 +157,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAccept()
         {
-            Assert.AreEqual(0, testBlobPuller.GetAccept().Size());
+            Assert.AreEqual(0, testBlobPuller.GetAccept().Count);
         }
     }
 }

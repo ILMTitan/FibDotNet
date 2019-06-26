@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
@@ -115,17 +114,17 @@ layers, new ReferenceNoDiffIdLayer(
             }
 
             IList<DescriptorDigest> diffIds = containerConfigurationTemplate.GetDiffIds();
-            if (layers.Size() != diffIds.Size())
+            if (layers.Count != diffIds.Count)
             {
                 throw new LayerCountMismatchException(Resources.JsonToImageTranslatorDiffIdMismatchExceptionMessage);
             }
 
             Image.Builder imageBuilder = Image.CreateBuilder(manifestTemplate.GetFormat());
 
-            for (int layerIndex = 0; layerIndex < layers.Size(); layerIndex++)
+            for (int layerIndex = 0; layerIndex < layers.Count; layerIndex++)
             {
-                ReferenceNoDiffIdLayer noDiffIdLayer = layers.Get(layerIndex);
-                DescriptorDigest diffId = diffIds.Get(layerIndex);
+                ReferenceNoDiffIdLayer noDiffIdLayer = layers[layerIndex];
+                DescriptorDigest diffId = diffIds[layerIndex];
 
                 imageBuilder.AddLayer(new ReferenceLayer(noDiffIdLayer.GetBlobDescriptor(), diffId));
             }
@@ -137,8 +136,10 @@ layers, new ReferenceNoDiffIdLayer(
         private static void ConfigureBuilderWithContainerConfiguration(
             Image.Builder imageBuilder, ContainerConfigurationTemplate containerConfigurationTemplate)
         {
-            containerConfigurationTemplate.History.ForEach(imageBuilder.AddHistory);
-
+            foreach (HistoryEntry i in containerConfigurationTemplate.History)
+            {
+                imageBuilder.AddHistory(i);
+            }
             if (containerConfigurationTemplate.Created!= null)
             {
                 try
@@ -209,13 +210,13 @@ layers, new ReferenceNoDiffIdLayer(
             {
                 foreach (string environmentVariable in containerConfigurationTemplate.GetContainerEnvironment())
                 {
-                    Match matcher = EnvironmentPattern.Matcher(environmentVariable);
-                    if (!matcher.Matches())
+                    Match matcher = EnvironmentPattern.Match(environmentVariable);
+                    if (!matcher.Success)
                     {
                         throw new BadContainerConfigurationFormatException(
                             "Invalid environment variable definition: " + environmentVariable);
                     }
-                    imageBuilder.AddEnvironmentVariable(matcher.Group("name"), matcher.Group("value"));
+                    imageBuilder.AddEnvironmentVariable(matcher.Groups["name"].Value, matcher.Groups["value"].Value);
                 }
             }
 
@@ -239,21 +240,21 @@ layers, new ReferenceNoDiffIdLayer(
                 return ImmutableHashSet.Create<Port>();
             }
             ImmutableHashSet<Port>.Builder ports = ImmutableHashSet.CreateBuilder<Port>();
-            foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap.EntrySet())
+            foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap)
             {
                 string port = entry.GetKey();
-                Match matcher = PORT_PATTERN.Matcher(port);
-                if (!matcher.Matches())
+                Match matcher = PORT_PATTERN.Match(port);
+                if (!matcher.Success)
                 {
                     throw new BadContainerConfigurationFormatException(
                         "Invalid port configuration: '" + port + "'.");
                 }
 
-                int portNumber = int.Parse(matcher.Group("portNum"), CultureInfo.InvariantCulture);
-                string protocol = matcher.Group("protocol");
+                int portNumber = int.Parse(matcher.Groups["portNum"].Value, CultureInfo.InvariantCulture);
+                string protocol = matcher.Groups["protocol"].Value;
                 JavaExtensions.Add(ports, Port.ParseProtocol(portNumber, protocol));
             }
-            return ports.Build();
+            return ports.ToImmutable();
         }
 
         /**
@@ -272,7 +273,7 @@ layers, new ReferenceNoDiffIdLayer(
             }
 
             ImmutableHashSet<AbsoluteUnixPath>.Builder volumeList = ImmutableHashSet.CreateBuilder<AbsoluteUnixPath>();
-            foreach (string volume in volumeMap.KeySet())
+            foreach (string volume in volumeMap.Keys)
             {
                 try
                 {
@@ -284,7 +285,7 @@ layers, new ReferenceNoDiffIdLayer(
                 }
             }
 
-            return volumeList.Build();
+            return volumeList.ToImmutable();
         }
 
         private JsonToImageTranslator() { }

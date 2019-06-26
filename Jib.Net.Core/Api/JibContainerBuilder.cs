@@ -533,9 +533,9 @@ namespace Jib.Net.Core.Api
                 catch (Exception ex)
                 {
                     // If an ExecutionException occurs, re-throw the cause to be more easily handled by the user
-                    if (ex.GetCause() is RegistryException)
+                    if (ex.InnerException is RegistryException)
                     {
-                        throw (RegistryException)ex.GetCause();
+                        throw (RegistryException)ex.InnerException;
                     }
                     throw;
                 }
@@ -580,7 +580,7 @@ namespace Jib.Net.Core.Api
             foreach (LayerConfiguration layerConfiguration in layerConfigurations)
 
             {
-                if (layerConfiguration.GetLayerEntries().IsEmpty())
+                if (layerConfiguration.GetLayerEntries().Length == 0)
                 {
                     continue;
                 }

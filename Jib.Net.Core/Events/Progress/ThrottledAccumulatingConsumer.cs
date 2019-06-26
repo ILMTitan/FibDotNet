@@ -65,8 +65,8 @@ namespace Jib.Net.Core.Events.Progress
             valueSoFar += value;
 
             Instant now = getNow.Get();
-            Instant nextFireTime = JavaExtensions.Plus(previousCallback, delayBetweenCallbacks);
-            if (now.IsAfter(nextFireTime))
+            Instant nextFireTime = previousCallback + delayBetweenCallbacks;
+            if (now > nextFireTime)
             {
                 consumer(valueSoFar);
                 previousCallback = now;

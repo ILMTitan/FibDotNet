@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAccept()
         {
-            Assert.AreEqual(0, testAuthenticationMethodRetriever.GetAccept().Size());
+            Assert.AreEqual(0, testAuthenticationMethodRetriever.GetAccept().Count);
         }
 
         [Test]

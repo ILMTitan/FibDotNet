@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.image.json;
 using Iesi.Collections.Generic;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
@@ -88,14 +87,14 @@ namespace Jib.Net.Core.Images
             {
                 if (!_removeDuplicates)
                 {
-                    return new ImageLayers(ImmutableArray.CreateRange(layers), layerDigestsBuilder.Build());
+                    return new ImageLayers(ImmutableArray.CreateRange(layers), layerDigestsBuilder.ToImmutable());
                 }
 
                 // LinkedHashSet maintains the order but keeps the first occurrence. Keep last occurrence by
                 // adding elements in reverse, and then reversing the result
                 ISet<ILayer> dedupedButReversed = new LinkedHashSet<ILayer>(layers.Reverse());
                 ImmutableArray<ILayer> deduped = ImmutableArray.CreateRange(dedupedButReversed.Reverse());
-                return new ImageLayers(deduped, layerDigestsBuilder.Build());
+                return new ImageLayers(deduped, layerDigestsBuilder.ToImmutable());
             }
         }
 
@@ -130,7 +129,7 @@ namespace Jib.Net.Core.Images
 
         public bool IsEmpty()
         {
-            return layers.IsEmpty();
+            return layers.Length == 0;
         }
 
         /**

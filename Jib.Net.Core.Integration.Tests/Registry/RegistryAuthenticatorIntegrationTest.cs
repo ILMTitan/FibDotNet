@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.registry
             Authorization authorization = await registryAuthenticator.AuthenticatePullAsync(null).ConfigureAwait(false);
 
             // Checks that some token was received.
-            Assert.IsTrue(0 < authorization.GetToken().Length());
+            Assert.IsTrue(0 < authorization.GetToken().Length);
         }
     }
 }

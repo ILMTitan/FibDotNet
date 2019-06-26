@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core;
 using Jib.Net.Core.FileSystem;
 

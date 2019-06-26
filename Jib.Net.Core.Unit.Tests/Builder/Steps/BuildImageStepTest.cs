@@ -18,12 +18,12 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Builder.Steps;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
@@ -159,7 +159,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockBuildAndCacheApplicationLayersStep);
             Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
             Assert.AreEqual(
-                testDescriptorDigest, image.GetLayers().AsList().Get(0).GetBlobDescriptor().GetDigest());
+                testDescriptorDigest, image.GetLayers().AsList()[0].GetBlobDescriptor().GetDigest());
         }
 
         [Test]

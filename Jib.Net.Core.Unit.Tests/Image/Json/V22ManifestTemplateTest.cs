@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Text;

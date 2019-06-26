@@ -19,7 +19,7 @@ using com.google.cloud.tools.jib.registry.json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /** Parent class for image manifest JSON templates. */
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

@@ -108,25 +108,25 @@ namespace com.google.cloud.tools.jib.api
 
             IDictionary<DescriptorDigest, string> digestMap = new Dictionary<DescriptorDigest, string>();
 
-            digestMap.Put(descriptorDigestA1, "digest with a");
+            digestMap[descriptorDigestA1] = "digest with a";
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
             Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.Put(descriptorDigestA2, "digest with a");
+            digestMap[descriptorDigestA2] = "digest with a";
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
             Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.Put(descriptorDigestA3, "digest with a");
+            digestMap[descriptorDigestA3] = "digest with a";
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
             Assert.IsNull(digestMap.Get(descriptorDigestB));
 
-            digestMap.Put(descriptorDigestB, "digest with b");
+            digestMap[descriptorDigestB] = "digest with b";
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));

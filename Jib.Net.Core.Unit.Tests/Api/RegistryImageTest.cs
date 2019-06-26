@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.api
             RegistryImage image = RegistryImage.Named("registry/image");
 
             Assert.AreEqual("registry/image", JavaExtensions.ToString(image.GetImageReference()));
-            Assert.AreEqual(0, image.GetCredentialRetrievers().Size());
+            Assert.AreEqual(0, image.GetCredentialRetrievers().Count);
         }
 
         [Test]
@@ -43,11 +43,11 @@ namespace com.google.cloud.tools.jib.api
                     .AddCredentialRetriever(mockCredentialRetriever)
                     .AddCredential("username", "password");
 
-            Assert.AreEqual(2, image.GetCredentialRetrievers().Size());
-            Assert.AreSame(mockCredentialRetriever, image.GetCredentialRetrievers().Get(0));
+            Assert.AreEqual(2, image.GetCredentialRetrievers().Count);
+            Assert.AreSame(mockCredentialRetriever, image.GetCredentialRetrievers()[0]);
             Assert.AreEqual(
                 Credential.From("username", "password"),
-                image.GetCredentialRetrievers().Get(1).Retrieve().Get());
+                image.GetCredentialRetrievers()[1].Retrieve().Get());
         }
     }
 }

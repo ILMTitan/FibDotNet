@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.image
             TarInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
         {
             TarEntry header = tarArchiveInputStream.GetNextTarEntry();
-            Assert.AreEqual(expectedExtractionPath, header.GetName());
+            Assert.AreEqual(expectedExtractionPath, header.Name);
 
             string expectedString = Encoding.UTF8.GetString(Files.ReadAllBytes(expectedFile));
 
@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.image
             TarInputStream tarArchiveInputStream, string expectedExtractionPath)
         {
             TarEntry extractionPathEntry = tarArchiveInputStream.GetNextTarEntry();
-            Assert.AreEqual(expectedExtractionPath, extractionPathEntry.GetName());
+            Assert.AreEqual(expectedExtractionPath, extractionPathEntry.Name);
             Assert.IsTrue(extractionPathEntry.IsDirectory());
         }
 
@@ -241,12 +241,12 @@ namespace com.google.cloud.tools.jib.image
                 // root (default folder permissions)
                 TarEntry root = @in.GetNextTarEntry();
                 Assert.AreEqual("755", root.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
 
                 // parentAAA (custom permissions, custom timestamp)
                 TarEntry rootParentAAA = @in.GetNextTarEntry();
                 Assert.AreEqual("111", rootParentAAA.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), rootParentAAA.GetModTime().ToInstant());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), Instant.FromDateTimeUtc(rootParentAAA.GetModTime()));
 
                 // skip over fileA
                 @in.GetNextTarEntry();
@@ -256,7 +256,7 @@ namespace com.google.cloud.tools.jib.image
                 // TODO (#1650): we want 040444 here.
                 Assert.AreEqual("755", rootParentBBB.GetMode().ToOctalString());
                 // TODO (#1650): we want Instant.ofEpochSecond(40) here.
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
 
                 // skip over fileB
                 @in.GetNextTarEntry();
@@ -264,7 +264,7 @@ namespace com.google.cloud.tools.jib.image
                 // parentCCC (default permissions - no entry provided)
                 TarEntry rootParentCCC = @in.GetNextTarEntry();
                 Assert.AreEqual("755", rootParentCCC.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), root.GetModTime().ToInstant());
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
 
                 // we don't care about fileC
             }
@@ -376,7 +376,7 @@ namespace com.google.cloud.tools.jib.image
             SystemPath newFile =
                 Files.Write(
                     root.Resolve(filename),
-                    content.GetBytes(Encoding.UTF8));
+                    Encoding.UTF8.GetBytes(content));
             Files.SetLastModifiedTime(newFile, FileTime.FromMillis(lastModifiedTime));
             return newFile;
         }

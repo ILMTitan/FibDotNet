@@ -19,7 +19,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * Parent class for image manifest JSON templates that can be built.

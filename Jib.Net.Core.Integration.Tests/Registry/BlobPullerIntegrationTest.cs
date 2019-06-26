@@ -19,10 +19,10 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.IO;
@@ -88,7 +88,7 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (IOException ex)
             {
-                if (!(ex.GetCause() is RegistryErrorException))
+                if (!(ex.InnerException is RegistryErrorException))
                 {
                     throw;
                 }

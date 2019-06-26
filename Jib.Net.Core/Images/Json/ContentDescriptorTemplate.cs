@@ -21,7 +21,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * Template for inner JSON object representing content descriptor for a layer or container
@@ -39,9 +39,9 @@ namespace com.google.cloud.tools.jib.image.json
 
         public ContentDescriptorTemplate(string mediaType, long size, DescriptorDigest digest)
         {
-            this.MediaType = mediaType;
-            this.Size = size;
-            this.Digest = digest;
+            MediaType = mediaType;
+            Size = size;
+            Digest = digest;
         }
 
         /** Necessary for Jackson to create from JSON. */
@@ -71,9 +71,9 @@ namespace com.google.cloud.tools.jib.image.json
         public override int GetHashCode()
         {
             var hashCode = 1122470636;
-            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(MediaType);
-            hashCode = (hashCode * -1521134295) + EqualityComparer<DescriptorDigest>.Default.GetHashCode(Digest);
-            hashCode = (hashCode * -1521134295) + Size.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(MediaType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<DescriptorDigest>.Default.GetHashCode(Digest);
+            hashCode = hashCode * -1521134295 + Size.GetHashCode();
             return hashCode;
         }
     }

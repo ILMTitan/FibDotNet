@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.api
 
             Assert.AreEqual("docker/daemon/image", JavaExtensions.ToString(dockerDaemonImage.GetImageReference()));
             Assert.AreEqual(Option.Empty<SystemPath>(), dockerDaemonImage.GetDockerExecutable());
-            Assert.AreEqual(0, dockerDaemonImage.GetDockerEnvironment().Size());
+            Assert.AreEqual(0, dockerDaemonImage.GetDockerEnvironment().Count);
         }
 
         [Test]

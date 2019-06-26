@@ -15,9 +15,9 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using NodaTime;
 using System;
 using System.Collections.Generic;
@@ -116,7 +116,7 @@ namespace Jib.Net.Core.Images
              */
             public Builder AddEnvironmentVariable(string name, string value)
             {
-                environmentBuilder.Put(name, value);
+                environmentBuilder[name] = value;
                 return this;
             }
 
@@ -178,7 +178,7 @@ namespace Jib.Net.Core.Images
             {
                 if (exposedPorts != null)
                 {
-                    exposedPortsBuilder.AddAll(exposedPorts);
+                    exposedPortsBuilder.UnionWith(exposedPorts);
                 }
                 return this;
             }
@@ -193,7 +193,7 @@ namespace Jib.Net.Core.Images
             {
                 if (volumes != null)
                 {
-                    volumesBuilder.AddAll(ImmutableHashSet.CreateRange(volumes));
+                    volumesBuilder.UnionWith(ImmutableHashSet.CreateRange(volumes));
                 }
                 return this;
             }
@@ -222,7 +222,7 @@ namespace Jib.Net.Core.Images
              */
             public Builder AddLabel(string name, string value)
             {
-                labelsBuilder.Put(name, value);
+                labelsBuilder[name] = value;
                 return this;
             }
 
@@ -259,7 +259,7 @@ namespace Jib.Net.Core.Images
              */
             public Builder AddHistory(HistoryEntry history)
             {
-                JavaExtensions.Add(historyBuilder, history);
+                historyBuilder.Add(history);
                 return this;
             }
 
@@ -271,7 +271,7 @@ namespace Jib.Net.Core.Images
                     architecture,
                     os,
                     imageLayersBuilder.Build(),
-                    historyBuilder.Build(),
+                    historyBuilder.ToImmutable(),
                     ImmutableDictionary.CreateRange(environmentBuilder),
                     entrypoint,
                     programArguments,

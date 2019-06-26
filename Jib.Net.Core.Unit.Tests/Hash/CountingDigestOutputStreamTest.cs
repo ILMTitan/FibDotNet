@@ -40,7 +40,7 @@ namespace com.google.cloud.tools.jib.hash
         [Test]
         public async System.Threading.Tasks.Task Test_smokeTestAsync()
         {
-            foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES.EntrySet())
+            foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES)
             {
                 string toHash = knownHash.GetKey();
                 string expectedHash = knownHash.GetValue();
@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.hash
                 CountingDigestOutputStream countingDigestOutputStream =
                     new CountingDigestOutputStream(underlyingOutputStream);
 
-                byte[] bytesToHash = toHash.GetBytes(Encoding.UTF8);
+                byte[] bytesToHash = Encoding.UTF8.GetBytes(toHash);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
                 await ByteStreams.CopyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
 

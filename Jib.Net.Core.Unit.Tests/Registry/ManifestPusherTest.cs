@@ -20,11 +20,11 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
@@ -157,7 +157,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAccept()
         {
-            Assert.AreEqual(0, testManifestPusher.GetAccept().Size());
+            Assert.AreEqual(0, testManifestPusher.GetAccept().Count);
         }
 
         /** Docker Registry 2.0 and 2.1 return 400 / TAG_INVALID. */

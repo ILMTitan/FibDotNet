@@ -81,8 +81,8 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             Regex realmPattern = new Regex("realm=\"(.*?)\"");
-            Match realmMatcher = realmPattern.Matcher(authenticationMethod.Parameter);
-            if (!realmMatcher.Find())
+            Match realmMatcher = realmPattern.Match(authenticationMethod.Parameter);
+            if (!realmMatcher.Success)
             {
                 throw NewRegistryAuthenticationFailedException(
                     registryEndpointRequestProperties.GetRegistry(),
@@ -90,14 +90,14 @@ namespace com.google.cloud.tools.jib.registry
                     authenticationMethod.Parameter,
                     "realm");
             }
-            string realm = realmMatcher.Group(1);
+            string realm = realmMatcher.Groups[1].Value;
 
             Regex servicePattern = new Regex("service=\"(.*?)\"");
-            Match serviceMatcher = servicePattern.Matcher(authenticationMethod.Parameter);
+            Match serviceMatcher = servicePattern.Match(authenticationMethod.Parameter);
             // use the provided registry location when missing service (e.g., for OpenShift)
             string service =
-                serviceMatcher.Find()
-                    ? serviceMatcher.Group(1)
+                serviceMatcher.Success
+                    ? serviceMatcher.Groups[1].Value
                     : registryEndpointRequestProperties.GetRegistry();
 
             return new RegistryAuthenticator(realm, service, registryEndpointRequestProperties, userAgent);
@@ -242,7 +242,7 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 using (Connection connection =
-                    Connection.GetConnectionFactory().Apply(GetAuthenticationUrl(credential, scope)))
+                    Connection.GetConnectionFactory()(GetAuthenticationUrl(credential, scope)))
                 using (var request = new HttpRequestMessage())
                 {
                     foreach (var value in userAgent)

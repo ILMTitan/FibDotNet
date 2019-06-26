@@ -69,7 +69,7 @@ namespace Jib.Net.Core.Api
          */
         public static Port ParseProtocol(int port, string protocolString)
         {
-            string protocol = UDP_PROTOCOL.EqualsIgnoreCase(protocolString) ? UDP_PROTOCOL : TCP_PROTOCOL;
+            string protocol = UDP_PROTOCOL.Equals(protocolString, StringComparison.OrdinalIgnoreCase) ? UDP_PROTOCOL : TCP_PROTOCOL;
             return new Port(port, protocol);
         }
 
@@ -152,9 +152,9 @@ namespace Jib.Net.Core.Api
             foreach (string port in ports)
 
             {
-                Match matcher = portPattern.Matcher(port);
+                Match matcher = portPattern.Match(port);
 
-                if (!matcher.Matches())
+                if (!matcher.Success)
                 {
                     throw new FormatException(
                         "Invalid port configuration: '"
@@ -165,13 +165,13 @@ namespace Jib.Net.Core.Api
                 }
 
                 // Parse protocol
-                int min = int.Parse(matcher.Group(1), CultureInfo.InvariantCulture);
+                int min = int.Parse(matcher.Groups[1].Value, CultureInfo.InvariantCulture);
                 int max = min;
-                if (!Strings.IsNullOrEmpty(matcher.Group(2)))
+                if (!Strings.IsNullOrEmpty(matcher.Groups[2].Value))
                 {
-                    max = int.Parse(matcher.Group(2), CultureInfo.InvariantCulture);
+                    max = int.Parse(matcher.Groups[2].Value, CultureInfo.InvariantCulture);
                 }
-                string protocol = matcher.Group(3);
+                string protocol = matcher.Groups[3].Value;
 
                 // Error if configured as 'max-min' instead of 'min-max'
                 if (min > max)
@@ -193,7 +193,7 @@ namespace Jib.Net.Core.Api
                 }
             }
 
-            return result.Build();
+            return result.ToImmutable();
         }
     }
 }

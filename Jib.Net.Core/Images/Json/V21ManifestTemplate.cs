@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * JSON template for Docker Manifest Schema V2.1
@@ -73,7 +73,7 @@ namespace com.google.cloud.tools.jib.image.json
         /**
          * Template for inner JSON object representing a layer as part of the list of layer references.
          */
-         [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class LayerObjectTemplate
         {
             public DescriptorDigest BlobSum { get; set; }
@@ -119,11 +119,11 @@ namespace com.google.cloud.tools.jib.image.json
         {
             try
             {
-                if (History.IsEmpty())
+                if (History.Count == 0)
                 {
                     return Option.Empty<ContainerConfigurationTemplate>();
                 }
-                string v1Compatibility = History.Get(0).V1Compatibility;
+                string v1Compatibility = History[0].V1Compatibility;
                 if (v1Compatibility == null)
                 {
                     return Option.Empty<ContainerConfigurationTemplate>();

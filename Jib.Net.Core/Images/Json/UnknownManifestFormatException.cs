@@ -18,20 +18,12 @@ using com.google.cloud.tools.jib.api;
 using System;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /** Exception thrown when trying to parse an unknown image manifest format. */
     public class UnknownManifestFormatException : RegistryException
     {
         public UnknownManifestFormatException(string message) : base(message)
-        {
-        }
-
-        public UnknownManifestFormatException(string message, Exception cause) : base(message, cause)
-        {
-        }
-
-        public UnknownManifestFormatException(string message, HttpResponseMessage cause) : base(message, cause)
         {
         }
     }

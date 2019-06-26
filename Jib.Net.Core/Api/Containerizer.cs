@@ -326,7 +326,7 @@ namespace Jib.Net.Core.Api
 
         public IStepsRunner CreateStepsRunner(BuildConfiguration buildConfiguration)
         {
-            return stepsRunnerFactory.Apply(buildConfiguration);
+            return stepsRunnerFactory(buildConfiguration);
         }
 
         public EventHandlers BuildEventHandlers()

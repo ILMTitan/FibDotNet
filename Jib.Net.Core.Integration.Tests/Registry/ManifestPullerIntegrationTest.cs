@@ -16,8 +16,8 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry
                 await registryClient.PullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
             Assert.AreEqual(1, manifestTemplate.SchemaVersion);
-            Assert.IsTrue(manifestTemplate.FsLayers.Size() > 0);
+            Assert.IsTrue(manifestTemplate.FsLayers.Count > 0);
         }
 
         [Test]

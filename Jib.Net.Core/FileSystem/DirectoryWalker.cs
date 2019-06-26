@@ -20,6 +20,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -98,7 +99,7 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             IEnumerable<SystemPath> fileStream = Files.Walk(rootDir);
             {
-                return fileStream.Filter(pathFilter).Sorted().ToImmutableArray();
+                return fileStream.Where(pathFilter).OrderBy(i => i).ToImmutableArray();
             }
         }
     }

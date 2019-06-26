@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 
@@ -40,7 +41,7 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual(
                 DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                manifestJson.FsLayers.Get(0).GetDigest());
+                manifestJson.FsLayers[0].GetDigest());
 
             ContainerConfigurationTemplate containerConfiguration =
                 manifestJson.GetContainerConfiguration().OrElse(null);

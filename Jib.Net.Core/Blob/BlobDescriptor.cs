@@ -82,7 +82,7 @@ namespace Jib.Net.Core.Blob
 
         public override int GetHashCode()
         {
-            int result = digest.HashCode();
+            int result = digest.GetHashCode();
             return (31 * result) + (int)(size ^ size >> 32);
         }
 

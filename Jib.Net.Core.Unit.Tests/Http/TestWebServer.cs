@@ -98,7 +98,7 @@ namespace com.google.cloud.tools.jib.http
                         authorizedStream = socket.GetStream();
                     }
                     const string response = "HTTP/1.1 200 OK\nContent-Length:12\n\nHello World!";
-                    var writeTask = authorizedStream.WriteAsync(response.GetBytes(Encoding.UTF8));
+                    var writeTask = authorizedStream.WriteAsync(Encoding.UTF8.GetBytes(response));
 
                     using (TextReader reader = new StreamReader(authorizedStream))
                     {

@@ -38,9 +38,9 @@ namespace com.google.cloud.tools.jib.filesystem
                     // Skips empty components.
                     continue;
                 }
-                JavaExtensions.Add(pathComponents, pathComponent);
+                pathComponents.Add(pathComponent);
             }
-            return pathComponents.Build();
+            return pathComponents.ToImmutable();
         }
 
         private UnixPathParser() { }

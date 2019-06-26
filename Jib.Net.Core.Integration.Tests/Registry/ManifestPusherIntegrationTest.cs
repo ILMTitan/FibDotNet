@@ -18,9 +18,9 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Net;
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 HttpResponseMessage httpResponse = ex.Cause;
                 Assert.AreEqual(
-                    HttpStatusCode.BadRequest, httpResponse.GetStatusCode());
+                    HttpStatusCode.BadRequest, httpResponse.StatusCode);
             }
         }
 

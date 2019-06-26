@@ -84,13 +84,13 @@ namespace com.google.cloud.tools.jib.registry
                 return null;
             }
             // Only valid for status code of '401 Unauthorized'.
-            if (httpResponse.GetStatusCode() != HttpStatusCode.Unauthorized)
+            if (httpResponse.StatusCode != HttpStatusCode.Unauthorized)
             {
                 throw new HttpResponseException(httpResponse);
             }
 
             // Checks if the 'WWW-Authenticate' header is present.
-            AuthenticationHeaderValue authenticationMethod = httpResponse.GetHeaders().GetAuthenticate().FirstOrDefault();
+            AuthenticationHeaderValue authenticationMethod = httpResponse.Headers.WwwAuthenticate.FirstOrDefault();
             if (authenticationMethod == null)
             {
                 throw new RegistryErrorExceptionBuilder(GetActionDescription(), httpResponse)

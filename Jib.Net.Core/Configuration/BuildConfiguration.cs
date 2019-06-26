@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
@@ -242,7 +241,7 @@ namespace com.google.cloud.tools.jib.configuration
                     JavaExtensions.Add(missingFields, "application layers cache directory");
                 }
 
-                switch (missingFields.Size())
+                switch (missingFields.Count)
                 {
                     case 0: // No errors
                         if (Preconditions.CheckNotNull(baseImageConfiguration).GetImage().UsesDefaultTag())
@@ -270,14 +269,14 @@ namespace com.google.cloud.tools.jib.configuration
                             eventHandlers);
 
                     case 1:
-                        throw new InvalidOperationException(missingFields.Get(0) + " is required but not set");
+                        throw new InvalidOperationException(missingFields[0] + " is required but not set");
 
                     case 2:
                         throw new InvalidOperationException(
-                            missingFields.Get(0) + " and " + missingFields.Get(1) + " are required but not set");
+                            missingFields[0] + " and " + missingFields[1] + " are required but not set");
 
                     default:
-                        JavaExtensions.Add(missingFields, "and " + missingFields.Remove(missingFields.Size() - 1));
+                        JavaExtensions.Add(missingFields, "and " + missingFields.Remove(missingFields.Count - 1));
                         StringJoiner errorMessage = new StringJoiner(", ", "", " are required but not set");
                         foreach (string missingField in missingFields)
                         {
@@ -367,8 +366,8 @@ namespace com.google.cloud.tools.jib.configuration
         {
             ImmutableHashSet<string>.Builder allTargetImageTags = ImmutableHashSet.CreateBuilder<string>();
             JavaExtensions.Add(allTargetImageTags, targetImageConfiguration.GetImageTag());
-            allTargetImageTags.AddAll(additionalTargetImageTags);
-            return allTargetImageTags.Build();
+            allTargetImageTags.UnionWith(additionalTargetImageTags);
+            return allTargetImageTags.ToImmutable();
         }
 
         public IContainerConfiguration GetContainerConfiguration()

@@ -26,6 +26,7 @@ using NodaTime;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
@@ -54,9 +55,9 @@ namespace com.google.cloud.tools.jib.cache
             ImmutableArray<LayerEntryTemplate>.Builder builder = ImmutableArray.CreateBuilder<LayerEntryTemplate>();
             foreach (LayerEntry layerEntry in layerEntries)
             {
-                JavaExtensions.Add(builder, new LayerEntryTemplate(layerEntry));
+                builder.Add(new LayerEntryTemplate(layerEntry));
             }
-            return builder.Build();
+            return builder.ToImmutable();
         }
 
         [SetUp]
@@ -113,7 +114,7 @@ namespace com.google.cloud.tools.jib.cache
         {
             CollectionAssert.AreEqual(
                 ToLayerEntryTemplates(inOrderLayerEntries),
-                ImmutableArray.CreateRange(ToLayerEntryTemplates(outOfOrderLayerEntries).Sorted()));
+                ImmutableArray.CreateRange(ToLayerEntryTemplates(outOfOrderLayerEntries).OrderBy(i => i)));
         }
 
         [Test]
@@ -146,7 +147,7 @@ namespace com.google.cloud.tools.jib.cache
         public async Task TestGenerateSelector_fileModifiedAsync()
         {
             SystemPath layerFile = temporaryFolder.NewFolder("testFolder").ToPath().Resolve("file");
-            Files.Write(layerFile, "hello".GetBytes(Encoding.UTF8));
+            Files.Write(layerFile, Encoding.UTF8.GetBytes("hello"));
             Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
             LayerEntry layerEntry = DefaultLayerEntry(layerFile, AbsoluteUnixPath.Get("/extraction/path"));
             DescriptorDigest expectedSelector =
@@ -168,7 +169,7 @@ namespace com.google.cloud.tools.jib.cache
         public void TestGenerateSelector_permissionsModified()
         {
             SystemPath layerFile = temporaryFolder.NewFolder("testFolder").ToPath().Resolve("file");
-            Files.Write(layerFile, "hello".GetBytes(Encoding.UTF8));
+            Files.Write(layerFile, Encoding.UTF8.GetBytes("hello"));
             LayerEntry layerEntry111 =
                 new LayerEntry(
                     layerFile,

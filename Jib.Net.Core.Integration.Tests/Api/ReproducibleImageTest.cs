@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.api
                 TarEntry imageEntry;
                 while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    JavaExtensions.Add(actual, imageEntry.GetName());
+                    JavaExtensions.Add(actual, imageEntry.Name);
                 }
             }
 
@@ -187,7 +187,7 @@ namespace com.google.cloud.tools.jib.api
                 {
                     if (layerEntry.IsFile())
                     {
-                        JavaExtensions.Add(paths, layerEntry.GetName());
+                        JavaExtensions.Add(paths, layerEntry.Name);
                     }
                 });
             CollectionAssert.AreEquivalent(
@@ -214,9 +214,9 @@ namespace com.google.cloud.tools.jib.api
             LayerEntriesDo(
                 (layerName, layerEntry) =>
                 {
-                    Instant modificationTime = DateTime.SpecifyKind(layerEntry.GetLastModifiedDate(), DateTimeKind.Utc).ToInstant();
+                    Instant modificationTime = Instant.FromDateTimeUtc(DateTime.SpecifyKind(layerEntry.GetLastModifiedDate(), DateTimeKind.Utc));
                     Assert.AreEqual(
-                Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.GetName());
+                Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.Name);
                 });
         }
 
@@ -237,7 +237,7 @@ namespace com.google.cloud.tools.jib.api
                         Assert.AreEqual(
                             expectedFilePermissions,
                             layerEntry.GetMode() & PosixFilePermissions.All,
-                            layerName + ": " + layerEntry.GetName());
+                            layerName + ": " + layerEntry.Name);
                     }
                     else if (layerEntry.IsDirectory())
                     {
@@ -247,7 +247,7 @@ namespace com.google.cloud.tools.jib.api
                         Assert.AreEqual(
                             expectedDirectoryPermissions,
                             layerEntry.GetMode() & PosixFilePermissions.All,
-                            layerName + ": " + layerEntry.GetName());
+                            layerName + ": " + layerEntry.Name);
                     }
                 });
         }
@@ -259,14 +259,14 @@ namespace com.google.cloud.tools.jib.api
             LayerEntriesDo(
                 (_, layerEntry) =>
                 {
-                    string entryPath = layerEntry.GetName();
+                    string entryPath = layerEntry.Name;
                     if (layerEntry.IsDirectory())
                     {
                         Assert.IsTrue(JavaExtensions.EndsWith(entryPath, "/"), "directories in tar end with /");
-                        entryPath = JavaExtensions.Substring(entryPath, 0, entryPath.Length() - 1);
+                        entryPath = JavaExtensions.Substring(entryPath, 0, entryPath.Length - 1);
                     }
 
-                    int lastSlashPosition = JavaExtensions.LastIndexOf(entryPath, '/');
+                    int lastSlashPosition = entryPath.LastIndexOf('/');
                     string parent = JavaExtensions.Substring(entryPath, 0, Math.Max(0, lastSlashPosition));
                     if (!parent.IsEmpty())
                     {
@@ -296,9 +296,9 @@ namespace com.google.cloud.tools.jib.api
                     pathsList = new List<string>();
                     layerPaths[layerName] = pathsList;
                 }
-                pathsList.Add(layerEntry.GetName());
+                pathsList.Add(layerEntry.Name);
             });
-            foreach (ICollection<string> paths in layerPaths.AsMap().Values())
+            foreach (ICollection<string> paths in layerPaths.Values)
             {
                 List<string> sorted = new List<string>(paths);
                 // ReproducibleLayerBuilder sorts by TarArchiveEntry.getName()
@@ -315,7 +315,7 @@ namespace com.google.cloud.tools.jib.api
                 TarEntry imageEntry;
                 while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    string imageEntryName = imageEntry.GetName();
+                    string imageEntryName = imageEntry.Name;
                     // assume all .tar.gz files are layers
                     if (imageEntry.IsFile() && JavaExtensions.EndsWith(imageEntryName, ".tar.gz"))
                     {
@@ -323,7 +323,7 @@ namespace com.google.cloud.tools.jib.api
                         TarEntry layerEntry;
                         while ((layerEntry = layer.GetNextTarEntry()) != null)
                         {
-                            layerConsumer.Accept(imageEntryName, layerEntry);
+                            layerConsumer(imageEntryName, layerEntry);
                         }
                     }
                 }
@@ -338,7 +338,7 @@ namespace com.google.cloud.tools.jib.api
                 TarEntry imageEntry;
                 while ((imageEntry = input.GetNextTarEntry()) != null)
                 {
-                    if (filename == imageEntry.GetName())
+                    if (filename == imageEntry.Name)
                     {
                         return CharStreams.ToString(new StreamReader(input, Encoding.UTF8));
                     }

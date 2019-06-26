@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 {
                     // 'auth' is a basic authentication token that should be parsed back into credentials
                     string usernameColonPassword = Encoding.UTF8.GetString(Convert.FromBase64String(auth));
-                    string username = JavaExtensions.Substring(usernameColonPassword, 0, JavaExtensions.IndexOf(usernameColonPassword, ":"));
+                    string username = JavaExtensions.Substring(usernameColonPassword, 0, usernameColonPassword.IndexOf(":", StringComparison.Ordinal));
 
                     string password = usernameColonPassword.Substring(usernameColonPassword.IndexOf(":", StringComparison.Ordinal) + 1);
                     return Option.Of(Credential.From(username, password));
@@ -123,9 +123,9 @@ namespace com.google.cloud.tools.jib.registry.credentials
                         if (ex.GetMessage() != null)
                         {
                             logger(LogEvent.Warn(ex.GetMessage()));
-                            if (ex.GetCause()?.GetMessage() != null)
+                            if (ex.InnerException?.GetMessage() != null)
                             {
-                                logger(LogEvent.Warn("  Caused by: " + ex.GetCause().GetMessage()));
+                                logger(LogEvent.Warn("  Caused by: " + ex.InnerException.GetMessage()));
                             }
                         }
                     }

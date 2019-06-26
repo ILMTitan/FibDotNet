@@ -92,17 +92,17 @@ namespace com.google.cloud.tools.jib.api
          */
         public static ImageReference Parse(string reference)
         {
-            Match matcher = REFERENCE_PATTERN.Matcher(reference);
+            Match matcher = REFERENCE_PATTERN.Match(reference);
 
-            if (!matcher.Find() || matcher.GroupCount() < 4)
+            if (!matcher.Success || matcher.GroupCount() < 4)
             {
                 throw new InvalidImageReferenceException(reference);
             }
 
-            string registry = matcher.Group(1);
-            string repository = matcher.Group(2);
-            string tag = matcher.Group(3);
-            string digest = matcher.Group(4);
+            string registry = matcher.Groups[1].Value;
+            string repository = matcher.Groups[2].Value;
+            string tag = matcher.Groups[3].Value;
+            string digest = matcher.Groups[4].Value;
 
             // If no registry was matched, use Docker Hub by default.
             if (Strings.IsNullOrEmpty(registry))
@@ -349,7 +349,7 @@ namespace com.google.cloud.tools.jib.api
             else if (JavaExtensions.StartsWith(repository, LIBRARY_REPOSITORY_PREFIX))
             {
                 // If Docker Hub and repository has 'library/' prefix, remove the 'library/' prefix.
-                referenceString.Append(JavaExtensions.Substring(repository, LIBRARY_REPOSITORY_PREFIX.Length()));
+                referenceString.Append(repository.Substring(LIBRARY_REPOSITORY_PREFIX.Length));
             }
             else
             {

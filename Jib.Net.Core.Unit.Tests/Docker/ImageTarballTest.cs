@@ -19,7 +19,6 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker.json;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
@@ -27,6 +26,7 @@ using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
@@ -81,7 +81,7 @@ namespace com.google.cloud.tools.jib.docker
             {
                 // Verifies layer with fileA was added.
                 TarEntry headerFileALayer = tarArchiveInputStream.GetNextTarEntry();
-                Assert.AreEqual(fakeDigestA.GetHash() + ".tar.gz", headerFileALayer.GetName());
+                Assert.AreEqual(fakeDigestA.GetHash() + ".tar.gz", headerFileALayer.Name);
                 string fileAString =
                     CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
@@ -89,7 +89,7 @@ namespace com.google.cloud.tools.jib.docker
 
                 // Verifies layer with fileB was added.
                 TarEntry headerFileBLayer = tarArchiveInputStream.GetNextTarEntry();
-                Assert.AreEqual(fakeDigestB.GetHash() + ".tar.gz", headerFileBLayer.GetName());
+                Assert.AreEqual(fakeDigestB.GetHash() + ".tar.gz", headerFileBLayer.Name);
                 string fileBString =
                     CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.docker
 
                 // Verifies container configuration was added.
                 TarEntry headerContainerConfiguration = tarArchiveInputStream.GetNextTarEntry();
-                Assert.AreEqual("config.json", headerContainerConfiguration.GetName());
+                Assert.AreEqual("config.json", headerContainerConfiguration.Name);
                 string containerConfigJson =
                     CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.docker
 
                 // Verifies manifest was added.
                 TarEntry headerManifest = tarArchiveInputStream.GetNextTarEntry();
-                Assert.AreEqual("manifest.json", headerManifest.GetName());
+                Assert.AreEqual("manifest.json", headerManifest.Name);
                 string manifestJson =
                     CharStreams.ToString(
                         new StreamReader(tarArchiveInputStream, Encoding.UTF8));

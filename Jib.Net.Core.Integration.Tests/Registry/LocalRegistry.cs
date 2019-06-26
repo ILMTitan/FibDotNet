@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.registry
                 // See: https://docs.docker.com/docker-for-mac/osxfs
                 SystemPath tempFolder = Files.CreateTempDirectory(Paths.Get(Path.GetTempPath()), "");
                 Files.Write(
-                    tempFolder.Resolve("htpasswd"), credentialString.GetBytes(Encoding.UTF8));
+                    tempFolder.Resolve("htpasswd"), Encoding.UTF8.GetBytes(credentialString));
 
                 // Run the Docker registry
                 dockerTokens.AddAll(
@@ -153,7 +153,7 @@ namespace com.google.cloud.tools.jib.registry
             if (username != null && password != null)
             {
                 new Command("docker", string.Join(' ', new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
-                    .Run(password.GetBytes(Encoding.UTF8));
+                    .Run(Encoding.UTF8.GetBytes(password));
             }
         }
 

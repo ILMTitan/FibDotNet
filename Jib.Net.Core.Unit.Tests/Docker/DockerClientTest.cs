@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.docker
             Mock.Get(mockProcessBuilder).Setup(m => m.Start()).Returns(mockProcess);
 
             Mock.Get(imageTarball).Setup(i => i.WriteToAsync(It.IsAny<Stream>()))
-                .Returns<Stream>(async s => await s.WriteAsync("jib".GetBytes(Encoding.UTF8)));
+                .Returns<Stream>(async s => await s.WriteAsync(Encoding.UTF8.GetBytes("jib")));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.docker
             Mock.Get(mockProcess).Setup(m => m.GetOutputStream()).Returns(byteArrayOutputStream);
 
             // Simulates stdout.
-            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream("output".GetBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("output")));
 
             string output = await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
 
@@ -138,9 +138,9 @@ namespace com.google.cloud.tools.jib.docker
 
             Mock.Get(mockProcess).Setup(m => m.GetOutputStream()).Returns(Stream.Null);
 
-            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream("ignored".GetBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetInputStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("ignored")));
 
-            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream("error".GetBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("error")));
 
             try
             {
@@ -173,7 +173,7 @@ namespace com.google.cloud.tools.jib.docker
         {
             ProcessBuilder processBuilder =
                 DockerClient.DefaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
-                    .Apply(Arrays.AsList("sub", "command"));
+(Arrays.AsList("sub", "command"));
 
             Assert.AreEqual("docker-executable sub command", processBuilder.Command());
             CollectionAssert.AreEquivalent(
@@ -196,7 +196,7 @@ namespace com.google.cloud.tools.jib.docker
 
             ProcessBuilder processBuilder =
                 DockerClient.DefaultProcessBuilderFactory("docker", environment)
-                    .Apply(new List<string>());
+(new List<string>());
 
             CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.GetEnvironment());
         }
@@ -213,7 +213,7 @@ namespace com.google.cloud.tools.jib.docker
                     });
             Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(1);
 
-            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream("error".GetBytes(Encoding.UTF8)));
+            Mock.Get(mockProcess).Setup(m => m.GetErrorStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("error")));
 
             try
             {

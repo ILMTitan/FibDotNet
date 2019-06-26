@@ -176,7 +176,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAccept()
         {
-            Assert.AreEqual(0, testBlobChecker.GetAccept().Size());
+            Assert.AreEqual(0, testBlobChecker.GetAccept().Count);
         }
 
         [Test]

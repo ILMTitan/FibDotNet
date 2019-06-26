@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.registry
                 new RegistryAuthenticationFailedException("serverUrl", "imageName", cause);
             Assert.AreEqual("serverUrl", exception.GetRegistry());
             Assert.AreEqual("imageName", exception.GetImageName());
-            Assert.AreSame(cause, exception.GetCause());
+            Assert.AreSame(cause, exception.InnerException);
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
                 exception.GetMessage());

@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.docker
         {
             return dockerSubCommand =>
             {
-                IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.Size());
+                IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.Count);
                 JavaExtensions.Add(dockerCommand, dockerExecutable);
                 dockerCommand.AddAll(dockerSubCommand);
 
@@ -275,7 +275,7 @@ namespace com.google.cloud.tools.jib.docker
         /** Runs a {@code docker} command. */
         private IProcess Docker(params string[] subCommand)
         {
-            return processBuilderFactory.Apply(Arrays.AsList(subCommand)).Start();
+            return processBuilderFactory(Arrays.AsList(subCommand)).Start();
         }
     }
 }

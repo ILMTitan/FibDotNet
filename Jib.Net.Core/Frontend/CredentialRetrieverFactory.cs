@@ -150,13 +150,13 @@ namespace Jib.Net.Core.Frontend
         public CredentialRetriever InferCredentialHelper()
         {
             IList<string> inferredCredentialHelperSuffixes = new List<string>();
-            foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.KeySet())
+            foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.Keys)
             {
                 if (!JavaExtensions.EndsWith(imageReference.GetRegistry(), registrySuffix))
                 {
                     continue;
                 }
-                string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS.Get(registrySuffix);
+                string inferredCredentialHelperSuffix = COMMON_CREDENTIAL_HELPERS[registrySuffix];
                 if (inferredCredentialHelperSuffix == null)
                 {
                     throw new InvalidOperationException(
@@ -183,9 +183,9 @@ namespace Jib.Net.Core.Frontend
                         {
                             // Warns the user that the specified (or inferred) credential helper cannot be used.
                             logger(LogEvent.Info(ex.GetMessage()));
-                            if (ex.GetCause()?.GetMessage() != null)
+                            if (ex.InnerException?.GetMessage() != null)
                             {
-                                logger(LogEvent.Info("  Caused by: " + ex.GetCause().GetMessage()));
+                                logger(LogEvent.Info("  Caused by: " + ex.InnerException.GetMessage()));
                             }
                         }
                     }

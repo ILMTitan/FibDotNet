@@ -19,7 +19,6 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.json;
 using ICSharpCode.SharpZipLib.GZip;
 using Jib.Net.Core;
@@ -27,6 +26,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -342,7 +342,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 using (Stream fileOut = FileOperations.NewLockingOutputStream(temporarySelectorFile.Path))
                 {
-                    fileOut.Write(layerDigest.GetHash().GetBytes(Encoding.UTF8));
+                    fileOut.Write(Encoding.UTF8.GetBytes(layerDigest.GetHash()));
                 }
 
                 // Attempts an atomic move first, and falls back to non-atomic if the file system does not

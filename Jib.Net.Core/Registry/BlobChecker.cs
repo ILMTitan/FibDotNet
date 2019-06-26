@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public bool HandleResponseSuccess(HttpResponseMessage response)
         {
-            long? contentLength = response.GetContentLength();
+            long? contentLength = response.Content.Headers.ContentLength;
             if (contentLength < 0 || contentLength == null)
             {
                 throw new RegistryErrorExceptionBuilder(GetActionDescription())
@@ -80,7 +80,7 @@ namespace com.google.cloud.tools.jib.registry
 
         public async Task<bool> HandleHttpResponseExceptionAsync(HttpResponseMessage httpResponse)
         {
-            if (httpResponse.GetStatusCode() != HttpStatusCode.NotFound)
+            if (httpResponse.StatusCode != HttpStatusCode.NotFound)
             {
                 throw new HttpResponseException(httpResponse);
             }

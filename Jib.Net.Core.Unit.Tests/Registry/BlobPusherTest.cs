@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.CreateInitializer().GetAccept().Size());
+            Assert.AreEqual(0, testBlobPusher.CreateInitializer().GetAccept().Count);
         }
 
         [Test]
@@ -163,13 +163,13 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.AreEqual(
                 TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.ToByteArray()));
-            Assert.AreEqual(TEST_BLOB_CONTENT.Length(), byteCount.Sum());
+            Assert.AreEqual(TEST_BLOB_CONTENT.Length, byteCount.Sum());
         }
 
         [Test]
         public void TestWriter_GetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.CreateWriter(mockURL, _ => { }).GetAccept().Size());
+            Assert.AreEqual(0, testBlobPusher.CreateWriter(mockURL, _ => { }).GetAccept().Count);
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestCommitter_GetAccept()
         {
-            Assert.AreEqual(0, testBlobPusher.CreateCommitter(mockURL).GetAccept().Size());
+            Assert.AreEqual(0, testBlobPusher.CreateCommitter(mockURL).GetAccept().Count);
         }
 
         [Test]

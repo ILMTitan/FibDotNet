@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.configuration
             {
                 credentialRetrievers = credentialRetrievers ?? throw new ArgumentNullException(nameof(credentialRetrievers));
                 Preconditions.CheckArgument(
-                    !JavaExtensions.Contains(credentialRetrievers, null), "credential retriever list contains null elements");
+                    !credentialRetrievers.Contains(null), "credential retriever list contains null elements");
                 this.credentialRetrievers = ImmutableArray.CreateRange(credentialRetrievers);
                 return this;
             }

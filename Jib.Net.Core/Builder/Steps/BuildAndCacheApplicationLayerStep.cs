@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 foreach (LayerConfiguration layerConfiguration in buildConfiguration.GetLayerConfigurations())
                 {
                     // Skips the layer if empty.
-                    if (layerConfiguration.GetLayerEntries().IsEmpty())
+                    if (layerConfiguration.GetLayerEntries().Length == 0)
                     {
                         continue;
                     }

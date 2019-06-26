@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.builder
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             this.parentTimer = parentTimer;
 
-            startTime = clock.Instant();
+            startTime = clock.GetCurrentInstant();
             lapStartTime = startTime;
         }
 
@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         public Duration Lap()
         {
-            Instant now = clock.Instant();
+            Instant now = clock.GetCurrentInstant();
             Duration duration = now - lapStartTime;
             lapStartTime = now;
             return duration;
@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         public Duration GetElapsedTime()
         {
-            return clock.Instant() - startTime;
+            return clock.GetCurrentInstant() - startTime;
         }
     }
 }

@@ -19,9 +19,9 @@ using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.registry
         private static string MakeUnexpectedImageDigestWarning(
             DescriptorDigest expectedDigest, IList<string> receivedDigests)
         {
-            if (receivedDigests.IsEmpty())
+            if (receivedDigests.Count == 0)
             {
                 return "Expected image digest " + expectedDigest + ", but received none";
             }
@@ -104,8 +104,8 @@ namespace com.google.cloud.tools.jib.registry
             //   {"errors":[{"code":"MANIFEST_INVALID","detail":
             //   {"message":"manifest schema version not supported"},"message":"manifest invalid"}]}
 
-            if (httpResponse.GetStatusCode() != HttpStatusCode.BadRequest
-                && httpResponse.GetStatusCode() != HttpStatusCode.UnsupportedMediaType)
+            if (httpResponse.StatusCode != HttpStatusCode.BadRequest
+                && httpResponse.StatusCode != HttpStatusCode.UnsupportedMediaType)
             {
                 throw new HttpResponseException(httpResponse);
             }

@@ -37,13 +37,13 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(false))
             using (Connection connection =
-                    Connection.GetConnectionFactory().Apply(new Uri("http://" + server.GetAddressAndPort())))
+                    Connection.GetConnectionFactory()(new Uri("http://" + server.GetAddressAndPort())))
             {
                 HttpResponseMessage response = await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
-                Assert.AreEqual(HttpStatusCode.OK, response.GetStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 CollectionAssert.AreEqual(
-                    "Hello World!".GetBytes(Encoding.UTF8),
+                    Encoding.UTF8.GetBytes("Hello World!"),
                     ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
             }
         }
@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                Connection.GetConnectionFactory().Apply(new Uri("https://" + server.GetAddressAndPort())))
+                Connection.GetConnectionFactory()(new Uri("https://" + server.GetAddressAndPort())))
             {
                 try
                 {
@@ -72,13 +72,13 @@ namespace com.google.cloud.tools.jib.http
         {
             using (TestWebServer server = new TestWebServer(true))
             using (Connection connection =
-                    Connection.GetInsecureConnectionFactory().Apply(new Uri("https://" + server.GetAddressAndPort())))
+                    Connection.GetInsecureConnectionFactory()(new Uri("https://" + server.GetAddressAndPort())))
             {
                 HttpResponseMessage response = await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
-                Assert.AreEqual(HttpStatusCode.OK, response.GetStatusCode());
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 CollectionAssert.AreEqual(
-                    "Hello World!".GetBytes(Encoding.UTF8),
+                    Encoding.UTF8.GetBytes("Hello World!"),
                     ByteStreams.ToByteArray(await response.GetBodyAsync().ConfigureAwait(false)));
             }
         }

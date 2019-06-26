@@ -18,11 +18,11 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Cache;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Images.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
@@ -106,7 +106,7 @@ namespace com.google.cloud.tools.jib.cache
             {
                 Assert.That(
                     ex.GetMessage(),Does.StartWith("Found non-digest file in layers directory"));
-                Assert.IsInstanceOf<DigestException>(ex.GetCause());
+                Assert.IsInstanceOf<DigestException>(ex.InnerException);
             }
         }
 
@@ -180,7 +180,7 @@ namespace com.google.cloud.tools.jib.cache
             using (Stream @out =
                 Files.NewOutputStream(cacheStorageFiles.GetLayerFile(layerDigest, layerDiffId)))
             {
-                JavaExtensions.Write(@out, "layerBlob".GetBytes(Encoding.UTF8));
+                JavaExtensions.Write(@out, Encoding.UTF8.GetBytes("layerBlob"));
             }
 
             // Checks that the CachedLayer is retrieved correctly.
@@ -188,7 +188,7 @@ namespace com.google.cloud.tools.jib.cache
             Assert.IsTrue(optionalCachedLayer.IsPresent());
             Assert.AreEqual(layerDigest, optionalCachedLayer.Get().GetDigest());
             Assert.AreEqual(layerDiffId, optionalCachedLayer.Get().GetDiffId());
-            Assert.AreEqual("layerBlob".Length(), optionalCachedLayer.Get().GetSize());
+            Assert.AreEqual("layerBlob".Length, optionalCachedLayer.Get().GetSize());
             Assert.AreEqual("layerBlob", await Blobs.WriteToStringAsync(optionalCachedLayer.Get().GetBlob()).ConfigureAwait(false));
 
             // Checks that multiple .layer files means the cache is corrupted.
@@ -220,7 +220,7 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
             Files.CreateDirectories(selectorFile.GetParent());
-            Files.Write(selectorFile, "not a valid layer digest".GetBytes(Encoding.UTF8));
+            Files.Write(selectorFile, Encoding.UTF8.GetBytes("not a valid layer digest"));
 
             try
             {
@@ -249,7 +249,7 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
             Files.CreateDirectories(selectorFile.GetParent());
-            Files.Write(selectorFile, layerDigest2.GetHash().GetBytes(Encoding.UTF8));
+            Files.Write(selectorFile, Encoding.UTF8.GetBytes(layerDigest2.GetHash()));
 
             Option<DescriptorDigest> selectedLayerDigest = cacheStorageReader.Select(selector);
             Assert.IsTrue(selectedLayerDigest.IsPresent());

@@ -21,7 +21,7 @@ using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /**
      * Represents an item in the container configuration's {@code history} list.
@@ -29,7 +29,7 @@ namespace com.google.cloud.tools.jib.image.json
      * @see <a href=https://github.com/opencontainers/image-spec/blob/master/config.md#properties>OCI
      *     image spec ({@code history} field)</a>
      */
-     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     public class HistoryEntry
     {
         public class Builder
@@ -125,11 +125,11 @@ namespace com.google.cloud.tools.jib.image.json
             string comment,
             bool emptyLayer)
         {
-            this.Author = author;
-            this.CreationTimestamp = creationTimestamp;
-            this.CreatedBy = createdBy;
-            this.Comment = comment;
-            this.EmptyLayer = emptyLayer;
+            Author = author;
+            CreationTimestamp = creationTimestamp;
+            CreatedBy = createdBy;
+            Comment = comment;
+            EmptyLayer = emptyLayer;
         }
 
         /**
@@ -151,11 +151,11 @@ namespace com.google.cloud.tools.jib.image.json
             if (other is HistoryEntry historyEntry)
             {
                 HistoryEntry otherHistory = historyEntry;
-                return Objects.Equals(otherHistory.CreationTimestamp, CreationTimestamp)
-                    && Objects.Equals(otherHistory.Author, Author)
-                    && Objects.Equals(otherHistory.CreatedBy, CreatedBy)
-                    && Objects.Equals(otherHistory.Comment, Comment)
-                    && Objects.Equals(otherHistory.EmptyLayer, EmptyLayer);
+                return Equals(otherHistory.CreationTimestamp, CreationTimestamp)
+                    && Equals(otherHistory.Author, Author)
+                    && Equals(otherHistory.CreatedBy, CreatedBy)
+                    && Equals(otherHistory.Comment, Comment)
+                    && Equals(otherHistory.EmptyLayer, EmptyLayer);
             }
             return false;
         }

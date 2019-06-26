@@ -48,15 +48,15 @@ namespace com.google.cloud.tools.jib.image.json
             Image image = JsonToImageTranslator.ToImage(manifestTemplate);
 
             IList<ILayer> layers = image.GetLayers();
-            Assert.AreEqual(2, layers.Size());
+            Assert.AreEqual(2, layers.Count);
             Assert.AreEqual(
                 DescriptorDigest.FromDigest(
                     "sha256:5bd451067f9ab05e97cda8476c82f86d9b69c2dffb60a8ad2fe3723942544ab3"),
-                layers.Get(0).GetBlobDescriptor().GetDigest());
+                layers[0].GetBlobDescriptor().GetDigest());
             Assert.AreEqual(
                 DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                layers.Get(1).GetBlobDescriptor().GetDigest());
+                layers[1].GetBlobDescriptor().GetDigest());
         }
 
         [Test]
@@ -154,16 +154,16 @@ namespace com.google.cloud.tools.jib.image.json
         private void AssertGoodEnvironmentPattern(
             string input, string expectedName, string expectedValue)
         {
-            Match matcher = JsonToImageTranslator.EnvironmentPattern.Matcher(input);
-            Assert.IsTrue(matcher.Matches());
-            Assert.AreEqual(expectedName, matcher.Group("name"));
-            Assert.AreEqual(expectedValue, matcher.Group("value"));
+            Match matcher = JsonToImageTranslator.EnvironmentPattern.Match(input);
+            Assert.IsTrue(matcher.Success);
+            Assert.AreEqual(expectedName, matcher.Groups["name"].Value);
+            Assert.AreEqual(expectedValue, matcher.Groups["value"].Value);
         }
 
         private void AssertBadEnvironmentPattern(string input)
         {
-            Match matcher = JsonToImageTranslator.EnvironmentPattern.Matcher(input);
-            Assert.IsFalse(matcher.Matches());
+            Match matcher = JsonToImageTranslator.EnvironmentPattern.Match(input);
+            Assert.IsFalse(matcher.Success);
         }
 
         private void TestToImage_buildable<T>(
@@ -186,17 +186,17 @@ namespace com.google.cloud.tools.jib.image.json
             Image image = JsonToImageTranslator.ToImage(manifestTemplate, containerConfigurationTemplate);
 
             IList<ILayer> layers = image.GetLayers();
-            Assert.AreEqual(1, layers.Size());
+            Assert.AreEqual(1, layers.Count);
             Assert.AreEqual(
                 new BlobDescriptor(
                     1000000,
                     DescriptorDigest.FromDigest(
                         "sha256:4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")),
-                layers.Get(0).GetBlobDescriptor());
+                layers[0].GetBlobDescriptor());
             Assert.AreEqual(
                 DescriptorDigest.FromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                layers.Get(0).GetDiffId());
+                layers[0].GetDiffId());
             CollectionAssert.AreEqual(
                 ImmutableArray.Create(
                     HistoryEntry.CreateBuilder()
@@ -223,8 +223,8 @@ namespace com.google.cloud.tools.jib.image.json
                     AbsoluteUnixPath.Get("/var/log/my-app-logs")),
                 image.GetVolumes());
             Assert.AreEqual("tomcat", image.GetUser());
-            Assert.AreEqual("value1", image.GetLabels().Get("key1"));
-            Assert.AreEqual("value2", image.GetLabels().Get("key2"));
+            Assert.AreEqual("value1", image.GetLabels()["key1"]);
+            Assert.AreEqual("value2", image.GetLabels()["key2"]);
             Assert.AreEqual(2, image.GetLabels().Size());
         }
     }

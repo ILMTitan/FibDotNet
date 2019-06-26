@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public static bool IsLayerFile(SystemPath file)
         {
-            return file?.GetFileName().ToString().Length() == DescriptorDigest.HashLength;
+            return file?.GetFileName().ToString().Length == DescriptorDigest.HashLength;
         }
 
         private readonly SystemPath cacheDirectory;

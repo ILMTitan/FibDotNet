@@ -16,7 +16,7 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Images.Json
 {
     /** Exception thrown when trying to parse a bad image configuration format. */
     public class BadContainerConfigurationFormatException : Exception

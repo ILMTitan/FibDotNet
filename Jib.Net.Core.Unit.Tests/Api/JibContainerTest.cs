@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.api
             JibContainer container3 = new JibContainer(digest2, digest3);
 
             Assert.AreEqual(container1, container2);
-            Assert.AreEqual(container1.HashCode(), container2.HashCode());
+            Assert.AreEqual(container1.GetHashCode(), container2.GetHashCode());
             Assert.AreNotEqual(container1, container3);
         }
     }

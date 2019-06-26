@@ -105,8 +105,8 @@ namespace com.google.cloud.tools.jib.configuration
         public static DockerHealthCheck.Builder FromCommand(IList<string> command)
         {
             command = command ?? throw new ArgumentNullException(nameof(command));
-            Preconditions.CheckArgument(command.Size() > 0, "command must not be empty");
-            Preconditions.CheckArgument(!JavaExtensions.Contains(command, null), "command must not contain null elements");
+            Preconditions.CheckArgument(command.Count > 0, "command must not be empty");
+            Preconditions.CheckArgument(!command.Contains(null), "command must not contain null elements");
             return new Builder(ImmutableArray.CreateRange(command));
         }
 

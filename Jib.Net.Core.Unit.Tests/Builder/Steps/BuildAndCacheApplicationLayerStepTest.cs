@@ -58,10 +58,12 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
                     layerConfigurationBuilder.SetName(Path.GetFileName(resourcePath));
-                fileStream.ForEach(
-                    sourceFile =>
+                foreach (SystemPath i in fileStream)
+                {
+                    ((Func<SystemPath, LayerConfiguration.Builder>)(sourceFile =>
                         layerConfigurationBuilder.AddEntry(
-                            sourceFile, extractionPath.Resolve(sourceFile.GetFileName())));
+                            sourceFile, extractionPath.Resolve(sourceFile.GetFileName()))))(i);
+                }
                 return layerConfigurationBuilder.Build();
             }
         }

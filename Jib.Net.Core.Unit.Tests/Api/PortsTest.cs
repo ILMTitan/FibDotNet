@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.api
                         Port.Udp(6000),
                         Port.Udp(6001),
                         Port.Udp(6002))
-                    .Build();
+.ToImmutable();
             ImmutableHashSet<Port> result = Port.Parse(goodInputs);
             Assert.AreEqual(expected, result);
 

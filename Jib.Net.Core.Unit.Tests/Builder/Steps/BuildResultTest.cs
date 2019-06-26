@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildResult container3 = new BuildResult(digest2, id);
 
             Assert.AreEqual(container1, container2);
-            Assert.AreEqual(container1.HashCode(), container2.HashCode());
+            Assert.AreEqual(container1.GetHashCode(), container2.GetHashCode());
             Assert.AreNotEqual(container1, container3);
         }
 

@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.api
 
             public ProgressChecker()
             {
-                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().IsEmpty(); });
+                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().Length == 0; });
             }
 
             public void CheckCompletion()
@@ -104,10 +104,12 @@ namespace com.google.cloud.tools.jib.api
                 Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
-                fileStream.ForEach(
-                    sourceFile =>
+                foreach (SystemPath i in fileStream)
+                {
+                    ((Func<SystemPath, LayerConfiguration.Builder>)(sourceFile =>
                         layerConfigurationBuilder.AddEntry(
-                            sourceFile, AbsoluteUnixPath.Get(pathInContainer + sourceFile.GetFileName())));
+                            sourceFile, AbsoluteUnixPath.Get(pathInContainer + sourceFile.GetFileName()))))(i);
+                }
                 return layerConfigurationBuilder.Build();
             }
         }
@@ -145,7 +147,7 @@ namespace com.google.cloud.tools.jib.api
         {
             Command command =
                 new Command("docker", "inspect", "-f", "\"{{json .RootFS.Layers}}\"", imageReference);
-            string layers = JavaExtensions.Trim(command.Run());
+            string layers = command.Run().Trim();
             Assert.AreEqual(expected, JsonConvert.DeserializeObject<List<string>>(layers).Count);
         }
 
@@ -334,8 +336,10 @@ namespace com.google.cloud.tools.jib.api
                 .SetAllowInsecureRegistries(true)
                 .SetToolName("jib-integration-test")
                 .AddEventHandler<ProgressEvent>(progressChecker.progressEventHandler.Accept);
-            additionalTags.ForEach(containerizer.WithAdditionalTag);
-
+            foreach (string i in additionalTags)
+            {
+                containerizer.WithAdditionalTag(i);
+            }
             return await containerBuilder.ContainerizeAsync(containerizer).ConfigureAwait(false);
         }
     }

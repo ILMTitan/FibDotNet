@@ -133,8 +133,8 @@ namespace com.google.cloud.tools.jib.json
 
             string jsonString = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
             IList<TestJson> listofJsons = JsonTemplateMapper.ReadListOfJson<TestJson>(jsonString);
-            TestJson json1 = listofJsons.Get(0);
-            TestJson json2 = listofJsons.Get(1);
+            TestJson json1 = listofJsons[0];
+            TestJson json2 = listofJsons[1];
 
             DescriptorDigest digest1 =
                 DescriptorDigest.FromDigest(
@@ -151,8 +151,8 @@ namespace com.google.cloud.tools.jib.json
             Assert.AreEqual(digest2, json2.Digest);
             Assert.AreEqual(10, json1.InnerObject.Number);
             Assert.AreEqual(20, json2.InnerObject.Number);
-            Assert.AreEqual(2, json1.List.Size());
-            Assert.IsTrue(json2.List.IsEmpty());
+            Assert.AreEqual(2, json1.List.Count);
+            Assert.IsTrue(json2.List.Count == 0);
         }
 
         [Test]

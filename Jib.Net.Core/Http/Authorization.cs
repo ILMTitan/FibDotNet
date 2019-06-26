@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.http
         public static Authorization FromBasicCredentials(string username, string secret)
         {
             string credentials = username + ":" + secret;
-            string token = Convert.ToBase64String(credentials.GetBytes(Encoding.UTF8));
+            string token = Convert.ToBase64String(Encoding.UTF8.GetBytes(credentials));
             return new Authorization("Basic", token);
         }
 

@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.configuration
             }
 
             IDictionary<string, string> nullValueMap = new Dictionary<string, string>();
-            nullValueMap.Put("key", null);
+            nullValueMap["key"] = null;
 
             // Labels values should not be null.
             try

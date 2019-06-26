@@ -70,7 +70,7 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !JavaExtensions.Contains(programArguments, null), "program arguments list contains null elements");
+                        !programArguments.Contains(null), "program arguments list contains null elements");
                     this.programArguments = ImmutableArray.CreateRange(programArguments);
                 }
                 return this;
@@ -91,10 +91,10 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !Iterables.Any(environmentMap.KeySet(), Objects.IsNull),
+                        !Iterables.Any(environmentMap.Keys, Objects.IsNull),
                         "environment map contains null keys");
                     Preconditions.CheckArgument(
-                        !Iterables.Any(environmentMap.Values(), Objects.IsNull),
+                        !Iterables.Any(environmentMap.Values, Objects.IsNull),
                         "environment map contains null values");
                     this.environmentMap = new Dictionary<string, string>(environmentMap);
                 }
@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void AddEnvironment(string name, string value)
             {
-                (environmentMap ?? (environmentMap = new Dictionary<string, string>())).Put(name, value);
+                (environmentMap ?? (environmentMap = new Dictionary<string, string>()))[name] = value;
             }
 
             /**
@@ -172,9 +172,9 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !Iterables.Any(labels.KeySet(), Objects.IsNull), "labels map contains null keys");
+                        !Iterables.Any(labels.Keys, Objects.IsNull), "labels map contains null keys");
                     Preconditions.CheckArgument(
-                        !Iterables.Any(labels.Values(), Objects.IsNull), "labels map contains null values");
+                        !Iterables.Any(labels.Values, Objects.IsNull), "labels map contains null values");
                     this.labels = new Dictionary<string, string>(labels);
                 }
                 return this;
@@ -182,7 +182,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void AddLabel(string key, string value)
             {
-                (labels ?? (labels = new Dictionary<string, string>())).Put(key, value);
+                (labels ?? (labels = new Dictionary<string, string>()))[key] = value;
             }
 
             /**
@@ -200,7 +200,7 @@ namespace com.google.cloud.tools.jib.configuration
                 else
                 {
                     Preconditions.CheckArgument(
-                        !JavaExtensions.Contains(entrypoint, null), "entrypoint contains null elements");
+                        !entrypoint.Contains(null), "entrypoint contains null elements");
                     this.entrypoint = ImmutableArray.CreateRange(entrypoint);
                 }
                 return this;

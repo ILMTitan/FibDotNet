@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.api
 
         private void VerifyTo(Containerizer containerizer)
         {
-            Assert.IsTrue(containerizer.GetAdditionalTags().IsEmpty());
+            Assert.IsTrue(containerizer.GetAdditionalTags().Count == 0);
             Assert.AreEqual(
                 Containerizer.DefaultBaseCacheDirectory,
                 containerizer.GetBaseImageLayersCacheDirectory());
