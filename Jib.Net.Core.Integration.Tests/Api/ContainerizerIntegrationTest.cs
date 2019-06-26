@@ -317,13 +317,13 @@ namespace com.google.cloud.tools.jib.api
             ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
         {
             JibContainerBuilder containerBuilder =
-                Jib.From(baseImage)
+                JibContainerBuilder.From(baseImage)
                     .SetEntrypoint(
                         Arrays.AsList(
                             "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
                     .SetProgramArguments(new List<string> { "An argument." })
                     .SetEnvironment(ImmutableDic.Of("env1", "envvalue1", "env2", "envvalue2"))
-                    .SetExposedPorts(Ports.Parse(Arrays.AsList("1000", "2000-2002/tcp", "3000/udp")))
+                    .SetExposedPorts(Port.Parse(Arrays.AsList("1000", "2000-2002/tcp", "3000/udp")))
                     .SetLabels(ImmutableDic.Of("key1", "value1", "key2", "value2"))
                     .SetLayers(fakeLayerConfigurations);
 

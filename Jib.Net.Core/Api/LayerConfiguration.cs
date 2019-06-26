@@ -14,7 +14,7 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
+using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;
@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Configures how to build a layer in the container image. Instantiate with {@link #builder}. */
     public sealed class LayerConfiguration : ILayerConfiguration

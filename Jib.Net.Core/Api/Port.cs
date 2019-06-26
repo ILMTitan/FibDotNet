@@ -14,16 +14,28 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Represents a port number with a protocol (TCP or UDP). */
     public sealed class Port
     {
         private const string TCP_PROTOCOL = "tcp";
         private const string UDP_PROTOCOL = "udp";
+
+        /**
+         * Pattern used for parsing information out of exposed port configurations.
+         *
+         * <p>Example matches: 100, 200-210, 1000/tcp, 2000/udp, 500-600/tcp
+         */
+        private static readonly Regex portPattern = new Regex("^(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?$");
 
         /**
          * Create a new {@link Port} with TCP protocol.
@@ -118,6 +130,70 @@ namespace com.google.cloud.tools.jib.api
         public override string ToString()
         {
             return port + "/" + protocol;
+        }
+
+        /**
+         * Converts/validates a list of strings representing port ranges to an expanded list of {@link
+         * Port}s.
+         *
+         * <p>For example: ["1000", "2000-2002"] will expand to a list of {@link Port}s with the port
+         * numbers [1000, 2000, 2001, 2002]
+         *
+         * @param ports the list of port numbers/ranges, with an optional protocol separated by a '/'
+         *     (defaults to TCP if missing).
+         * @return the ports as a list of {@link Port}
+         * @throws NumberFormatException if any of the ports are in an invalid format or out of range
+         */
+        public static ImmutableHashSet<Port> Parse(IList<string> ports)
+        {
+            ports = ports ?? throw new ArgumentNullException(nameof(ports));
+            ImmutableHashSet<Port>.Builder result = ImmutableHashSet.CreateBuilder<Port>();
+
+            foreach (string port in ports)
+
+            {
+                Match matcher = portPattern.Matcher(port);
+
+                if (!matcher.Matches())
+                {
+                    throw new FormatException(
+                        "Invalid port configuration: '"
+                            + port
+                            + "'. Make sure the port is a single number or a range of two numbers separated "
+                            + "with a '-', with or without protocol specified (e.g. '<portNum>/tcp' or "
+                            + "'<portNum>/udp').");
+                }
+
+                // Parse protocol
+                int min = int.Parse(matcher.Group(1), CultureInfo.InvariantCulture);
+                int max = min;
+                if (!Strings.IsNullOrEmpty(matcher.Group(2)))
+                {
+                    max = int.Parse(matcher.Group(2), CultureInfo.InvariantCulture);
+                }
+                string protocol = matcher.Group(3);
+
+                // Error if configured as 'max-min' instead of 'min-max'
+                if (min > max)
+                {
+                    throw new FormatException(
+                        "Invalid port range '" + port + "'; smaller number must come first.");
+                }
+
+                // Warn for possibly invalid port numbers
+                if (min < 1 || max > 65535)
+                {
+                    throw new FormatException(
+                        "Port number '" + port + "' is out of usual range (1-65535).");
+                }
+
+                for (int portNumber = min; portNumber <= max; portNumber++)
+                {
+                    JavaExtensions.Add(result, Port.ParseProtocol(portNumber, protocol));
+                }
+            }
+
+            return result.Build();
         }
     }
 }

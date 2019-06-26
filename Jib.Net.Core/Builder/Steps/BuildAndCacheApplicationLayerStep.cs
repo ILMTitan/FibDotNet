@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using System;

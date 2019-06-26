@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using NodaTime;
 

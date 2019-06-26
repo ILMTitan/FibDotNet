@@ -14,6 +14,7 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
@@ -46,7 +47,7 @@ namespace com.google.cloud.tools.jib.api
                         Port.Udp(6001),
                         Port.Udp(6002))
                     .Build();
-            ImmutableHashSet<Port> result = Ports.Parse(goodInputs);
+            ImmutableHashSet<Port> result = Port.Parse(goodInputs);
             Assert.AreEqual(expected, result);
 
             IList<string> badInputs = Arrays.AsList("abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc");
@@ -54,7 +55,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    Ports.Parse(new List<string> { input });
+                    Port.Parse(new List<string> { input });
                     Assert.Fail(input);
                 }
                 catch (FormatException ex)
@@ -71,7 +72,7 @@ namespace com.google.cloud.tools.jib.api
 
             try
             {
-                Ports.Parse(new List<string> { "4002-4000" });
+                Port.Parse(new List<string> { "4002-4000" });
                 Assert.Fail();
             }
             catch (FormatException ex)
@@ -85,7 +86,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 try
                 {
-                    Ports.Parse(new List<string> { input });
+                    Port.Parse(new List<string> { input });
                     Assert.Fail();
                 }
                 catch (FormatException ex)

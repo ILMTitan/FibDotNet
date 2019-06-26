@@ -60,7 +60,7 @@ namespace com.google.cloud.tools.jib.api
             Containerizer containerizer =
                 Containerizer.To(TarImage.Named("jib-core/reproducible").SaveTo(imageTar.ToPath()));
 
-            await Jib.FromScratch()
+            await JibContainerBuilder.FromScratch()
                 .SetEntrypoint("echo", "Hello World")
                 .AddLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.Get("/app"))
                 // layer with out-of-order files

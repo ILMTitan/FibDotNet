@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.api
             ImageReference targetImageReference =
                 ImageReference.Of("localhost:5002", "jib-core", "basic-helloworld");
             JibContainer jibContainer =
-                await Jib.From("busybox")
+                await JibContainerBuilder.From("busybox")
                     .SetEntrypoint("echo", "Hello World")
                     .ContainerizeAsync(
                         Containerizer.To(
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.api
         {
             ImageReference targetImageReference =
                 ImageReference.Of("localhost:5002", "jib-core", "basic-scratch");
-            await Jib.FromScratch()
+            await JibContainerBuilder.FromScratch()
                 .ContainerizeAsync(
                     Containerizer.To(
                             RegistryImage.Named(targetImageReference)
@@ -130,7 +130,7 @@ namespace com.google.cloud.tools.jib.api
                 ImageReference.Of("localhost:5001", "jib-core", "basic-offline");
 
             JibContainerBuilder jibContainerBuilder =
-                Jib.From("localhost:5001/busybox").SetEntrypoint("echo", "Hello World");
+                JibContainerBuilder.From("localhost:5001/busybox").SetEntrypoint("echo", "Hello World");
 
             // Should fail since Jib can't build to registry offline
             try
