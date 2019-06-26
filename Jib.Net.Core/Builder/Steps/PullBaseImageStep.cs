@@ -90,7 +90,7 @@ namespace Jib.Net.Core.Builder.Steps
                 CultureInfo.CurrentCulture,
                 Resources.PullBaseImageStepDescriptionFormat,
                 buildConfiguration.getBaseImageConfiguration().getImage());
-            eventHandlers.dispatch(LogEvent.progress(description));
+            eventHandlers.Dispatch(LogEvent.progress(description));
             if (baseImageConfiguration.getImage().isScratch())
             {
                 return new BaseImageWithAuthorization(
@@ -102,7 +102,7 @@ namespace Jib.Net.Core.Builder.Steps
                 return new BaseImageWithAuthorization(pullBaseImageOffline(), null);
             }
 
-            using (ProgressEventDispatcher progressEventDispatcher = progressEventDispatcherFactory.create(description, 2))
+            using (ProgressEventDispatcher progressEventDispatcher = progressEventDispatcherFactory.Create(description, 2))
             using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
 
             {
@@ -113,7 +113,7 @@ namespace Jib.Net.Core.Builder.Steps
                 }
                 catch (RegistryUnauthorizedException)
                 {
-                    eventHandlers.dispatch(
+                    eventHandlers.Dispatch(
                         LogEvent.lifecycle(
                             "The base image requires auth. Trying again for "
                                 + buildConfiguration.getBaseImageConfiguration().getImage()
@@ -125,7 +125,7 @@ namespace Jib.Net.Core.Builder.Steps
                     RetrieveRegistryCredentialsStep retrieveBaseRegistryCredentialsStep =
                         RetrieveRegistryCredentialsStep.forBaseImage(
                             buildConfiguration,
-                            progressEventDispatcher.newChildProducer());
+                            progressEventDispatcher.NewChildProducer());
 
                     Credential registryCredential = await retrieveBaseRegistryCredentialsStep.getFuture().ConfigureAwait(false);
                     Authorization registryAuthorization =
@@ -163,7 +163,7 @@ namespace Jib.Net.Core.Builder.Steps
                         {
                             // Cannot skip certificate validation or use HTTP; fall through.
                         }
-                        eventHandlers.dispatch(LogEvent.error(Resources.PullBaseImageStepAuthenticationErrorMessage));
+                        eventHandlers.Dispatch(LogEvent.error(Resources.PullBaseImageStepAuthenticationErrorMessage));
                         throw;
                     }
                 }
@@ -225,7 +225,7 @@ namespace Jib.Net.Core.Builder.Steps
 
                     using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
                         new ThrottledProgressEventDispatcherWrapper(
-                            progressEventDispatcher.newChildProducer(),
+                            progressEventDispatcher.NewChildProducer(),
                             "pull container configuration " + containerConfigurationDigest))
                     {
                         string containerConfigurationString =
@@ -267,20 +267,20 @@ namespace Jib.Net.Core.Builder.Steps
             IImageReference baseImage = buildConfiguration.getBaseImageConfiguration().getImage();
             Option<ManifestAndConfig> metadata =
                 buildConfiguration.getBaseImageLayersCache().retrieveMetadata(baseImage);
-            if (!metadata.isPresent())
+            if (!metadata.IsPresent())
             {
                 throw new IOException(
                     "Cannot run Jib in offline mode; " + baseImage + " not found in local Jib cache");
             }
 
-            IManifestTemplate manifestTemplate = metadata.get().getManifest();
+            IManifestTemplate manifestTemplate = metadata.Get().getManifest();
             if (manifestTemplate is V21ManifestTemplate v21ManifestTemplate)
             {
                 return JsonToImageTranslator.toImage(v21ManifestTemplate);
             }
 
             ContainerConfigurationTemplate configurationTemplate =
-                metadata.get().getConfig().orElseThrow(() => new InvalidOperationException());
+                metadata.Get().getConfig().OrElseThrow(() => new InvalidOperationException());
             return JsonToImageTranslator.toImage(
                 (IBuildableManifestTemplate)manifestTemplate, configurationTemplate);
         }

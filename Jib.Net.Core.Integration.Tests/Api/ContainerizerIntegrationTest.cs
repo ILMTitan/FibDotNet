@@ -16,11 +16,10 @@
 
 using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.@event.events;
-using com.google.cloud.tools.jib.@event.progress;
 using com.google.cloud.tools.jib.filesystem;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
@@ -50,7 +49,7 @@ namespace com.google.cloud.tools.jib.api
 
             public ProgressChecker()
             {
-                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.getProgress(); areTasksFinished = update.getUnfinishedLeafTasks().isEmpty(); });
+                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().isEmpty(); });
             }
 
             public void checkCompletion()
@@ -102,13 +101,13 @@ namespace com.google.cloud.tools.jib.api
             string resourcePath, string pathInContainer)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(TestResources.getResource(resourcePath).toURI()));
+                Files.list(Paths.get(TestResources.getResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
                 fileStream.forEach(
                     sourceFile =>
                         layerConfigurationBuilder.addEntry(
-                            sourceFile, AbsoluteUnixPath.get(pathInContainer + sourceFile.getFileName())));
+                            sourceFile, AbsoluteUnixPath.get(pathInContainer + sourceFile.GetFileName())));
                 return layerConfigurationBuilder.build();
             }
         }
@@ -273,7 +272,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public async Task testBuildTarballAsync()
         {
-            SystemPath outputPath = temporaryFolder.newFolder().toPath().resolve("test.tar");
+            SystemPath outputPath = temporaryFolder.newFolder().toPath().Resolve("test.tar");
             await buildTarImageAsync(
                 ImageReference.of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.of(null, "testtar", null),
@@ -292,14 +291,14 @@ namespace com.google.cloud.tools.jib.api
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
             return await buildImageAsync(
-                baseImage, Containerizer.to(RegistryImage.named(targetImage)), additionalTags).ConfigureAwait(false);
+                baseImage, Containerizer.To(RegistryImage.named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> buildDockerDaemonImageAsync(
             ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
         {
             return await buildImageAsync(
-                baseImage, Containerizer.to(DockerDaemonImage.named(targetImage)), additionalTags).ConfigureAwait(false);
+                baseImage, Containerizer.To(DockerDaemonImage.named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> buildTarImageAsync(
@@ -310,7 +309,7 @@ namespace com.google.cloud.tools.jib.api
         {
             return await buildImageAsync(
                 baseImage,
-                Containerizer.to(TarImage.named(targetImage).saveTo(outputPath)),
+                Containerizer.To(TarImage.named(targetImage).saveTo(outputPath)),
                 additionalTags).ConfigureAwait(false);
         }
 
@@ -318,15 +317,15 @@ namespace com.google.cloud.tools.jib.api
             ImageReference baseImage, Containerizer containerizer, IList<string> additionalTags)
         {
             JibContainerBuilder containerBuilder =
-                Jib.from(baseImage)
-                    .setEntrypoint(
+                Jib.From(baseImage)
+                    .SetEntrypoint(
                         Arrays.asList(
                             "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
-                    .setProgramArguments(new List<string> { "An argument." })
-                    .setEnvironment(ImmutableDic.of("env1", "envvalue1", "env2", "envvalue2"))
-                    .setExposedPorts(Ports.parse(Arrays.asList("1000", "2000-2002/tcp", "3000/udp")))
-                    .setLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))
-                    .setLayers(fakeLayerConfigurations);
+                    .SetProgramArguments(new List<string> { "An argument." })
+                    .SetEnvironment(ImmutableDic.of("env1", "envvalue1", "env2", "envvalue2"))
+                    .SetExposedPorts(Ports.parse(Arrays.asList("1000", "2000-2002/tcp", "3000/udp")))
+                    .SetLabels(ImmutableDic.of("key1", "value1", "key2", "value2"))
+                    .SetLayers(fakeLayerConfigurations);
 
             SystemPath cacheDirectory = temporaryFolder.newFolder().toPath();
             containerizer
@@ -334,7 +333,7 @@ namespace com.google.cloud.tools.jib.api
                 .setApplicationLayersCache(cacheDirectory)
                 .setAllowInsecureRegistries(true)
                 .setToolName("jib-integration-test")
-                .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler.accept);
+                .addEventHandler<ProgressEvent>(progressChecker.progressEventHandler.Accept);
             additionalTags.forEach(containerizer.withAdditionalTag);
 
             return await containerBuilder.containerizeAsync(containerizer).ConfigureAwait(false);

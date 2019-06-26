@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.api
 
         public Option<SystemPath> getDockerExecutable()
         {
-            return Option.ofNullable(dockerExecutable);
+            return Option.OfNullable(dockerExecutable);
         }
 
         public IDictionary<string, string> getDockerEnvironment()

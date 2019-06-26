@@ -33,12 +33,12 @@ namespace com.google.cloud.tools.jib.api
             present = true;
         }
 
-        public bool isPresent()
+        public bool IsPresent()
         {
             return present;
         }
 
-        internal void ifPresent(Action<T> action)
+        internal void IfPresent(Action<T> action)
         {
             if (present)
             {
@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        internal Option<R> ifPresent<R>(Func<T, R> func)
+        internal Option<R> IfPresent<R>(Func<T, R> func)
         {
             if (present)
             {
@@ -57,12 +57,12 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        public T get()
+        public T Get()
         {
             return value;
         }
 
-        public T orElseThrow(Func<Exception> p)
+        public T OrElseThrow(Func<Exception> p)
         {
             p = p ?? throw new ArgumentNullException(nameof(p));
             if (present)
@@ -107,31 +107,31 @@ namespace com.google.cloud.tools.jib.api
 
     public static class Option
     {
-        public static Option<T> of<T>(T value)
+        public static Option<T> Of<T>(T value)
         {
             return new Option<T>(value);
         }
 
-        internal static Option<T> ofNullable<T>(T value)
+        internal static Option<T> OfNullable<T>(T value)
         {
             if (value == null)
             {
-                return Option.empty<T>();
+                return Option.Empty<T>();
             } else {
-                return Option.of(value);
+                return Option.Of(value);
             }
         }
 
-        public static Option<T> empty<T>()
+        public static Option<T> Empty<T>()
         {
             return new Option<T>();
         }
 
-        public static T orElse<T>(this Option<T> o, T defaultValue) where T : class
+        public static T OrElse<T>(this Option<T> o, T defaultValue) where T : class
         {
-            if (o.isPresent())
+            if (o.IsPresent())
             {
-                return o.get();
+                return o.Get();
             }
             else
             {
@@ -139,11 +139,11 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        public static T? asNullable<T>(this Option<T> o) where T : struct
+        public static T? AsNullable<T>(this Option<T> o) where T : struct
         {
-            if (o.isPresent())
+            if (o.IsPresent())
             {
-                return o.get();
+                return o.Get();
             } else
             {
                 return null;

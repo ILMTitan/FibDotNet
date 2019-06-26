@@ -46,9 +46,9 @@ namespace com.google.cloud.tools.jib.tar
         {
             testTarStreamBuilder = new TarStreamBuilder();
             // Gets the test resource files.
-            fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
-            fileB = Paths.get(TestResources.getResource("core/fileB").toURI());
-            directoryA = Paths.get(TestResources.getResource("core/directoryA").toURI());
+            fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
+            fileB = Paths.get(TestResources.getResource("core/fileB").ToURI());
+            directoryA = Paths.get(TestResources.getResource("core/directoryA").ToURI());
 
             fileAContents = Files.readAllBytes(fileA);
             fileBContents = Files.readAllBytes(fileB);
@@ -138,13 +138,13 @@ namespace com.google.cloud.tools.jib.tar
         private void setUpWithTarEntries()
         {
             // Prepares a test TarStreamBuilder.
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.toFile(), "some/path/to/resourceFileA"));
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
+            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileA.ToFile(), "some/path/to/resourceFileA"));
+            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
             testTarStreamBuilder.addTarArchiveEntry(
                 TarStreamBuilder.CreateEntryFromFile(
-                    fileA.toFile(),
+                    fileA.ToFile(),
                     "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890"));
         }
 
@@ -155,7 +155,7 @@ namespace com.google.cloud.tools.jib.tar
             testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
             testTarStreamBuilder.addByteEntry(fileBContents, "crepecake");
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
             testTarStreamBuilder.addByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");
@@ -166,9 +166,9 @@ namespace com.google.cloud.tools.jib.tar
         {
             // Prepares a test TarStreamBuilder.
             testTarStreamBuilder.addByteEntry(fileAContents, "some/path/to/resourceFileA");
-            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.toFile(), "crepecake"));
+            testTarStreamBuilder.addTarArchiveEntry(TarStreamBuilder.CreateEntryFromFile(fileB.ToFile(), "crepecake"));
             testTarStreamBuilder.addTarArchiveEntry(
-                TarStreamBuilder.CreateEntryFromFile(directoryA.toFile(), "some/path/to/"));
+                TarStreamBuilder.CreateEntryFromFile(directoryA.ToFile(), "some/path/to/"));
             testTarStreamBuilder.addByteEntry(
                 fileAContents,
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890");

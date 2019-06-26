@@ -68,8 +68,8 @@ namespace Jib.Net.Core.Unit.Tests.Events
                     .add<IJibEvent>(_ => counter++)
                     .build();
 
-            eventHandlers.dispatch(mockTestJibEvent1);
-            eventHandlers.dispatch(testJibEvent2);
+            eventHandlers.Dispatch(mockTestJibEvent1);
+            eventHandlers.Dispatch(testJibEvent2);
 
             Assert.AreEqual(2, counter);
             Mock.Get(mockTestJibEvent1).Verify(m => m.getPayload());
@@ -96,8 +96,8 @@ namespace Jib.Net.Core.Unit.Tests.Events
             TestJibEvent2 testJibEvent2 = new TestJibEvent2();
             TestJibEvent3 testJibEvent3 = new TestJibEvent3();
 
-            eventHandlers.dispatch(testJibEvent2);
-            eventHandlers.dispatch(testJibEvent3);
+            eventHandlers.Dispatch(testJibEvent2);
+            eventHandlers.Dispatch(testJibEvent3);
 
             CollectionAssert.AreEqual(
                 Arrays.asList(

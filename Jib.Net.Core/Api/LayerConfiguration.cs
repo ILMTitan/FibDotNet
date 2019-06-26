@@ -209,7 +209,7 @@ namespace com.google.cloud.tools.jib.api
                     {
                         addEntryRecursive(
                             file,
-                            pathInContainer.resolve(file.getFileName()),
+                            pathInContainer.resolve(file.GetFileName()),
                             filePermissionProvider,
                             lastModifiedTimeProvider);
                     }

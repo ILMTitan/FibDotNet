@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.json
         [Test]
         public void testWriteJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").ToURI());
             string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             TestJson testJson = new TestJson
@@ -98,7 +98,7 @@ namespace com.google.cloud.tools.jib.json
         [Test]
         public void testReadJsonWithLock()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic.json").ToURI());
 
             // Deserializes into a metadata JSON object.
             TestJson testJson = JsonTemplateMapper.readJsonFromFileWithLock<TestJson>(jsonFile);
@@ -129,7 +129,7 @@ namespace com.google.cloud.tools.jib.json
         [Test]
         public void testReadListOfJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").ToURI());
 
             string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
             IList<TestJson> listofJsons = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);
@@ -158,7 +158,7 @@ namespace com.google.cloud.tools.jib.json
         [Test]
         public void testToBlob_listOfJson()
         {
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/basic_list.json").ToURI());
 
             string jsonString = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
             List<TestJson> listOfJson = JsonTemplateMapper.readListOfJson<TestJson>(jsonString);

@@ -65,14 +65,14 @@ namespace com.google.cloud.tools.jib.builder.steps
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create("setting up to push layers", cachedLayers.size()))
+                    progressEventDispatcherFactory.Create("setting up to push layers", cachedLayers.size()))
                 {
                     // Constructs a PushBlobStep for each layer.
                     var pushBlobSteps = new List<Task<BlobDescriptor>>();
                     foreach (ICachedLayer cachedLayer in cachedLayers)
                     {
                         ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
-                            progressEventDispatcher.newChildProducer();
+                            progressEventDispatcher.NewChildProducer();
                         Task<BlobDescriptor> pushBlobStepFuture =
                             pushBlobAsync(cachedLayer, childProgressEventDispatcherFactory);
                         pushBlobSteps.add(pushBlobStepFuture);

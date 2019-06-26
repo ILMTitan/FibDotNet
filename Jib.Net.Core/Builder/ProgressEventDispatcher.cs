@@ -14,9 +14,8 @@
  * the License.
  */
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.events;
-using com.google.cloud.tools.jib.@event.progress;
-using Jib.Net.Core.Global;
+using Jib.Net.Core;
+using Jib.Net.Core.Events.Progress;
 using System;
 
 namespace com.google.cloud.tools.jib.builder
@@ -30,7 +29,7 @@ namespace com.google.cloud.tools.jib.builder
          * @param allocationUnits number of allocation units
          * @return the new {@link ProgressEventDispatcher}
          */
-        public static ProgressEventDispatcher create(this ProgressEventDispatcher.Factory f, string description, long allocationUnits)
+        public static ProgressEventDispatcher Create(this ProgressEventDispatcher.Factory f, string description, long allocationUnits)
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
             return f(description, allocationUnits);
@@ -61,11 +60,11 @@ namespace com.google.cloud.tools.jib.builder
          * @param allocationUnits number of allocation units
          * @return a new {@link ProgressEventDispatcher}
          */
-        public static ProgressEventDispatcher newRoot(
+        public static ProgressEventDispatcher NewRoot(
             IEventHandlers eventHandlers, string description, long allocationUnits)
         {
-            return newProgressEventDispatcher(
-                eventHandlers, Allocation.newRoot(description, allocationUnits));
+            return NewProgressEventDispatcher(
+                eventHandlers, Allocation.NewRoot(description, allocationUnits));
         }
 
         /**
@@ -76,12 +75,12 @@ namespace com.google.cloud.tools.jib.builder
          * @param allocation the {@link Allocation} to manage
          * @return a new {@link ProgressEventDispatcher}
          */
-        private static ProgressEventDispatcher newProgressEventDispatcher(
+        private static ProgressEventDispatcher NewProgressEventDispatcher(
             IEventHandlers eventHandlers, Allocation allocation)
         {
             ProgressEventDispatcher progressEventDispatcher =
                 new ProgressEventDispatcher(eventHandlers, allocation);
-            progressEventDispatcher.dispatchProgress(0);
+            progressEventDispatcher.DispatchProgress(0);
             return progressEventDispatcher;
         }
 
@@ -96,7 +95,7 @@ namespace com.google.cloud.tools.jib.builder
             this.eventHandlers = eventHandlers;
             this.allocation = allocation;
 
-            remainingAllocationUnits = allocation.getAllocationUnits();
+            remainingAllocationUnits = allocation.GetAllocationUnits();
         }
 
         /**
@@ -106,16 +105,16 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @return a new {@link Factory}
          */
-        public Factory newChildProducer()
+        public Factory NewChildProducer()
         {
-            decrementRemainingAllocationUnits(1);
+            DecrementRemainingAllocationUnits(1);
 
             bool used = false;
             return (string description, long allocationUnits) =>
             {
-                Preconditions.checkState(!used);
+                Preconditions.CheckState(!used);
                 used = true;
-                return newProgressEventDispatcher(eventHandlers, allocation.newChild(description, allocationUnits));
+                return NewProgressEventDispatcher(eventHandlers, allocation.NewChild(description, allocationUnits));
             };
         }
 
@@ -125,7 +124,7 @@ namespace com.google.cloud.tools.jib.builder
         {
             if (remainingAllocationUnits > 0)
             {
-                dispatchProgress(remainingAllocationUnits);
+                DispatchProgress(remainingAllocationUnits);
             }
             closed = true;
         }
@@ -136,10 +135,10 @@ namespace com.google.cloud.tools.jib.builder
          *
          * @param progressUnits units of progress
          */
-        public void dispatchProgress(long progressUnits)
+        public void DispatchProgress(long progressUnits)
         {
-            long unitsDecremented = decrementRemainingAllocationUnits(progressUnits);
-            eventHandlers.dispatch(new ProgressEvent(allocation, unitsDecremented));
+            long unitsDecremented = DecrementRemainingAllocationUnits(progressUnits);
+            eventHandlers.Dispatch(new ProgressEvent(allocation, unitsDecremented));
         }
 
         /**
@@ -150,9 +149,9 @@ namespace com.google.cloud.tools.jib.builder
          * @param units units to decrement
          * @return units actually decremented
          */
-        private long decrementRemainingAllocationUnits(long units)
+        private long DecrementRemainingAllocationUnits(long units)
         {
-            Preconditions.checkState(!closed);
+            Preconditions.CheckState(!closed);
 
             if (remainingAllocationUnits > units)
             {

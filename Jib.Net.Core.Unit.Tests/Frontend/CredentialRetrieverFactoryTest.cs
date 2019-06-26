@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.frontend
                 credentialRetrieverFactory
                     .dockerCredentialHelper(Paths.get("docker-credential-helper"))
                     .retrieve()
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
             Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using docker-credential-helper for registry")));
         }
 
@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.frontend
                 credentialRetrieverFactory
                     .inferCredentialHelper()
                     .retrieve()
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
             Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using docker-credential-gcr for something.gcr.io")));
         }
 
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.frontend
                 .Setup(m => m.retrieve())
                 .Throws(new CredentialHelperNotFoundException("warning", new IOException("the root cause")));
 
-            Assert.IsFalse(credentialRetrieverFactory.inferCredentialHelper().retrieve().isPresent());
+            Assert.IsFalse(credentialRetrieverFactory.inferCredentialHelper().retrieve().IsPresent());
             Mock.Get(mockLogger).Verify(m => m(LogEvent.info("warning")));
 
             Mock.Get(mockLogger).Verify(m => m(LogEvent.info("  Caused by: the root cause")));
@@ -141,14 +141,14 @@ namespace com.google.cloud.tools.jib.frontend
                 CredentialRetrieverFactory.forImage(
                     ImageReference.of("registry", "repository", null), mockLogger);
 
-            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.retrieve(mockLogger)).Returns(Option.of(FAKE_CREDENTIALS));
+            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.retrieve(mockLogger)).Returns(Option.Of(FAKE_CREDENTIALS));
 
             Assert.AreEqual(
                 FAKE_CREDENTIALS,
                 credentialRetrieverFactory
                     .dockerConfig(mockDockerConfigCredentialRetriever)
                     .retrieve()
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
             Mock.Get(mockLogger).Verify(m => m(LogEvent.info("Using credentials from Docker config for registry")));
         }
     }

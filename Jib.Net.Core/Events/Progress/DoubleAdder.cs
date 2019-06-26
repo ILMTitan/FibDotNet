@@ -17,21 +17,21 @@
 using System;
 using System.Threading;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
     internal class DoubleAdder : IDisposable
     {
         private readonly ThreadLocal<double> values = new ThreadLocal<double>(true);
 
-        internal void add(double value)
+        internal void Add(double value)
         {
             values.Value += value;
         }
 
-        internal double sum()
+        internal double Sum()
         {
             double sum = 0;
-            foreach(double value in values.Values)
+            foreach (double value in values.Values)
             {
                 sum += value;
             }

@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.image.json
         public void testFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             V21ManifestTemplate manifestJson =
@@ -40,10 +40,10 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual(
                 DescriptorDigest.fromDigest(
                     "sha256:8c662931926fa990b41da3c9f42663a537ccd498130030f9149173a0493832ad"),
-                manifestJson.getFsLayers().get(0).getDigest());
+                manifestJson.FsLayers.get(0).GetDigest());
 
             ContainerConfigurationTemplate containerConfiguration =
-                manifestJson.getContainerConfiguration().orElse(null);
+                manifestJson.GetContainerConfiguration().OrElse(null);
             Assert.AreEqual(
                 Arrays.asList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
                 containerConfiguration.getContainerEnvironment());

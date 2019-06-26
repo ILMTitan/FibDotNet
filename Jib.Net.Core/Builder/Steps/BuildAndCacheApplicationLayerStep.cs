@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             int layerCount = buildConfiguration.getLayerConfigurations().size();
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create(
+                    progressEventDispatcherFactory.Create(
                         "setting up to build application layers", layerCount))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     buildAndCacheApplicationLayerSteps.add(
                         new BuildAndCacheApplicationLayerStep(
                             buildConfiguration,
-                            progressEventDispatcher.newChildProducer(),
+                            progressEventDispatcher.NewChildProducer(),
                             layerConfiguration.getName(),
                             layerConfiguration).getFuture());
                 }
@@ -103,10 +103,10 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             string description = "Building " + layerType + " layer";
 
-            buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
+            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description + "..."));
 
             using (ProgressEventDispatcher ignored =
-                    progressEventDispatcherFactory.create("building " + layerType + " layer", 1))
+                    progressEventDispatcherFactory.Create("building " + layerType + " layer", 1))
             using (TimerEventDispatcher ignored2 =
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
 
@@ -116,9 +116,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // Don't build the layer if it exists already.
                 Option<CachedLayer> optionalCachedLayer =
                     await cache.retrieveAsync(layerConfiguration.getLayerEntries()).ConfigureAwait(false);
-                if (optionalCachedLayer.isPresent())
+                if (optionalCachedLayer.IsPresent())
                 {
-                    return new CachedLayerWithType(optionalCachedLayer.get(), getLayerType());
+                    return new CachedLayerWithType(optionalCachedLayer.Get(), getLayerType());
                 }
 
                 IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.getLayerEntries()).build();
@@ -127,7 +127,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 buildConfiguration
                     .getEventHandlers()
-                    .dispatch(LogEvent.debug(description + " built " + cachedLayer.getDigest()));
+                    .Dispatch(LogEvent.debug(description + " built " + cachedLayer.getDigest()));
 
                 return new CachedLayerWithType(cachedLayer, getLayerType());
             }

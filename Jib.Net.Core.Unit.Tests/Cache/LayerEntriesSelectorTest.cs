@@ -63,9 +63,9 @@ namespace com.google.cloud.tools.jib.cache
         public void setUp()
         {
             SystemPath folder = temporaryFolder.newFolder().toPath();
-            SystemPath file1 = Files.createDirectory(folder.resolve("files"));
-            SystemPath file2 = Files.createFile(folder.resolve("files").resolve("two"));
-            SystemPath file3 = Files.createFile(folder.resolve("gile"));
+            SystemPath file1 = Files.createDirectory(folder.Resolve("files"));
+            SystemPath file2 = Files.createFile(folder.Resolve("files").Resolve("two"));
+            SystemPath file3 = Files.createFile(folder.Resolve("gile"));
 
             LayerEntry testLayerEntry1 = defaultLayerEntry(file1, AbsoluteUnixPath.get("/extraction/path"));
             LayerEntry testLayerEntry2 = defaultLayerEntry(file2, AbsoluteUnixPath.get("/extraction/path"));
@@ -145,7 +145,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task testGenerateSelector_fileModifiedAsync()
         {
-            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
+            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().Resolve("file");
             Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
             Files.setLastModifiedTime(layerFile, FileTime.from(Instant.FromUnixTimeSeconds(0)));
             LayerEntry layerEntry = defaultLayerEntry(layerFile, AbsoluteUnixPath.get("/extraction/path"));
@@ -167,7 +167,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public void testGenerateSelector_permissionsModified()
         {
-            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().resolve("file");
+            SystemPath layerFile = temporaryFolder.newFolder("testFolder").toPath().Resolve("file");
             Files.write(layerFile, "hello".getBytes(Encoding.UTF8));
             LayerEntry layerEntry111 =
                 new LayerEntry(

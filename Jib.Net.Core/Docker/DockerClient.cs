@@ -191,7 +191,7 @@ namespace com.google.cloud.tools.jib.docker
             {
                 try
                 {
-                    await imageTarball.writeToAsync(stdin).ConfigureAwait(false);
+                    await imageTarball.WriteToAsync(stdin).ConfigureAwait(false);
                 }
                 catch (IOException ex)
                 {

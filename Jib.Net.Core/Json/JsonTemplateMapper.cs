@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.json
         {
 
             jsonFile = jsonFile ?? throw new ArgumentNullException(nameof(jsonFile));
-            using (StreamReader reader = jsonFile.toFile().OpenText())
+            using (StreamReader reader = jsonFile.ToFile().OpenText())
             {
                 return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
             }

@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public static FilePermissions fromOctalString(string octalPermissions)
         {
-            Preconditions.checkArgument(
+            Preconditions.CheckArgument(
                 octalPermissions.matches(OCTAL_PATTERN),
                 "octalPermissions must be a 3-digit octal number (000-777)");
 

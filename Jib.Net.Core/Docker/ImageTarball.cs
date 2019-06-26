@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.docker
             this.imageReference = imageReference;
         }
 
-        public async Task writeToAsync(Stream @out)
+        public async Task WriteToAsync(Stream @out)
         {
             TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
             DockerLoadManifestEntryTemplate manifestTemplate = new DockerLoadManifestEntryTemplate();
@@ -66,18 +66,18 @@ namespace com.google.cloud.tools.jib.docker
 
                 tarStreamBuilder.addBlobEntry(
                     layer.getBlob(), layer.getBlobDescriptor().getSize(), layerName);
-                manifestTemplate.addLayerFile(layerName);
+                manifestTemplate.AddLayerFile(layerName);
             }
 
             // Adds the container configuration to the tarball.
             ContainerConfigurationTemplate containerConfiguration =
-                new ImageToJsonTranslator(image).getContainerConfiguration();
+                new ImageToJsonTranslator(image).GetContainerConfiguration();
             tarStreamBuilder.addByteEntry(
                 JsonTemplateMapper.toByteArray(containerConfiguration),
                 CONTAINER_CONFIGURATION_JSON_FILE_NAME);
 
             // Adds the manifest to tarball.
-            manifestTemplate.setRepoTags(imageReference.toStringWithTag());
+            manifestTemplate.SetRepoTags(imageReference.toStringWithTag());
             tarStreamBuilder.addByteEntry(
                 JsonTemplateMapper.toByteArray(new List<DockerLoadManifestEntryTemplate> { manifestTemplate }),
                 MANIFEST_JSON_FILE_NAME);

@@ -15,17 +15,33 @@
  */
 
 using System;
+using System.Globalization;
 using System.Threading;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
-    internal class AtomicInteger
+    public class AtomicLong
     {
-        private int i;
+        private long l;
 
-        internal int getAndIncrement()
+        public AtomicLong(long initalValue)
         {
-            return Interlocked.Increment(ref i) - 1;
+            l = initalValue;
+        }
+
+        internal long Get()
+        {
+            return Interlocked.Read(ref l);
+        }
+
+        internal long AddAndGet(long value)
+        {
+            return Interlocked.Add(ref l, value);
+        }
+
+        public override string ToString()
+        {
+            return Get().ToString(CultureInfo.CurrentCulture);
         }
     }
 }

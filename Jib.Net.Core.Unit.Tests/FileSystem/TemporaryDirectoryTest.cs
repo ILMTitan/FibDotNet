@@ -31,18 +31,18 @@ namespace com.google.cloud.tools.jib.filesystem
     {
         private static void createFilesInDirectory(SystemPath directory)
         {
-            SystemPath testFilesDirectory = Paths.get(TestResources.getResource("core/layer").toURI());
+            SystemPath testFilesDirectory = Paths.get(TestResources.getResource("core/layer").ToURI());
             new DirectoryWalker(testFilesDirectory)
                 .filterRoot()
                 .walk(path =>
                 {
                     if (File.Exists(path))
                     {
-                        Files.copy(path, directory.resolve(testFilesDirectory.relativize(path)));
+                        Files.copy(path, directory.Resolve(testFilesDirectory.Relativize(path)));
                     }
                     else if (Directory.Exists(path))
                     {
-                        Directory.CreateDirectory(directory.resolve(testFilesDirectory.relativize(path)));
+                        Directory.CreateDirectory(directory.Resolve(testFilesDirectory.Relativize(path)));
                     }
                 });
         }
@@ -77,12 +77,12 @@ namespace com.google.cloud.tools.jib.filesystem
             {
                 createFilesInDirectory(temporaryDirectory.getDirectory());
 
-                Assert.IsFalse(Files.exists(destinationParent.resolve("destination")));
-                Files.move(temporaryDirectory.getDirectory(), destinationParent.resolve("destination"));
+                Assert.IsFalse(Files.exists(destinationParent.Resolve("destination")));
+                Files.move(temporaryDirectory.getDirectory(), destinationParent.Resolve("destination"));
 
                 temporaryDirectory.close();
                 Assert.IsFalse(Files.exists(temporaryDirectory.getDirectory()));
-                Assert.IsTrue(Files.exists(destinationParent.resolve("destination")));
+                Assert.IsTrue(Files.exists(destinationParent.Resolve("destination")));
             }
         }
     }

@@ -16,7 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Represents a Decentralized Allocation Tree (DAT) node.
@@ -46,7 +46,7 @@ namespace com.google.cloud.tools.jib.@event.progress
          * @param allocationUnits number of allocation units
          * @return a new {@link Allocation}
          */
-        public static Allocation newRoot(string description, long allocationUnits)
+        public static Allocation NewRoot(string description, long allocationUnits)
         {
             return new Allocation(description, allocationUnits, null);
         }
@@ -69,7 +69,7 @@ namespace com.google.cloud.tools.jib.@event.progress
             this.allocationUnits = allocationUnits < 0 ? 0 : allocationUnits;
             this.parent = parent;
 
-            this.fractionOfRoot = (parent == null ? 1.0 : parent.fractionOfRoot) / allocationUnits;
+            fractionOfRoot = (parent == null ? 1.0 : parent.fractionOfRoot) / allocationUnits;
         }
 
         /**
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.@event.progress
          * @param allocationUnits number of allocation units the child holds
          * @return a new {@link Allocation}
          */
-        public Allocation newChild(string description, long allocationUnits)
+        public Allocation NewChild(string description, long allocationUnits)
         {
             return new Allocation(description, allocationUnits, this);
         }
@@ -90,9 +90,9 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @return the parent {@link Allocation}
          */
-        public Option<Allocation> getParent()
+        public Option<Allocation> GetParent()
         {
-            return Option.ofNullable(parent);
+            return Option.OfNullable(parent);
         }
 
         /**
@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @return the description
          */
-        public string getDescription()
+        public string GetDescription()
         {
             return description;
         }
@@ -112,7 +112,7 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @return the allocation units
          */
-        public long getAllocationUnits()
+        public long GetAllocationUnits()
         {
             return allocationUnits;
         }
@@ -123,14 +123,14 @@ namespace com.google.cloud.tools.jib.@event.progress
          *
          * @return the fraction of the root allocation this allocation's allocation units accounts for
          */
-        public double getFractionOfRoot()
+        public double GetFractionOfRoot()
         {
             return fractionOfRoot;
         }
 
         public override string ToString()
         {
-            return this.description;
+            return description;
         }
     }
 }

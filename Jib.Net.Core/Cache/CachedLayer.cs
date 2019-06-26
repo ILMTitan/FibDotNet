@@ -15,9 +15,9 @@
  */
 
 using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using System;
 
@@ -111,10 +111,10 @@ namespace com.google.cloud.tools.jib.cache
             public CachedLayer build()
             {
                 return new CachedLayer(
-                    Preconditions.checkNotNull(layerDigest, "layerDigest required"),
-                    Preconditions.checkNotNull(layerDiffId, "layerDiffId required"),
+                    Preconditions.CheckNotNull(layerDigest, "layerDigest required"),
+                    Preconditions.CheckNotNull(layerDiffId, "layerDiffId required"),
                     layerSize,
-                    Preconditions.checkNotNull(layerBlob, "layerBlob required"));
+                    Preconditions.CheckNotNull(layerBlob, "layerBlob required"));
             }
         }
 

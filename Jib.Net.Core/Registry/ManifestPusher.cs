@@ -154,12 +154,12 @@ namespace com.google.cloud.tools.jib.registry
                         // Invalid digest.
                     }
                 }
-                eventHandlers.dispatch(
+                eventHandlers.Dispatch(
                     LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, receivedDigests)));
                 return expectedDigest;
             }
 
-            eventHandlers.dispatch(
+            eventHandlers.Dispatch(
                 LogEvent.warn(makeUnexpectedImageDigestWarning(expectedDigest, Array.Empty<string>())));
             // The received digest is not as expected. Warns about this.
             return expectedDigest;

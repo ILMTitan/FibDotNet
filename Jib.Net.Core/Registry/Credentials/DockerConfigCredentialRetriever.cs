@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
             if (!Files.exists(dockerConfigFile))
             {
-                return Option.empty<Credential>();
+                return Option.Empty<Credential>();
             }
             DockerConfig dockerConfig =
                 new DockerConfig(
@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     string usernameColonPassword = Encoding.UTF8.GetString(Convert.FromBase64String(auth));
                     string username = usernameColonPassword.substring(0, usernameColonPassword.indexOf(":"));
                     string password = usernameColonPassword.substring(usernameColonPassword.indexOf(":") + 1);
-                    return Option.of(Credential.from(username, password));
+                    return Option.Of(Credential.from(username, password));
                 }
 
                 // Then, tries to use a defined credHelpers credential helper.
@@ -115,7 +115,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     try
                     {
                         // Tries with the given registry alias (may be the original registry).
-                        return Option.of(dockerCredentialHelper.retrieve());
+                        return Option.Of(dockerCredentialHelper.retrieve());
                     }
                     catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException)
                     {
@@ -131,7 +131,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                 }
             }
-            return Option.empty<Credential>();
+            return Option.Empty<Credential>();
         }
     }
 }

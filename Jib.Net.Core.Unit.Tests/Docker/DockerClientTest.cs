@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.docker
             imageTarball = Mock.Of<IImageTarball>();
             Mock.Get(mockProcessBuilder).Setup(m => m.start()).Returns(mockProcess);
 
-            Mock.Get(imageTarball).Setup(i => i.writeToAsync(It.IsAny<Stream>()))
+            Mock.Get(imageTarball).Setup(i => i.WriteToAsync(It.IsAny<Stream>()))
                 .Returns<Stream>(async s => await s.WriteAsync("jib".getBytes(Encoding.UTF8)));
         }
 

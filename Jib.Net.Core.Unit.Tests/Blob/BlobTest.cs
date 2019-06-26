@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.blob
         [Test]
         public async Task testFromFileAsync()
         {
-            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
+            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
             string expected = Encoding.UTF8.GetString(Files.readAllBytes(fileA));
             await verifyBlobWriteToAsync(expected, Blobs.from(fileA)).ConfigureAwait(false);
         }

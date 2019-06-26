@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 ErrorResponseTemplate errorResponse =
                     JsonTemplateMapper.readJson<ErrorResponseTemplate>(errorContent);
-                IReadOnlyList<ErrorEntryTemplate> errors = errorResponse?.getErrors();
+                IReadOnlyList<ErrorEntryTemplate> errors = errorResponse?.Errors;
                 // There may be multiple error objects
                 if (errors?.size() == 1)
                 {

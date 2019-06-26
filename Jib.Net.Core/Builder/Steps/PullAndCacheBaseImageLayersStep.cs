@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ImmutableArray<ILayer> baseImageLayers = pullBaseImageStepResult.getBaseImage().getLayers();
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create(
+                    progressEventDispatcherFactory.Create(
                         "checking base image layers", baseImageLayers.size()))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     pullAndCacheBaseImageLayerStepsBuilder.add(
                         new PullAndCacheBaseImageLayerStep(
                             buildConfiguration,
-                            progressEventDispatcher.newChildProducer(),
+                            progressEventDispatcher.NewChildProducer(),
                             layer.getBlobDescriptor().getDigest(),
                             pullBaseImageStepResult.getBaseImageAuthorization()).getFuture());
                 }

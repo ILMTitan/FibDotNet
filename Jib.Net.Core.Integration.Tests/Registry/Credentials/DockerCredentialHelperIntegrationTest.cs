@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testRetrieveGCR()
         {
             new Command("docker-credential-gcr", "store")
-                .run(Files.readAllBytes(Paths.get(TestResources.getResource("credentials.json").toURI())));
+                .run(Files.readAllBytes(Paths.get(TestResources.getResource("credentials.json").ToURI())));
 
             DockerCredentialHelper dockerCredentialHelper = new DockerCredentialHelper("myregistry", "gcr");
 

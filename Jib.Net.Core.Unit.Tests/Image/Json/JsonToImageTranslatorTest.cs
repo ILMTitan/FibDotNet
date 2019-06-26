@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             // Loads the JSON string.
             SystemPath jsonFile =
-                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             V21ManifestTemplate manifestTemplate =
@@ -172,14 +172,14 @@ namespace com.google.cloud.tools.jib.image.json
             // Loads the container configuration JSON.
             SystemPath containerConfigurationJsonFile =
                 Paths.get(
-                    TestResources.getResource("core/json/containerconfig.json").toURI());
+                    TestResources.getResource("core/json/containerconfig.json").ToURI());
             ContainerConfigurationTemplate containerConfigurationTemplate =
                 JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
                     containerConfigurationJsonFile);
 
             // Loads the manifest JSON.
             SystemPath manifestJsonFile =
-                Paths.get(TestResources.getResource(jsonFilename).toURI());
+                Paths.get(TestResources.getResource(jsonFilename).ToURI());
             T manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<T>(manifestJsonFile);
 

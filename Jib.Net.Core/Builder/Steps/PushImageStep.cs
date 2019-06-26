@@ -81,7 +81,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ImmutableHashSet<string> targetImageTags = buildConfiguration.getAllTargetImageTags();
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                progressEventDispatcherFactory.create("pushing image manifest", targetImageTags.size()))
+                progressEventDispatcherFactory.Create("pushing image manifest", targetImageTags.size()))
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 // Gets the image manifest to push.
                 IBuildableManifestTemplate manifestTemplate =
-                    imageToJsonTranslator.getManifestTemplate(
+                    imageToJsonTranslator.GetManifestTemplate(
                         buildConfiguration.getTargetFormat(), containerConfigurationBlobDescriptor);
 
                 // Pushes to all target image tags.
@@ -105,10 +105,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                 foreach (string tag in targetImageTags)
                 {
                     ProgressEventDispatcher.Factory progressEventDispatcherFactory =
-                        progressEventDispatcher.newChildProducer();
-                    using (progressEventDispatcherFactory.create("tagging with " + tag, 1))
+                        progressEventDispatcher.NewChildProducer();
+                    using (progressEventDispatcherFactory.Create("tagging with " + tag, 1))
                     {
-                        buildConfiguration.getEventHandlers().dispatch(LogEvent.info("Tagging with " + tag + "..."));
+                        buildConfiguration.getEventHandlers().Dispatch(LogEvent.info("Tagging with " + tag + "..."));
                         pushAllTagsFutures.add(registryClient.pushManifestAsync(manifestTemplate, tag));
                     }
                 }

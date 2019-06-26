@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void test_fromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             // Deserializes into a docker config JSON object.
             DockerConfig dockerConfig =
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testGetAuthFor_orderOfMatchPreference()
         {
             SystemPath json =
-                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public void testGetAuthFor_correctSuffixMatching()
         {
             SystemPath json =
-                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_extra_matches.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor()
         {
-            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -116,7 +116,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withHttps()
         {
-            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -129,7 +129,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withSuffix()
         {
-            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -142,7 +142,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_withProtocolAndSuffix()
         {
-            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));
@@ -155,7 +155,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [Test]
         public void testGetCredentialHelperFor_correctSuffixMatching()
         {
-            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            SystemPath json = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
 
             DockerConfig dockerConfig =
                 new DockerConfig(JsonTemplateMapper.readJsonFromFile<DockerConfigTemplate>(json));

@@ -72,7 +72,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             IReadOnlyList<ICachedLayer> baseImageLayers = await pullAndCacheBaseImageLayersStep.getFuture().ConfigureAwait(false);
             IReadOnlyList<ICachedLayer> applicationLayers = await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false);
 
-            using (progressEventDispatcherFactory.create("building image format", 1))
+            using (progressEventDispatcherFactory.Create("building image format", 1))
             using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 // Constructs the image.
@@ -184,8 +184,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
                 string message = "Container entrypoint set to " + entrypointToUse + logSuffix;
-                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(""));
-                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
+                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(""));
+                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(message));
             }
 
             return entrypointToUse;
@@ -219,7 +219,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
                 string message = "Container program arguments set to " + programArgumentsToUse + logSuffix;
-                buildConfiguration.getEventHandlers().dispatch(LogEvent.lifecycle(message));
+                buildConfiguration.getEventHandlers().Dispatch(LogEvent.lifecycle(message));
             }
 
             return programArgumentsToUse;

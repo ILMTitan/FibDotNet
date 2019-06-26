@@ -75,20 +75,20 @@ namespace Jib.Net.Core.Builder.Steps
             string description = string.Format(
                 CultureInfo.CurrentCulture,
                 Resources.WriteTarFileStepDescriptionFormat,
-                outputPath.getFileName());
-            buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description));
+                outputPath.GetFileName());
+            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description));
 
-            using (progressEventDispatcherFactory.create(description, 1))
+            using (progressEventDispatcherFactory.Create(description, 1))
             {
                 Image image = await buildImageStep.getFuture().ConfigureAwait(false);
 
                 // Builds the image to a tarball.
-                Files.createDirectories(outputPath.getParent());
+                Files.createDirectories(outputPath.GetParent());
                 using (Stream outputStream =
                     new BufferedStream(FileOperations.newLockingOutputStream(outputPath)))
                 {
                     await new ImageTarball(image, buildConfiguration.getTargetImageConfiguration().getImage())
-                        .writeToAsync(outputStream).ConfigureAwait(false);
+                        .WriteToAsync(outputStream).ConfigureAwait(false);
                 }
 
                 return await BuildResult.fromImageAsync(image, buildConfiguration.getTargetFormat()).ConfigureAwait(false);

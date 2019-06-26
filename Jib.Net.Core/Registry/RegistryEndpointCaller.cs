@@ -201,7 +201,7 @@ namespace com.google.cloud.tools.jib.registry
 
             try
             {
-                eventHandlers.dispatch(
+                eventHandlers.Dispatch(
                     LogEvent.info(
                         "Cannot verify server at " + url + ". Attempting again with no TLS verification."));
                 return await callAsync(url, getInsecureConnectionFactory()).ConfigureAwait(false);
@@ -223,7 +223,7 @@ namespace com.google.cloud.tools.jib.registry
                 Scheme = Uri.UriSchemeHttp,
                 Port = url.IsDefaultPort ? -1 : url.Port
             };
-            eventHandlers.dispatch(
+            eventHandlers.Dispatch(
                 LogEvent.info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
             return await callAsync(httpUrl.toURL(), connectionFactory).ConfigureAwait(false);
@@ -250,7 +250,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             // Only sends authorization if using HTTPS or explicitly forcing over HTTP.
             bool sendCredentials =
-                isHttpsProtocol(url) || JibSystemProperties.isSendCredentialsOverHttpEnabled();
+                isHttpsProtocol(url) || JibSystemProperties.IsSendCredentialsOverHttpEnabled();
             try
             {
                 using (IConnection connection = connectionFactory.apply(url))
@@ -348,7 +348,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 ErrorResponseTemplate errorResponse =
                     JsonTemplateMapper.readJson<ErrorResponseTemplate>(stringContent);
-                foreach (ErrorEntryTemplate errorEntry in errorResponse?.getErrors() ?? Enumerable.Empty<ErrorEntryTemplate>())
+                foreach (ErrorEntryTemplate errorEntry in errorResponse?.Errors ?? Enumerable.Empty<ErrorEntryTemplate>())
                 {
                     registryErrorExceptionBuilder.addReason(errorEntry);
                 }

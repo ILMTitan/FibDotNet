@@ -17,7 +17,6 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -41,8 +40,8 @@ namespace Jib.Net.Core.Api
          */
         public static AbsoluteUnixPath get(string unixPath)
         {
-            Preconditions.checkNotNull(unixPath);
-            Preconditions.checkArgument(
+            Preconditions.CheckNotNull(unixPath);
+            Preconditions.CheckArgument(
                 unixPath.StartsWith("/", StringComparison.InvariantCulture),
                 "Path does not start with forward slash (/): " + unixPath);
 
@@ -59,8 +58,8 @@ namespace Jib.Net.Core.Api
         public static AbsoluteUnixPath fromPath(SystemPath path)
         {
             path = path ?? throw new ArgumentNullException(nameof(path));
-            Preconditions.checkArgument(
-                path.getRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
+            Preconditions.CheckArgument(
+                path.GetRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
 
             ImmutableArray<string>.Builder pathComponents =
                 ImmutableArray.CreateBuilder<string>();
@@ -68,7 +67,7 @@ namespace Jib.Net.Core.Api
             {
                 pathComponents.Add(pathComponent.ToString());
             }
-            return new AbsoluteUnixPath(pathComponents.ToImmutable(), path.getRoot());
+            return new AbsoluteUnixPath(pathComponents.ToImmutable(), path.GetRoot());
         }
 
         /** Path components after the file system root. This should always match {@link #unixPath}. */
@@ -123,10 +122,10 @@ namespace Jib.Net.Core.Api
         public AbsoluteUnixPath resolve(SystemPath relativePath)
         {
             relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
-            Preconditions.checkArgument(
-                relativePath.getRoot() == null, "Cannot resolve against absolute Path: " + relativePath);
+            Preconditions.CheckArgument(
+                relativePath.GetRoot() == null, "Cannot resolve against absolute Path: " + relativePath);
 
-            return AbsoluteUnixPath.fromPath(Paths.get(unixPath).resolve(relativePath));
+            return AbsoluteUnixPath.fromPath(Paths.get(unixPath).Resolve(relativePath));
         }
 
         /**

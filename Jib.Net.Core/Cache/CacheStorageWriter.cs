@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.cache
         public static async Task writeMetadataAsync(object jsonTemplate, SystemPath destination)
         {
             destination = destination ?? throw new ArgumentNullException(nameof(destination));
-            using (TemporaryFile temporaryFile = Files.createTempFile(destination.getParent()))
+            using (TemporaryFile temporaryFile = Files.createTempFile(destination.GetParent()))
             {
                 using (Stream outputStream = Files.newOutputStream(temporaryFile.Path))
                 {
@@ -220,16 +220,16 @@ namespace com.google.cloud.tools.jib.cache
             ContainerConfigurationTemplate containerConfiguration)
         {
             manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
-            Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration());
-            Preconditions.checkNotNull(manifestTemplate.getContainerConfiguration().getDigest());
+            Preconditions.CheckNotNull(manifestTemplate.getContainerConfiguration());
+            Preconditions.CheckNotNull(manifestTemplate.getContainerConfiguration().getDigest());
 
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             Files.createDirectories(imageDirectory);
 
-            using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock")))
+            using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
             {
-                await writeMetadataAsync(manifestTemplate, imageDirectory.resolve("manifest.json")).ConfigureAwait(false);
-                await writeMetadataAsync(containerConfiguration, imageDirectory.resolve("config.json")).ConfigureAwait(false);
+                await writeMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
+                await writeMetadataAsync(containerConfiguration, imageDirectory.Resolve("config.json")).ConfigureAwait(false);
             }
         }
 
@@ -244,9 +244,9 @@ namespace com.google.cloud.tools.jib.cache
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
             Files.createDirectories(imageDirectory);
 
-            using (LockFile ignored1 = LockFile.@lock(imageDirectory.resolve("lock")))
+            using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
             {
-                await writeMetadataAsync(manifestTemplate, imageDirectory.resolve("manifest.json")).ConfigureAwait(false);
+                await writeMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
             }
         }
 
@@ -274,7 +274,7 @@ namespace com.google.cloud.tools.jib.cache
                 DescriptorDigest layerDiffId = await getDiffIdByDecompressingFileAsync(temporaryLayerFile.Path).ConfigureAwait(false);
 
                 // Renames the temporary layer file to the correct filename.
-                SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
+                SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
                 temporaryLayerFile.moveIfDoesNotExist( layerFile);
 
             return new WrittenLayer(
@@ -315,7 +315,7 @@ namespace com.google.cloud.tools.jib.cache
                     long layerSize = blobDescriptor.getSize();
 
                     // Renames the temporary layer file to the correct filename.
-                    SystemPath layerFile = layerDirectory.resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
+                    SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.getLayerFilename(layerDiffId));
                 temporaryLayerFile.moveIfDoesNotExist(layerFile);
 
                 return new WrittenLayer(layerDigest, layerDiffId, layerSize);
@@ -335,7 +335,7 @@ namespace com.google.cloud.tools.jib.cache
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
 
             // Creates the selectors directory if it doesn't exist.
-            Files.createDirectories(selectorFile.getParent());
+            Files.createDirectories(selectorFile.GetParent());
 
             // Writes the selector to a temporary file and then moves the file to the intended location.
             using (TemporaryFile temporarySelectorFile = Files.createTempFile())

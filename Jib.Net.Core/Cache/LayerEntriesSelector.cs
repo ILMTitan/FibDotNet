@@ -68,7 +68,7 @@ namespace com.google.cloud.tools.jib.cache
 
             public LayerEntryTemplate(LayerEntry layerEntry)
             {
-                SourceFile = layerEntry.getSourceFile().toAbsolutePath().toString();
+                SourceFile = layerEntry.getSourceFile().ToAbsolutePath().toString();
                 ExtractionPath = layerEntry.getExtractionPath().toString();
                 LastModifiedTime = Files.getLastModifiedTime(layerEntry.getSourceFile());
                 Permissions = layerEntry.getPermissions().toOctalString();

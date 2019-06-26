@@ -41,8 +41,8 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testAddEntryRecursive_defaults()
         {
-            SystemPath testDirectory = Paths.get(TestResources.getResource("core/layer").toURI()).toAbsolutePath();
-            SystemPath testFile = Paths.get(TestResources.getResource("core/fileA").toURI());
+            SystemPath testDirectory = TestResources.getResource("core/layer");
+            SystemPath testFile = TestResources.getResource("core/fileA");
 
             ILayerConfiguration layerConfiguration =
                 LayerConfiguration.builder()
@@ -53,15 +53,15 @@ namespace com.google.cloud.tools.jib.api
             ImmutableHashSet<LayerEntry> expectedLayerEntries =
                 ImmutableHashSet.Create(
                     defaultLayerEntry(testDirectory, AbsoluteUnixPath.get("/app/layer/")),
-                    defaultLayerEntry(testDirectory.resolve("a"), AbsoluteUnixPath.get("/app/layer/a/")),
+                    defaultLayerEntry(testDirectory.Resolve("a"), AbsoluteUnixPath.get("/app/layer/a/")),
                     defaultLayerEntry(
-                        testDirectory.resolve("a/b"), AbsoluteUnixPath.get("/app/layer/a/b/")),
+                        testDirectory.Resolve("a/b"), AbsoluteUnixPath.get("/app/layer/a/b/")),
                     defaultLayerEntry(
-                        testDirectory.resolve("a/b/bar"), AbsoluteUnixPath.get("/app/layer/a/b/bar/")),
-                    defaultLayerEntry(testDirectory.resolve("c/"), AbsoluteUnixPath.get("/app/layer/c")),
+                        testDirectory.Resolve("a/b/bar"), AbsoluteUnixPath.get("/app/layer/a/b/bar/")),
+                    defaultLayerEntry(testDirectory.Resolve("c/"), AbsoluteUnixPath.get("/app/layer/c")),
                     defaultLayerEntry(
-                        testDirectory.resolve("c/cat/"), AbsoluteUnixPath.get("/app/layer/c/cat")),
-                    defaultLayerEntry(testDirectory.resolve("foo"), AbsoluteUnixPath.get("/app/layer/foo")),
+                        testDirectory.Resolve("c/cat/"), AbsoluteUnixPath.get("/app/layer/c/cat")),
+                    defaultLayerEntry(testDirectory.Resolve("foo"), AbsoluteUnixPath.get("/app/layer/foo")),
                     defaultLayerEntry(testFile, AbsoluteUnixPath.get("/app/fileA")));
 
             CollectionAssert.AreEquivalent(
@@ -71,8 +71,8 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testAddEntryRecursive_permissionsAndTimestamps()
         {
-            SystemPath testDirectory = Paths.get(TestResources.getResource("core/layer").toURI()).toAbsolutePath();
-            SystemPath testFile = Paths.get(TestResources.getResource("core/fileA").toURI());
+            SystemPath testDirectory = TestResources.getResource("core/layer");
+            SystemPath testFile = TestResources.getResource("core/fileA");
 
             FilePermissions permissions1 = FilePermissions.fromOctalString("111");
             FilePermissions permissions2 = FilePermissions.fromOctalString("777");
@@ -103,32 +103,32 @@ namespace com.google.cloud.tools.jib.api
                     new LayerEntry(
                         testDirectory, AbsoluteUnixPath.get("/app/layer/"), permissions2, timestamp2),
                     new LayerEntry(
-                        testDirectory.resolve("a"),
+                        testDirectory.Resolve("a"),
                         AbsoluteUnixPath.get("/app/layer/a/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
-                        testDirectory.resolve("a/b"),
+                        testDirectory.Resolve("a/b"),
                         AbsoluteUnixPath.get("/app/layer/a/b/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
-                        testDirectory.resolve("a/b/bar"),
+                        testDirectory.Resolve("a/b/bar"),
                         AbsoluteUnixPath.get("/app/layer/a/b/bar/"),
                         permissions1,
                         timestamp1),
                     new LayerEntry(
-                        testDirectory.resolve("c/"),
+                        testDirectory.Resolve("c/"),
                         AbsoluteUnixPath.get("/app/layer/c"),
                         permissions2,
                         timestamp2),
                     new LayerEntry(
-                        testDirectory.resolve("c/cat/"),
+                        testDirectory.Resolve("c/cat/"),
                         AbsoluteUnixPath.get("/app/layer/c/cat"),
                         permissions2,
                         timestamp2),
                     new LayerEntry(
-                        testDirectory.resolve("foo"),
+                        testDirectory.Resolve("foo"),
                         AbsoluteUnixPath.get("/app/layer/foo"),
                         permissions2,
                         timestamp2),

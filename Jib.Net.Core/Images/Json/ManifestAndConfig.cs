@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public Option<ContainerConfigurationTemplate> getConfig()
         {
-            return Option.ofNullable(config);
+            return Option.OfNullable(config);
         }
     }
 }

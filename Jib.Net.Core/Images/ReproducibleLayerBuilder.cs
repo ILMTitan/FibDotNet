@@ -62,9 +62,9 @@ namespace Jib.Net.Core.Images
                 // Adds all directories along extraction paths to explicitly set permissions for those
                 // directories.
                 SystemPath namePath = Paths.get(tarArchiveEntry.getName());
-                if (namePath.getParent() != namePath.getRoot())
+                if (namePath.GetParent() != namePath.GetRoot())
                 {
-                    TarEntry dir = TarEntry.CreateTarEntry(namePath.getParent().toString().Replace(Path.DirectorySeparatorChar, '/'));
+                    TarEntry dir = TarEntry.CreateTarEntry(namePath.GetParent().toString().Replace(Path.DirectorySeparatorChar, '/'));
                     dir.Name += "/";
                     dir.setModTime(LayerConfiguration.DefaultModifiedTime.toEpochMilli());
                     dir.TarHeader.Mode &= ~(int)PosixFilePermissions.All;

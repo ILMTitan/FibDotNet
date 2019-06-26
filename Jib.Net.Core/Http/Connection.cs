@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.http
                 client = insecureClients.GetOrAdd(url, _ => new HttpClient(insecureHandler)
                 {
                     BaseAddress = url,
-                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
+                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.GetHttpTimeout()),
                 });
             }
             else
@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.http
                 client = clients.GetOrAdd(url, _ => new HttpClient
                 {
                     BaseAddress = url,
-                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.getHttpTimeout()),
+                    Timeout = TimeSpan.FromMilliseconds(JibSystemProperties.GetHttpTimeout()),
                 });
             }
         }

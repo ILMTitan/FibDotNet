@@ -54,12 +54,12 @@ namespace com.google.cloud.tools.jib.docker.json
         public List<string> RepoTags { get; set; } = new List<string> { null };
         public IList<string> Layers { get; } = new List<string>();
 
-        public void setRepoTags(string repoTags)
+        public void SetRepoTags(string repoTags)
         {
             RepoTags = new List<string> { repoTags };
         }
 
-        public void addLayerFile(string layer)
+        public void AddLayerFile(string layer)
         {
             Layers.add(layer);
         }

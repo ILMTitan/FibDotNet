@@ -38,23 +38,23 @@ namespace com.google.cloud.tools.jib.cache
     {
         private static void setupCachedMetadataV21(SystemPath cacheDirectory)
         {
-            SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
+            SystemPath imageDirectory = cacheDirectory.Resolve("images/test/image!tag");
             Files.createDirectories(imageDirectory);
             Files.copy(
-                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI()),
-                imageDirectory.resolve("manifest.json"));
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI()),
+                imageDirectory.Resolve("manifest.json"));
         }
 
         private static void setupCachedMetadataV22(SystemPath cacheDirectory)
         {
-            SystemPath imageDirectory = cacheDirectory.resolve("images/test/image!tag");
+            SystemPath imageDirectory = cacheDirectory.Resolve("images/test/image!tag");
             Files.createDirectories(imageDirectory);
             Files.copy(
-                Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI()),
-                imageDirectory.resolve("manifest.json"));
+                Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI()),
+                imageDirectory.Resolve("manifest.json"));
             Files.copy(
-                Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI()),
-                imageDirectory.resolve("config.json"));
+                Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI()),
+                imageDirectory.Resolve("config.json"));
         }
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -87,8 +87,8 @@ namespace com.google.cloud.tools.jib.cache
             CacheStorageReader cacheStorageReader = new CacheStorageReader(cacheStorageFiles);
 
             // Creates test layer directories.
-            Files.createDirectories(cacheStorageFiles.getLayersDirectory().resolve(layerDigest1.getHash()));
-            Files.createDirectories(cacheStorageFiles.getLayersDirectory().resolve(layerDigest2.getHash()));
+            Files.createDirectories(cacheStorageFiles.getLayersDirectory().Resolve(layerDigest1.getHash()));
+            Files.createDirectories(cacheStorageFiles.getLayersDirectory().Resolve(layerDigest2.getHash()));
 
             // Checks that layer directories created are all listed.
             Assert.AreEqual(
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.cache
                 cacheStorageReader.fetchDigests());
 
             // Checks that non-digest directories means the cache is corrupted.
-            Files.createDirectory(cacheStorageFiles.getLayersDirectory().resolve("not a hash"));
+            Files.createDirectory(cacheStorageFiles.getLayersDirectory().Resolve("not a hash"));
             try
             {
                 cacheStorageReader.fetchDigests();
@@ -123,7 +123,7 @@ namespace com.google.cloud.tools.jib.cache
                 (V21ManifestTemplate)
                     cacheStorageReader
                         .retrieveMetadata(ImageReference.of("test", "image", "tag"))
-                        .get()
+                        .Get()
                         .getManifest();
             Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
         }
@@ -141,7 +141,7 @@ namespace com.google.cloud.tools.jib.cache
                 (V22ManifestTemplate)
                     cacheStorageReader
                         .retrieveMetadata(ImageReference.of("test", "image", "tag"))
-                        .get()
+                        .Get()
                         .getManifest();
             Assert.AreEqual(2, manifestTemplate.getSchemaVersion());
         }
@@ -158,9 +158,9 @@ namespace com.google.cloud.tools.jib.cache
             ContainerConfigurationTemplate configurationTemplate =
                 cacheStorageReader
                     .retrieveMetadata(ImageReference.of("test", "image", "tag"))
-                    .get()
+                    .Get()
                     .getConfig()
-                    .get();
+                    .Get();
             Assert.AreEqual("wasm", configurationTemplate.getArchitecture());
             Assert.AreEqual("js", configurationTemplate.getOs());
         }
@@ -185,11 +185,11 @@ namespace com.google.cloud.tools.jib.cache
 
             // Checks that the CachedLayer is retrieved correctly.
             Option<CachedLayer> optionalCachedLayer = cacheStorageReader.retrieve(layerDigest);
-            Assert.IsTrue(optionalCachedLayer.isPresent());
-            Assert.AreEqual(layerDigest, optionalCachedLayer.get().getDigest());
-            Assert.AreEqual(layerDiffId, optionalCachedLayer.get().getDiffId());
-            Assert.AreEqual("layerBlob".length(), optionalCachedLayer.get().getSize());
-            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(optionalCachedLayer.get().getBlob()).ConfigureAwait(false));
+            Assert.IsTrue(optionalCachedLayer.IsPresent());
+            Assert.AreEqual(layerDigest, optionalCachedLayer.Get().getDigest());
+            Assert.AreEqual(layerDiffId, optionalCachedLayer.Get().getDiffId());
+            Assert.AreEqual("layerBlob".length(), optionalCachedLayer.Get().getSize());
+            Assert.AreEqual("layerBlob", await Blobs.writeToStringAsync(optionalCachedLayer.Get().getBlob()).ConfigureAwait(false));
 
             // Checks that multiple .layer files means the cache is corrupted.
             Files.createFile(cacheStorageFiles.getLayerFile(layerDigest, layerDigest));
@@ -219,7 +219,7 @@ namespace com.google.cloud.tools.jib.cache
 
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
-            Files.createDirectories(selectorFile.getParent());
+            Files.createDirectories(selectorFile.GetParent());
             Files.write(selectorFile, "not a valid layer digest".getBytes(Encoding.UTF8));
 
             try
@@ -248,12 +248,12 @@ namespace com.google.cloud.tools.jib.cache
 
             DescriptorDigest selector = layerDigest1;
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
-            Files.createDirectories(selectorFile.getParent());
+            Files.createDirectories(selectorFile.GetParent());
             Files.write(selectorFile, layerDigest2.getHash().getBytes(Encoding.UTF8));
 
             Option<DescriptorDigest> selectedLayerDigest = cacheStorageReader.select(selector);
-            Assert.IsTrue(selectedLayerDigest.isPresent());
-            Assert.AreEqual(layerDigest2, selectedLayerDigest.get());
+            Assert.IsTrue(selectedLayerDigest.IsPresent());
+            Assert.AreEqual(layerDigest2, selectedLayerDigest.Get());
         }
     }
 }

@@ -58,7 +58,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_v21Async()
         {
-            SystemPath v21ManifestFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
+            SystemPath v21ManifestFile = Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
             Stream v21Manifest = new MemoryStream(Files.readAllBytes(v21ManifestFile));
 
             mockResponse = new HttpResponseMessage
@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task testHandleResponse_v22Async()
         {
-            SystemPath v22ManifestFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
+            SystemPath v22ManifestFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
             Stream v22Manifest = new MemoryStream(Files.readAllBytes(v22ManifestFile));
             mockResponse = new HttpResponseMessage
             {

@@ -29,24 +29,6 @@ namespace Jib.Net.Core.FileSystem
     {
         private readonly string path;
 
-        public static implicit operator SystemPath(AbsoluteUnixPath absolutePath)
-        {
-            if(absolutePath == null)
-            {
-                return null;
-            }
-            if(absolutePath.OriginalRoot == null)
-            {
-                return new SystemPath(absolutePath.ToString());
-            }
-            else
-            {
-                return new SystemPath(Path.Combine(
-                    absolutePath.OriginalRoot.ToString(),
-                    Path.Combine(absolutePath.PathComponents.ToArray())));
-            }
-        }
-
         public static implicit operator string(SystemPath path)
         {
             return path?.path;
@@ -77,7 +59,7 @@ namespace Jib.Net.Core.FileSystem
             }
         }
 
-        public SystemPath resolve(string pathToResolve)
+        public SystemPath Resolve(string pathToResolve)
         {
             if (string.IsNullOrEmpty(pathToResolve))
             {
@@ -90,7 +72,7 @@ namespace Jib.Net.Core.FileSystem
             return new SystemPath(Path.Combine(path,pathToResolve));
         }
 
-        internal SystemPath getRoot()
+        internal SystemPath GetRoot()
         {
             if (Path.IsPathRooted(path))
             {
@@ -117,24 +99,24 @@ namespace Jib.Net.Core.FileSystem
                 .GetEnumerator();
         }
 
-        internal DirectoryInfo toDirectory()
+        internal DirectoryInfo ToDirectory()
         {
             return new DirectoryInfo(path);
         }
 
-        public SystemPath resolve(SystemPath relativePath)
+        public SystemPath Resolve(SystemPath relativePath)
         {
             relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
             return new SystemPath(Path.Combine(path, relativePath.path));
         }
 
-        internal SystemPath relativize(SystemPath path)
+        internal SystemPath Relativize(SystemPath path)
         {
-            Uri relativeUri = new Uri(this.path +Path.DirectorySeparatorChar).MakeRelativeUri(path.toURI());
+            Uri relativeUri = new Uri(this.path +Path.DirectorySeparatorChar).MakeRelativeUri(path.ToURI());
             return new SystemPath(relativeUri.ToString());
         }
 
-        public SystemPath getParent()
+        public SystemPath GetParent()
         {
             if (Path.GetPathRoot(path) == path)
             {
@@ -155,12 +137,12 @@ namespace Jib.Net.Core.FileSystem
             }
         }
 
-        public Uri toURI()
+        public Uri ToURI()
         {
             return new Uri(path);
         }
 
-        internal FileInfo toFile()
+        internal FileInfo ToFile()
         {
             return new FileInfo(path);
         }
@@ -170,12 +152,12 @@ namespace Jib.Net.Core.FileSystem
             return path;
         }
 
-        public RelativeUnixPath getFileName()
+        public RelativeUnixPath GetFileName()
         {
             return RelativeUnixPath.get(Path.GetFileName(path));
         }
 
-        internal AbsoluteUnixPath toAbsolutePath()
+        internal AbsoluteUnixPath ToAbsolutePath()
         {
             return AbsoluteUnixPath.fromPath(this);
         }

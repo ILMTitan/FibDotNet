@@ -68,15 +68,15 @@ namespace Jib.Net.Core.Images.Json
             Image.Builder imageBuilder = Image.builder(ManifestFormat.V21);
 
             // V21 layers are in reverse order of V22. (The first layer is the latest one.)
-            foreach (DescriptorDigest digest in manifestTemplate.getLayerDigests().reverse())
+            foreach (DescriptorDigest digest in manifestTemplate.GetLayerDigests().reverse())
             {
                 imageBuilder.addLayer(new DigestOnlyLayer(digest));
             }
 
-            if (manifestTemplate.getContainerConfiguration().isPresent())
+            if (manifestTemplate.GetContainerConfiguration().IsPresent())
             {
                 configureBuilderWithContainerConfiguration(
-                    imageBuilder, manifestTemplate.getContainerConfiguration().get());
+                    imageBuilder, manifestTemplate.GetContainerConfiguration().Get());
             }
             return imageBuilder.build();
         }

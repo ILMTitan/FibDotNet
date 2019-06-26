@@ -24,7 +24,7 @@ namespace com.google.cloud.tools.jib.configuration
 {
     public class EventHandlers : IEventHandlers
     {
-        public static EventHandlers NONE = new Builder().build();
+        public static readonly EventHandlers NONE = new Builder().build();
         private ImmutableArray<Action<IJibEvent>> handlers;
 
         public EventHandlers(ImmutableArray<Action<IJibEvent>> handlers)
@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.configuration
             this.handlers = handlers;
         }
 
-        public void dispatch(IJibEvent @event)
+        public void Dispatch(IJibEvent @event)
         {
             foreach (var handler in handlers)
             {

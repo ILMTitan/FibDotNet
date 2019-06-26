@@ -14,12 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.@event.events;
 using Jib.Net.Core.Api;
 using System;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Handles {@link ProgressEvent}s by accumulating an overall progress and keeping track of which
@@ -49,7 +48,7 @@ namespace com.google.cloud.tools.jib.@event.progress
              *
              * @return the overall progress
              */
-            public double getProgress()
+            public double GetProgress()
             {
                 return progress;
             }
@@ -60,7 +59,7 @@ namespace com.google.cloud.tools.jib.@event.progress
              *
              * @return a list of unfinished "leaf" tasks
              */
-            public ImmutableArray<string> getUnfinishedLeafTasks()
+            public ImmutableArray<string> GetUnfinishedLeafTasks()
             {
                 return unfinishedLeafTasks;
             }
@@ -84,22 +83,22 @@ namespace com.google.cloud.tools.jib.@event.progress
             this.updateNotifier = updateNotifier;
         }
 
-        public void accept(ProgressEvent progressEvent)
+        public void Accept(ProgressEvent progressEvent)
         {
             progressEvent = progressEvent ?? throw new ArgumentNullException(nameof(progressEvent));
-            Allocation allocation = progressEvent.getAllocation();
-            long progressUnits = progressEvent.getUnits();
-            double allocationFraction = allocation.getFractionOfRoot();
+            Allocation allocation = progressEvent.GetAllocation();
+            long progressUnits = progressEvent.GetUnits();
+            double allocationFraction = allocation.GetFractionOfRoot();
 
             if (progressUnits != 0)
             {
-                progress.add(progressUnits * allocationFraction);
+                progress.Add(progressUnits * allocationFraction);
             }
 
-            if (completionTracker.updateProgress(allocation, progressUnits))
+            if (completionTracker.UpdateProgress(allocation, progressUnits))
             {
                 // Note: Could produce false positives.
-                updateNotifier(new Update(progress.sum(), completionTracker.getUnfinishedLeafTasks()));
+                updateNotifier(new Update(progress.Sum(), completionTracker.GetUnfinishedLeafTasks()));
             }
         }
 

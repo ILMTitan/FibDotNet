@@ -33,9 +33,9 @@ namespace com.google.cloud.tools.jib.api
          * @throws InvalidImageReferenceException if the {@code baseImageReference} is not a valid image
          *     reference
          */
-        public static JibContainerBuilder from(string baseImageReference)
+        public static JibContainerBuilder From(string baseImageReference)
         {
-            return from(RegistryImage.named(baseImageReference));
+            return From(RegistryImage.named(baseImageReference));
         }
 
         /**
@@ -45,9 +45,9 @@ namespace com.google.cloud.tools.jib.api
          * @param baseImageReference the base image reference
          * @return a new {@link JibContainerBuilder} to continue building the container
          */
-        public static JibContainerBuilder from(ImageReference baseImageReference)
+        public static JibContainerBuilder From(ImageReference baseImageReference)
         {
-            return from(RegistryImage.named(baseImageReference));
+            return From(RegistryImage.named(baseImageReference));
         }
 
         /**
@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.api
          *     credentials
          * @return a new {@link JibContainerBuilder} to continue building the container
          */
-        public static JibContainerBuilder from(RegistryImage registryImage)
+        public static JibContainerBuilder From(RegistryImage registryImage)
         {
             return new JibContainerBuilder(registryImage);
         }
@@ -67,9 +67,9 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return a new {@link JibContainerBuilder} to continue building the container
          */
-        public static JibContainerBuilder fromScratch()
+        public static JibContainerBuilder FromScratch()
         {
-            return from(ImageReference.scratch());
+            return From(ImageReference.scratch());
         }
 
         private Jib() { }

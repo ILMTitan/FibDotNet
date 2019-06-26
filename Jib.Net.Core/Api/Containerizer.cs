@@ -36,7 +36,7 @@ namespace Jib.Net.Core.Api
          * home]/google-cloud-tools-java/jib}.
          */
         public static readonly SystemPath DefaultBaseCacheDirectory =
-            UserCacheHome.getCacheHome(SystemEnvironment.Instance).resolve("google-cloud-tools-java").resolve("jib");
+            UserCacheHome.getCacheHome(SystemEnvironment.Instance).Resolve("google-cloud-tools-java").Resolve("jib");
 
         private const string DEFAULT_TOOL_NAME = "jib-core";
 
@@ -51,7 +51,7 @@ namespace Jib.Net.Core.Api
          *     credentials
          * @return a new {@link Containerizer}
          */
-        public static Containerizer to(RegistryImage registryImage)
+        public static Containerizer To(RegistryImage registryImage)
         {
             registryImage = registryImage ?? throw new ArgumentNullException(nameof(registryImage));
             ImageConfiguration imageConfiguration =
@@ -82,14 +82,14 @@ namespace Jib.Net.Core.Api
          * @param dockerDaemonImage the {@link DockerDaemonImage} that defines target Docker daemon
          * @return a new {@link Containerizer}
          */
-        public static Containerizer to(DockerDaemonImage dockerDaemonImage)
+        public static Containerizer To(DockerDaemonImage dockerDaemonImage)
         {
             dockerDaemonImage = dockerDaemonImage ?? throw new ArgumentNullException(nameof(dockerDaemonImage));
             ImageConfiguration imageConfiguration =
                 ImageConfiguration.builder(dockerDaemonImage.getImageReference()).build();
 
             DockerClient.Builder dockerClientBuilder = DockerClient.builder();
-            dockerDaemonImage.getDockerExecutable().ifPresent(dockerClientBuilder.setDockerExecutable);
+            dockerDaemonImage.getDockerExecutable().IfPresent(dockerClientBuilder.setDockerExecutable);
             dockerClientBuilder.setDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.getDockerEnvironment()));
 
             return new Containerizer(
@@ -110,7 +110,7 @@ namespace Jib.Net.Core.Api
          * @param tarImage the {@link TarImage} that defines target output file
          * @return a new {@link Containerizer}
          */
-        public static Containerizer to(TarImage tarImage)
+        public static Containerizer To(TarImage tarImage)
         {
             tarImage = tarImage ?? throw new ArgumentNullException(nameof(tarImage));
             ImageConfiguration imageConfiguration =
@@ -169,7 +169,7 @@ namespace Jib.Net.Core.Api
          */
         public Containerizer withAdditionalTag(string tag)
         {
-            Preconditions.checkArgument(ImageReference.isValidTag(tag), "invalid tag '{0}'", tag);
+            Preconditions.CheckArgument(ImageReference.isValidTag(tag), "invalid tag '{0}'", tag);
             additionalTags.add(tag);
             return this;
         }
@@ -205,7 +205,7 @@ namespace Jib.Net.Core.Api
 
         public Containerizer addEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
         {
-            return addEventHandler(je =>
+            return AddEventHandler(je =>
             {
                 if (je is T te)
                 {
@@ -221,7 +221,7 @@ namespace Jib.Net.Core.Api
          * @param eventConsumer the event handler
          * @return this
          */
-        private Containerizer addEventHandler(Action<IJibEvent> eventConsumer)
+        private Containerizer AddEventHandler(Action<IJibEvent> eventConsumer)
         {
             JibEvents += eventConsumer;
             return this;

@@ -96,8 +96,8 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public async System.Threading.Tasks.Task testBuildAsync()
         {
-            SystemPath layerDirectory = Paths.get(TestResources.getResource("core/layer").toURI());
-            SystemPath blobA = Paths.get(TestResources.getResource("core/blobA").toURI());
+            SystemPath layerDirectory = Paths.get(TestResources.getResource("core/layer").ToURI());
+            SystemPath blobA = Paths.get(TestResources.getResource("core/blobA").ToURI());
 
             ReproducibleLayerBuilder layerBuilder =
                 new ReproducibleLayerBuilder(
@@ -132,16 +132,16 @@ namespace com.google.cloud.tools.jib.image
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/a/b/bar",
-                    Paths.get(TestResources.getResource("core/layer/a/b/bar").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/a/b/bar").ToURI()));
                 verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/apple/layer/c/");
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/c/cat",
-                    Paths.get(TestResources.getResource("core/layer/c/cat").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/c/cat").ToURI()));
                 verifyNextTarArchiveEntry(
                     tarArchiveInputStream,
                     "extract/here/apple/layer/foo",
-                    Paths.get(TestResources.getResource("core/layer/foo").toURI()));
+                    Paths.get(TestResources.getResource("core/layer/foo").ToURI()));
                 verifyNextTarArchiveEntryIsDirectory(tarArchiveInputStream, "extract/here/banana/");
                 verifyNextTarArchiveEntry(tarArchiveInputStream, "extract/here/banana/blobA", blobA);
             }
@@ -151,8 +151,8 @@ namespace com.google.cloud.tools.jib.image
         public async System.Threading.Tasks.Task testToBlob_reproducibilityAsync()
         {
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
-            SystemPath root1 = Files.createDirectories(testRoot.resolve("files1"));
-            SystemPath root2 = Files.createDirectories(testRoot.resolve("files2"));
+            SystemPath root1 = Files.createDirectories(testRoot.Resolve("files1"));
+            SystemPath root2 = Files.createDirectories(testRoot.Resolve("files2"));
 
             // TODO: Currently this test only covers variation in order and modified time, even though
             // TODO: the code is designed to clean up userid/groupid, this test does not check that yet.
@@ -193,12 +193,12 @@ namespace com.google.cloud.tools.jib.image
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
 
             // the path doesn't really matter on source files, but these are structured
-            SystemPath parent = Files.createDirectories(testRoot.resolve("aaa"));
-            SystemPath fileA = Files.createFile(parent.resolve("fileA"));
-            SystemPath ignoredParent = Files.createDirectories(testRoot.resolve("bbb-ignored"));
-            SystemPath fileB = Files.createFile(ignoredParent.resolve("fileB"));
+            SystemPath parent = Files.createDirectories(testRoot.Resolve("aaa"));
+            SystemPath fileA = Files.createFile(parent.Resolve("fileA"));
+            SystemPath ignoredParent = Files.createDirectories(testRoot.Resolve("bbb-ignored"));
+            SystemPath fileB = Files.createFile(ignoredParent.Resolve("fileB"));
             SystemPath fileC =
-                Files.createFile(Files.createDirectories(testRoot.resolve("ccc-absent")).resolve("fileC"));
+                Files.createFile(Files.createDirectories(testRoot.Resolve("ccc-absent")).Resolve("fileC"));
 
             IBlob layer =
                 new ReproducibleLayerBuilder(
@@ -328,7 +328,7 @@ namespace com.google.cloud.tools.jib.image
         public async System.Threading.Tasks.Task testBuild_permissionsAsync()
         {
             SystemPath testRoot = temporaryFolder.getRoot().toPath();
-            SystemPath folder = Files.createDirectories(testRoot.resolve("files1"));
+            SystemPath folder = Files.createDirectories(testRoot.Resolve("files1"));
             SystemPath fileA = createFile(testRoot, "fileA", "abc", 54321);
             SystemPath fileB = createFile(testRoot, "fileB", "def", 54321);
 
@@ -375,7 +375,7 @@ namespace com.google.cloud.tools.jib.image
         {
             SystemPath newFile =
                 Files.write(
-                    root.resolve(filename),
+                    root.Resolve(filename),
                     content.getBytes(Encoding.UTF8));
             Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModifiedTime));
             return newFile;

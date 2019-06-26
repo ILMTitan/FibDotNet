@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.json;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
@@ -51,9 +52,9 @@ namespace com.google.cloud.tools.jib.image.json
          *     values, or {@code null} if {@code exposedPorts} is {@code null}
          */
 
-        public static IDictionary<string, IDictionary<object, object>> portSetToMap(ISet<Port> exposedPorts)
+        public static IDictionary<string, IDictionary<object, object>> PortSetToMap(ISet<Port> exposedPorts)
         {
-            return setToMap(exposedPorts, port => port.getPort() + "/" + port.getProtocol());
+            return SetToMap(exposedPorts, port => port.getPort() + "/" + port.getProtocol());
         }
 
         /**
@@ -66,9 +67,9 @@ namespace com.google.cloud.tools.jib.image.json
          *     values, or {@code null} if {@code exposedPorts} is {@code null}
          */
 
-        public static ImmutableSortedDictionary<string, IDictionary<object, object>> volumesSetToMap(ISet<AbsoluteUnixPath> volumes)
+        public static ImmutableSortedDictionary<string, IDictionary<object, object>> VolumesSetToMap(ISet<AbsoluteUnixPath> volumes)
         {
-            return setToMap(volumes, p => p.toString());
+            return SetToMap(volumes, p => p.toString());
         }
 
         /**
@@ -77,13 +78,13 @@ namespace com.google.cloud.tools.jib.image.json
          * @return the list
          */
 
-        public static ImmutableArray<string> environmentMapToList(IDictionary<string, string> environment)
+        public static ImmutableArray<string> EnvironmentMapToList(IDictionary<string, string> environment)
         {
             if (environment == null)
             {
                 return ImmutableArray<string>.Empty;
             }
-            Preconditions.checkArgument(
+            Preconditions.CheckArgument(
                 environment.keySet().stream().noneMatch(key => key.contains("=")),
                 "Illegal environment variable: name cannot contain '='");
             return environment
@@ -110,7 +111,7 @@ namespace com.google.cloud.tools.jib.image.json
          * @param <E> the type of the elements from the set
          * @return an map
          */
-        private static ImmutableSortedDictionary<string, IDictionary<object, object>> setToMap<E>(
+        private static ImmutableSortedDictionary<string, IDictionary<object, object>> SetToMap<E>(
             ISet<E> set, Func<E, string> keyMapper)
         {
             if (set == null)
@@ -139,7 +140,7 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return the container configuration {@link Blob}
          */
-        public ContainerConfigurationTemplate getContainerConfiguration()
+        public ContainerConfigurationTemplate GetContainerConfiguration()
         {
             // ISet up the JSON template.
             ContainerConfigurationTemplate template = new ContainerConfigurationTemplate();
@@ -159,11 +160,11 @@ namespace com.google.cloud.tools.jib.image.json
             template.setCreated(image.getCreated()?.toString());
             template.setArchitecture(image.getArchitecture());
             template.setOs(image.getOs());
-            template.setContainerEnvironment(environmentMapToList(image.getEnvironment()));
+            template.setContainerEnvironment(EnvironmentMapToList(image.getEnvironment()));
             template.setContainerEntrypoint(image.getEntrypoint());
             template.setContainerCmd(image.getProgramArguments());
-            template.setContainerExposedPorts(portSetToMap(image.getExposedPorts()));
-            template.setContainerVolumes(volumesSetToMap(image.getVolumes()));
+            template.setContainerExposedPorts(PortSetToMap(image.getExposedPorts()));
+            template.setContainerVolumes(VolumesSetToMap(image.getVolumes()));
             template.setContainerLabels(image.getLabels());
             template.setContainerWorkingDir(image.getWorkingDirectory());
             template.setContainerUser(image.getUser());
@@ -175,15 +176,15 @@ namespace com.google.cloud.tools.jib.image.json
                 template.setContainerHealthCheckTest(healthCheck.getCommand());
                 healthCheck
                     .getInterval()
-                    .ifPresent(interval => template.setContainerHealthCheckInterval(interval.toNanos()));
+                    .IfPresent(interval => template.setContainerHealthCheckInterval(interval.toNanos()));
                 healthCheck
                     .getTimeout()
-                    .ifPresent(timeout => template.setContainerHealthCheckTimeout(timeout.toNanos()));
+                    .IfPresent(timeout => template.setContainerHealthCheckTimeout(timeout.toNanos()));
                 healthCheck
                     .getStartPeriod()
-                    .ifPresent(
+                    .IfPresent(
                         startPeriod => template.setContainerHealthCheckStartPeriod(startPeriod.toNanos()));
-                template.setContainerHealthCheckRetries(healthCheck.getRetries().asNullable());
+                template.setContainerHealthCheckRetries(healthCheck.getRetries().AsNullable());
             }
 
             return template;
@@ -199,7 +200,7 @@ namespace com.google.cloud.tools.jib.image.json
          * @param containerConfigurationBlobDescriptor the container configuration descriptor.
          * @return the image contents serialized as JSON.
          */
-        public IBuildableManifestTemplate getManifestTemplate(
+        public IBuildableManifestTemplate GetManifestTemplate(
             ManifestFormat manifestFormat, BlobDescriptor containerConfigurationBlobDescriptor)
         {
             containerConfigurationBlobDescriptor =

@@ -17,9 +17,9 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.events;
 using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
@@ -39,23 +39,23 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration =
                 makeFakeBuildConfiguration(
                     Arrays.asList<CredentialRetriever>(
-                        Option.empty<Credential>,
-                        () => Option.of(Credential.from("baseusername", "basepassword"))),
+                        Option.Empty<Credential>,
+                        () => Option.Of(Credential.from("baseusername", "basepassword"))),
                     Arrays.asList<CredentialRetriever>(
-                        () => Option.of(Credential.from("targetusername", "targetpassword")),
-                        () => Option.of(Credential.from("ignored", "ignored"))));
+                        () => Option.Of(Credential.from("targetusername", "targetpassword")),
+                        () => Option.Of(Credential.from("ignored", "ignored"))));
 
             Assert.AreEqual(
                 Credential.from("baseusername", "basepassword"),
                 RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
-                        ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
+                        ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
                     .call());
             Assert.AreEqual(
                 Credential.from("targetusername", "targetpassword"),
                 RetrieveRegistryCredentialsStep.forTargetImage(
                         buildConfiguration,
-                        ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
+                        ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
                     .call());
         }
 
@@ -64,24 +64,24 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             BuildConfiguration buildConfiguration =
                 makeFakeBuildConfiguration(
-                    Arrays.asList<CredentialRetriever>(Option.empty<Credential>, Option.empty<Credential>),
+                    Arrays.asList<CredentialRetriever>(Option.Empty<Credential>, Option.Empty<Credential>),
                     new List<CredentialRetriever>());
             Assert.IsNull(
                 RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
-                        ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
+                        ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
                     .call());
 
-            Mock.Get(mockEventHandlers).Verify(e => e.dispatch(It.IsAny<ProgressEvent>()), Times.AtLeastOnce);
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
+            Mock.Get(mockEventHandlers).Verify(e => e.Dispatch(It.IsAny<ProgressEvent>()), Times.AtLeastOnce);
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
 
             Assert.IsNull(
                 RetrieveRegistryCredentialsStep.forTargetImage(
                         buildConfiguration,
-                        ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
+                        ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
                     .call());
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.info("No credentials could be retrieved for registry baseregistry")));
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 await RetrieveRegistryCredentialsStep.forBaseImage(
                         buildConfiguration,
-                        ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer())
+                        ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer())
                     .getFuture().ConfigureAwait(false);
                 Assert.Fail("Should have thrown exception");
             }

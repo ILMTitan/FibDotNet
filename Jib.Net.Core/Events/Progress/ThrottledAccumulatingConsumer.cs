@@ -20,7 +20,7 @@ using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Wraps a {@code Consumer<Long>} so that multiple consume calls ({@link #accept}) within a short
@@ -28,15 +28,6 @@ namespace com.google.cloud.tools.jib.@event.progress
      */
     public sealed class ThrottledAccumulatingConsumer : IDisposable
     {
-        public static implicit operator Action<long>(ThrottledAccumulatingConsumer c)
-        {
-            if(c is null)
-            {
-                return _ => { };
-            }
-            return c.accept;
-        }
-
         private readonly Action<long> consumer;
 
         /** Delay between each call to the underlying {@link #accept}. */
@@ -69,7 +60,7 @@ namespace com.google.cloud.tools.jib.@event.progress
             previousCallback = getNow.get();
         }
 
-        public void accept(long value)
+        public void Accept(long value)
         {
             valueSoFar += value;
 

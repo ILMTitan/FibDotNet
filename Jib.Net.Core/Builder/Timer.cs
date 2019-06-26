@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.builder
 
         public Option<TimerEvent.ITimer> getParent()
         {
-            return Option.ofNullable<TimerEvent.ITimer>(parentTimer);
+            return Option.OfNullable<TimerEvent.ITimer>(parentTimer);
         }
 
         /**

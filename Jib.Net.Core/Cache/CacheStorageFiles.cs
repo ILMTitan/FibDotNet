@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public static bool isLayerFile(SystemPath file)
         {
-            return file?.getFileName().toString().length() == DescriptorDigest.HashLength;
+            return file?.GetFileName().toString().length() == DescriptorDigest.HashLength;
         }
 
         private readonly SystemPath cacheDirectory;
@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.cache
             {
 
                 layerFile = layerFile ?? throw new ArgumentNullException(nameof(layerFile));
-                string diffId = layerFile.getFileName().toString();
+                string diffId = layerFile.GetFileName().toString();
                 return DescriptorDigest.fromHash(diffId);
             }
             catch (Exception ex) when (ex is DigestException || ex is IndexOutOfRangeException)
@@ -93,7 +93,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getLayerFile(DescriptorDigest layerDigest, DescriptorDigest layerDiffId)
         {
-            return getLayerDirectory(layerDigest).resolve(getLayerFilename(layerDiffId));
+            return getLayerDirectory(layerDigest).Resolve(getLayerFilename(layerDiffId));
         }
 
         /**
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.cache
         {
 
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            return cacheDirectory.resolve(SELECTORS_DIRECTORY).resolve(selector.getHash());
+            return cacheDirectory.Resolve(SELECTORS_DIRECTORY).Resolve(selector.getHash());
         }
 
         /**
@@ -130,7 +130,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getLayersDirectory()
         {
-            return cacheDirectory.resolve(LAYERS_DIRECTORY);
+            return cacheDirectory.Resolve(LAYERS_DIRECTORY);
         }
 
         /**
@@ -143,7 +143,7 @@ namespace com.google.cloud.tools.jib.cache
         {
 
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
-            return getLayersDirectory().resolve(layerDigest.getHash());
+            return getLayersDirectory().Resolve(layerDigest.getHash());
         }
 
         /**
@@ -153,7 +153,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getImagesDirectory()
         {
-            return cacheDirectory.resolve(IMAGES_DIRECTORY);
+            return cacheDirectory.Resolve(IMAGES_DIRECTORY);
         }
 
         /**
@@ -175,7 +175,7 @@ namespace com.google.cloud.tools.jib.cache
             SystemPath destination = getImagesDirectory();
             foreach (string dir in directories)
             {
-                destination = destination.resolve(dir);
+                destination = destination.Resolve(dir);
             }
             return destination;
         }
@@ -187,7 +187,7 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath getTemporaryDirectory()
         {
-            return cacheDirectory.resolve(TEMPORARY_DIRECTORY);
+            return cacheDirectory.Resolve(TEMPORARY_DIRECTORY);
         }
 
         /**
@@ -200,7 +200,7 @@ namespace com.google.cloud.tools.jib.cache
         {
 
             layerDirectory = layerDirectory ?? throw new ArgumentNullException(nameof(layerDirectory));
-            return new TemporaryFile(layerDirectory.resolve(TEMPORARY_LAYER_FILE_NAME));
+            return new TemporaryFile(layerDirectory.Resolve(TEMPORARY_LAYER_FILE_NAME));
         }
     }
 }

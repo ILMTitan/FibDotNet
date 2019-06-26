@@ -40,11 +40,11 @@ namespace com.google.cloud.tools.jib.builder.steps
         public static async Task<BuildResult> fromImageAsync(Image image, ManifestFormat targetFormat)
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
-            ContainerConfigurationTemplate configurationTemplate = imageToJsonTranslator.getContainerConfiguration();
+            ContainerConfigurationTemplate configurationTemplate = imageToJsonTranslator.GetContainerConfiguration();
             BlobDescriptor containerConfigurationBlobDescriptor = 
                 await Digests.computeJsonDescriptorAsync(configurationTemplate).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
-                imageToJsonTranslator.getManifestTemplate(
+                imageToJsonTranslator.GetManifestTemplate(
                     targetFormat, containerConfigurationBlobDescriptor);
             DescriptorDigest imageDigest = 
                 await Digests.computeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);

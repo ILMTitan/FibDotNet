@@ -15,9 +15,8 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.@event.progress;
 
-namespace com.google.cloud.tools.jib.@event.events
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Event representing progress. The progress accounts for allocation units in an {@link Allocation},
@@ -47,7 +46,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return the {@link Allocation}
          */
-        public Allocation getAllocation()
+        public Allocation GetAllocation()
         {
             return allocation;
         }
@@ -58,7 +57,7 @@ namespace com.google.cloud.tools.jib.@event.events
          *
          * @return units of allocation
          */
-        public long getUnits()
+        public long GetUnits()
         {
             return progressUnits;
         }

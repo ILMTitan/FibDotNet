@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry
                 await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
             Assert.AreEqual(1, manifestTemplate.getSchemaVersion());
-            Assert.IsTrue(manifestTemplate.getFsLayers().size() > 0);
+            Assert.IsTrue(manifestTemplate.FsLayers.size() > 0);
         }
 
         [Test]

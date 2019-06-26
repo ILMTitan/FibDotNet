@@ -121,11 +121,11 @@ namespace com.google.cloud.tools.jib.image.json
             setUp(ManifestFormat.V22);
 
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
             string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the container configuration and writes the JSON string.
-            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
+            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.GetContainerConfiguration();
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(containerConfiguration));
         }
@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.image.json
                     ["1000/tcp"] = ImmutableDictionary.Create<object, object>(),
                     ["2000/udp"] = ImmutableDictionary.Create<object, object>()
                 }.ToImmutableSortedDictionary();
-            Assert.AreEqual(expected, ImageToJsonTranslator.portSetToMap(input));
+            Assert.AreEqual(expected, ImageToJsonTranslator.PortSetToMap(input));
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace com.google.cloud.tools.jib.image.json
                     ["/var/job-result-data"] = ImmutableDictionary.Create<object, object>(),
                     ["/var/log/my-app-logs"] = ImmutableDictionary.Create<object, object>()
                 }.ToImmutableSortedDictionary();
-            Assert.AreEqual(expected, ImageToJsonTranslator.volumesSetToMap(input));
+            Assert.AreEqual(expected, ImageToJsonTranslator.VolumesSetToMap(input));
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             ImmutableDictionary<string, string> input = ImmutableDic.of("NAME1", "VALUE1", "NAME2", "VALUE2");
             ImmutableArray<string> expected = ImmutableArray.Create("NAME1=VALUE1", "NAME2=VALUE2");
-            CollectionAssert.AreEqual(expected, ImageToJsonTranslator.environmentMapToList(input));
+            CollectionAssert.AreEqual(expected, ImageToJsonTranslator.EnvironmentMapToList(input));
         }
 
         /** Tests translation of image to {@link BuildableManifestTemplate}. */
@@ -186,14 +186,14 @@ namespace com.google.cloud.tools.jib.image.json
             ManifestFormat manifestTemplateClass, string translatedJsonFilename)
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource(translatedJsonFilename).toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource(translatedJsonFilename).ToURI());
             string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Translates the image to the manifest and writes the JSON string.
-            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.getContainerConfiguration();
+            ContainerConfigurationTemplate containerConfiguration = imageToJsonTranslator.GetContainerConfiguration();
             BlobDescriptor blobDescriptor = await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
-                imageToJsonTranslator.getManifestTemplate(manifestTemplateClass, blobDescriptor);
+                imageToJsonTranslator.GetManifestTemplate(manifestTemplateClass, blobDescriptor);
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(manifestTemplate));
         }

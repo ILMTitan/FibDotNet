@@ -111,7 +111,7 @@ namespace com.google.cloud.tools.jib.cache
         public async Task testWriteMetadata_v21Async()
         {
             SystemPath manifestJsonFile =
-                Paths.get(TestResources.getResource("core/json/v21manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v21manifest.json").ToURI());
             V21ManifestTemplate manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
@@ -119,12 +119,12 @@ namespace com.google.cloud.tools.jib.cache
             await new CacheStorageWriter(cacheStorageFiles).writeMetadataAsync(imageReference, manifestTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
-                cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");
+                cacheRoot.Resolve("images/image.reference/project/thing!tag/manifest.json");
             Assert.IsTrue(Files.exists(savedManifestPath));
 
             V21ManifestTemplate savedManifest =
                 JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(savedManifestPath);
-            Assert.AreEqual("amd64", savedManifest.getContainerConfiguration().get().getArchitecture());
+            Assert.AreEqual("amd64", savedManifest.GetContainerConfiguration().Get().getArchitecture());
         }
 
         [Test]
@@ -132,12 +132,12 @@ namespace com.google.cloud.tools.jib.cache
         {
             SystemPath containerConfigurationJsonFile =
                 Paths.get(
-                    TestResources.getResource("core/json/containerconfig.json").toURI());
+                    TestResources.getResource("core/json/containerconfig.json").ToURI());
             ContainerConfigurationTemplate containerConfigurationTemplate =
                 JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(
                     containerConfigurationJsonFile);
             SystemPath manifestJsonFile =
-                Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
+                Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
             IBuildableManifestTemplate manifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(manifestJsonFile);
             ImageReference imageReference = ImageReference.parse("image.reference/project/thing:tag");
@@ -146,9 +146,9 @@ namespace com.google.cloud.tools.jib.cache
                 .writeMetadataAsync(imageReference, manifestTemplate, containerConfigurationTemplate).ConfigureAwait(false);
 
             SystemPath savedManifestPath =
-                cacheRoot.resolve("images/image.reference/project/thing!tag/manifest.json");
+                cacheRoot.Resolve("images/image.reference/project/thing!tag/manifest.json");
             SystemPath savedConfigPath =
-                cacheRoot.resolve("images/image.reference/project/thing!tag/config.json");
+                cacheRoot.Resolve("images/image.reference/project/thing!tag/config.json");
             Assert.IsTrue(Files.exists(savedManifestPath));
             Assert.IsTrue(Files.exists(savedConfigPath));
 

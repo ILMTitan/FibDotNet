@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         public async Task<ICachedLayer> callAsync()
         {
             using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create("checking base image layer " + layerDigest, 1))
+                    progressEventDispatcherFactory.Create("checking base image layer " + layerDigest, 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
                         buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
@@ -72,9 +72,9 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 // Checks if the layer already exists in the cache.
                 Option<CachedLayer> optionalCachedLayer = cache.retrieve(layerDigest);
-                if (optionalCachedLayer.isPresent())
+                if (optionalCachedLayer.IsPresent())
                 {
-                    return optionalCachedLayer.get();
+                    return optionalCachedLayer.Get();
                 }
                 else if (buildConfiguration.isOffline())
                 {
@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
                 using (ThrottledProgressEventDispatcherWrapper progressEventDispatcherWrapper =
                     new ThrottledProgressEventDispatcherWrapper(
-                        progressEventDispatcher.newChildProducer(),
+                        progressEventDispatcher.NewChildProducer(),
                         "pulling base image layer " + layerDigest))
                 {
                     return await cache.writeCompressedLayerAsync(

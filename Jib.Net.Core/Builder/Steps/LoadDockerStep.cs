@@ -73,9 +73,9 @@ namespace Jib.Net.Core.Builder.Steps
             await buildImageStep.getFuture().ConfigureAwait(false);
             buildConfiguration
                 .getEventHandlers()
-                .dispatch(LogEvent.progress(Resources.LoadDockerStepDescription));
+                .Dispatch(LogEvent.progress(Resources.LoadDockerStepDescription));
 
-            using (progressEventDispatcherFactory.create(Resources.LoadDockerStepDescription, 1))
+            using (progressEventDispatcherFactory.Create(Resources.LoadDockerStepDescription, 1))
             {
                 Image image = await buildImageStep.getFuture().ConfigureAwait(false);
                 IImageReference targetImageReference =
@@ -84,7 +84,7 @@ namespace Jib.Net.Core.Builder.Steps
                 // Load the image to docker daemon.
                 buildConfiguration
                     .getEventHandlers()
-                    .dispatch(
+                    .Dispatch(
                         LogEvent.debug(await dockerClient.loadAsync(new ImageTarball(image, targetImageReference)).ConfigureAwait(false)));
 
                 // Tags the image with all the additional tags, skipping the one 'docker load' already loaded.

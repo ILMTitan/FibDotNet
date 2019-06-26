@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using Iesi.Collections.Generic;
+using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Concurrent;
@@ -23,7 +24,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.@event.progress
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Keeps track of the progress for {@link Allocation}s as well as their order in which they appear.
@@ -42,7 +43,7 @@ namespace com.google.cloud.tools.jib.@event.progress
             private static readonly AtomicInteger currentIndex = new AtomicInteger();
 
             /** The creation order that monotonically increases. */
-            private readonly int index = currentIndex.getAndIncrement();
+            private readonly int index = currentIndex.GetAndIncrement();
 
             /**
              * Remaining progress units until completion. This can be shared across multiple threads and
@@ -55,12 +56,12 @@ namespace com.google.cloud.tools.jib.@event.progress
             public IndexedRemainingUnits(Allocation allocation)
             {
                 this.allocation = allocation;
-                remainingUnits = new AtomicLong(allocation.getAllocationUnits());
+                remainingUnits = new AtomicLong(allocation.GetAllocationUnits());
             }
 
-            public bool isUnfinished()
+            public bool IsUnfinished()
             {
-                return remainingUnits.get() != 0;
+                return remainingUnits.Get() != 0;
             }
 
             public int CompareTo(IndexedRemainingUnits otherIndexedRemainingUnits)
@@ -102,11 +103,11 @@ namespace com.google.cloud.tools.jib.@event.progress
          * @param units the units of progress
          * @return {@code true} if the map was updated
          */
-        public bool updateProgress(Allocation allocation, long units)
+        public bool UpdateProgress(Allocation allocation, long units)
         {
             IndexedRemainingUnits newValue = new IndexedRemainingUnits(allocation);
             var finalValue = completionMap.GetOrAdd(allocation, newValue);
-                updateIndexedRemainingUnits(finalValue, units);
+            UpdateIndexedRemainingUnits(finalValue, units);
             return newValue == finalValue || units != 0;
         }
 
@@ -119,12 +120,12 @@ namespace com.google.cloud.tools.jib.@event.progress
          * @return a list of unfinished {@link Allocation}s
          */
 
-        public IList<Allocation> getUnfinishedAllocations()
+        public IList<Allocation> GetUnfinishedAllocations()
         {
             return completionMap
                 .values()
                 .stream()
-                .filter(u => u.isUnfinished())
+                .filter(u => u.IsUnfinished())
                 .sorted()
                 .map(remainingUnits => remainingUnits.allocation)
                 .ToList();
@@ -140,59 +141,59 @@ namespace com.google.cloud.tools.jib.@event.progress
          * @param indexedRemainingUnits the {@link IndexedRemainingUnits} to update progress for
          * @param units the units of progress
          */
-        private void updateIndexedRemainingUnits(
+        private void UpdateIndexedRemainingUnits(
             IndexedRemainingUnits indexedRemainingUnits, long units)
         {
-            if(units == 0)
+            if (units == 0)
             {
                 return;
             }
 
             Allocation allocation = indexedRemainingUnits.allocation;
 
-            long newUnits = indexedRemainingUnits.remainingUnits.addAndGet(-units);
+            long newUnits = indexedRemainingUnits.remainingUnits.AddAndGet(-units);
             if (newUnits < 0L)
             {
                 throw new InvalidOperationException(
                     "Progress exceeds max for '"
-                        + allocation.getDescription()
+                        + allocation.GetDescription()
                         + "': "
                         + -newUnits
                         + " more beyond "
-                        + allocation.getAllocationUnits());
+                        + allocation.GetAllocationUnits());
             }
 
             // Updates the parent allocations if this allocation completed.
             if (newUnits == 0L)
             {
                 allocation
-                    .getParent()
-                    .ifPresent(
+                    .GetParent()
+                    .IfPresent(
                         parentAllocation =>
-                            updateIndexedRemainingUnits(
-                                Preconditions.checkNotNull(completionMap.get(parentAllocation)), 1L));
+                            UpdateIndexedRemainingUnits(
+                                Preconditions.CheckNotNull(completionMap.get(parentAllocation)), 1L));
             }
         }
 
-        public ImmutableArray<string> getUnfinishedLeafTasks()
+        public ImmutableArray<string> GetUnfinishedLeafTasks()
         {
-            IList<Allocation> allUnfinished = getUnfinishedAllocations();
+            IList<Allocation> allUnfinished = GetUnfinishedAllocations();
             ISet<Allocation> unfinishedLeaves = new LinkedHashSet<Allocation>(allUnfinished); // preserves order
 
             foreach (Allocation allocation in allUnfinished)
 
             {
-                Option<Allocation> parent = allocation.getParent();
+                Option<Allocation> parent = allocation.GetParent();
 
-                while (parent.isPresent())
+                while (parent.IsPresent())
                 {
-                    unfinishedLeaves.remove(parent.get());
-                    parent = parent.get().getParent();
+                    unfinishedLeaves.remove(parent.Get());
+                    parent = parent.Get().GetParent();
                 }
             }
 
             return ImmutableArray.CreateRange(
-                unfinishedLeaves.stream().map(a => a.getDescription()).ToList());
+                unfinishedLeaves.stream().map(a => a.GetDescription()).ToList());
         }
     }
 }

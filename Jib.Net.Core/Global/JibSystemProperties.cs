@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.global
          *
          * @return the HTTP connection/read timeouts for registry interactions in milliseconds
          */
-        public static int getHttpTimeout()
+        public static int GetHttpTimeout()
         {
             if (int.TryParse(Environment.GetEnvironmentVariable(HttpTimeout), out int timeoutMills)
                 )
@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.global
          *
          * @return {@code true} if Jib's execution should be serialized, {@code false} if not
          */
-        public static bool isSerializedExecutionEnabled()
+        public static bool IsSerializedExecutionEnabled()
         {
             if (bool.TryParse(Environment.GetEnvironmentVariable(SERIALIZE), out bool serialize))
             {
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.global
          * @return {@code true} if authentication information is allowed to be sent over insecure
          *     connections, {@code false} if not
          */
-        public static bool isSendCredentialsOverHttpEnabled()
+        public static bool IsSendCredentialsOverHttpEnabled()
         {
             if (bool.TryParse(Environment.GetEnvironmentVariable(SendCredentialsOverHttp), out bool sendCredentialsOverHttp))
             {
@@ -93,7 +93,7 @@ namespace com.google.cloud.tools.jib.global
          *
          * @return {@code true} if the User-Agent header is enabled, {@code false} if not
          */
-        public static bool isUserAgentEnabled()
+        public static bool IsUserAgentEnabled()
         {
             return Strings.isNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
         }
@@ -104,12 +104,12 @@ namespace com.google.cloud.tools.jib.global
          *
          * @throws NumberFormatException if invalid values
          */
-        public static void checkHttpTimeoutProperty()
+        public static void CheckHttpTimeoutProperty()
         {
-            checkNumericSystemProperty(HttpTimeout, Range.atLeast(0));
+            CheckNumericSystemProperty(HttpTimeout, lowerBound: 0);
         }
 
-        private static void checkNumericSystemProperty(string property, Range<int> validRange)
+        private static void CheckNumericSystemProperty(string property, int? lowerBound = null, int? upperBound = null)
         {
             string value = Environment.GetEnvironmentVariable(property);
             if (value == null)
@@ -126,15 +126,15 @@ namespace com.google.cloud.tools.jib.global
             {
                 throw new FormatException(property + " must be an integer: " + value, ex);
             }
-            if (validRange.hasLowerBound() && validRange.lowerEndpoint() > parsed)
+            if (lowerBound > parsed)
             {
                 throw new FormatException(
-                    property + " cannot be less than " + validRange.lowerEndpoint() + ": " + value);
+                    property + " cannot be less than " + lowerBound + ": " + value);
             }
-            else if (validRange.hasUpperBound() && validRange.upperEndpoint() < parsed)
+            else if (upperBound < parsed)
             {
                 throw new FormatException(
-                    property + " cannot be greater than " + validRange.upperEndpoint() + ": " + value);
+                    property + " cannot be greater than " + upperBound + ": " + value);
             }
         }
     }

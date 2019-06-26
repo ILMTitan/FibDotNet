@@ -186,17 +186,17 @@ namespace com.google.cloud.tools.jib.cache
             Assert.AreEqual(imagesDirectory, TEST_CACHE_STORAGE_FILES.getImagesDirectory());
 
             Assert.AreEqual(
-                imagesDirectory.resolve("reg.istry/repo/sitory!tag"),
+                imagesDirectory.Resolve("reg.istry/repo/sitory!tag"),
                 TEST_CACHE_STORAGE_FILES.getImageDirectory(
                     ImageReference.parse("reg.istry/repo/sitory:tag")));
             Assert.AreEqual(
-                imagesDirectory.resolve(
+                imagesDirectory.Resolve(
                     "reg.istry/repo!sha256!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
                 TEST_CACHE_STORAGE_FILES.getImageDirectory(
                     ImageReference.parse(
                         "reg.istry/repo@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
             Assert.AreEqual(
-                imagesDirectory.resolve("reg.istry!5000/repo/sitory!tag"),
+                imagesDirectory.Resolve("reg.istry!5000/repo/sitory!tag"),
                 TEST_CACHE_STORAGE_FILES.getImageDirectory(
                     ImageReference.parse("reg.istry:5000/repo/sitory:tag")));
         }

@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.image.json
         public void testToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
             string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.image.json
         public void testFromJson()
         {
             // Loads the JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/containerconfig.json").ToURI());
 
             // Deserializes into a manifest JSON object.
             ContainerConfigurationTemplate containerConfigJson =

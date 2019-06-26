@@ -12,7 +12,7 @@ namespace Jib.Net.Test.Common
         {
             optionalTask = optionalTask ?? throw new ArgumentNullException(nameof(optionalTask));
             var optional = await optionalTask.ConfigureAwait(false);
-            return optional.orElseThrow(execptionFunc);
+            return optional.OrElseThrow(execptionFunc);
         }
     }
 }

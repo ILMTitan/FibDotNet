@@ -39,7 +39,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         [SetUp]
         public void setUp()
         {
-            dockerConfigFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").toURI());
+            dockerConfigFile = Paths.get(TestResources.getResource("core/json/dockerconfig.json").ToURI());
             Mock.Get(mockDockerCredentialHelper).Setup(m => m.retrieve()).Returns(FAKE_CREDENTIAL);
         }
 
@@ -49,7 +49,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("some registry", Paths.get("fake/path"));
 
-            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
+            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).IsPresent());
         }
 
         [Test]
@@ -59,9 +59,9 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 new DockerConfigCredentialRetriever("some registry", dockerConfigFile);
 
             Option<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-            Assert.IsTrue(credentials.isPresent());
-            Assert.AreEqual("some", credentials.get().getUsername());
-            Assert.AreEqual("auth", credentials.get().getPassword());
+            Assert.IsTrue(credentials.IsPresent());
+            Assert.AreEqual("some", credentials.Get().getUsername());
+            Assert.AreEqual("auth", credentials.Get().getPassword());
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 FAKE_CREDENTIAL,
                 dockerConfigCredentialRetriever
                     .retrieve(mockDockerConfig, mockLogger)
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 FAKE_CREDENTIAL,
                 dockerConfigCredentialRetriever
                     .retrieve(mockDockerConfig, mockLogger)
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 FAKE_CREDENTIAL,
                 dockerConfigCredentialRetriever
                     .retrieve(mockDockerConfig, mockLogger)
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("unknown registry", dockerConfigFile);
 
-            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).isPresent());
+            Assert.IsFalse(dockerConfigCredentialRetriever.retrieve(mockLogger).IsPresent());
         }
 
         [Test]
@@ -147,37 +147,37 @@ namespace com.google.cloud.tools.jib.registry.credentials
                 FAKE_CREDENTIAL,
                 dockerConfigCredentialRetriever
                     .retrieve(mockDockerConfig, mockLogger)
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
         }
 
         [Test]
         public void testRetrieve_suffixMatching()
         {
             SystemPath dockerConfigFile =
-                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").ToURI());
 
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("index.docker.io", dockerConfigFile);
 
             Option<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-            Assert.IsTrue(credentials.isPresent());
-            Assert.AreEqual("token for", credentials.get().getUsername());
-            Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
+            Assert.IsTrue(credentials.IsPresent());
+            Assert.AreEqual("token for", credentials.Get().getUsername());
+            Assert.AreEqual(" index.docker.io/v1/", credentials.Get().getPassword());
         }
 
         [Test]
         public void testRetrieve_suffixMatchingFromAlias()
         {
             SystemPath dockerConfigFile =
-                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").toURI());
+                Paths.get(TestResources.getResource("core/json/dockerconfig_index_docker_io_v1.json").ToURI());
 
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
 
             Option<Credential> credentials = dockerConfigCredentialRetriever.retrieve(mockLogger);
-            Assert.IsTrue(credentials.isPresent());
-            Assert.AreEqual("token for", credentials.get().getUsername());
-            Assert.AreEqual(" index.docker.io/v1/", credentials.get().getPassword());
+            Assert.IsTrue(credentials.IsPresent());
+            Assert.AreEqual("token for", credentials.Get().getUsername());
+            Assert.AreEqual(" index.docker.io/v1/", credentials.Get().getPassword());
         }
     }
 }

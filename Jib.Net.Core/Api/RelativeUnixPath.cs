@@ -15,8 +15,8 @@
  */
 
 using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Immutable;
 using System.IO;
@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.api
         public static RelativeUnixPath get(string relativePath)
         {
             relativePath = relativePath ?? throw new ArgumentNullException(nameof(relativePath));
-            Preconditions.checkArgument(
+            Preconditions.CheckArgument(
                 !relativePath.StartsWith("/", StringComparison.Ordinal), "Path starts with forward slash (/): " + relativePath);
 
             return new RelativeUnixPath(UnixPathParser.parse(relativePath));

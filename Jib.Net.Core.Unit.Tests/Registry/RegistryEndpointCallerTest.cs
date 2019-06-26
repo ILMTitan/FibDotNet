@@ -176,7 +176,7 @@ namespace com.google.cloud.tools.jib.registry
             Mock.Get(mockConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
             Mock.Get(mockInsecureConnectionFactory).Verify(m => m(new Uri("https://apiroutebase/api")));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
         }
@@ -198,11 +198,11 @@ namespace com.google.cloud.tools.jib.registry
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", await insecureEndpointCaller.callAsync().ConfigureAwait(false));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }
@@ -221,7 +221,7 @@ namespace com.google.cloud.tools.jib.registry
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", await insecureEndpointCaller.callAsync().ConfigureAwait(false));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }
@@ -351,11 +351,11 @@ namespace com.google.cloud.tools.jib.registry
             RegistryEndpointCaller<string> insecureEndpointCaller = createRegistryEndpointCaller(true, -1);
             Assert.AreEqual("body", await insecureEndpointCaller.callAsync().ConfigureAwait(false));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Cannot verify server at https://apiroutebase/api. Attempting again with no TLS verification.")));
 
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.info(
                         "Failed to connect to https://apiroutebase/api over HTTPS. Attempting again with HTTP: http://apiroutebase/api")));
         }

@@ -54,14 +54,14 @@ namespace com.google.cloud.tools.jib.builder.steps
             string resourcePath, AbsoluteUnixPath extractionPath)
         {
             IEnumerable<SystemPath> fileStream =
-                Files.list(Paths.get(TestResources.getResource(resourcePath).toURI()));
+                Files.list(Paths.get(TestResources.getResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
                     layerConfigurationBuilder.setName(Path.GetFileName(resourcePath));
                 fileStream.forEach(
                     sourceFile =>
                         layerConfigurationBuilder.addEntry(
-                            sourceFile, extractionPath.resolve(sourceFile.getFileName())));
+                            sourceFile, extractionPath.resolve(sourceFile.GetFileName())));
                 return layerConfigurationBuilder.build();
             }
         }
@@ -113,10 +113,10 @@ namespace com.google.cloud.tools.jib.builder.steps
             fakeExtraFilesLayerConfiguration =
                 LayerConfiguration.builder()
                     .addEntry(
-                        Paths.get(TestResources.getResource("core/fileA").toURI()),
+                        Paths.get(TestResources.getResource("core/fileA").ToURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileA"))
                     .addEntry(
-                        Paths.get(TestResources.getResource("core/fileB").toURI()),
+                        Paths.get(TestResources.getResource("core/fileB").ToURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.resolve("fileB"))
                     .build();
             emptyLayerConfiguration = LayerConfiguration.builder().build();
@@ -135,7 +135,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             IAsyncStep<IReadOnlyList<ICachedLayer>> buildAndCacheApplicationLayersStep =
                 BuildAndCacheApplicationLayerStep.makeList(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer());
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer());
 
             foreach (ICachedLayer applicationLayer in await buildAndCacheApplicationLayersStep.getFuture().ConfigureAwait(false))
 

@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             return keyMatches
                 .stream()
                 .map(keyMatch => findFirstInMapByKey(map, keyMatch))
-                .filter(o => o.isPresent())
+                .filter(o => o.IsPresent())
                 .findFirst();
         }
 
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
         public string getAuthFor(string registry)
         {
             KeyValuePair<string, AuthTemplate>? authEntry =
-                findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry)).asNullable();
+                findFirstInMapByKey(dockerConfigTemplate.getAuths(), getRegistryMatchersFor(registry)).AsNullable();
             return authEntry?.getValue().getAuth();
         }
 
@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             IList<Func<string, bool>> registryMatchers = getRegistryMatchersFor(registry);
 
             KeyValuePair<string, AuthTemplate>? firstAuthMatch =
-                findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers).asNullable();
+                findFirstInMapByKey(dockerConfigTemplate.getAuths(), registryMatchers).AsNullable();
             if (firstAuthMatch != null && dockerConfigTemplate.getCredsStore() != null)
             {
                 return new DockerCredentialHelper(
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             }
 
             KeyValuePair<string, string>? firstCredHelperMatch =
-                findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers).asNullable();
+                findFirstInMapByKey(dockerConfigTemplate.getCredHelpers(), registryMatchers).AsNullable();
             if (firstCredHelperMatch != null)
             {
                 return new DockerCredentialHelper(

@@ -83,13 +83,13 @@ namespace com.google.cloud.tools.jib.api
             ImageReference targetImageReference =
                 ImageReference.of("localhost:5002", "jib-core", "basic-helloworld");
             JibContainer jibContainer =
-                await Jib.from("busybox")
-                    .setEntrypoint("echo", "Hello World")
+                await Jib.From("busybox")
+                    .SetEntrypoint("echo", "Hello World")
                     .containerizeAsync(
-                        Containerizer.to(
+                        Containerizer.To(
                                 RegistryImage.named(targetImageReference)
                                     .addCredentialRetriever(
-                                        () => Option.of(Credential.from("username", "password"))))
+                                        () => Option.Of(Credential.from("username", "password"))))
                             .setAllowInsecureRegistries(true)
                             .addEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
@@ -105,12 +105,12 @@ namespace com.google.cloud.tools.jib.api
         {
             ImageReference targetImageReference =
                 ImageReference.of("localhost:5002", "jib-core", "basic-scratch");
-            await Jib.fromScratch()
+            await Jib.FromScratch()
                 .containerizeAsync(
-                    Containerizer.to(
+                    Containerizer.To(
                             RegistryImage.named(targetImageReference)
                                 .addCredentialRetriever(
-                                    () => Option.of(Credential.from("username", "password"))))
+                                    () => Option.Of(Credential.from("username", "password"))))
                         .setAllowInsecureRegistries(true)).ConfigureAwait(false);
 
             // Check that resulting image has no layers
@@ -130,13 +130,13 @@ namespace com.google.cloud.tools.jib.api
                 ImageReference.of("localhost:5001", "jib-core", "basic-offline");
 
             JibContainerBuilder jibContainerBuilder =
-                Jib.from("localhost:5001/busybox").setEntrypoint("echo", "Hello World");
+                Jib.From("localhost:5001/busybox").SetEntrypoint("echo", "Hello World");
 
             // Should fail since Jib can't build to registry offline
             try
             {
                 await jibContainerBuilder.containerizeAsync(
-                    Containerizer.to(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true)).ConfigureAwait(false);
+                    Containerizer.To(RegistryImage.named(targetImageReferenceOffline)).setOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
             }
             catch (InvalidOperationException ex)
@@ -148,7 +148,7 @@ namespace com.google.cloud.tools.jib.api
             try
             {
                 await jibContainerBuilder.containerizeAsync(
-                    Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
+                    Containerizer.To(DockerDaemonImage.named(targetImageReferenceOffline))
                         .setBaseImageLayersCache(cacheDirectory)
                         .setOfflineMode(true)).ConfigureAwait(false);
                 Assert.Fail();
@@ -166,14 +166,14 @@ namespace com.google.cloud.tools.jib.api
 
                 // Run online to cache the base image
                 await jibContainerBuilder.containerizeAsync(
-                    Containerizer.to(DockerDaemonImage.named(targetImageReferenceOnline))
+                    Containerizer.To(DockerDaemonImage.named(targetImageReferenceOnline))
                         .setBaseImageLayersCache(cacheDirectory)
                         .setAllowInsecureRegistries(true)).ConfigureAwait(false);
             }
 
             // Run again in offline mode, should succeed this time
             await jibContainerBuilder.containerizeAsync(
-                Containerizer.to(DockerDaemonImage.named(targetImageReferenceOffline))
+                Containerizer.To(DockerDaemonImage.named(targetImageReferenceOffline))
                     .setBaseImageLayersCache(cacheDirectory)
                     .setOfflineMode(true)).ConfigureAwait(false);
 

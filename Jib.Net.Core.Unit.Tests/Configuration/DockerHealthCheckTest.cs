@@ -36,14 +36,14 @@ namespace com.google.cloud.tools.jib.configuration
                     .setRetries(10)
                     .build();
 
-            Assert.IsTrue(healthCheck.getInterval().isPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.getInterval().get());
-            Assert.IsTrue(healthCheck.getTimeout().isPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.getTimeout().get());
-            Assert.IsTrue(healthCheck.getStartPeriod().isPresent());
-            Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().get());
-            Assert.IsTrue(healthCheck.getRetries().isPresent());
-            Assert.AreEqual(10, healthCheck.getRetries().get());
+            Assert.IsTrue(healthCheck.getInterval().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(123), healthCheck.getInterval().Get());
+            Assert.IsTrue(healthCheck.getTimeout().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(456), healthCheck.getTimeout().Get());
+            Assert.IsTrue(healthCheck.getStartPeriod().IsPresent());
+            Assert.AreEqual(Duration.FromNanoseconds(789), healthCheck.getStartPeriod().Get());
+            Assert.IsTrue(healthCheck.getRetries().IsPresent());
+            Assert.AreEqual(10, healthCheck.getRetries().Get());
         }
 
         [Test]

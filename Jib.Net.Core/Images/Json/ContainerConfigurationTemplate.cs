@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
@@ -219,7 +220,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(Config.Healthcheck).Test = test;
+            Preconditions.CheckNotNull(Config.Healthcheck).Test = test;
         }
 
         public void setContainerHealthCheckInterval(long interval)
@@ -228,7 +229,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(Config.Healthcheck).Interval = interval;
+            Preconditions.CheckNotNull(Config.Healthcheck).Interval = interval;
         }
 
         public void setContainerHealthCheckTimeout(long timeout)
@@ -237,7 +238,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(Config.Healthcheck).Timeout = timeout;
+            Preconditions.CheckNotNull(Config.Healthcheck).Timeout = timeout;
         }
 
         public void setContainerHealthCheckStartPeriod(long startPeriod)
@@ -246,7 +247,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(Config.Healthcheck).StartPeriod = startPeriod;
+            Preconditions.CheckNotNull(Config.Healthcheck).StartPeriod = startPeriod;
         }
 
         public void setContainerHealthCheckRetries(int? retries)
@@ -255,7 +256,7 @@ namespace com.google.cloud.tools.jib.image.json
             {
                 Config.Healthcheck = new HealthCheckObjectTemplate();
             }
-            Preconditions.checkNotNull(Config.Healthcheck).Retries = retries;
+            Preconditions.CheckNotNull(Config.Healthcheck).Retries = retries;
         }
 
         public void setContainerExposedPorts(IDictionary<string, IDictionary<object, object>> exposedPorts)

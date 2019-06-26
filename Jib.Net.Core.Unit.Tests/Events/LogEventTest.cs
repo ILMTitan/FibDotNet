@@ -41,12 +41,12 @@ namespace Jib.Net.Core.Unit.Tests.Events
         [Test]
         public void testFactories()
         {
-            eventHandlers.dispatch(error("error"));
-            eventHandlers.dispatch(lifecycle("lifecycle"));
-            eventHandlers.dispatch(progress("progress"));
-            eventHandlers.dispatch(warn("warn"));
-            eventHandlers.dispatch(info("info"));
-            eventHandlers.dispatch(debug("debug"));
+            eventHandlers.Dispatch(error("error"));
+            eventHandlers.Dispatch(lifecycle("lifecycle"));
+            eventHandlers.Dispatch(progress("progress"));
+            eventHandlers.Dispatch(warn("warn"));
+            eventHandlers.Dispatch(info("info"));
+            eventHandlers.Dispatch(debug("debug"));
 
             verifyNextLogEvent(Level.ERROR, "error");
             verifyNextLogEvent(Level.LIFECYCLE, "lifecycle");

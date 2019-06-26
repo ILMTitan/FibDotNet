@@ -34,11 +34,12 @@ namespace com.google.cloud.tools.jib.http
     {
         public static implicit operator AuthenticationHeaderValue(Authorization a)
         {
-            if(a is null)
-            {
-                return null;
-            }
-            return new AuthenticationHeaderValue(a.getScheme(), a.getToken());
+            return a?.ToAuthenticationHeaderValue();
+        }
+
+        public AuthenticationHeaderValue ToAuthenticationHeaderValue()
+        {
+            return new AuthenticationHeaderValue(getScheme(), getToken());
         }
 
         /**

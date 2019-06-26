@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         private void verifyNoParent(TimerEvent timerEvent)
         {
-            Assert.IsFalse(timerEvent.getTimer().getParent().isPresent());
+            Assert.IsFalse(timerEvent.getTimer().getParent().IsPresent());
         }
 
         /**
@@ -106,8 +106,8 @@ namespace com.google.cloud.tools.jib.builder
          */
         private void verifyParent(TimerEvent timerEvent, TimerEvent.ITimer expectedParentTimer)
         {
-            Assert.IsTrue(timerEvent.getTimer().getParent().isPresent());
-            Assert.AreSame(expectedParentTimer, timerEvent.getTimer().getParent().get());
+            Assert.IsTrue(timerEvent.getTimer().getParent().IsPresent());
+            Assert.AreSame(expectedParentTimer, timerEvent.getTimer().getParent().Get());
         }
 
         /**

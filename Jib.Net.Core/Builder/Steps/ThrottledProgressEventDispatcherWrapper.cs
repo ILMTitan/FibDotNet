@@ -14,7 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using System;
 
@@ -45,8 +46,8 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public void dispatchProgress(long progressUnits)
         {
-            Preconditions.checkNotNull(throttledDispatcher);
-            throttledDispatcher.accept(progressUnits);
+            Preconditions.CheckNotNull(throttledDispatcher);
+            throttledDispatcher.Accept(progressUnits);
         }
 
         public void Dispose()
@@ -57,10 +58,10 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         public void setProgressTarget(long allocationUnits)
         {
-            Preconditions.checkState(progressEventDispatcher == null);
-            progressEventDispatcher = progressEventDispatcherFactory.create(description, allocationUnits);
+            Preconditions.CheckState(progressEventDispatcher == null);
+            progressEventDispatcher = progressEventDispatcherFactory.Create(description, allocationUnits);
             throttledDispatcher =
-                new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress);
+                new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress);
         }
     }
 }

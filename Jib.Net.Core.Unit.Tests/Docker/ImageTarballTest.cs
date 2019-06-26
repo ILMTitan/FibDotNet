@@ -45,8 +45,8 @@ namespace com.google.cloud.tools.jib.docker
         [Test]
         public async Task testWriteToAsync()
         {
-            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").toURI());
-            SystemPath fileB = Paths.get(TestResources.getResource("core/fileB").toURI());
+            SystemPath fileA = Paths.get(TestResources.getResource("core/fileA").ToURI());
+            SystemPath fileB = Paths.get(TestResources.getResource("core/fileB").ToURI());
             long fileASize = Files.size(fileA);
             long fileBSize = Files.size(fileB);
 
@@ -75,7 +75,7 @@ namespace com.google.cloud.tools.jib.docker
             ImageTarball imageToTarball = new ImageTarball(testImage, ImageReference.parse("my/image:tag"));
 
             MemoryStream @out = new MemoryStream();
-            await imageToTarball.writeToAsync(@out).ConfigureAwait(false);
+            await imageToTarball.WriteToAsync(@out).ConfigureAwait(false);
             MemoryStream @in = new MemoryStream(@out.toByteArray());
             using (TarInputStream tarArchiveInputStream = new TarInputStream(@in))
             {

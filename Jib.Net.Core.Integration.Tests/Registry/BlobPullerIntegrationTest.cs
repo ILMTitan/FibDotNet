@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.registry
             V21ManifestTemplate manifestTemplate =
                 await registryClient.pullManifestAsync<V21ManifestTemplate>("latest").ConfigureAwait(false);
 
-            DescriptorDigest realDigest = manifestTemplate.getLayerDigests().get(0);
+            DescriptorDigest realDigest = manifestTemplate.GetLayerDigests().get(0);
 
             // Pulls a layer BLOB of the busybox image.
             LongAdder totalByteCount = new LongAdder();

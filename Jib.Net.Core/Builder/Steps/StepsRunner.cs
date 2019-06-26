@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core;
 using Jib.Net.Core.Builder.Steps;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -92,7 +93,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.retrieveTargetRegistryCredentialsStep =
                         RetrieveRegistryCredentialsStep.forTargetImage(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
         public StepsRunner authenticatePush()
@@ -102,8 +103,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.authenticatePushStep =
                         new AuthenticatePushStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.retrieveTargetRegistryCredentialsStep)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.retrieveTargetRegistryCredentialsStep)));
         }
 
         public StepsRunner pullBaseImage()
@@ -113,7 +114,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.pullBaseImageStep =
                         new PullBaseImageStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
         public StepsRunner pullAndCacheBaseImageLayers()
@@ -123,8 +124,8 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.pullAndCacheBaseImageLayersStep =
                         new PullAndCacheBaseImageLayersStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.pullBaseImageStep)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.pullBaseImageStep)));
         }
 
         public StepsRunner pushBaseImageLayers()
@@ -134,9 +135,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.pushBaseImageLayersStep =
                         new PushLayersStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.authenticatePushStep),
-                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.authenticatePushStep),
+                            Preconditions.CheckNotNull(steps.pullAndCacheBaseImageLayersStep)));
         }
 
         public StepsRunner buildAndCacheApplicationLayers()
@@ -146,7 +147,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.buildAndCacheApplicationLayerSteps =
                         BuildAndCacheApplicationLayerStep.makeList(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer()));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer()));
         }
 
         public StepsRunner buildImage()
@@ -156,10 +157,10 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.buildImageStep =
                         new BuildImageStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.pullBaseImageStep),
-                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.pullBaseImageStep),
+                            Preconditions.CheckNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps)));
         }
 
         public StepsRunner pushContainerConfiguration()
@@ -169,9 +170,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.pushContainerConfigurationStep =
                         new PushContainerConfigurationStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.authenticatePushStep),
-                            Preconditions.checkNotNull(steps.buildImageStep)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.authenticatePushStep),
+                            Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
         public StepsRunner pushApplicationLayers()
@@ -181,9 +182,9 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.pushApplicationLayersStep =
                         new PushLayersStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.authenticatePushStep),
-                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.authenticatePushStep),
+                            Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps)));
         }
 
         public StepsRunner pushImage()
@@ -195,12 +196,12 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.finalStep =
                         new PushImageStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
-                            Preconditions.checkNotNull(steps.authenticatePushStep),
-                            Preconditions.checkNotNull(steps.pushBaseImageLayersStep),
-                            Preconditions.checkNotNull(steps.pushApplicationLayersStep),
-                            Preconditions.checkNotNull(steps.pushContainerConfigurationStep),
-                            Preconditions.checkNotNull(steps.buildImageStep)));
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
+                            Preconditions.CheckNotNull(steps.authenticatePushStep),
+                            Preconditions.CheckNotNull(steps.pushBaseImageLayersStep),
+                            Preconditions.CheckNotNull(steps.pushApplicationLayersStep),
+                            Preconditions.CheckNotNull(steps.pushContainerConfigurationStep),
+                            Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
         public StepsRunner loadDocker(DockerClient dockerClient)
@@ -212,11 +213,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.finalStep =
                         new LoadDockerStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
                             dockerClient,
-                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
-                            Preconditions.checkNotNull(steps.buildImageStep)));
+                            Preconditions.CheckNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps),
+                            Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
         public StepsRunner writeTarFile(SystemPath outputPath)
@@ -228,24 +229,24 @@ namespace com.google.cloud.tools.jib.builder.steps
                     steps.finalStep =
                         new WriteTarFileStep(
                             buildConfiguration,
-                            Preconditions.checkNotNull(rootProgressEventDispatcher).newChildProducer(),
+                            Preconditions.CheckNotNull(rootProgressEventDispatcher).NewChildProducer(),
                             outputPath,
-                            Preconditions.checkNotNull(steps.pullAndCacheBaseImageLayersStep),
-                            Preconditions.checkNotNull(steps.buildAndCacheApplicationLayerSteps),
-                            Preconditions.checkNotNull(steps.buildImageStep)));
+                            Preconditions.CheckNotNull(steps.pullAndCacheBaseImageLayersStep),
+                            Preconditions.CheckNotNull(steps.buildAndCacheApplicationLayerSteps),
+                            Preconditions.CheckNotNull(steps.buildImageStep)));
         }
 
         public async Task<IBuildResult> runAsync()
         {
-            Preconditions.checkNotNull(rootProgressAllocationDescription);
+            Preconditions.CheckNotNull(rootProgressAllocationDescription);
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                ProgressEventDispatcher.newRoot(
+                ProgressEventDispatcher.NewRoot(
                     buildConfiguration.getEventHandlers(), rootProgressAllocationDescription, stepsCount))
             {
                 rootProgressEventDispatcher = progressEventDispatcher;
                 stepsRunnable.run();
-                return await Preconditions.checkNotNull(steps.finalStep).getFuture().ConfigureAwait(false);
+                return await Preconditions.CheckNotNull(steps.finalStep).getFuture().ConfigureAwait(false);
             }
         }
 

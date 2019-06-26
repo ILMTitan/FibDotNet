@@ -543,7 +543,7 @@ namespace Jib.Net.Core.Global
 
         public static Option<T> findFirst<T>(this IEnumerable<T> e)
         {
-            return e.Select(Option.of).FirstOrDefault();
+            return e.Select(Option.Of).FirstOrDefault();
         }
 
         public static IDictionary<TKey, TValue> entrySet<TKey, TValue>(this IDictionary<TKey, TValue> d)

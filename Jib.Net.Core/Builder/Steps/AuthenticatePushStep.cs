@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             string registry = buildConfiguration.getTargetImageConfiguration().getImageRegistry();
             try
             {
-                using (progressEventDispatcherFactory.create("authenticating push to " + registry, 1))
+                using (progressEventDispatcherFactory.Create("authenticating push to " + registry, 1))
                 using (new TimerEventDispatcher(
                             buildConfiguration.getEventHandlers(), string.Format(CultureInfo.CurrentCulture,DESCRIPTION, registry)))
                 {

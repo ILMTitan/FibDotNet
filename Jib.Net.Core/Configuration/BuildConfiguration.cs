@@ -17,6 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.image.json;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -244,9 +245,9 @@ namespace com.google.cloud.tools.jib.configuration
                 switch (missingFields.size())
                 {
                     case 0: // No errors
-                        if (Preconditions.checkNotNull(baseImageConfiguration).getImage().usesDefaultTag())
+                        if (Preconditions.CheckNotNull(baseImageConfiguration).getImage().usesDefaultTag())
                         {
-                            eventHandlers.dispatch(
+                            eventHandlers.Dispatch(
                                 LogEvent.warn(
                                     "Base image '"
                                         + baseImageConfiguration.getImage()
@@ -255,11 +256,11 @@ namespace com.google.cloud.tools.jib.configuration
 
                         return new BuildConfiguration(
                             baseImageConfiguration,
-                            Preconditions.checkNotNull(targetImageConfiguration),
+                            Preconditions.CheckNotNull(targetImageConfiguration),
                             additionalTargetImageTags,
                             containerConfiguration,
-                            Cache.withDirectory(Preconditions.checkNotNull(baseImageLayersCacheDirectory)),
-                            Cache.withDirectory(Preconditions.checkNotNull(applicationLayersCacheDirectory)),
+                            Cache.withDirectory(Preconditions.CheckNotNull(baseImageLayersCacheDirectory)),
+                            Cache.withDirectory(Preconditions.CheckNotNull(applicationLayersCacheDirectory)),
                             targetFormat,
                             allowInsecureRegistries,
                             offline,

@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.registry
                 // See: https://docs.docker.com/docker-for-mac/osxfs
                 SystemPath tempFolder = Files.createTempDirectory(Paths.get(Path.GetTempPath()), "");
                 Files.write(
-                    tempFolder.resolve("htpasswd"), credentialString.getBytes(Encoding.UTF8));
+                    tempFolder.Resolve("htpasswd"), credentialString.getBytes(Encoding.UTF8));
 
                 // Run the Docker registry
                 dockerTokens.addAll(

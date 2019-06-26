@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreSame(mockCredentialRetriever, image.getCredentialRetrievers().get(0));
             Assert.AreEqual(
                 Credential.from("username", "password"),
-                image.getCredentialRetrievers().get(1).retrieve().get());
+                image.getCredentialRetrievers().get(1).retrieve().Get());
         }
     }
 }

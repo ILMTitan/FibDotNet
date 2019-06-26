@@ -19,7 +19,7 @@ using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.IO;
 using NodaTime;
-using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core.Events.Progress;
 
 namespace com.google.cloud.tools.jib.http
 {
@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.http
                     new ThrottledAccumulatingConsumer(
                         byteCounts.add, Duration.FromSeconds(3), instantQueue.remove))
             using (NotifyingOutputStream notifyingOutputStream =
-                    new NotifyingOutputStream(byteArrayOutputStream, byteCounter))
+                    new NotifyingOutputStream(byteArrayOutputStream, byteCounter.Accept))
 
             {
                 instantQueue.add(Instant.FromUnixTimeSeconds(0));

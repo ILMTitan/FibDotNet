@@ -48,24 +48,24 @@ namespace com.google.cloud.tools.jib.api
         public static async Task createImageAsync()
         {
             SystemPath root = imageLocation.getRoot().toPath();
-            SystemPath fileA = Files.createFile(root.resolve("fileA.txt"));
-            SystemPath fileB = Files.createFile(root.resolve("fileB.txt"));
-            SystemPath fileC = Files.createFile(root.resolve("fileC.txt"));
-            SystemPath subdir = Files.createDirectory(root.resolve("dir"));
-            SystemPath subsubdir = Files.createDirectory(subdir.resolve("subdir"));
-            Files.createFile(subdir.resolve("fileD.txt"));
-            Files.createFile(subsubdir.resolve("fileE.txt"));
+            SystemPath fileA = Files.createFile(root.Resolve("fileA.txt"));
+            SystemPath fileB = Files.createFile(root.Resolve("fileB.txt"));
+            SystemPath fileC = Files.createFile(root.Resolve("fileC.txt"));
+            SystemPath subdir = Files.createDirectory(root.Resolve("dir"));
+            SystemPath subsubdir = Files.createDirectory(subdir.Resolve("subdir"));
+            Files.createFile(subdir.Resolve("fileD.txt"));
+            Files.createFile(subsubdir.Resolve("fileE.txt"));
 
             imageTar = new FileInfo(Path.Combine(imageLocation.getRoot().FullName, "image.tar"));
             Containerizer containerizer =
-                Containerizer.to(TarImage.named("jib-core/reproducible").saveTo(imageTar.toPath()));
+                Containerizer.To(TarImage.named("jib-core/reproducible").saveTo(imageTar.toPath()));
 
-            await Jib.fromScratch()
-                .setEntrypoint("echo", "Hello World")
-                .addLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.get("/app"))
+            await Jib.FromScratch()
+                .SetEntrypoint("echo", "Hello World")
+                .AddLayer(ImmutableArray.Create(fileA), AbsoluteUnixPath.get("/app"))
                 // layer with out-of-order files
-                .addLayer(ImmutableArray.Create(fileC, fileB), "/app")
-                .addLayer(
+                .AddLayer(ImmutableArray.Create(fileC, fileB), "/app")
+                .AddLayer(
                     LayerConfiguration.builder()
                         .addEntryRecursive(subdir, AbsoluteUnixPath.get("/app"))
                         .build())

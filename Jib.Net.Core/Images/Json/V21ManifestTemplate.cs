@@ -78,7 +78,7 @@ namespace com.google.cloud.tools.jib.image.json
         {
             public DescriptorDigest BlobSum { get; set; }
 
-            public DescriptorDigest getDigest()
+            public DescriptorDigest GetDigest()
             {
                 return BlobSum;
             }
@@ -100,7 +100,7 @@ namespace com.google.cloud.tools.jib.image.json
             }
         }
 
-        public List<DescriptorDigest> getLayerDigests()
+        public List<DescriptorDigest> GetLayerDigests()
         {
             List<DescriptorDigest> layerDigests = new List<DescriptorDigest>();
 
@@ -118,11 +118,6 @@ namespace com.google.cloud.tools.jib.image.json
             return SchemaVersion;
         }
 
-        public IReadOnlyList<LayerObjectTemplate> getFsLayers()
-        {
-            return FsLayers as IReadOnlyList<LayerObjectTemplate> ?? FsLayers.ToList();
-        }
-
         /**
          * Attempts to parse the container configuration JSON (of format {@code
          * application/vnd.docker.container.image.v1+json}) from the {@code v1Compatibility} value of the
@@ -130,27 +125,27 @@ namespace com.google.cloud.tools.jib.image.json
          *
          * @return container configuration if the first history string holds it; {@code null} otherwise
          */
-        public Option<ContainerConfigurationTemplate> getContainerConfiguration()
+        public Option<ContainerConfigurationTemplate> GetContainerConfiguration()
         {
             try
             {
                 if (History.isEmpty())
                 {
-                    return Option.empty<ContainerConfigurationTemplate>();
+                    return Option.Empty<ContainerConfigurationTemplate>();
                 }
                 string v1Compatibility = History.get(0).V1Compatibility;
                 if (v1Compatibility == null)
                 {
-                    return Option.empty<ContainerConfigurationTemplate>();
+                    return Option.Empty<ContainerConfigurationTemplate>();
                 }
 
-                return Option.of(
+                return Option.Of(
                     JsonTemplateMapper.readJson<ContainerConfigurationTemplate>(v1Compatibility));
             }
             catch (IOException)
             {
                 // not a container configuration; ignore and continue
-                return Option.empty<ContainerConfigurationTemplate>();
+                return Option.Empty<ContainerConfigurationTemplate>();
             }
         }
     }

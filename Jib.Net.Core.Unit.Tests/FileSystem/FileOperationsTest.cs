@@ -60,23 +60,23 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             SystemPath destDir = temporaryFolder.newFolder().toPath();
             SystemPath libraryA =
-                Paths.get(TestResources.getResource("core/application/dependencies/libraryA.jar").toURI());
+                Paths.get(TestResources.getResource("core/application/dependencies/libraryA.jar").ToURI());
             SystemPath libraryB =
-                Paths.get(TestResources.getResource("core/application/dependencies/libraryB.jar").toURI());
-            SystemPath dirLayer = Paths.get(TestResources.getResource("core/layer").toURI());
+                Paths.get(TestResources.getResource("core/application/dependencies/libraryB.jar").ToURI());
+            SystemPath dirLayer = Paths.get(TestResources.getResource("core/layer").ToURI());
 
             FileOperations.copy(ImmutableArray.Create(libraryA, libraryB, dirLayer), destDir);
 
-            assertFilesEqual(libraryA, destDir.resolve("libraryA.jar"));
-            assertFilesEqual(libraryB, destDir.resolve("libraryB.jar"));
-            Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("a").resolve("b")));
-            Assert.IsTrue(Files.exists(destDir.resolve("layer").resolve("c")));
+            assertFilesEqual(libraryA, destDir.Resolve("libraryA.jar"));
+            assertFilesEqual(libraryB, destDir.Resolve("libraryB.jar"));
+            Assert.IsTrue(Files.exists(destDir.Resolve("layer").Resolve("a").Resolve("b")));
+            Assert.IsTrue(Files.exists(destDir.Resolve("layer").Resolve("c")));
             assertFilesEqual(
-                dirLayer.resolve("a").resolve("b").resolve("bar"),
-                destDir.resolve("layer").resolve("a").resolve("b").resolve("bar"));
+                dirLayer.Resolve("a").Resolve("b").Resolve("bar"),
+                destDir.Resolve("layer").Resolve("a").Resolve("b").Resolve("bar"));
             assertFilesEqual(
-                dirLayer.resolve("c").resolve("cat"), destDir.resolve("layer").resolve("c").resolve("cat"));
-            assertFilesEqual(dirLayer.resolve("foo"), destDir.resolve("layer").resolve("foo"));
+                dirLayer.Resolve("c").Resolve("cat"), destDir.Resolve("layer").Resolve("c").Resolve("cat"));
+            assertFilesEqual(dirLayer.Resolve("foo"), destDir.Resolve("layer").Resolve("foo"));
         }
 
         public void Dispose()

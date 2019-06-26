@@ -33,7 +33,7 @@ namespace com.google.cloud.tools.jib.api
             DockerDaemonImage dockerDaemonImage = DockerDaemonImage.named("docker/daemon/image");
 
             Assert.AreEqual("docker/daemon/image", dockerDaemonImage.getImageReference().toString());
-            Assert.AreEqual(Option.empty<SystemPath>(), dockerDaemonImage.getDockerExecutable());
+            Assert.AreEqual(Option.Empty<SystemPath>(), dockerDaemonImage.getDockerExecutable());
             Assert.AreEqual(0, dockerDaemonImage.getDockerEnvironment().size());
         }
 
@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.api
                     .setDockerExecutable(Paths.get("docker/binary"))
                     .setDockerEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }));
 
-            Assert.AreEqual(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().get());
+            Assert.AreEqual(Paths.get("docker/binary"), dockerDaemonImage.getDockerExecutable().Get());
             Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), dockerDaemonImage.getDockerEnvironment());
         }
     }

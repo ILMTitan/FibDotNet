@@ -37,9 +37,9 @@ namespace com.google.cloud.tools.jib.api
             TarImage tarImage =
                 TarImage.named(ImageReference.of(null, "repository", null)).saveTo(Paths.get("ignored"));
 
-            verifyTo(Containerizer.to(registryImage));
-            verifyTo(Containerizer.to(dockerDaemonImage));
-            verifyTo(Containerizer.to(tarImage));
+            verifyTo(Containerizer.To(registryImage));
+            verifyTo(Containerizer.To(dockerDaemonImage));
+            verifyTo(Containerizer.To(tarImage));
         }
 
         private void verifyTo(Containerizer containerizer)
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.api
         {
             DockerDaemonImage dockerDaemonImage =
                 DockerDaemonImage.named(ImageReference.of(null, "repository", null));
-            Containerizer containerizer = Containerizer.to(dockerDaemonImage);
+            Containerizer containerizer = Containerizer.To(dockerDaemonImage);
 
             containerizer.withAdditionalTag("tag");
             try
@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.api
         {
             CredentialRetriever credentialRetriever = Mock.Of<CredentialRetriever>();
             Containerizer containerizer =
-                Containerizer.to(
+                Containerizer.To(
                     RegistryImage.named("registry/image").addCredentialRetriever(credentialRetriever));
 
             ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.api
         [Test]
         public void testGetImageConfiguration_dockerDaemonImage()
         {
-            Containerizer containerizer = Containerizer.to(DockerDaemonImage.named("docker/deamon/image"));
+            Containerizer containerizer = Containerizer.To(DockerDaemonImage.named("docker/deamon/image"));
 
             ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
             Assert.AreEqual("docker/deamon/image", imageConfiguration.getImage().toString());
@@ -118,7 +118,7 @@ namespace com.google.cloud.tools.jib.api
         public void testGetImageConfiguration_tarImage()
         {
             Containerizer containerizer =
-                Containerizer.to(TarImage.named("tar/image").saveTo(Paths.get("output/file")));
+                Containerizer.To(TarImage.named("tar/image").saveTo(Paths.get("output/file")));
 
             ImageConfiguration imageConfiguration = containerizer.getImageConfiguration();
             Assert.AreEqual("tar/image", imageConfiguration.getImage().toString());

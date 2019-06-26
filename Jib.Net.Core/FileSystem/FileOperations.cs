@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.filesystem
                     path =>
                     {
               // Creates the same path in the destDir.
-              SystemPath destPath = destDir.resolve(sourceFile.getParent().relativize(path));
+              SystemPath destPath = destDir.Resolve(sourceFile.GetParent().Relativize(path));
                         if (Files.isDirectory(path))
                         {
                             Files.createDirectories(destPath);
@@ -79,7 +79,7 @@ namespace com.google.cloud.tools.jib.filesystem
         public static Stream newLockingOutputStream(SystemPath file)
         {
             file = file ?? throw new ArgumentNullException(nameof(file));
-            return file.toFile().Create();
+            return file.ToFile().Create();
         }
 
         private FileOperations() { }

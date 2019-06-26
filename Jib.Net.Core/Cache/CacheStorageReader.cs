@@ -63,7 +63,7 @@ namespace Jib.Net.Core.Cache
             {
                 try
                 {
-                    layerDigests.add(DescriptorDigest.fromHash(layerDirectory.getFileName().toString()));
+                    layerDigests.add(DescriptorDigest.fromHash(layerDirectory.GetFileName().toString()));
                 }
                 catch (DigestException ex)
                 {
@@ -87,10 +87,10 @@ namespace Jib.Net.Core.Cache
         public Option<ManifestAndConfig> retrieveMetadata(IImageReference imageReference)
         {
             SystemPath imageDirectory = cacheStorageFiles.getImageDirectory(imageReference);
-            SystemPath manifestPath = imageDirectory.resolve("manifest.json");
+            SystemPath manifestPath = imageDirectory.Resolve("manifest.json");
             if (!Files.exists(manifestPath))
             {
-                return Option.empty<ManifestAndConfig>();
+                return Option.Empty<ManifestAndConfig>();
             }
 
             // TODO: Consolidate with ManifestPuller
@@ -122,7 +122,7 @@ namespace Jib.Net.Core.Cache
 
             if (schemaVersion == 1)
             {
-                return Option.of(
+                return Option.Of(
                     new ManifestAndConfig(
                         JsonTemplateMapper.readJsonFromFile<V21ManifestTemplate>(manifestPath),
                         null));
@@ -152,7 +152,7 @@ namespace Jib.Net.Core.Cache
                             Resources.CacheStorageReaderUnknownMediaTypeExecpetionMessageFormat, mediaType));
                 }
 
-                SystemPath configPath = imageDirectory.resolve("config.json");
+                SystemPath configPath = imageDirectory.Resolve("config.json");
                 if (!Files.exists(configPath))
                 {
                     throw new CacheCorruptedException(
@@ -162,7 +162,7 @@ namespace Jib.Net.Core.Cache
                 ContainerConfigurationTemplate config =
                     JsonTemplateMapper.readJsonFromFile<ContainerConfigurationTemplate>(configPath);
 
-                return Option.of(new ManifestAndConfig(manifestTemplate, config));
+                return Option.Of(new ManifestAndConfig(manifestTemplate, config));
             }
             throw new CacheCorruptedException(
                 cacheStorageFiles.getCacheDirectory(),
@@ -185,7 +185,7 @@ namespace Jib.Net.Core.Cache
             SystemPath layerDirectory = cacheStorageFiles.getLayerDirectory(layerDigest);
             if (!Files.exists(layerDirectory))
             {
-                return Option.empty<CachedLayer>();
+                return Option.Empty<CachedLayer>();
             }
 
             CachedLayer.Builder cachedLayerBuilder = CachedLayer.builder().setLayerDigest(layerDigest);
@@ -209,7 +209,7 @@ namespace Jib.Net.Core.Cache
                         .setLayerSize(Files.size(fileInLayerDirectory));
                 }
             }
-            return Option.of(cachedLayerBuilder.build());
+            return Option.Of(cachedLayerBuilder.build());
         }
 
         /**
@@ -227,13 +227,13 @@ namespace Jib.Net.Core.Cache
             SystemPath selectorFile = cacheStorageFiles.getSelectorFile(selector);
             if (!Files.exists(selectorFile))
             {
-                return Option.empty<DescriptorDigest>();
+                return Option.Empty<DescriptorDigest>();
             }
             string selectorFileContents =
-                    File.ReadAllText(selectorFile.toFile().FullName, Encoding.UTF8);
+                    File.ReadAllText(selectorFile.ToFile().FullName, Encoding.UTF8);
             try
             {
-                return Option.of(DescriptorDigest.fromHash(selectorFileContents));
+                return Option.Of(DescriptorDigest.fromHash(selectorFileContents));
             }
             catch (DigestException)
             {

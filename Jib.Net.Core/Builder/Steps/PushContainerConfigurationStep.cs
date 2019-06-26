@@ -63,18 +63,18 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             Image image = await buildImageStep.getFuture().ConfigureAwait(false);
             using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.create("pushing container configuration", 1))
+                    progressEventDispatcherFactory.Create("pushing container configuration", 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(buildConfiguration.getEventHandlers(), DESCRIPTION))
             {
                 ContainerConfigurationTemplate containerConfiguration =
-                    new ImageToJsonTranslator(image).getContainerConfiguration();
+                    new ImageToJsonTranslator(image).GetContainerConfiguration();
                 BlobDescriptor blobDescriptor = 
                     await Digests.computeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
 
                 return await new PushBlobStep(
                     buildConfiguration,
-                    progressEventDispatcher.newChildProducer(),
+                    progressEventDispatcher.NewChildProducer(),
                     authenticatePushStep,
                     blobDescriptor,
                     Blobs.fromJson(containerConfiguration)).getFuture().ConfigureAwait(false);

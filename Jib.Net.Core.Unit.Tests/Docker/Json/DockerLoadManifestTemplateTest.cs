@@ -32,15 +32,15 @@ namespace com.google.cloud.tools.jib.docker.json
         public void testToJson()
         {
             // Loads the expected JSON string.
-            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/loadmanifest.json").toURI());
+            SystemPath jsonFile = Paths.get(TestResources.getResource("core/json/loadmanifest.json").ToURI());
             string expectedJson = Encoding.UTF8.GetString(Files.readAllBytes(jsonFile));
 
             DockerLoadManifestEntryTemplate template = new DockerLoadManifestEntryTemplate();
-            template.setRepoTags(
+            template.SetRepoTags(
                 ImageReference.of("testregistry", "testrepo", "testtag").toStringWithTag());
-            template.addLayerFile("layer1.tar.gz");
-            template.addLayerFile("layer2.tar.gz");
-            template.addLayerFile("layer3.tar.gz");
+            template.AddLayerFile("layer1.tar.gz");
+            template.AddLayerFile("layer2.tar.gz");
+            template.AddLayerFile("layer3.tar.gz");
 
             List<DockerLoadManifestEntryTemplate> loadManifest = new List<DockerLoadManifestEntryTemplate> { template };
             Assert.AreEqual(expectedJson, JsonTemplateMapper.toUtf8String(loadManifest));

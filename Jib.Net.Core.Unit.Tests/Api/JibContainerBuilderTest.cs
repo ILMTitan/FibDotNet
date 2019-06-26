@@ -45,18 +45,18 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .setEntrypoint(Arrays.asList("entry", "point"))
-                    .setEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }))
-                    .setExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
-                    .setLabels(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }))
-                    .setProgramArguments(Arrays.asList("program", "arguments"))
-                    .setCreationTime(Instant.FromUnixTimeMilliseconds(1000))
-                    .setUser("user")
-                    .setWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
+                    .SetEntrypoint(Arrays.asList("entry", "point"))
+                    .SetEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
+                    .SetLabels(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }))
+                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetUser("user")
+                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
 
             BuildConfiguration buildConfiguration =
                 jibContainerBuilder.toBuildConfiguration(
-                    Containerizer.to(RegistryImage.named("target/image")));
+                    Containerizer.To(RegistryImage.named("target/image")));
             IContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
             Assert.AreEqual(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
             Assert.AreEqual(
@@ -77,18 +77,18 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .setEntrypoint("entry", "point")
-                    .setEnvironment(ImmutableDic.of("name", "value"))
-                    .addEnvironmentVariable("environment", "variable")
-                    .setExposedPorts(Port.tcp(1234), Port.udp(5678))
-                    .addExposedPort(Port.tcp(1337))
-                    .setLabels(ImmutableDic.of("key", "value"))
-                    .addLabel("added", "label")
-                    .setProgramArguments("program", "arguments");
+                    .SetEntrypoint("entry", "point")
+                    .SetEnvironment(ImmutableDic.of("name", "value"))
+                    .AddEnvironmentVariable("environment", "variable")
+                    .SetExposedPorts(Port.tcp(1234), Port.udp(5678))
+                    .AddExposedPort(Port.tcp(1337))
+                    .SetLabels(ImmutableDic.of("key", "value"))
+                    .AddLabel("added", "label")
+                    .SetProgramArguments("program", "arguments");
 
             BuildConfiguration buildConfiguration =
                 jibContainerBuilder.toBuildConfiguration(
-                    Containerizer.to(RegistryImage.named("target/image")));
+                    Containerizer.To(RegistryImage.named("target/image")));
             IContainerConfiguration containerConfiguration = buildConfiguration.getContainerConfiguration();
             Assert.AreEqual(Arrays.asList("entry", "point"), containerConfiguration.getEntrypoint());
             Assert.AreEqual(
@@ -111,7 +111,7 @@ namespace com.google.cloud.tools.jib.api
                 RegistryImage.named(ImageReference.of("gcr.io", "my-project/my-app", null))
                     .addCredential("username", "password");
             Containerizer containerizer =
-                Containerizer.to(targetImage)
+                Containerizer.To(targetImage)
                     .setBaseImageLayersCache(Paths.get("base/image/layers"))
                     .setApplicationLayersCache(Paths.get("application/layers"))
                     .addEventHandler(mockJibEventConsumer);
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.api
                 RegistryImage.named("base/image").addCredentialRetriever(mockCredentialRetriever);
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(baseImage, buildConfigurationBuilder)
-                    .setLayers(Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2));
+                    .SetLayers(Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2));
             BuildConfiguration buildConfiguration =
                 jibContainerBuilder.toBuildConfiguration(
                     containerizer);
@@ -147,7 +147,7 @@ namespace com.google.cloud.tools.jib.api
                     .getCredentialRetrievers()
                     .get(0)
                     .retrieve()
-                    .orElseThrow(() => new AssertionException("")));
+                    .OrElseThrow(() => new AssertionException("")));
 
             Assert.AreEqual(ImmutableHashSet.Create("latest"), buildConfiguration.getAllTargetImageTags());
 
@@ -155,7 +155,7 @@ namespace com.google.cloud.tools.jib.api
                 Arrays.asList(mockLayerConfiguration1, mockLayerConfiguration2),
                 buildConfiguration.getLayerConfigurations());
 
-            buildConfiguration.getEventHandlers().dispatch(mockJibEvent);
+            buildConfiguration.getEventHandlers().Dispatch(mockJibEvent);
             Mock.Get(mockJibEventConsumer).Verify(m => m(mockJibEvent));
 
             Assert.AreEqual("jib-core", buildConfiguration.getToolName());
@@ -167,7 +167,7 @@ namespace com.google.cloud.tools.jib.api
             // Changes jibContainerBuilder.
             buildConfiguration =
                 jibContainerBuilder
-                    .setFormat(ImageFormat.OCI)
+                    .SetFormat(ImageFormat.OCI)
                     .toBuildConfiguration(
                         containerizer
                             .withAdditionalTag("tag1")
@@ -186,14 +186,14 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .setEntrypoint(Arrays.asList("entry", "point"))
-                    .setEnvironment(ImmutableDic.of("name", "value"))
-                    .setExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
-                    .setLabels(ImmutableDic.of("key", "value"))
-                    .setProgramArguments(Arrays.asList("program", "arguments"))
-                    .setCreationTime(Instant.FromUnixTimeMilliseconds(1000))
-                    .setUser("user")
-                    .setWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
+                    .SetEntrypoint(Arrays.asList("entry", "point"))
+                    .SetEnvironment(ImmutableDic.of("name", "value"))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
+                    .SetLabels(ImmutableDic.of("key", "value"))
+                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetUser("user")
+                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
 
             IContainerizer mockContainerizer = createMockContainerizer();
 
@@ -207,14 +207,14 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.named("base/image"), buildConfigurationBuilder)
-                    .setEntrypoint(Arrays.asList("entry", "point"))
-                    .setEnvironment(ImmutableDic.of("name", "value"))
-                    .setExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
-                    .setLabels(ImmutableDic.of("key", "value"))
-                    .setProgramArguments(Arrays.asList("program", "arguments"))
-                    .setCreationTime(Instant.FromUnixTimeMilliseconds(1000))
-                    .setUser("user")
-                    .setWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
+                    .SetEntrypoint(Arrays.asList("entry", "point"))
+                    .SetEnvironment(ImmutableDic.of("name", "value"))
+                    .SetExposedPorts(ImmutableHashSet.Create(Port.tcp(1234), Port.udp(5678)))
+                    .SetLabels(ImmutableDic.of("key", "value"))
+                    .SetProgramArguments(Arrays.asList("program", "arguments"))
+                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetUser("user")
+                    .SetWorkingDirectory(AbsoluteUnixPath.get("/working/directory"));
             IContainerizer mockContainerizer = createMockContainerizer();
 
             await jibContainerBuilder.containerizeAsync(mockContainerizer).ConfigureAwait(false);

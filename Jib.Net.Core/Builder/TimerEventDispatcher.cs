@@ -97,7 +97,7 @@ namespace com.google.cloud.tools.jib.builder
 
         private void dispatchTimerEvent(State state, Duration duration, string eventDescription)
         {
-            eventHandlers.dispatch(
+            eventHandlers.Dispatch(
                 new TimerEvent(state, timer, duration, timer.getElapsedTime(), eventDescription));
         }
     }

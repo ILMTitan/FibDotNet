@@ -25,7 +25,6 @@ using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,7 +37,7 @@ namespace Jib.Net.Core.Registry
     /** Interfaces with a registry. */
     public sealed class RegistryClient
     {
-        public static ProductInfoHeaderValue defaultJibUserAgent =
+        public static readonly ProductInfoHeaderValue defaultJibUserAgent =
             new ProductInfoHeaderValue(new ProductHeaderValue("jib", ProjectInfo.VERSION));
 
         /** Factory for creating {@link RegistryClient}s. */
@@ -136,7 +135,7 @@ namespace Jib.Net.Core.Registry
              */
             private IEnumerable<ProductInfoHeaderValue> makeUserAgent()
             {
-                if (!JibSystemProperties.isUserAgentEnabled())
+                if (!JibSystemProperties.IsUserAgentEnabled())
                 {
                     yield break;
                 }
@@ -362,7 +361,7 @@ namespace Jib.Net.Core.Registry
                     // PATCH <Location> with BLOB
                     Uri putLocation =
                         await callRegistryEndpointAsync(blobPusher.writer(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
-                    Preconditions.checkNotNull(putLocation);
+                    Preconditions.CheckNotNull(putLocation);
 
                     timerEventDispatcher2.lap("pushBlob PUT " + blobDigest);
 

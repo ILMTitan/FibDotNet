@@ -47,16 +47,16 @@ namespace com.google.cloud.tools.jib.registry.json
         ItemNullValueHandling =NullValueHandling.Ignore)]
     public class ErrorResponseTemplate
     {
-        public List<ErrorEntryTemplate> Errors { get; } = new List<ErrorEntryTemplate>();
+        private readonly List<ErrorEntryTemplate> _errors = new List<ErrorEntryTemplate>();
 
-        public IReadOnlyList<ErrorEntryTemplate> getErrors()
+        public IReadOnlyList<ErrorEntryTemplate> Errors
         {
-            return Errors as IReadOnlyList<ErrorEntryTemplate> ?? Errors.ToList();
+            get { return _errors; }
         }
 
-        public ErrorResponseTemplate addError(ErrorEntryTemplate errorEntryTemplate)
+        public ErrorResponseTemplate AddError(ErrorEntryTemplate errorEntryTemplate)
         {
-            Errors.add(errorEntryTemplate);
+            _errors.add(errorEntryTemplate);
             return this;
         }
     }

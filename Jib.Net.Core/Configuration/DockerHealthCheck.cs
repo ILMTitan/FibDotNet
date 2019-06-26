@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System;
@@ -104,8 +105,8 @@ namespace com.google.cloud.tools.jib.configuration
         public static DockerHealthCheck.Builder fromCommand(IList<string> command)
         {
             command = command ?? throw new ArgumentNullException(nameof(command));
-            Preconditions.checkArgument(command.size() > 0, "command must not be empty");
-            Preconditions.checkArgument(!command.contains(null), "command must not contain null elements");
+            Preconditions.CheckArgument(command.size() > 0, "command must not be empty");
+            Preconditions.CheckArgument(!command.contains(null), "command must not contain null elements");
             return new Builder(ImmutableArray.CreateRange(command));
         }
 
@@ -148,7 +149,7 @@ namespace com.google.cloud.tools.jib.configuration
          */
         public Option<Duration> getInterval()
         {
-            return Option.ofNullable(interval);
+            return Option.OfNullable(interval);
         }
 
         /**
@@ -159,7 +160,7 @@ namespace com.google.cloud.tools.jib.configuration
          */
         public Option<Duration> getTimeout()
         {
-            return Option.ofNullable(timeout);
+            return Option.OfNullable(timeout);
         }
 
         /**
@@ -170,7 +171,7 @@ namespace com.google.cloud.tools.jib.configuration
          */
         public Option<Duration> getStartPeriod()
         {
-            return Option.ofNullable(startPeriod);
+            return Option.OfNullable(startPeriod);
         }
 
         /**
@@ -181,7 +182,7 @@ namespace com.google.cloud.tools.jib.configuration
          */
         public Option<int> getRetries()
         {
-            return Option.ofNullable(retries);
+            return Option.OfNullable(retries);
         }
     }
 }

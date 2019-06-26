@@ -39,7 +39,7 @@ namespace Jib.Net.Core.Unit.Tests
         public void testCheckHttpTimeoutProperty_ok()
         {
             Assert.IsNull(Environment.GetEnvironmentVariable(JibSystemProperties.HttpTimeout));
-            JibSystemProperties.checkHttpTimeoutProperty();
+            JibSystemProperties.CheckHttpTimeoutProperty();
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace Jib.Net.Core.Unit.Tests
             Environment.SetEnvironmentVariable(JibSystemProperties.HttpTimeout, "random string");
             try
             {
-                JibSystemProperties.checkHttpTimeoutProperty();
+                JibSystemProperties.CheckHttpTimeoutProperty();
                 Assert.Fail();
             }
             catch (FormatException ex)

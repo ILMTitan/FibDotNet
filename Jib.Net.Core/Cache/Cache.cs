@@ -140,12 +140,12 @@ namespace com.google.cloud.tools.jib.cache
         {
             DescriptorDigest selector = await LayerEntriesSelector.generateSelectorAsync(layerEntries).ConfigureAwait(false);
             Option<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.select(selector);
-            if (!optionalSelectedLayerDigest.isPresent())
+            if (!optionalSelectedLayerDigest.IsPresent())
             {
-                return Option.empty<CachedLayer>();
+                return Option.Empty<CachedLayer>();
             }
 
-            return cacheStorageReader.retrieve(optionalSelectedLayerDigest.get());
+            return cacheStorageReader.retrieve(optionalSelectedLayerDigest.Get());
         }
 
         /**

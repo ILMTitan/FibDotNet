@@ -19,11 +19,11 @@ using System.Globalization;
 using com.google.cloud.tools.jib.image.json;
 using Jib.Net.Core.Api;
 
-namespace Jib.Net.Core.Global
+namespace Jib.Net.Core
 {
     internal static class Preconditions
     {
-        internal static void checkState(bool v)
+        internal static void CheckState(bool v)
         {
             if (!v)
             {
@@ -31,7 +31,7 @@ namespace Jib.Net.Core.Global
             }
         }
 
-        internal static void checkArgument(bool v1)
+        internal static void CheckArgument(bool v1)
         {
             if (!v1)
             {
@@ -39,7 +39,7 @@ namespace Jib.Net.Core.Global
             }
         }
 
-        internal static void checkArgument(bool isValid, string messageFormat, params object[] values)
+        internal static void CheckArgument(bool isValid, string messageFormat, params object[] values)
         {
             if (!isValid)
             {
@@ -47,17 +47,17 @@ namespace Jib.Net.Core.Global
             }
         }
 
-        internal static T checkNotNull<T>(T value, string message) where T : class
+        internal static T CheckNotNull<T>(T value, string message) where T : class
         {
             return value ?? throw new ArgumentNullException(nameof(value), message);
         }
 
-        internal static T checkNotNull<T>(T value) where T : class
+        internal static T CheckNotNull<T>(T value) where T : class
         {
             return value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        internal static T checkNotNull<T>(T? value) where T: struct
+        internal static T CheckNotNull<T>(T? value) where T : struct
         {
             return value ?? throw new ArgumentNullException(nameof(value));
         }

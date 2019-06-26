@@ -17,8 +17,7 @@
 using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.events;
-using com.google.cloud.tools.jib.@event.progress;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
@@ -48,10 +47,10 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         [SetUp]
         public void SetUp()
         {
-            root = Allocation.newRoot("root", 2);
-            child1 = root.newChild("child1", 1);
-            child1Child = child1.newChild("child1Child", 100);
-            child2 = root.newChild("child2", 200);
+            root = Allocation.NewRoot("root", 2);
+            child1 = root.NewChild("child1", 1);
+            child1Child = child1.NewChild("child1Child", 100);
+            child2 = root.NewChild("child2", 200);
         }
 
         [Test]
@@ -60,26 +59,26 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             using (DoubleAccumulator maxProgress = new DoubleAccumulator(0))
             {
                 ProgressEventHandler progressEventHandler =
-                    new ProgressEventHandler(update => maxProgress.accumulate(update.getProgress()));
+                    new ProgressEventHandler(update => maxProgress.accumulate(update.GetProgress()));
                 EventHandlers eventHandlers =
-                    EventHandlers.builder().add<ProgressEvent>(progressEventHandler.accept).build();
+                    EventHandlers.builder().add<ProgressEvent>(progressEventHandler.Accept).build();
 
                 // Adds root, child1, and child1Child.
-                await MultithreadedExecutor.invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(root, 0L)))
+                await MultithreadedExecutor.invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(root, 0L)))
                     .ConfigureAwait(false);
-                await MultithreadedExecutor.invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(child1, 0L)))
+                await MultithreadedExecutor.invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1, 0L)))
                     .ConfigureAwait(false);
                 await MultithreadedExecutor
-                    .invokeAsync(() => eventHandlers.dispatch(new ProgressEvent(child1Child, 0L)))
+                    .invokeAsync(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 0L)))
                     .ConfigureAwait(false);
                 Assert.AreEqual(0.0, maxProgress.get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2.
                 IList<Action> callables = new List<Action>(150);
                 callables.addAll(
-                    Enumerable.Repeat((Action)(() => eventHandlers.dispatch(new ProgressEvent(child1Child, 1L))), 50));
+                    Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 1L))), 50));
                 callables.addAll(
-                    Enumerable.Repeat((Action)(() => eventHandlers.dispatch(new ProgressEvent(child2, 1L))), 100));
+                    Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child2, 1L))), 100));
 
                 await MultithreadedExecutor.invokeAllAsync(callables).ConfigureAwait(false);
 
@@ -89,7 +88,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 // 0 progress doesn't do anything.
                 await MultithreadedExecutor
                     .invokeAllAsync(Enumerable.Repeat((Action)(() =>
-                        eventHandlers.dispatch(new ProgressEvent(child1, 0L))), 100))
+                        eventHandlers.Dispatch(new ProgressEvent(child1, 0L))), 100))
                     .ConfigureAwait(false);
                 Assert.AreEqual(
                     1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.get(), DOUBLE_ERROR_MARGIN);

@@ -51,7 +51,7 @@ namespace com.google.cloud.tools.jib.registry
         public void setUp()
         {
             mockEventHandlers = Mock.Of<IEventHandlers>();
-            v22manifestJsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").toURI());
+            v22manifestJsonFile = Paths.get(TestResources.getResource("core/json/v22manifest.json").ToURI());
             fakeManifestTemplate =
                 JsonTemplateMapper.readJsonFromFile<V22ManifestTemplate>(v22manifestJsonFile);
 
@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(LogEvent.warn("Expected image digest " + expectedDigest + ", but received none")));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: too, many")));
         }
 
@@ -128,7 +128,7 @@ namespace com.google.cloud.tools.jib.registry
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.handleResponseAsync(mockResponse).ConfigureAwait(false));
-            Mock.Get(mockEventHandlers).Verify(m => m.dispatch(
+            Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(
                     LogEvent.warn("Expected image digest " + expectedDigest + ", but received: not valid")));
         }
 

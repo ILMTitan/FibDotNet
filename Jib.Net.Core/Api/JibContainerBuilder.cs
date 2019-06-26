@@ -105,7 +105,7 @@ namespace Jib.Net.Core.Api
          * @return this
          * @throws IOException if an exception occurred when recursively listing any directories
          */
-        public JibContainerBuilder addLayer(IList<SystemPath> files, AbsoluteUnixPath pathInContainer)
+        public JibContainerBuilder AddLayer(IList<SystemPath> files, AbsoluteUnixPath pathInContainer)
         {
             pathInContainer = pathInContainer ?? throw new ArgumentNullException(nameof(pathInContainer));
             files = files ?? throw new ArgumentNullException(nameof(files));
@@ -116,10 +116,10 @@ namespace Jib.Net.Core.Api
 
             {
                 layerConfigurationBuilder.addEntryRecursive(
-                    file, pathInContainer.resolve(file.getFileName()));
+                    file, pathInContainer.resolve(file.GetFileName()));
             }
 
-            return addLayer(layerConfigurationBuilder.build());
+            return AddLayer(layerConfigurationBuilder.build());
         }
 
         /**
@@ -134,9 +134,9 @@ namespace Jib.Net.Core.Api
          * @throws IllegalArgumentException if {@code pathInContainer} is not an absolute Unix-style path
          * @see #addLayer(List, AbsoluteUnixPath)
          */
-        public JibContainerBuilder addLayer(IList<SystemPath> files, string pathInContainer)
+        public JibContainerBuilder AddLayer(IList<SystemPath> files, string pathInContainer)
         {
-            return addLayer(files, AbsoluteUnixPath.get(pathInContainer));
+            return AddLayer(files, AbsoluteUnixPath.get(pathInContainer));
         }
 
         /**
@@ -145,7 +145,7 @@ namespace Jib.Net.Core.Api
          * @param layerConfiguration the {@link LayerConfiguration}
          * @return this
          */
-        public JibContainerBuilder addLayer(ILayerConfiguration layerConfiguration)
+        public JibContainerBuilder AddLayer(ILayerConfiguration layerConfiguration)
         {
             layerConfigurations.add(layerConfiguration);
             return this;
@@ -158,7 +158,7 @@ namespace Jib.Net.Core.Api
          * @param layerConfigurations the list of {@link LayerConfiguration}s
          * @return this
          */
-        public JibContainerBuilder setLayers(IList<ILayerConfiguration> layerConfigurations)
+        public JibContainerBuilder SetLayers(IList<ILayerConfiguration> layerConfigurations)
         {
             this.layerConfigurations = new List<ILayerConfiguration>(layerConfigurations);
             return this;
@@ -170,9 +170,9 @@ namespace Jib.Net.Core.Api
          * @param layerConfigurations the {@link LayerConfiguration}s
          * @return this
          */
-        public JibContainerBuilder setLayers(params ILayerConfiguration[] layerConfigurations)
+        public JibContainerBuilder SetLayers(params ILayerConfiguration[] layerConfigurations)
         {
-            return setLayers(Arrays.asList(layerConfigurations));
+            return SetLayers(Arrays.asList(layerConfigurations));
         }
 
         /**
@@ -188,7 +188,7 @@ namespace Jib.Net.Core.Api
          * @param entrypoint a list of the entrypoint command
          * @return this
          */
-        public JibContainerBuilder setEntrypoint(IList<string> entrypoint)
+        public JibContainerBuilder SetEntrypoint(IList<string> entrypoint)
         {
             containerConfigurationBuilder.setEntrypoint(entrypoint);
             return this;
@@ -201,9 +201,9 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setEntrypoint(List)
          */
-        public JibContainerBuilder setEntrypoint(params string[] entrypoint)
+        public JibContainerBuilder SetEntrypoint(params string[] entrypoint)
         {
-            return setEntrypoint(Arrays.asList(entrypoint));
+            return SetEntrypoint(Arrays.asList(entrypoint));
         }
 
         /**
@@ -222,7 +222,7 @@ namespace Jib.Net.Core.Api
          * @param programArguments a list of program argument tokens
          * @return this
          */
-        public JibContainerBuilder setProgramArguments(IList<string> programArguments)
+        public JibContainerBuilder SetProgramArguments(IList<string> programArguments)
         {
             containerConfigurationBuilder.setProgramArguments(programArguments);
             return this;
@@ -235,9 +235,9 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setProgramArguments(List)
          */
-        public JibContainerBuilder setProgramArguments(params string[] programArguments)
+        public JibContainerBuilder SetProgramArguments(params string[] programArguments)
         {
-            return setProgramArguments(Arrays.asList(programArguments));
+            return SetProgramArguments(Arrays.asList(programArguments));
         }
 
         /**
@@ -253,7 +253,7 @@ namespace Jib.Net.Core.Api
          * @param environmentMap a map of environment variable names to values
          * @return this
          */
-        public JibContainerBuilder setEnvironment(IDictionary<string, string> environmentMap)
+        public JibContainerBuilder SetEnvironment(IDictionary<string, string> environmentMap)
         {
             containerConfigurationBuilder.setEnvironment(environmentMap);
             return this;
@@ -267,7 +267,7 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setEnvironment
          */
-        public JibContainerBuilder addEnvironmentVariable(string name, string value)
+        public JibContainerBuilder AddEnvironmentVariable(string name, string value)
         {
             containerConfigurationBuilder.addEnvironment(name, value);
             return this;
@@ -282,7 +282,7 @@ namespace Jib.Net.Core.Api
          * @param volumes the directory paths on the container filesystem to set as volumes
          * @return this
          */
-        public JibContainerBuilder setVolumes(ISet<AbsoluteUnixPath> volumes)
+        public JibContainerBuilder SetVolumes(ISet<AbsoluteUnixPath> volumes)
         {
             containerConfigurationBuilder.setVolumes(volumes);
             return this;
@@ -295,9 +295,9 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setVolumes(ISet)
          */
-        public JibContainerBuilder setVolumes(params AbsoluteUnixPath[] volumes)
+        public JibContainerBuilder SetVolumes(params AbsoluteUnixPath[] volumes)
         {
-            return setVolumes(new HashSet<AbsoluteUnixPath>(Arrays.asList(volumes)));
+            return SetVolumes(new HashSet<AbsoluteUnixPath>(Arrays.asList(volumes)));
         }
 
         /**
@@ -307,7 +307,7 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setVolumes(ISet)
          */
-        public JibContainerBuilder addVolume(AbsoluteUnixPath volume)
+        public JibContainerBuilder AddVolume(AbsoluteUnixPath volume)
         {
             containerConfigurationBuilder.addVolume(volume);
             return this;
@@ -328,7 +328,7 @@ namespace Jib.Net.Core.Api
          * @param ports the ports to expose
          * @return this
          */
-        public JibContainerBuilder setExposedPorts(ISet<Port> ports)
+        public JibContainerBuilder SetExposedPorts(ISet<Port> ports)
         {
             containerConfigurationBuilder.setExposedPorts(ports);
             return this;
@@ -341,9 +341,9 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setExposedPorts(ISet)
          */
-        public JibContainerBuilder setExposedPorts(params Port[] ports)
+        public JibContainerBuilder SetExposedPorts(params Port[] ports)
         {
-            return setExposedPorts(new HashSet<Port>(Arrays.asList(ports)));
+            return SetExposedPorts(new HashSet<Port>(Arrays.asList(ports)));
         }
 
         /**
@@ -353,7 +353,7 @@ namespace Jib.Net.Core.Api
          * @return this
          * @see #setExposedPorts(ISet)
          */
-        public JibContainerBuilder addExposedPort(Port port)
+        public JibContainerBuilder AddExposedPort(Port port)
         {
             containerConfigurationBuilder.addExposedPort(port);
             return this;
@@ -368,7 +368,7 @@ namespace Jib.Net.Core.Api
          * @param labelMap a map of label keys to values
          * @return this
          */
-        public JibContainerBuilder setLabels(IDictionary<string, string> labelMap)
+        public JibContainerBuilder SetLabels(IDictionary<string, string> labelMap)
         {
             containerConfigurationBuilder.setLabels(labelMap);
             return this;
@@ -381,7 +381,7 @@ namespace Jib.Net.Core.Api
          * @param value the label value
          * @return this
          */
-        public JibContainerBuilder addLabel(string key, string value)
+        public JibContainerBuilder AddLabel(string key, string value)
         {
             containerConfigurationBuilder.addLabel(key, value);
             return this;
@@ -394,7 +394,7 @@ namespace Jib.Net.Core.Api
          * @param imageFormat the {@link ImageFormat}
          * @return this
          */
-        public JibContainerBuilder setFormat(ImageFormat imageFormat)
+        public JibContainerBuilder SetFormat(ImageFormat imageFormat)
         {
             buildConfigurationBuilder.setTargetFormat(imageFormat);
             return this;
@@ -406,7 +406,7 @@ namespace Jib.Net.Core.Api
          * @param creationTime the container image creation time
          * @return this
          */
-        public JibContainerBuilder setCreationTime(Instant creationTime)
+        public JibContainerBuilder SetCreationTime(Instant creationTime)
         {
             containerConfigurationBuilder.setCreationTime(creationTime);
             return this;
@@ -430,7 +430,7 @@ namespace Jib.Net.Core.Api
          * @param user the user to run the container as
          * @return this
          */
-        public JibContainerBuilder setUser(string user)
+        public JibContainerBuilder SetUser(string user)
         {
             containerConfigurationBuilder.setUser(user);
             return this;
@@ -442,7 +442,7 @@ namespace Jib.Net.Core.Api
          * @param workingDirectory the working directory
          * @return this
          */
-        public JibContainerBuilder setWorkingDirectory(AbsoluteUnixPath workingDirectory)
+        public JibContainerBuilder SetWorkingDirectory(AbsoluteUnixPath workingDirectory)
         {
             containerConfigurationBuilder.setWorkingDirectory(workingDirectory);
             return this;
@@ -544,7 +544,7 @@ namespace Jib.Net.Core.Api
                     message.Append("\t\t").Append(layerEntry.getSourceFile());
                 }
             }
-            eventHandlers.dispatch(LogEvent.info(message.ToString()));
+            eventHandlers.Dispatch(LogEvent.info(message.ToString()));
         }
     }
 }

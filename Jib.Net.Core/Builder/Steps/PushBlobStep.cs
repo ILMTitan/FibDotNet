@@ -18,10 +18,10 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.progress;
 using com.google.cloud.tools.jib.http;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Registry;
 using System.Threading.Tasks;
 
@@ -66,14 +66,14 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             Authorization authorization = await authenticatePushStep.getFuture().ConfigureAwait(false);
             using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDipatcherFactory.create(
+                    progressEventDipatcherFactory.Create(
                         "pushing blob " + blobDescriptor.getDigest(), blobDescriptor.getSize()))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
                         buildConfiguration.getEventHandlers(), DESCRIPTION + blobDescriptor))
             using (
     ThrottledAccumulatingConsumer throttledProgressReporter =
-        new ThrottledAccumulatingConsumer(progressEventDispatcher.dispatchProgress))
+        new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress))
             {
                 RegistryClient registryClient =
                     buildConfiguration
@@ -86,12 +86,12 @@ namespace com.google.cloud.tools.jib.builder.steps
                 {
                     buildConfiguration
                         .getEventHandlers()
-                        .dispatch(LogEvent.info("BLOB : " + blobDescriptor + " already exists on registry"));
+                        .Dispatch(LogEvent.info("BLOB : " + blobDescriptor + " already exists on registry"));
                     return blobDescriptor;
                 }
 
                 // todo: leverage cross-repository mounts
-                await registryClient.pushBlobAsync(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.accept).ConfigureAwait(false);
+                await registryClient.pushBlobAsync(blobDescriptor.getDigest(), blob, null, throttledProgressReporter.Accept).ConfigureAwait(false);
 
                 return blobDescriptor;
             }

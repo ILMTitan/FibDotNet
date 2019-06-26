@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.filesystem
         [SetUp]
         public void setUp()
         {
-            testDir = Paths.get(TestResources.getResource("core/layer").toURI());
+            testDir = Paths.get(TestResources.getResource("core/layer").ToURI());
             walkedPaths = new HashSet<SystemPath>();
             addToWalkedPaths = walkedPaths.add;
         }
@@ -48,12 +48,12 @@ namespace com.google.cloud.tools.jib.filesystem
                 new HashSet<SystemPath>(
                     Arrays.asList(
                         testDir,
-                        testDir.resolve("a"),
-                        testDir.resolve("a").resolve("b"),
-                        testDir.resolve("a").resolve("b").resolve("bar"),
-                        testDir.resolve("c"),
-                        testDir.resolve("c").resolve("cat"),
-                        testDir.resolve("foo")));
+                        testDir.Resolve("a"),
+                        testDir.Resolve("a").Resolve("b"),
+                        testDir.Resolve("a").Resolve("b").Resolve("bar"),
+                        testDir.Resolve("c"),
+                        testDir.Resolve("c").Resolve("cat"),
+                        testDir.Resolve("foo")));
             Assert.AreEqual(expectedPaths, walkedPaths);
         }
 
@@ -62,12 +62,12 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             // Filters to immediate subdirectories of testDir, and foo.
             new DirectoryWalker(testDir)
-                .filter(path => path.getParent().Equals(testDir))
+                .filter(path => path.GetParent().Equals(testDir))
                 .filter(path => !path.ToString().endsWith("foo"))
                 .walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
-                new HashSet<SystemPath>(Arrays.asList(testDir.resolve("a"), testDir.resolve("c")));
+                new HashSet<SystemPath>(Arrays.asList(testDir.Resolve("a"), testDir.Resolve("c")));
             CollectionAssert.AreEquivalent(expectedPaths, walkedPaths);
         }
 
@@ -79,12 +79,12 @@ namespace com.google.cloud.tools.jib.filesystem
             ISet<SystemPath> expectedPaths =
                 new HashSet<SystemPath>(
                     Arrays.asList(
-                        testDir.resolve("a"),
-                        testDir.resolve("a").resolve("b"),
-                        testDir.resolve("a").resolve("b").resolve("bar"),
-                        testDir.resolve("c"),
-                        testDir.resolve("c").resolve("cat"),
-                        testDir.resolve("foo")));
+                        testDir.Resolve("a"),
+                        testDir.Resolve("a").Resolve("b"),
+                        testDir.Resolve("a").Resolve("b").Resolve("bar"),
+                        testDir.Resolve("c"),
+                        testDir.Resolve("c").Resolve("cat"),
+                        testDir.Resolve("foo")));
             CollectionAssert.AreEqual(expectedPaths, walkedPaths);
         }
     }

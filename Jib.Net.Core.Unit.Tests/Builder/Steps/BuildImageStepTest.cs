@@ -153,7 +153,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -182,7 +182,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -208,14 +208,14 @@ namespace com.google.cloud.tools.jib.builder.steps
             Assert.IsNotNull(image.getHealthCheck());
             CollectionAssert.AreEqual(
                 ImmutableArray.Create("CMD-SHELL", "echo hi"), image.getHealthCheck().getCommand());
-            Assert.IsTrue(image.getHealthCheck().getInterval().isPresent());
-            Assert.AreEqual(Duration.FromSeconds(3), image.getHealthCheck().getInterval().get());
-            Assert.IsTrue(image.getHealthCheck().getTimeout().isPresent());
-            Assert.AreEqual(Duration.FromSeconds(2), image.getHealthCheck().getTimeout().get());
-            Assert.IsTrue(image.getHealthCheck().getStartPeriod().isPresent());
-            Assert.AreEqual(Duration.FromSeconds(1), image.getHealthCheck().getStartPeriod().get());
-            Assert.IsTrue(image.getHealthCheck().getRetries().isPresent());
-            Assert.AreEqual(20, image.getHealthCheck().getRetries().get());
+            Assert.IsTrue(image.getHealthCheck().getInterval().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(3), image.getHealthCheck().getInterval().Get());
+            Assert.IsTrue(image.getHealthCheck().getTimeout().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(2), image.getHealthCheck().getTimeout().Get());
+            Assert.IsTrue(image.getHealthCheck().getStartPeriod().IsPresent());
+            Assert.AreEqual(Duration.FromSeconds(1), image.getHealthCheck().getStartPeriod().Get());
+            Assert.IsTrue(image.getHealthCheck().getRetries().IsPresent());
+            Assert.AreEqual(20, image.getHealthCheck().getRetries().Get());
             Assert.AreEqual(
                 ImmutableHashSet.Create(Port.tcp(1000), Port.udp(2000), Port.tcp(3000), Port.udp(4000)),
                 image.getExposedPorts());
@@ -248,7 +248,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -271,7 +271,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -295,7 +295,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -319,7 +319,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);
@@ -341,7 +341,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildImageStep buildImageStep =
                 new BuildImageStep(
                     mockBuildConfiguration,
-                    ProgressEventDispatcher.newRoot(mockEventHandlers, "ignored", 1).newChildProducer(),
+                    ProgressEventDispatcher.NewRoot(mockEventHandlers, "ignored", 1).NewChildProducer(),
                     mockPullBaseImageStep,
                     mockPullAndCacheBaseImageLayersStep,
                     mockBuildAndCacheApplicationLayersStep);

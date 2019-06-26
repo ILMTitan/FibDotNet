@@ -15,10 +15,9 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.events;
-using com.google.cloud.tools.jib.@event.progress;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
@@ -44,10 +43,10 @@ namespace Jib.Net.Core.Unit.Tests.Events
         [SetUp]
         public void SetUp()
         {
-            root = Allocation.newRoot("ignored", 2);
-            child1 = root.newChild("ignored", 1);
-            child1Child = child1.newChild("ignored", 100);
-            child2 = root.newChild("ignored", 200);
+            root = Allocation.NewRoot("ignored", 2);
+            child1 = root.NewChild("ignored", 1);
+            child1Child = child1.NewChild("ignored", 100);
+            child2 = root.NewChild("ignored", 200);
         }
 
         private static EventHandlers makeEventHandlers(Action<ProgressEvent> progressEventConsumer)
@@ -66,24 +65,24 @@ namespace Jib.Net.Core.Unit.Tests.Events
         {
             void progressEventConsumer(ProgressEvent progressEvent)
             {
-                double fractionOfRoot = progressEvent.getAllocation().getFractionOfRoot();
-                long units = progressEvent.getUnits();
+                double fractionOfRoot = progressEvent.GetAllocation().GetFractionOfRoot();
+                long units = progressEvent.GetUnits();
 
                 progress += units * fractionOfRoot;
             }
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
+            eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
             Assert.AreEqual(1.0 / 2 / 100 * 50, progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
+            eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
             Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(child2, 10));
+            eventHandlers.Dispatch(new ProgressEvent(child2, 10));
             Assert.AreEqual(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
 
-            eventHandlers.dispatch(new ProgressEvent(child2, 190));
+            eventHandlers.Dispatch(new ProgressEvent(child2, 190));
             Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);
         }
 
@@ -92,27 +91,27 @@ namespace Jib.Net.Core.Unit.Tests.Events
         {
             void progressEventConsumer(ProgressEvent progressEvent)
             {
-                Allocation allocation = progressEvent.getAllocation();
-                long units = progressEvent.getUnits();
+                Allocation allocation = progressEvent.GetAllocation();
+                long units = progressEvent.GetUnits();
 
                 updateCompletionMap(allocation, units);
             }
 
             EventHandlers eventHandlers = makeEventHandlers(progressEventConsumer);
 
-            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
+            eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(1, allocationCompletionMap.size());
             Assert.AreEqual(50, allocationCompletionMap.get(child1Child).longValue());
 
-            eventHandlers.dispatch(new ProgressEvent(child1Child, 50));
+            eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(3, allocationCompletionMap.size());
             Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
             Assert.AreEqual(1, allocationCompletionMap.get(child1).longValue());
             Assert.AreEqual(1, allocationCompletionMap.get(root).longValue());
 
-            eventHandlers.dispatch(new ProgressEvent(child2, 200));
+            eventHandlers.Dispatch(new ProgressEvent(child2, 200));
 
             Assert.AreEqual(4, allocationCompletionMap.size());
             Assert.AreEqual(100, allocationCompletionMap.get(child1Child).longValue());
@@ -132,7 +131,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
             }
 
             EventHandlers eventHandlers = makeEventHandlers(buildImageConsumer);
-            eventHandlers.dispatch(new ProgressEvent(child1, 50));
+            eventHandlers.Dispatch(new ProgressEvent(child1, 50));
             Assert.IsTrue(called[0]);
         }
 
@@ -152,11 +151,11 @@ namespace Jib.Net.Core.Unit.Tests.Events
             }
             allocationCompletionMap.put(allocation, units);
 
-            if (allocation.getAllocationUnits() == units)
+            if (allocation.GetAllocationUnits() == units)
             {
                 allocation
-                    .getParent()
-                    .ifPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
+                    .GetParent()
+                    .IfPresent(parentAllocation => updateCompletionMap(parentAllocation, 1));
             }
         }
     }

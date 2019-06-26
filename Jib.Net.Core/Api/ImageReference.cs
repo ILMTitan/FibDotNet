@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System;
@@ -168,9 +169,9 @@ namespace com.google.cloud.tools.jib.api
         public static ImageReference of(
             string registry, string repository, string tag)
         {
-            Preconditions.checkArgument(Strings.isNullOrEmpty(registry) || isValidRegistry(registry));
-            Preconditions.checkArgument(isValidRepository(repository));
-            Preconditions.checkArgument(Strings.isNullOrEmpty(tag) || isValidTag(tag));
+            Preconditions.CheckArgument(Strings.isNullOrEmpty(registry) || isValidRegistry(registry));
+            Preconditions.CheckArgument(isValidRepository(repository));
+            Preconditions.CheckArgument(Strings.isNullOrEmpty(tag) || isValidTag(tag));
 
             if (Strings.isNullOrEmpty(registry))
             {

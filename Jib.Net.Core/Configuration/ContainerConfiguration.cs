@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NodaTime;
@@ -68,7 +69,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !programArguments.contains(null), "program arguments list contains null elements");
                     this.programArguments = ImmutableArray.CreateRange(programArguments);
                 }
@@ -89,10 +90,10 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !Iterables.any(environmentMap.keySet(), Objects.isNull),
                         "environment map contains null keys");
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !Iterables.any(environmentMap.values(), Objects.isNull),
                         "environment map contains null values");
                     this.environmentMap = new Dictionary<string, string>(environmentMap);
@@ -119,7 +120,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !exposedPorts.contains(null), "ports list contains null elements");
                     this.exposedPorts = new HashSet<Port>(exposedPorts);
                 }
@@ -145,7 +146,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(!volumes.contains(null), "volumes list contains null elements");
+                    Preconditions.CheckArgument(!volumes.contains(null), "volumes list contains null elements");
                     this.volumes = new HashSet<AbsoluteUnixPath>(volumes);
                 }
                 return this;
@@ -170,9 +171,9 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !Iterables.any(labels.keySet(), Objects.isNull), "labels map contains null keys");
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !Iterables.any(labels.values(), Objects.isNull), "labels map contains null values");
                     this.labels = new Dictionary<string, string>(labels);
                 }
@@ -198,7 +199,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.checkArgument(
+                    Preconditions.CheckArgument(
                         !entrypoint.contains(null), "entrypoint contains null elements");
                     this.entrypoint = ImmutableArray.CreateRange(entrypoint);
                 }

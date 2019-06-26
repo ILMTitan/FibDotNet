@@ -70,7 +70,7 @@ namespace Jib.Net.Core.Api
         public static IEnumerable<SystemPath> list(SystemPath sourceFile)
         {
             sourceFile = sourceFile ?? throw new ArgumentNullException(nameof(sourceFile));
-            foreach (var entry in sourceFile.toDirectory().EnumerateFileSystemInfos())
+            foreach (var entry in sourceFile.ToDirectory().EnumerateFileSystemInfos())
             {
                 yield return new SystemPath(entry);
             }
@@ -121,7 +121,7 @@ namespace Jib.Net.Core.Api
 
         internal static TemporaryFile createTempFile(SystemPath systemPath)
         {
-            return new TemporaryFile(systemPath.resolve(Path.GetRandomFileName()));
+            return new TemporaryFile(systemPath.Resolve(Path.GetRandomFileName()));
         }
 
         public static Stream newOutputStream(SystemPath path)

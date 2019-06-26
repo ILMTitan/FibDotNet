@@ -89,17 +89,17 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             string description = makeDescription(registry);
 
-            buildConfiguration.getEventHandlers().dispatch(LogEvent.progress(description + "..."));
+            buildConfiguration.getEventHandlers().Dispatch(LogEvent.progress(description + "..."));
 
-            using (progressEventDispatcherFactory.create("retrieving credentials for " + registry, 1))
+            using (progressEventDispatcherFactory.Create("retrieving credentials for " + registry, 1))
             using (new TimerEventDispatcher(buildConfiguration.getEventHandlers(), description))
             {
                 foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
                 {
                     Option<Credential> optionalCredential = credentialRetriever.retrieve();
-                    if (optionalCredential.isPresent())
+                    if (optionalCredential.IsPresent())
                     {
-                        return optionalCredential.get();
+                        return optionalCredential.Get();
                     }
                 }
 
@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 // public and does not need extra credentials) and return null.
                 buildConfiguration
                     .getEventHandlers()
-                    .dispatch(LogEvent.info("No credentials could be retrieved for registry " + registry));
+                    .Dispatch(LogEvent.info("No credentials could be retrieved for registry " + registry));
                 return null;
             }
         }
