@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.blob
             using (MemoryStream byteArrayOutputStream = new MemoryStream())
             {
                 await blob.WriteToAsync(byteArrayOutputStream).ConfigureAwait(false);
-                return byteArrayOutputStream.ToByteArray();
+                return byteArrayOutputStream.ToArray();
             }
         }
     }

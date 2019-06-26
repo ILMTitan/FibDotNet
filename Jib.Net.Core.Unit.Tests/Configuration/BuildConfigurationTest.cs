@@ -117,7 +117,7 @@ namespace com.google.cloud.tools.jib.configuration
                 buildConfiguration
                     .GetTargetImageConfiguration()
                     .GetCredentialRetrievers()
-                    .Get(0)
+[0]
                     .Retrieve()
                     .OrElseThrow(() => new AssertionException("")));
             Assert.AreEqual(

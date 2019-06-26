@@ -33,21 +33,21 @@ namespace com.google.cloud.tools.jib.builder
             Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0));
 
             Timer parentTimer = new Timer(mockClock, null);
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(5));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(5));
 
             Duration parentDuration1 = parentTimer.Lap();
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(15));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(15));
 
             Duration parentDuration2 = parentTimer.Lap();
 
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(16));
 
             Timer childTimer = new Timer(mockClock, parentTimer);
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16).PlusNanos(1));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns((Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(16)).PlusNanoseconds(1));
 
             Duration childDuration = childTimer.Lap();
 
-            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(16).PlusNanos(2));
+            Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns((Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(16)).PlusNanoseconds(2));
 
             Duration parentDuration3 = parentTimer.Lap();
 

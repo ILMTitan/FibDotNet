@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create(
-                        "checking base image layers", baseImageLayers.Size()))
+                        "checking base image layers", baseImageLayers.Length))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
 

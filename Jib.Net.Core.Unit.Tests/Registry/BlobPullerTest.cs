@@ -86,12 +86,12 @@ namespace com.google.cloud.tools.jib.registry
                     fakeRegistryEndpointRequestProperties,
                     testBlobDigest,
                     layerOutputStream,
-                    size => Assert.AreEqual("some BLOB content".Length, size.LongValue()),
+                    size => Assert.AreEqual("some BLOB content".Length, size),
                     byteCount.Add);
             await blobPuller.HandleResponseAsync(mockResponse).ConfigureAwait(false);
             Assert.AreEqual(
                 "some BLOB content",
-                Encoding.UTF8.GetString(layerContentOutputStream.ToByteArray()));
+                Encoding.UTF8.GetString(layerContentOutputStream.ToArray()));
             Assert.AreEqual(testBlobDigest, layerOutputStream.ComputeDigest().GetDigest());
             Assert.AreEqual("some BLOB content".Length, byteCount.Sum());
         }

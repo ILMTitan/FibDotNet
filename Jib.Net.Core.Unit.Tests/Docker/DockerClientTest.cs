@@ -80,7 +80,7 @@ namespace com.google.cloud.tools.jib.docker
             string output = await testDockerClient.LoadAsync(imageTarball).ConfigureAwait(false);
 
             Assert.AreEqual(
-                "jib", Encoding.UTF8.GetString(byteArrayOutputStream.ToByteArray()));
+                "jib", Encoding.UTF8.GetString(byteArrayOutputStream.ToArray()));
             Assert.AreEqual("output", output);
         }
 

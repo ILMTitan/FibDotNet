@@ -54,14 +54,14 @@ namespace Jib.Net.Core.Unit.Tests.Events
             VerifyNextLogEvent(Level.WARN, "warn");
             VerifyNextLogEvent(Level.INFO, "info");
             VerifyNextLogEvent(Level.DEBUG, "debug");
-            Assert.IsTrue(receivedLogEvents.IsEmpty());
+            Assert.IsTrue(receivedLogEvents.Count == 0);
         }
 
         private void VerifyNextLogEvent(Level level, string message)
         {
-            Assert.IsFalse(receivedLogEvents.IsEmpty());
+            Assert.IsFalse(receivedLogEvents.Count == 0);
 
-            LogEvent logEvent = receivedLogEvents.Poll();
+            LogEvent logEvent = receivedLogEvents.Dequeue();
 
             Assert.AreEqual(level, logEvent.GetLevel());
             Assert.AreEqual(message, logEvent.GetMessage());

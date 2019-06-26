@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ProgressEventDispatcher.Factory progressEventDispatcherFactory)
         {
             buildConfiguration = buildConfiguration ?? throw new ArgumentNullException(nameof(buildConfiguration));
-            int layerCount = buildConfiguration.GetLayerConfigurations().Size();
+            int layerCount = buildConfiguration.GetLayerConfigurations().Length;
 
             using (ProgressEventDispatcher progressEventDispatcher =
                     progressEventDispatcherFactory.Create(

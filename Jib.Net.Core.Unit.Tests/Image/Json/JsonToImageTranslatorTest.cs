@@ -225,7 +225,7 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual("tomcat", image.GetUser());
             Assert.AreEqual("value1", image.GetLabels()["key1"]);
             Assert.AreEqual("value2", image.GetLabels()["key2"]);
-            Assert.AreEqual(2, image.GetLabels().Size());
+            Assert.AreEqual(2, image.GetLabels().Count);
         }
     }
 }

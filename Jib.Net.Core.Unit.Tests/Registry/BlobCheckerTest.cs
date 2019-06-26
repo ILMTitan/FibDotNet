@@ -107,7 +107,7 @@ namespace com.google.cloud.tools.jib.registry
             ErrorResponseTemplate emptyErrorResponseTemplate =
                 new ErrorResponseTemplate()
                     .AddError(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "some message"))
-                    .AddError(new ErrorEntryTemplate(ErrorCode.ManifestUnknown.Name(), "some message"));
+                    .AddError(new ErrorEntryTemplate(ErrorCode.ManifestUnknown, "some message"));
             HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.NotFound)
             {
                 Content = new StringContent(JsonTemplateMapper.ToUtf8String(emptyErrorResponseTemplate))

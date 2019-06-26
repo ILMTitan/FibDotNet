@@ -124,7 +124,7 @@ namespace Jib.Net.Core.Images
         /** @return the layer count */
         public int Size()
         {
-            return layers.Size();
+            return layers.Length;
         }
 
         public bool IsEmpty()
@@ -138,7 +138,7 @@ namespace Jib.Net.Core.Images
          */
         public ILayer Get(int index)
         {
-            return layers.Get(index);
+            return layers[index];
         }
 
         /**

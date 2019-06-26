@@ -94,7 +94,7 @@ namespace com.google.cloud.tools.jib.api
         {
             Match matcher = REFERENCE_PATTERN.Match(reference);
 
-            if (!matcher.Success || matcher.GroupCount() < 4)
+            if (!matcher.Success || matcher.Groups.Count < 4)
             {
                 throw new InvalidImageReferenceException(reference);
             }

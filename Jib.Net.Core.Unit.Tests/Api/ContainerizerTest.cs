@@ -111,7 +111,7 @@ namespace com.google.cloud.tools.jib.api
 
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
             Assert.AreEqual("docker/deamon/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
-            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Size());
+            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Length);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace com.google.cloud.tools.jib.api
 
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
             Assert.AreEqual("tar/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
-            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Size());
+            Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Length);
         }
     }
 }

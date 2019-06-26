@@ -245,7 +245,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     buildConfiguration.GetEventHandlers(), rootProgressAllocationDescription, stepsCount))
             {
                 rootProgressEventDispatcher = progressEventDispatcher;
-                stepsRunnable.Run();
+                stepsRunnable();
                 return await Preconditions.CheckNotNull(steps.finalStep).GetFuture().ConfigureAwait(false);
             }
         }
@@ -256,8 +256,8 @@ namespace com.google.cloud.tools.jib.builder.steps
             stepsRunnable =
                 () =>
                 {
-                    previousStepsRunnable.Run();
-                    stepRunnable.Run();
+                    previousStepsRunnable();
+                    stepRunnable();
                 };
             stepsCount++;
             return this;

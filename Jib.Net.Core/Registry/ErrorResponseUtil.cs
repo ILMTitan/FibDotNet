@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
             // Obtain the error response code.
-            string errorContent = await httpResponse.GetContentAsync().ConfigureAwait(false);
+            string errorContent = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (errorContent == null)
             {
                 throw new HttpResponseException(httpResponse);
@@ -55,7 +55,7 @@ namespace com.google.cloud.tools.jib.registry
                 // There may be multiple error objects
                 if (errors?.Size() == 1)
                 {
-                    var errorCode = errors.Get(0).Code;
+                    var errorCode = errors[0].Code;
                     // May not get an error code back.
                     if (errorCode.HasValue)
                     {

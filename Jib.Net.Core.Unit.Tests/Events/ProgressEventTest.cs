@@ -102,22 +102,22 @@ namespace Jib.Net.Core.Unit.Tests.Events
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(1, allocationCompletionMap.Count);
-            Assert.AreEqual(50, allocationCompletionMap.Get(child1Child).LongValue());
+            Assert.AreEqual(50, allocationCompletionMap.Get(child1Child));
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(3, allocationCompletionMap.Count);
-            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
-            Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
-            Assert.AreEqual(1, allocationCompletionMap.Get(root).LongValue());
+            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child));
+            Assert.AreEqual(1, allocationCompletionMap.Get(child1));
+            Assert.AreEqual(1, allocationCompletionMap.Get(root));
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 200));
 
             Assert.AreEqual(4, allocationCompletionMap.Count);
-            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child).LongValue());
-            Assert.AreEqual(1, allocationCompletionMap.Get(child1).LongValue());
-            Assert.AreEqual(200, allocationCompletionMap.Get(child2).LongValue());
-            Assert.AreEqual(2, allocationCompletionMap.Get(root).LongValue());
+            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child));
+            Assert.AreEqual(1, allocationCompletionMap.Get(child1));
+            Assert.AreEqual(200, allocationCompletionMap.Get(child2));
+            Assert.AreEqual(2, allocationCompletionMap.Get(root));
         }
 
         [Test]

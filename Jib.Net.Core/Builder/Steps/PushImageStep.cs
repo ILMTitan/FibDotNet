@@ -81,7 +81,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             ImmutableHashSet<string> targetImageTags = buildConfiguration.GetAllTargetImageTags();
 
             using (ProgressEventDispatcher progressEventDispatcher =
-                progressEventDispatcherFactory.Create("pushing image manifest", targetImageTags.Size()))
+                progressEventDispatcherFactory.Create("pushing image manifest", targetImageTags.Count))
             using (TimerEventDispatcher ignored =
                 new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {

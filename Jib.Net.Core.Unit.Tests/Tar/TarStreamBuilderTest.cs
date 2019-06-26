@@ -111,27 +111,27 @@ namespace com.google.cloud.tools.jib.tar
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.ToByteArray());
+                new MemoryStream(tarByteOutputStream.ToArray());
             Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
 
             // Verify multi-byte characters are written/read correctly
-            TarEntry headerFile = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry headerFile = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("test", headerFile.Name);
             Assert.AreEqual(
                 "日本語", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            headerFile = tarArchiveInputStream.GetNextTarEntry();
+            headerFile = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("crepecake", headerFile.Name);
             Assert.AreEqual(
                 "asdf", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            headerFile = tarArchiveInputStream.GetNextTarEntry();
+            headerFile = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("jib", headerFile.Name);
             Assert.AreEqual(
                 "jib", Encoding.UTF8.GetString(ByteStreams.ToByteArray(tarArchiveInputStream)));
 
-            Assert.IsNull(tarArchiveInputStream.GetNextTarEntry());
+            Assert.IsNull(tarArchiveInputStream.GetNextEntry());
         }
 
         /** Creates a TarStreamBuilder using TarArchiveEntries. */
@@ -184,7 +184,7 @@ namespace com.google.cloud.tools.jib.tar
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.ToByteArray());
+                new MemoryStream(tarByteOutputStream.ToArray());
             Stream tarByteInputStream = new GZipStream(byteArrayInputStream, CompressionMode.Decompress);
             TarInputStream tarArchiveInputStream = new TarInputStream(tarByteInputStream);
             VerifyTarArchive(tarArchiveInputStream);
@@ -199,7 +199,7 @@ namespace com.google.cloud.tools.jib.tar
 
             // Rearrange the output into input for verification.
             MemoryStream byteArrayInputStream =
-                new MemoryStream(tarByteOutputStream.ToByteArray());
+                new MemoryStream(tarByteOutputStream.ToArray());
             TarInputStream tarArchiveInputStream = new TarInputStream(byteArrayInputStream);
             VerifyTarArchive(tarArchiveInputStream);
         }
@@ -211,30 +211,30 @@ namespace com.google.cloud.tools.jib.tar
         private void VerifyTarArchive(TarInputStream tarArchiveInputStream)
         {
             // Verifies fileA was archived correctly.
-            TarEntry headerFileA = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry headerFileA = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("some/path/to/resourceFileA", headerFileA.Name);
             byte[] fileAString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileAContents, fileAString);
 
             // Verifies fileB was archived correctly.
-            TarEntry headerFileB = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry headerFileB = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("crepecake", headerFileB.Name);
             byte[] fileBString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileBContents, fileBString);
 
             // Verifies directoryA was archived correctly.
-            TarEntry headerDirectoryA = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry headerDirectoryA = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual("some/path/to/", headerDirectoryA.Name);
 
             // Verifies the long file was archived correctly.
-            TarEntry headerFileALong = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry headerFileALong = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual(
                 "some/really/long/path/that/exceeds/100/characters/abcdefghijklmnopqrstuvwxyz0123456789012345678901234567890",
                 headerFileALong.Name);
             byte[] fileALongString = ByteStreams.ToByteArray(tarArchiveInputStream);
             CollectionAssert.AreEqual(fileAContents, fileALongString);
 
-            Assert.IsNull(tarArchiveInputStream.GetNextTarEntry());
+            Assert.IsNull(tarArchiveInputStream.GetNextEntry());
         }
     }
 }

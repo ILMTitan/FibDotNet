@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.registry
             V22ManifestTemplate manifestTemplate =
                 await registryClient.PullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
             Assert.AreEqual(1, manifestTemplate.Layers.Size());
-            Assert.AreEqual(testLayerBlobDigest, manifestTemplate.Layers.Get(0).Digest);
+            Assert.AreEqual(testLayerBlobDigest, manifestTemplate.Layers[0].Digest);
             Assert.IsNotNull(manifestTemplate.GetContainerConfiguration());
             Assert.AreEqual(
                 testContainerConfigurationBlobDigest,

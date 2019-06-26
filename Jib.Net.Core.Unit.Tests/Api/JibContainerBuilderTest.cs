@@ -139,13 +139,13 @@ namespace com.google.cloud.tools.jib.api
                 "gcr.io/my-project/my-app",
                 JavaExtensions.ToString(buildConfiguration.GetTargetImageConfiguration().GetImage()));
             Assert.AreEqual(
-                1, buildConfiguration.GetTargetImageConfiguration().GetCredentialRetrievers().Size());
+                1, buildConfiguration.GetTargetImageConfiguration().GetCredentialRetrievers().Length);
             Assert.AreEqual(
                 Credential.From("username", "password"),
                 buildConfiguration
                     .GetTargetImageConfiguration()
                     .GetCredentialRetrievers()
-                    .Get(0)
+[0]
                     .Retrieve()
                     .OrElseThrow(() => new AssertionException("")));
 

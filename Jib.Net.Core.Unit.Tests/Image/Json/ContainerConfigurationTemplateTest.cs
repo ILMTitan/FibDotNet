@@ -115,14 +115,14 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual(
                 Arrays.AsList("CMD-SHELL", "/checkhealth"), containerConfigJson.GetContainerHealthTest());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthInterval());
-            Assert.AreEqual(3000000000L, containerConfigJson.GetContainerHealthInterval().LongValue());
+            Assert.AreEqual(3000000000L, containerConfigJson.GetContainerHealthInterval().GetValueOrDefault());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthTimeout());
-            Assert.AreEqual(1000000000L, containerConfigJson.GetContainerHealthTimeout().LongValue());
+            Assert.AreEqual(1000000000L, containerConfigJson.GetContainerHealthTimeout().GetValueOrDefault());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthStartPeriod());
             Assert.AreEqual(
-                2000000000L, containerConfigJson.GetContainerHealthStartPeriod().LongValue());
+                2000000000L, containerConfigJson.GetContainerHealthStartPeriod().GetValueOrDefault());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthRetries());
-            Assert.AreEqual(3, containerConfigJson.GetContainerHealthRetries().IntValue());
+            Assert.AreEqual(3, containerConfigJson.GetContainerHealthRetries().GetValueOrDefault());
 
             Assert.AreEqual(
                 ImmutableDic.Of("key1", "value1", "key2", "value2"),

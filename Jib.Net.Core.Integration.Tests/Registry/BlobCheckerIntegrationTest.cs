@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.registry
                     .NewRegistryClient();
             V22ManifestTemplate manifestTemplate =
                 await registryClient.PullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
-            DescriptorDigest blobDigest = manifestTemplate.Layers.Get(0).Digest;
+            DescriptorDigest blobDigest = manifestTemplate.Layers[0].Digest;
 
             Assert.IsTrue(await registryClient.CheckBlobAsync(new BlobDescriptor(blobDigest)).ConfigureAwait(false));
         }

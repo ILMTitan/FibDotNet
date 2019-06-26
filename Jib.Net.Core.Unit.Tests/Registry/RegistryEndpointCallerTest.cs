@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.registry
         private static HttpResponseMessage MockRedirectHttpResponse(string redirectLocation)
         {
             const HttpStatusCode code307 = HttpStatusCode.TemporaryRedirect;
-            return MockHttpResponse(code307, h => h.SetLocation(redirectLocation));
+            return MockHttpResponse(code307, h => h.Location = new Uri(redirectLocation));
         }
 
         private IEventHandlers mockEventHandlers;
@@ -564,7 +564,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             // Mocks a response for temporary redirect to a new location.
             HttpResponseMessage redirectResponse =
-                MockHttpResponse(httpStatusCode, h => h.SetLocation("https://newlocation"));
+                MockHttpResponse(httpStatusCode, h => h.Location = new Uri("https://newlocation"));
 
             // Has mockConnection.send throw first, then succeed.
             HttpResponseException redirectException = new HttpResponseException(redirectResponse);

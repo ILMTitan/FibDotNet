@@ -138,10 +138,10 @@ namespace Jib.Net.Core.Images
             {
                 // Strips out all non-reproducible elements from tar archive entries.
                 // Modified time is configured per entry
-                entry.SetGroupId(0);
-                entry.SetUserId(0);
-                entry.SetUserName("");
-                entry.SetGroupName("");
+                entry.TarHeader.GroupId = 0;
+                entry.TarHeader.UserId = 0;
+                entry.TarHeader.UserName = "";
+                entry.TarHeader.GroupName = "";
 
                 Preconditions.CheckState(!JavaExtensions.Contains(names, entry.Name));
                 JavaExtensions.Add(names, entry.Name);

@@ -162,7 +162,7 @@ namespace com.google.cloud.tools.jib.registry
             await body.WriteToAsync(byteArrayOutputStream).ConfigureAwait(false);
 
             Assert.AreEqual(
-                TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.ToByteArray()));
+                TEST_BLOB_CONTENT, Encoding.UTF8.GetString(byteArrayOutputStream.ToArray()));
             Assert.AreEqual(TEST_BLOB_CONTENT.Length, byteCount.Sum());
         }
 

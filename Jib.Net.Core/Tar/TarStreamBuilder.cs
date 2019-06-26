@@ -16,6 +16,7 @@
 
 using com.google.cloud.tools.jib.blob;
 using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
@@ -45,9 +46,9 @@ namespace com.google.cloud.tools.jib.tar
             {
                 foreach (KeyValuePair<TarEntry, IBlob> entry in archiveMap)
                 {
-                    tarArchiveOutputStream.PutArchiveEntry(entry.GetKey());
+                    tarArchiveOutputStream.PutNextEntry(entry.GetKey());
                     await entry.GetValue().WriteToAsync(tarArchiveOutputStream).ConfigureAwait(false);
-                    tarArchiveOutputStream.CloseArchiveEntry();
+                    tarArchiveOutputStream.CloseEntry();
                 }
             }
         }
@@ -60,7 +61,7 @@ namespace com.google.cloud.tools.jib.tar
         public void AddTarArchiveEntry(TarEntry entry)
         {
             entry = entry ?? throw new ArgumentNullException(nameof(entry));
-            archiveMap[entry] = entry.IsFile() ? Blobs.From(entry.GetFile().ToPath()) : Blobs.From(_ => Task.CompletedTask, 0);
+            archiveMap[entry] = entry.IsFile() ? Blobs.From(new SystemPath(entry.File)) : Blobs.From(_ => Task.CompletedTask, 0);
         }
 
         /**
@@ -74,7 +75,7 @@ namespace com.google.cloud.tools.jib.tar
         {
             contents = contents ?? throw new ArgumentNullException(nameof(contents));
             TarEntry entry = TarEntry.CreateTarEntry(name);
-            entry.SetSize(contents.Length);
+            entry.TarHeader.Size = contents.Length;
             archiveMap[entry] = Blobs.From(contents);
         }
 
@@ -89,7 +90,7 @@ namespace com.google.cloud.tools.jib.tar
         public void AddBlobEntry(IBlob blob, long size, string name)
         {
             TarEntry entry = TarEntry.CreateTarEntry(name);
-            entry.SetSize(size);
+            entry.TarHeader.Size = size;
             archiveMap[entry] = blob;
         }
 

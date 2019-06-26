@@ -73,9 +73,9 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual(
                 DescriptorDigest.FromHash(
                     "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"),
-                manifestJson.Layers.Get(0).Digest);
+                manifestJson.Layers[0].Digest);
 
-            Assert.AreEqual(1000_000, manifestJson.Layers.Get(0).Size);
+            Assert.AreEqual(1000_000, manifestJson.Layers[0].Size);
         }
     }
 }

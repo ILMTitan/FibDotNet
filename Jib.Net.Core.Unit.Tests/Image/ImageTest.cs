@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.image
 
             Assert.AreEqual(ManifestFormat.V22, image.GetImageFormat());
             Assert.AreEqual(
-                mockDescriptorDigest, image.GetLayers().Get(0).GetBlobDescriptor().GetDigest());
+                mockDescriptorDigest, image.GetLayers()[0].GetBlobDescriptor().GetDigest());
             Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.GetCreated());
             Assert.AreEqual(
                 ImmutableDic.Of("crepecake", "is great", "VARIABLE", "VALUE"), image.GetEnvironment());

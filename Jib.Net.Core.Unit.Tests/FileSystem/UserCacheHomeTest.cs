@@ -44,7 +44,7 @@ namespace com.google.cloud.tools.jib.filesystem
         [SetUp]
         public void SetUp()
         {
-            fakeCacheHome = temporaryFolder.NewFolder().GetPath();
+            fakeCacheHome = temporaryFolder.NewFolder().FullName;
             mockEnvironment = Mock.Of<IEnvironment>();
             Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(It.IsAny<OSPlatform>())).Returns(false);
         }

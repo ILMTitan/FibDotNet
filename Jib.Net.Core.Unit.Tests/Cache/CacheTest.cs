@@ -198,7 +198,7 @@ namespace com.google.cloud.tools.jib.cache
 
             // A source file modification results in the cached layer to be out-of-date and not retrieved.
             Files.SetLastModifiedTime(
-                layerEntries1.Get(0).GetSourceFile(), FileTime.From(SystemClock.Instance.GetCurrentInstant().PlusSeconds(1)));
+                layerEntries1[0].GetSourceFile(), FileTime.From(SystemClock.Instance.GetCurrentInstant() + Duration.FromSeconds(1)));
             Option<CachedLayer> outOfDateLayer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
             Assert.IsFalse(outOfDateLayer.IsPresent());
         }

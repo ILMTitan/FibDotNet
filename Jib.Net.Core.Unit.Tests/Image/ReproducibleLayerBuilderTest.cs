@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.image
         private static void VerifyNextTarArchiveEntry(
             TarInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
         {
-            TarEntry header = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry header = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual(expectedExtractionPath, header.Name);
 
             string expectedString = Encoding.UTF8.GetString(Files.ReadAllBytes(expectedFile));
@@ -72,9 +72,9 @@ namespace com.google.cloud.tools.jib.image
         private static void VerifyNextTarArchiveEntryIsDirectory(
             TarInputStream tarArchiveInputStream, string expectedExtractionPath)
         {
-            TarEntry extractionPathEntry = tarArchiveInputStream.GetNextTarEntry();
+            TarEntry extractionPathEntry = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual(expectedExtractionPath, extractionPathEntry.Name);
-            Assert.IsTrue(extractionPathEntry.IsDirectory());
+            Assert.IsTrue(extractionPathEntry.IsDirectory);
         }
 
         private static LayerEntry DefaultLayerEntry(SystemPath source, AbsoluteUnixPath destination)
@@ -239,32 +239,32 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 // root (default folder permissions)
-                TarEntry root = @in.GetNextTarEntry();
+                TarEntry root = @in.GetNextEntry();
                 Assert.AreEqual("755", root.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(DateTime.SpecifyKind(root.ModTime, DateTimeKind.Utc)));
 
                 // parentAAA (custom permissions, custom timestamp)
-                TarEntry rootParentAAA = @in.GetNextTarEntry();
+                TarEntry rootParentAAA = @in.GetNextEntry();
                 Assert.AreEqual("111", rootParentAAA.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), Instant.FromDateTimeUtc(rootParentAAA.GetModTime()));
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(10), Instant.FromDateTimeUtc(DateTime.SpecifyKind(rootParentAAA.ModTime, DateTimeKind.Utc)));
 
                 // skip over fileA
-                @in.GetNextTarEntry();
+                @in.GetNextEntry();
 
                 // parentBBB (default permissions - ignored custom permissions, since fileB added first)
-                TarEntry rootParentBBB = @in.GetNextTarEntry();
+                TarEntry rootParentBBB = @in.GetNextEntry();
                 // TODO (#1650): we want 040444 here.
                 Assert.AreEqual("755", rootParentBBB.GetMode().ToOctalString());
                 // TODO (#1650): we want Instant.ofEpochSecond(40) here.
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(DateTime.SpecifyKind(root.ModTime, DateTimeKind.Utc)));
 
                 // skip over fileB
-                @in.GetNextTarEntry();
+                @in.GetNextEntry();
 
                 // parentCCC (default permissions - no entry provided)
-                TarEntry rootParentCCC = @in.GetNextTarEntry();
+                TarEntry rootParentCCC = @in.GetNextEntry();
                 Assert.AreEqual("755", rootParentCCC.GetMode().ToOctalString());
-                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(root.GetModTime()));
+                Assert.AreEqual(Instant.FromUnixTimeSeconds(1), Instant.FromDateTimeUtc(DateTime.SpecifyKind(root.ModTime, DateTimeKind.Utc)));
 
                 // we don't care about fileC
             }
@@ -290,7 +290,7 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 Assert.AreEqual(
-                    Instant.FromUnixTimeSeconds(0).PlusSeconds(1).ToDateTimeUtc(), JavaExtensions.GetNextEntry(@in).GetLastModifiedDate());
+                    (Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(1)).ToDateTimeUtc(), @in.GetNextEntry().TarHeader.ModTime);
             }
         }
 
@@ -319,8 +319,8 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 Assert.AreEqual(
-                    Instant.FromUnixTimeSeconds(0).PlusSeconds(123).ToDateTimeUtc(),
-                    JavaExtensions.GetNextEntry(@in).GetLastModifiedDate());
+                    (Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(123)).ToDateTimeUtc(),
+                    @in.GetNextEntry().TarHeader.ModTime);
             }
         }
 
@@ -357,13 +357,13 @@ namespace com.google.cloud.tools.jib.image
             using (TarInputStream @in = new TarInputStream(Files.NewInputStream(tarFile)))
             {
                 // Root folder (default folder permissions)
-                TarEntry rootEntry = @in.GetNextTarEntry();
+                TarEntry rootEntry = @in.GetNextEntry();
                 // fileA (default file permissions)
-                TarEntry fileAEntry = @in.GetNextTarEntry();
+                TarEntry fileAEntry = @in.GetNextEntry();
                 // fileB (custom file permissions)
-                TarEntry fileBEntry = @in.GetNextTarEntry();
+                TarEntry fileBEntry = @in.GetNextEntry();
                 // folder (custom folder permissions)
-                TarEntry folderEntry = @in.GetNextTarEntry();
+                TarEntry folderEntry = @in.GetNextEntry();
                 Assert.AreEqual("755", rootEntry.GetMode().ToOctalString());
                 Assert.AreEqual("644", fileAEntry.GetMode().ToOctalString());
                 Assert.AreEqual("123", fileBEntry.GetMode().ToOctalString());

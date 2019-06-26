@@ -49,13 +49,13 @@ namespace com.google.cloud.tools.jib.builder
 
             Mock.Get(mockEventHandlers).Verify(m => m.Dispatch(It.IsAny<ProgressEvent>()), Times.Exactly(4));
 
-            Assert.AreSame(progressEvents.Get(0).GetAllocation(), progressEvents.Get(3).GetAllocation());
-            Assert.AreSame(progressEvents.Get(1).GetAllocation(), progressEvents.Get(2).GetAllocation());
+            Assert.AreSame(progressEvents[0].GetAllocation(), progressEvents[3].GetAllocation());
+            Assert.AreSame(progressEvents[1].GetAllocation(), progressEvents[2].GetAllocation());
 
-            Assert.AreEqual(0, progressEvents.Get(0).GetUnits());
-            Assert.AreEqual(0, progressEvents.Get(1).GetUnits());
-            Assert.AreEqual(20, progressEvents.Get(2).GetUnits());
-            Assert.AreEqual(9, progressEvents.Get(3).GetUnits());
+            Assert.AreEqual(0, progressEvents[0].GetUnits());
+            Assert.AreEqual(0, progressEvents[1].GetUnits());
+            Assert.AreEqual(20, progressEvents[2].GetUnits());
+            Assert.AreEqual(9, progressEvents[3].GetUnits());
         }
 
         [Test]
@@ -73,16 +73,16 @@ namespace com.google.cloud.tools.jib.builder
             }
 
             Assert.AreEqual(4, progressEvents.Count);
-            Assert.AreSame(progressEvents.Get(0).GetAllocation(), progressEvents.Get(1).GetAllocation());
-            Assert.AreSame(progressEvents.Get(1).GetAllocation(), progressEvents.Get(2).GetAllocation());
-            Assert.AreSame(progressEvents.Get(2).GetAllocation(), progressEvents.Get(3).GetAllocation());
+            Assert.AreSame(progressEvents[0].GetAllocation(), progressEvents[1].GetAllocation());
+            Assert.AreSame(progressEvents[1].GetAllocation(), progressEvents[2].GetAllocation());
+            Assert.AreSame(progressEvents[2].GetAllocation(), progressEvents[3].GetAllocation());
 
-            Assert.AreEqual(10, progressEvents.Get(0).GetAllocation().GetAllocationUnits());
+            Assert.AreEqual(10, progressEvents[0].GetAllocation().GetAllocationUnits());
 
-            Assert.AreEqual(0, progressEvents.Get(0).GetUnits());
-            Assert.AreEqual(6, progressEvents.Get(1).GetUnits());
-            Assert.AreEqual(4, progressEvents.Get(2).GetUnits());
-            Assert.AreEqual(0, progressEvents.Get(3).GetUnits());
+            Assert.AreEqual(0, progressEvents[0].GetUnits());
+            Assert.AreEqual(6, progressEvents[1].GetUnits());
+            Assert.AreEqual(4, progressEvents[2].GetUnits());
+            Assert.AreEqual(0, progressEvents[3].GetUnits());
         }
 
         [Test]
@@ -103,20 +103,20 @@ namespace com.google.cloud.tools.jib.builder
             }
 
             Assert.AreEqual(5, progressEvents.Count);
-            Assert.AreEqual(1, progressEvents.Get(0).GetAllocation().GetAllocationUnits());
-            Assert.AreEqual(5, progressEvents.Get(1).GetAllocation().GetAllocationUnits());
-            Assert.AreEqual(4, progressEvents.Get(2).GetAllocation().GetAllocationUnits());
+            Assert.AreEqual(1, progressEvents[0].GetAllocation().GetAllocationUnits());
+            Assert.AreEqual(5, progressEvents[1].GetAllocation().GetAllocationUnits());
+            Assert.AreEqual(4, progressEvents[2].GetAllocation().GetAllocationUnits());
 
             // child1 (of allocation 5) opening and closing
-            Assert.AreSame(progressEvents.Get(1).GetAllocation(), progressEvents.Get(4).GetAllocation());
+            Assert.AreSame(progressEvents[1].GetAllocation(), progressEvents[4].GetAllocation());
             // child1 (of allocation 4) opening and closing
-            Assert.AreSame(progressEvents.Get(2).GetAllocation(), progressEvents.Get(3).GetAllocation());
+            Assert.AreSame(progressEvents[2].GetAllocation(), progressEvents[3].GetAllocation());
 
-            Assert.AreEqual(0, progressEvents.Get(0).GetUnits()); // 0-progress sent when root creation
-            Assert.AreEqual(0, progressEvents.Get(1).GetUnits()); // when child1 creation
-            Assert.AreEqual(0, progressEvents.Get(2).GetUnits()); // when child2 creation
-            Assert.AreEqual(4, progressEvents.Get(3).GetUnits()); // when child2 closes
-            Assert.AreEqual(5, progressEvents.Get(4).GetUnits()); // when child1 closes
+            Assert.AreEqual(0, progressEvents[0].GetUnits()); // 0-progress sent when root creation
+            Assert.AreEqual(0, progressEvents[1].GetUnits()); // when child1 creation
+            Assert.AreEqual(0, progressEvents[2].GetUnits()); // when child2 creation
+            Assert.AreEqual(4, progressEvents[3].GetUnits()); // when child2 closes
+            Assert.AreEqual(5, progressEvents[4].GetUnits()); // when child1 closes
         }
     }
 }

@@ -226,7 +226,7 @@ namespace com.google.cloud.tools.jib.registry
             eventHandlers.Dispatch(
                 LogEvent.Info(
                     "Failed to connect to " + url + " over HTTPS. Attempting again with HTTP: " + httpUrl));
-            return await CallAsync(httpUrl.ToURL(), connectionFactory).ConfigureAwait(false);
+            return await CallAsync(httpUrl.Uri, connectionFactory).ConfigureAwait(false);
         }
 
         private Func<Uri, IConnection> GetInsecureConnectionFactory()
@@ -309,7 +309,7 @@ namespace com.google.cloud.tools.jib.registry
                         ex.GetStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
                     {
                         // 'Location' header can be relative or absolute.
-                        Uri redirectLocation = new Uri(url, ex.GetHeaders().GetLocation());
+                        Uri redirectLocation = new Uri(url, ex.GetHeaders().Location);
                         return await CallWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
                     }
                     else

@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.api
                 new TarInputStream(Files.NewInputStream(imageTar.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.GetNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextEntry()) != null)
                 {
                     JavaExtensions.Add(actual, imageEntry.Name);
                 }
@@ -205,7 +205,7 @@ namespace com.google.cloud.tools.jib.api
         {
             LayerEntriesDo(
                 (_, layerEntry) =>
-                    Assert.IsTrue(layerEntry.IsFile() || layerEntry.IsDirectory()));
+                    Assert.IsTrue(layerEntry.IsFile() || layerEntry.IsDirectory));
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace com.google.cloud.tools.jib.api
             LayerEntriesDo(
                 (layerName, layerEntry) =>
                 {
-                    Instant modificationTime = Instant.FromDateTimeUtc(DateTime.SpecifyKind(layerEntry.GetLastModifiedDate(), DateTimeKind.Utc));
+                    Instant modificationTime = Instant.FromDateTimeUtc(DateTime.SpecifyKind(layerEntry.TarHeader.ModTime, DateTimeKind.Utc));
                     Assert.AreEqual(
                 Instant.FromUnixTimeSeconds(1), modificationTime, layerName + ": " + layerEntry.Name);
                 });
@@ -239,7 +239,7 @@ namespace com.google.cloud.tools.jib.api
                             layerEntry.GetMode() & PosixFilePermissions.All,
                             layerName + ": " + layerEntry.Name);
                     }
-                    else if (layerEntry.IsDirectory())
+                    else if (layerEntry.IsDirectory)
                     {
                         const PosixFilePermissions expectedDirectoryPermissions = PosixFilePermissions.OwnerAll
                             | PosixFilePermissions.GroupReadExecute
@@ -260,7 +260,7 @@ namespace com.google.cloud.tools.jib.api
                 (_, layerEntry) =>
                 {
                     string entryPath = layerEntry.Name;
-                    if (layerEntry.IsDirectory())
+                    if (layerEntry.IsDirectory)
                     {
                         Assert.IsTrue(JavaExtensions.EndsWith(entryPath, "/"), "directories in tar end with /");
                         entryPath = JavaExtensions.Substring(entryPath, 0, entryPath.Length - 1);
@@ -273,7 +273,7 @@ namespace com.google.cloud.tools.jib.api
                         Assert.IsTrue(JavaExtensions.Contains(directories, parent),
                     "layer has implicit parent directory: " + parent);
                     }
-                    if (layerEntry.IsDirectory())
+                    if (layerEntry.IsDirectory)
                     {
                         JavaExtensions.Add(directories, entryPath);
                     }
@@ -313,7 +313,7 @@ namespace com.google.cloud.tools.jib.api
                 new TarInputStream(Files.NewInputStream(imageTar.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.GetNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextEntry()) != null)
                 {
                     string imageEntryName = imageEntry.Name;
                     // assume all .tar.gz files are layers
@@ -321,7 +321,7 @@ namespace com.google.cloud.tools.jib.api
                     {
                         TarInputStream layer = new TarInputStream(new GZipStream(input, CompressionMode.Decompress));
                         TarEntry layerEntry;
-                        while ((layerEntry = layer.GetNextTarEntry()) != null)
+                        while ((layerEntry = layer.GetNextEntry()) != null)
                         {
                             layerConsumer(imageEntryName, layerEntry);
                         }
@@ -336,7 +336,7 @@ namespace com.google.cloud.tools.jib.api
                 new TarInputStream(Files.NewInputStream(tarFile.ToPath())))
             {
                 TarEntry imageEntry;
-                while ((imageEntry = input.GetNextTarEntry()) != null)
+                while ((imageEntry = input.GetNextEntry()) != null)
                 {
                     if (filename == imageEntry.Name)
                     {

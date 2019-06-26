@@ -86,7 +86,7 @@ namespace com.google.cloud.tools.jib.registry
             }
 
             // Finds a BLOB_UNKNOWN error response code.
-            if (string.IsNullOrEmpty(await httpResponse.GetContentAsync().ConfigureAwait(false)))
+            if (string.IsNullOrEmpty(await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false)))
             {
                 // TODO: The Google HTTP client gives null content for HEAD requests. Make the content never
                 // be null, even for HEAD requests.

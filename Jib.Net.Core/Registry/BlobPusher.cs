@@ -292,7 +292,7 @@ namespace com.google.cloud.tools.jib.registry
          */
         public static Uri GetRedirectLocation(HttpResponseMessage response)
         {
-            return new Uri(response.GetRequestUrl(), response.Headers.Location);
+            return new Uri(response.RequestMessage.RequestUri, response.Headers.Location);
         }
     }
 }

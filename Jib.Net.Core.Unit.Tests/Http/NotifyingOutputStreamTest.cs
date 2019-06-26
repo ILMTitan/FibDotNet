@@ -42,7 +42,7 @@ namespace com.google.cloud.tools.jib.http
             }
 
             Assert.AreEqual(Arrays.AsList(1L, 3L, 2L), byteCounts);
-            CollectionAssert.AreEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, byteArrayOutputStream.ToByteArray());
+            CollectionAssert.AreEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, byteArrayOutputStream.ToArray());
         }
 
         [Test]
@@ -63,25 +63,25 @@ namespace com.google.cloud.tools.jib.http
 
             {
                 instantQueue.Add(Instant.FromUnixTimeSeconds(0));
-                notifyingOutputStream.Write(100);
+                notifyingOutputStream.WriteByte(100);
                 instantQueue.Add(Instant.FromUnixTimeSeconds(0));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 101, 102, 103 });
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0).PlusSeconds(4));
+                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(4));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 104, 105, 106 });
 
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0).PlusSeconds(10));
+                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 107, 108 });
 
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0).PlusSeconds(10));
+                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 109 });
-                instantQueue.Add(Instant.FromUnixTimeSeconds(0).PlusSeconds(13));
+                instantQueue.Add(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(13));
                 JavaExtensions.Write(notifyingOutputStream, new byte[] { 0, 110 }, 1, 1);
             }
 
             Assert.AreEqual(Arrays.AsList(7L, 2L, 2L), byteCounts);
             CollectionAssert.AreEqual(
                 new byte[] { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 },
-                byteArrayOutputStream.ToByteArray());
+                byteArrayOutputStream.ToArray());
         }
     }
 }

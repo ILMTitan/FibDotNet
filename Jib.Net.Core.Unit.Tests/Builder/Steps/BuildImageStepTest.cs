@@ -159,7 +159,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                     mockBuildAndCacheApplicationLayersStep);
             Image image = await buildImageStep.GetFuture().ConfigureAwait(false);
             Assert.AreEqual(
-                testDescriptorDigest, image.GetLayers().AsList()[0].GetBlobDescriptor().GetDigest());
+                testDescriptorDigest, image.GetLayers()[0].GetBlobDescriptor().GetDigest());
         }
 
         [Test]
@@ -229,9 +229,9 @@ namespace com.google.cloud.tools.jib.builder.steps
             Assert.AreEqual("/base/working/directory", image.GetWorkingDirectory());
             Assert.AreEqual("root", image.GetUser());
 
-            Assert.AreEqual(image.GetHistory().Get(0), nonEmptyLayerHistory);
-            Assert.AreEqual(image.GetHistory().Get(1), emptyLayerHistory);
-            Assert.AreEqual(image.GetHistory().Get(2), emptyLayerHistory);
+            Assert.AreEqual(image.GetHistory()[0], nonEmptyLayerHistory);
+            Assert.AreEqual(image.GetHistory()[1], emptyLayerHistory);
+            Assert.AreEqual(image.GetHistory()[2], emptyLayerHistory);
             Assert.AreEqual(ImmutableArray.Create<string>(), image.GetEntrypoint());
             Assert.AreEqual(ImmutableArray.Create<string>(), image.GetProgramArguments());
         }
@@ -387,20 +387,20 @@ namespace com.google.cloud.tools.jib.builder.steps
                     .Build();
 
             // Base layers (1 non-empty propagated, 2 empty propagated, 2 non-empty generated)
-            Assert.AreEqual(nonEmptyLayerHistory, image.GetHistory().Get(0));
-            Assert.AreEqual(emptyLayerHistory, image.GetHistory().Get(1));
-            Assert.AreEqual(emptyLayerHistory, image.GetHistory().Get(2));
-            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory().Get(3));
-            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory().Get(4));
+            Assert.AreEqual(nonEmptyLayerHistory, image.GetHistory()[0]);
+            Assert.AreEqual(emptyLayerHistory, image.GetHistory()[1]);
+            Assert.AreEqual(emptyLayerHistory, image.GetHistory()[2]);
+            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory()[3]);
+            Assert.AreEqual(expectedAddedBaseLayerHistory, image.GetHistory()[4]);
 
             // Application layers (4 generated)
-            Assert.AreEqual(expectedApplicationLayerHistoryDependencies, image.GetHistory().Get(5));
-            Assert.AreEqual(expectedApplicationLayerHistoryResources, image.GetHistory().Get(6));
-            Assert.AreEqual(expectedApplicationLayerHistoryClasses, image.GetHistory().Get(7));
-            Assert.AreEqual(expectedApplicationLayerHistoryExtrafiles, image.GetHistory().Get(8));
+            Assert.AreEqual(expectedApplicationLayerHistoryDependencies, image.GetHistory()[5]);
+            Assert.AreEqual(expectedApplicationLayerHistoryResources, image.GetHistory()[6]);
+            Assert.AreEqual(expectedApplicationLayerHistoryClasses, image.GetHistory()[7]);
+            Assert.AreEqual(expectedApplicationLayerHistoryExtrafiles, image.GetHistory()[8]);
 
             // Should be exactly 9 total
-            Assert.AreEqual(9, image.GetHistory().Size());
+            Assert.AreEqual(9, image.GetHistory().Length);
         }
     }
 }

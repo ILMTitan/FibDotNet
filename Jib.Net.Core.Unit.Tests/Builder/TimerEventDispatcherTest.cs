@@ -44,15 +44,15 @@ namespace com.google.cloud.tools.jib.builder
             using (TimerEventDispatcher parentTimerEventDispatcher =
                 new TimerEventDispatcher(eventHandlers, "description", mockClock, null))
             {
-                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(1));
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(1));
 
                 parentTimerEventDispatcher.Lap();
-                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(1).PlusNanos(1));
+                Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns((Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(1)).PlusNanoseconds(1));
 
                 using (TimerEventDispatcher ignored =
                     parentTimerEventDispatcher.SubTimer("child description"))
                 {
-                    Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0).PlusMillis(2));
+                    Mock.Get(mockClock).Setup(m => m.GetCurrentInstant()).Returns(Instant.FromUnixTimeSeconds(0) + Duration.FromMilliseconds(2));
 
                     // Laps on close.
                 }
@@ -168,7 +168,7 @@ namespace com.google.cloud.tools.jib.builder
          */
         private TimerEvent GetNextTimerEvent()
         {
-            TimerEvent timerEvent = timerEventQueue.Poll();
+            TimerEvent timerEvent = timerEventQueue.Dequeue();
             Assert.IsNotNull(timerEvent);
             return timerEvent;
         }

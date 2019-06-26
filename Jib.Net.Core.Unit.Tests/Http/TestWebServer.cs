@@ -47,7 +47,7 @@ namespace com.google.cloud.tools.jib.http
             this.https = https;
             serverSocket = CreateServerSocket();
             serveTask = Serve200Async();
-            threadStarted.Acquire();
+            threadStarted.Wait();
         }
 
         public string GetAddressAndPort()

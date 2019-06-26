@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.registry
             string v22manifestJson =
                 Encoding.UTF8.GetString(Files.ReadAllBytes(v22manifestJsonFile));
             Assert.AreEqual(
-                v22manifestJson, Encoding.UTF8.GetString(bodyCaptureStream.ToByteArray()));
+                v22manifestJson, Encoding.UTF8.GetString(bodyCaptureStream.ToArray()));
         }
 
         [Test]

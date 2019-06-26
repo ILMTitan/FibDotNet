@@ -35,15 +35,15 @@ namespace com.google.cloud.tools.jib.registry
                 new RegistryErrorExceptionBuilder("do something", mockHttpResponseException);
 
             builder.AddReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestInvalid.Name(), "manifest invalid"));
-            builder.AddReason(new ErrorEntryTemplate(ErrorCode.BlobUnknown.Name(), "blob unknown"));
+                new ErrorEntryTemplate(ErrorCode.ManifestInvalid, "manifest invalid"));
+            builder.AddReason(new ErrorEntryTemplate(ErrorCode.BlobUnknown, "blob unknown"));
             builder.AddReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestUnknown.Name(), "manifest unknown"));
-            builder.AddReason(new ErrorEntryTemplate(ErrorCode.TagInvalid.Name(), "tag invalid"));
+                new ErrorEntryTemplate(ErrorCode.ManifestUnknown, "manifest unknown"));
+            builder.AddReason(new ErrorEntryTemplate(ErrorCode.TagInvalid, "tag invalid"));
             builder.AddReason(
-                new ErrorEntryTemplate(ErrorCode.ManifestUnverified.Name(), "manifest unverified"));
+                new ErrorEntryTemplate(ErrorCode.ManifestUnverified, "manifest unverified"));
             builder.AddReason(
-                new ErrorEntryTemplate(ErrorCode.Unsupported.Name(), "some other error happened"));
+                new ErrorEntryTemplate(ErrorCode.Unsupported, "some other error happened"));
             builder.AddReason(new ErrorEntryTemplate(null, "some unknown error happened"));
 
             try
