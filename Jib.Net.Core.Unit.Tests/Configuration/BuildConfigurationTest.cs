@@ -54,7 +54,7 @@ namespace com.google.cloud.tools.jib.configuration
             SystemPath expectedApplicationLayersCacheDirectory = Paths.Get("application/layers");
             SystemPath expectedBaseImageLayersCacheDirectory = Paths.Get("base/image/layers");
             IList<ILayerConfiguration> expectedLayerConfigurations =
-                new List<ILayerConfiguration> {                     LayerConfiguration.builder()
+                new List<ILayerConfiguration> {                     LayerConfiguration.CreateBuilder()
                         .AddEntry(Paths.Get("sourceFile"), AbsoluteUnixPath.Get("/path/in/container"))
                         .Build()};
             const string expectedCreatedBy = "createdBy";

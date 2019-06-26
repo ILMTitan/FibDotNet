@@ -39,7 +39,6 @@ namespace com.google.cloud.tools.jib.registry
          */
         public static async Task<ErrorCode> GetErrorCodeAsync(HttpResponseMessage httpResponse)
         {
-
             httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
             // Obtain the error response code.
             string errorContent = await httpResponse.GetContentAsync().ConfigureAwait(false);

@@ -157,7 +157,6 @@ namespace com.google.cloud.tools.jib.docker
          */
         public static bool IsDockerInstalled(SystemPath dockerExecutable)
         {
-
             dockerExecutable = dockerExecutable ?? throw new ArgumentNullException(nameof(dockerExecutable));
             try
             {
@@ -182,7 +181,6 @@ namespace com.google.cloud.tools.jib.docker
          */
         public async Task<string> LoadAsync(IImageTarball imageTarball)
         {
-
             imageTarball = imageTarball ?? throw new ArgumentNullException(nameof(imageTarball));
             // Runs 'docker load'.
             IProcess dockerProcess = Docker("load");
@@ -241,7 +239,6 @@ namespace com.google.cloud.tools.jib.docker
             {
                 return await stderr.ReadToEndAsync().ConfigureAwait(false);
             }
-
         }
 
         /**
@@ -257,7 +254,6 @@ namespace com.google.cloud.tools.jib.docker
          */
         public void Tag(IImageReference originalImageReference, ImageReference newImageReference)
         {
-
             originalImageReference = originalImageReference ?? throw new ArgumentNullException(nameof(originalImageReference));
 
             newImageReference = newImageReference ?? throw new ArgumentNullException(nameof(newImageReference));

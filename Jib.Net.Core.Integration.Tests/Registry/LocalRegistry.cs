@@ -36,6 +36,7 @@ namespace com.google.cloud.tools.jib.registry
     {
         private readonly string containerName =
             "registry-" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).ToLowerInvariant();
+
         private readonly int port;
         private readonly string username;
         private readonly string password;

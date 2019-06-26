@@ -14,8 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.global;
-using Jib.Net.Core.Global;
+using Jib.Net.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -77,6 +76,7 @@ namespace com.google.cloud.tools.jib.http
 
         private static readonly ConcurrentDictionary<Uri, HttpClient> clients = new ConcurrentDictionary<Uri, HttpClient>();
         private static readonly ConcurrentDictionary<Uri, HttpClient> insecureClients = new ConcurrentDictionary<Uri, HttpClient>();
+
         private static readonly HttpMessageHandler insecureHandler = new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true

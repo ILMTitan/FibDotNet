@@ -27,14 +27,17 @@ namespace Jib.Net.Core.Registry
         public readonly StringEnumConverter converter;
 
         public T? DefaultValue { get; }
+
         public TolerantStringEnumConverter(T defaultValue, Type namingStrategyType) : this(namingStrategyType)
         {
             DefaultValue = defaultValue;
         }
+
         public TolerantStringEnumConverter(Type namingStrategyType)
         {
             converter = new StringEnumConverter(namingStrategyType);
         }
+
         public override T? ReadJson(JsonReader reader, Type objectType, T? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             try

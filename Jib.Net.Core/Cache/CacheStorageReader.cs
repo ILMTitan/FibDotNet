@@ -222,7 +222,6 @@ namespace Jib.Net.Core.Cache
          */
         public Option<DescriptorDigest> Select(DescriptorDigest selector)
         {
-
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
             SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
             if (!Files.Exists(selectorFile))

@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.global;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;

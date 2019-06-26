@@ -129,7 +129,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void AddExposedPort(Port port)
             {
-                JavaExtensions.Add((exposedPorts ?? (exposedPorts = new HashSet<Port>())), port);
+                (exposedPorts ?? (exposedPorts = new HashSet<Port>())).Add(port);
             }
 
             /**
@@ -154,7 +154,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             public void AddVolume(AbsoluteUnixPath volume)
             {
-                JavaExtensions.Add((volumes ?? (volumes = new HashSet<AbsoluteUnixPath>())), volume);
+                (volumes ?? (volumes = new HashSet<AbsoluteUnixPath>())).Add(volume);
             }
 
             /**

@@ -89,7 +89,6 @@ namespace com.google.cloud.tools.jib.registry
          */
         public RegistryErrorExceptionBuilder AddReason(ErrorEntryTemplate errorEntry)
         {
-
             errorEntry = errorEntry ?? throw new ArgumentNullException(nameof(errorEntry));
             string reason = GetReason(errorEntry.Code, errorEntry.Message);
             AddReason(reason);

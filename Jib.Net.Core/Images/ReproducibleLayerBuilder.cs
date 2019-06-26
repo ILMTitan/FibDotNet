@@ -120,7 +120,7 @@ namespace Jib.Net.Core.Images
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.SetMode(entry.GetMode() & ~PosixFilePermissions.All | layerEntry.GetPermissions().GetPermissionBits());
+                entry.SetMode((entry.GetMode() & ~PosixFilePermissions.All) | layerEntry.GetPermissions().GetPermissionBits());
                 entry.SetModTime(layerEntry.GetLastModifiedTime().ToEpochMilli());
 
                 uniqueTarArchiveEntries.Add(entry);

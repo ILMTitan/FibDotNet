@@ -73,6 +73,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          */
         public string GetAuthFor(string registry)
         {
+            registry = registry ?? throw new ArgumentNullException(nameof(registry));
             KeyValuePair<string, AuthTemplate>? authEntry =
                 FindFirstInMapByKey(dockerConfigTemplate.Auths, GetRegistryMatchersFor(registry)).AsNullable();
             return authEntry?.GetValue().Auth;
@@ -94,6 +95,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          */
         public IDockerCredentialHelper GetCredentialHelperFor(string registry)
         {
+            registry = registry ?? throw new ArgumentNullException(nameof(registry));
             IList<Func<string, bool>> registryMatchers = GetRegistryMatchersFor(registry);
 
             KeyValuePair<string, AuthTemplate>? firstAuthMatch =

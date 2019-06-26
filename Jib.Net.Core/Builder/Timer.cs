@@ -15,7 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System;

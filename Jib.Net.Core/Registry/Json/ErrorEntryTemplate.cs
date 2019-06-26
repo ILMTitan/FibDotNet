@@ -28,6 +28,7 @@ namespace com.google.cloud.tools.jib.registry.json
     {
         [JsonConverter(typeof(TolerantStringEnumConverter<ErrorCode>), typeof(SnakeCaseNamingStrategy))]
         public ErrorCode? Code { get; }
+
         public string Message { get; }
 
         public ErrorEntryTemplate(ErrorCode? code, string message)

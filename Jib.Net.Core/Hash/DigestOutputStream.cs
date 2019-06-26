@@ -48,6 +48,7 @@ namespace com.google.cloud.tools.jib.hash
             get => throw new NotSupportedException();
             set => throw new NotSupportedException();
         }
+
         protected MessageDigest MessageDigest { get; set; }
 
         public void SetMessageDigest(MessageDigest messageDigest)

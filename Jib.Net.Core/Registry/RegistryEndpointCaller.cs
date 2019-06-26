@@ -16,10 +16,10 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.global;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
+using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Registry;
 using Newtonsoft.Json;

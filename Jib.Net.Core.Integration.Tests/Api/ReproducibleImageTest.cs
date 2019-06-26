@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.api
                 // layer with out-of-order files
                 .AddLayer(ImmutableArray.Create(fileC, fileB), "/app")
                 .AddLayer(
-                    LayerConfiguration.builder()
+                    LayerConfiguration.CreateBuilder()
                         .AddEntryRecursive(subdir, AbsoluteUnixPath.Get("/app"))
                         .Build())
                 .ContainerizeAsync(containerizer).ConfigureAwait(false);

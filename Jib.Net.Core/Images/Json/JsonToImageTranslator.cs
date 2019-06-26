@@ -63,7 +63,6 @@ namespace Jib.Net.Core.Images.Json
          */
         public static Image ToImage(V21ManifestTemplate manifestTemplate)
         {
-
             manifestTemplate = manifestTemplate ?? throw new ArgumentNullException(nameof(manifestTemplate));
             Image.Builder imageBuilder = Image.CreateBuilder(ManifestFormat.V21);
 
@@ -99,7 +98,6 @@ namespace Jib.Net.Core.Images.Json
             T manifestTemplate,
             ContainerConfigurationTemplate containerConfigurationTemplate) where T : IBuildableManifestTemplate
         {
-
             containerConfigurationTemplate =
                 containerConfigurationTemplate
                 ?? throw new ArgumentNullException(nameof(containerConfigurationTemplate));

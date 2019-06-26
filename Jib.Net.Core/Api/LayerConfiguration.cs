@@ -195,7 +195,6 @@ namespace com.google.cloud.tools.jib.api
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
                 Func<SystemPath, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
             {
-
                 FilePermissions permissions = filePermissionProvider?.Apply(sourceFile, pathInContainer);
                 Instant modifiedTime = lastModifiedTimeProvider.Apply(sourceFile, pathInContainer);
                 AddEntry(sourceFile, pathInContainer, permissions, modifiedTime);
@@ -248,7 +247,7 @@ namespace com.google.cloud.tools.jib.api
          *
          * @return a new {@link Builder}
          */
-        public static Builder builder()
+        public static Builder CreateBuilder()
         {
             return new Builder();
         }

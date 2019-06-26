@@ -110,7 +110,7 @@ namespace Jib.Net.Core.Api
             pathInContainer = pathInContainer ?? throw new ArgumentNullException(nameof(pathInContainer));
             files = files ?? throw new ArgumentNullException(nameof(files));
 
-            LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
+            LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
 
             foreach (SystemPath file in files)
 

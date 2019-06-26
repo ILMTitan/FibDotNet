@@ -56,7 +56,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             IEnumerable<SystemPath> fileStream =
                 Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
-                LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
+                LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
                     layerConfigurationBuilder.SetName(Path.GetFileName(resourcePath));
                 fileStream.ForEach(
                     sourceFile =>
@@ -111,7 +111,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             fakeClassesLayerConfiguration =
                 MakeLayerConfiguration("core/application/classes", EXTRACTION_PATH_ROOT.Resolve("classes"));
             fakeExtraFilesLayerConfiguration =
-                LayerConfiguration.builder()
+                LayerConfiguration.CreateBuilder()
                     .AddEntry(
                         Paths.Get(TestResources.GetResource("core/fileA").ToURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.Resolve("fileA"))
@@ -119,7 +119,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                         Paths.Get(TestResources.GetResource("core/fileB").ToURI()),
                         EXTRA_FILES_LAYER_EXTRACTION_PATH.Resolve("fileB"))
                     .Build();
-            emptyLayerConfiguration = LayerConfiguration.builder().Build();
+            emptyLayerConfiguration = LayerConfiguration.CreateBuilder().Build();
 
             cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 

@@ -45,7 +45,7 @@ namespace com.google.cloud.tools.jib.api
             SystemPath testFile = TestResources.GetResource("core/fileA");
 
             ILayerConfiguration layerConfiguration =
-                LayerConfiguration.builder()
+                LayerConfiguration.CreateBuilder()
                     .AddEntryRecursive(testDirectory, AbsoluteUnixPath.Get("/app/layer/"))
                     .AddEntryRecursive(testFile, AbsoluteUnixPath.Get("/app/fileA"))
                     .Build();
@@ -85,7 +85,7 @@ namespace com.google.cloud.tools.jib.api
                     JavaExtensions.StartsWith(destination.ToString(), "/app/layer/a") ? timestamp1 : timestamp2;
 
             ILayerConfiguration layerConfiguration =
-                LayerConfiguration.builder()
+                LayerConfiguration.CreateBuilder()
                     .AddEntryRecursive(
                         testDirectory,
                         AbsoluteUnixPath.Get("/app/layer/"),

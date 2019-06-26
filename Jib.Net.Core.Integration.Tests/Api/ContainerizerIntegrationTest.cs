@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.api
             IEnumerable<SystemPath> fileStream =
                 Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
-                LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.builder();
+                LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
                 fileStream.ForEach(
                     sourceFile =>
                         layerConfigurationBuilder.AddEntry(

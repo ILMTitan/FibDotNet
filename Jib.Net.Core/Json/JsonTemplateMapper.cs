@@ -63,7 +63,6 @@ namespace com.google.cloud.tools.jib.json
          */
         public static T ReadJsonFromFile<T>(SystemPath jsonFile)
         {
-
             jsonFile = jsonFile ?? throw new ArgumentNullException(nameof(jsonFile));
             using (StreamReader reader = jsonFile.ToFile().OpenText())
             {

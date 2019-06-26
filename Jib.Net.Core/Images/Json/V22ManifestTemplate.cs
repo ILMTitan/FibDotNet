@@ -63,6 +63,7 @@ namespace com.google.cloud.tools.jib.image.json
         /** The Docker V2.2 manifest media type. */
         public static readonly string ManifestMediaType =
             "application/vnd.docker.distribution.manifest.v2+json";
+
         private readonly List<ContentDescriptorTemplate> layers = new List<ContentDescriptorTemplate>();
 
         /** The Docker V2.2 container configuration media type. */
@@ -81,6 +82,7 @@ namespace com.google.cloud.tools.jib.image.json
 
         /** The list of layer references. */
         public IReadOnlyList<ContentDescriptorTemplate> Layers => layers;
+
         [JsonConstructor]
         public V22ManifestTemplate(ContentDescriptorTemplate config, List<ContentDescriptorTemplate> layers)
         {

@@ -187,5 +187,25 @@ namespace Jib.Net.Core.FileSystem
         {
             return string.CompareOrdinal(path, other?.path);
         }
+
+        public static bool operator <(SystemPath left, SystemPath right)
+        {
+            return left is null ? !(right is null) : left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(SystemPath left, SystemPath right)
+        {
+            return left is null || left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(SystemPath left, SystemPath right)
+        {
+            return !(left is null) && left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(SystemPath left, SystemPath right)
+        {
+            return left is null ? right is null : left.CompareTo(right) >= 0;
+        }
     }
 }

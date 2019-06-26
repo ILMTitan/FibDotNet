@@ -14,15 +14,15 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
+using com.google.cloud.tools.jib.api;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
     /** Build containers with Jib. */
     // TODO: Add tests once JibContainerBuilder#containerize() is added.
-    public sealed class Jib
+    public static class Jib
     {
         /**
          * Starts building the container from a base image. The base image should be publicly-available.
@@ -71,7 +71,5 @@ namespace com.google.cloud.tools.jib.api
         {
             return From(ImageReference.Scratch());
         }
-
-        private Jib() { }
     }
 }

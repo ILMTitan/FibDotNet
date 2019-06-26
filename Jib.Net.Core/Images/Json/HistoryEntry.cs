@@ -95,26 +95,26 @@ namespace com.google.cloud.tools.jib.image.json
 
         /** The ISO-8601 formatted timestamp at which the image was created. */
         [JsonProperty("created")]
-        public string creationTimestamp { get; set; }
+        public string CreationTimestamp { get; set; }
 
         /** The name of the author specified when committing the image. */
         [JsonProperty("author")]
-        public string author { get; set; }
+        public string Author { get; set; }
 
         /** The command used to build the layer. */
         [JsonProperty("created_by")]
-        public string createdBy { get; set; }
+        public string CreatedBy { get; set; }
 
         /** A custom message set when creating the layer. */
         [JsonProperty("comment")]
-        public string comment { get; set; }
+        public string Comment { get; set; }
 
         /**
          * Whether or not the entry corresponds to a layer in the container ({@code bool} to
          * make field optional).
          */
         [JsonProperty("empty_layer", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool emptyLayer { get; set; }
+        public bool EmptyLayer { get; set; }
 
         public HistoryEntry() { }
 
@@ -125,11 +125,11 @@ namespace com.google.cloud.tools.jib.image.json
             string comment,
             bool emptyLayer)
         {
-            this.author = author;
-            this.creationTimestamp = creationTimestamp;
-            this.createdBy = createdBy;
-            this.comment = comment;
-            this.emptyLayer = emptyLayer;
+            this.Author = author;
+            this.CreationTimestamp = creationTimestamp;
+            this.CreatedBy = createdBy;
+            this.Comment = comment;
+            this.EmptyLayer = emptyLayer;
         }
 
         /**
@@ -139,7 +139,7 @@ namespace com.google.cloud.tools.jib.image.json
          */
         public bool HasCorrespondingLayer()
         {
-            return emptyLayer;
+            return EmptyLayer;
         }
 
         public override bool Equals(object other)
@@ -151,23 +151,23 @@ namespace com.google.cloud.tools.jib.image.json
             if (other is HistoryEntry historyEntry)
             {
                 HistoryEntry otherHistory = historyEntry;
-                return Objects.Equals(otherHistory.creationTimestamp, creationTimestamp)
-                    && Objects.Equals(otherHistory.author, author)
-                    && Objects.Equals(otherHistory.createdBy, createdBy)
-                    && Objects.Equals(otherHistory.comment, comment)
-                    && Objects.Equals(otherHistory.emptyLayer, emptyLayer);
+                return Objects.Equals(otherHistory.CreationTimestamp, CreationTimestamp)
+                    && Objects.Equals(otherHistory.Author, Author)
+                    && Objects.Equals(otherHistory.CreatedBy, CreatedBy)
+                    && Objects.Equals(otherHistory.Comment, Comment)
+                    && Objects.Equals(otherHistory.EmptyLayer, EmptyLayer);
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return Objects.Hash(author, creationTimestamp, createdBy, comment, emptyLayer);
+            return Objects.Hash(Author, CreationTimestamp, CreatedBy, Comment, EmptyLayer);
         }
 
         public override string ToString()
         {
-            return createdBy ?? "";
+            return CreatedBy ?? "";
         }
     }
 }

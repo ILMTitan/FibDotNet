@@ -18,7 +18,7 @@ using com.google.cloud.tools.jib.api;
 using System;
 using System.Globalization;
 
-namespace com.google.cloud.tools.jib.global
+namespace Jib.Net.Core
 {
     /** Names of system properties defined/used by Jib. */
     public static class JibSystemProperties

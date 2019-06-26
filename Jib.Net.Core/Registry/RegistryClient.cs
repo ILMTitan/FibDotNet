@@ -19,7 +19,6 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.global;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.image.json;
 using com.google.cloud.tools.jib.registry;

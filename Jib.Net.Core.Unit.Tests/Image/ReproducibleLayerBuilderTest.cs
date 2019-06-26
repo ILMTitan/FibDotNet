@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.image
 
             ReproducibleLayerBuilder layerBuilder =
                 new ReproducibleLayerBuilder(
-                    LayerConfiguration.builder()
+                    LayerConfiguration.CreateBuilder()
                         .AddEntryRecursive(
                             layerDirectory, AbsoluteUnixPath.Get("/extract/here/apple/layer"))
                         .AddEntry(blobA, AbsoluteUnixPath.Get("/extract/here/apple/blobA"))

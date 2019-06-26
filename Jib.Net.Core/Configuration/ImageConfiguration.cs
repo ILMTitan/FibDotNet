@@ -41,7 +41,6 @@ namespace com.google.cloud.tools.jib.configuration
              */
             public Builder SetCredentialRetrievers(IList<CredentialRetriever> credentialRetrievers)
             {
-
                 credentialRetrievers = credentialRetrievers ?? throw new ArgumentNullException(nameof(credentialRetrievers));
                 Preconditions.CheckArgument(
                     !JavaExtensions.Contains(credentialRetrievers, null), "credential retriever list contains null elements");

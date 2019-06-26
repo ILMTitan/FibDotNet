@@ -15,10 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.@event.events;
+using Jib.Net.Core.Events;
 using NodaTime;
 using System;
-using static com.google.cloud.tools.jib.@event.events.TimerEvent;
+using static Jib.Net.Core.Events.TimerEvent;
 
 namespace com.google.cloud.tools.jib.builder
 {

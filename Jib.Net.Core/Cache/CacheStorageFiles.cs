@@ -62,7 +62,6 @@ namespace com.google.cloud.tools.jib.cache
         {
             try
             {
-
                 layerFile = layerFile ?? throw new ArgumentNullException(nameof(layerFile));
                 string diffId = JavaExtensions.ToString(layerFile.GetFileName());
                 return DescriptorDigest.FromHash(diffId);
@@ -105,7 +104,6 @@ namespace com.google.cloud.tools.jib.cache
          */
         public string GetLayerFilename(DescriptorDigest layerDiffId)
         {
-
             layerDiffId = layerDiffId ?? throw new ArgumentNullException(nameof(layerDiffId));
             return layerDiffId.GetHash();
         }
@@ -118,7 +116,6 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath GetSelectorFile(DescriptorDigest selector)
         {
-
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
             return cacheDirectory.Resolve(SELECTORS_DIRECTORY).Resolve(selector.GetHash());
         }
@@ -141,7 +138,6 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath GetLayerDirectory(DescriptorDigest layerDigest)
         {
-
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
             return GetLayersDirectory().Resolve(layerDigest.GetHash());
         }
@@ -165,7 +161,6 @@ namespace com.google.cloud.tools.jib.cache
          */
         public SystemPath GetImageDirectory(IImageReference imageReference)
         {
-
             imageReference = imageReference ?? throw new ArgumentNullException(nameof(imageReference));
             // Replace ':' and '@' with '!' to avoid directory-naming restrictions
             string replacedReference = JavaExtensions.Replace(JavaExtensions.Replace(imageReference.ToStringWithTag(), ':', '!'), '@', '!');
@@ -198,7 +193,6 @@ namespace com.google.cloud.tools.jib.cache
          */
         public TemporaryFile GetTemporaryLayerFile(SystemPath layerDirectory)
         {
-
             layerDirectory = layerDirectory ?? throw new ArgumentNullException(nameof(layerDirectory));
             return new TemporaryFile(layerDirectory.Resolve(TEMPORARY_LAYER_FILE_NAME));
         }
