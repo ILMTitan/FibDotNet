@@ -1,5 +1,6 @@
 ﻿using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
 using System;
 
 namespace com.google.cloud.tools.jib.registry.credentials

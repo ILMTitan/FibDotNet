@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.FileSystem;
 
 namespace Jib.Net.Core.Api

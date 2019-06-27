@@ -24,7 +24,7 @@ using Jib.Net.Core.Images.Json;
 using System;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Used to record the results of a build. */
     public class BuildResult : IBuildResult
@@ -41,12 +41,12 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             ImageToJsonTranslator imageToJsonTranslator = new ImageToJsonTranslator(image);
             ContainerConfigurationTemplate configurationTemplate = imageToJsonTranslator.GetContainerConfiguration();
-            BlobDescriptor containerConfigurationBlobDescriptor = 
+            BlobDescriptor containerConfigurationBlobDescriptor =
                 await Digests.ComputeJsonDescriptorAsync(configurationTemplate).ConfigureAwait(false);
             IBuildableManifestTemplate manifestTemplate =
                 imageToJsonTranslator.GetManifestTemplate(
                     targetFormat, containerConfigurationBlobDescriptor);
-            DescriptorDigest imageDigest = 
+            DescriptorDigest imageDigest =
                 await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false);
             DescriptorDigest imageId = containerConfigurationBlobDescriptor.GetDigest();
             return new BuildResult(imageDigest, imageId);

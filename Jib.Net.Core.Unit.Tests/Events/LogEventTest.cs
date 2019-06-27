@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;
-using static com.google.cloud.tools.jib.api.LogEvent;
+using static Jib.Net.Core.Events.LogEvent;
 
 namespace Jib.Net.Core.Unit.Tests.Events
 {

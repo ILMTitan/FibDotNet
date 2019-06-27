@@ -16,13 +16,16 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Attempts to retrieve registry credentials. */
     public sealed class RetrieveRegistryCredentialsStep : IAsyncStep<Credential>

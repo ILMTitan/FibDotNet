@@ -16,13 +16,13 @@
 
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Timer;
 using Jib.Net.Core.Global;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 using System.Collections.Generic;
-using static Jib.Net.Core.Events.TimerEvent;
+using static Jib.Net.Core.Events.Timer.TimerEvent;
 
 namespace com.google.cloud.tools.jib.builder
 {

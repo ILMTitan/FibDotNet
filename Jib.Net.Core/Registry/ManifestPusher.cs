@@ -20,6 +20,7 @@ using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
 using System;

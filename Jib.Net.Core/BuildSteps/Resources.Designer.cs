@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Jib.Net.Core.Builder.Steps {
+namespace Jib.Net.Core.BuildSteps {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Jib.Net.Core.Builder.Steps {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Jib.Net.Core.Builder.Steps.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Jib.Net.Core.BuildSteps.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -16,9 +16,10 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core;
+using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;

@@ -18,12 +18,13 @@ using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
@@ -31,9 +32,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
-using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
+using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 
-namespace Jib.Net.Core.Builder.Steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Pulls the base image manifest. */
     public class PullBaseImageStep : IAsyncStep<BaseImageWithAuthorization>
@@ -212,7 +213,7 @@ namespace Jib.Net.Core.Builder.Steps
                     IBuildableManifestTemplate buildableManifestTemplate =
                         (IBuildableManifestTemplate)manifestTemplate;
                     if (buildableManifestTemplate.GetContainerConfiguration() == null
-                        || buildableManifestTemplate.GetContainerConfiguration().Digest== null)
+                        || buildableManifestTemplate.GetContainerConfiguration().Digest == null)
                     {
                         throw new UnknownManifestFormatException(
                             "Invalid container configuration in Docker V2.2/OCI manifest: \n"

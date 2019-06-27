@@ -16,14 +16,16 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
+using Jib.Net.Core.Events.Progress;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /**
      * Authenticates push to a target registry using Docker Token Authentication.
@@ -68,7 +70,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 using (progressEventDispatcherFactory.Create("authenticating push to " + registry, 1))
                 using (new TimerEventDispatcher(
-                            buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture,DESCRIPTION, registry)))
+                            buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, registry)))
                 {
                     RegistryAuthenticator registryAuthenticator =
                         await buildConfiguration

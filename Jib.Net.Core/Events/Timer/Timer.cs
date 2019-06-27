@@ -15,12 +15,11 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using Jib.Net.Core.Events;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Events.Timer
 {
     /** Times code execution intervals. Call {@link #lap} at the end of each interval. */
     public class Timer : TimerEvent.ITimer

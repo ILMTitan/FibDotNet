@@ -14,15 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images;
 using System.Collections.Generic;
@@ -30,7 +29,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Jib.Net.Core.Builder.Steps
+namespace Jib.Net.Core.BuildSteps
 {
     public class WriteTarFileStep : IAsyncStep<BuildResult>
     {

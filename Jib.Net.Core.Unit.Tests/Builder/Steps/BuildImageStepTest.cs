@@ -20,7 +20,8 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
-using Jib.Net.Core.Builder.Steps;
+using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
@@ -30,7 +31,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
+using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 
 namespace com.google.cloud.tools.jib.builder.steps
 {

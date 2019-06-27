@@ -14,9 +14,10 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using System;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Events
 {
     /** Log message event. */
     public sealed class LogEvent : IJibEvent

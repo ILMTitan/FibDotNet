@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.cache;
+using Jib.Net.Core.Events.Timer;
 using Jib.Net.Core.Global;
 using Moq;
 using NodaTime;

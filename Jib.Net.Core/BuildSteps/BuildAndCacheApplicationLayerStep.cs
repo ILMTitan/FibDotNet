@@ -17,9 +17,12 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using System;
@@ -27,7 +30,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Builds and caches application layers. */
     public sealed class BuildAndCacheApplicationLayerStep : IAsyncStep<ICachedLayer>
@@ -111,7 +114,7 @@ buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
                     new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), description))
 
             {
-                Cache cache = buildConfiguration.GetApplicationLayersCache();
+                Cache.Cache cache = buildConfiguration.GetApplicationLayersCache();
 
                 // Don't build the layer if it exists already.
                 Option<CachedLayer> optionalCachedLayer =

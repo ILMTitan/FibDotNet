@@ -16,18 +16,18 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Images;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace Jib.Net.Core.Builder.Steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Adds image layers to a tarball and loads into Docker daemon. */
     internal class LoadDockerStep : IAsyncStep<BuildResult>

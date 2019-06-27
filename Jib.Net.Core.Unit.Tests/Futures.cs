@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.cache;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     public static class Futures
     {

@@ -14,12 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
@@ -28,9 +31,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
+using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Builds a model {@link Image}. */
     public class BuildImageStep : IAsyncStep<Image>
@@ -56,7 +59,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             this.progressEventDispatcherFactory = progressEventDispatcherFactory;
             this.pullBaseImageStep = pullBaseImageStep;
             this.pullAndCacheBaseImageLayersStep = pullAndCacheBaseImageLayersStep;
-            this.buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayerSteps;
+            buildAndCacheApplicationLayersStep = buildAndCacheApplicationLayerSteps;
 
             listenableFuture = CallAsync();
         }
@@ -125,9 +128,11 @@ namespace com.google.cloud.tools.jib.builder.steps
                 foreach (ICachedLayer applicationLayer in applicationLayers)
                 {
                     HistoryEntry.Builder historyBuilder = HistoryEntry.CreateBuilder();
-                    if (buildConfiguration.GetToolName() != null) {
-                        historyBuilder.SetCreatedBy(buildConfiguration.GetToolName() + ":" + (buildConfiguration.GetToolVersion()??"null"));
-                    } else
+                    if (buildConfiguration.GetToolName() != null)
+                    {
+                        historyBuilder.SetCreatedBy(buildConfiguration.GetToolName() + ":" + (buildConfiguration.GetToolVersion() ?? "null"));
+                    }
+                    else
                     {
                         historyBuilder.SetCreatedBy(ProjectInfo.TOOL_NAME + ":" + ProjectInfo.VERSION);
                     }

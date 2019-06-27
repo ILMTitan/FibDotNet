@@ -15,16 +15,18 @@
  */
 
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     internal class PushLayersStep : IAsyncStep<IReadOnlyList<BlobDescriptor>>
     {

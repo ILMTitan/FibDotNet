@@ -15,18 +15,19 @@
  */
 
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core;
-using Jib.Net.Core.Builder.Steps;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using static Jib.Net.Core.Builder.Steps.PullBaseImageStep;
+using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Pulls and caches the base image layers. */
     public class PullAndCacheBaseImageLayersStep : IAsyncStep<IReadOnlyList<ICachedLayer>>

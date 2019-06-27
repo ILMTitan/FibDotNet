@@ -15,10 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;

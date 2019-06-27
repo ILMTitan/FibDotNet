@@ -1,6 +1,6 @@
 ﻿using Jib.Net.Core.Api;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     public interface IBuildResult
     {

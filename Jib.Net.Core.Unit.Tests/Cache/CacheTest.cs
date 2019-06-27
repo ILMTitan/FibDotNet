@@ -21,6 +21,7 @@ using com.google.cloud.tools.jib.hash;
 using ICSharpCode.SharpZipLib.GZip;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Cache;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;

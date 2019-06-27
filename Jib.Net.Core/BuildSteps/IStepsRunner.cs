@@ -2,7 +2,7 @@
 using Jib.Net.Core.FileSystem;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     public interface IStepsRunner
     {

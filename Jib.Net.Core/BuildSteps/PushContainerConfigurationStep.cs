@@ -16,16 +16,18 @@
 
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Pushes the container configuration. */
     internal class PushContainerConfigurationStep : IAsyncStep<BlobDescriptor>
@@ -69,7 +71,7 @@ namespace com.google.cloud.tools.jib.builder.steps
             {
                 ContainerConfigurationTemplate containerConfiguration =
                     new ImageToJsonTranslator(image).GetContainerConfiguration();
-                BlobDescriptor blobDescriptor = 
+                BlobDescriptor blobDescriptor =
                     await Digests.ComputeJsonDescriptorAsync(containerConfiguration).ConfigureAwait(false);
 
                 return await new PushBlobStep(

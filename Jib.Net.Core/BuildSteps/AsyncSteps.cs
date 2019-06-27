@@ -15,31 +15,25 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using com.google.cloud.tools.jib.async;
+using com.google.cloud.tools.jib.cache;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
-    internal static class AsyncStep
+    internal static class AsyncSteps
     {
-        internal static IAsyncStep<T> Of<T>(Func<Task<T>> p)
+        internal static IAsyncStep<T> Immediate<T>(T value)
         {
-            return new FunStep<T>(p);
+            return AsyncStep.Of(() => Task.FromResult(value));
         }
 
-        private class FunStep<T> : IAsyncStep<T>
+        internal static IAsyncStep<IReadOnlyList<T>> FromTasks<T>(IEnumerable<Task<T>> tasks)
         {
-            private readonly Task<T> future;
-
-            public FunStep(Func<Task<T>> p)
-            {
-                future = p();
-            }
-
-            public Task<T> GetFuture()
-            {
-                return future;
-            }
+            async Task<IReadOnlyList<T>> f() => await Task.WhenAll(tasks).ConfigureAwait(false);
+            return AsyncStep.Of(f);
         }
     }
 }

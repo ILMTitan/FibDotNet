@@ -69,7 +69,7 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers" />
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
-    <Rule Id="CA1034" Action="Info" />
+    <Rule Id="CA1034" Action="Hidden" />
     <Rule Id="CA1707" Action="Hidden" />
     <Rule Id="CA1063" Action="None" />
   </Rules>

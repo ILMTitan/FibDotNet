@@ -15,11 +15,10 @@
  */
 
 using Jib.Net.Core;
-using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using System;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Events.Progress
 {
     /**
      * Contains a {@link ProgressEventDispatcher} and throttles dispatching progress events with the

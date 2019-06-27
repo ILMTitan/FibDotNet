@@ -19,7 +19,7 @@ using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using Jib.Net.Core;
-using Jib.Net.Core.Builder.Steps;
+using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Runnable = System.Action;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /**
      * Runs steps for building an image.

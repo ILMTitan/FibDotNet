@@ -19,6 +19,7 @@ using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;

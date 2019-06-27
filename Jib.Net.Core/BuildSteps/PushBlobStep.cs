@@ -14,18 +14,19 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
+using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using Jib.Net.Core;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Registry;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.BuildSteps
 {
     /** Pushes a BLOB to the target registry. */
     internal class PushBlobStep : IAsyncStep<BlobDescriptor>

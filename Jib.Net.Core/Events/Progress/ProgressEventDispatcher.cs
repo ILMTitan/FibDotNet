@@ -15,10 +15,9 @@
  */
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core;
-using Jib.Net.Core.Events.Progress;
 using System;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Events.Progress
 {
     public static class ProgressEventDispatcherFactoryExtensions
     {
@@ -110,7 +109,7 @@ namespace com.google.cloud.tools.jib.builder
             DecrementRemainingAllocationUnits(1);
 
             bool used = false;
-            return (string description, long allocationUnits) =>
+            return (description, allocationUnits) =>
             {
                 Preconditions.CheckState(!used);
                 used = true;
