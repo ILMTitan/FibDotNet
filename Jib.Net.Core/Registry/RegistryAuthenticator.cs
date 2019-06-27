@@ -222,7 +222,7 @@ namespace com.google.cloud.tools.jib.registry
                 : serviceScope;
         }
 
-        public bool IsOAuth2Auth(Credential credential)
+        public static bool IsOAuth2Auth(Credential credential)
         {
             return credential?.IsOAuth2RefreshToken() == true;
         }

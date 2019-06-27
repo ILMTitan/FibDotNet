@@ -86,21 +86,21 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void IsOAuth2Auth_nullCredential()
         {
-            Assert.IsFalse(registryAuthenticator.IsOAuth2Auth(null));
+            Assert.IsFalse(RegistryAuthenticator.IsOAuth2Auth(null));
         }
 
         [Test]
         public void IsOAuth2Auth_basicAuth()
         {
             Credential credential = Credential.From("name", "password");
-            Assert.IsFalse(registryAuthenticator.IsOAuth2Auth(credential));
+            Assert.IsFalse(RegistryAuthenticator.IsOAuth2Auth(credential));
         }
 
         [Test]
         public void IsOAuth2Auth_oauth2()
         {
             Credential credential = Credential.From("<token>", "oauth2_token");
-            Assert.IsTrue(registryAuthenticator.IsOAuth2Auth(credential));
+            Assert.IsTrue(RegistryAuthenticator.IsOAuth2Auth(credential));
         }
 
         [Test]

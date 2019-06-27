@@ -106,9 +106,10 @@ namespace com.google.cloud.tools.jib.api
                 DescriptorDigest.FromDigest("sha256:" + CreateGoodHash('a'));
             DescriptorDigest descriptorDigestB = DescriptorDigest.FromHash(CreateGoodHash('b'));
 
-            IDictionary<DescriptorDigest, string> digestMap = new Dictionary<DescriptorDigest, string>();
-
-            digestMap[descriptorDigestA1] = "digest with a";
+            IDictionary<DescriptorDigest, string> digestMap = new Dictionary<DescriptorDigest, string>
+            {
+                [descriptorDigestA1] = "digest with a"
+            };
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
             Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));

@@ -76,8 +76,10 @@ namespace com.google.cloud.tools.jib.configuration
                 Assert.AreEqual("volumes list contains null elements", ex.GetMessage());
             }
 
-            IDictionary<string, string> nullValueMap = new Dictionary<string, string>();
-            nullValueMap["key"] = null;
+            IDictionary<string, string> nullValueMap = new Dictionary<string, string>
+            {
+                ["key"] = null
+            };
 
             // Labels values should not be null.
             try

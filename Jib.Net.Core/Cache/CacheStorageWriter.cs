@@ -262,7 +262,7 @@ namespace com.google.cloud.tools.jib.cache
             IBlob compressedLayerBlob, SystemPath layerDirectory)
         {
             // Writes the layer file to the temporary directory.
-            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.GetTemporaryLayerFile(layerDirectory))
+            using (TemporaryFile temporaryLayerFile = CacheStorageFiles.GetTemporaryLayerFile(layerDirectory))
             {
                 BlobDescriptor layerBlobDescriptor;
                 using (Stream fileOutputStream = Files.NewOutputStream(temporaryLayerFile.Path))
@@ -293,7 +293,7 @@ namespace com.google.cloud.tools.jib.cache
         private async Task<WrittenLayer> WriteUncompressedLayerBlobToDirectoryAsync(
             IBlob uncompressedLayerBlob, SystemPath layerDirectory)
         {
-            using (TemporaryFile temporaryLayerFile = cacheStorageFiles.GetTemporaryLayerFile(layerDirectory)) {
+            using (TemporaryFile temporaryLayerFile = CacheStorageFiles.GetTemporaryLayerFile(layerDirectory)) {
                 DescriptorDigest layerDiffId;
                 BlobDescriptor blobDescriptor;
 

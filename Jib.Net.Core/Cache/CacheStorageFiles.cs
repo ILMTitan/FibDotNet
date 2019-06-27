@@ -102,7 +102,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDiffId the layer's diff ID
          * @return the layer filename
          */
-        public string GetLayerFilename(DescriptorDigest layerDiffId)
+        public virtual string GetLayerFilename(DescriptorDigest layerDiffId)
         {
             layerDiffId = layerDiffId ?? throw new ArgumentNullException(nameof(layerDiffId));
             return layerDiffId.GetHash();
@@ -191,7 +191,7 @@ namespace com.google.cloud.tools.jib.cache
          * @param layerDirectory the directory in which to resolve the temporary layer file
          * @return the temporary layer file
          */
-        public TemporaryFile GetTemporaryLayerFile(SystemPath layerDirectory)
+        public static TemporaryFile GetTemporaryLayerFile(SystemPath layerDirectory)
         {
             layerDirectory = layerDirectory ?? throw new ArgumentNullException(nameof(layerDirectory));
             return new TemporaryFile(layerDirectory.Resolve(TEMPORARY_LAYER_FILE_NAME));

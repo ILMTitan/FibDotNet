@@ -22,7 +22,6 @@ using System.Net.Http.Headers;
 
 namespace com.google.cloud.tools.jib.registry
 {
-    [Serializable]
     public class HttpResponseException : Exception
     {
         public HttpResponseException(HttpResponseMessage message)

@@ -41,11 +41,12 @@ namespace com.google.cloud.tools.jib.image.json
             string expectedJson = Encoding.UTF8.GetString(Files.ReadAllBytes(jsonFile));
 
             // Creates the JSON object to serialize.
-            ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate();
-
-            containerConfigJson.Created = "1970-01-01T00:00:20Z";
-            containerConfigJson.Architecture = "wasm";
-            containerConfigJson.Os = "js";
+            ContainerConfigurationTemplate containerConfigJson = new ContainerConfigurationTemplate
+            {
+                Created = "1970-01-01T00:00:20Z",
+                Architecture = "wasm",
+                Os = "js"
+            };
             containerConfigJson.SetContainerEnvironment(Arrays.AsList("VAR1=VAL1", "VAR2=VAL2"));
             containerConfigJson.SetContainerEntrypoint(Arrays.AsList("some", "entrypoint", "command"));
             containerConfigJson.SetContainerCmd(Arrays.AsList("arg1", "arg2"));

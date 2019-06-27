@@ -74,7 +74,7 @@
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
     <Rule Id="CA1303" Action="Hidden" />
     <Rule Id="CA1308" Action="None" />
-    <Rule Id="CA2000" Action="Info" />
+    <Rule Id="CA2000" Action="Hidden" />
     <Rule Id="CA1816" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
