@@ -24,6 +24,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -275,7 +276,7 @@ namespace com.google.cloud.tools.jib.docker
         /** Runs a {@code docker} command. */
         private IProcess Docker(params string[] subCommand)
         {
-            return processBuilderFactory(Arrays.AsList(subCommand)).Start();
+            return processBuilderFactory(subCommand.ToList()).Start();
         }
     }
 }

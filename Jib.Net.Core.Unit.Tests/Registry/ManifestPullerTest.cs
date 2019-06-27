@@ -181,10 +181,12 @@ namespace com.google.cloud.tools.jib.registry
         public void TestGetAccept()
         {
             Assert.AreEqual(
-                Arrays.AsList(
+                new[]
+                {
                     OCIManifestTemplate.ManifestMediaType,
                     V22ManifestTemplate.ManifestMediaType,
-                    V21ManifestTemplate.ManifestMediaType),
+                    V21ManifestTemplate.ManifestMediaType
+                },
                 testManifestPuller.GetAccept());
 
             CollectionAssert.AreEqual(

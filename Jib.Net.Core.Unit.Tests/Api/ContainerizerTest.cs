@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.api
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
             Assert.AreEqual("registry/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
             Assert.AreEqual(
-                Arrays.AsList(credentialRetriever), imageConfiguration.GetCredentialRetrievers());
+                new []{credentialRetriever}, imageConfiguration.GetCredentialRetrievers());
         }
 
         [Test]

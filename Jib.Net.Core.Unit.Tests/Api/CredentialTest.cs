@@ -38,8 +38,8 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreNotEqual(credentialA1, credentialB2);
 
             ISet<Credential> credentialSet =
-                new HashSet<Credential>(Arrays.AsList(credentialA1, credentialA2, credentialB1, credentialB2));
-            CollectionAssert.AreEquivalent(new HashSet<Credential>(Arrays.AsList(credentialA2, credentialB1)), credentialSet);
+                new HashSet<Credential>(new []{credentialA1, credentialA2, credentialB1, credentialB2});
+            CollectionAssert.AreEquivalent(new HashSet<Credential>(new []{credentialA2, credentialB1}), credentialSet);
         }
 
         [Test]

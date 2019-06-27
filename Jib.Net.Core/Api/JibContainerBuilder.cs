@@ -221,7 +221,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetLayers(params ILayerConfiguration[] layerConfigurations)
         {
-            return SetLayers(Arrays.AsList(layerConfigurations));
+            return SetLayers(layerConfigurations);
         }
 
         /**
@@ -252,7 +252,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEntrypoint(params string[] entrypoint)
         {
-            return SetEntrypoint(Arrays.AsList(entrypoint));
+            return SetEntrypoint(entrypoint);
         }
 
         /**
@@ -286,7 +286,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetProgramArguments(params string[] programArguments)
         {
-            return SetProgramArguments(Arrays.AsList(programArguments));
+            return SetProgramArguments(programArguments);
         }
 
         /**
@@ -346,7 +346,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetVolumes(params AbsoluteUnixPath[] volumes)
         {
-            return SetVolumes(new HashSet<AbsoluteUnixPath>(Arrays.AsList(volumes)));
+            return SetVolumes(new HashSet<AbsoluteUnixPath>(volumes));
         }
 
         /**
@@ -392,7 +392,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetExposedPorts(params Port[] ports)
         {
-            return SetExposedPorts(new HashSet<Port>(Arrays.AsList(ports)));
+            return SetExposedPorts(new HashSet<Port>(ports));
         }
 
         /**

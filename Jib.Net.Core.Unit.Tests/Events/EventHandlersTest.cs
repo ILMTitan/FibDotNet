@@ -100,12 +100,14 @@ namespace Jib.Net.Core.Unit.Tests.Events
             eventHandlers.Dispatch(testJibEvent3);
 
             CollectionAssert.AreEqual(
-                Arrays.AsList(
+                new[]
+                {
                     "handled 2 first",
                     "handled 2 second",
                     "handled generic",
                     "handled 3",
-                    "handled generic"),
+                    "handled generic"
+                },
                 emissions);
         }
     }

@@ -212,7 +212,7 @@ namespace com.google.cloud.tools.jib.image.json
                         .Build()),
                 image.GetHistory());
             Assert.AreEqual(Instant.FromUnixTimeSeconds(20), image.GetCreated());
-            Assert.AreEqual(Arrays.AsList("some", "entrypoint", "command"), image.GetEntrypoint());
+            Assert.AreEqual(new []{"some", "entrypoint", "command"}, image.GetEntrypoint());
             Assert.AreEqual(ImmutableDic.Of("VAR1", "VAL1", "VAR2", "VAL2"), image.GetEnvironment());
             Assert.AreEqual("/some/workspace", image.GetWorkingDirectory());
             Assert.AreEqual(

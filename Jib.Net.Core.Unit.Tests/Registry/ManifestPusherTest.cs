@@ -110,7 +110,7 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", Arrays.AsList("too", "many") } }
+                Headers = { { "Docker-Content-Digest", new []{"too", "many"} } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));

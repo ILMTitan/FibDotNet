@@ -108,10 +108,11 @@ namespace Jib.Net.Core.Registry
             {
                 return new[] { V21ManifestTemplate.ManifestMediaType };
             }
-            return Arrays.AsList(
+            return new[]{
                 OCIManifestTemplate.ManifestMediaType,
                 V22ManifestTemplate.ManifestMediaType,
-                V21ManifestTemplate.ManifestMediaType);
+                V21ManifestTemplate.ManifestMediaType
+            };
         }
 
         /** Parses the response body into a {@link ManifestTemplate}. */

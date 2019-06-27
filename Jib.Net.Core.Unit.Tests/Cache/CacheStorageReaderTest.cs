@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.cache
 
             // Checks that layer directories created are all listed.
             Assert.AreEqual(
-                new HashSet<DescriptorDigest>(Arrays.AsList(layerDigest1, layerDigest2)),
+                new HashSet<DescriptorDigest>(new []{layerDigest1, layerDigest2}),
                 cacheStorageReader.FetchDigests());
 
             // Checks that non-digest directories means the cache is corrupted.

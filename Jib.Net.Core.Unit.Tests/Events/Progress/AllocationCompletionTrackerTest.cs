@@ -63,17 +63,17 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child1, 0L));
             Assert.AreEqual(
-                Arrays.AsList(root, child1),
+                new []{root, child1},
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child1Child, 0L));
             Assert.AreEqual(
-                Arrays.AsList(root, child1, child1Child),
+                new []{root, child1, child1Child},
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child1Child, 50L));
             Assert.AreEqual(
-                Arrays.AsList(root, child1, child1Child),
+                new []{root, child1, child1Child},
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child1Child, 50L));
@@ -83,7 +83,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child2, 100L));
             Assert.AreEqual(
-                Arrays.AsList(root, child2),
+                new []{root, child2},
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             Assert.IsTrue(allocationCompletionTracker.UpdateProgress(child2, 100L));
@@ -124,7 +124,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 await MultithreadedExecutor.InvokeAsync(
                     () => allocationCompletionTracker.UpdateProgress(child1Child, 0L)).ConfigureAwait(false));
             Assert.AreEqual(
-                Arrays.AsList(root, child1, child1Child),
+                new []{root, child1, child1Child},
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             // Adds 50 to child1Child and 100 to child2.
@@ -137,11 +137,13 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             CollectionAssert.AreEqual(
                 Enumerable.Repeat(true, 150), await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false));
             Assert.AreEqual(
-                Arrays.AsList(
+                new[]
+                {
                     root,
                     child1,
                     child1Child,
-                    child2),
+                    child2
+                },
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             // 0 progress doesn't do anything.
@@ -150,11 +152,13 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 await MultithreadedExecutor.InvokeAllAsync(
                     Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.UpdateProgress(child1, 0L)), 100)).ConfigureAwait(false));
             Assert.AreEqual(
-                Arrays.AsList(
+                new[]
+                {
                     root,
                     child1,
                     child1Child,
-                    child2),
+                    child2
+                },
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             // Adds 50 to child1Child and 100 to child2 to finish it up.
@@ -169,25 +173,25 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         {
             AllocationCompletionTracker tracker = new AllocationCompletionTracker();
             tracker.UpdateProgress(root, 0);
-            Assert.AreEqual(Arrays.AsList("root"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"root"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1, 0);
-            Assert.AreEqual(Arrays.AsList("child1"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child1"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 0);
-            Assert.AreEqual(Arrays.AsList("child1", "child2"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child1", "child2"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 0);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 50);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 100);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 100);
-            Assert.AreEqual(Arrays.AsList("child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 50);
             Assert.AreEqual(new List<string>(), tracker.GetUnfinishedLeafTasks());
@@ -198,25 +202,25 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
         {
             AllocationCompletionTracker tracker = new AllocationCompletionTracker();
             tracker.UpdateProgress(root, 0);
-            Assert.AreEqual(Arrays.AsList("root"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"root"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 0);
-            Assert.AreEqual(Arrays.AsList("child2"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1, 0);
-            Assert.AreEqual(Arrays.AsList("child2", "child1"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 0);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 50);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 100);
-            Assert.AreEqual(Arrays.AsList("child2", "child1Child"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2", "child1Child"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child1Child, 50);
-            Assert.AreEqual(Arrays.AsList("child2"), tracker.GetUnfinishedLeafTasks());
+            Assert.AreEqual(new []{"child2"}, tracker.GetUnfinishedLeafTasks());
 
             tracker.UpdateProgress(child2, 100);
             Assert.AreEqual(new List<string>(), tracker.GetUnfinishedLeafTasks());

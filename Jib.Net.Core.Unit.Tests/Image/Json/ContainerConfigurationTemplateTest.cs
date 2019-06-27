@@ -47,10 +47,10 @@ namespace com.google.cloud.tools.jib.image.json
                 Architecture = "wasm",
                 Os = "js"
             };
-            containerConfigJson.SetContainerEnvironment(Arrays.AsList("VAR1=VAL1", "VAR2=VAL2"));
-            containerConfigJson.SetContainerEntrypoint(Arrays.AsList("some", "entrypoint", "command"));
-            containerConfigJson.SetContainerCmd(Arrays.AsList("arg1", "arg2"));
-            containerConfigJson.SetContainerHealthCheckTest(Arrays.AsList("CMD-SHELL", "/checkhealth"));
+            containerConfigJson.SetContainerEnvironment(new []{"VAR1=VAL1", "VAR2=VAL2"});
+            containerConfigJson.SetContainerEntrypoint(new []{"some", "entrypoint", "command"});
+            containerConfigJson.SetContainerCmd(new []{"arg1", "arg2"});
+            containerConfigJson.SetContainerHealthCheckTest(new []{"CMD-SHELL", "/checkhealth"});
             containerConfigJson.SetContainerHealthCheckInterval(3000000000L);
             containerConfigJson.SetContainerHealthCheckTimeout(1000000000L);
             containerConfigJson.SetContainerHealthCheckStartPeriod(2000000000L);
@@ -107,14 +107,14 @@ namespace com.google.cloud.tools.jib.image.json
             Assert.AreEqual("wasm", containerConfigJson.Architecture);
             Assert.AreEqual("js", containerConfigJson.Os);
             Assert.AreEqual(
-                Arrays.AsList("VAR1=VAL1", "VAR2=VAL2"), containerConfigJson.GetContainerEnvironment());
+                new []{"VAR1=VAL1", "VAR2=VAL2"}, containerConfigJson.GetContainerEnvironment());
             Assert.AreEqual(
-                Arrays.AsList("some", "entrypoint", "command"),
+                new []{"some", "entrypoint", "command"},
                 containerConfigJson.GetContainerEntrypoint());
-            Assert.AreEqual(Arrays.AsList("arg1", "arg2"), containerConfigJson.GetContainerCmd());
+            Assert.AreEqual(new []{"arg1", "arg2"}, containerConfigJson.GetContainerCmd());
 
             Assert.AreEqual(
-                Arrays.AsList("CMD-SHELL", "/checkhealth"), containerConfigJson.GetContainerHealthTest());
+                new []{"CMD-SHELL", "/checkhealth"}, containerConfigJson.GetContainerHealthTest());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthInterval());
             Assert.AreEqual(3000000000L, containerConfigJson.GetContainerHealthInterval().GetValueOrDefault());
             Assert.IsNotNull(containerConfigJson.GetContainerHealthTimeout());

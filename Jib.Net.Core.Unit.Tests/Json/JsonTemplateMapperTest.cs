@@ -67,13 +67,14 @@ namespace com.google.cloud.tools.jib.json
                 InnerObject = new TestJson.InnerObjectClass
                 {
                     Number = 23,
-                    Texts = Arrays.AsList("first text", "second text"),
-                    Digests =
-                Arrays.AsList(
-                    DescriptorDigest.FromDigest(
-                        "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
-                    DescriptorDigest.FromHash(
-                        "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236"))
+                    Texts = new List<string>{"first text", "second text"},
+                    Digests = new[]
+                    {
+                        DescriptorDigest.FromDigest(
+                            "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
+                        DescriptorDigest.FromHash(
+                            "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")
+                    }
                 }
             };
 
@@ -90,7 +91,7 @@ namespace com.google.cloud.tools.jib.json
                 new List<DescriptorDigest> {                     DescriptorDigest.FromDigest(
                         "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e")}
             };
-            testJson.List = Arrays.AsList(innerObject1, innerObject2);
+            testJson.List = new []{innerObject1, innerObject2};
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(testJson));
         }
@@ -113,15 +114,13 @@ namespace com.google.cloud.tools.jib.json
             Assert.AreEqual(testJson.InnerObject.Number, 23);
 
             Assert.AreEqual(
-                testJson.InnerObject.Texts, Arrays.AsList("first text", "second text"));
+                testJson.InnerObject.Texts, new[] { "first text", "second text" });
 
-            Assert.AreEqual(
-                testJson.InnerObject.Digests,
-                    Arrays.AsList(
-                        DescriptorDigest.FromDigest(
-                            "sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
-                        DescriptorDigest.FromHash(
-                            "4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")));
+            Assert.AreEqual(testJson.InnerObject.Digests, new[]
+            {
+                DescriptorDigest.FromDigest("sha256:91e0cae00b86c289b33fee303a807ae72dd9f0315c16b74e6ab0cdbe9d996c10"),
+                DescriptorDigest.FromHash("4945ba5011739b0b98c4a41afe224e417f47c7c99b2ce76830999c9a0861b236")
+            });
 
             // ignore testJson.list
         }

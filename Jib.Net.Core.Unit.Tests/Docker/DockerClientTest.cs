@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.docker
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(Arrays.AsList("tag", "original", "new"), subcommand);
+                        Assert.AreEqual(new []{"tag", "original", "new"}, subcommand);
                         return mockProcessBuilder;
                     });
             Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(0);
@@ -173,7 +173,7 @@ namespace com.google.cloud.tools.jib.docker
         {
             ProcessBuilder processBuilder =
                 DockerClient.DefaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
-(Arrays.AsList("sub", "command"));
+(new []{"sub", "command"});
 
             Assert.AreEqual("docker-executable sub command", processBuilder.Command());
             CollectionAssert.AreEquivalent(
@@ -208,7 +208,7 @@ namespace com.google.cloud.tools.jib.docker
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(Arrays.AsList("tag", "original", "new"), subcommand);
+                        Assert.AreEqual(new []{"tag", "original", "new"}, subcommand);
                         return mockProcessBuilder;
                     });
             Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(1);

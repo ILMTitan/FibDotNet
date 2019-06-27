@@ -45,8 +45,8 @@ namespace com.google.cloud.tools.jib.configuration
             IList<CredentialRetriever> credentialRetrievers =
                 new List<CredentialRetriever> { () => Maybe.Of(Credential.From("username", "password")) };
             Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
-            IList<string> expectedEntrypoint = Arrays.AsList("some", "entrypoint");
-            IList<string> expectedProgramArguments = Arrays.AsList("arg1", "arg2");
+            IList<string> expectedEntrypoint = new []{"some", "entrypoint"};
+            IList<string> expectedProgramArguments = new []{"arg1", "arg2"};
             IDictionary<string, string> expectedEnvironment = ImmutableDic.Of("key", "value");
             ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000));
             IDictionary<string, string> expectedLabels = ImmutableDic.Of("key1", "value1", "key2", "value2");

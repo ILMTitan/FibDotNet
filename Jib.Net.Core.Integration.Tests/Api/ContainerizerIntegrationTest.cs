@@ -196,7 +196,7 @@ namespace com.google.cloud.tools.jib.api
             await BuildRegistryImageAsync(
                 ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.Of("localhost:5000", "testimage", "testtag"),
-                Arrays.AsList("testtag2", "testtag3")).ConfigureAwait(false);
+                new []{"testtag2", "testtag3"}).ConfigureAwait(false);
 
             const string imageReference = "localhost:5000/testimage:testtag";
             localRegistry.Pull(imageReference);
@@ -256,7 +256,7 @@ namespace com.google.cloud.tools.jib.api
             await BuildDockerDaemonImageAsync(
                 ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.Of(null, imageReference, null),
-                Arrays.AsList("testtag2", "testtag3")).ConfigureAwait(false);
+                new []{"testtag2", "testtag3"}).ConfigureAwait(false);
 
             AssertDockerInspect(imageReference);
             Assert.AreEqual(
@@ -290,14 +290,14 @@ namespace com.google.cloud.tools.jib.api
         }
 
         private async Task<JibContainer> BuildRegistryImageAsync(
-            ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
+            ImageReference baseImage, ImageReference targetImage, IList<string> additionalTags)
         {
             return await BuildImageAsync(
                 baseImage, Containerizer.To(RegistryImage.Named(targetImage)), additionalTags).ConfigureAwait(false);
         }
 
         private async Task<JibContainer> BuildDockerDaemonImageAsync(
-            ImageReference baseImage, ImageReference targetImage, List<string> additionalTags)
+            ImageReference baseImage, ImageReference targetImage, IList<string> additionalTags)
         {
             return await BuildImageAsync(
                 baseImage, Containerizer.To(DockerDaemonImage.Named(targetImage)), additionalTags).ConfigureAwait(false);
@@ -320,12 +320,10 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder containerBuilder =
                 JibContainerBuilder.From(baseImage)
-                    .SetEntrypoint(
-                        Arrays.AsList(
-                            "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld"))
+                    .SetEntrypoint(new[] { "java", "-cp", "/app/resources:/app/classes:/app/libs/*", "HelloWorld" })
                     .SetProgramArguments(new List<string> { "An argument." })
                     .SetEnvironment(ImmutableDic.Of("env1", "envvalue1", "env2", "envvalue2"))
-                    .SetExposedPorts(Port.Parse(Arrays.AsList("1000", "2000-2002/tcp", "3000/udp")))
+                    .SetExposedPorts(Port.Parse(new[] { "1000", "2000-2002/tcp", "3000/udp" }))
                     .SetLabels(ImmutableDic.Of("key1", "value1", "key2", "value2"))
                     .SetLayers(fakeLayerConfigurations);
 

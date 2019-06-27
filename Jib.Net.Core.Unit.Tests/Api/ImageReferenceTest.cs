@@ -26,28 +26,31 @@ namespace com.google.cloud.tools.jib.api
     public class ImageReferenceTest
     {
         private static readonly IList<string> goodRegistries =
-            Arrays.AsList("some.domain---name.123.com:8080", "gcr.io", "localhost", null, "");
+            new []{"some.domain---name.123.com:8080", "gcr.io", "localhost", null, ""};
 
         private static readonly IList<string> goodRepositories =
-            Arrays.AsList("some123_abc/repository__123-456/name---here", "distroless/java", "repository");
+            new []{"some123_abc/repository__123-456/name---here", "distroless/java", "repository"};
 
-        private static readonly IList<string> goodTags = Arrays.AsList("some-.-.Tag", "", "latest", null);
+        private static readonly IList<string> goodTags = new []{"some-.-.Tag", "", "latest", null};
 
-        private static readonly IList<string> goodDigests =
-            Arrays.AsList(
-                "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", null);
+        private static readonly IList<string> goodDigests = new[]
+        {
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            null
+        };
 
-        private static readonly IList<string> badImageReferences =
-            Arrays.AsList(
-                "",
-                ":justsometag",
-                "@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "repository@sha256:a",
-                "repository@notadigest",
-                "Repositorywithuppercase",
-                "registry:8080/Repositorywithuppercase/repository:sometag",
-                "domain.name:nonnumberport/repository",
-                "domain.name:nonnumberport//:no-repository");
+        private static readonly IList<string> badImageReferences = new[]
+        {
+            "",
+            ":justsometag",
+            "@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "repository@sha256:a",
+            "repository@notadigest",
+            "Repositorywithuppercase",
+            "registry:8080/Repositorywithuppercase/repository:sometag",
+            "domain.name:nonnumberport/repository",
+            "domain.name:nonnumberport//:no-repository"
+        };
 
         [Test]
         public void TestParse_pass()

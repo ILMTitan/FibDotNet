@@ -86,8 +86,7 @@ namespace com.google.cloud.tools.jib.registry
                     tempFolder.Resolve("htpasswd"), Encoding.UTF8.GetBytes(credentialString));
 
                 // Run the Docker registry
-                dockerTokens.AddAll(
-                    Arrays.AsList(
+                dockerTokens.AddRange(new[]{
                         "-v",
                         // Volume mount used for storing credentials
                         tempFolder + ":/auth",
@@ -96,7 +95,8 @@ namespace com.google.cloud.tools.jib.registry
                         "-e",
                         "REGISTRY_AUTH_HTPASSWD_REALM=\"Registry Realm\"",
                         "-e",
-                        "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"));
+                        "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"
+                    });
             }
             JavaExtensions.Add(dockerTokens, "registry");
             new Command("docker", dockerTokens).Run();

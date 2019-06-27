@@ -44,16 +44,16 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             new DirectoryWalker(testDir).Walk(addToWalkedPaths);
 
-            ISet<SystemPath> expectedPaths =
-                new HashSet<SystemPath>(
-                    Arrays.AsList(
-                        testDir,
-                        testDir.Resolve("a"),
-                        testDir.Resolve("a").Resolve("b"),
-                        testDir.Resolve("a").Resolve("b").Resolve("bar"),
-                        testDir.Resolve("c"),
-                        testDir.Resolve("c").Resolve("cat"),
-                        testDir.Resolve("foo")));
+            ISet<SystemPath> expectedPaths = new HashSet<SystemPath>
+            {
+                testDir,
+                testDir.Resolve("a"),
+                testDir.Resolve("a").Resolve("b"),
+                testDir.Resolve("a").Resolve("b").Resolve("bar"),
+                testDir.Resolve("c"),
+                testDir.Resolve("c").Resolve("cat"),
+                testDir.Resolve("foo")
+            };
             Assert.AreEqual(expectedPaths, walkedPaths);
         }
 
@@ -67,7 +67,7 @@ namespace com.google.cloud.tools.jib.filesystem
                 .Walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =
-                new HashSet<SystemPath>(Arrays.AsList(testDir.Resolve("a"), testDir.Resolve("c")));
+                new HashSet<SystemPath> { testDir.Resolve("a"), testDir.Resolve("c") };
             CollectionAssert.AreEquivalent(expectedPaths, walkedPaths);
         }
 
@@ -76,15 +76,15 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             new DirectoryWalker(testDir).FilterRoot().Walk(addToWalkedPaths);
 
-            ISet<SystemPath> expectedPaths =
-                new HashSet<SystemPath>(
-                    Arrays.AsList(
-                        testDir.Resolve("a"),
-                        testDir.Resolve("a").Resolve("b"),
-                        testDir.Resolve("a").Resolve("b").Resolve("bar"),
-                        testDir.Resolve("c"),
-                        testDir.Resolve("c").Resolve("cat"),
-                        testDir.Resolve("foo")));
+            ISet<SystemPath> expectedPaths = new HashSet<SystemPath>
+            {
+                testDir.Resolve("a"),
+                testDir.Resolve("a").Resolve("b"),
+                testDir.Resolve("a").Resolve("b").Resolve("bar"),
+                testDir.Resolve("c"),
+                testDir.Resolve("c").Resolve("cat"),
+                testDir.Resolve("foo")
+            };
             CollectionAssert.AreEqual(expectedPaths, walkedPaths);
         }
     }

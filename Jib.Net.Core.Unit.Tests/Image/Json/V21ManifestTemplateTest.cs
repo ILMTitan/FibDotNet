@@ -46,10 +46,10 @@ namespace com.google.cloud.tools.jib.image.json
             ContainerConfigurationTemplate containerConfiguration =
                 manifestJson.GetContainerConfiguration().OrElse(null);
             Assert.AreEqual(
-                Arrays.AsList("JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"),
+                new []{"JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"},
                 containerConfiguration.GetContainerEnvironment());
             Assert.AreEqual(
-                Arrays.AsList("/opt/openjdk/bin/java"), containerConfiguration.GetContainerEntrypoint());
+                new []{"/opt/openjdk/bin/java"}, containerConfiguration.GetContainerEntrypoint());
         }
     }
 }

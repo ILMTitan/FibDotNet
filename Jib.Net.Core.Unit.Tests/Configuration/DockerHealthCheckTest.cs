@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             try
             {
-                DockerHealthCheck.FromCommand(Arrays.AsList("CMD", null));
+                DockerHealthCheck.FromCommand(new []{"CMD", null});
                 Assert.Fail();
             }
             catch (ArgumentException ex)

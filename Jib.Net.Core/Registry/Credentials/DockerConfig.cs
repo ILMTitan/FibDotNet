@@ -135,7 +135,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             Func<string, bool> withHttps = ("https://" + registry).Equals;
             bool withSuffix(string name) => JavaExtensions.StartsWith(name, registry + "/");
             bool withHttpsAndSuffix(string name) => JavaExtensions.StartsWith(name, "https://" + registry + "/");
-            return Arrays.AsList(exactMatch, withHttps, withSuffix, withHttpsAndSuffix);
+            return new []{exactMatch, withHttps, withSuffix, withHttpsAndSuffix};
         }
     }
 }

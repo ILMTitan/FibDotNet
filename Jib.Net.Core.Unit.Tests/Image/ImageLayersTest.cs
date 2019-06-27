@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void TestAddLayer_success()
         {
-            IList<ILayer> expectedLayers = Arrays.AsList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer);
+            IList<ILayer> expectedLayers = new []{mockLayer, mockReferenceLayer, mockDigestOnlyLayer};
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()
@@ -76,7 +76,7 @@ namespace com.google.cloud.tools.jib.image
         {
             // must maintain duplicate
             IList<ILayer> expectedLayers =
-                Arrays.AsList(mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
+                new []{mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer};
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()
@@ -95,7 +95,7 @@ namespace com.google.cloud.tools.jib.image
         {
             // remove duplicates: last layer should be kept
             IList<ILayer> expectedLayers =
-                Arrays.AsList(mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer);
+                new []{mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer};
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()

@@ -52,8 +52,8 @@ namespace com.google.cloud.tools.jib.image.json
                     .SetOs("js")
                     .AddEnvironmentVariable("VAR1", "VAL1")
                     .AddEnvironmentVariable("VAR2", "VAL2")
-                    .SetEntrypoint(Arrays.AsList("some", "entrypoint", "command"))
-                    .SetProgramArguments(Arrays.AsList("arg1", "arg2"))
+                    .SetEntrypoint(new []{"some", "entrypoint", "command"})
+                    .SetProgramArguments(new []{"arg1", "arg2"})
                     .SetHealthCheck(
                         DockerHealthCheck.FromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
                             .SetInterval(Duration.FromSeconds(3))

@@ -50,8 +50,8 @@ namespace com.google.cloud.tools.jib.image
                     .SetCreated(Instant.FromUnixTimeSeconds(10000))
                     .AddEnvironmentVariable("crepecake", "is great")
                     .AddEnvironmentVariable("VARIABLE", "VALUE")
-                    .SetEntrypoint(Arrays.AsList("some", "command"))
-                    .SetProgramArguments(Arrays.AsList("arg1", "arg2"))
+                    .SetEntrypoint(new []{"some", "command"})
+                    .SetProgramArguments(new []{"arg1", "arg2"})
                     .AddExposedPorts(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)))
                     .AddVolumes(
                         ImmutableHashSet.Create(
@@ -66,8 +66,8 @@ namespace com.google.cloud.tools.jib.image
             Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.GetCreated());
             Assert.AreEqual(
                 ImmutableDic.Of("crepecake", "is great", "VARIABLE", "VALUE"), image.GetEnvironment());
-            Assert.AreEqual(Arrays.AsList("some", "command"), image.GetEntrypoint());
-            Assert.AreEqual(Arrays.AsList("arg1", "arg2"), image.GetProgramArguments());
+            Assert.AreEqual(new []{"some", "command"}, image.GetEntrypoint());
+            Assert.AreEqual(new []{"arg1", "arg2"}, image.GetProgramArguments());
             Assert.AreEqual(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)), image.GetExposedPorts());
             Assert.AreEqual(
                 ImmutableHashSet.Create(AbsoluteUnixPath.Get("/a/path"), AbsoluteUnixPath.Get("/another/path")),

@@ -45,11 +45,11 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.AsList("entry", "point"))
+                    .SetEntrypoint(new []{"entry", "point"})
                     .SetEnvironment(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }))
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }))
-                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
+                    .SetProgramArguments(new []{"program", "arguments"})
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
@@ -58,14 +58,14 @@ namespace com.google.cloud.tools.jib.api
                 jibContainerBuilder.ToBuildConfiguration(
                     Containerizer.To(RegistryImage.Named("target/image")));
             IContainerConfiguration containerConfiguration = buildConfiguration.GetContainerConfiguration();
-            Assert.AreEqual(Arrays.AsList("entry", "point"), containerConfiguration.GetEntrypoint());
+            Assert.AreEqual(new []{"entry", "point"}, containerConfiguration.GetEntrypoint());
             Assert.AreEqual(
                 ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["name"] = "value" }), containerConfiguration.GetEnvironmentMap());
             Assert.AreEqual(
                 ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)), containerConfiguration.GetExposedPorts());
             Assert.AreEqual(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }), containerConfiguration.GetLabels());
             Assert.AreEqual(
-                Arrays.AsList("program", "arguments"), containerConfiguration.GetProgramArguments());
+                new []{"program", "arguments"}, containerConfiguration.GetProgramArguments());
             Assert.AreEqual(Instant.FromUnixTimeMilliseconds(1000), containerConfiguration.GetCreationTime());
             Assert.AreEqual("user", containerConfiguration.GetUser());
             Assert.AreEqual(
@@ -90,7 +90,7 @@ namespace com.google.cloud.tools.jib.api
                 jibContainerBuilder.ToBuildConfiguration(
                     Containerizer.To(RegistryImage.Named("target/image")));
             IContainerConfiguration containerConfiguration = buildConfiguration.GetContainerConfiguration();
-            Assert.AreEqual(Arrays.AsList("entry", "point"), containerConfiguration.GetEntrypoint());
+            Assert.AreEqual(new []{"entry", "point"}, containerConfiguration.GetEntrypoint());
             Assert.AreEqual(
                 ImmutableDic.Of("name", "value", "environment", "variable"),
                 containerConfiguration.GetEnvironmentMap());
@@ -100,7 +100,7 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreEqual(
                 ImmutableDic.Of("key", "value", "added", "label"), containerConfiguration.GetLabels());
             Assert.AreEqual(
-                Arrays.AsList("program", "arguments"), containerConfiguration.GetProgramArguments());
+                new []{"program", "arguments"}, containerConfiguration.GetProgramArguments());
             Assert.AreEqual(Instant.FromUnixTimeSeconds(0), containerConfiguration.GetCreationTime());
         }
 
@@ -120,7 +120,7 @@ namespace com.google.cloud.tools.jib.api
                 RegistryImage.Named("base/image").AddCredentialRetriever(mockCredentialRetriever);
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(baseImage, buildConfigurationBuilder)
-                    .SetLayers(Arrays.AsList(mockLayerConfiguration1, mockLayerConfiguration2));
+                    .SetLayers(new []{mockLayerConfiguration1, mockLayerConfiguration2});
             BuildConfiguration buildConfiguration =
                 jibContainerBuilder.ToBuildConfiguration(
                     containerizer);
@@ -132,7 +132,7 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreEqual(
                 "base/image", JavaExtensions.ToString(buildConfiguration.GetBaseImageConfiguration().GetImage()));
             Assert.AreEqual(
-                Arrays.AsList(mockCredentialRetriever),
+                new []{mockCredentialRetriever},
                 buildConfiguration.GetBaseImageConfiguration().GetCredentialRetrievers());
 
             Assert.AreEqual(
@@ -152,7 +152,7 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreEqual(ImmutableHashSet.Create("latest"), buildConfiguration.GetAllTargetImageTags());
 
             Assert.AreEqual(
-                Arrays.AsList(mockLayerConfiguration1, mockLayerConfiguration2),
+                new []{mockLayerConfiguration1, mockLayerConfiguration2},
                 buildConfiguration.GetLayerConfigurations());
 
             buildConfiguration.GetEventHandlers().Dispatch(mockJibEvent);
@@ -186,11 +186,11 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.AsList("entry", "point"))
+                    .SetEntrypoint(new []{"entry", "point"})
                     .SetEnvironment(ImmutableDic.Of("name", "value"))
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDic.Of("key", "value"))
-                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
+                    .SetProgramArguments(new []{"program", "arguments"})
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
@@ -207,11 +207,11 @@ namespace com.google.cloud.tools.jib.api
         {
             JibContainerBuilder jibContainerBuilder =
                 new JibContainerBuilder(RegistryImage.Named("base/image"), buildConfigurationBuilder)
-                    .SetEntrypoint(Arrays.AsList("entry", "point"))
+                    .SetEntrypoint(new []{"entry", "point"})
                     .SetEnvironment(ImmutableDic.Of("name", "value"))
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDic.Of("key", "value"))
-                    .SetProgramArguments(Arrays.AsList("program", "arguments"))
+                    .SetProgramArguments(new []{"program", "arguments"})
                     .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));

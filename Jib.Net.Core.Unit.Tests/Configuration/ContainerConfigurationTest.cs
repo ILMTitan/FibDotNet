@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.configuration
             // Java arguments element should not be null.
             try
             {
-                ContainerConfiguration.CreateBuilder().SetProgramArguments(Arrays.AsList("first", null));
+                ContainerConfiguration.CreateBuilder().SetProgramArguments(new []{"first", null});
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
@@ -43,7 +43,7 @@ namespace com.google.cloud.tools.jib.configuration
             // Entrypoint element should not be null.
             try
             {
-                ContainerConfiguration.CreateBuilder().SetEntrypoint(Arrays.AsList("first", null));
+                ContainerConfiguration.CreateBuilder().SetEntrypoint(new []{"first", null});
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
@@ -52,7 +52,7 @@ namespace com.google.cloud.tools.jib.configuration
             }
 
             // Exposed ports element should not be null.
-            ISet<Port> badPorts = new HashSet<Port>(Arrays.AsList(Port.Tcp(1000), null));
+            ISet<Port> badPorts = new HashSet<Port> { Port.Tcp(1000), null };
             try
             {
                 ContainerConfiguration.CreateBuilder().SetExposedPorts(badPorts);
@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             // Volume element should not be null.
             ISet<AbsoluteUnixPath> badVolumes =
-                new HashSet<AbsoluteUnixPath>(Arrays.AsList(AbsoluteUnixPath.Get("/"), null));
+                new HashSet<AbsoluteUnixPath> { AbsoluteUnixPath.Get("/"), null };
             try
             {
                 ContainerConfiguration.CreateBuilder().SetVolumes(badVolumes);
