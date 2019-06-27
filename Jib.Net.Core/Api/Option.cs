@@ -21,12 +21,12 @@ using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api
 {
-    public struct Option<T> : IEquatable<Option<T>>
+    public struct Maybe<T> : IEquatable<Maybe<T>>
     {
         private readonly bool present;
         private readonly T value;
 
-        public Option(T value)
+        public Maybe(T value)
         {
             this.value = value;
             present = true;
@@ -45,14 +45,14 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        internal Option<R> IfPresent<R>(Func<T, R> func)
+        internal Maybe<R> IfPresent<R>(Func<T, R> func)
         {
             if (present)
             {
-                return new Option<R>(func(value));
+                return new Maybe<R>(func(value));
             } else
             {
-                return new Option<R>();
+                return new Maybe<R>();
             }
         }
 
@@ -76,10 +76,10 @@ namespace com.google.cloud.tools.jib.api
 
         public override bool Equals(object obj)
         {
-            return obj is Option<T> optional && Equals(optional);
+            return obj is Maybe<T> optional && Equals(optional);
         }
 
-        public bool Equals(Option<T> other)
+        public bool Equals(Maybe<T> other)
         {
             return present == other.present &&
                    EqualityComparer<T>.Default.Equals(value, other.value);
@@ -93,40 +93,40 @@ namespace com.google.cloud.tools.jib.api
             return hashCode;
         }
 
-        public static bool operator ==(Option<T> left, Option<T> right)
+        public static bool operator ==(Maybe<T> left, Maybe<T> right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(Option<T> left, Option<T> right)
+        public static bool operator !=(Maybe<T> left, Maybe<T> right)
         {
             return !(left == right);
         }
     }
 
-    public static class Option
+    public static class Maybe
     {
-        public static Option<T> Of<T>(T value)
+        public static Maybe<T> Of<T>(T value)
         {
-            return new Option<T>(value);
+            return new Maybe<T>(value);
         }
 
-        internal static Option<T> OfNullable<T>(T value)
+        internal static Maybe<T> OfNullable<T>(T value)
         {
             if (value == null)
             {
-                return Option.Empty<T>();
+                return Maybe.Empty<T>();
             } else {
-                return Option.Of(value);
+                return Maybe.Of(value);
             }
         }
 
-        public static Option<T> Empty<T>()
+        public static Maybe<T> Empty<T>()
         {
-            return new Option<T>();
+            return new Maybe<T>();
         }
 
-        public static T OrElse<T>(this Option<T> o, T defaultValue) where T : class
+        public static T OrElse<T>(this Maybe<T> o, T defaultValue) where T : class
         {
             if (o.IsPresent())
             {
@@ -138,7 +138,7 @@ namespace com.google.cloud.tools.jib.api
             }
         }
 
-        public static T? AsNullable<T>(this Option<T> o) where T : struct
+        public static T? AsNullable<T>(this Maybe<T> o) where T : struct
         {
             if (o.IsPresent())
             {

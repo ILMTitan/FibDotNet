@@ -147,9 +147,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck interval
          */
-        public Option<Duration> GetInterval()
+        public Maybe<Duration> GetInterval()
         {
-            return Option.OfNullable(interval);
+            return Maybe.OfNullable(interval);
         }
 
         /**
@@ -158,9 +158,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck timeout
          */
-        public Option<Duration> GetTimeout()
+        public Maybe<Duration> GetTimeout()
         {
-            return Option.OfNullable(timeout);
+            return Maybe.OfNullable(timeout);
         }
 
         /**
@@ -169,9 +169,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck start period
          */
-        public Option<Duration> GetStartPeriod()
+        public Maybe<Duration> GetStartPeriod()
         {
-            return Option.OfNullable(startPeriod);
+            return Maybe.OfNullable(startPeriod);
         }
 
         /**
@@ -180,9 +180,9 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the healthcheck retry count
          */
-        public Option<int> GetRetries()
+        public Maybe<int> GetRetries()
         {
-            return Option.OfNullable(retries);
+            return Maybe.OfNullable(retries);
         }
     }
 }

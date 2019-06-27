@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("some registry", dockerConfigFile);
 
-            Option<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
+            Maybe<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
             Assert.IsTrue(credentials.IsPresent());
             Assert.AreEqual("some", credentials.Get().GetUsername());
             Assert.AreEqual("auth", credentials.Get().GetPassword());
@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("index.docker.io", dockerConfigFile);
 
-            Option<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
+            Maybe<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
             Assert.IsTrue(credentials.IsPresent());
             Assert.AreEqual("token for", credentials.Get().GetUsername());
             Assert.AreEqual(" index.docker.io/v1/", credentials.Get().GetPassword());
@@ -175,7 +175,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             DockerConfigCredentialRetriever dockerConfigCredentialRetriever =
                 new DockerConfigCredentialRetriever("registry.hub.docker.com", dockerConfigFile);
 
-            Option<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
+            Maybe<Credential> credentials = dockerConfigCredentialRetriever.Retrieve(mockLogger);
             Assert.IsTrue(credentials.IsPresent());
             Assert.AreEqual("token for", credentials.Get().GetUsername());
             Assert.AreEqual(" index.docker.io/v1/", credentials.Get().GetPassword());

@@ -58,7 +58,7 @@ namespace Jib.Net.Core.Events.Timer
              *
              * @return the parent of this {@link Timer}
              */
-            Option<ITimer> GetParent();
+            Maybe<ITimer> GetParent();
         }
 
         private readonly State state;

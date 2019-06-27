@@ -21,7 +21,7 @@ using Jib.Net.Core.FileSystem;
 namespace com.google.cloud.tools.jib.api
 {
     /** Retrieves credentials for a registry. */
-    public delegate Option<Credential> CredentialRetriever();
+    public delegate Maybe<Credential> CredentialRetriever();
 
     public static class CredentialRetrieverExtensions
     {
@@ -36,7 +36,7 @@ namespace com.google.cloud.tools.jib.api
          *     with this provider
          * @throws CredentialRetrievalException if the credential retrieval encountered an exception
          */
-        public static Option<Credential> Retrieve(this CredentialRetriever c)
+        public static Maybe<Credential> Retrieve(this CredentialRetriever c)
         {
             c = c ?? throw new ArgumentNullException(nameof(c));
             return c();

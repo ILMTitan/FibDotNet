@@ -270,12 +270,11 @@ namespace com.google.cloud.tools.jib.api
                     string parent = JavaExtensions.Substring(entryPath, 0, Math.Max(0, lastSlashPosition));
                     if (!parent.IsEmpty())
                     {
-                        Assert.IsTrue(JavaExtensions.Contains(directories, parent),
-                    "layer has implicit parent directory: " + parent);
+                        Assert.IsTrue(directories.Contains(parent), "layer has implicit parent directory: " + parent);
                     }
                     if (layerEntry.IsDirectory)
                     {
-                        JavaExtensions.Add(directories, entryPath);
+                        directories.Add(entryPath);
                     }
                 });
         }

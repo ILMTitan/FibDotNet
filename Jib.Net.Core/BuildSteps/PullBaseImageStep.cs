@@ -265,7 +265,7 @@ namespace Jib.Net.Core.BuildSteps
         private Image PullBaseImageOffline()
         {
             IImageReference baseImage = buildConfiguration.GetBaseImageConfiguration().GetImage();
-            Option<ManifestAndConfig> metadata =
+            Maybe<ManifestAndConfig> metadata =
                 buildConfiguration.GetBaseImageLayersCache().RetrieveMetadata(baseImage);
             if (!metadata.IsPresent())
             {

@@ -73,7 +73,7 @@ namespace Jib.Net.Core.BuildSteps
                 Cache.Cache cache = buildConfiguration.GetBaseImageLayersCache();
 
                 // Checks if the layer already exists in the cache.
-                Option<CachedLayer> optionalCachedLayer = cache.Retrieve(layerDigest);
+                Maybe<CachedLayer> optionalCachedLayer = cache.Retrieve(layerDigest);
                 if (optionalCachedLayer.IsPresent())
                 {
                     return optionalCachedLayer.Get();

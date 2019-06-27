@@ -184,7 +184,7 @@ namespace com.google.cloud.tools.jib.cache
             }
 
             // Checks that the CachedLayer is retrieved correctly.
-            Option<CachedLayer> optionalCachedLayer = cacheStorageReader.Retrieve(layerDigest);
+            Maybe<CachedLayer> optionalCachedLayer = cacheStorageReader.Retrieve(layerDigest);
             Assert.IsTrue(optionalCachedLayer.IsPresent());
             Assert.AreEqual(layerDigest, optionalCachedLayer.Get().GetDigest());
             Assert.AreEqual(layerDiffId, optionalCachedLayer.Get().GetDiffId());
@@ -251,7 +251,7 @@ namespace com.google.cloud.tools.jib.cache
             Files.CreateDirectories(selectorFile.GetParent());
             Files.Write(selectorFile, Encoding.UTF8.GetBytes(layerDigest2.GetHash()));
 
-            Option<DescriptorDigest> selectedLayerDigest = cacheStorageReader.Select(selector);
+            Maybe<DescriptorDigest> selectedLayerDigest = cacheStorageReader.Select(selector);
             Assert.IsTrue(selectedLayerDigest.IsPresent());
             Assert.AreEqual(layerDigest2, selectedLayerDigest.Get());
         }

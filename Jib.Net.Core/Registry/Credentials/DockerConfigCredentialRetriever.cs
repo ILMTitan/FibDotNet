@@ -71,11 +71,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return {@link Credential} found for {@code registry}, or {@link Optional#empty} if not found
          * @throws IOException if failed to parse the config JSON
          */
-        public Option<Credential> Retrieve(Action<LogEvent> logger)
+        public Maybe<Credential> Retrieve(Action<LogEvent> logger)
         {
             if (!Files.Exists(dockerConfigFile))
             {
-                return Option.Empty<Credential>();
+                return Maybe.Empty<Credential>();
             }
             DockerConfig dockerConfig =
                 new DockerConfig(
@@ -91,7 +91,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
          * @return the retrieved credentials, or {@code Optional#empty} if none are found
          */
 
-        public Option<Credential> Retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
+        public Maybe<Credential> Retrieve(IDockerConfig dockerConfig, Action<LogEvent> logger)
         {
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
             foreach (string registryAlias in RegistryAliasGroup.GetAliasesGroup(registry))
@@ -105,7 +105,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     string username = JavaExtensions.Substring(usernameColonPassword, 0, usernameColonPassword.IndexOf(":", StringComparison.Ordinal));
 
                     string password = usernameColonPassword.Substring(usernameColonPassword.IndexOf(":", StringComparison.Ordinal) + 1);
-                    return Option.Of(Credential.From(username, password));
+                    return Maybe.Of(Credential.From(username, password));
                 }
 
                 // Then, tries to use a defined credHelpers credential helper.
@@ -116,7 +116,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     try
                     {
                         // Tries with the given registry alias (may be the original registry).
-                        return Option.Of(dockerCredentialHelper.Retrieve());
+                        return Maybe.Of(dockerCredentialHelper.Retrieve());
                     }
                     catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException)
                     {
@@ -132,7 +132,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
                     }
                 }
             }
-            return Option.Empty<Credential>();
+            return Maybe.Empty<Credential>();
         }
     }
 }

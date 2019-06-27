@@ -84,13 +84,13 @@ namespace Jib.Net.Core.Cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Option<ManifestAndConfig> RetrieveMetadata(IImageReference imageReference)
+        public Maybe<ManifestAndConfig> RetrieveMetadata(IImageReference imageReference)
         {
             SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
             SystemPath manifestPath = imageDirectory.Resolve("manifest.json");
             if (!Files.Exists(manifestPath))
             {
-                return Option.Empty<ManifestAndConfig>();
+                return Maybe.Empty<ManifestAndConfig>();
             }
 
             // TODO: Consolidate with ManifestPuller
@@ -122,7 +122,7 @@ namespace Jib.Net.Core.Cache
 
             if (schemaVersion == 1)
             {
-                return Option.Of(
+                return Maybe.Of(
                     new ManifestAndConfig(
                         JsonTemplateMapper.ReadJsonFromFile<V21ManifestTemplate>(manifestPath),
                         null));
@@ -162,7 +162,7 @@ namespace Jib.Net.Core.Cache
                 ContainerConfigurationTemplate config =
                     JsonTemplateMapper.ReadJsonFromFile<ContainerConfigurationTemplate>(configPath);
 
-                return Option.Of(new ManifestAndConfig(manifestTemplate, config));
+                return Maybe.Of(new ManifestAndConfig(manifestTemplate, config));
             }
             throw new CacheCorruptedException(
                 cacheStorageFiles.GetCacheDirectory(),
@@ -179,13 +179,13 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public Option<CachedLayer> Retrieve(DescriptorDigest layerDigest)
+        public Maybe<CachedLayer> Retrieve(DescriptorDigest layerDigest)
         {
             layerDigest = layerDigest ?? throw new ArgumentNullException(nameof(layerDigest));
             SystemPath layerDirectory = cacheStorageFiles.GetLayerDirectory(layerDigest);
             if (!Files.Exists(layerDirectory))
             {
-                return Option.Empty<CachedLayer>();
+                return Maybe.Empty<CachedLayer>();
             }
 
             CachedLayer.Builder cachedLayerBuilder = CachedLayer.CreateBuilder().SetLayerDigest(layerDigest);
@@ -209,7 +209,7 @@ namespace Jib.Net.Core.Cache
                         .SetLayerSize(Files.Size(fileInLayerDirectory));
                 }
             }
-            return Option.Of(cachedLayerBuilder.Build());
+            return Maybe.Of(cachedLayerBuilder.Build());
         }
 
         /**
@@ -220,19 +220,19 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the selector file contents was not a valid layer digest
          * @throws IOException if an I/O exception occurs
          */
-        public Option<DescriptorDigest> Select(DescriptorDigest selector)
+        public Maybe<DescriptorDigest> Select(DescriptorDigest selector)
         {
             selector = selector ?? throw new ArgumentNullException(nameof(selector));
             SystemPath selectorFile = cacheStorageFiles.GetSelectorFile(selector);
             if (!Files.Exists(selectorFile))
             {
-                return Option.Empty<DescriptorDigest>();
+                return Maybe.Empty<DescriptorDigest>();
             }
             string selectorFileContents =
                     File.ReadAllText(selectorFile.ToFile().FullName, Encoding.UTF8);
             try
             {
-                return Option.Of(DescriptorDigest.FromHash(selectorFileContents));
+                return Maybe.Of(DescriptorDigest.FromHash(selectorFileContents));
             }
             catch (DigestException)
             {

@@ -98,7 +98,7 @@ namespace Jib.Net.Core.BuildSteps
             {
                 foreach (CredentialRetriever credentialRetriever in credentialRetrievers)
                 {
-                    Option<Credential> optionalCredential = credentialRetriever.Retrieve();
+                    Maybe<Credential> optionalCredential = credentialRetriever.Retrieve();
                     if (optionalCredential.IsPresent())
                     {
                         return optionalCredential.Get();

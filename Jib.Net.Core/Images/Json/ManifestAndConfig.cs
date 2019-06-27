@@ -46,9 +46,9 @@ namespace Jib.Net.Core.Images.Json
          *
          * @return the container configuration
          */
-        public Option<ContainerConfigurationTemplate> GetConfig()
+        public Maybe<ContainerConfigurationTemplate> GetConfig()
         {
-            return Option.OfNullable(config);
+            return Maybe.OfNullable(config);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public RegistryImage AddCredential(string username, string password)
         {
-            AddCredentialRetriever(() => Option.Of(Credential.From(username, password)));
+            AddCredentialRetriever(() => Maybe.Of(Credential.From(username, password)));
             return this;
         }
 

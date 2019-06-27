@@ -39,9 +39,9 @@ namespace Jib.Net.Core.Events.Timer
             lapStartTime = startTime;
         }
 
-        public Option<TimerEvent.ITimer> GetParent()
+        public Maybe<TimerEvent.ITimer> GetParent()
         {
-            return Option.OfNullable<TimerEvent.ITimer>(parentTimer);
+            return Maybe.OfNullable<TimerEvent.ITimer>(parentTimer);
         }
 
         /**

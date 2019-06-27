@@ -123,7 +123,7 @@ namespace Jib.Net.Core.Cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public Option<ManifestAndConfig> RetrieveMetadata(IImageReference imageReference)
+        public Maybe<ManifestAndConfig> RetrieveMetadata(IImageReference imageReference)
         {
             return cacheStorageReader.RetrieveMetadata(imageReference);
         }
@@ -136,13 +136,13 @@ namespace Jib.Net.Core.Cache
          * @throws IOException if an I/O exception occurs
          * @throws CacheCorruptedException if the cache is corrupted
          */
-        public async Task<Option<CachedLayer>> RetrieveAsync(ImmutableArray<LayerEntry> layerEntries)
+        public async Task<Maybe<CachedLayer>> RetrieveAsync(ImmutableArray<LayerEntry> layerEntries)
         {
             DescriptorDigest selector = await LayerEntriesSelector.GenerateSelectorAsync(layerEntries).ConfigureAwait(false);
-            Option<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.Select(selector);
+            Maybe<DescriptorDigest> optionalSelectedLayerDigest = cacheStorageReader.Select(selector);
             if (!optionalSelectedLayerDigest.IsPresent())
             {
-                return Option.Empty<CachedLayer>();
+                return Maybe.Empty<CachedLayer>();
             }
 
             return cacheStorageReader.Retrieve(optionalSelectedLayerDigest.Get());
@@ -156,7 +156,7 @@ namespace Jib.Net.Core.Cache
          * @throws CacheCorruptedException if the cache was found to be corrupted
          * @throws IOException if an I/O exception occurs
          */
-        public Option<CachedLayer> Retrieve(DescriptorDigest layerDigest)
+        public Maybe<CachedLayer> Retrieve(DescriptorDigest layerDigest)
         {
             return cacheStorageReader.Retrieve(layerDigest);
         }

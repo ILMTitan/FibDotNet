@@ -117,7 +117,7 @@ buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
                 Cache.Cache cache = buildConfiguration.GetApplicationLayersCache();
 
                 // Don't build the layer if it exists already.
-                Option<CachedLayer> optionalCachedLayer =
+                Maybe<CachedLayer> optionalCachedLayer =
                     await cache.RetrieveAsync(layerConfiguration.GetLayerEntries()).ConfigureAwait(false);
                 if (optionalCachedLayer.IsPresent())
                 {

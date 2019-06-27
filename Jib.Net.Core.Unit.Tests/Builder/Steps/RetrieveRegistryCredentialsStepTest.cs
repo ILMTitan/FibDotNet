@@ -41,11 +41,11 @@ namespace com.google.cloud.tools.jib.builder.steps
             BuildConfiguration buildConfiguration =
                 MakeFakeBuildConfiguration(
                     Arrays.AsList<CredentialRetriever>(
-                        Option.Empty<Credential>,
-                        () => Option.Of(Credential.From("baseusername", "basepassword"))),
+                        Maybe.Empty<Credential>,
+                        () => Maybe.Of(Credential.From("baseusername", "basepassword"))),
                     Arrays.AsList<CredentialRetriever>(
-                        () => Option.Of(Credential.From("targetusername", "targetpassword")),
-                        () => Option.Of(Credential.From("ignored", "ignored"))));
+                        () => Maybe.Of(Credential.From("targetusername", "targetpassword")),
+                        () => Maybe.Of(Credential.From("ignored", "ignored"))));
 
             Assert.AreEqual(
                 Credential.From("baseusername", "basepassword"),
@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.builder.steps
         {
             BuildConfiguration buildConfiguration =
                 MakeFakeBuildConfiguration(
-                    Arrays.AsList<CredentialRetriever>(Option.Empty<Credential>, Option.Empty<Credential>),
+                    Arrays.AsList<CredentialRetriever>(Maybe.Empty<Credential>, Maybe.Empty<Credential>),
                     new List<CredentialRetriever>());
             Assert.IsNull(
                 RetrieveRegistryCredentialsStep.ForBaseImage(

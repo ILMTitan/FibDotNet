@@ -138,14 +138,14 @@ namespace Jib.Net.Core.Global
             return p(value);
         }
 
-        public static Option<T> FindFirst<T>(this IEnumerable<Option<T>> e)
+        public static Maybe<T> FindFirst<T>(this IEnumerable<Maybe<T>> e)
         {
             return e.FirstOrDefault();
         }
 
-        public static Option<T> FindFirst<T>(this IEnumerable<T> e)
+        public static Maybe<T> FindFirst<T>(this IEnumerable<T> e)
         {
-            return e.Select(Option.Of).FirstOrDefault();
+            return e.Select(Maybe.Of).FirstOrDefault();
         }
 
         public static bool EndsWith(this string s, string suffix)

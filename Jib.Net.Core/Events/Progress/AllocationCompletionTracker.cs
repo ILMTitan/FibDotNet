@@ -182,7 +182,7 @@ namespace Jib.Net.Core.Events.Progress
             foreach (Allocation allocation in allUnfinished)
 
             {
-                Option<Allocation> parent = allocation.GetParent();
+                Maybe<Allocation> parent = allocation.GetParent();
 
                 while (parent.IsPresent())
                 {

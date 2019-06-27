@@ -193,14 +193,14 @@ namespace com.google.cloud.tools.jib.cache
             Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
-            Option<CachedLayer> layer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
+            Maybe<CachedLayer> layer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
             await VerifyIsLayer1Async(layer.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
             Assert.IsFalse(cache.Retrieve(layerDigest2).IsPresent());
 
             // A source file modification results in the cached layer to be out-of-date and not retrieved.
             Files.SetLastModifiedTime(
                 layerEntries1[0].GetSourceFile(), FileTime.From(SystemClock.Instance.GetCurrentInstant() + Duration.FromSeconds(1)));
-            Option<CachedLayer> outOfDateLayer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
+            Maybe<CachedLayer> outOfDateLayer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
             Assert.IsFalse(outOfDateLayer.IsPresent());
         }
 
@@ -213,9 +213,9 @@ namespace com.google.cloud.tools.jib.cache
             await VerifyIsLayer2Async(await cache.WriteUncompressedLayerAsync(layerBlob2, layerEntries2).ConfigureAwait(false)).ConfigureAwait(false);
             await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
             await VerifyIsLayer2Async(cache.Retrieve(layerDigest2).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Option<CachedLayer> cachedLayer1 = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
+            Maybe<CachedLayer> cachedLayer1 = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
             await VerifyIsLayer1Async(cachedLayer1.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
-            Option<CachedLayer> cachedLayer2 = await cache.RetrieveAsync(layerEntries2).ConfigureAwait(false);
+            Maybe<CachedLayer> cachedLayer2 = await cache.RetrieveAsync(layerEntries2).ConfigureAwait(false);
             await VerifyIsLayer2Async(cachedLayer2.OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
         }
 

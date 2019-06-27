@@ -115,27 +115,27 @@ namespace Jib.Net.Core.Images.Json
          *
          * @return container configuration if the first history string holds it; {@code null} otherwise
          */
-        public Option<ContainerConfigurationTemplate> GetContainerConfiguration()
+        public Maybe<ContainerConfigurationTemplate> GetContainerConfiguration()
         {
             try
             {
                 if (History.Count == 0)
                 {
-                    return Option.Empty<ContainerConfigurationTemplate>();
+                    return Maybe.Empty<ContainerConfigurationTemplate>();
                 }
                 string v1Compatibility = History[0].V1Compatibility;
                 if (v1Compatibility == null)
                 {
-                    return Option.Empty<ContainerConfigurationTemplate>();
+                    return Maybe.Empty<ContainerConfigurationTemplate>();
                 }
 
-                return Option.Of(
+                return Maybe.Of(
                     JsonTemplateMapper.ReadJson<ContainerConfigurationTemplate>(v1Compatibility));
             }
             catch (IOException)
             {
                 // not a container configuration; ignore and continue
-                return Option.Empty<ContainerConfigurationTemplate>();
+                return Maybe.Empty<ContainerConfigurationTemplate>();
             }
         }
     }

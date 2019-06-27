@@ -90,9 +90,9 @@ namespace Jib.Net.Core.Events.Progress
          *
          * @return the parent {@link Allocation}
          */
-        public Option<Allocation> GetParent()
+        public Maybe<Allocation> GetParent()
         {
-            return Option.OfNullable(parent);
+            return Maybe.OfNullable(parent);
         }
 
         /**

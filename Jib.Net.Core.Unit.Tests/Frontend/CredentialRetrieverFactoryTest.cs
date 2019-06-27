@@ -142,7 +142,7 @@ namespace com.google.cloud.tools.jib.frontend
                 CredentialRetrieverFactory.ForImage(
                     ImageReference.Of("registry", "repository", null), mockLogger);
 
-            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.Retrieve(mockLogger)).Returns(Option.Of(FAKE_CREDENTIALS));
+            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.Retrieve(mockLogger)).Returns(Maybe.Of(FAKE_CREDENTIALS));
 
             Assert.AreEqual(
                 FAKE_CREDENTIALS,
