@@ -14,15 +14,15 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events.Progress;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
 using Moq;
@@ -33,7 +33,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Unit.Tests.BuildSteps
 {
     /** Tests for {@link BuildImageStep}. */
     public class BuildImageStepTest
@@ -133,7 +133,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
             Mock.Get(mockPullBaseImageStep).Setup(m => m.GetFuture()).Returns(
                     Futures.ImmediateFutureAsync(
-                        new PullBaseImageStep.BaseImageWithAuthorization(baseImage, null)));
+                        new BaseImageWithAuthorization(baseImage, null)));
 
             mockClassesLayer = new CachedLayerWithType(mockCachedLayer, "classes");
 

@@ -14,7 +14,6 @@
  * the License.
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace com.google.cloud.tools.jib.api

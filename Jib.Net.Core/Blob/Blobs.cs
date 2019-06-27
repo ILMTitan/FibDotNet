@@ -14,12 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using System;
 using System.IO;
 using System.Text;

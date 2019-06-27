@@ -14,8 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -47,7 +45,7 @@ namespace com.google.cloud.tools.jib.docker.json
      * @see <a href="https://github.com/moby/moby/blob/master/image/tarexport/load.go">Docker load
      *     source</a>
      */
-     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DockerLoadManifestEntryTemplate
     {
         public string Config { get; } = "config.json";

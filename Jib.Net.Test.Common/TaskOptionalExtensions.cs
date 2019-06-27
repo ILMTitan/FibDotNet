@@ -1,7 +1,5 @@
 ﻿using com.google.cloud.tools.jib.api;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Test.Common

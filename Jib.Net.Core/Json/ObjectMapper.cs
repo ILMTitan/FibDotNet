@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System;
-using Jib.Net.Core.Api;
 using Newtonsoft.Json;
 
 namespace com.google.cloud.tools.jib.json

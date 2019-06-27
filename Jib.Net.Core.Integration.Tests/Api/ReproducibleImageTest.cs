@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
 using com.google.cloud.tools.jib.docker;
-using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System;

@@ -14,9 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;

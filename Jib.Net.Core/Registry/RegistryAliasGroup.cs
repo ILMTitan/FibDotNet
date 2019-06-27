@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 using System.Collections.Immutable;

@@ -17,8 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.FileSystem;
 using NodaTime;
 

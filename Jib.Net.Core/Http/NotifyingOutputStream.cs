@@ -14,11 +14,8 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.http
 {

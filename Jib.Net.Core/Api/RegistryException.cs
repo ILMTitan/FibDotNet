@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.registry;
 using System;
 using System.Net.Http;
 

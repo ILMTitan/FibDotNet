@@ -15,10 +15,8 @@
  */
 
 using System;
-using com.google.cloud.tools.jib.registry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace Jib.Net.Core.Registry
 {

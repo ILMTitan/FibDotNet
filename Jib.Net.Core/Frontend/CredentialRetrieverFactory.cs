@@ -20,7 +20,6 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
-using Jib.Net.Core.Registry.Credentials;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

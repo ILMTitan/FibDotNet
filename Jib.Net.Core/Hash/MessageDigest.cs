@@ -16,7 +16,6 @@
 
 using System;
 using System.Security.Cryptography;
-using System.Threading;
 
 namespace com.google.cloud.tools.jib.hash
 {

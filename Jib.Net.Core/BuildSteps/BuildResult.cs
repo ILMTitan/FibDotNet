@@ -21,7 +21,6 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
-using System;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.BuildSteps

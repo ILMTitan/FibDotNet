@@ -15,7 +15,6 @@
  */
 
 using Jib.Net.Core.Api;
-using Jib.Net.Core.Global;
 
 namespace Jib.Net.Core.Blob
 {

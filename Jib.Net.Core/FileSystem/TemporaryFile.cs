@@ -14,12 +14,11 @@
  * the License.
  */
 
-using Jib.Net.Core.FileSystem;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.FileSystem
 {
     public sealed class TemporaryFile : IDisposable
     {

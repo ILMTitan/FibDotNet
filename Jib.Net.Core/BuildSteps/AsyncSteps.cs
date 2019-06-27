@@ -14,12 +14,9 @@
  * the License.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.cache;
 
 namespace Jib.Net.Core.BuildSteps
 {

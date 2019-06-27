@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System;
-
 namespace com.google.cloud.tools.jib.api
 {
     /** Holds credentials (username and password). */

@@ -15,8 +15,6 @@
  */
 
 using System;
-using Jib.Net.Core;
-using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api
 {

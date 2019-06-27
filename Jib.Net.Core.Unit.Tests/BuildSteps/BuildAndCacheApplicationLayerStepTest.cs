@@ -17,11 +17,10 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.BuildSteps;
-using Jib.Net.Core.Cache;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -33,11 +32,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using IBlob = com.google.cloud.tools.jib.blob.IBlob;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Unit.Tests.BuildSteps
 {
     /** Tests for {@link BuildAndCacheApplicationLayerStep}. */
     public class BuildAndCacheApplicationLayerStepTest : IDisposable
@@ -60,7 +58,7 @@ namespace com.google.cloud.tools.jib.builder.steps
                 Files.List(Paths.Get(TestResources.GetResource(resourcePath).ToURI()));
             {
                 LayerConfiguration.Builder layerConfigurationBuilder = LayerConfiguration.CreateBuilder();
-                    layerConfigurationBuilder.SetName(Path.GetFileName(resourcePath));
+                layerConfigurationBuilder.SetName(Path.GetFileName(resourcePath));
                 foreach (SystemPath i in fileStream)
                 {
                     ((Func<SystemPath, LayerConfiguration.Builder>)(sourceFile =>
@@ -80,7 +78,7 @@ namespace com.google.cloud.tools.jib.builder.steps
 
         private readonly IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
 
-        private Cache cache;
+        private Caching.Cache cache;
         private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         private ILayerConfiguration fakeDependenciesLayerConfiguration;

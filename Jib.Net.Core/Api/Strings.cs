@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System;
-
 namespace com.google.cloud.tools.jib.api
 {
     public static class Strings

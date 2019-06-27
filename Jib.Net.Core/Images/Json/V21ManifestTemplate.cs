@@ -17,12 +17,10 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
-using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Jib.Net.Core.Images.Json
 {

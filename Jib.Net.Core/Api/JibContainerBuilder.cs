@@ -15,16 +15,16 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core;
 using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -221,7 +221,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetLayers(params ILayerConfiguration[] layerConfigurations)
         {
-            return SetLayers(layerConfigurations);
+            return SetLayers(layerConfigurations.ToList());
         }
 
         /**
@@ -252,7 +252,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEntrypoint(params string[] entrypoint)
         {
-            return SetEntrypoint(entrypoint);
+            return SetEntrypoint(entrypoint.ToList());
         }
 
         /**
@@ -286,7 +286,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetProgramArguments(params string[] programArguments)
         {
-            return SetProgramArguments(programArguments);
+            return SetProgramArguments(programArguments.ToList());
         }
 
         /**

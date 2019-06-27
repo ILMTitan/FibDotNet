@@ -15,17 +15,13 @@
  */
 
 using NUnit.Framework;
-using Jib.Net.Core.Global;
 using System;
 using System.Net.Http;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.registry;
 using System.Net;
 using System.Threading.Tasks;
 using System.Security.Authentication;
 using System.Text;
-using System.Runtime.ExceptionServices;
 
 namespace com.google.cloud.tools.jib.http
 {

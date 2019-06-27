@@ -16,13 +16,12 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events.Progress;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Registry;
 using System.Globalization;
 using System.IO;
@@ -70,7 +69,7 @@ namespace Jib.Net.Core.BuildSteps
                     new TimerEventDispatcher(
                         buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
             {
-                Cache.Cache cache = buildConfiguration.GetBaseImageLayersCache();
+                Caching.Cache cache = buildConfiguration.GetBaseImageLayersCache();
 
                 // Checks if the layer already exists in the cache.
                 Maybe<CachedLayer> optionalCachedLayer = cache.Retrieve(layerDigest);

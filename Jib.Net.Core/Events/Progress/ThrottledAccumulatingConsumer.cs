@@ -14,9 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core;
-using Jib.Net.Core.Api;
-using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 

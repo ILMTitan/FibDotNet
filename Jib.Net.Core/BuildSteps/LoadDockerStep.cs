@@ -16,15 +16,14 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Images;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.BuildSteps

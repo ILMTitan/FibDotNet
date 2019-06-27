@@ -18,7 +18,6 @@ using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 

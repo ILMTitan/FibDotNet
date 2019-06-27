@@ -15,27 +15,15 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.registry;
 using ICSharpCode.SharpZipLib.Tar;
-using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using NodaTime;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Global
 {

@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

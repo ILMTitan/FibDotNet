@@ -15,11 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.builder;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events.Progress;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using System.Collections.Generic;

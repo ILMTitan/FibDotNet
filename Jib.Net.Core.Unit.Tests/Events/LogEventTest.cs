@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Events;
-using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;
 using static Jib.Net.Core.Events.LogEvent;

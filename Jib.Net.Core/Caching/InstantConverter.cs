@@ -19,7 +19,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     internal class InstantConverter : JsonConverter<Instant>
     {

@@ -15,7 +15,6 @@
  */
 
 using System;
-using System.Text.RegularExpressions;
 
 namespace Jib.Net.Core.Api
 {

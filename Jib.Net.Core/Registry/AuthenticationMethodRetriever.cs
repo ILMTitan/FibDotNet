@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.http;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Linq;

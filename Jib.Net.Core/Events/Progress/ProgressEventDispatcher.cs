@@ -14,7 +14,6 @@
  * the License.
  */
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core;
 using System;
 
 namespace Jib.Net.Core.Events.Progress

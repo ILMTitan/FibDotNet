@@ -14,7 +14,6 @@
  * the License.
  */
 
-using System;
 using System.Threading;
 
 namespace Jib.Net.Core.Events.Progress

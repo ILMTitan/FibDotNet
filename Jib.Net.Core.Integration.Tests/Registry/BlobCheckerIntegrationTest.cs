@@ -14,11 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;

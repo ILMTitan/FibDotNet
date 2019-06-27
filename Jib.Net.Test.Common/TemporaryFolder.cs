@@ -14,13 +14,12 @@
  * the License.
  */
 
-using Jib.Net.Core.FileSystem;
 using System;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Test.Common
 {
-    public sealed class TemporaryFolder:IDisposable
+    public sealed class TemporaryFolder : IDisposable
     {
         private readonly DirectoryInfo directory;
 
@@ -35,7 +34,8 @@ namespace com.google.cloud.tools.jib.builder.steps
         }
 
         public FileInfo NewFile()
-        { var fileInfo = new FileInfo(Path.Combine(directory.FullName, Path.GetRandomFileName()));
+        {
+            var fileInfo = new FileInfo(Path.Combine(directory.FullName, Path.GetRandomFileName()));
             fileInfo.Create().Dispose();
             return fileInfo;
         }

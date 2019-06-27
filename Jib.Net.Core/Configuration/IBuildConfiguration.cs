@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using com.google.cloud.tools.jib.api;
-using Jib.Net.Core.Cache;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Registry;
 
 namespace com.google.cloud.tools.jib.configuration

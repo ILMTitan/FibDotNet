@@ -16,10 +16,8 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.registry;
 using com.google.cloud.tools.jib.tar;
 using ICSharpCode.SharpZipLib.Tar;
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;

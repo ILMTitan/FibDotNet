@@ -15,7 +15,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Security;
@@ -24,10 +23,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using com.google.cloud.tools.jib.docker;
-using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 

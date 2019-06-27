@@ -20,7 +20,6 @@ using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
-using System;
 using System.Collections.Immutable;
 
 namespace com.google.cloud.tools.jib.api

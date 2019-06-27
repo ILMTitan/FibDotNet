@@ -16,10 +16,7 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
@@ -34,7 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Jib.Net.Core.Cache
+namespace Jib.Net.Core.Caching
 {
     /** Reads from the default cache storage engine. */
     public class CacheStorageReader

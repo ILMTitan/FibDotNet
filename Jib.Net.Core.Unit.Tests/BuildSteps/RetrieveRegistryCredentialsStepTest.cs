@@ -15,20 +15,18 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
-using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.builder.steps
+namespace Jib.Net.Core.Unit.Tests.BuildSteps
 {
     /** Tests for {@link RetrieveRegistryCredentialsStep}. */
     public class RetrieveRegistryCredentialsStepTest

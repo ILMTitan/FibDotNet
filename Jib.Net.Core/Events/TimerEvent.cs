@@ -17,7 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using NodaTime;
 
-namespace Jib.Net.Core.Events.Timer
+namespace Jib.Net.Core.Events
 {
     /**
      * Timer event for timing various part of Jib's execution.

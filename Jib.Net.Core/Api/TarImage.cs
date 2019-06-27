@@ -14,7 +14,6 @@
  * the License.
  */
 
-using System;
 using Jib.Net.Core.FileSystem;
 
 namespace com.google.cloud.tools.jib.api

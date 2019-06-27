@@ -14,12 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.json;
-using Jib.Net.Core.Blob;
 using Newtonsoft.Json;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.blob
 {

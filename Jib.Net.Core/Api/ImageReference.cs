@@ -18,7 +18,6 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
-using System;
 using System.Text;
 using System.Text.RegularExpressions;
 

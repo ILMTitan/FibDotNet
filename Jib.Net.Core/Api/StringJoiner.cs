@@ -14,7 +14,6 @@
  * the License.
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace Jib.Net.Core.Api

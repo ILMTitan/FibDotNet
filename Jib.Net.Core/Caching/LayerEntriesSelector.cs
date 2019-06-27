@@ -16,7 +16,6 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
@@ -27,7 +26,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     /**
      * Generates a selector based on {@link LayerEntry}s for a layer. Selectors are secondary references
@@ -55,7 +54,7 @@ namespace com.google.cloud.tools.jib.cache
     internal static class LayerEntriesSelector
     {
         /** Serialized form of a {@link LayerEntry}. */
-               [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class LayerEntryTemplate : IComparable<LayerEntryTemplate>
         {
             public string SourceFile { get; }
@@ -108,7 +107,7 @@ namespace com.google.cloud.tools.jib.cache
                 }
                 LayerEntryTemplate otherLayerEntryTemplate = (LayerEntryTemplate)other;
                 return SourceFile == otherLayerEntryTemplate.SourceFile
-                    && ExtractionPath ==otherLayerEntryTemplate.ExtractionPath
+                    && ExtractionPath == otherLayerEntryTemplate.ExtractionPath
                     && LastModifiedTime == otherLayerEntryTemplate.LastModifiedTime
                     && Permissions == otherLayerEntryTemplate.Permissions;
             }

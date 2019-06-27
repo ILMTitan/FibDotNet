@@ -16,7 +16,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Blob;

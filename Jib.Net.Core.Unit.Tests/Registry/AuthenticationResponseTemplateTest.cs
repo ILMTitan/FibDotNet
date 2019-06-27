@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static com.google.cloud.tools.jib.registry.RegistryAuthenticator;
 
 namespace Jib.Net.Core.Unit.Tests.Registry

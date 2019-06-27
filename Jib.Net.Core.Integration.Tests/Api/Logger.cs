@@ -14,8 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core.Global;
-using System;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.api

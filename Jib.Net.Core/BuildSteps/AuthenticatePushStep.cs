@@ -16,12 +16,11 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
-using Jib.Net.Core;
 using Jib.Net.Core.Events.Progress;
+using Jib.Net.Core.Events.Time;
 using System.Globalization;
 using System.Threading.Tasks;
 

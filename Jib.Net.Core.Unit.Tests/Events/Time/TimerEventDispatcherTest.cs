@@ -14,17 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core.Events.Timer;
+using Jib.Net.Core.Events;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Global;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 using System.Collections.Generic;
-using static Jib.Net.Core.Events.Timer.TimerEvent;
+using static Jib.Net.Core.Events.TimerEvent;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Unit.Tests.Events.Time
 {
     /** Tests for {@link TimerEventDispatcher}. */
     public class TimerEventDispatcherTest
@@ -63,7 +63,7 @@ namespace com.google.cloud.tools.jib.builder
             VerifyStartState(timerEvent);
             VerifyDescription(timerEvent, "description");
 
-            TimerEvent.ITimer parentTimer = timerEvent.GetTimer();
+            ITimer parentTimer = timerEvent.GetTimer();
 
             timerEvent = GetNextTimerEvent();
             VerifyNoParent(timerEvent);
@@ -104,7 +104,7 @@ namespace com.google.cloud.tools.jib.builder
          * @param timerEvent the {@link TimerEvent} to verify
          * @param expectedParentTimer the expected parent timer
          */
-        private void VerifyParent(TimerEvent timerEvent, TimerEvent.ITimer expectedParentTimer)
+        private void VerifyParent(TimerEvent timerEvent, ITimer expectedParentTimer)
         {
             Assert.IsTrue(timerEvent.GetTimer().GetParent().IsPresent());
             Assert.AreSame(expectedParentTimer, timerEvent.GetTimer().GetParent().Get());
@@ -132,7 +132,7 @@ namespace com.google.cloud.tools.jib.builder
         private void VerifyStateFirstLap(TimerEvent timerEvent, State expectedState)
         {
             Assert.AreEqual(expectedState, timerEvent.GetState());
-            Assert.IsTrue(timerEvent.GetDuration()> Duration.Zero, timerEvent.GetDuration().ToString());
+            Assert.IsTrue(timerEvent.GetDuration() > Duration.Zero, timerEvent.GetDuration().ToString());
             Assert.AreEqual(timerEvent.GetElapsed(), timerEvent.GetDuration());
         }
 

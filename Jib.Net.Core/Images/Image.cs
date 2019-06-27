@@ -19,7 +19,6 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
 using NodaTime;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 

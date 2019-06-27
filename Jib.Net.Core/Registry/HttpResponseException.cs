@@ -16,7 +16,6 @@
 
 using System;
 using System.Net.Http;
-using System.Runtime.Serialization;
 using System.Net;
 using System.Net.Http.Headers;
 

@@ -14,11 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.builder.steps;
-using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.filesystem;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;

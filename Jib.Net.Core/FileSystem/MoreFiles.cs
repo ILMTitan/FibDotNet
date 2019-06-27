@@ -14,7 +14,6 @@
  * the License.
  */
 
-using System;
 using System.IO;
 using Jib.Net.Core.FileSystem;
 

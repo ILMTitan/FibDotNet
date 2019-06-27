@@ -17,18 +17,17 @@
 using com.google.cloud.tools.jib;
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.builder;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Images.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Registry

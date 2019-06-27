@@ -15,8 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.docker;
-using Jib.Net.Core.Global;
 using System;
 using System.Net.Http.Headers;
 using System.Text;

@@ -15,16 +15,14 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
-using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Unit.Tests.Events.Progress
 {
     /** Tests for {@link ProgressEventDispatcher}. */
     public class ProgressEventDispatcherTest

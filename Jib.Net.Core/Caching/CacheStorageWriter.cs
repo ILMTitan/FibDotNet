@@ -16,12 +16,9 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
 using com.google.cloud.tools.jib.hash;
 using com.google.cloud.tools.jib.json;
-using ICSharpCode.SharpZipLib.GZip;
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
@@ -33,7 +30,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     /** Writes to the default cache storage engine. */
     public class CacheStorageWriter
@@ -275,10 +272,10 @@ namespace com.google.cloud.tools.jib.cache
 
                 // Renames the temporary layer file to the correct filename.
                 SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.GetLayerFilename(layerDiffId));
-                temporaryLayerFile.MoveIfDoesNotExist( layerFile);
+                temporaryLayerFile.MoveIfDoesNotExist(layerFile);
 
-            return new WrittenLayer(
-                layerBlobDescriptor.GetDigest(), layerDiffId, layerBlobDescriptor.GetSize());
+                return new WrittenLayer(
+                    layerBlobDescriptor.GetDigest(), layerDiffId, layerBlobDescriptor.GetSize());
             }
         }
 
@@ -293,7 +290,8 @@ namespace com.google.cloud.tools.jib.cache
         private async Task<WrittenLayer> WriteUncompressedLayerBlobToDirectoryAsync(
             IBlob uncompressedLayerBlob, SystemPath layerDirectory)
         {
-            using (TemporaryFile temporaryLayerFile = CacheStorageFiles.GetTemporaryLayerFile(layerDirectory)) {
+            using (TemporaryFile temporaryLayerFile = CacheStorageFiles.GetTemporaryLayerFile(layerDirectory))
+            {
                 DescriptorDigest layerDiffId;
                 BlobDescriptor blobDescriptor;
 
@@ -302,7 +300,8 @@ namespace com.google.cloud.tools.jib.cache
                 // content descriptor.
                 using (CountingDigestOutputStream compressedDigestOutputStream =
                     new CountingDigestOutputStream(
-                        Files.NewOutputStream(temporaryLayerFile.Path))) {
+                        Files.NewOutputStream(temporaryLayerFile.Path)))
+                {
                     using (GZipStream compressorStream = new GZipStream(compressedDigestOutputStream, CompressionMode.Compress, true))
                     {
                         BlobDescriptor descriptor = await uncompressedLayerBlob.WriteToAsync(compressorStream).ConfigureAwait(false);
@@ -311,11 +310,11 @@ namespace com.google.cloud.tools.jib.cache
                     // The GZIPOutputStream must be closed in order to write out the remaining compressed data.
                     blobDescriptor = compressedDigestOutputStream.ComputeDigest();
                 }
-                    DescriptorDigest layerDigest = blobDescriptor.GetDigest();
-                    long layerSize = blobDescriptor.GetSize();
+                DescriptorDigest layerDigest = blobDescriptor.GetDigest();
+                long layerSize = blobDescriptor.GetSize();
 
-                    // Renames the temporary layer file to the correct filename.
-                    SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.GetLayerFilename(layerDiffId));
+                // Renames the temporary layer file to the correct filename.
+                SystemPath layerFile = layerDirectory.Resolve(cacheStorageFiles.GetLayerFilename(layerDiffId));
                 temporaryLayerFile.MoveIfDoesNotExist(layerFile);
 
                 return new WrittenLayer(layerDigest, layerDiffId, layerSize);
@@ -363,6 +362,6 @@ namespace Jib.Net.Core
     {
         None = 0,
         ATOMIC_MOVE = 1 << 0,
-        REPLACE_EXISTING =1<<1
+        REPLACE_EXISTING = 1 << 1
     }
 }

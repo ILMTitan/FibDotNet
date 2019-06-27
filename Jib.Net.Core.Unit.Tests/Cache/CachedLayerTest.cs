@@ -16,11 +16,10 @@
 
 using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Global;
-using Moq;
 using NUnit.Framework;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.cache

@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System;
-
 namespace com.google.cloud.tools.jib
 {
     /** Constants relating to the Jib project. */

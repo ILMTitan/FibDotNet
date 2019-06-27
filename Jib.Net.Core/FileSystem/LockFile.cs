@@ -16,9 +16,7 @@
 
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.filesystem

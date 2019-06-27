@@ -15,10 +15,8 @@
  */
 
 using NUnit.Framework;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Api;
-using com.google.cloud.tools.jib.docker;
 using System.Collections.Immutable;
 using com.google.cloud.tools.jib.api;
 using System.Collections.Generic;

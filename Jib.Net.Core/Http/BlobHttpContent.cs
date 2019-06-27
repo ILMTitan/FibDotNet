@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.blob;
-using Jib.Net.Core.Api;
 using System;
 using System.IO;
 using System.Net;

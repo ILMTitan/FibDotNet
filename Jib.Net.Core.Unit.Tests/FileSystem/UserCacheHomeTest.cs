@@ -14,16 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
-using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace com.google.cloud.tools.jib.filesystem

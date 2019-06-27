@@ -14,11 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core.Registry;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-
 namespace com.google.cloud.tools.jib.registry
 {
     /**

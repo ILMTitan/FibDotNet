@@ -22,7 +22,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     /** Resolves the files used in the default cache storage engine. */
     public class CacheStorageFiles

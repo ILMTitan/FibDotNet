@@ -15,8 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using System;
-using System.Net.Http;
 
 namespace Jib.Net.Core.Images.Json
 {

@@ -17,7 +17,6 @@
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 

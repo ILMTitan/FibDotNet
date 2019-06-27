@@ -14,10 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib;
 using Jib.Net.Core.FileSystem;
 using System;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     /** Thrown if the the cache was found to be corrupted. */
     public class CacheCorruptedException : Exception

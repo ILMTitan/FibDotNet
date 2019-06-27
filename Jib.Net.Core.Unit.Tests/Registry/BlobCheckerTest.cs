@@ -14,13 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.cache;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
-using Moq;
 using NUnit.Framework;
 using System;
 using System.Net;

@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace com.google.cloud.tools.jib.docker

@@ -14,15 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Api;
 using NUnit.Framework;
 using System.IO;
 using System.Net.Http;
-using Moq;
 using System;
 using System.Threading.Tasks;
 using Jib.Net.Core.Blob;

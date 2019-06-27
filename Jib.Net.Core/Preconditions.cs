@@ -16,7 +16,6 @@
 
 using System;
 using System.Globalization;
-using Jib.Net.Core.Api;
 
 namespace Jib.Net.Core
 {

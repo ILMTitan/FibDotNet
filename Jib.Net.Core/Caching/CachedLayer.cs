@@ -21,7 +21,7 @@ using Jib.Net.Core.Blob;
 using Jib.Net.Core.Images;
 using System;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Caching
 {
     public class CachedLayerWithType : ICachedLayer
     {
@@ -137,7 +137,7 @@ namespace com.google.cloud.tools.jib.cache
         {
             this.layerDiffId = layerDiffId;
             this.layerBlob = layerBlob;
-            this.blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
+            blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
         }
 
         public DescriptorDigest GetDigest()

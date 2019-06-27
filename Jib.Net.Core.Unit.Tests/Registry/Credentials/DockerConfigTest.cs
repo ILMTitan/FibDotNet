@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Api;
@@ -22,7 +21,6 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
-using System.Buffers.Text;
 using System.Text;
 
 namespace com.google.cloud.tools.jib.registry.credentials

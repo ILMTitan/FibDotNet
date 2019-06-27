@@ -15,9 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.json;
-using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 using NodaTime;
 

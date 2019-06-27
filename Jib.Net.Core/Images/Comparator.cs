@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.SharpZipLib.Tar;
 
 namespace Jib.Net.Core.Images
 {

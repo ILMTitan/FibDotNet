@@ -17,7 +17,6 @@
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using NUnit.Framework;
-using System;
 
 namespace Jib.Net.Test.Common
 {

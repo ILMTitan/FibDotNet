@@ -14,7 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
 using System;
 using System.Collections.Immutable;
 

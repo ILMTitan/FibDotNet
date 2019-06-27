@@ -14,8 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.docker;
-using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Newtonsoft.Json;
 using System;

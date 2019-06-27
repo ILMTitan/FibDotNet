@@ -18,7 +18,6 @@ using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.http;
 using com.google.cloud.tools.jib.json;
 using com.google.cloud.tools.jib.registry;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
 using Newtonsoft.Json.Linq;
 using System;

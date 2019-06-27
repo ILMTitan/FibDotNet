@@ -19,7 +19,6 @@ using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.FileSystem;
 using System;
 using System.Collections.Immutable;
-using System.Globalization;
 
 namespace Jib.Net.Core.Api
 {

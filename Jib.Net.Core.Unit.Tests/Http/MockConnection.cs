@@ -14,7 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core.Global;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;

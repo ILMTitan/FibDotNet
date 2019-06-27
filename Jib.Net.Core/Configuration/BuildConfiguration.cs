@@ -17,7 +17,7 @@
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
-using Jib.Net.Core.Cache;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;

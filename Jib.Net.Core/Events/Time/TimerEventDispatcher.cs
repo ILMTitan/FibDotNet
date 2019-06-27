@@ -15,12 +15,11 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using Jib.Net.Core.Events.Timer;
 using NodaTime;
 using System;
-using static Jib.Net.Core.Events.Timer.TimerEvent;
+using static Jib.Net.Core.Events.TimerEvent;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Events.Time
 {
     /** Handles {@link Timer}s to dispatch {@link TimerEvent}s. */
     public sealed class TimerEventDispatcher : IDisposable
@@ -49,7 +48,7 @@ namespace com.google.cloud.tools.jib.builder
             this.eventHandlers = eventHandlers;
             this.description = description;
             this.clock = clock;
-            this.timer = new Timer(clock, parentTimer);
+            timer = new Timer(clock, parentTimer);
 
             DispatchTimerEvent(State.START, Duration.Zero, description);
         }

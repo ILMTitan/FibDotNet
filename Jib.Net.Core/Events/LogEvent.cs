@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using System;
 
 namespace Jib.Net.Core.Events
 {

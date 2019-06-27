@@ -16,14 +16,13 @@
 
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.cache;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images.Json;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-namespace Jib.Net.Core.Cache
+namespace Jib.Net.Core.Caching
 {
     /**
      * Cache for storing data to be shared between Jib executions.

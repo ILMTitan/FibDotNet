@@ -15,7 +15,6 @@
  */
 
 using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using System.Collections.Generic;
 

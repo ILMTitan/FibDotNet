@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.cache;
-using Jib.Net.Core.Events.Timer;
+using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Global;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.builder
+namespace Jib.Net.Core.Unit.Tests.Events.Time
 {
     /** Tests for {@link Timer}. */
     public class TimerTest

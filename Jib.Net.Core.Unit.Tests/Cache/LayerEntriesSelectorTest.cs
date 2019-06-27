@@ -15,13 +15,12 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.builder.steps;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
 using System;
@@ -29,7 +28,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static com.google.cloud.tools.jib.cache.LayerEntriesSelector;
+using static Jib.Net.Core.Caching.LayerEntriesSelector;
 
 namespace com.google.cloud.tools.jib.cache
 {

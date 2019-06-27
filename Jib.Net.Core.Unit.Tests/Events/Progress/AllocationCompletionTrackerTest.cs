@@ -15,8 +15,6 @@
  */
 
 using com.google.cloud.tools.jib;
-using com.google.cloud.tools.jib.api;
-using Jib.Net.Core;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using NUnit.Framework;

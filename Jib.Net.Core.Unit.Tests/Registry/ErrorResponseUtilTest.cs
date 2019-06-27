@@ -17,7 +17,6 @@
 using NUnit.Framework;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace com.google.cloud.tools.jib.registry

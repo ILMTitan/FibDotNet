@@ -15,13 +15,10 @@
  */
 
 using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.hash;
-using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
