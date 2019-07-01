@@ -16,10 +16,13 @@
 
 using com.google.cloud.tools.jib.registry;
 using System.Net.Http;
+using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.api
 {
     /** Thrown when a registry request was unauthorized and therefore authentication is needed. */
+    [Serializable]
     public class RegistryUnauthorizedException : RegistryException
     {
         private readonly string registry;
@@ -52,11 +55,7 @@ namespace com.google.cloud.tools.jib.api
             this.repository = repository;
         }
 
-        public RegistryUnauthorizedException(string message, HttpResponseMessage cause) : base(message, cause)
-        {
-        }
-
-        public RegistryUnauthorizedException(HttpResponseMessage message) : base(message)
+        protected RegistryUnauthorizedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

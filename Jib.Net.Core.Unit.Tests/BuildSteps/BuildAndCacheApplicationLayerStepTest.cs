@@ -78,7 +78,7 @@ namespace Jib.Net.Core.Unit.Tests.BuildSteps
 
         private readonly IBuildConfiguration mockBuildConfiguration = Mock.Of<IBuildConfiguration>();
 
-        private Caching.Cache cache;
+        private LayersCache cache;
         private readonly IEventHandlers mockEventHandlers = Mock.Of<IEventHandlers>();
 
         private ILayerConfiguration fakeDependenciesLayerConfiguration;
@@ -124,7 +124,7 @@ namespace Jib.Net.Core.Unit.Tests.BuildSteps
                     .Build();
             emptyLayerConfiguration = LayerConfiguration.CreateBuilder().Build();
 
-            cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
+            cache = LayersCache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             Mock.Get(mockBuildConfiguration).Setup(m => m.GetEventHandlers()).Returns(mockEventHandlers);
 

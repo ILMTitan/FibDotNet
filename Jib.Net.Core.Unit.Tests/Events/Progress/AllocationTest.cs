@@ -85,10 +85,10 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
 
             // Checks that the leaf allocations add up to a full 1.0.
             double total =
-                leftLeftDown.GetFractionOfRoot() * leftLeftDown.GetAllocationUnits()
-                    + leftMiddle.GetFractionOfRoot() * leftMiddle.GetAllocationUnits()
-                    + leftRight.GetFractionOfRoot() * leftRight.GetAllocationUnits()
-                    + rightDown.GetFractionOfRoot() * rightDown.GetAllocationUnits();
+                (leftLeftDown.GetFractionOfRoot() * leftLeftDown.GetAllocationUnits())
+                    + (leftMiddle.GetFractionOfRoot() * leftMiddle.GetAllocationUnits())
+                    + (leftRight.GetFractionOfRoot() * leftRight.GetAllocationUnits())
+                    + (rightDown.GetFractionOfRoot() * rightDown.GetAllocationUnits());
             Assert.AreEqual(1.0, total, DOUBLE_ERROR_MARGIN);
         }
     }

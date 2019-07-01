@@ -110,7 +110,10 @@ namespace Jib.Net.Core.Events.Progress
             bool used = false;
             return (description, allocationUnits) =>
             {
-                Preconditions.CheckState(!used);
+                if (used)
+                {
+                    throw new InvalidOperationException("Dispatcher factory may not be reused.");
+                }
                 used = true;
                 return NewProgressEventDispatcher(eventHandlers, allocation.NewChild(description, allocationUnits));
             };
@@ -149,7 +152,10 @@ namespace Jib.Net.Core.Events.Progress
          */
         private long DecrementRemainingAllocationUnits(long units)
         {
-            Preconditions.CheckState(!closed);
+            if (closed)
+            {
+                throw new ObjectDisposedException(nameof(ProgressEventDispatcher));
+            }
 
             if (remainingAllocationUnits > units)
             {

@@ -259,8 +259,8 @@ namespace com.google.cloud.tools.jib.configuration
                             Preconditions.CheckNotNull(targetImageConfiguration),
                             additionalTargetImageTags,
                             containerConfiguration,
-                            Cache.WithDirectory(Preconditions.CheckNotNull(baseImageLayersCacheDirectory)),
-                            Cache.WithDirectory(Preconditions.CheckNotNull(applicationLayersCacheDirectory)),
+                            LayersCache.WithDirectory(Preconditions.CheckNotNull(baseImageLayersCacheDirectory)),
+                            LayersCache.WithDirectory(Preconditions.CheckNotNull(applicationLayersCacheDirectory)),
                             targetFormat,
                             allowInsecureRegistries,
                             offline,
@@ -312,8 +312,8 @@ namespace com.google.cloud.tools.jib.configuration
         private readonly ImageConfiguration targetImageConfiguration;
         private readonly ImmutableHashSet<string> additionalTargetImageTags;
         private readonly ContainerConfiguration containerConfiguration;
-        private readonly Cache baseImageLayersCache;
-        private readonly Cache applicationLayersCache;
+        private readonly LayersCache baseImageLayersCache;
+        private readonly LayersCache applicationLayersCache;
         private readonly ManifestFormat targetFormat;
         private readonly bool allowInsecureRegistries;
         private readonly bool offline;
@@ -328,8 +328,8 @@ namespace com.google.cloud.tools.jib.configuration
             ImageConfiguration targetImageConfiguration,
             ImmutableHashSet<string> additionalTargetImageTags,
             ContainerConfiguration containerConfiguration,
-            Cache baseImageLayersCache,
-            Cache applicationLayersCache,
+            LayersCache baseImageLayersCache,
+            LayersCache applicationLayersCache,
             ManifestFormat targetFormat,
             bool allowInsecureRegistries,
             bool offline,
@@ -401,7 +401,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the {@link Cache} for base image layers
          */
-        public Cache GetBaseImageLayersCache()
+        public LayersCache GetBaseImageLayersCache()
         {
             return baseImageLayersCache;
         }
@@ -411,7 +411,7 @@ namespace com.google.cloud.tools.jib.configuration
          *
          * @return the {@link Cache} for application layers
          */
-        public Cache GetApplicationLayersCache()
+        public LayersCache GetApplicationLayersCache()
         {
             return applicationLayersCache;
         }

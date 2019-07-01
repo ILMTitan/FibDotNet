@@ -50,13 +50,16 @@ namespace Jib.Net.Core.Events.Progress
 
         public void Dispose()
         {
-            throttledDispatcher?.Close();
-            progressEventDispatcher?.Close();
+            throttledDispatcher?.Dispose();
+            progressEventDispatcher?.Dispose();
         }
 
         public void SetProgressTarget(long allocationUnits)
         {
-            Preconditions.CheckState(progressEventDispatcher == null);
+            if(progressEventDispatcher != null)
+            {
+                throw new InvalidOperationException(Resources.ThrottledProgressEventDispatcherWrapperResetExceptionMessage);
+            }
             progressEventDispatcher = progressEventDispatcherFactory.Create(description, allocationUnits);
             throttledDispatcher =
                 new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress);

@@ -83,7 +83,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false);
 
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
+                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // 0 progress doesn't do anything.
                 await MultithreadedExecutor
@@ -91,7 +91,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                         eventHandlers.Dispatch(new ProgressEvent(child1, 0L))), 100))
                     .ConfigureAwait(false);
                 Assert.AreEqual(
-                    1.0 / 2 / 100 * 50 + 1.0 / 2 / 200 * 100, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
+                    (1.0 / 2 / 100 * 50) + (1.0 / 2 / 200 * 100), maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2 to finish it up.
                 await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false);

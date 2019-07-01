@@ -101,7 +101,7 @@ namespace com.google.cloud.tools.jib.configuration
          * @param command the command
          * @return a new {@link DockerHealthCheck.Builder}
          */
-        public static DockerHealthCheck.Builder FromCommand(IList<string> command)
+        public static Builder FromCommand(IList<string> command)
         {
             command = command ?? throw new ArgumentNullException(nameof(command));
             Preconditions.CheckArgument(command.Count > 0, "command must not be empty");

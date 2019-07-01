@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** An unknown {@link ErrorCodes} should cause original exception to be rethrown. */
         [Test]
-        public async System.Threading.Tasks.Task TestGetErrorCode_unknownErrorCodeAsync()
+        public async Task TestGetErrorCode_unknownErrorCodeAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -59,7 +59,7 @@ namespace com.google.cloud.tools.jib.registry
 
         /** Multiple error objects should cause original exception to be rethrown. */
         [Test]
-        public async System.Threading.Tasks.Task TestGetErrorCode_multipleErrorsAsync()
+        public async Task TestGetErrorCode_multipleErrorsAsync()
         {
             HttpResponseMessage httpResponseException = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {

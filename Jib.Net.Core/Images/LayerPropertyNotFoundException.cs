@@ -15,13 +15,20 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Images
 {
     /** Exception thrown when accessing non-existent properties of layers. */
+    [Serializable]
     public class LayerPropertyNotFoundException : Exception
     {
         public LayerPropertyNotFoundException(string message) : base(message)
+        {
+        }
+
+        protected LayerPropertyNotFoundException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

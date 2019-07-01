@@ -17,10 +17,12 @@
 using Jib.Net.Core.Global;
 using System;
 using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.api
 {
     /** Thrown because registry authentication failed. */
+    [Serializable]
     public class RegistryAuthenticationFailedException : RegistryException
     {
         private const string REASON = "Failed to authenticate with registry {0}/{1} because: {2}";
@@ -39,6 +41,11 @@ namespace com.google.cloud.tools.jib.api
         {
             this.registry = registry;
             this.imageName = imageName;
+        }
+
+        protected RegistryAuthenticationFailedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         /** @return the server being authenticated */

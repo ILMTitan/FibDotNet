@@ -71,7 +71,7 @@ namespace com.google.cloud.tools.jib.blob
         }
 
         /** Checks that the {@link Blob} streams the expected string. */
-        private async System.Threading.Tasks.Task VerifyBlobWriteToAsync(string expected, IBlob blob)
+        private async Task VerifyBlobWriteToAsync(string expected, IBlob blob)
         {
             MemoryStream outputStream = new MemoryStream();
             BlobDescriptor blobDescriptor = await blob.WriteToAsync(outputStream).ConfigureAwait(false);

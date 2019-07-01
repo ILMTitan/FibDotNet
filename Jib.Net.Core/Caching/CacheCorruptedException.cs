@@ -17,10 +17,12 @@
 using com.google.cloud.tools.jib;
 using Jib.Net.Core.FileSystem;
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Caching
 {
     /** Thrown if the the cache was found to be corrupted. */
+    [Serializable]
     public class CacheCorruptedException : Exception
     {
         public CacheCorruptedException(SystemPath cacheDirectory, string message, Exception cause)
@@ -42,15 +44,7 @@ namespace Jib.Net.Core.Caching
         {
         }
 
-        public CacheCorruptedException() : base()
-        {
-        }
-
-        public CacheCorruptedException(string message) : base(message)
-        {
-        }
-
-        public CacheCorruptedException(string message, Exception innerException) : base(message, innerException)
+        protected CacheCorruptedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

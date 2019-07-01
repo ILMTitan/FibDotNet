@@ -92,7 +92,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestInitializer_handleResponse_unrecognizedAsync()
+        public async Task TestInitializer_handleResponse_unrecognizedAsync()
         {
             mockResponse = new HttpResponseMessage(HttpStatusCode.Unused);
             try
@@ -147,7 +147,7 @@ namespace com.google.cloud.tools.jib.registry
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestWriter_getContentAsync()
+        public async Task TestWriter_getContentAsync()
         {
             LongAdder byteCount = new LongAdder();
             BlobHttpContent body = testBlobPusher.CreateWriter(mockURL, byteCount.Add).GetContent();

@@ -15,10 +15,12 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Images.Json
 {
     /** Exception thrown when trying to parse a bad image configuration format. */
+    [Serializable]
     public class BadContainerConfigurationFormatException : Exception
     {
         // TODO: Potentially provide Path or source object to problem configuration file
@@ -30,7 +32,8 @@ namespace Jib.Net.Core.Images.Json
         {
         }
 
-        public BadContainerConfigurationFormatException() : base()
+        protected BadContainerConfigurationFormatException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

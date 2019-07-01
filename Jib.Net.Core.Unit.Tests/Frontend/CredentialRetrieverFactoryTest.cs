@@ -61,7 +61,7 @@ namespace com.google.cloud.tools.jib.frontend
         /** A {@link DockerCredentialHelper} that throws {@link CredentialHelperNotFoundException}. */
         private readonly IDockerCredentialHelper mockNonexistentDockerCredentialHelper = Mock.Of<IDockerCredentialHelper>();
 
-        private readonly CredentialHelperNotFoundException mockCredentialHelperNotFoundException = Mock.Of<CredentialHelperNotFoundException>();
+        private readonly CredentialHelperNotFoundException mockCredentialHelperNotFoundException = new CredentialHelperNotFoundException("ignored", null);
 
         [SetUp]
         public void SetUp()

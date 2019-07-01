@@ -110,11 +110,7 @@ namespace Jib.Net.Core.Caching
 
             public CachedLayer Build()
             {
-                return new CachedLayer(
-                    Preconditions.CheckNotNull(layerDigest, "layerDigest required"),
-                    Preconditions.CheckNotNull(layerDiffId, "layerDiffId required"),
-                    layerSize,
-                    Preconditions.CheckNotNull(layerBlob, "layerBlob required"));
+                return new CachedLayer(layerDigest, layerDiffId, layerSize, layerBlob);
             }
         }
 
@@ -135,9 +131,10 @@ namespace Jib.Net.Core.Caching
         private CachedLayer(
             DescriptorDigest layerDigest, DescriptorDigest layerDiffId, long layerSize, IBlob layerBlob)
         {
-            this.layerDiffId = layerDiffId;
-            this.layerBlob = layerBlob;
-            blobDescriptor = new BlobDescriptor(layerSize, layerDigest);
+            blobDescriptor =
+                new BlobDescriptor(layerSize, layerDigest ?? throw new ArgumentNullException(nameof(layerDigest)));
+            this.layerDiffId = layerDiffId ?? throw new ArgumentNullException(nameof(layerDiffId));
+            this.layerBlob = layerBlob ?? throw new ArgumentNullException(nameof(layerBlob));
         }
 
         public DescriptorDigest GetDigest()

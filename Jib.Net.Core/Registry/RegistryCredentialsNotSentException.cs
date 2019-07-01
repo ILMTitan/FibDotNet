@@ -15,10 +15,13 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
     /** Thrown when registry request was unauthorized because credentials weren't sent. */
+    [Serializable]
     public class RegistryCredentialsNotSentException : RegistryException
     {
         /**
@@ -27,12 +30,13 @@ namespace com.google.cloud.tools.jib.registry
          * @param registry the image registry
          * @param repository the image repository
          */
-        public RegistryCredentialsNotSentException(string registry, string repository) : base(
-              "Required credentials for "
-                  + registry
-                  + "/"
-                  + repository
-                  + " were not sent because the connection was over HTTP")
+        public RegistryCredentialsNotSentException(string registry, string repository)
+            : base($"Required credentials for {registry}/{repository} were not sent because the connection was over HTTP")
+        {
+        }
+
+        protected RegistryCredentialsNotSentException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

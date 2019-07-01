@@ -157,7 +157,7 @@ namespace com.google.cloud.tools.jib.cache
 
             try
             {
-                Cache.WithDirectory(file);
+                LayersCache.WithDirectory(file);
                 Assert.Fail();
             }
             catch (IOException)
@@ -169,7 +169,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task TestWriteCompressed_retrieveByLayerDigestAsync()
         {
-            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
+            LayersCache cache = LayersCache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             await VerifyIsLayer1Async(await cache.WriteCompressedLayerAsync(Compress(layerBlob1)).ConfigureAwait(false)).ConfigureAwait(false);
             await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
@@ -179,7 +179,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task TestWriteUncompressedWithLayerEntries_retrieveByLayerDigestAsync()
         {
-            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
+            LayersCache cache = LayersCache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
             await VerifyIsLayer1Async(cache.Retrieve(layerDigest1).OrElseThrow(() => new AssertionException(""))).ConfigureAwait(false);
@@ -189,7 +189,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task TestWriteUncompressedWithLayerEntries_retrieveByLayerEntriesAsync()
         {
-            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
+            LayersCache cache = LayersCache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
             Maybe<CachedLayer> layer = await cache.RetrieveAsync(layerEntries1).ConfigureAwait(false);
@@ -206,7 +206,7 @@ namespace com.google.cloud.tools.jib.cache
         [Test]
         public async Task TestRetrieveWithTwoEntriesInCacheAsync()
         {
-            Cache cache = Cache.WithDirectory(temporaryFolder.NewFolder().ToPath());
+            LayersCache cache = LayersCache.WithDirectory(temporaryFolder.NewFolder().ToPath());
 
             await VerifyIsLayer1Async(await cache.WriteUncompressedLayerAsync(layerBlob1, layerEntries1).ConfigureAwait(false)).ConfigureAwait(false);
             await VerifyIsLayer2Async(await cache.WriteUncompressedLayerAsync(layerBlob2, layerEntries2).ConfigureAwait(false)).ConfigureAwait(false);

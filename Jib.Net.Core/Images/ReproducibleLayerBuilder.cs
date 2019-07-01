@@ -24,6 +24,7 @@ using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 
 namespace Jib.Net.Core.Images
@@ -128,7 +129,7 @@ namespace Jib.Net.Core.Images
             // Gets the entries sorted by extraction path.
             IList<TarEntry> sortedFilesystemEntries = uniqueTarArchiveEntries.GetSortedEntries();
 
-            ISet<string> names = new HashSet<string>();
+            HashSet<string> names = new HashSet<string>();
 
             // Adds all the files to a tar stream.
             TarStreamBuilder tarStreamBuilder = new TarStreamBuilder();
@@ -141,8 +142,8 @@ namespace Jib.Net.Core.Images
                 entry.TarHeader.UserName = "";
                 entry.TarHeader.GroupName = "";
 
-                Preconditions.CheckState(!JavaExtensions.Contains(names, entry.Name));
-                JavaExtensions.Add(names, entry.Name);
+                Debug.Assert(!names.Contains(entry.Name));
+                names.Add(entry.Name);
 
                 tarStreamBuilder.AddTarArchiveEntry(entry);
             }

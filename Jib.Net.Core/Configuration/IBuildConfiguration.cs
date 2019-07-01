@@ -9,9 +9,9 @@ namespace com.google.cloud.tools.jib.configuration
     {
         bool GetAllowInsecureRegistries();
         ImmutableHashSet<string> GetAllTargetImageTags();
-        Cache GetApplicationLayersCache();
+        LayersCache GetApplicationLayersCache();
         ImageConfiguration GetBaseImageConfiguration();
-        Cache GetBaseImageLayersCache();
+        LayersCache GetBaseImageLayersCache();
         IContainerConfiguration GetContainerConfiguration();
         IEventHandlers GetEventHandlers();
         ImmutableArray<ILayerConfiguration> GetLayerConfigurations();

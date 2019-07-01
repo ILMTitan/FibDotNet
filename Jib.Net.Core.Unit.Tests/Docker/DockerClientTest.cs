@@ -83,7 +83,7 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestLoad_stdinFailAsync()
+        public async Task TestLoad_stdinFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(_ => mockProcessBuilder);
 
@@ -106,7 +106,7 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestLoad_stdinFail_stderrFailAsync()
+        public async Task TestLoad_stdinFail_stderrFailAsync()
         {
             DockerClient testDockerClient = new DockerClient(_ => mockProcessBuilder);
             IOException expectedIOException = new IOException();

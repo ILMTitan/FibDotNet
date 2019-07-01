@@ -18,14 +18,20 @@ using System;
 using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
+    [Serializable]
     public class HttpResponseException : Exception
     {
         public HttpResponseException(HttpResponseMessage message)
         {
             Cause = message;
+        }
+
+        protected HttpResponseException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
 
         public HttpResponseMessage Cause { get; }

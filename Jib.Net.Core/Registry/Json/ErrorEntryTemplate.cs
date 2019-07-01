@@ -22,7 +22,7 @@ namespace com.google.cloud.tools.jib.registry.json
 {
     // TODO: Should include detail field as well - need to have custom parser
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ErrorEntryTemplate 
+    public class ErrorEntryTemplate
     {
         [JsonConverter(typeof(TolerantStringEnumConverter<ErrorCode>), typeof(SnakeCaseNamingStrategy))]
         public ErrorCode? Code { get; }

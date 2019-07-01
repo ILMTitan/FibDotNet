@@ -49,17 +49,18 @@ namespace com.google.cloud.tools.jib.docker.json
     public class DockerLoadManifestEntryTemplate
     {
         public string Config { get; } = "config.json";
-        public List<string> RepoTags { get; set; } = new List<string> { null };
-        public IList<string> Layers { get; } = new List<string>();
+        public IList<string> RepoTags { get; set; } = new List<string> { null };
+        public IList<string> Layers { get; set; } = new List<string>();
 
         public void SetRepoTags(string repoTags)
         {
-            RepoTags = new List<string> { repoTags };
+            RepoTags.Clear();
+            RepoTags.Add(repoTags);
         }
 
         public void AddLayerFile(string layer)
         {
-            JavaExtensions.Add(Layers, layer);
+            Layers.Add(layer);
         }
     }
 }

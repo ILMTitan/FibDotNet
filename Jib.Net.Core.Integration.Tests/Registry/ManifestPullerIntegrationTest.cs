@@ -27,7 +27,7 @@ namespace com.google.cloud.tools.jib.registry
     public class ManifestPullerIntegrationTest : HttpRegistryTest
     {
         [Test]
-        public async System.Threading.Tasks.Task TestPull_v21Async()
+        public async Task TestPull_v21Async()
         {
             localRegistry.PullAndPushToLocal("busybox", "busybox");
             RegistryClient registryClient =

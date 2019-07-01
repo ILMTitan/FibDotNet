@@ -15,13 +15,21 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Images.Json
 {
     /** Exception thrown when trying to parse an unknown image manifest format. */
+    [Serializable]
     public class UnknownManifestFormatException : RegistryException
     {
         public UnknownManifestFormatException(string message) : base(message)
+        {
+        }
+
+        protected UnknownManifestFormatException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

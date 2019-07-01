@@ -34,7 +34,7 @@ namespace com.google.cloud.tools.jib.registry
         private static readonly EventHandlers EVENT_HANDLERS = EventHandlers.NONE;
 
         [Test]
-        public async System.Threading.Tasks.Task TestPush_missingBlobsAsync()
+        public async Task TestPush_missingBlobsAsync()
         {
             localRegistry.PullAndPushToLocal("busybox", "busybox");
 

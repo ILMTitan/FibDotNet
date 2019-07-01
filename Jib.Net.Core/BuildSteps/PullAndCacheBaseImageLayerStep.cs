@@ -69,7 +69,7 @@ namespace Jib.Net.Core.BuildSteps
                     new TimerEventDispatcher(
                         buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
             {
-                Caching.Cache cache = buildConfiguration.GetBaseImageLayersCache();
+                LayersCache cache = buildConfiguration.GetBaseImageLayersCache();
 
                 // Checks if the layer already exists in the cache.
                 Maybe<CachedLayer> optionalCachedLayer = cache.Retrieve(layerDigest);

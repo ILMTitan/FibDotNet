@@ -15,7 +15,10 @@
  */
 
 using System;
+
+#if NETSTANDARD2_0
 using System.Runtime.InteropServices;
+#endif
 
 namespace com.google.cloud.tools.jib.filesystem
 {
@@ -23,6 +26,8 @@ namespace com.google.cloud.tools.jib.filesystem
     {
         string GetEnvironmentVariable(string variableName);
         string GetFolderPath(Environment.SpecialFolder folder);
+#if NETSTANDARD2_0
         bool IsOSPlatform(OSPlatform oSX);
+#endif
     }
 }

@@ -70,9 +70,9 @@ namespace Jib.Net.Core.Images.Json
         public override int GetHashCode()
         {
             var hashCode = 1122470636;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(MediaType);
-            hashCode = hashCode * -1521134295 + EqualityComparer<DescriptorDigest>.Default.GetHashCode(Digest);
-            hashCode = hashCode * -1521134295 + Size.GetHashCode();
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(MediaType);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<DescriptorDigest>.Default.GetHashCode(Digest);
+            hashCode = (hashCode * -1521134295) + Size.GetHashCode();
             return hashCode;
         }
     }

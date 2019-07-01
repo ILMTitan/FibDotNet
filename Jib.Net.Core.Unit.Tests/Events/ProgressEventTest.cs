@@ -80,7 +80,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
             Assert.AreEqual(1.0 / 2, progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 10));
-            Assert.AreEqual(1.0 / 2 + 1.0 / 2 / 200 * 10, progress, DOUBLE_ERROR_MARGIN);
+            Assert.AreEqual((1.0 / 2) + (1.0 / 2 / 200 * 10), progress, DOUBLE_ERROR_MARGIN);
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 190));
             Assert.AreEqual(1.0, progress, DOUBLE_ERROR_MARGIN);

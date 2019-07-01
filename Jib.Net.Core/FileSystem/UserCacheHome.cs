@@ -14,12 +14,12 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.Api;
-using Jib.Net.Core.FileSystem;
 using System;
 using System.Runtime.InteropServices;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /**
      * Obtains an OS-specific user cache directory based on the XDG Base Directory Specification.
@@ -65,6 +65,8 @@ namespace com.google.cloud.tools.jib.filesystem
                 return Paths.Get(localAppData);
             }
             string userHome = environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+#if NETSTANDARD2_0
             if (environment.IsOSPlatform(OSPlatform.OSX))
             {
                 // Use '~/Library/Application Support/' for macOS.
@@ -74,12 +76,14 @@ namespace com.google.cloud.tools.jib.filesystem
                     return applicationSupport;
                 }
             }
+#endif
+
             if (!string.IsNullOrWhiteSpace(userHome))
             {
                 return Paths.Get(userHome, ".cache");
             }
 
-            throw new InvalidOperationException("Unknown OS: " + RuntimeInformation.OSDescription);
+            throw new InvalidOperationException(Resources.UserCacheHomeMissingUserProfileExceptionMessage);
         }
     }
 }

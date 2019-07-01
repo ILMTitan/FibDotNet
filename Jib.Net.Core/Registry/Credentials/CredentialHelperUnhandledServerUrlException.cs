@@ -16,10 +16,12 @@
 
 using Jib.Net.Core.FileSystem;
 using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
     /** Thrown because the credential helper does not have credentials for the specified server Uri. */
+    [Serializable]
     public class CredentialHelperUnhandledServerUrlException : CredentialRetrievalException
     {
         public CredentialHelperUnhandledServerUrlException(
@@ -43,6 +45,11 @@ namespace com.google.cloud.tools.jib.registry.credentials
             + registry
             + "\n\nGot output:\n\n"
             + credentialHelperOutput)
+        {
+        }
+
+        protected CredentialHelperUnhandledServerUrlException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

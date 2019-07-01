@@ -212,14 +212,20 @@ namespace com.google.cloud.tools.jib.registry
         public string GetAuthRequestParameters(Credential credential, string scope)
         {
             string serviceScope = GetServiceScopeRequestParameters(scope);
-            return IsOAuth2Auth(credential)
-                ? serviceScope
-                    // https://github.com/GoogleContainerTools/jib/pull/1545
+            if (IsOAuth2Auth(credential))
+            {
+                credential = credential ?? throw new ArgumentNullException(nameof(credential));
+                // https://github.com/GoogleContainerTools/jib/pull/1545
+                return serviceScope
                     + "&client_id=jib.da031fe481a93ac107a95a96462358f9"
                     + "&grant_type=refresh_token&refresh_token="
                     // If OAuth2, credential.getPassword() is a refresh token.
-                    + Verify.VerifyNotNull(credential).GetPassword()
-                : serviceScope;
+                    + credential.GetPassword();
+            }
+            else
+            {
+                return serviceScope;
+            }
         }
 
         public static bool IsOAuth2Auth(Credential credential)
@@ -253,7 +259,7 @@ namespace com.google.cloud.tools.jib.registry
                     if (IsOAuth2Auth(credential))
                     {
                         string parameters = GetAuthRequestParameters(credential, scope);
-                        request.Content = new BlobHttpContent(Blobs.From(parameters), JavaExtensions.ToString(MediaType.FORM_DATA));
+                        request.Content = new BlobHttpContent(Blobs.From(parameters), MediaType.FormData);
                     }
                     else if (credential != null)
                     {

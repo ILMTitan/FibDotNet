@@ -113,7 +113,7 @@ buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
                     new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), description))
 
             {
-                Caching.Cache cache = buildConfiguration.GetApplicationLayersCache();
+                LayersCache cache = buildConfiguration.GetApplicationLayersCache();
 
                 // Don't build the layer if it exists already.
                 Maybe<CachedLayer> optionalCachedLayer =

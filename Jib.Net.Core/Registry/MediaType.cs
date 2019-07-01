@@ -14,11 +14,12 @@
  * the License.
  */
 
+using System.Net.Mime;
+
 namespace com.google.cloud.tools.jib.registry
 {
     internal static class MediaType
     {
-        public static object FORM_DATA { get; internal set; }
-        public static object OCTET_STREAM { get; internal set; }
+        public const string FormData = "application/x-www-form-urlencoded";
     }
 }

@@ -16,6 +16,8 @@
 
 using com.google.cloud.tools.jib.api;
 using System.Net.Http;
+using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry
 {
@@ -23,9 +25,14 @@ namespace com.google.cloud.tools.jib.registry
      * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link
      * ErrorCodes}.
      */
+    [Serializable]
     public class RegistryErrorException : RegistryException
     {
         public RegistryErrorException(string message, HttpResponseMessage cause) : base(message, cause)
+        {
+        }
+
+        protected RegistryErrorException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

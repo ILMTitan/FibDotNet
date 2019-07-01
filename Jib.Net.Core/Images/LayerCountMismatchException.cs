@@ -15,13 +15,19 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Images
 {
     /** Exception thrown when the number of layers found did not match expectations. */
+    [Serializable]
     public class LayerCountMismatchException : Exception
     {
         public LayerCountMismatchException(string message) : base(message)
+        {
+        }
+
+        protected LayerCountMismatchException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

@@ -15,10 +15,12 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
     /** Thrown if something went wrong during {@link CredentialRetriever#retrieve}. */
+    [Serializable]
     public class CredentialRetrievalException : Exception
     {
         protected CredentialRetrievalException(string message, Exception cause) : base(message, cause)
@@ -34,6 +36,10 @@ namespace com.google.cloud.tools.jib.registry.credentials
         }
 
         public CredentialRetrievalException() : base()
+        {
+        }
+
+        protected CredentialRetrievalException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

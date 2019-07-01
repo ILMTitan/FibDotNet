@@ -131,6 +131,32 @@ namespace Jib.Net.Core.Images.Json
 
             /** Volumes */
             public ImmutableSortedDictionary<string, IDictionary<object, object>> Volumes { get; set; }
+
+            public ConfigurationObjectTemplate() { }
+
+            [JsonConstructor]
+            public ConfigurationObjectTemplate(
+                IList<string> env,
+                IList<string> entrypoint,
+                IList<string> cmd,
+                HealthCheckObjectTemplate healthcheck,
+                IDictionary<string, IDictionary<object, object>> exposedPorts,
+                ImmutableSortedDictionary<string, string> labels,
+                string workingDir,
+                string user,
+                ImmutableSortedDictionary<string,
+                    IDictionary<object, object>> volumes)
+            {
+                Env = env;
+                Entrypoint = entrypoint;
+                Cmd = cmd;
+                Healthcheck = healthcheck;
+                ExposedPorts = exposedPorts;
+                Labels = labels;
+                WorkingDir = workingDir;
+                User = user;
+                Volumes = volumes;
+            }
         }
 
         /** Template for inner JSON object representing the healthcheck configuration. */

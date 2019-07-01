@@ -18,6 +18,7 @@ using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -168,15 +169,24 @@ namespace com.google.cloud.tools.jib.api
         public static ImageReference Of(
             string registry, string repository, string tag)
         {
-            Preconditions.CheckArgument(Strings.IsNullOrEmpty(registry) || IsValidRegistry(registry));
-            Preconditions.CheckArgument(IsValidRepository(repository));
-            Preconditions.CheckArgument(Strings.IsNullOrEmpty(tag) || IsValidTag(tag));
+            if(!string.IsNullOrEmpty(registry) && !IsValidRegistry(registry))
+            {
+                throw new ArgumentException($"'{registry}' is not a valid registry", nameof(registry));
+            }
+            if (!IsValidRepository(repository))
+            {
+                throw new ArgumentException($"'{repository}' is not a valid repository", nameof(repository));
+            }
+            if(!string.IsNullOrEmpty(tag) && !IsValidTag(tag))
+            {
+                throw new ArgumentException($"'{tag}' is not a valid tag", nameof(tag));
+            }
 
-            if (Strings.IsNullOrEmpty(registry))
+            if (string.IsNullOrEmpty(registry))
             {
                 registry = DOCKER_HUB_REGISTRY;
             }
-            if (Strings.IsNullOrEmpty(tag))
+            if (string.IsNullOrEmpty(tag))
             {
                 tag = DEFAULT_TAG;
             }
@@ -348,7 +358,8 @@ namespace com.google.cloud.tools.jib.api
             else if (JavaExtensions.StartsWith(repository, LIBRARY_REPOSITORY_PREFIX))
             {
                 // If Docker Hub and repository has 'library/' prefix, remove the 'library/' prefix.
-                referenceString.Append(repository.Substring(LIBRARY_REPOSITORY_PREFIX.Length));
+                string repositorySubstring = repository.Substring(LIBRARY_REPOSITORY_PREFIX.Length);
+                referenceString.Append(repositorySubstring);
             }
             else
             {

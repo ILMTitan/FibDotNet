@@ -35,10 +35,11 @@ namespace Jib.Net.Core.Api
         {
             return Environment.GetFolderPath(folder);
         }
-
+#if NETSTANDARD2_0
         public bool IsOSPlatform(OSPlatform osPlatform)
         {
             return RuntimeInformation.IsOSPlatform(osPlatform);
         }
+#endif
     }
 }

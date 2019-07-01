@@ -15,14 +15,23 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Api
 {
     /** Thrown when a directory to be used as the cache could not be created. */
+    [Serializable]
     public class CacheDirectoryCreationException : Exception
     {
         public CacheDirectoryCreationException(Exception cause)
             : base(Resources.CacheDirectoryCreationExceptionMessage, cause)
+        {
+        }
+
+        protected CacheDirectoryCreationException(
+            SerializationInfo serializationInfo,
+            StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }

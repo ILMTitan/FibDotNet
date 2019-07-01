@@ -16,21 +16,15 @@
 
 using Jib.Net.Core.FileSystem;
 using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.registry.credentials
 {
     /** Thrown because the requested credential helper CLI does not exist. */
+    [Serializable]
     public class CredentialHelperNotFoundException : CredentialRetrievalException
     {
         public CredentialHelperNotFoundException(SystemPath credentialHelper, Exception cause) : base("The system does not have " + credentialHelper + " CLI", cause)
-        {
-        }
-
-        public CredentialHelperNotFoundException(Exception cause) : base(cause)
-        {
-        }
-
-        public CredentialHelperNotFoundException() : base()
         {
         }
 
@@ -38,7 +32,8 @@ namespace com.google.cloud.tools.jib.registry.credentials
         {
         }
 
-        protected CredentialHelperNotFoundException(string message) : base(message)
+        protected CredentialHelperNotFoundException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

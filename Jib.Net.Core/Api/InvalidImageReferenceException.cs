@@ -15,10 +15,12 @@
  */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.api
 {
     /** Thrown when attempting to parse an invalid image reference. */
+    [Serializable]
     public class InvalidImageReferenceException : Exception
     {
         private readonly string reference;
@@ -33,6 +35,10 @@ namespace com.google.cloud.tools.jib.api
         }
 
         public InvalidImageReferenceException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected InvalidImageReferenceException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

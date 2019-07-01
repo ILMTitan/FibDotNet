@@ -26,6 +26,7 @@ using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Images.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -264,9 +265,10 @@ namespace Jib.Net.Core.Registry
          */
         public async Task<DescriptorDigest> PushManifestAsync(IBuildableManifestTemplate manifestTemplate, string imageTag)
         {
-            return Verify.VerifyNotNull(await CallRegistryEndpointAsync(
-                    new ManifestPusher(
-                        registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers)).ConfigureAwait(false));
+            ManifestPusher pusher = new ManifestPusher(registryEndpointRequestProperties, manifestTemplate, imageTag, eventHandlers);
+            DescriptorDigest descriptorDigest = await CallRegistryEndpointAsync(pusher).ConfigureAwait(false);
+            Debug.Assert(descriptorDigest != null);
+            return descriptorDigest;
         }
 
         /**

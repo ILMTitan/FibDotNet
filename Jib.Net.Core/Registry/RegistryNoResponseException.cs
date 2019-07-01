@@ -16,13 +16,19 @@
 
 using com.google.cloud.tools.jib.api;
 using System;
+using System.Runtime.Serialization;
 
 namespace Jib.Net.Core.Registry
 {
     /** Thrown when a registry did not respond. */
+    [Serializable]
     public class RegistryNoResponseException : RegistryException
     {
         public RegistryNoResponseException(Exception cause) : base(Resources.RegistryNoResponseExceptionMessage, cause)
+        {
+        }
+
+        protected RegistryNoResponseException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

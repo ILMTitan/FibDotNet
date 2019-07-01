@@ -16,10 +16,12 @@
 
 using System;
 using System.Net.Http;
+using System.Runtime.Serialization;
 
 namespace com.google.cloud.tools.jib.api
 {
     /** Thrown when interacting with a registry. */
+    [Serializable]
     public class RegistryException : Exception
     {
         public RegistryException(string message, HttpResponseMessage cause) : base(message)
@@ -37,6 +39,10 @@ namespace com.google.cloud.tools.jib.api
         }
 
         public RegistryException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected RegistryException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

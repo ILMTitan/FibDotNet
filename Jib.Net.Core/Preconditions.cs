@@ -21,22 +21,6 @@ namespace Jib.Net.Core
 {
     internal static class Preconditions
     {
-        internal static void CheckState(bool v)
-        {
-            if (!v)
-            {
-                throw new ArgumentException();
-            }
-        }
-
-        internal static void CheckArgument(bool v1)
-        {
-            if (!v1)
-            {
-                throw new ArgumentException();
-            }
-        }
-
         internal static void CheckArgument(bool isValid, string messageFormat, params object[] values)
         {
             if (!isValid)

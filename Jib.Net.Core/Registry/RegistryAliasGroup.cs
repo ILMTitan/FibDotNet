@@ -32,7 +32,7 @@ namespace com.google.cloud.tools.jib.registry
         /** Some registry names are symbolic. */
         private static readonly ImmutableDictionary<string, string> REGISTRY_HOST_MAP =
             // https://github.com/docker/hub-feedback/issues/1767
-            ImmutableDictionary.CreateRange<string, string>(new Dictionary<string, string>
+            ImmutableDictionary.CreateRange(new Dictionary<string, string>
             {
                 ["docker.io"] = "registry-1.docker.io"
             });

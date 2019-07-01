@@ -30,7 +30,7 @@ namespace Jib.Net.Core.Caching
      * <p>This class is immutable and safe to use across threads.
      */
 
-    public sealed class Cache
+    public sealed class LayersCache
     {
         /**
          * Initializes the cache using {@code cacheDirectory} for storage.
@@ -39,16 +39,16 @@ namespace Jib.Net.Core.Caching
          * @return a new {@link Cache}
          * @throws IOException if an I/O exception occurs
          */
-        public static Cache WithDirectory(SystemPath cacheDirectory)
+        public static LayersCache WithDirectory(SystemPath cacheDirectory)
         {
             Files.CreateDirectories(cacheDirectory);
-            return new Cache(new CacheStorageFiles(cacheDirectory));
+            return new LayersCache(new CacheStorageFiles(cacheDirectory));
         }
 
         private readonly CacheStorageWriter cacheStorageWriter;
         private readonly CacheStorageReader cacheStorageReader;
 
-        private Cache(CacheStorageFiles cacheStorageFiles)
+        private LayersCache(CacheStorageFiles cacheStorageFiles)
         {
             cacheStorageWriter = new CacheStorageWriter(cacheStorageFiles);
             cacheStorageReader = new CacheStorageReader(cacheStorageFiles);

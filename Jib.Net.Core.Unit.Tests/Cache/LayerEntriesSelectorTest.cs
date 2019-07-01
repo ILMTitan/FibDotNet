@@ -160,7 +160,7 @@ namespace com.google.cloud.tools.jib.cache
             // Verify that changing modified time back generates same selector
             Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
             Assert.AreEqual(
-                expectedSelector, 
+                expectedSelector,
                 await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
         }
 
