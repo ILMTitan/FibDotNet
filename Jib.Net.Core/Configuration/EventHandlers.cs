@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 
 namespace com.google.cloud.tools.jib.configuration
 {

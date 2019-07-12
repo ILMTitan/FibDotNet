@@ -14,7 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Events.Progress;
 
 namespace Jib.Net.Core.Events
@@ -61,6 +61,11 @@ namespace Jib.Net.Core.Events
         public long GetUnits()
         {
             return progressUnits;
+        }
+
+        public override string ToString()
+        {
+            return $"ProgressEvent:{progressUnits}:{allocation.GetAllocationUnits()}:{allocation.GetDescription()}";
         }
     }
 }

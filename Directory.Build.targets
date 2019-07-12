@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <Target Name="PushToLocalNuget"
+          AfterTargets="Pack"
+          DependsOnTargets="_GetRestoreSettings"
+          Inputs="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg"
+          Outputs="$(_OutputPackagesPath)$(PackageId)\$(PackageVersion)\$(PackageId).$(PackageVersion).nupkg">
+    <!-- Delete the existing package if it exists. Ignore not found errors. -->
+    <Exec Command="dotnet nuget delete $(PackageId) $(PackageVersion) -s $(_OutputPackagesPath) --non-interactive"
+          IgnoreExitCode="true"
+          LogStandardErrorAsError="false"
+          IgnoreStandardErrorWarningFormat="true"/>
+    <Exec Command="dotnet nuget push &quot;$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg&quot; -s $(_OutputPackagesPath)"/>
+  </Target>
+</Project>

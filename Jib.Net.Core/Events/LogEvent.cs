@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 
 namespace Jib.Net.Core.Events
 {
@@ -117,7 +118,7 @@ namespace Jib.Net.Core.Events
             {
                 return false;
             }
-            return level == logEvent.level && message == logEvent.message;
+            return Equals(level, logEvent.level) && Equals(message, logEvent.message);
         }
 
         public override int GetHashCode()
@@ -127,7 +128,7 @@ namespace Jib.Net.Core.Events
 
         public override string ToString()
         {
-            return "LogEvent [level=" + level + ", message=" + message + "]";
+            return $"LogEvent:{level}:{message}";
         }
     }
 }

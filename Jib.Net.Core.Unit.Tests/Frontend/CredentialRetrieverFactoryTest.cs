@@ -30,7 +30,7 @@ namespace com.google.cloud.tools.jib.frontend
     /** Tests for {@link CredentialRetrieverFactory}. */
     public class CredentialRetrieverFactoryTest
     {
-        private static readonly Credential FAKE_CREDENTIALS = Credential.From("username", "password");
+        private static readonly Credential fakeCredentials = Credential.From("username", "password");
 
         /**
          * Returns a {@link DockerCredentialHelperFactory} that checks given parameters upon creating a
@@ -66,7 +66,7 @@ namespace com.google.cloud.tools.jib.frontend
         [SetUp]
         public void SetUp()
         {
-            Mock.Get(mockDockerCredentialHelper).Setup(m => m.Retrieve()).Returns(FAKE_CREDENTIALS);
+            Mock.Get(mockDockerCredentialHelper).Setup(m => m.Retrieve()).Returns(fakeCredentials);
 
             Mock.Get(mockNonexistentDockerCredentialHelper).Setup(m => m.Retrieve()).Throws(mockCredentialHelperNotFoundException);
         }
@@ -82,7 +82,7 @@ namespace com.google.cloud.tools.jib.frontend
                         "registry", Paths.Get("docker-credential-helper"), mockDockerCredentialHelper));
 
             Assert.AreEqual(
-                FAKE_CREDENTIALS,
+                fakeCredentials,
                 credentialRetrieverFactory
                     .DockerCredentialHelper(Paths.Get("docker-credential-helper"))
                     .Retrieve()
@@ -103,7 +103,7 @@ namespace com.google.cloud.tools.jib.frontend
                         mockDockerCredentialHelper));
 
             Assert.AreEqual(
-                FAKE_CREDENTIALS,
+                fakeCredentials,
                 credentialRetrieverFactory
                     .InferCredentialHelper()
                     .Retrieve()
@@ -140,10 +140,10 @@ namespace com.google.cloud.tools.jib.frontend
                 CredentialRetrieverFactory.ForImage(
                     ImageReference.Of("registry", "repository", null), mockLogger);
 
-            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.Retrieve(mockLogger)).Returns(Maybe.Of(FAKE_CREDENTIALS));
+            Mock.Get(mockDockerConfigCredentialRetriever).Setup(m => m.Retrieve(mockLogger)).Returns(Maybe.Of(fakeCredentials));
 
             Assert.AreEqual(
-                FAKE_CREDENTIALS,
+                fakeCredentials,
                 credentialRetrieverFactory
                     .DockerConfig(mockDockerConfigCredentialRetriever)
                     .Retrieve()

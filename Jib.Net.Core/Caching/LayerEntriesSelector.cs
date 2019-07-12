@@ -67,10 +67,10 @@ namespace Jib.Net.Core.Caching
 
             public LayerEntryTemplate(LayerEntry layerEntry)
             {
-                SourceFile = JavaExtensions.ToString(layerEntry.GetSourceFile().ToAbsolutePath());
-                ExtractionPath = JavaExtensions.ToString(layerEntry.GetExtractionPath());
-                LastModifiedTime = Files.GetLastModifiedTime(layerEntry.GetSourceFile());
-                Permissions = layerEntry.GetPermissions().ToOctalString();
+                SourceFile = JavaExtensions.ToString(layerEntry.SourceFile.ToAbsolutePath());
+                ExtractionPath = JavaExtensions.ToString(layerEntry.ExtractionPath);
+                LastModifiedTime = Files.GetLastModifiedTime(layerEntry.SourceFile);
+                Permissions = layerEntry.Permissions.ToOctalString();
             }
 
             public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate)

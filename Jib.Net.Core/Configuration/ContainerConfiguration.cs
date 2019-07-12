@@ -15,12 +15,11 @@
  */
 
 using com.google.cloud.tools.jib.api;
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
-using Jib.Net.Core.Global;
 using NodaTime;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace com.google.cloud.tools.jib.configuration
 {
@@ -61,16 +60,14 @@ namespace com.google.cloud.tools.jib.configuration
              * @param programArguments the list of arguments
              * @return this
              */
-            public Builder SetProgramArguments(IList<string> programArguments)
+            public Builder SetProgramArguments(IEnumerable<string> programArguments)
             {
                 if (programArguments == null)
                 {
-                    this.programArguments = ImmutableArray<string>.Empty;
+                    this.programArguments = null;
                 }
                 else
                 {
-                    Preconditions.CheckArgument(
-                        !programArguments.Contains(null), "program arguments list contains null elements");
                     this.programArguments = ImmutableArray.CreateRange(programArguments);
                 }
                 return this;
@@ -82,7 +79,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param environmentMap the map
              * @return this
              */
-            public Builder SetEnvironment(IDictionary<string, string> environmentMap)
+            public Builder SetEnvironment(IEnumerable<KeyValuePair<string, string>> environmentMap)
             {
                 if (environmentMap == null)
                 {
@@ -90,13 +87,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(
-                        !Iterables.Any(environmentMap.Keys, Objects.IsNull),
-                        "environment map contains null keys");
-                    Preconditions.CheckArgument(
-                        !Iterables.Any(environmentMap.Values, Objects.IsNull),
-                        "environment map contains null values");
-                    this.environmentMap = new Dictionary<string, string>(environmentMap);
+                    this.environmentMap = environmentMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                 }
                 return this;
             }
@@ -112,7 +103,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param exposedPorts the set of ports
              * @return this
              */
-            public Builder SetExposedPorts(ISet<Port> exposedPorts)
+            public Builder SetExposedPorts(IEnumerable<Port> exposedPorts)
             {
                 if (exposedPorts == null)
                 {
@@ -120,8 +111,6 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(
-                        !JavaExtensions.Contains(exposedPorts, null), "ports list contains null elements");
                     this.exposedPorts = new HashSet<Port>(exposedPorts);
                 }
                 return this;
@@ -138,7 +127,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param volumes the set of volumes
              * @return this
              */
-            public Builder SetVolumes(ISet<AbsoluteUnixPath> volumes)
+            public Builder SetVolumes(IEnumerable<AbsoluteUnixPath> volumes)
             {
                 if (volumes == null)
                 {
@@ -146,7 +135,6 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(!JavaExtensions.Contains(volumes, null), "volumes list contains null elements");
                     this.volumes = new HashSet<AbsoluteUnixPath>(volumes);
                 }
                 return this;
@@ -163,7 +151,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param labels the map of labels
              * @return this
              */
-            public Builder SetLabels(IDictionary<string, string> labels)
+            public Builder SetLabels(IEnumerable<KeyValuePair<string, string>> labels)
             {
                 if (labels == null)
                 {
@@ -171,11 +159,7 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(
-                        !Iterables.Any(labels.Keys, Objects.IsNull), "labels map contains null keys");
-                    Preconditions.CheckArgument(
-                        !Iterables.Any(labels.Values, Objects.IsNull), "labels map contains null values");
-                    this.labels = new Dictionary<string, string>(labels);
+                    this.labels = labels.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                 }
                 return this;
             }
@@ -191,7 +175,7 @@ namespace com.google.cloud.tools.jib.configuration
              * @param entrypoint the tokenized command to run when the container starts
              * @return this
              */
-            public Builder SetEntrypoint(IList<string> entrypoint)
+            public Builder SetEntrypoint(IEnumerable<string> entrypoint)
             {
                 if (entrypoint == null)
                 {
@@ -199,8 +183,6 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    Preconditions.CheckArgument(
-                        !entrypoint.Contains(null), "entrypoint contains null elements");
                     this.entrypoint = ImmutableArray.CreateRange(entrypoint);
                 }
                 return this;

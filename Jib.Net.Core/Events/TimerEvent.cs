@@ -15,6 +15,7 @@
  */
 
 using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 using NodaTime;
 
 namespace Jib.Net.Core.Events
@@ -62,9 +63,8 @@ namespace Jib.Net.Core.Events
         }
 
         private readonly State state;
-        private readonly ITimer timer;
-        private readonly Duration duration;
-        private readonly Duration elapsed;
+        private readonly Duration lapDuration;
+        private readonly Duration totalDuration;
         private readonly string description;
 
         /**
@@ -77,12 +77,11 @@ namespace Jib.Net.Core.Events
          * @param description the description of this event
          */
         public TimerEvent(
-            State state, ITimer timer, Duration duration, Duration elapsed, string description)
+            State state, Duration lapDuration, Duration totalDuration, string description)
         {
             this.state = state;
-            this.timer = timer;
-            this.duration = duration;
-            this.elapsed = elapsed;
+            this.lapDuration = lapDuration;
+            this.totalDuration = totalDuration;
             this.description = description;
         }
 
@@ -98,23 +97,13 @@ namespace Jib.Net.Core.Events
         }
 
         /**
-         * Gets the timer this event is for.
-         *
-         * @return the timer
-         */
-        public ITimer GetTimer()
-        {
-            return timer;
-        }
-
-        /**
          * Gets the duration since the last {@link TimerEvent} for this timer.
          *
          * @return the duration since the last {@link TimerEvent} for this timer.
          */
         public Duration GetDuration()
         {
-            return duration;
+            return lapDuration;
         }
 
         /**
@@ -124,7 +113,7 @@ namespace Jib.Net.Core.Events
          */
         public Duration GetElapsed()
         {
-            return elapsed;
+            return totalDuration;
         }
 
         /**
@@ -135,6 +124,11 @@ namespace Jib.Net.Core.Events
         public string GetDescription()
         {
             return description;
+        }
+
+        public override string ToString()
+        {
+            return $"TimerEvent:{state:G}:\"{lapDuration}\":\"{totalDuration}\":{description}";
         }
     }
 }

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <PackageType>DotnetCliTool</PackageType>
+    <AssemblyName>dotnet-jib</AssemblyName>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>dotnet-jib</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19317.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jib.Net.Core\Jib.Net.Core.csproj" />
+  </ItemGroup>
+
+</Project>

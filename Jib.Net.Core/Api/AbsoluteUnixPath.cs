@@ -17,8 +17,10 @@
 using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.FileSystem;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Immutable;
+using System.IO;
 
 namespace Jib.Net.Core.Api
 {
@@ -28,6 +30,8 @@ namespace Jib.Net.Core.Api
      *
      * <p>This class is immutable and thread-safe.
      */
+    [JsonObject]
+    [JsonConverter(typeof(AbsoluteUnixPathConverter))]
     public sealed class AbsoluteUnixPath : IEquatable<AbsoluteUnixPath>
     {
         /**
@@ -57,8 +61,12 @@ namespace Jib.Net.Core.Api
         public static AbsoluteUnixPath FromPath(SystemPath path)
         {
             path = path ?? throw new ArgumentNullException(nameof(path));
+            if(path.GetRoot() == null)
+            {
+                path = SystemPath.From(Path.GetFullPath(path));
+            }
             Preconditions.CheckArgument(
-                path.GetRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
+                path?.GetRoot() != null, "Cannot create AbsoluteUnixPath from non-absolute Path: " + path);
 
             ImmutableArray<string>.Builder pathComponents =
                 ImmutableArray.CreateBuilder<string>();

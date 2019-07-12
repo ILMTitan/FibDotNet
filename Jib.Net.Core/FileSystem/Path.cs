@@ -21,9 +21,12 @@ using System.IO;
 using System.Linq;
 using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Newtonsoft.Json;
 
 namespace Jib.Net.Core.FileSystem
 {
+    [JsonObject]
+    [JsonConverter(typeof(SystemPathConverter))]
     public class SystemPath : IComparable<SystemPath>
     {
         private readonly string path;
@@ -31,6 +34,16 @@ namespace Jib.Net.Core.FileSystem
         public static implicit operator string(SystemPath path)
         {
             return path?.path;
+        }
+
+        public static implicit operator SystemPath(FileInfo fileInfo)
+        {
+            var fullName = fileInfo?.FullName;
+            if (fullName is null)
+            {
+                return null;
+            }
+            return new SystemPath(fullName);
         }
 
         public SystemPath(string path)
@@ -205,6 +218,15 @@ namespace Jib.Net.Core.FileSystem
         public static bool operator >=(SystemPath left, SystemPath right)
         {
             return left is null ? right is null : left.CompareTo(right) >= 0;
+        }
+
+        public static SystemPath From(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
+            return new SystemPath(path);
         }
     }
 }

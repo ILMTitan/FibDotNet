@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /**
      * Type for events dispatched by Jib Core. Implementation classes should <b>not</b> inherit from

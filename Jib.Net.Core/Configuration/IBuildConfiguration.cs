@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.Registry;
 

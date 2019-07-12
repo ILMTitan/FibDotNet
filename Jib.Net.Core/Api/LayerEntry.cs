@@ -14,11 +14,12 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
+using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.FileSystem;
+using Newtonsoft.Json;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /**
      * Represents an entry in the layer. A layer consists of many entries that can be converted into tar
@@ -26,10 +27,35 @@ namespace com.google.cloud.tools.jib.api
      */
     public class LayerEntry
     {
-        private readonly SystemPath sourceFile;
-        private readonly AbsoluteUnixPath extractionPath;
-        private readonly FilePermissions permissions;
-        private readonly Instant lastModifiedTime;
+        /**
+         * Gets the source file. The source file may be relative or absolute, so the caller should use
+         * {@code getSourceFile().toAbsolutePath().toString()} for the serialized form since the
+         * serialization could change independently of the path representation.
+         *
+         * @return the source file
+         */
+        public SystemPath SourceFile { get; }
+
+        /**
+         * Gets the extraction path.
+         *
+         * @return the extraction path
+         */
+        public AbsoluteUnixPath ExtractionPath { get; }
+
+        /**
+         * Gets the file permissions on the container.
+         *
+         * @return the file permissions on the container
+         */
+        public FilePermissions Permissions { get; }
+
+        /**
+         * Returns the modification time of the file in the entry.
+         *
+         * @return the modification time
+         */
+        public Instant LastModifiedTime { get; }
 
         /**
          * Instantiates with a source file and the path to place the source file in the container file
@@ -58,58 +84,18 @@ namespace com.google.cloud.tools.jib.api
          * @param lastModifiedTime the file modification time, default to 1 second since the epoch
          *     (https://github.com/GoogleContainerTools/jib/issues/1079)
          */
+        [JsonConstructor]
         public LayerEntry(
             SystemPath sourceFile,
             AbsoluteUnixPath extractionPath,
-            FilePermissions permissions,
-            Instant lastModifiedTime)
+            FilePermissions permissions = null,
+            Instant? lastModifiedTime = null)
         {
-            this.sourceFile = sourceFile;
-            this.extractionPath = extractionPath;
-            this.permissions = permissions;
-            this.lastModifiedTime = lastModifiedTime;
-        }
-
-        /**
-         * Returns the modification time of the file in the entry.
-         *
-         * @return the modification time
-         */
-        public Instant GetLastModifiedTime()
-        {
-            return lastModifiedTime;
-        }
-
-        /**
-         * Gets the source file. The source file may be relative or absolute, so the caller should use
-         * {@code getSourceFile().toAbsolutePath().toString()} for the serialized form since the
-         * serialization could change independently of the path representation.
-         *
-         * @return the source file
-         */
-        public SystemPath GetSourceFile()
-        {
-            return sourceFile;
-        }
-
-        /**
-         * Gets the extraction path.
-         *
-         * @return the extraction path
-         */
-        public AbsoluteUnixPath GetExtractionPath()
-        {
-            return extractionPath;
-        }
-
-        /**
-         * Gets the file permissions on the container.
-         *
-         * @return the file permissions on the container
-         */
-        public FilePermissions GetPermissions()
-        {
-            return permissions;
+            SourceFile = sourceFile;
+            ExtractionPath = extractionPath;
+            Permissions = permissions ?? LayerConfiguration.DefaultFilePermissionsProvider(SourceFile, ExtractionPath);
+            LastModifiedTime =
+                lastModifiedTime ?? LayerConfiguration.DefaultModifiedTimeProvider(SourceFile, ExtractionPath);
         }
 
         public override bool Equals(object other)
@@ -122,20 +108,20 @@ namespace com.google.cloud.tools.jib.api
             {
                 return false;
             }
-            return Equals(sourceFile, otherLayerEntry.sourceFile)
-                && Equals(extractionPath,otherLayerEntry.extractionPath)
-                && Equals(permissions, otherLayerEntry.permissions)
-                && Equals(lastModifiedTime, otherLayerEntry.lastModifiedTime);
+            return Equals(SourceFile, otherLayerEntry.SourceFile)
+                && Equals(ExtractionPath, otherLayerEntry.ExtractionPath)
+                && Equals(Permissions, otherLayerEntry.Permissions)
+                && Equals(LastModifiedTime, otherLayerEntry.LastModifiedTime);
         }
 
         public override int GetHashCode()
         {
-            return Objects.Hash(sourceFile, extractionPath, permissions, lastModifiedTime);
+            return Objects.Hash(SourceFile, ExtractionPath, Permissions, LastModifiedTime);
         }
 
         public override string ToString()
         {
-            return $"{sourceFile} => {extractionPath}";
+            return $"{SourceFile} => {ExtractionPath}";
         }
     }
 }

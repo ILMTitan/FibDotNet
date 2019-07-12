@@ -97,7 +97,7 @@ namespace Jib.Net.Core.Events.Time
         private void DispatchTimerEvent(State state, Duration duration, string eventDescription)
         {
             eventHandlers.Dispatch(
-                new TimerEvent(state, timer, duration, timer.GetElapsedTime(), eventDescription));
+                new TimerEvent(state, duration, timer.GetElapsedTime(), eventDescription));
         }
     }
 }

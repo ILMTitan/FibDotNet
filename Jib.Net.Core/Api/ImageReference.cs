@@ -14,15 +14,14 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.registry;
-using Jib.Net.Core;
-using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /**
      * Represents an image reference.
@@ -169,7 +168,7 @@ namespace com.google.cloud.tools.jib.api
         public static ImageReference Of(
             string registry, string repository, string tag)
         {
-            if(!string.IsNullOrEmpty(registry) && !IsValidRegistry(registry))
+            if (!string.IsNullOrEmpty(registry) && !IsValidRegistry(registry))
             {
                 throw new ArgumentException($"'{registry}' is not a valid registry", nameof(registry));
             }
@@ -177,7 +176,7 @@ namespace com.google.cloud.tools.jib.api
             {
                 throw new ArgumentException($"'{repository}' is not a valid repository", nameof(repository));
             }
-            if(!string.IsNullOrEmpty(tag) && !IsValidTag(tag))
+            if (!string.IsNullOrEmpty(tag) && !IsValidTag(tag))
             {
                 throw new ArgumentException($"'{tag}' is not a valid tag", nameof(tag));
             }
@@ -336,7 +335,7 @@ namespace com.google.cloud.tools.jib.api
          */
         public ImageReference WithTag(string newTag)
         {
-            return ImageReference.Of(registry, repository, newTag);
+            return Of(registry, repository, newTag);
         }
 
         /**

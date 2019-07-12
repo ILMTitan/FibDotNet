@@ -59,55 +59,26 @@ namespace Jib.Net.Core.Unit.Tests.Events.Time
             }
 
             TimerEvent timerEvent = GetNextTimerEvent();
-            VerifyNoParent(timerEvent);
             VerifyStartState(timerEvent);
             VerifyDescription(timerEvent, "description");
 
-            ITimer parentTimer = timerEvent.GetTimer();
-
             timerEvent = GetNextTimerEvent();
-            VerifyNoParent(timerEvent);
             VerifyStateFirstLap(timerEvent, State.LAP);
             VerifyDescription(timerEvent, "description");
 
             timerEvent = GetNextTimerEvent();
-            VerifyParent(timerEvent, parentTimer);
             VerifyStartState(timerEvent);
             VerifyDescription(timerEvent, "child description");
 
             timerEvent = GetNextTimerEvent();
-            VerifyParent(timerEvent, parentTimer);
             VerifyStateFirstLap(timerEvent, State.FINISHED);
             VerifyDescription(timerEvent, "child description");
 
             timerEvent = GetNextTimerEvent();
-            VerifyNoParent(timerEvent);
             VerifyStateNotFirstLap(timerEvent, State.FINISHED);
             VerifyDescription(timerEvent, "description");
 
             Assert.IsTrue(timerEventQueue.Count == 0);
-        }
-
-        /**
-         * Verifies that the {@code timerEvent}'s timer has no parent.
-         *
-         * @param timerEvent the {@link TimerEvent} to verify
-         */
-        private void VerifyNoParent(TimerEvent timerEvent)
-        {
-            Assert.IsFalse(timerEvent.GetTimer().GetParent().IsPresent());
-        }
-
-        /**
-         * Verifies that the {@code timerEvent}'s timer has parent {@code expectedParentTimer}.
-         *
-         * @param timerEvent the {@link TimerEvent} to verify
-         * @param expectedParentTimer the expected parent timer
-         */
-        private void VerifyParent(TimerEvent timerEvent, ITimer expectedParentTimer)
-        {
-            Assert.IsTrue(timerEvent.GetTimer().GetParent().IsPresent());
-            Assert.AreSame(expectedParentTimer, timerEvent.GetTimer().GetParent().Get());
         }
 
         /**

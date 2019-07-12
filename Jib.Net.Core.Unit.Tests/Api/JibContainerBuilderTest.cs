@@ -48,7 +48,7 @@ namespace com.google.cloud.tools.jib.api
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDictionary.CreateRange(new Dictionary<string, string> { ["key"] = "value" }))
                     .SetProgramArguments(new []{"program", "arguments"})
-                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetCreationTime(DateTimeOffset.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
 
@@ -108,7 +108,7 @@ namespace com.google.cloud.tools.jib.api
             RegistryImage targetImage =
                 RegistryImage.Named(ImageReference.Of("gcr.io", "my-project/my-app", null))
                     .AddCredential("username", "password");
-            Containerizer containerizer =
+            IContainerizer containerizer =
                 Containerizer.To(targetImage)
                     .SetBaseImageLayersCache(Paths.Get("base/image/layers"))
                     .SetApplicationLayersCache(Paths.Get("application/layers"))
@@ -189,7 +189,7 @@ namespace com.google.cloud.tools.jib.api
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDic.Of("key", "value"))
                     .SetProgramArguments(new []{"program", "arguments"})
-                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetCreationTime(DateTimeOffset.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
 
@@ -210,7 +210,7 @@ namespace com.google.cloud.tools.jib.api
                     .SetExposedPorts(ImmutableHashSet.Create(Port.Tcp(1234), Port.Udp(5678)))
                     .SetLabels(ImmutableDic.Of("key", "value"))
                     .SetProgramArguments(new []{"program", "arguments"})
-                    .SetCreationTime(Instant.FromUnixTimeMilliseconds(1000))
+                    .SetCreationTime(DateTimeOffset.FromUnixTimeMilliseconds(1000))
                     .SetUser("user")
                     .SetWorkingDirectory(AbsoluteUnixPath.Get("/working/directory"));
             IContainerizer mockContainerizer = CreateMockContainerizer();

@@ -64,7 +64,7 @@ namespace com.google.cloud.tools.jib.api
                     DefaultLayerEntry(testFile, AbsoluteUnixPath.Get("/app/fileA")));
 
             CollectionAssert.AreEquivalent(
-                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.GetLayerEntries()));
+                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.LayerEntries));
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace com.google.cloud.tools.jib.api
                     new LayerEntry(testFile, AbsoluteUnixPath.Get("/app/fileA"), permissions2, timestamp2));
 
             CollectionAssert.AreEquivalent(
-                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.GetLayerEntries()));
+                expectedLayerEntries, ImmutableHashSet.CreateRange(layerConfiguration.LayerEntries));
         }
     }
 }

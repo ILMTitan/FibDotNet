@@ -14,7 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core.Global;
 using System;
 
 namespace Jib.Net.Core.Events.Progress

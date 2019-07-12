@@ -21,7 +21,7 @@ using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
-using NodaTime;
+using NodaTime.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -207,7 +207,7 @@ namespace Jib.Net.Core.Api
          * @param layerConfigurations the list of {@link LayerConfiguration}s
          * @return this
          */
-        public JibContainerBuilder SetLayers(IList<ILayerConfiguration> layerConfigurations)
+        public JibContainerBuilder SetLayers(IEnumerable<ILayerConfiguration> layerConfigurations)
         {
             this.layerConfigurations = new List<ILayerConfiguration>(layerConfigurations);
             return this;
@@ -237,7 +237,7 @@ namespace Jib.Net.Core.Api
          * @param entrypoint a list of the entrypoint command
          * @return this
          */
-        public JibContainerBuilder SetEntrypoint(IList<string> entrypoint)
+        public JibContainerBuilder SetEntrypoint(IEnumerable<string> entrypoint)
         {
             containerConfigurationBuilder.SetEntrypoint(entrypoint);
             return this;
@@ -271,7 +271,7 @@ namespace Jib.Net.Core.Api
          * @param programArguments a list of program argument tokens
          * @return this
          */
-        public JibContainerBuilder SetProgramArguments(IList<string> programArguments)
+        public JibContainerBuilder SetProgramArguments(IEnumerable<string> programArguments)
         {
             containerConfigurationBuilder.SetProgramArguments(programArguments);
             return this;
@@ -302,7 +302,7 @@ namespace Jib.Net.Core.Api
          * @param environmentMap a map of environment variable names to values
          * @return this
          */
-        public JibContainerBuilder SetEnvironment(IDictionary<string, string> environmentMap)
+        public JibContainerBuilder SetEnvironment(IEnumerable<KeyValuePair<string, string>> environmentMap)
         {
             containerConfigurationBuilder.SetEnvironment(environmentMap);
             return this;
@@ -331,7 +331,7 @@ namespace Jib.Net.Core.Api
          * @param volumes the directory paths on the container filesystem to set as volumes
          * @return this
          */
-        public JibContainerBuilder SetVolumes(ISet<AbsoluteUnixPath> volumes)
+        public JibContainerBuilder SetVolumes(IEnumerable<AbsoluteUnixPath> volumes)
         {
             containerConfigurationBuilder.SetVolumes(volumes);
             return this;
@@ -377,7 +377,7 @@ namespace Jib.Net.Core.Api
          * @param ports the ports to expose
          * @return this
          */
-        public JibContainerBuilder SetExposedPorts(ISet<Port> ports)
+        public JibContainerBuilder SetExposedPorts(IEnumerable<Port> ports)
         {
             containerConfigurationBuilder.SetExposedPorts(ports);
             return this;
@@ -417,7 +417,7 @@ namespace Jib.Net.Core.Api
          * @param labelMap a map of label keys to values
          * @return this
          */
-        public JibContainerBuilder SetLabels(IDictionary<string, string> labelMap)
+        public JibContainerBuilder SetLabels(IEnumerable<KeyValuePair<string, string>> labelMap)
         {
             containerConfigurationBuilder.SetLabels(labelMap);
             return this;
@@ -455,9 +455,9 @@ namespace Jib.Net.Core.Api
          * @param creationTime the container image creation time
          * @return this
          */
-        public JibContainerBuilder SetCreationTime(Instant creationTime)
+        public JibContainerBuilder SetCreationTime(DateTimeOffset creationTime)
         {
-            containerConfigurationBuilder.SetCreationTime(creationTime);
+            containerConfigurationBuilder.SetCreationTime(creationTime.ToInstant());
             return this;
         }
 
@@ -581,16 +581,16 @@ namespace Jib.Net.Core.Api
             foreach (LayerConfiguration layerConfiguration in layerConfigurations)
 
             {
-                if (layerConfiguration.GetLayerEntries().Length == 0)
+                if (layerConfiguration.LayerEntries.Length == 0)
                 {
                     continue;
                 }
 
-                message.Append('\t').Append(layerConfiguration.GetName()).Append(':');
+                message.Append('\t').Append(layerConfiguration.Name).Append(':');
 
-                foreach (LayerEntry layerEntry in layerConfiguration.GetLayerEntries())
+                foreach (LayerEntry layerEntry in layerConfiguration.LayerEntries)
                 {
-                    message.Append("\t\t").Append(layerEntry.GetSourceFile());
+                    message.Append("\t\t").Append(layerEntry.SourceFile);
                 }
             }
             eventHandlers.Dispatch(LogEvent.Info(message.ToString()));

@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Caching;

@@ -1,0 +1,116 @@
+﻿Target FileSystemPublish:
+@(_PublishIntermediateOutputPathFiles)
+
+@(_PublishIntermediateOutputPathFiles):
+$(PublishIntermediateOutputPath)
+
+$(PublishIntermediateOutputPath):
+@(DotNetPublishFiles) !
+$(PublishDir)
+$(_EFPublishDirectory)
+@(_EFSQLScripts) !
+$(PublishDirFullPath)
+
+@(DotNetPublishFiles): ???
+
+$(PublishDirFullPath): 
+$(PublishDir)
+
+$(PublishDir):
+Target _DeploymentGenerateBootstrapper
+$(PublishDirName)
+@(_DeploymentManifestEntryPoint) ?
+$(_DeploymentApplicationDir) ?
+@(_OptimizedResolvedFileToPublish) ?
+@(_UnOptimizedResolvedFileToPublish) ?
+@(_ResolvedUnbundledFileToPublishPreserveNewest)
+@(_ResolvedUnbundledFileToPublishAlways)
+$(PublishDepsFilePath) !
+@(ResolvedFileToPublish)
+
+$(_EFPublishDirectory):
+@(_EFSQLScripts)
+
+@(_EFSQLScripts):
+Target _GenerateEFSQLScripts
+
+$(PublishDirName):
+Project file Microsoft.NET.Sdk.BeforeCommon.targets
+
+@(_ResolvedUnbundledFileToPublishPreserveNewest):
+@(_ResolvedFileToPublishPreserveNewest)
+
+@(_ResolvedUnbundledFileToPublishAlways):
+@(_ResolvedFileToPublishAlways)
+
+$(PublishDepsFilePath):
+Target GeneratePublishDependencyFile
+
+@(_ResolvedFileToPublishPreserveNewest):
+@(ResolvedFileToPublish)
+
+
+@(_ResolvedFileToPublishAlways):
+@(ResolvedFileToPublish)
+
+@(ResolvedFileToPublish):
+@(IntermediateAssembly) !
+$(ProjectDepsFilePath) !
+$(ProjectRuntimeConfigFilePath) !
+@(AppConfigWithTargetPath) !
+@(_DebugSymbolsIntermediatePath) !
+@(IntermediateSatelliteAssembliesWithTargetPath) !
+@(_ResolvedCopyLocalPublishAssets) !
+@(FinalDocFile)
+@(_EmbeddedApphostPaths) !
+@(_SourceItemsToCopyToPublishDirectoryAlways)
+@(_SourceItemsToCopyToPublishDirectory)
+@(ReferencePath)
+@(RazorIntermediateAssembly) !
+@(_RazorDebugSymbolsIntermediatePath) !
+@(_ReadyToRunFilesToPublish) ?
+
+@(FinalDocFile):
+@(DocFileItem)
+
+@(DocFileItem):
+$(DocumentationFile) !
+
+
+@(_EmbeddedApphostPaths):
+Target ComputeEmbeddedApphostPaths
+Target GenerateShimsAssets
+Target _ComputeExpectedEmbeddedApphostPaths
+
+@(_SourceItemsToCopyToPublishDirectoryAlways):
+@(_AllChildProjectPublishItemsWithTargetPath)
+@(ContentWithTargetPath)
+@(EmbeddedResource)
+
+@(ReferencePath):
+Target ResolveAssemblyReferences
+Target ExpandSDKReferences
+Target ResolveComReferences
+
+
+???
+
+@(_DeploymentManifestEntryPoint):
+@(IntermediateAssembly)
+
+$(_DeploymentApplicationDir):
+@(_ApplicationManifestFinal)
+@(_DeploymentResolvedManifestEntryPoint)
+@(_DeploymentManifestFiles)
+@(ReferenceComWrappersToCopyLocal)
+@(ResolvedIsolatedComModules)
+@(_DeploymentLooseManifestFile)
+@(_DeploymentManifestDependencies)
+@(_ReferenceScatterPaths)
+
+
+@(_OptimizedResolvedFileToPublish):
+$(StoreStagingDir)
+
+@(_UnOptimizedResolvedFileToPublish):
+@(ResolvedFileToPublish)

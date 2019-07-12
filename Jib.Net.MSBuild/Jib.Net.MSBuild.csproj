@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CodeAnalysisRuleSet>Jib.Net.MSBuild.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="content\**" PackagePath="%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+  
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec;_GetPackageFiles">
+    <ItemGroup>
+      <_PackageFilesToAdd Include="bin\$(Configuration)\**\*.dll"></_PackageFilesToAdd>
+    </ItemGroup>
+
+    <Message Importance="high" Text="PackageFileToAdd Path: %(_PackageFilesToAdd.RecursiveDir)" />
+    <!--
+    The include needs to happen after output has been copied to build output folder
+    but before NuGet generates a nuspec. See https://github.com/NuGet/Home/issues/4704.
+    -->
+    <ItemGroup>
+      <BundleResource Include="bin\$(Configuration)\**\*.dll" Pack="True">
+        <PackagePath>$(BuildOutputTargetFolder)\%(RecursiveDir)%(FileName)%(Extension)</PackagePath>
+      </BundleResource>
+    </ItemGroup>
+  </Target>
+</Project>

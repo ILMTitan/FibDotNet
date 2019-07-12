@@ -34,7 +34,7 @@ namespace Jib.Net.Core.BuildSteps
     /** Builds and caches application layers. */
     public sealed class BuildAndCacheApplicationLayerStep : IAsyncStep<ICachedLayer>
     {
-        private const string DESCRIPTION = "Building application layers";
+        private const string Description = "Building application layers";
 
         /**
          * Makes a list of {@link BuildAndCacheApplicationLayerStep} for dependencies, resources, and
@@ -51,14 +51,14 @@ namespace Jib.Net.Core.BuildSteps
                     progressEventDispatcherFactory.Create(
                         "setting up to build application layers", layerCount))
             using (TimerEventDispatcher ignored =
-                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
+                    new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), Description))
 
             {
                 List<Task<ICachedLayer>> buildAndCacheApplicationLayerSteps = new List<Task<ICachedLayer>>();
                 foreach (LayerConfiguration layerConfiguration in buildConfiguration.GetLayerConfigurations())
                 {
                     // Skips the layer if empty.
-                    if (layerConfiguration.GetLayerEntries().Length == 0)
+                    if (layerConfiguration.LayerEntries.Length == 0)
                     {
                         continue;
                     }
@@ -67,7 +67,7 @@ namespace Jib.Net.Core.BuildSteps
 buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer(),
-                            layerConfiguration.GetName(),
+                            layerConfiguration.Name,
                             layerConfiguration).GetFuture());
                 }
                 return AsyncSteps.FromTasks(buildAndCacheApplicationLayerSteps);
@@ -117,15 +117,15 @@ buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
 
                 // Don't build the layer if it exists already.
                 Maybe<CachedLayer> optionalCachedLayer =
-                    await cache.RetrieveAsync(layerConfiguration.GetLayerEntries()).ConfigureAwait(false);
+                    await cache.RetrieveAsync(layerConfiguration.LayerEntries).ConfigureAwait(false);
                 if (optionalCachedLayer.IsPresent())
                 {
                     return new CachedLayerWithType(optionalCachedLayer.Get(), GetLayerType());
                 }
 
-                IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.GetLayerEntries()).Build();
+                IBlob layerBlob = new ReproducibleLayerBuilder(layerConfiguration.LayerEntries).Build();
                 CachedLayer cachedLayer =
-                    await cache.WriteUncompressedLayerAsync(layerBlob, layerConfiguration.GetLayerEntries()).ConfigureAwait(false);
+                    await cache.WriteUncompressedLayerAsync(layerBlob, layerConfiguration.LayerEntries).ConfigureAwait(false);
 
                 buildConfiguration
                     .GetEventHandlers()

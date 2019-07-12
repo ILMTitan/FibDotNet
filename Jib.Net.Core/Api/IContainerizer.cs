@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.FileSystem;
@@ -11,7 +10,7 @@ namespace Jib.Net.Core.Api
     {
         event Action<IJibEvent> JibEvents;
 
-        Containerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent;
+        IContainerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent;
         EventHandlers BuildEventHandlers();
         IStepsRunner CreateStepsRunner(BuildConfiguration buildConfiguration);
         void Dispose();
@@ -23,11 +22,12 @@ namespace Jib.Net.Core.Api
         ImageConfiguration GetImageConfiguration();
         string GetToolName();
         bool IsOfflineMode();
-        Containerizer SetAllowInsecureRegistries(bool allowInsecureRegistries);
-        Containerizer SetApplicationLayersCache(SystemPath cacheDirectory);
-        Containerizer SetBaseImageLayersCache(SystemPath cacheDirectory);
-        Containerizer SetOfflineMode(bool offline);
-        Containerizer SetToolName(string toolName);
-        Containerizer WithAdditionalTag(string tag);
+        IContainerizer SetAllowInsecureRegistries(bool allowInsecureRegistries);
+        IContainerizer SetApplicationLayersCache(string cacheDirectory);
+        IContainerizer SetBaseImageLayersCache(string cacheDirectory);
+        IContainerizer SetOfflineMode(bool offline);
+        IContainerizer SetToolName(string toolName);
+        IContainerizer WithAdditionalTag(string tag);
+        IContainerizer WithAdditionalTags(IEnumerable<string> tags);
     }
 }

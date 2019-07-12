@@ -16,7 +16,7 @@
 
 using Jib.Net.Core.FileSystem;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 
@@ -51,6 +51,17 @@ namespace com.google.cloud.tools.jib.api
             public TarImage SaveTo(SystemPath outputFile)
             {
                 return new TarImage(imageReference, outputFile);
+            }
+
+            /**
+             * Sets the output file to save the tarball archive to.
+             *
+             * @param outputFile the output file
+             * @return a new {@link TarImage}
+             */
+            public TarImage SaveTo(string outputFilePath)
+            {
+                return SaveTo(new SystemPath(outputFilePath));
             }
         }
 

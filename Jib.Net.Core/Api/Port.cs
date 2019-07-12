@@ -144,7 +144,7 @@ namespace Jib.Net.Core.Api
          * @return the ports as a list of {@link Port}
          * @throws NumberFormatException if any of the ports are in an invalid format or out of range
          */
-        public static ImmutableHashSet<Port> Parse(IList<string> ports)
+        public static ImmutableHashSet<Port> Parse(IEnumerable<string> ports)
         {
             ports = ports ?? throw new ArgumentNullException(nameof(ports));
             ImmutableHashSet<Port>.Builder result = ImmutableHashSet.CreateBuilder<Port>();

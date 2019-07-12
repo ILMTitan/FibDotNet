@@ -170,14 +170,31 @@ dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_m
 dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
 
 dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = constant_field
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = pascal_case
+
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = static_readonly_field
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = pascal_case
+
+dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
 dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = private_or_internal_field
 dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = private_fields
 
 # Symbol specifications
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
-dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, private, protected, protected_internal
+dotnet_naming_symbols.interface.applicable_accessibilities = public, protected, protected_internal, internal, private
 dotnet_naming_symbols.interface.required_modifiers = 
+
+dotnet_naming_symbols.constant_field.applicable_kinds = field
+dotnet_naming_symbols.constant_field.applicable_accessibilities = public, protected, protected_internal, internal, private
+dotnet_naming_symbols.constant_field.required_modifiers = const
+
+dotnet_naming_symbols.static_readonly_field.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_field.applicable_accessibilities = public, protected, protected_internal, internal, private
+dotnet_naming_symbols.static_readonly_field.required_modifiers = static, readonly
+
 
 dotnet_naming_symbols.private_or_internal_field.applicable_kinds = field
 dotnet_naming_symbols.private_or_internal_field.applicable_accessibilities = internal, private

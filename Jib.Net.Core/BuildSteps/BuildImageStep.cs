@@ -25,10 +25,12 @@ using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
 using NodaTime;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
+using System.Web;
 
 namespace Jib.Net.Core.BuildSteps
 {
@@ -185,12 +187,19 @@ namespace Jib.Net.Core.BuildSteps
             if (entrypointToUse != null)
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
-                string message = "Container entrypoint set to " + entrypointToUse + logSuffix;
+                string message = "Container entrypoint set to " +
+                    $"[{string.Join(", ", entrypointToUse?.Select(ToJavascriptString))}]" +
+                    logSuffix;
                 buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(""));
                 buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(message));
             }
 
             return entrypointToUse;
+        }
+
+        private static string ToJavascriptString(string s)
+        {
+            return $"\"{HttpUtility.JavaScriptStringEncode(s)}\"";
         }
 
         /**
@@ -220,7 +229,9 @@ namespace Jib.Net.Core.BuildSteps
             if (programArgumentsToUse != null)
             {
                 string logSuffix = shouldInherit ? " (inherited from base image)" : "";
-                string message = "Container program arguments set to " + programArgumentsToUse + logSuffix;
+                string message = "Container program arguments set to " +
+                    $"[{string.Join(", ", programArgumentsToUse?.Select(ToJavascriptString))}]" +
+                    logSuffix;
                 buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Lifecycle(message));
             }
 

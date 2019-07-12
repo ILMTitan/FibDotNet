@@ -14,10 +14,11 @@
  * the License.
  */
 
+using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
 

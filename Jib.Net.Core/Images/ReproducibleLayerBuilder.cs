@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.tar;
 using ICSharpCode.SharpZipLib.Tar;
@@ -109,10 +108,10 @@ namespace Jib.Net.Core.Images
             {
                 // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
                 // adds parent directories for each extraction path.
-                TarEntry entry = TarEntry.CreateEntryFromFile(layerEntry.GetSourceFile());
-                entry.Name = JavaExtensions.ToString(layerEntry.GetExtractionPath()).TrimStart('/');
+                TarEntry entry = TarEntry.CreateEntryFromFile(layerEntry.SourceFile);
+                entry.Name = JavaExtensions.ToString(layerEntry.ExtractionPath).TrimStart('/');
 
-                if (Directory.Exists(layerEntry.GetSourceFile()))
+                if (Directory.Exists(layerEntry.SourceFile))
                 {
                     entry.Name += '/';
                     entry.TarHeader.TypeFlag = TarHeader.LF_DIR;
@@ -120,8 +119,8 @@ namespace Jib.Net.Core.Images
 
                 // Sets the entry's permissions by masking out the permission bits from the entry's mode (the
                 // lowest 9 bits) then using a bitwise OR to set them to the layerEntry's permissions.
-                entry.SetMode((entry.GetMode() & ~PosixFilePermissions.All) | layerEntry.GetPermissions().GetPermissionBits());
-                entry.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(layerEntry.GetLastModifiedTime().ToUnixTimeMilliseconds()).DateTime;
+                entry.SetMode((entry.GetMode() & ~PosixFilePermissions.All) | layerEntry.Permissions.GetPermissionBits());
+                entry.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(layerEntry.LastModifiedTime.ToUnixTimeMilliseconds()).DateTime;
 
                 uniqueTarArchiveEntries.Add(entry);
             }

@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.async;
 using com.google.cloud.tools.jib.blob;
 using com.google.cloud.tools.jib.configuration;
@@ -166,15 +165,15 @@ namespace Jib.Net.Core.Unit.Tests.BuildSteps
             Assert.AreEqual(5, applicationLayers.Size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
-                fakeLayerConfigurations[0].GetLayerEntries();
+                fakeLayerConfigurations[0].LayerEntries;
             ImmutableArray<LayerEntry> snapshotDependenciesLayerEntries =
-                fakeLayerConfigurations[1].GetLayerEntries();
+                fakeLayerConfigurations[1].LayerEntries;
             ImmutableArray<LayerEntry> resourcesLayerEntries =
-                fakeLayerConfigurations[2].GetLayerEntries();
+                fakeLayerConfigurations[2].LayerEntries;
             ImmutableArray<LayerEntry> classesLayerEntries =
-                fakeLayerConfigurations[3].GetLayerEntries();
+                fakeLayerConfigurations[3].LayerEntries;
             ImmutableArray<LayerEntry> extraFilesLayerEntries =
-                fakeLayerConfigurations[4].GetLayerEntries();
+                fakeLayerConfigurations[4].LayerEntries;
 
             CachedLayer dependenciesCachedLayer =
                 await cache.RetrieveAsync(dependenciesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);
@@ -227,11 +226,11 @@ namespace Jib.Net.Core.Unit.Tests.BuildSteps
             Assert.AreEqual(3, applicationLayers.Size());
 
             ImmutableArray<LayerEntry> dependenciesLayerEntries =
-                fakeLayerConfigurations[0].GetLayerEntries();
+                fakeLayerConfigurations[0].LayerEntries;
             ImmutableArray<LayerEntry> resourcesLayerEntries =
-                fakeLayerConfigurations[2].GetLayerEntries();
+                fakeLayerConfigurations[2].LayerEntries;
             ImmutableArray<LayerEntry> classesLayerEntries =
-                fakeLayerConfigurations[3].GetLayerEntries();
+                fakeLayerConfigurations[3].LayerEntries;
 
             CachedLayer dependenciesCachedLayer =
                 await cache.RetrieveAsync(dependenciesLayerEntries).OrElseThrowAsync(() => new AssertionException("")).ConfigureAwait(false);

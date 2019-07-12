@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Indicates the format of the image. */
     public enum ImageFormat

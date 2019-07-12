@@ -14,6 +14,7 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System.Collections.Generic;

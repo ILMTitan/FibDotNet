@@ -1,10 +1,10 @@
 ﻿using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     public interface ILayerConfiguration
     {
-        ImmutableArray<LayerEntry> GetLayerEntries();
-        string GetName();
+        ImmutableArray<LayerEntry> LayerEntries { get; }
+        string Name { get; }
     }
 }

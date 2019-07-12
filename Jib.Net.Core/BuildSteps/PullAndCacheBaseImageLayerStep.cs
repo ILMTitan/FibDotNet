@@ -32,7 +32,7 @@ namespace Jib.Net.Core.BuildSteps
     /** Pulls and caches a single base image layer. */
     public class PullAndCacheBaseImageLayerStep : IAsyncStep<ICachedLayer>
     {
-        private const string DESCRIPTION = "Pulling base image layer {0}";
+        private const string Description = "Pulling base image layer {0}";
 
         private readonly BuildConfiguration buildConfiguration;
         private readonly ProgressEventDispatcher.Factory progressEventDispatcherFactory;
@@ -67,7 +67,7 @@ namespace Jib.Net.Core.BuildSteps
                     progressEventDispatcherFactory.Create("checking base image layer " + layerDigest, 1))
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
-                        buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, DESCRIPTION, layerDigest)))
+                        buildConfiguration.GetEventHandlers(), string.Format(CultureInfo.CurrentCulture, Description, layerDigest)))
             {
                 LayersCache cache = buildConfiguration.GetBaseImageLayersCache();
 

@@ -106,7 +106,7 @@ namespace com.google.cloud.tools.jib.image
                         .AddEntry(blobA, AbsoluteUnixPath.Get("/extract/here/apple/blobA"))
                         .AddEntry(blobA, AbsoluteUnixPath.Get("/extract/here/banana/blobA"))
                         .Build()
-                        .GetLayerEntries());
+                        .LayerEntries);
 
             // Writes the layer tar to a temporary file.
             IBlob unwrittenBlob = layerBuilder.Build();

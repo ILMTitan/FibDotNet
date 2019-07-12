@@ -1,4 +1,6 @@
-﻿namespace com.google.cloud.tools.jib.api
+﻿using Jib.Net.Core.Api;
+
+namespace com.google.cloud.tools.jib.api
 {
     public interface IImageReference
     {

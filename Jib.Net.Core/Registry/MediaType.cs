@@ -14,8 +14,6 @@
  * the License.
  */
 
-using System.Net.Mime;
-
 namespace com.google.cloud.tools.jib.registry
 {
     internal static class MediaType

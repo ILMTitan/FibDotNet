@@ -78,6 +78,29 @@ namespace Jib.Net.Core.Api
              *     sourceFile}
              * @return this
              */
+            public Builder AddEntry(string sourceFile, AbsoluteUnixPath pathInContainer)
+            {
+                return AddEntry(new SystemPath(sourceFile), pathInContainer);
+            }
+
+            /**
+             * Adds an entry to the layer. Only adds the single source file to the exact path in the
+             * container file system.
+             *
+             * <p>For example, {@code addEntry(Paths.get("myfile"),
+             * AbsoluteUnixPath.get("/path/in/container"))} adds a file {@code myfile} to the container file
+             * system at {@code /path/in/container}.
+             *
+             * <p>For example, {@code addEntry(Paths.get("mydirectory"),
+             * AbsoluteUnixPath.get("/path/in/container"))} adds a directory {@code mydirectory/} to the
+             * container file system at {@code /path/in/container/}. This does <b>not</b> add the contents
+             * of {@code mydirectory}.
+             *
+             * @param sourceFile the source file to add to the layer
+             * @param pathInContainer the path in the container file system corresponding to the {@code
+             *     sourceFile}
+             * @return this
+             */
             public Builder AddEntry(SystemPath sourceFile, AbsoluteUnixPath pathInContainer)
             {
                 return AddEntry(
@@ -252,8 +275,21 @@ namespace Jib.Net.Core.Api
             return new Builder();
         }
 
-        private readonly ImmutableArray<LayerEntry> layerEntries;
-        private readonly string name;
+
+        /**
+         * Gets the name.
+         *
+         * @return the name
+         */
+        public string Name { get; }
+
+
+        /**
+         * Gets the list of layer entries.
+         *
+         * @return the list of layer entries
+         */
+        public ImmutableArray<LayerEntry> LayerEntries { get; }
 
         /**
          * Use {@link #builder} to instantiate.
@@ -261,30 +297,10 @@ namespace Jib.Net.Core.Api
          * @param name an optional name for the layer
          * @param layerEntries the list of {@link LayerEntry}s
          */
-        private LayerConfiguration(string name, ImmutableArray<LayerEntry> layerEntries)
+        public LayerConfiguration(string name, ImmutableArray<LayerEntry> layerEntries)
         {
-            this.name = name;
-            this.layerEntries = layerEntries;
-        }
-
-        /**
-         * Gets the name.
-         *
-         * @return the name
-         */
-        public string GetName()
-        {
-            return name;
-        }
-
-        /**
-         * Gets the list of layer entries.
-         *
-         * @return the list of layer entries
-         */
-        public ImmutableArray<LayerEntry> GetLayerEntries()
-        {
-            return layerEntries;
+            Name = name;
+            LayerEntries = layerEntries;
         }
     }
 }

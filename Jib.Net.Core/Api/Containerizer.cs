@@ -14,13 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using com.google.cloud.tools.jib.configuration;
 using com.google.cloud.tools.jib.docker;
 using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -167,10 +165,31 @@ namespace Jib.Net.Core.Api
          * @param tag the additional tag to push to
          * @return this
          */
-        public Containerizer WithAdditionalTag(string tag)
+        public IContainerizer WithAdditionalTag(string tag)
         {
             Preconditions.CheckArgument(ImageReference.IsValidTag(tag), "invalid tag '{0}'", tag);
-            JavaExtensions.Add(additionalTags, tag);
+            additionalTags.Add(tag);
+            return this;
+        }
+
+        /**
+         * Adds additional tags to tag the target image with. For example, the following would
+         * containerize to both {@code gcr.io/my-project/my-image:tag} and {@code
+         * gcr.io/my-project/my-image:tag2}:
+         *
+         * <pre>{@code
+         * Containerizer.to(RegistryImage.named("gcr.io/my-project/my-image:tag")).withAdditionalTag("tag2");
+         * }</pre>
+         *
+         * @param tag the additional tag to push to
+         * @return this
+         */
+        public IContainerizer WithAdditionalTags(IEnumerable<string> tags)
+        {
+            foreach (string tag in tags)
+            {
+                WithAdditionalTag(tag);
+            }
             return this;
         }
 
@@ -183,9 +202,9 @@ namespace Jib.Net.Core.Api
          * @param cacheDirectory the cache directory
          * @return this
          */
-        public Containerizer SetBaseImageLayersCache(SystemPath cacheDirectory)
+        public IContainerizer SetBaseImageLayersCache(string cacheDirectory)
         {
-            baseImageLayersCacheDirectory = cacheDirectory;
+            baseImageLayersCacheDirectory = SystemPath.From(cacheDirectory) ?? DefaultBaseCacheDirectory;
             return this;
         }
 
@@ -197,13 +216,13 @@ namespace Jib.Net.Core.Api
          * @param cacheDirectory the cache directory
          * @return this
          */
-        public Containerizer SetApplicationLayersCache(SystemPath cacheDirectory)
+        public IContainerizer SetApplicationLayersCache(string cacheDirectory)
         {
-            applicationLayersCacheDirectory = cacheDirectory;
+            applicationLayersCacheDirectory = SystemPath.From(cacheDirectory);
             return this;
         }
 
-        public Containerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
+        public IContainerizer AddEventHandler<T>(Action<T> eventConsumer) where T : IJibEvent
         {
             return AddEventHandler(je =>
             {
@@ -221,7 +240,7 @@ namespace Jib.Net.Core.Api
          * @param eventConsumer the event handler
          * @return this
          */
-        private Containerizer AddEventHandler(Action<IJibEvent> eventConsumer)
+        private IContainerizer AddEventHandler(Action<IJibEvent> eventConsumer)
         {
             JibEvents += eventConsumer;
             return this;
@@ -233,7 +252,7 @@ namespace Jib.Net.Core.Api
          * @param allowInsecureRegistries if {@code true}, insecure connections will be allowed
          * @return this
          */
-        public Containerizer SetAllowInsecureRegistries(bool allowInsecureRegistries)
+        public IContainerizer SetAllowInsecureRegistries(bool allowInsecureRegistries)
         {
             this.allowInsecureRegistries = allowInsecureRegistries;
             return this;
@@ -247,7 +266,7 @@ namespace Jib.Net.Core.Api
          * @param offline if {@code true}, the build will run in offline mode
          * @return this
          */
-        public Containerizer SetOfflineMode(bool offline)
+        public IContainerizer SetOfflineMode(bool offline)
         {
             if (mustBeOnline && offline)
             {
@@ -265,7 +284,7 @@ namespace Jib.Net.Core.Api
          * @param toolName the name of the tool using this library
          * @return this
          */
-        public Containerizer SetToolName(string toolName)
+        public IContainerizer SetToolName(string toolName)
         {
             this.toolName = toolName;
             return this;

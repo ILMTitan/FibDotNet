@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <UsingTask TaskName="PublishImage" AssemblyFile="$(JibTaskAssembly)" />
+
+  <Target Name="JibPublish" AfterTargets="Publish" Condition="$(PublishProvider) == 'JibDotNet'">
+    <PublishImage PublishType="$(JibPublishType)"
+                  BaseImage="$(JibBaseImage)"
+                  TargetImage="$(JibTargetImage)"
+                  TargetTags="@(JibTargetTag)"
+                  OutputTarFile="$(JibOutputTarFile)"
+                  ImageFiles="@(JibImageFile)"
+                  Entrypoint="$(JibEntrypoint)"
+                  Cmd="$(JibCmd)"
+                  Environment="@(JibEnvironment)"
+                  ImageWorkingDirectory="$(JibImageWorkingDirectory)"
+                  ImageUser="$(JibImageUser)"
+                  Ports="@(JibPort)"
+                  Volumes="@(JibVolume)"
+                  Labels="@(JibLabel)"
+                  AllowInsecureRegistries="$(JibAllowInsecureRegistries)"
+                  OfflineMode="$(JibOfflineMode)"
+                  ApplicationLayersCacheDirectory="$(JibApplicationLayersCacheDirectory)"
+                  BaseLayersCacheDirectory="$(JibBaseLayersCacheDirectory)"
+                  ReproducableBuild="$(JibReproducableBuild)"
+                  ImageFormat="$(JibImageFormat)">
+      <Output TaskParameter="ImageId" PropertyName="JibImageId"/>
+      <Output TaskParameter="ImageDigest" PropertyName="JibImageDigest"/>
+    </PublishImage>
+  </Target>
+
+  <Target Name="SetJibProperties" BeforeTargets="JibPublish">
+    <PropertyGroup>
+      <JibCmd Condition="$(JibCmd) == 'Use Default JibCmd'">"$(JibAppBasePath)@(IntermediateAssembly -> '%(FileName)%(Extension)')"</JibCmd>
+      <JibApplicationLayersCacheDirectory Condition="$(JibApplicationLayersCacheDirectory) == 'Use Default JibApplicationLayersCacheDirectory'">$(BaseIntermediateOutputPath)Jib\Cache\</JibApplicationLayersCacheDirectory>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="SetJibBaseImage" BeforeTargets="SetJibProperties">
+    <PropertyGroup>
+      <_JibBaseImageSuffix Condition="$(JibBaseDigest) != ''">@$(JibBaseDigest)</_JibBaseImageSuffix>
+      <_JibBaseImageSuffix Condition="$(_JibBaseImageSuffix) == '' and $(JibBaseTag) != ''">:$(JibBaseTag)</_JibBaseImageSuffix>
+      <JibBaseImage Condition="$(JibBaseImage) == '' and $(JibBaseRegistry) != '' and $(JibBaseRepository) != ''">$(JibBaseRegistry)/$(JibBaseRepository)$(_JibBaseImageSuffix)</JibBaseImage>
+      <JibBaseImage Condition="$(JibBaseImage) == '' and $(JibBaseRegistry) != ''">$(JibBaseRegistry)$(_JibBaseImageSuffix)</JibBaseImage>
+      <JibBaseImage Condition="$(JibBaseImage) == '' and $(JibBaseRepository) != ''">$(JibBaseRepository)$(_JibBaseImageSuffix)</JibBaseImage>
+    </PropertyGroup>
+  </Target>
+  
+  <Target Name="SetJibTargetImage" BeforeTargets="SetJibProperties">
+    <PropertyGroup>
+      <JibTargetRepository Condition="$(JibTargetRepository) == ''">$(PackageId)</JibTargetRepository>
+      <JibTargetImage Condition="$(JibTargetImage) == '' and $(JibTargetRegistry) != '' and $(JibTargetRepository) != ''">$(JibTargetRegistry)/$(JibTargetRepository)</JibTargetImage>
+      <JibTargetImage Condition="$(JibTargetImage) == '' and $(JibTargetRegistry) != '' ">$(JibTargetRegistry)</JibTargetImage>
+      <JibTargetImage Condition="$(JibTargetImage) == '' and $(JibTargetRepository) != ''">$(JibTargetRepository)</JibTargetImage>
+    </PropertyGroup>
+  </Target>
+  
+  <Target Name="SetJibTargetTag" BeforeTargets="SetJibProperties">
+    <PropertyGroup>
+      <JibTargetTag Condition="$(JibTargetTag) == ''">$(PackageVersion)</JibTargetTag>
+    </PropertyGroup>
+    <ItemGroup>
+      <JibTargetTag Include="$(JibTargetTag)"/>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <GatherImageFilesDependsOn>
+      GatherBinaryLayerFiles;
+      GatherDebugLayerFiles;
+      GatherResourcesLayerFiles;
+      GatherOtherFilesLayerFiles;
+      GatherReferencesLayerFiles;
+      $(GatherImageFilesDependsOn)
+    </GatherImageFilesDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GatherImageFiles" BeforeTargets="JibPublish" DependsOnTargets="$(GatherImageFilesDependsOn)"/>
+
+  <Target Name="GatherBinaryLayerFiles">
+    <ItemGroup>
+      <_BinaryLayerCandidate Include="@(IntermediateAssembly)">
+        <TargetPath>$(JibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="$(ProjectDepsFilePath)">
+        <TargetPath>$(JibAppBasePath)$(ProjectDepsFileName)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="$(ProjectRuntimeConfigFilePath)">
+        <TargetPath>$(JibAppBasePath)$(ProjectRuntimeConfigFileName)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="@(AppConfigWithTargetPath)">
+        <TargetPath>$(JibAppBasePath)%(AppConfigWithTargetPath.TargetPath)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="@(RazorIntermediateAssembly)">
+        <TargetPath>$(JibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_BinaryLayerCandidate)">
+        <Layer>Binary</Layer>
+      </JibImageFile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherDebugLayerFiles">
+    <ItemGroup>
+      <_DebugLayerCandidate Include="@(_DebugSymbolsIntermediatePath)"  Condition="$(CopyOutputSymbolsToPublishDirectory) == 'true'">
+        <TargetPath>$(JibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Include="@(FinalDocFile)" Condition="$(PublishDocumentationFile) == 'true'">
+        <TargetPath>$(JibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Include="@(_RazorDebugSymbolsIntermediatePath)" Condition="$(CopyOutputSymbolsToPublishDirectory) == 'true'">
+        <TargetPath>$(JibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_DebugLayerCandidate)">
+        <Layer>Debug</Layer>
+      </JibImageFile>
+    </ItemGroup>
+  </Target>
+  
+  <Target Name="GatherResourcesLayerFiles">
+    <ItemGroup>
+      <_ResourcesLayerCandidate Include="@(IntermediateSatelliteAssembliesWithTargetPath)">
+        <TargetPath>$(JibAppBasePath)%(IntermediateSatelliteAssembliesWithTargetPath.Culture)/%(Filename)%(Extension)</TargetPath>
+      </_ResourcesLayerCandidate>
+
+      <_ResourcesLayerCandidate Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_ResourcesLayerCandidate)">
+        <Layer>Resources</Layer>
+      </JibImageFile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherOtherFilesLayerFiles">
+    <ItemGroup>
+      <_OtherFilesLayerCandidates Include="@(_ResolvedCopyLocalPublishAssets)">
+        <TargetPath>$(JibAppBasePath)%(_ResolvedCopyLocalPublishAssets.DestinationSubDirectory)%(Filename)%(Extension)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(DotNetPublishFiles)">
+        <TargetPath>$(JibAppBasePath)%(DotNetPublishFiles.DestinationRelativePath)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(_EFSQLScripts)">
+        <TargetPath>$(JibAppBasePath)$(EFSQLScriptsFolderName)/%(Filename)%(Extension)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) != '.dll'">
+        <TargetPath>$(JibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
+      </_OtherFilesLayerCandidates>
+      
+      <_OtherFilesLayerCandidates Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_OtherFilesLayerCandidates)">
+        <Layer>OtherFiles</Layer>
+      </JibImageFile>
+      
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherReferencesLayerFiles">
+    <ItemGroup>
+      <_ReferencesLayerCadidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) == '.dll'">
+        <TargetPath>$(JibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
+      </_ReferencesLayerCadidates>
+      
+      <_ReferencesLayerCadidates Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_ReferencesLayerCadidates)">
+        <Layer>References</Layer>
+      </JibImageFile>
+    </ItemGroup>
+  </Target>
+</Project>
