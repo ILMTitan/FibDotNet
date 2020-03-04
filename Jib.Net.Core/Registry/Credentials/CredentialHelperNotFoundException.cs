@@ -18,7 +18,7 @@ using Jib.Net.Core.FileSystem;
 using System;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /** Thrown because the requested credential helper CLI does not exist. */
     [Serializable]

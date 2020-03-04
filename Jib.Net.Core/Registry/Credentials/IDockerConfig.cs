@@ -1,4 +1,4 @@
-﻿namespace com.google.cloud.tools.jib.registry.credentials
+﻿namespace Jib.Net.Core.Registry.Credentials
 {
     public interface IDockerConfig
     {

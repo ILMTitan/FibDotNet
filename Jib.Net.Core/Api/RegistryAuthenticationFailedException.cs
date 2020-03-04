@@ -19,7 +19,7 @@ using System;
 using System.Globalization;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Thrown because registry authentication failed. */
     [Serializable]

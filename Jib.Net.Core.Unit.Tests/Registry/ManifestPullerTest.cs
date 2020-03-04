@@ -28,7 +28,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link ManifestPuller}. */
     public class ManifestPullerTest : IDisposable

@@ -22,7 +22,7 @@ using NUnit.Framework;
 using System;
 using System.Runtime.InteropServices;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.Unit.Tests.FileSystem
 {
     /** Tests for {@link UserCacheHome}. */
     public class UserCacheHomeTest : IDisposable
@@ -42,13 +42,13 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             fakeCacheHome = temporaryFolder.NewFolder().FullName;
             mockEnvironment = Mock.Of<IEnvironment>();
-            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(It.IsAny<OSPlatform>())).Returns(false);
+            Mock.Get(mockEnvironment).Setup(e => e.IsOsx()).Returns(false);
         }
 
         [Test]
         public void TestGetCacheHome_hasXdgCacheHome()
         {
-            Mock.Get(mockEnvironment).Setup(e =>e.GetEnvironmentVariable("XDG_CACHE_HOME")).Returns(fakeCacheHome);
+            Mock.Get(mockEnvironment).Setup(e => e.GetEnvironmentVariable("XDG_CACHE_HOME")).Returns(fakeCacheHome);
 
             Assert.AreEqual(
                 Paths.Get(fakeCacheHome),
@@ -60,7 +60,6 @@ namespace com.google.cloud.tools.jib.filesystem
         {
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
                 .Returns(fakeCacheHome);
-            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Linux)).Returns(true);
 
             Assert.AreEqual(
                 Paths.Get(fakeCacheHome, ".cache"),
@@ -74,7 +73,6 @@ namespace com.google.cloud.tools.jib.filesystem
                 .Returns("nonexistent");
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.LocalApplicationData))
                 .Returns(fakeCacheHome);
-            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.Windows)).Returns(true);
 
             Assert.AreEqual(
                 Paths.Get(fakeCacheHome), UserCacheHome.GetCacheHome(mockEnvironment));
@@ -88,7 +86,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
             Mock.Get(mockEnvironment).Setup(e => e.GetFolderPath(Environment.SpecialFolder.UserProfile))
                 .Returns(fakeCacheHome);
-            Mock.Get(mockEnvironment).Setup(e => e.IsOSPlatform(OSPlatform.OSX)).Returns(true);
+            Mock.Get(mockEnvironment).Setup(e => e.IsOsx()).Returns(true);
 
             Assert.AreEqual(
                 libraryApplicationSupport,

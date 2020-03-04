@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Async;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.BuildSteps;
 using Jib.Net.Core.Caching;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
-using IBlob = com.google.cloud.tools.jib.blob.IBlob;
 
 namespace Jib.Net.Core.Unit.Tests.BuildSteps
 {

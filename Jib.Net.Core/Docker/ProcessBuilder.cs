@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Docker
 {
     public class ProcessBuilder : IProcessBuilder
     {
@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.docker
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true
             };
-            foreach(var kvp in env)
+            foreach (var kvp in env)
             {
                 startInfo.Environment.Add(kvp.Key, kvp.Value);
             }
@@ -69,7 +69,8 @@ namespace com.google.cloud.tools.jib.docker
             if (string.IsNullOrWhiteSpace(_args))
             {
                 return _cmd;
-            } else
+            }
+            else
             {
                 return $"{_cmd} {_args}";
             }

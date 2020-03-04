@@ -17,7 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /** Thrown if something went wrong during {@link CredentialRetriever#retrieve}. */
     [Serializable]

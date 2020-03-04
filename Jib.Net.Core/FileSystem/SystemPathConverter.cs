@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using Newtonsoft.Json;
 
 namespace Jib.Net.Core.FileSystem
@@ -23,6 +24,7 @@ namespace Jib.Net.Core.FileSystem
     {
         public override bool CanRead => true;
         public override bool CanWrite => true;
+
         public override SystemPath ReadJson(
             JsonReader reader,
             Type objectType,
@@ -30,11 +32,13 @@ namespace Jib.Net.Core.FileSystem
             bool hasExistingValue,
             JsonSerializer serializer)
         {
+            Debug.Assert(serializer is JsonSerializer);
             return SystemPath.From(serializer.Deserialize<string>(reader));
         }
 
         public override void WriteJson(JsonWriter writer, SystemPath value, JsonSerializer serializer)
         {
+            Debug.Assert(serializer != null);
             serializer.Serialize(writer, (string)value);
         }
     }

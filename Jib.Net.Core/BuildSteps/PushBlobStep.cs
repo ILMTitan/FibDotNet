@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Async;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Events.Time;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Registry;
 using System.Threading.Tasks;
 
@@ -71,9 +70,8 @@ namespace Jib.Net.Core.BuildSteps
             using (TimerEventDispatcher ignored =
                     new TimerEventDispatcher(
                         buildConfiguration.GetEventHandlers(), DESCRIPTION + blobDescriptor))
-            using (
-    ThrottledAccumulatingConsumer throttledProgressReporter =
-        new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress))
+            using (ThrottledAccumulatingConsumer throttledProgressReporter =
+                new ThrottledAccumulatingConsumer(progressEventDispatcher.DispatchProgress))
             {
                 RegistryClient registryClient =
                     buildConfiguration

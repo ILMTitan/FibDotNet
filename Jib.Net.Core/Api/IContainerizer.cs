@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.FileSystem;
 
 namespace Jib.Net.Core.Api
@@ -16,8 +16,8 @@ namespace Jib.Net.Core.Api
         void Dispose();
         ISet<string> GetAdditionalTags();
         bool GetAllowInsecureRegistries();
-        SystemPath GetApplicationLayersCacheDirectory();
-        SystemPath GetBaseImageLayersCacheDirectory();
+        string GetApplicationLayersCacheDirectory();
+        string GetBaseImageLayersCacheDirectory();
         string GetDescription();
         ImageConfiguration GetImageConfiguration();
         string GetToolName();

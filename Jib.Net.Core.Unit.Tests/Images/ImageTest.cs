@@ -14,19 +14,19 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Test.Common;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Unit.Tests.Images
 {
     /** Tests for {@link Image}. */
     public class ImageTest
@@ -48,8 +48,8 @@ namespace com.google.cloud.tools.jib.image
                     .SetCreated(Instant.FromUnixTimeSeconds(10000))
                     .AddEnvironmentVariable("crepecake", "is great")
                     .AddEnvironmentVariable("VARIABLE", "VALUE")
-                    .SetEntrypoint(new []{"some", "command"})
-                    .SetProgramArguments(new []{"arg1", "arg2"})
+                    .SetEntrypoint(new[] { "some", "command" })
+                    .SetProgramArguments(new[] { "arg1", "arg2" })
                     .AddExposedPorts(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)))
                     .AddVolumes(
                         ImmutableHashSet.Create(
@@ -64,8 +64,8 @@ namespace com.google.cloud.tools.jib.image
             Assert.AreEqual(Instant.FromUnixTimeSeconds(10000), image.GetCreated());
             Assert.AreEqual(
                 ImmutableDic.Of("crepecake", "is great", "VARIABLE", "VALUE"), image.GetEnvironment());
-            Assert.AreEqual(new []{"some", "command"}, image.GetEntrypoint());
-            Assert.AreEqual(new []{"arg1", "arg2"}, image.GetProgramArguments());
+            Assert.AreEqual(new[] { "some", "command" }, image.GetEntrypoint());
+            Assert.AreEqual(new[] { "arg1", "arg2" }, image.GetProgramArguments());
             Assert.AreEqual(ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000)), image.GetExposedPorts());
             Assert.AreEqual(
                 ImmutableHashSet.Create(AbsoluteUnixPath.Get("/a/path"), AbsoluteUnixPath.Get("/another/path")),

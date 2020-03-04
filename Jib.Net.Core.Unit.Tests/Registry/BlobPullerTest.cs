@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Api;
 using NUnit.Framework;
@@ -24,8 +23,11 @@ using System;
 using System.Threading.Tasks;
 using Jib.Net.Core.Blob;
 using System.Text;
+using Jib.Net.Core.Hash;
+using Jib.Net.Core.Registry;
+using Jib.Net.Test.Common;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link BlobPuller}. */
     public class BlobPullerTest : IDisposable

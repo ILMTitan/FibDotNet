@@ -18,7 +18,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link Port}. */
 

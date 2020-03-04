@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     public struct Maybe<T> : IEquatable<Maybe<T>>
     {
@@ -48,7 +48,8 @@ namespace com.google.cloud.tools.jib.api
             if (present)
             {
                 return new Maybe<R>(func(value));
-            } else
+            }
+            else
             {
                 return new Maybe<R>();
             }
@@ -113,9 +114,11 @@ namespace com.google.cloud.tools.jib.api
         {
             if (value == null)
             {
-                return Maybe.Empty<T>();
-            } else {
-                return Maybe.Of(value);
+                return Empty<T>();
+            }
+            else
+            {
+                return Of(value);
             }
         }
 
@@ -141,7 +144,8 @@ namespace com.google.cloud.tools.jib.api
             if (o.IsPresent())
             {
                 return o.Get();
-            } else
+            }
+            else
             {
                 return null;
             }

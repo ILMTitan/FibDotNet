@@ -3,7 +3,7 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.Registry;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     public interface IBuildConfiguration
     {

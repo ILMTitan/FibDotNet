@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Properties of registry endpoint requests. */
     public class RegistryEndpointRequestProperties

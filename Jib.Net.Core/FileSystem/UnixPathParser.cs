@@ -17,7 +17,7 @@
 using Jib.Net.Core.Global;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /** Parses Unix-style paths. */
     public sealed class UnixPathParser

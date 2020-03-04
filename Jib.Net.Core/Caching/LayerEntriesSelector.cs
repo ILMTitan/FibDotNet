@@ -14,10 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NodaTime;

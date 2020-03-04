@@ -15,8 +15,9 @@
  */
 
 using System.IO;
+using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Docker
 {
     public class Process : IProcess
     {
@@ -51,6 +52,21 @@ namespace com.google.cloud.tools.jib.docker
         {
             process.WaitForExit();
             return process.ExitCode;
+        }
+
+        public Task<int> WhenFinishedAsync()
+        {
+            process.EnableRaisingEvents = true;
+            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            process.Exited += (sender, args) => tcs.TrySetResult(process.ExitCode);
+            if (process.HasExited)
+            {
+                return Task.FromResult(process.ExitCode);
+            }
+            else
+            {
+                return tcs.Task;
+            }
         }
     }
 }

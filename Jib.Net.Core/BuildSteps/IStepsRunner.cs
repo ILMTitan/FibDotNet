@@ -1,4 +1,4 @@
-﻿using com.google.cloud.tools.jib.docker;
+﻿using Jib.Net.Core.Docker;
 using Jib.Net.Core.FileSystem;
 using System.Threading.Tasks;
 

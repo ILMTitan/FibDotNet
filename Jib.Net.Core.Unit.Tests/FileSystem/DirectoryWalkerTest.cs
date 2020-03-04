@@ -21,7 +21,7 @@ using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.Unit.Tests.FileSystem
 {
     /** Tests for {@link DirectoryWalker}. */
     public class DirectoryWalkerTest

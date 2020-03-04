@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Jib.Net.Core.Api;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     public class EventHandlers : IEventHandlers
     {

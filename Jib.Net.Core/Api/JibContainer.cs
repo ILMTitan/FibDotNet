@@ -14,9 +14,9 @@
  * the License.
  */
 
-using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** The container built by Jib. */
     public class JibContainer

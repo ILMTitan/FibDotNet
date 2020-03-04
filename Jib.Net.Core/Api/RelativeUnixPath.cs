@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.filesystem;
-using Jib.Net.Core;
+using Jib.Net.Core.FileSystem;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /**
      * Represents a Unix-style path in relative form (does not start at the file system root {@code /}).

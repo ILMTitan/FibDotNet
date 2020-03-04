@@ -18,7 +18,7 @@ using System;
 using System.Net.Http;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Thrown when interacting with a registry. */
     [Serializable]

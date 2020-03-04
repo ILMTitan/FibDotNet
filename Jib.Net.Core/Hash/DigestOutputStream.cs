@@ -19,7 +19,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     public class DigestStream : Stream
     {
@@ -29,7 +29,7 @@ namespace com.google.cloud.tools.jib.hash
         public DigestStream(Stream innerStream, MessageDigest messageDigest, bool keepOpen = false)
         {
             this.innerStream = innerStream;
-            this.MessageDigest = messageDigest;
+            MessageDigest = messageDigest;
             this.keepOpen = keepOpen;
         }
 
@@ -53,7 +53,7 @@ namespace com.google.cloud.tools.jib.hash
 
         public void SetMessageDigest(MessageDigest messageDigest)
         {
-            this.MessageDigest = messageDigest;
+            MessageDigest = messageDigest;
         }
 
         public override void Flush()

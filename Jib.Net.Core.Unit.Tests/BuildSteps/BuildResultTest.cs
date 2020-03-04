@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Images;
 using NUnit.Framework;
 using System.Threading.Tasks;

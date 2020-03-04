@@ -14,24 +14,23 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker.json;
-using com.google.cloud.tools.jib.json;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Docker;
+using Jib.Net.Core.Docker.Json;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Unit.Tests.Docker
 {
     /** Tests for {@link ImageTarball}. */
     public class ImageTarballTest
@@ -80,32 +79,25 @@ namespace com.google.cloud.tools.jib.docker
                 TarEntry headerFileALayer = tarArchiveInputStream.GetNextEntry();
                 Assert.AreEqual(fakeDigestA.GetHash() + ".tar.gz", headerFileALayer.Name);
                 string fileAString =
-                    CharStreams.ToString(
-                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+                    await new StreamReader(tarArchiveInputStream).ReadToEndAsync().ConfigureAwait(false);
                 Assert.AreEqual(await Blobs.WriteToStringAsync(Blobs.From(fileA)).ConfigureAwait(false), fileAString);
 
                 // Verifies layer with fileB was added.
                 TarEntry headerFileBLayer = tarArchiveInputStream.GetNextEntry();
                 Assert.AreEqual(fakeDigestB.GetHash() + ".tar.gz", headerFileBLayer.Name);
-                string fileBString =
-                    CharStreams.ToString(
-                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+                string fileBString =await new StreamReader(tarArchiveInputStream).ReadToEndAsync().ConfigureAwait(false);
                 Assert.AreEqual(await Blobs.WriteToStringAsync(Blobs.From(fileB)).ConfigureAwait(false), fileBString);
 
                 // Verifies container configuration was added.
                 TarEntry headerContainerConfiguration = tarArchiveInputStream.GetNextEntry();
                 Assert.AreEqual("config.json", headerContainerConfiguration.Name);
-                string containerConfigJson =
-                    CharStreams.ToString(
-                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+                string containerConfigJson = await new StreamReader(tarArchiveInputStream).ReadToEndAsync().ConfigureAwait(false);
                 JsonTemplateMapper.ReadJson<ContainerConfigurationTemplate>(containerConfigJson);
 
                 // Verifies manifest was added.
                 TarEntry headerManifest = tarArchiveInputStream.GetNextEntry();
                 Assert.AreEqual("manifest.json", headerManifest.Name);
-                string manifestJson =
-                    CharStreams.ToString(
-                        new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+                string manifestJson = await new StreamReader(tarArchiveInputStream).ReadToEndAsync().ConfigureAwait(false);
                 JsonTemplateMapper.ReadListOfJson<DockerLoadManifestEntryTemplate>(manifestJson);
             }
         }

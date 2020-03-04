@@ -24,7 +24,7 @@ namespace Jib.Net.Core.Api
 {
     public static class Files
     {
-        internal static SystemPath CreateTempDirectory(SystemPath basePath, string name)
+        public static SystemPath CreateTempDirectory(SystemPath basePath, string name)
         {
             return CreateTempDirectory(basePath.ToString(), name);
         }

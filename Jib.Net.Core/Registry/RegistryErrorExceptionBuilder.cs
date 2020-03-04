@@ -14,13 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry.Json;
 using System;
 using System.Net.Http;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Builds a {@link RegistryErrorException} with multiple causes. */
     public class RegistryErrorExceptionBuilder

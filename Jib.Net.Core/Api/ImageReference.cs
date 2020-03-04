@@ -14,9 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -104,12 +103,12 @@ namespace Jib.Net.Core.Api
             string digest = matcher.Groups[4].Value;
 
             // If no registry was matched, use Docker Hub by default.
-            if (Strings.IsNullOrEmpty(registry))
+            if (string.IsNullOrEmpty(registry))
             {
                 registry = DOCKER_HUB_REGISTRY;
             }
 
-            if (Strings.IsNullOrEmpty(repository))
+            if (string.IsNullOrEmpty(repository))
             {
                 throw new InvalidImageReferenceException(reference);
             }
@@ -136,15 +135,15 @@ namespace Jib.Net.Core.Api
                 repository = LIBRARY_REPOSITORY_PREFIX + repository;
             }
 
-            if (!Strings.IsNullOrEmpty(tag))
+            if (!string.IsNullOrEmpty(tag))
             {
-                if (!Strings.IsNullOrEmpty(digest))
+                if (!string.IsNullOrEmpty(digest))
                 {
                     // Cannot have matched both tag and digest.
                     throw new InvalidImageReferenceException(reference);
                 }
             }
-            else if (!Strings.IsNullOrEmpty(digest))
+            else if (!string.IsNullOrEmpty(digest))
             {
                 tag = digest;
             }

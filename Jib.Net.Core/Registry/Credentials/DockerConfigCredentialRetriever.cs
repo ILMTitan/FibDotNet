@@ -14,18 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry.Credentials.Json;
 using System;
 using System.IO;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /**
      * Retrieves registry credentials from the Docker config.

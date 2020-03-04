@@ -20,7 +20,7 @@ using NUnit.Framework;
 using System;
 using System.Runtime.InteropServices;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Test for {@link AbsoluteUnixPath}. */
 

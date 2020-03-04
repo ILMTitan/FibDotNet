@@ -14,14 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.docker;
-using Jib.Net.Core.Global;
+using Jib.Net.Core.Docker;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace com.google.cloud.tools.jib
+namespace Jib.Net.Test.LocalRegistry
 {
     /** Test utility to run shell commands for integration tests. */
     public class Command
@@ -29,14 +27,14 @@ namespace com.google.cloud.tools.jib
         private readonly string command;
         private readonly string args;
 
-        public Command(string command, params string[] args): this(command, (IEnumerable<string>) args)
+        public Command(string command, params string[] args) : this(command, (IEnumerable<string>)args)
         {
         }
 
         public Command(string command, IEnumerable<string> args)
         {
             this.command = command;
-            this.args = string.Join(' ', args);
+            this.args = string.Join(" ", args);
         }
 
         /** Runs the command. */
@@ -55,22 +53,20 @@ namespace com.google.cloud.tools.jib
                 // Write out stdin.
                 using (Stream outputStream = process.GetOutputStream())
                 {
-                    JavaExtensions.Write(outputStream, stdin);
+                    outputStream.Write(stdin, 0, stdin.Length);
                 }
             }
 
             // Read in stdout.
             using (StreamReader inputStreamReader =
-                new StreamReader(process.GetInputStream(), Encoding.UTF8))
+                new StreamReader(process.GetInputStream()))
             {
-                string output = CharStreams.ToString(inputStreamReader);
+                string output = inputStreamReader.ReadToEnd();
 
                 if (process.WaitFor() != 0)
                 {
-                    string stderr =
-                        CharStreams.ToString(
-                            new StreamReader(process.GetErrorStream(), Encoding.UTF8));
-                    throw new Exception("Command '" + command + " " +string.Join(" ", args) + "' failed: " + stderr);
+                    string stderr = new StreamReader(process.GetErrorStream()).ReadToEnd();
+                    throw new Exception("Command '" + command + " " + string.Join(" ", args) + "' failed: " + stderr);
                 }
 
                 return output;

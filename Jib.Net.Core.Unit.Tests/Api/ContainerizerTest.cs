@@ -14,15 +14,16 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
+using System.IO;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link Containerizer}. */
     [TestFixture]
@@ -64,9 +65,9 @@ namespace com.google.cloud.tools.jib.api
 
             CollectionAssert.AreEquivalent(ImmutableHashSet.Create("tag1", "tag2"), containerizer.GetAdditionalTags());
             Assert.AreEqual(
-                Paths.Get("base/image/layers"), containerizer.GetBaseImageLayersCacheDirectory());
+                Path.Combine("base","image", "layers"), containerizer.GetBaseImageLayersCacheDirectory());
             Assert.AreEqual(
-                Paths.Get("application/layers"), containerizer.GetApplicationLayersCacheDirectory());
+                Path.Combine("application", "layers"), containerizer.GetApplicationLayersCacheDirectory());
             Assert.IsTrue(containerizer.GetAllowInsecureRegistries());
             Assert.AreEqual("tool", containerizer.GetToolName());
         }
@@ -101,7 +102,7 @@ namespace com.google.cloud.tools.jib.api
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
             Assert.AreEqual("registry/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
             Assert.AreEqual(
-                new []{credentialRetriever}, imageConfiguration.GetCredentialRetrievers());
+                new[] { credentialRetriever }, imageConfiguration.GetCredentialRetrievers());
         }
 
         [Test]

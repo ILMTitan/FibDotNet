@@ -14,9 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Iesi.Collections.Generic;
 using Jib.Net.Core;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Concurrent;

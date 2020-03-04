@@ -14,18 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Frontend;
+using Jib.Net.Core.Registry.Credentials;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.frontend
+namespace Jib.Net.Core.Unit.Tests.Frontend
 {
     /** Tests for {@link CredentialRetrieverFactory}. */
     public class CredentialRetrieverFactoryTest

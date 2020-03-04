@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Global;
 using System;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Http
 {
     /**
      * Holds the credentials for an HTTP {@code Authorization} header.

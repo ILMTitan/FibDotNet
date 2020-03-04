@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     internal abstract class Splitter
     {

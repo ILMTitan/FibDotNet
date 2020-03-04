@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;

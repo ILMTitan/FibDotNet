@@ -14,17 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Hash;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Unit.Tests.Blob
 {
     /** Tests for {@link Blob}. */
     public class BlobTest

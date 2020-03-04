@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.docker;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
@@ -31,7 +30,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Integration.Tests.Api
 {
     /**
      * Verify that created image has explicit directory structures, default timestamps, permissions, and
@@ -132,7 +131,7 @@ namespace com.google.cloud.tools.jib.api
                     "{" +
                         "\"created\":\"1970-01-01T00:00:00Z\"," +
                         "\"architecture\":\"amd64\"," +
-                        "\"os\":\"linux\","+
+                        "\"os\":\"linux\"," +
                         "\"config\":{" +
                             "\"Env\":[]," +
                             "\"Entrypoint\":[" +
@@ -338,7 +337,7 @@ namespace com.google.cloud.tools.jib.api
                 {
                     if (filename == imageEntry.Name)
                     {
-                        return CharStreams.ToString(new StreamReader(input, Encoding.UTF8));
+                        return new StreamReader(input).ReadToEnd();
                     }
                 }
             }

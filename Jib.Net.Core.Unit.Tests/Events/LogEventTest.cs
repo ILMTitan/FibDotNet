@@ -14,7 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -47,12 +47,12 @@ namespace Jib.Net.Core.Unit.Tests.Events
             eventHandlers.Dispatch(Info("info"));
             eventHandlers.Dispatch(Debug("debug"));
 
-            VerifyNextLogEvent(Level.ERROR, "error");
-            VerifyNextLogEvent(Level.LIFECYCLE, "lifecycle");
-            VerifyNextLogEvent(Level.PROGRESS, "progress");
-            VerifyNextLogEvent(Level.WARN, "warn");
-            VerifyNextLogEvent(Level.INFO, "info");
-            VerifyNextLogEvent(Level.DEBUG, "debug");
+            VerifyNextLogEvent(Level.Error, "error");
+            VerifyNextLogEvent(Level.Lifecycle, "lifecycle");
+            VerifyNextLogEvent(Level.Progress, "progress");
+            VerifyNextLogEvent(Level.Warn, "warn");
+            VerifyNextLogEvent(Level.Info, "info");
+            VerifyNextLogEvent(Level.Debug, "debug");
             Assert.IsTrue(receivedLogEvents.Count == 0);
         }
 

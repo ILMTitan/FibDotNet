@@ -14,10 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Async;
 using Jib.Net.Core.Caching;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Docker;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using System.Collections.Generic;

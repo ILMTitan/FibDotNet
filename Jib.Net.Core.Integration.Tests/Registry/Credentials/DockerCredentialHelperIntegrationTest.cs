@@ -14,14 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Registry.Credentials;
 using Jib.Net.Test.Common;
+using Jib.Net.Test.LocalRegistry;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Integration.Tests.Registry.Credentials
 {
     /** Integration tests for {@link DockerCredentialHelper}. */
     public class DockerCredentialHelperIntegrationTest

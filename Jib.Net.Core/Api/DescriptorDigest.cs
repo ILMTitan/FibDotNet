@@ -15,7 +15,6 @@
  */
 
 using System;
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 
@@ -28,7 +27,7 @@ namespace Jib.Net.Core.Api
      * @see <a href="https://github.com/opencontainers/image-spec/blob/master/descriptor.md#digests">OCI
      *     Content Descriptor Digest</a>
      */
-     [JsonConverter(typeof(DescriptorDigestConverter))]
+    [JsonConverter(typeof(DescriptorDigestConverter))]
     public sealed class DescriptorDigest
     {
         public static readonly int HashLength = 64;

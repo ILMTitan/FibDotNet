@@ -14,13 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Integration.Tests.Registry;
 using Jib.Net.Test.Common;
+using Jib.Net.Test.LocalRegistry;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
@@ -29,7 +30,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Integration.Tests.Api
 {
     // TODO: now it looks like we can move everything here into JibIntegrationTest.
     /** Integration tests for {@link Containerizer}. */
@@ -47,7 +48,11 @@ namespace com.google.cloud.tools.jib.api
 
             public ProgressChecker()
             {
-                progressEventHandler = new ProgressEventHandler(update => { lastProgress = update.GetProgress(); areTasksFinished = update.GetUnfinishedLeafTasks().Length == 0; });
+                progressEventHandler = new ProgressEventHandler(update =>
+                {
+                    lastProgress = update.GetProgress();
+                    areTasksFinished = update.GetUnfinishedLeafTasks().Length == 0;
+                });
             }
 
             public void CheckCompletion()
@@ -80,7 +85,7 @@ namespace com.google.cloud.tools.jib.api
                     MakeLayerConfiguration("core/application/classes", "/app/classes/"));
 
         [SetUp]
-        public void SetUp()
+        public void InitProgressChecker()
         {
             progressChecker = new ProgressChecker();
         }
@@ -89,6 +94,12 @@ namespace com.google.cloud.tools.jib.api
         {
             temporaryFolder.Dispose();
             progressChecker?.Dispose();
+        }
+
+        [TearDown]
+        public void DisposeProgressChecker()
+        {
+            progressChecker.Dispose();
         }
 
         /**
@@ -150,7 +161,7 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task TestSteps_forBuildToDockerRegistryAsync()
+        public async Task TestSteps_ForBuildToDockerRegistryAsync()
         {
             Stopwatch s = Stopwatch.StartNew();
             JibContainer image1 =
@@ -189,12 +200,14 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task TestSteps_forBuildToDockerRegistry_multipleTagsAsync()
+        public async Task TestSteps_ForBuildToDockerRegistry_MultipleTagsAsync()
         {
             await BuildRegistryImageAsync(
                 ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.Of("localhost:5000", "testimage", "testtag"),
-                new []{"testtag2", "testtag3"}).ConfigureAwait(false);
+                new[] { "testtag2", "testtag3" }).ConfigureAwait(false);
+
+            progressChecker.CheckCompletion();
 
             const string imageReference = "localhost:5000/testimage:testtag";
             localRegistry.Pull(imageReference);
@@ -218,13 +231,14 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task TestBuildToDockerRegistry_dockerHubBaseImageAsync()
+        public async Task TestBuildToDockerRegistry_DockerHubBaseImageAsync()
         {
             await BuildRegistryImageAsync(
                 ImageReference.Parse("openjdk:8-jre-alpine"),
                 ImageReference.Of("localhost:5000", "testimage", "testtag"),
                 new List<string>()).ConfigureAwait(false);
 
+            progressChecker.CheckCompletion();
             const string imageReference = "localhost:5000/testimage:testtag";
             new Command("docker", "pull", imageReference).Run();
             Assert.AreEqual(
@@ -248,14 +262,15 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task TestBuildToDockerDaemon_multipleTagsAsync()
+        public async Task TestBuildToDockerDaemon_MultipleTagsAsync()
         {
             const string imageReference = "testdocker";
             await BuildDockerDaemonImageAsync(
                 ImageReference.Of("gcr.io", "distroless/java", DISTROLESS_DIGEST),
                 ImageReference.Of(null, imageReference, null),
-                new []{"testtag2", "testtag3"}).ConfigureAwait(false);
+                new[] { "testtag2", "testtag3" }).ConfigureAwait(false);
 
+            progressChecker.CheckCompletion();
             AssertDockerInspect(imageReference);
             Assert.AreEqual(
                 "Hello, world. An argument.\n", new Command("docker", "run", "--rm", imageReference).Run());

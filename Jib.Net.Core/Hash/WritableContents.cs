@@ -18,7 +18,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     /**
      * As a function, writes some contents to an output stream. As a class, represents contents that can

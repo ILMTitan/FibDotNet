@@ -14,15 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
-using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Hash;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** Static methods for {@link Blob}. */
     public static class Blobs

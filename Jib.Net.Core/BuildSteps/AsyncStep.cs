@@ -16,7 +16,7 @@
 
 using System;
 using System.Threading.Tasks;
-using com.google.cloud.tools.jib.async;
+using Jib.Net.Core.Async;
 
 namespace Jib.Net.Core.BuildSteps
 {

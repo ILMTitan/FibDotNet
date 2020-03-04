@@ -1,4 +1,5 @@
-﻿/*
+﻿
+/*
  * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -16,7 +17,7 @@
 
 using System.IO;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Integration.Tests.Api
 {
     internal class Logger
     {

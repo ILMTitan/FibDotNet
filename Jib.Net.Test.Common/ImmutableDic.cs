@@ -17,7 +17,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Test.Common
 {
     public static class ImmutableDic
     {

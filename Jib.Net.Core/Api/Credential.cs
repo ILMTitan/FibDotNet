@@ -14,7 +14,9 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.api
+using Jib.Net.Core.Global;
+
+namespace Jib.Net.Core.Api
 {
     /** Holds credentials (username and password). */
     public sealed class Credential

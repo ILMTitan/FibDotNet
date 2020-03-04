@@ -16,7 +16,7 @@
 
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.async
+namespace Jib.Net.Core.Async
 {
     /**
      * Holds the future for an asynchronously-running step. Implementations should:

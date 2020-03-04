@@ -14,16 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.registry.credentials.json;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
-using Jib.Net.Core.Registry.Credentials;
+using Jib.Net.Core.Registry.Credentials.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static com.google.cloud.tools.jib.registry.credentials.json.DockerConfigTemplate;
+using static Jib.Net.Core.Registry.Credentials.Json.DockerConfigTemplate;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /** Handles getting useful information from a {@link DockerConfigTemplate}. */
     public class DockerConfig : IDockerConfig
@@ -99,7 +98,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
 
             KeyValuePair<string, AuthTemplate>? firstAuthMatch =
                 FindFirstInMapByKey(dockerConfigTemplate.Auths, registryMatchers).AsNullable();
-            if (firstAuthMatch != null && dockerConfigTemplate.CredsStore!= null)
+            if (firstAuthMatch != null && dockerConfigTemplate.CredsStore != null)
             {
                 return new DockerCredentialHelper(
                     firstAuthMatch.Value.GetKey(), dockerConfigTemplate.CredsStore);
@@ -135,7 +134,7 @@ namespace com.google.cloud.tools.jib.registry.credentials
             Func<string, bool> withHttps = ("https://" + registry).Equals;
             bool withSuffix(string name) => JavaExtensions.StartsWith(name, registry + "/");
             bool withHttpsAndSuffix(string name) => JavaExtensions.StartsWith(name, "https://" + registry + "/");
-            return new []{exactMatch, withHttps, withSuffix, withHttpsAndSuffix};
+            return new[] { exactMatch, withHttps, withSuffix, withHttpsAndSuffix };
         }
     }
 }

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
 using System.Threading.Tasks;

@@ -14,8 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
 using ICSharpCode.SharpZipLib.Tar;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.tar
+namespace Jib.Net.Core.Tar
 {
     /** Builds a tarball archive. */
     public class TarStreamBuilder

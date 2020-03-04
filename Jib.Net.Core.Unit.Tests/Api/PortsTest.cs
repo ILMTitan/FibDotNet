@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link Ports}. */
 
@@ -31,7 +31,7 @@ namespace com.google.cloud.tools.jib.api
         public void TestParse()
         {
             IList<string> goodInputs =
-                new []{"1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp"};
+                new[] { "1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp" };
             ImmutableHashSet<Port> expected =
                 ImmutableHashSet.CreateBuilder<Port>()
                     .Add(
@@ -50,7 +50,7 @@ namespace com.google.cloud.tools.jib.api
             ImmutableHashSet<Port> result = Port.Parse(goodInputs);
             Assert.AreEqual(expected, result);
 
-            IList<string> badInputs = new []{"abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc"};
+            IList<string> badInputs = new[] { "abc", "/udp", "1000/abc", "a100/tcp", "20/udpabc" };
             foreach (string input in badInputs)
             {
                 try
@@ -81,7 +81,7 @@ namespace com.google.cloud.tools.jib.api
                     "Invalid port range '4002-4000'; smaller number must come first.", ex.GetMessage());
             }
 
-            badInputs = new []{"0", "70000", "0-400", "1-70000"};
+            badInputs = new[] { "0", "70000", "0-400", "1-70000" };
             foreach (string input in badInputs)
             {
                 try

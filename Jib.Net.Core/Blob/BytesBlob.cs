@@ -17,10 +17,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using com.google.cloud.tools.jib.hash;
-using Jib.Net.Core.Blob;
+using Jib.Net.Core.Hash;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     internal class BytesBlob : IBlob
     {

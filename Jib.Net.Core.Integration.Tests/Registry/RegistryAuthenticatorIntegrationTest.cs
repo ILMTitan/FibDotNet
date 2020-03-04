@@ -14,14 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Integration.Tests.Registry
 {
     /** Integration tests for {@link RegistryAuthenticator}. */
     public class RegistryAuthenticatorIntegrationTest

@@ -14,8 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.hash;
+using Jib.Net.Core.Hash;
 using System;
 using System.IO;
 using System.Threading.Tasks;

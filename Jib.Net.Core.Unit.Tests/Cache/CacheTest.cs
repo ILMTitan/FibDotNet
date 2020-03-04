@@ -14,14 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -31,7 +29,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link Cache}. */
     public class CacheTest : IDisposable

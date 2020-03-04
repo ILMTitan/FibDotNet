@@ -14,14 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
 namespace Jib.Net.Core.Api
 {
-    // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
-
     /**
      * Defines an image on a container registry that can be used as either a source or target image.
      *

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Test for {@link ErrorReponseUtil}. */
     public class ErrorResponseUtilTest

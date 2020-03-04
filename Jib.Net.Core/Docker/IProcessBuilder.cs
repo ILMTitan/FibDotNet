@@ -1,4 +1,4 @@
-﻿namespace com.google.cloud.tools.jib.docker
+﻿namespace Jib.Net.Core.Docker
 {
     public interface IProcessBuilder
     {

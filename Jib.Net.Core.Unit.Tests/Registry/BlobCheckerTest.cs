@@ -14,18 +14,19 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry;
+using Jib.Net.Core.Registry.Json;
 using NUnit.Framework;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link BlobChecker}. */
     public class BlobCheckerTest
@@ -145,7 +146,7 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public async Task TestHandleHttpResponseException_invalidStatusCodeAsync()
         {
-                HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            HttpResponseMessage mockHttpResponseException = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             try
             {
                 await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);

@@ -14,18 +14,19 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Images.Json;
 using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Integration.Tests.Registry
 {
     /** Integration tests for {@link BlobChecker}. */
-    public class BlobCheckerIntegrationTest : HttpRegistryTest {
+    public class BlobCheckerIntegrationTest : HttpRegistryTest
+    {
         [Test]
         public async Task TestCheck_existsAsync()
         {

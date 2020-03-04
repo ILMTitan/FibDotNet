@@ -14,15 +14,16 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
+using Jib.Net.Core.Unit.Tests.Http;
 using NUnit.Framework;
 using System;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link RegistryAuthenticator}. */
     public class RegistryAuthenticatorTest
@@ -125,7 +126,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             Assert.IsNull(
                 RegistryAuthenticator.FromAuthenticationMethod(
-                    new AuthenticationHeaderValue("Basic","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
+                    new AuthenticationHeaderValue("Basic", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) }));
 
@@ -137,7 +138,7 @@ namespace com.google.cloud.tools.jib.registry
 
             Assert.IsNull(
                 RegistryAuthenticator.FromAuthenticationMethod(
-                    new AuthenticationHeaderValue("bASIC","realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
+                    new AuthenticationHeaderValue("bASIC", "realm=\"https://somerealm\",service=\"someservice\",scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) }));
         }
@@ -167,7 +168,7 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 RegistryAuthenticator.FromAuthenticationMethod(
-                    new AuthenticationHeaderValue("Bearer","scope=\"somescope\""),
+                    new AuthenticationHeaderValue("Bearer", "scope=\"somescope\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
                 Assert.Fail("Authentication method without 'realm' should fail");
@@ -185,7 +186,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             RegistryAuthenticator registryAuthenticator =
                 RegistryAuthenticator.FromAuthenticationMethod(
-                    new AuthenticationHeaderValue("Bearer","realm=\"https://somerealm\""),
+                    new AuthenticationHeaderValue("Bearer", "realm=\"https://somerealm\""),
                     registryEndpointRequestProperties,
                     new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) });
 
@@ -203,7 +204,7 @@ namespace com.google.cloud.tools.jib.registry
                 {
                     RegistryAuthenticator authenticator =
                         RegistryAuthenticator.FromAuthenticationMethod(
-                            new AuthenticationHeaderValue("Bearer","realm=\"" + server.GetAddressAndPort() + "\""),
+                            new AuthenticationHeaderValue("Bearer", "realm=\"" + server.GetAddressAndPort() + "\""),
                             registryEndpointRequestProperties,
                             new[] { new ProductInfoHeaderValue(new ProductHeaderValue("Competent-Agent")) });
                     await authenticator.AuthenticatePushAsync(null).ConfigureAwait(false);

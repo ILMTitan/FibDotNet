@@ -14,16 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Hash;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -32,7 +30,7 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Unit.Tests.Images.Json
 {
     /** Tests for {@link ImageToJsonTranslator}. */
     public class ImageToJsonTranslatorTest
@@ -49,8 +47,8 @@ namespace com.google.cloud.tools.jib.image.json
                     .SetOs("js")
                     .AddEnvironmentVariable("VAR1", "VAL1")
                     .AddEnvironmentVariable("VAR2", "VAL2")
-                    .SetEntrypoint(new []{"some", "entrypoint", "command"})
-                    .SetProgramArguments(new []{"arg1", "arg2"})
+                    .SetEntrypoint(new[] { "some", "entrypoint", "command" })
+                    .SetProgramArguments(new[] { "arg1", "arg2" })
                     .SetHealthCheck(
                         DockerHealthCheck.FromCommand(ImmutableArray.Create("CMD-SHELL", "/checkhealth"))
                             .SetInterval(Duration.FromSeconds(3))

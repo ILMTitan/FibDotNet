@@ -21,7 +21,7 @@ using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Unit.Tests.Images
 {
     /** Tests for {@link ImageLayers}. */
     public class ImageLayersTest
@@ -57,7 +57,7 @@ namespace com.google.cloud.tools.jib.image
         [Test]
         public void TestAddLayer_success()
         {
-            IList<ILayer> expectedLayers = new []{mockLayer, mockReferenceLayer, mockDigestOnlyLayer};
+            IList<ILayer> expectedLayers = new[] { mockLayer, mockReferenceLayer, mockDigestOnlyLayer };
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.image
         {
             // must maintain duplicate
             IList<ILayer> expectedLayers =
-                new []{mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer};
+                new[] { mockLayer, mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer };
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()
@@ -93,7 +93,7 @@ namespace com.google.cloud.tools.jib.image
         {
             // remove duplicates: last layer should be kept
             IList<ILayer> expectedLayers =
-                new []{mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer};
+                new[] { mockReferenceLayer, mockDigestOnlyLayer, mockLayer2, mockLayer };
 
             ImageLayers imageLayers =
                 ImageLayers.CreateBuilder()

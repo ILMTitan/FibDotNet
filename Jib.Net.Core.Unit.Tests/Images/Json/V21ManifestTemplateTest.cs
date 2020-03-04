@@ -14,15 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Unit.Tests.Images.Json
 {
     /** Tests for {@link V21ManifestTemplate}. */
     public class V21ManifestTemplateTest
@@ -45,10 +44,10 @@ namespace com.google.cloud.tools.jib.image.json
             ContainerConfigurationTemplate containerConfiguration =
                 manifestJson.GetContainerConfiguration().OrElse(null);
             Assert.AreEqual(
-                new []{"JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin"},
+                new[] { "JAVA_HOME=/opt/openjdk", "PATH=/opt/openjdk/bin" },
                 containerConfiguration.GetContainerEnvironment());
             Assert.AreEqual(
-                new []{"/opt/openjdk/bin/java"}, containerConfiguration.GetContainerEntrypoint());
+                new[] { "/opt/openjdk/bin/java" }, containerConfiguration.GetContainerEntrypoint());
         }
     }
 }

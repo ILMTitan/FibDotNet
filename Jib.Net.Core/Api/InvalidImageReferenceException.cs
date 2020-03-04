@@ -17,7 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Thrown when attempting to parse an invalid image reference. */
     [Serializable]

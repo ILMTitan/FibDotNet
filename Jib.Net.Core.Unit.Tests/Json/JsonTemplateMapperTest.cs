@@ -16,6 +16,7 @@
 
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -23,12 +24,12 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.json
+namespace Jib.Net.Core.Unit.Tests.Json
 {
     /** Tests for {@link JsonTemplateMapper}. */
     public class JsonTemplateMapperTest
     {
-        [JsonObject(NamingStrategyType =typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
         private class TestJson
         {
             public int Number { get; set; }
@@ -64,7 +65,7 @@ namespace com.google.cloud.tools.jib.json
                 InnerObject = new TestJson.InnerObjectClass
                 {
                     Number = 23,
-                    Texts = new List<string>{"first text", "second text"},
+                    Texts = new List<string> { "first text", "second text" },
                     Digests = new[]
                     {
                         DescriptorDigest.FromDigest(
@@ -88,7 +89,7 @@ namespace com.google.cloud.tools.jib.json
                 new List<DescriptorDigest> {                     DescriptorDigest.FromDigest(
                         "sha256:d38f571aa1c11e3d516e0ef7e513e7308ccbeb869770cb8c4319d63b10a0075e")}
             };
-            testJson.List = new []{innerObject1, innerObject2};
+            testJson.List = new[] { innerObject1, innerObject2 };
 
             Assert.AreEqual(expectedJson, JsonTemplateMapper.ToUtf8String(testJson));
         }

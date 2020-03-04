@@ -17,7 +17,7 @@
 using System;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     internal static class FileTime
     {

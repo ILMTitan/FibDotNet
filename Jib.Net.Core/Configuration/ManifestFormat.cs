@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     public enum ManifestFormat
     {

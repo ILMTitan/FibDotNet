@@ -15,12 +15,11 @@
  */
 
 using Jib.Net.Core.Api;
-using Jib.Net.Core.FileSystem;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /**
      * A temporary directory that tries to delete itself upon close. Note that deletion is <b>NOT</b>
@@ -69,7 +68,7 @@ namespace com.google.cloud.tools.jib.filesystem
             {
                 try
                 {
-                    MoreFiles.DeleteRecursively(path);
+                    Directory.Delete(path, true);
                 }
                 catch (IOException e)
                 {
@@ -81,7 +80,7 @@ namespace com.google.cloud.tools.jib.filesystem
 
         internal void MoveIfDoesNotExist(SystemPath destination)
         {
-            if(Directory.Exists(destination) || File.Exists(destination))
+            if (Directory.Exists(destination) || File.Exists(destination))
             {
                 return;
             }

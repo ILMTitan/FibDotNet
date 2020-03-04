@@ -14,15 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib;
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events.Time;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Images.Json;
 using System;
 using System.Collections.Generic;
@@ -344,32 +340,28 @@ namespace Jib.Net.Core.Registry
             using (TimerEventDispatcher timerEventDispatcher =
                 new TimerEventDispatcher(eventHandlers, "pushBlob"))
             {
-                using (TimerEventDispatcher timerEventDispatcher2 =
-                    timerEventDispatcher.SubTimer("pushBlob POST " + blobDigest))
+                timerEventDispatcher.Lap("pushBlob POST " + blobDigest);
+                
+                // POST /v2/<name>/blobs/uploads/ OR
+                // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
+                Uri patchLocation = await CallRegistryEndpointAsync(blobPusher.CreateInitializer()).ConfigureAwait(false);
+                if (patchLocation == null)
                 {
-                    // POST /v2/<name>/blobs/uploads/ OR
-                    // POST /v2/<name>/blobs/uploads/?mount={blob.digest}&from={sourceRepository}
-                    Uri patchLocation = await CallRegistryEndpointAsync(blobPusher.CreateInitializer()).ConfigureAwait(false);
-                    if (patchLocation == null)
-                    {
-                        // The BLOB exists already.
-                        return true;
-                    }
-
-                    timerEventDispatcher2.Lap("pushBlob PATCH " + blobDigest);
-
-                    // PATCH <Location> with BLOB
-                    Uri putLocation =
-                        await CallRegistryEndpointAsync(blobPusher.CreateWriter(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
-                    Preconditions.CheckNotNull(putLocation);
-
-                    timerEventDispatcher2.Lap("pushBlob PUT " + blobDigest);
-
-                    // PUT <Location>?digest={blob.digest}
-                    await CallRegistryEndpointAsync(blobPusher.CreateCommitter(putLocation)).ConfigureAwait(false);
-
-                    return false;
+                    // The BLOB exists already.
+                    return true;
                 }
+                timerEventDispatcher.Lap("pushBlob PATCH " + blobDigest);
+
+                // PATCH <Location> with BLOB
+                Uri putLocation =
+                    await CallRegistryEndpointAsync(blobPusher.CreateWriter(patchLocation, writtenByteCountListener)).ConfigureAwait(false);
+                Preconditions.CheckNotNull(putLocation);
+                timerEventDispatcher.Lap("pushBlob PUT " + blobDigest);
+
+                // PUT <Location>?digest={blob.digest}
+                await CallRegistryEndpointAsync(blobPusher.CreateCommitter(putLocation)).ConfigureAwait(false);
+
+                return false;
             }
         }
 

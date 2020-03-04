@@ -14,16 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.credentials.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry.Credentials;
+using Jib.Net.Core.Registry.Credentials.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Unit.Tests.Registry.Credentials
 {
     /** Tests for {@link DockerConfig}. */
     public class DockerConfigTest

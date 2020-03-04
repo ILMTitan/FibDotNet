@@ -14,13 +14,14 @@
  * the License.
  */
 
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Global;
 using NodaTime;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Unit.Tests.Configuration
 {
     /** Tests for {@link DockerHealthCheck}. */
     public class DockerHealthCheckTest
@@ -61,7 +62,7 @@ namespace com.google.cloud.tools.jib.configuration
 
             try
             {
-                DockerHealthCheck.FromCommand(new []{"CMD", null});
+                DockerHealthCheck.FromCommand(new[] { "CMD", null });
                 Assert.Fail();
             }
             catch (ArgumentException ex)

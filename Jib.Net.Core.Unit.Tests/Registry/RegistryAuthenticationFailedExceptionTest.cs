@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link RegistryAuthenticationFailedException}. */
     public class RegistryAuthenticationFailedExceptionTest

@@ -14,13 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Docker;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Json;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
@@ -104,7 +102,7 @@ namespace Jib.Net.Core.Registry.Credentials
                 using (StreamReader processStdoutReader =
                     new StreamReader(process.GetInputStream(), Encoding.UTF8))
                 {
-                    string output = CharStreams.ToString(processStdoutReader);
+                    string output = processStdoutReader.ReadToEnd();
 
                     // Throws an exception if the credential store does not have credentials for serverUrl.
                     if (JavaExtensions.Contains(output, "credentials not found in native keychain"))
@@ -121,8 +119,8 @@ namespace Jib.Net.Core.Registry.Credentials
                     {
                         DockerCredentialsTemplate dockerCredentials =
                             JsonTemplateMapper.ReadJson<DockerCredentialsTemplate>(output);
-                        if (Strings.IsNullOrEmpty(dockerCredentials.Username)
-                            || Strings.IsNullOrEmpty(dockerCredentials.Secret))
+                        if (string.IsNullOrEmpty(dockerCredentials.Username)
+                            || string.IsNullOrEmpty(dockerCredentials.Secret))
                         {
                             throw new CredentialHelperUnhandledServerUrlException(
                                 credentialHelper, registry, output);

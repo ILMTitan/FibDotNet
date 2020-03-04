@@ -14,11 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Async;
 using Jib.Net.Core.Caching;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Docker;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Images;
@@ -94,7 +94,8 @@ namespace Jib.Net.Core.BuildSteps
                         continue;
                     }
 
-                    dockerClient.Tag(targetImageReference, targetImageReference.WithTag(tag));
+                    ImageReference taggedImageReference = targetImageReference.WithTag(tag);
+                    await dockerClient.TagAsync(targetImageReference, taggedImageReference).ConfigureAwait(false);
                 }
 
                 return await BuildResult.FromImageAsync(image, buildConfiguration.GetTargetFormat()).ConfigureAwait(false);

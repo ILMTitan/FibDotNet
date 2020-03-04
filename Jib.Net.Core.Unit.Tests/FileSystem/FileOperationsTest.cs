@@ -24,7 +24,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.Unit.Tests.FileSystem
 {
     /** Tests for {@link FileOperations}. */
     public class FileOperationsTest : IDisposable

@@ -15,12 +15,11 @@
  */
 
 using Jib.Net.Core.Api;
-using Jib.Net.Core.FileSystem;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /** Static methods for operating on the filesystem. */
     public sealed class FileOperations
@@ -39,8 +38,8 @@ namespace com.google.cloud.tools.jib.filesystem
                 PathConsumer copyPathConsumer =
                     path =>
                     {
-              // Creates the same path in the destDir.
-              SystemPath destPath = destDir.Resolve(sourceFile.GetParent().Relativize(path));
+                        // Creates the same path in the destDir.
+                        SystemPath destPath = destDir.Resolve(sourceFile.GetParent().Relativize(path));
                         if (Files.IsDirectory(path))
                         {
                             Files.CreateDirectories(destPath);

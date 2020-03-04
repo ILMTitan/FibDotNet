@@ -20,14 +20,12 @@ using System;
 using System.Runtime.InteropServices;
 #endif
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     public interface IEnvironment
     {
         string GetEnvironmentVariable(string variableName);
         string GetFolderPath(Environment.SpecialFolder folder);
-#if NETSTANDARD2_0
-        bool IsOSPlatform(OSPlatform oSX);
-#endif
+        bool IsOsx();
     }
 }

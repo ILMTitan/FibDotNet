@@ -14,8 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;

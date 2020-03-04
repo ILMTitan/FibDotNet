@@ -16,7 +16,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using com.google.cloud.tools.jib.filesystem;
+using Jib.Net.Core.FileSystem;
 
 namespace Jib.Net.Core.Api
 {
@@ -35,11 +35,13 @@ namespace Jib.Net.Core.Api
         {
             return Environment.GetFolderPath(folder);
         }
-#if NETSTANDARD2_0
-        public bool IsOSPlatform(OSPlatform osPlatform)
+        public bool IsOsx()
         {
-            return RuntimeInformation.IsOSPlatform(osPlatform);
-        }
+#if NETSTANDARD2_0
+            return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#else
+            return false;
 #endif
+        }
     }
 }

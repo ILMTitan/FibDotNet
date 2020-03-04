@@ -14,15 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link CachedLayer}. */
     public class CachedLayerTest

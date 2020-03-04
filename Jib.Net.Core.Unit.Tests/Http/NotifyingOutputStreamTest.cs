@@ -20,8 +20,9 @@ using System.Collections.Generic;
 using System.IO;
 using NodaTime;
 using Jib.Net.Core.Events.Progress;
+using Jib.Net.Core.Http;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Unit.Tests.Http
 {
     /** Tests for {@link NotifyingOutputStream}. */
     public class NotifyingOutputStreamTest
@@ -41,7 +42,7 @@ namespace com.google.cloud.tools.jib.http
                 notifyingOutputStream.Write(new byte[] { 1, 2, 3, 4, 5 }, 3, 2);
             }
 
-            Assert.AreEqual(new []{1L, 3L, 2L}, byteCounts);
+            Assert.AreEqual(new[] { 1L, 3L, 2L }, byteCounts);
             CollectionAssert.AreEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, byteArrayOutputStream.ToArray());
         }
 
@@ -78,7 +79,7 @@ namespace com.google.cloud.tools.jib.http
                 notifyingOutputStream.Write(new byte[] { 0, 110 }, 1, 1);
             }
 
-            Assert.AreEqual(new []{7L, 2L, 2L}, byteCounts);
+            Assert.AreEqual(new[] { 7L, 2L, 2L }, byteCounts);
             CollectionAssert.AreEqual(
                 new byte[] { 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 },
                 byteArrayOutputStream.ToArray());

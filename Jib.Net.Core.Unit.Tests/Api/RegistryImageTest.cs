@@ -19,7 +19,7 @@ using Jib.Net.Core.Global;
 using Moq;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link RegistryImage}. */
     public class RegistryImageTest

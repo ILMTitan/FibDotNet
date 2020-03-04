@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib
+namespace Jib.Net.Core
 {
     /** Constants relating to the Jib project. */
     public static class ProjectInfo

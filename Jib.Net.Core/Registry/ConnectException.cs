@@ -18,7 +18,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     [Serializable]
     internal class ConnectException : IOException

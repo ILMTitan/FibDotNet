@@ -14,12 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
-using Jib.Net.Core.Blob;
+using Jib.Net.Core.Hash;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** A {@link Blob} that holds {@link WritableContents}. */
     internal class AsyncWritableContentsBlob : IBlob

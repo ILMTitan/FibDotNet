@@ -14,13 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Http;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /**
      * Provides implementations for a registry endpoint. Implementations should be immutable.

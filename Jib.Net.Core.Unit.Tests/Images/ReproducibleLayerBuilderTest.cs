@@ -14,16 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.cache;
-using com.google.cloud.tools.jib.docker;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
+using Jib.Net.Core.Unit.Tests.Cache;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -31,8 +29,9 @@ using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Unit.Tests.Images
 {
     /** Tests for {@link ReproducibleLayerBuilder}. */
     public class ReproducibleLayerBuilderTest : IDisposable
@@ -52,10 +51,9 @@ namespace com.google.cloud.tools.jib.image
             TarEntry header = tarArchiveInputStream.GetNextEntry();
             Assert.AreEqual(expectedExtractionPath, header.Name);
 
-            string expectedString = Encoding.UTF8.GetString(Files.ReadAllBytes(expectedFile));
+            string expectedString = File.ReadAllText(expectedFile);
 
-            string extractedString =
-                CharStreams.ToString(new StreamReader(tarArchiveInputStream, Encoding.UTF8));
+            string extractedString = new StreamReader(tarArchiveInputStream).ReadToEnd();
 
             Assert.AreEqual(expectedString, extractedString);
         }
@@ -93,7 +91,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestBuildAsync()
+        public async Task TestBuildAsync()
         {
             SystemPath layerDirectory = Paths.Get(TestResources.GetResource("core/layer").ToURI());
             SystemPath blobA = Paths.Get(TestResources.GetResource("core/blobA").ToURI());
@@ -147,7 +145,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestToBlob_reproducibilityAsync()
+        public async Task TestToBlob_reproducibilityAsync()
         {
             SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
             SystemPath root1 = Files.CreateDirectories(testRoot.Resolve("files1"));
@@ -187,7 +185,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestBuild_parentDirBehaviorAsync()
+        public async Task TestBuild_parentDirBehaviorAsync()
         {
             SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
 
@@ -270,7 +268,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestBuild_timestampDefaultAsync()
+        public async Task TestBuild_timestampDefaultAsync()
         {
             SystemPath file = CreateFile(temporaryFolder.GetRoot().ToPath(), "fileA", "some content", 54321);
 
@@ -294,7 +292,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestBuild_timestampNonDefaultAsync()
+        public async Task TestBuild_timestampNonDefaultAsync()
         {
             SystemPath file = CreateFile(temporaryFolder.GetRoot().ToPath(), "fileA", "some content", 54321);
 
@@ -324,7 +322,7 @@ namespace com.google.cloud.tools.jib.image
         }
 
         [Test]
-        public async System.Threading.Tasks.Task TestBuild_permissionsAsync()
+        public async Task TestBuild_permissionsAsync()
         {
             SystemPath testRoot = temporaryFolder.GetRoot().ToPath();
             SystemPath folder = Files.CreateDirectories(testRoot.Resolve("files1"));

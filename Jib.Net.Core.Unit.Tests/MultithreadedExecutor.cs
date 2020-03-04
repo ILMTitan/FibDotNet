@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib
+namespace Jib.Net.Core.Unit.Tests
 {
     /** Testing infrastructure for running code across multiple threads. */
     public static class MultithreadedExecutor

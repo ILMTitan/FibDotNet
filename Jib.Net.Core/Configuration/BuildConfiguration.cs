@@ -14,7 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events;
@@ -24,9 +23,10 @@ using Jib.Net.Core.Registry;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Net.Http.Headers;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     /** Immutable configuration options for the builder process. */
     public sealed class BuildConfiguration : IBuildConfiguration
@@ -62,7 +62,7 @@ namespace com.google.cloud.tools.jib.configuration
              */
             public Builder SetBaseImageConfiguration(ImageConfiguration imageConfiguration)
             {
-                this.baseImageConfiguration = imageConfiguration;
+                baseImageConfiguration = imageConfiguration;
                 return this;
             }
 
@@ -74,7 +74,7 @@ namespace com.google.cloud.tools.jib.configuration
              */
             public Builder SetTargetImageConfiguration(ImageConfiguration imageConfiguration)
             {
-                this.targetImageConfiguration = imageConfiguration;
+                targetImageConfiguration = imageConfiguration;
                 return this;
             }
 
@@ -87,7 +87,7 @@ namespace com.google.cloud.tools.jib.configuration
              */
             public Builder SetAdditionalTargetImageTags(ISet<string> tags)
             {
-                additionalTargetImageTags = ImmutableHashSet.CreateRange(tags);
+                additionalTargetImageTags = ImmutableHashSet.CreateRange(tags ?? Enumerable.Empty<string>());
                 return this;
             }
 

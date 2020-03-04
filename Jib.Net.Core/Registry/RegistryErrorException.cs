@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using System.Net.Http;
 using System;
 using System.Runtime.Serialization;
+using Jib.Net.Core.Api;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /**
      * Thrown when an HTTP request to a registry endpoint failed with errors as defined in {@link

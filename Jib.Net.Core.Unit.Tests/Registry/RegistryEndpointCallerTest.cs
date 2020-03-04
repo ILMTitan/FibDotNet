@@ -14,13 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.http;
-using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Registry;
 using Moq;
 using NUnit.Framework;
@@ -35,9 +33,9 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
-using Authorization = com.google.cloud.tools.jib.http.Authorization;
+using Authorization = Jib.Net.Core.Http.Authorization;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link RegistryEndpointCaller}. */
     public class RegistryEndpointCallerTest : IDisposable
@@ -69,9 +67,10 @@ namespace com.google.cloud.tools.jib.registry
             {
                 if (response.IsSuccessStatusCode)
                 {
-                    return CharStreams.ToString(
-                        new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8));
-                } else
+                    Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    return await new StreamReader(stream).ReadToEndAsync().ConfigureAwait(false);
+                }
+                else
                 {
                     throw new HttpResponseException(response);
                 }
@@ -214,7 +213,7 @@ namespace com.google.cloud.tools.jib.registry
                 .Throws(new ConnectException()); // server is not listening on 443
 
             Mock.Get(mockConnection)
-                .Setup(c => c.SendAsync(It.Is<HttpRequestMessage>(m=>m.RequestUri.Equals(new Uri("http://apiroutebase/api")))))
+                .Setup(c => c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("http://apiroutebase/api")))))
                 .Returns(Task.FromResult(mockResponse)); // respond when connected through 80
 
             RegistryEndpointCaller<string> insecureEndpointCaller = CreateRegistryEndpointCaller(true, -1);
@@ -589,7 +588,7 @@ namespace com.google.cloud.tools.jib.registry
             return new RegistryEndpointCaller<string>(
                 mockEventHandlers,
                 new[] { new ProductInfoHeaderValue(new ProductHeaderValue("userAgent")) },
-                (port == -1) ? "apiroutebase" : ("apiroutebase:" + port),
+                port == -1 ? "apiroutebase" : "apiroutebase:" + port,
                 new TestRegistryEndpointProvider(),
                 Authorization.FromBasicToken("token"),
                 new RegistryEndpointRequestProperties("serverUrl", "imageName"),

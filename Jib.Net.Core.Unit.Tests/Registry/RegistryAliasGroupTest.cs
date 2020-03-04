@@ -14,10 +14,11 @@
  * the License.
  */
 
+using Jib.Net.Core.Registry;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link RegistryAliasGroup}. */
     public class RegistryAliasGroupTest
@@ -33,9 +34,14 @@ namespace com.google.cloud.tools.jib.registry
         [Test]
         public void TestGetAliasesGroup_dockerHub()
         {
-            ISet<string> aliases =
-                Sets.NewHashSet(
-                    "registry.hub.docker.com", "index.docker.io", "registry-1.docker.io", "docker.io");
+            ISet<string> aliases = new HashSet<string>
+            {
+                "registry.hub.docker.com",
+                "index.docker.io",
+                "registry-1.docker.io",
+                "docker.io"
+            };
+
             foreach (string alias in aliases)
             {
                 CollectionAssert.AreEquivalent(aliases, new HashSet<string>(RegistryAliasGroup.GetAliasesGroup(alias)));

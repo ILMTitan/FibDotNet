@@ -18,7 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     internal static class Iterables
     {

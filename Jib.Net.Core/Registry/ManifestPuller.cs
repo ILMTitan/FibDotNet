@@ -14,11 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -123,7 +121,7 @@ namespace Jib.Net.Core.Registry
                 string jsonString;
                 using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8))
                 {
-                    jsonString = CharStreams.ToString(reader);
+                    jsonString = await reader.ReadToEndAsync().ConfigureAwait(false);
                 }
                 return GetManifestTemplateFromJson(jsonString);
             }

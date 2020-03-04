@@ -14,14 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.json;
-using Jib.Net.Core;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
-using Jib.Net.Core.Registry;
+using Jib.Net.Core.Http;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry.Json;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -33,9 +31,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using Authorization = com.google.cloud.tools.jib.http.Authorization;
+using Authorization = Jib.Net.Core.Http.Authorization;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     internal static class RegistryEndpointCaller
     {
@@ -142,7 +140,7 @@ namespace com.google.cloud.tools.jib.registry
             Func<Uri, IConnection> insecureConnectionFactory)
         {
             this.eventHandlers = eventHandlers;
-            this.initialRequestUrl =
+            initialRequestUrl =
                 registryEndpointProvider.GetApiRoute(DEFAULT_PROTOCOL + "://" + apiRouteBase);
             this.userAgent = userAgent;
             this.registryEndpointProvider = registryEndpointProvider;
@@ -176,7 +174,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return await CallAsync(url, connectionFactory).ConfigureAwait(false);
             }
-            catch (HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
+            catch (HttpRequestException e) when (IsSecurityException(e))
             {
                 return await HandleUnverifiableServerExceptionAsync(url).ConfigureAwait(false);
             }
@@ -190,6 +188,13 @@ namespace com.google.cloud.tools.jib.registry
                 }
                 throw;
             }
+        }
+
+        private static bool IsSecurityException(HttpRequestException e)
+        {
+            return e.InnerException is AuthenticationException
+                || e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"
+                || e.InnerException is Win32Exception win32Ex && win32Ex.NativeErrorCode == 12175;
         }
 
         private async Task<T> HandleUnverifiableServerExceptionAsync(Uri url)
@@ -210,7 +215,7 @@ namespace com.google.cloud.tools.jib.registry
             {
                 return await FallBackToHttpAsync(url).ConfigureAwait(false);
             }
-            catch(HttpRequestException e) when (e.InnerException is AuthenticationException || (e.InnerException is IOException ioEx && ioEx.Source == "System.Net.Security"))
+            catch (HttpRequestException e) when (IsSecurityException(e))
             {
                 return await FallBackToHttpAsync(url).ConfigureAwait(false);
             }
@@ -272,51 +277,49 @@ namespace com.google.cloud.tools.jib.registry
             }
             catch (HttpResponseException ex)
             {
+                if (ex.GetStatusCode() == HttpStatusCode.BadRequest
+                    || ex.GetStatusCode() == HttpStatusCode.NotFound
+                    || ex.GetStatusCode() == HttpStatusCode.MethodNotAllowed)
                 {
-                    if (ex.GetStatusCode() == HttpStatusCode.BadRequest
-                        || ex.GetStatusCode() == HttpStatusCode.NotFound
-                        || ex.GetStatusCode() == HttpStatusCode.MethodNotAllowed)
+                    // The name or reference was invalid.
+                    throw await NewRegistryErrorExceptionAsync(ex).ConfigureAwait(false);
+                }
+                else if (ex.GetStatusCode() == HttpStatusCode.Forbidden)
+                {
+                    throw new RegistryUnauthorizedException(
+                        registryEndpointRequestProperties.GetRegistry(),
+                        registryEndpointRequestProperties.GetImageName(),
+                        ex);
+                }
+                else if (ex.GetStatusCode() == HttpStatusCode.Unauthorized)
+                {
+                    if (sendCredentials)
                     {
-                        // The name or reference was invalid.
-                        throw await NewRegistryErrorExceptionAsync(ex).ConfigureAwait(false);
-                    }
-                    else if (ex.GetStatusCode() == HttpStatusCode.Forbidden)
-                    {
+                        // Credentials are either missing or wrong.
                         throw new RegistryUnauthorizedException(
                             registryEndpointRequestProperties.GetRegistry(),
                             registryEndpointRequestProperties.GetImageName(),
                             ex);
                     }
-                    else if (ex.GetStatusCode() == HttpStatusCode.Unauthorized)
-                    {
-                        if (sendCredentials)
-                        {
-                            // Credentials are either missing or wrong.
-                            throw new RegistryUnauthorizedException(
-                                registryEndpointRequestProperties.GetRegistry(),
-                                registryEndpointRequestProperties.GetImageName(),
-                                ex);
-                        }
-                        else
-                        {
-                            throw new RegistryCredentialsNotSentException(
-                                registryEndpointRequestProperties.GetRegistry(),
-                                registryEndpointRequestProperties.GetImageName());
-                        }
-                    }
-                    else if (ex.GetStatusCode() == HttpStatusCode.TemporaryRedirect ||
-                        ex.GetStatusCode() == HttpStatusCode.MovedPermanently ||
-                        ex.GetStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
-                    {
-                        // 'Location' header can be relative or absolute.
-                        Uri redirectLocation = new Uri(url, ex.GetHeaders().Location);
-                        return await CallWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
-                    }
                     else
                     {
-                        // Unknown
-                        throw;
+                        throw new RegistryCredentialsNotSentException(
+                            registryEndpointRequestProperties.GetRegistry(),
+                            registryEndpointRequestProperties.GetImageName());
                     }
+                }
+                else if (ex.GetStatusCode() == HttpStatusCode.TemporaryRedirect ||
+                    ex.GetStatusCode() == HttpStatusCode.MovedPermanently ||
+                    ex.GetStatusCode() == RegistryEndpointCaller.STATUS_CODE_PERMANENT_REDIRECT)
+                {
+                    // 'Location' header can be relative or absolute.
+                    Uri redirectLocation = new Uri(url, ex.GetHeaders().Location);
+                    return await CallWithAllowInsecureRegistryHandlingAsync(redirectLocation).ConfigureAwait(false);
+                }
+                else
+                {
+                    // Unknown
+                    throw;
                 }
             }
             catch (IOException ex)

@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link CacheStorageFiles}. */
     public class CacheStorageFilesTest

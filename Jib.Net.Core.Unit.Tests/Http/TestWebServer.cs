@@ -27,7 +27,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Unit.Tests.Http
 {
     /** Simple local web server for testing. */
     public sealed class TestWebServer : IDisposable

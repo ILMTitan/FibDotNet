@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -28,7 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Docker
 {
     /** Calls out to the {@code docker} CLI. */
     public class DockerClient
@@ -200,7 +199,7 @@ namespace com.google.cloud.tools.jib.docker
                     {
                         using (TextReader stderr = dockerProcess.GetErrorReader())
                         {
-                            error = CharStreams.ToString(stderr);
+                            error = await stderr.ReadToEndAsync().ConfigureAwait(false);
                         }
                     }
                     catch (IOException e)
@@ -221,7 +220,7 @@ namespace com.google.cloud.tools.jib.docker
             using (Stream stdoutStream = dockerProcess.GetInputStream())
             using (StreamReader stdout = new StreamReader(stdoutStream, Encoding.UTF8))
             {
-                string output = CharStreams.ToString(stdout);
+                string output = await stdout.ReadToEndAsync().ConfigureAwait(false);
 
                 if (dockerProcess.WaitFor() != 0)
                 {
@@ -253,7 +252,7 @@ namespace com.google.cloud.tools.jib.docker
          * @throws InterruptedException if the 'docker tag' process is interrupted.
          * @throws IOException if an I/O exception occurs or {@code docker tag} failed
          */
-        public void Tag(IImageReference originalImageReference, ImageReference newImageReference)
+        public async Task TagAsync(IImageReference originalImageReference, ImageReference newImageReference)
         {
             originalImageReference = originalImageReference ?? throw new ArgumentNullException(nameof(originalImageReference));
 
@@ -267,8 +266,9 @@ namespace com.google.cloud.tools.jib.docker
                 using (StreamReader stderr =
                     new StreamReader(dockerProcess.GetErrorStream(), Encoding.UTF8))
                 {
+                    string errorMessage = await stderr.ReadToEndAsync().ConfigureAwait(false);
                     throw new IOException(
-                        "'docker tag' command failed with error: " + CharStreams.ToString(stderr));
+                        "'docker tag' command failed with error: " + errorMessage);
                 }
             }
         }

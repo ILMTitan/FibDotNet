@@ -16,7 +16,7 @@
 
 using System.Threading;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Test.Common
 {
     public class LongAdder
     {

@@ -17,13 +17,15 @@
 using NUnit.Framework;
 using System;
 using System.Net.Http;
-using com.google.cloud.tools.jib.hash;
 using System.Net;
 using System.Threading.Tasks;
 using System.Security.Authentication;
 using System.Text;
+using Jib.Net.Core.Http;
+using System.IO;
+using Jib.Net.Core.Hash;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Unit.Tests.Http
 {
     /** Tests for {@link Connection} using an actual local server. */
     public class WithServerConnectionTest
@@ -38,9 +40,10 @@ namespace com.google.cloud.tools.jib.http
                 HttpResponseMessage response = await connection.SendAsync(new HttpRequestMessage()).ConfigureAwait(false);
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 CollectionAssert.AreEqual(
                     Encoding.UTF8.GetBytes("Hello World!"),
-                    ByteStreams.ToByteArray(await response.Content.ReadAsStreamAsync().ConfigureAwait(false)));
+                    ByteStreams.ToByteArray(stream));
             }
         }
 

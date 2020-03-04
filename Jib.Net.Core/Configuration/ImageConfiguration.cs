@@ -14,13 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core;
+using Jib.Net.Core.Api;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     /** Immutable configuration options for an image reference with credentials. */
     public sealed class ImageConfiguration

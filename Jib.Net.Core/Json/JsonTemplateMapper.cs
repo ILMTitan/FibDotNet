@@ -23,7 +23,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.json
+namespace Jib.Net.Core.Json
 {
     // TODO: Add JsonFactory for HTTP response parsing.
     /**
@@ -48,8 +48,6 @@ namespace com.google.cloud.tools.jib.json
      */
     public static class JsonTemplateMapper
     {
-        private static readonly ObjectMapper objectMapper = new ObjectMapper();
-
         /**
          * Deserializes a JSON file via a JSON object template.
          *
@@ -91,7 +89,7 @@ namespace com.google.cloud.tools.jib.json
          * @return the template filled with the values parsed from {@code jsonString}
          * @throws IOException if an error occurred during parsing the JSON
          */
-        public static T ReadJson<T>(string jsonString) => objectMapper.ReadValue<T>(jsonString);
+        public static T ReadJson<T>(string jsonString) => JsonConvert.DeserializeObject<T>(jsonString);
 
         /**
          * Deserializes a JSON object list from a JSON string.

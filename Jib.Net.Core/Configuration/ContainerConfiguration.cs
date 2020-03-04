@@ -14,14 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
 using NodaTime;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     /** Immutable configuration options for the container. */
     public sealed class ContainerConfiguration : IContainerConfiguration
@@ -68,7 +69,12 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.programArguments = ImmutableArray.CreateRange(programArguments);
+                    ImmutableArray<string> args = ImmutableArray.CreateRange(programArguments);
+                    if (args.Contains(null))
+                    {
+                        throw new ArgumentException(Resources.NullProgramArgument, nameof(programArguments));
+                    }
+                    this.programArguments = args;
                 }
                 return this;
             }
@@ -87,14 +93,14 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.environmentMap = environmentMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    this.environmentMap = environmentMap.ToDictionary(kvp => kvp.Key, kvp => kvp.Value ?? "");
                 }
                 return this;
             }
 
             public void AddEnvironment(string name, string value)
             {
-                (environmentMap ?? (environmentMap = new Dictionary<string, string>()))[name] = value;
+                (environmentMap ?? (environmentMap = new Dictionary<string, string>()))[name] = value ?? "";
             }
 
             /**
@@ -111,13 +117,21 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.exposedPorts = new HashSet<Port>(exposedPorts);
+
+                    HashSet<Port> exposedPortsSet = new HashSet<Port>(exposedPorts);
+                    if (exposedPortsSet.Contains(null))
+                    {
+                        throw new ArgumentException(Resources.NullPort, nameof(exposedPorts));
+                    }
+                    this.exposedPorts = exposedPortsSet;
                 }
                 return this;
             }
 
             public void AddExposedPort(Port port)
             {
+
+                port = port ?? throw new ArgumentNullException(nameof(port));
                 (exposedPorts ?? (exposedPorts = new HashSet<Port>())).Add(port);
             }
 
@@ -135,7 +149,12 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.volumes = new HashSet<AbsoluteUnixPath>(volumes);
+                    HashSet<AbsoluteUnixPath> volumesSet = new HashSet<AbsoluteUnixPath>(volumes);
+                    if (volumesSet.Contains(null))
+                    {
+                        throw new ArgumentException(Resources.NullVolume, nameof(volumes));
+                    }
+                    this.volumes = volumesSet;
                 }
                 return this;
             }
@@ -159,14 +178,14 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.labels = labels.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    this.labels = labels.ToDictionary(kvp => kvp.Key, kvp => kvp.Value ?? "");
                 }
                 return this;
             }
 
             public void AddLabel(string key, string value)
             {
-                (labels ?? (labels = new Dictionary<string, string>()))[key] = value;
+                (labels ?? (labels = new Dictionary<string, string>()))[key] = value ?? "";
             }
 
             /**
@@ -183,7 +202,12 @@ namespace com.google.cloud.tools.jib.configuration
                 }
                 else
                 {
-                    this.entrypoint = ImmutableArray.CreateRange(entrypoint);
+                    ImmutableArray<string> entrypointArray = ImmutableArray.CreateRange(entrypoint);
+                    if (entrypointArray.Contains(null))
+                    {
+                        throw new ArgumentException(Resources.NullEntrypointArgument, nameof(entrypoint));
+                    }
+                    this.entrypoint = entrypointArray;
                 }
                 return this;
             }
@@ -334,13 +358,13 @@ namespace com.google.cloud.tools.jib.configuration
                 return false;
             }
             return creationTime.Equals(otherContainerConfiguration.creationTime)
-                && Objects.Equals(entrypoint, otherContainerConfiguration.entrypoint)
-                && Objects.Equals(programArguments, otherContainerConfiguration.programArguments)
-                && Objects.Equals(environmentMap, otherContainerConfiguration.environmentMap)
-                && Objects.Equals(exposedPorts, otherContainerConfiguration.exposedPorts)
-                && Objects.Equals(labels, otherContainerConfiguration.labels)
-                && Objects.Equals(user, otherContainerConfiguration.user)
-                && Objects.Equals(workingDirectory, otherContainerConfiguration.workingDirectory);
+                && Equals(entrypoint, otherContainerConfiguration.entrypoint)
+                && Equals(programArguments, otherContainerConfiguration.programArguments)
+                && Equals(environmentMap, otherContainerConfiguration.environmentMap)
+                && Equals(exposedPorts, otherContainerConfiguration.exposedPorts)
+                && Equals(labels, otherContainerConfiguration.labels)
+                && Equals(user, otherContainerConfiguration.user)
+                && Equals(workingDirectory, otherContainerConfiguration.workingDirectory);
         }
 
         public override int GetHashCode()

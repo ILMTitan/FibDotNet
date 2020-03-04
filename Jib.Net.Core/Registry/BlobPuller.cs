@@ -14,17 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Hash;
+using Jib.Net.Core.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Pulls an image's BLOB (layer or container configuration). */
     internal class BlobPuller : RegistryEndpointProvider<object>

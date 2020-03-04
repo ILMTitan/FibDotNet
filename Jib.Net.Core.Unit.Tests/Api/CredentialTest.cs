@@ -14,12 +14,13 @@
  * the License.
  */
 
+using Jib.Net.Core.Api;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
-    /** Tests for {@link com.google.cloud.tools.jib.api.Credential}. */
+    /** Tests for {@link Jib.Net.Core.Api.Credential}. */
 
     public class CredentialTest
     {
@@ -37,8 +38,8 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreNotEqual(credentialA1, credentialB2);
 
             ISet<Credential> credentialSet =
-                new HashSet<Credential>(new []{credentialA1, credentialA2, credentialB1, credentialB2});
-            CollectionAssert.AreEquivalent(new HashSet<Credential>(new []{credentialA2, credentialB1}), credentialSet);
+                new HashSet<Credential>(new[] { credentialA1, credentialA2, credentialB1, credentialB2 });
+            CollectionAssert.AreEquivalent(new HashSet<Credential>(new[] { credentialA2, credentialB1 }), credentialSet);
         }
 
         [Test]

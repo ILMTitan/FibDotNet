@@ -14,9 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib;
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
@@ -31,6 +28,8 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using static Jib.Net.Core.BuildSteps.PullBaseImageStep;
 using System.Web;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Async;
 
 namespace Jib.Net.Core.BuildSteps
 {

@@ -18,8 +18,9 @@ using NUnit.Framework;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Immutable;
+using Jib.Net.Core.Api;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link RelativeUnixPath}. */
 

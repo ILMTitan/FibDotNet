@@ -14,7 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Configuration;
 using NodaTime;
 using System;
 using static Jib.Net.Core.Events.TimerEvent;

@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.registry.credentials.json
+namespace Jib.Net.Core.Registry.Credentials.Json
 {
     /**
      * Template for a Docker config file.

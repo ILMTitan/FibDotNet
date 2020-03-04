@@ -14,15 +14,16 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Docker.Json;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.docker.json
+namespace Jib.Net.Core.Unit.Tests.Docker.Json
 {
     /** Tests for {@link DockerLoadManifestEntryTemplate}. */
     public class DockerLoadManifestTemplateTest

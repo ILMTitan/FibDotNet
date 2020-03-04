@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Global;
 using NUnit.Framework;

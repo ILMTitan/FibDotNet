@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.docker.json
+namespace Jib.Net.Core.Docker.Json
 {
     /**
      * JSON Template for a loadable Docker Manifest entry. The repoTags property requires a tag; i.e. if

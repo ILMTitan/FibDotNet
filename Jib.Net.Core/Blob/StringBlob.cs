@@ -17,7 +17,7 @@
 using System.Linq;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** A {@link Blob} that holds a {@link string}. Encodes in UTF-8 when writing in bytes. */
     internal class StringBlob : BytesBlob

@@ -14,15 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Http;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /**
      * Checks if an image's BLOB exists on a registry, and retrieves its {@link BlobDescriptor} if it
@@ -38,7 +38,7 @@ namespace com.google.cloud.tools.jib.registry
             BlobDescriptor blobDigest)
         {
             this.registryEndpointRequestProperties = registryEndpointRequestProperties;
-            this.blobDescriptor = blobDigest;
+            blobDescriptor = blobDigest;
         }
 
         /** @return the BLOB's content descriptor */
@@ -65,7 +65,7 @@ namespace com.google.cloud.tools.jib.registry
                     .Build();
             }
 
-            if(blobDescriptor.GetSize() > 0 && contentLength.GetValueOrDefault() != blobDescriptor.GetSize())
+            if (blobDescriptor.GetSize() > 0 && contentLength.GetValueOrDefault() != blobDescriptor.GetSize())
             {
                 throw new RegistryErrorExceptionBuilder(GetActionDescription())
                     .AddReason($"Expected size {blobDescriptor.GetSize()} but got {contentLength.GetValueOrDefault()}")

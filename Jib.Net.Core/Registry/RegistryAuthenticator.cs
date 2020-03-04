@@ -14,12 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.json;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Http;
+using Jib.Net.Core.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -31,7 +30,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /**
      * Authenticates push/pull access with a registry service.
@@ -279,7 +278,7 @@ namespace com.google.cloud.tools.jib.registry
                     using (HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false))
                     using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), Encoding.UTF8))
                     {
-                        responseString = CharStreams.ToString(reader);
+                        responseString = await reader.ReadToEndAsync().ConfigureAwait(false);
                     }
 
                     AuthenticationResponseTemplate responseJson =

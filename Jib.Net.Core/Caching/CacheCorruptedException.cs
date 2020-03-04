@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib;
 using Jib.Net.Core.FileSystem;
 using System;
 using System.Runtime.Serialization;

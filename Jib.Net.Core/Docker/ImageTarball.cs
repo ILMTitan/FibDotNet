@@ -14,17 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.docker.json;
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.tar;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Docker.Json;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Tar;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Docker
 {
     /** Translates an {@link Image} to a tarball that can be loaded into Docker. */
     public class ImageTarball : IImageTarball

@@ -14,11 +14,10 @@
  * the License.
  */
 
-using Jib.Net.Core.Registry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace com.google.cloud.tools.jib.registry.json
+namespace Jib.Net.Core.Registry.Json
 {
     // TODO: Should include detail field as well - need to have custom parser
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

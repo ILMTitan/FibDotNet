@@ -14,11 +14,12 @@
  * the License.
  */
 
+using Jib.Net.Core.Http;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Unit.Tests.Http
 {
     /**
      * Mock {@link Connection} used for testing. Normally, you would use {@link

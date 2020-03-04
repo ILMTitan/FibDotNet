@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.json;
-using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Utility methods for parsing {@link ErrorResponseTemplate JSON-encoded error responses}. */
     public sealed class ErrorResponseUtil

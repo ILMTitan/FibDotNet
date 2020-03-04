@@ -14,11 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.hash;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
+using Jib.Net.Core.Hash;
+using Jib.Net.Core.Tar;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.IO;
@@ -26,7 +27,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.tar
+namespace Jib.Net.Core.Unit.Tests.Tar
 {
     /** Tests for {@link TarStreamBuilder}. */
     public class TarStreamBuilderTest

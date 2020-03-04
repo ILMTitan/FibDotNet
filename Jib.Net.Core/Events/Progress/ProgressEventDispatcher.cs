@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Configuration;
 using System;
 
 namespace Jib.Net.Core.Events.Progress

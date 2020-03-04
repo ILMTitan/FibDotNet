@@ -14,10 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.Api;
 using System;
-using System.Runtime.InteropServices;
 
 namespace Jib.Net.Core.FileSystem
 {
@@ -64,10 +62,9 @@ namespace Jib.Net.Core.FileSystem
             {
                 return Paths.Get(localAppData);
             }
-            string userHome = environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-#if NETSTANDARD2_0
-            if (environment.IsOSPlatform(OSPlatform.OSX))
+            string userHome = environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if (environment.IsOsx())
             {
                 // Use '~/Library/Application Support/' for macOS.
                 SystemPath applicationSupport = Paths.Get(userHome, "Library", "Application Support");
@@ -76,7 +73,6 @@ namespace Jib.Net.Core.FileSystem
                     return applicationSupport;
                 }
             }
-#endif
 
             if (!string.IsNullOrWhiteSpace(userHome))
             {

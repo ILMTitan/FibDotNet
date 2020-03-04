@@ -14,12 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.hash;
 using Jib.Net.Core.Api;
-using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -30,7 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Jib.Net.Core.Caching.LayerEntriesSelector;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link LayerEntriesSelector}. */
     public class LayerEntriesSelectorTest : IDisposable
@@ -121,7 +119,7 @@ namespace com.google.cloud.tools.jib.cache
         {
             Assert.AreEqual(
                 ToLayerEntryTemplates(inOrderLayerEntries),
-                LayerEntriesSelector.ToSortedJsonTemplates(outOfOrderLayerEntries));
+                ToSortedJsonTemplates(outOfOrderLayerEntries));
         }
 
         [Test]
@@ -130,7 +128,7 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest expectedSelector =
                 await Digests.ComputeJsonDigestAsync(ImmutableArray.Create<object>()).ConfigureAwait(false);
             Assert.AreEqual(
-                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create<LayerEntry>()).ConfigureAwait(false));
+                expectedSelector, await GenerateSelectorAsync(ImmutableArray.Create<LayerEntry>()).ConfigureAwait(false));
         }
 
         [Test]
@@ -139,7 +137,7 @@ namespace com.google.cloud.tools.jib.cache
             DescriptorDigest expectedSelector =
                 await Digests.ComputeJsonDigestAsync(ToLayerEntryTemplates(inOrderLayerEntries)).ConfigureAwait(false);
             Assert.AreEqual(
-                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(outOfOrderLayerEntries).ConfigureAwait(false));
+                expectedSelector, await GenerateSelectorAsync(outOfOrderLayerEntries).ConfigureAwait(false));
         }
 
         [Test]
@@ -150,18 +148,18 @@ namespace com.google.cloud.tools.jib.cache
             Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
             LayerEntry layerEntry = DefaultLayerEntry(layerFile, AbsoluteUnixPath.Get("/extraction/path"));
             DescriptorDigest expectedSelector =
-                await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false);
+                await GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false);
 
             // Verify that changing modified time generates a different selector
             Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(1)));
             Assert.AreNotEqual(
-                expectedSelector, await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
+                expectedSelector, await GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
 
             // Verify that changing modified time back generates same selector
             Files.SetLastModifiedTime(layerFile, FileTime.From(Instant.FromUnixTimeSeconds(0)));
             Assert.AreEqual(
                 expectedSelector,
-                await LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
+                await GenerateSelectorAsync(ImmutableArray.Create(layerEntry)).ConfigureAwait(false));
         }
 
         [Test]
@@ -184,8 +182,8 @@ namespace com.google.cloud.tools.jib.cache
 
             // Verify that changing permissions generates a different selector
             Assert.AreNotEqual(
-                LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry111)),
-                LayerEntriesSelector.GenerateSelectorAsync(ImmutableArray.Create(layerEntry222)));
+                GenerateSelectorAsync(ImmutableArray.Create(layerEntry111)),
+                GenerateSelectorAsync(ImmutableArray.Create(layerEntry222)));
         }
     }
 }

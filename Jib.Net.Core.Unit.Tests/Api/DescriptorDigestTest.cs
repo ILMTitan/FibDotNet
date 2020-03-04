@@ -20,7 +20,7 @@ using System.Text;
 using Jib.Net.Core.Global;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link DescriptorDigest}. */
 

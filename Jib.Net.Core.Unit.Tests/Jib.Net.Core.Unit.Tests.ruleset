@@ -78,4 +78,7 @@
     <Rule Id="CA1816" Action="None" />
     <Rule Id="CA2000" Action="Hidden" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.VisualStudio.Threading.Analyzers" RuleNamespace="Microsoft.VisualStudio.Threading.Analyzers">
+    <Rule Id="VSTHRD200" Action="None" />
+  </Rules>
 </RuleSet>

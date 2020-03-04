@@ -14,13 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
+using Jib.Net.Core.Hash;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Images.Json;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Pushes an image's manifest. */
     internal class ManifestPusher : RegistryEndpointProvider<DescriptorDigest>

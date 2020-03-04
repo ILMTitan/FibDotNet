@@ -16,7 +16,7 @@
 
 using Newtonsoft.Json;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** A {@link Blob} that holds {@link JsonTemplate}. */
     internal class JsonBlob : StringBlob

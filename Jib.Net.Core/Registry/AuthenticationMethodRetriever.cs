@@ -14,8 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Api;
+using Jib.Net.Core.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Retrieves the {@code WWW-Authenticate} header from the registry API. */
     internal class AuthenticationMethodRetriever : RegistryEndpointProvider<RegistryAuthenticator>

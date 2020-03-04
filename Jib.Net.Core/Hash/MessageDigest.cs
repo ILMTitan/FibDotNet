@@ -17,7 +17,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     public class MessageDigest
     {

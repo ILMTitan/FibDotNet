@@ -14,8 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Global;
 
 namespace Jib.Net.Core.Events
 {
@@ -27,56 +27,56 @@ namespace Jib.Net.Core.Events
         {
 
             /** Something went wrong. */
-            ERROR,
+            Error,
 
             /** Something might not work as intended. */
-            WARN,
+            Warn,
 
             /** Default. */
-            LIFECYCLE,
+            Lifecycle,
 
             /** Same as {@link #LIFECYCLE}, except represents progress updates. */
-            PROGRESS,
+            Progress,
 
             /**
              * Details that can be ignored.
              *
              * <p>Use {@link #LIFECYCLE} for progress-indicating messages.
              */
-            INFO,
+            Info,
 
             /** Useful for debugging. */
-            DEBUG
+            Debug
         }
 
         public static LogEvent Error(string message)
         {
-            return new LogEvent(Level.ERROR, message);
+            return new LogEvent(Level.Error, message);
         }
 
         public static LogEvent Lifecycle(string message)
         {
-            return new LogEvent(Level.LIFECYCLE, message);
+            return new LogEvent(Level.Lifecycle, message);
         }
 
         public static LogEvent Progress(string message)
         {
-            return new LogEvent(Level.PROGRESS, message);
+            return new LogEvent(Level.Progress, message);
         }
 
         public static LogEvent Warn(string message)
         {
-            return new LogEvent(Level.WARN, message);
+            return new LogEvent(Level.Warn, message);
         }
 
         public static LogEvent Info(string message)
         {
-            return new LogEvent(Level.INFO, message);
+            return new LogEvent(Level.Info, message);
         }
 
         public static LogEvent Debug(string message)
         {
-            return new LogEvent(Level.DEBUG, message);
+            return new LogEvent(Level.Debug, message);
         }
 
         private readonly Level level;

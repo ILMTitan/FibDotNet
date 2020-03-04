@@ -14,10 +14,9 @@
  * the License.
  */
 
-using Jib.Net.Core.FileSystem;
 using System;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     public delegate void PathConsumer(SystemPath path);
 

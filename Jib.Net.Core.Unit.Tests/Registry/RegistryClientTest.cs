@@ -14,15 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Registry;
 using Moq;
 using NUnit.Framework;
 using System.Linq;
 using System.Net.Http.Headers;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /**
      * Tests for {@link RegistryClient}. More comprehensive tests can be found in the integration tests.

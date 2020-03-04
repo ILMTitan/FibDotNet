@@ -15,11 +15,10 @@
  */
 
 using Jib.Net.Core.Api;
-using Jib.Net.Core.FileSystem;
 using System;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /** Creates and deletes lock files. */
     public sealed class LockFile : IDisposable

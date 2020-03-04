@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
@@ -24,7 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     /** A {@link DigestOutputStream} that also keeps track of the total number of bytes written. */
     public class CountingDigestOutputStream : DigestStream
@@ -84,10 +83,10 @@ namespace com.google.cloud.tools.jib.hash
             bytesSoFar += count;
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            await base.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             bytesSoFar += count;
-            return base.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
         public override int Read(byte[] buffer, int offset, int count)

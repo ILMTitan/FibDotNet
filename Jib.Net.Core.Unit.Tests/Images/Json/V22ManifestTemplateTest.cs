@@ -14,15 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Unit.Tests.Images.Json
 {
     /** Tests for {@link V22ManifestTemplate}. */
     public class V22ManifestTemplateTest

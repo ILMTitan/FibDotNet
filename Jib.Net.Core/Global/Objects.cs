@@ -1,4 +1,5 @@
-﻿/*
+﻿
+/*
  * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -16,7 +17,7 @@
 
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Global
 {
     internal static class Objects
     {
@@ -24,7 +25,7 @@ namespace com.google.cloud.tools.jib.api
         {
             int nullHashValue = EqualityComparer<object>.Default.GetHashCode(null);
             int hashValue = nullHashValue;
-            foreach(var value in values)
+            foreach (var value in values)
             {
                 hashValue *= 31;
                 hashValue += value?.GetHashCode() ?? nullHashValue;

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Provides known aliases and alternative hosts for a given registry. */
     public static class RegistryAliasGroup

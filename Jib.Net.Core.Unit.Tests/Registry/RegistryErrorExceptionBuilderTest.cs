@@ -14,13 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.registry.json;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
+using Jib.Net.Core.Registry.Json;
 using Moq;
 using NUnit.Framework;
 using System.Net.Http;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link RegistryErrorExceptionBuilder}. */
     public class RegistryErrorExceptionBuilderTest

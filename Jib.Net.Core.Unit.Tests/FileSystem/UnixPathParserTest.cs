@@ -14,10 +14,11 @@
  * the License.
  */
 
+using Jib.Net.Core.FileSystem;
 using NUnit.Framework;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.Unit.Tests.FileSystem
 {
     /** Tests for {@link UnixPathParser}. */
     public class UnixPathParserTest

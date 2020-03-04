@@ -20,7 +20,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     [Serializable]
     public class HttpResponseException : Exception

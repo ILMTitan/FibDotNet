@@ -14,13 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Images;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -28,7 +27,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-namespace com.google.cloud.tools.jib.image.json
+namespace Jib.Net.Core.Unit.Tests.Images.Json
 {
     /** Tests for {@link JsonToImageTranslator}. */
     public class JsonToImageTranslatorTest
@@ -211,7 +210,7 @@ namespace com.google.cloud.tools.jib.image.json
                         .Build()),
                 image.GetHistory());
             Assert.AreEqual(Instant.FromUnixTimeSeconds(20), image.GetCreated());
-            Assert.AreEqual(new []{"some", "entrypoint", "command"}, image.GetEntrypoint());
+            Assert.AreEqual(new[] { "some", "entrypoint", "command" }, image.GetEntrypoint());
             Assert.AreEqual(ImmutableDic.Of("VAR1", "VAL1", "VAR2", "VAL2"), image.GetEnvironment());
             Assert.AreEqual("/some/workspace", image.GetWorkingDirectory());
             Assert.AreEqual(

@@ -15,14 +15,13 @@
  */
 
 using Jib.Net.Core.Api;
-using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.FileSystem
 {
     /** Recursively applies a function to each file in a directory. */
     public class DirectoryWalker

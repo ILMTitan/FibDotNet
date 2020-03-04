@@ -20,7 +20,7 @@ using Jib.Net.Core.Global;
 using Jib.Net.Core.Images;
 using NUnit.Framework;
 
-namespace com.google.cloud.tools.jib.image
+namespace Jib.Net.Core.Unit.Tests.Images
 {
     /** Tests for {@link Layer}. */
     public class LayerTest

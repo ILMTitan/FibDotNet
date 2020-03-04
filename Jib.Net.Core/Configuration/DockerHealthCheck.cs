@@ -14,14 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core;
+using Jib.Net.Core.Api;
 using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     /** Configuration information for performing healthchecks on a Docker container. */
     public sealed class DockerHealthCheck

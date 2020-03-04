@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using Newtonsoft.Json;
 
@@ -37,6 +36,11 @@ namespace Jib.Net.Core.FileSystem
         }
 
         public static implicit operator SystemPath(FileInfo fileInfo)
+        {
+            return FromFileInfo(fileInfo);
+        }
+
+        public static SystemPath FromFileInfo(FileInfo fileInfo)
         {
             var fullName = fileInfo?.FullName;
             if (fullName is null)
@@ -68,6 +72,18 @@ namespace Jib.Net.Core.FileSystem
             if(path.Length > 1)
             {
                 path = path.TrimEnd(Path.DirectorySeparatorChar);
+            }
+        }
+
+        public SystemPath Resolve()
+        {
+            if (Path.IsPathRooted(path))
+            {
+                return this;
+            }
+            else
+            {
+                return new SystemPath(Directory.GetCurrentDirectory()).Resolve(path);
             }
         }
 

@@ -14,11 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 using System;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Thrown when registry request was unauthorized because credentials weren't sent. */
     [Serializable]

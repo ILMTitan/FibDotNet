@@ -14,10 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.http;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Http;
+using Jib.Net.Core.Registry;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -27,7 +29,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link BlobPusher}. */
     public class BlobPusherTest : IDisposable

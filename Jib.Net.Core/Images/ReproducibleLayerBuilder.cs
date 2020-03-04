@@ -14,12 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.tar;
 using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Tar;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

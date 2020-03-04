@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Test.LocalRegistry
 {
     /** Runs a local registry. */
     public sealed class LocalRegistry : IDisposable
@@ -96,7 +96,7 @@ namespace com.google.cloud.tools.jib.registry
                         "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd"
                     });
             }
-            JavaExtensions.Add(dockerTokens, "registry");
+            dockerTokens.Add("registry");
             new Command("docker", dockerTokens).Run();
             await WaitUntilReadyAsync().ConfigureAwait(false);
         }
@@ -150,7 +150,7 @@ namespace com.google.cloud.tools.jib.registry
         {
             if (username != null && password != null)
             {
-                new Command("docker", string.Join(' ', new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
+                new Command("docker", string.Join(" ", new[] { "login", "localhost:" + port, "-u", username, "--password-stdin" }))
                     .Run(Encoding.UTF8.GetBytes(password));
             }
         }

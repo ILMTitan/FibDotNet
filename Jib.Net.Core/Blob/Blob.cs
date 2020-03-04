@@ -14,11 +14,10 @@
  * the License.
  */
 
-using Jib.Net.Core.Blob;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.blob
+namespace Jib.Net.Core.Blob
 {
     /** Holds a BLOB source for writing to an {@link OutputStream}. */
     public interface IBlob

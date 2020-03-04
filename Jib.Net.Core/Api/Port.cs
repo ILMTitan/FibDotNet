@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
@@ -167,7 +166,7 @@ namespace Jib.Net.Core.Api
                 // Parse protocol
                 int min = int.Parse(matcher.Groups[1].Value, CultureInfo.InvariantCulture);
                 int max = min;
-                if (!Strings.IsNullOrEmpty(matcher.Groups[2].Value))
+                if (!string.IsNullOrEmpty(matcher.Groups[2].Value))
                 {
                     max = int.Parse(matcher.Groups[2].Value, CultureInfo.InvariantCulture);
                 }

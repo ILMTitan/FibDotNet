@@ -19,7 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     internal static class ByteStreams
     {
@@ -35,7 +35,7 @@ namespace com.google.cloud.tools.jib.hash
             IEnumerable<byte> ReadBytes(Stream s)
             {
                 int b;
-                while((b = s.ReadByte()) >= 0)
+                while ((b = s.ReadByte()) >= 0)
                 {
                     yield return (byte)b;
                 }

@@ -16,7 +16,7 @@
 
 using System;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /** Retrieves credentials for a registry. */
     public delegate Maybe<Credential> CredentialRetriever();

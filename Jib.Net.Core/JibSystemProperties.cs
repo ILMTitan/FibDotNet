@@ -14,7 +14,6 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using System;
 using System.Globalization;
 
@@ -41,9 +40,10 @@ namespace Jib.Net.Core
          */
         public static int GetHttpTimeout()
         {
-            if (int.TryParse(Environment.GetEnvironmentVariable(HttpTimeout), out int timeoutMills)
-                )
-            { return timeoutMills; }
+            if (int.TryParse(Environment.GetEnvironmentVariable(HttpTimeout), out int timeoutMills))
+            {
+                return timeoutMills;
+            }
             else
             {
                 return defaultTimeoutMills;
@@ -95,7 +95,7 @@ namespace Jib.Net.Core
          */
         public static bool IsUserAgentEnabled()
         {
-            return Strings.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
+            return string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_USER_AGENT));
         }
 
         /**

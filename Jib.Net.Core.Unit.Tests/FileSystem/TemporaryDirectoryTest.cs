@@ -22,7 +22,7 @@ using NUnit.Framework;
 using System;
 using System.IO;
 
-namespace com.google.cloud.tools.jib.filesystem
+namespace Jib.Net.Core.Unit.Tests.FileSystem
 {
     /** Tests for {@link TemporaryDirectory}. */
     public class TemporaryDirectoryTest : IDisposable

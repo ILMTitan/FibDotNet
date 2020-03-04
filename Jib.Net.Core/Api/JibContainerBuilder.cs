@@ -14,13 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using NodaTime.Extensions;
 using System;
 using System.Collections.Generic;
@@ -30,8 +28,6 @@ using System.Threading.Tasks;
 
 namespace Jib.Net.Core.Api
 {
-    // TODO: Move to com.google.cloud.tools.jib once that package is cleaned up.
-
     /**
      * Builds a container with Jib.
      *
@@ -196,7 +192,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder AddLayer(ILayerConfiguration layerConfiguration)
         {
-            JavaExtensions.Add(layerConfigurations, layerConfiguration);
+            layerConfigurations.Add(layerConfiguration);
             return this;
         }
 
@@ -252,7 +248,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetEntrypoint(params string[] entrypoint)
         {
-            return SetEntrypoint(entrypoint.ToList());
+            return SetEntrypoint((IEnumerable<string>)entrypoint);
         }
 
         /**
@@ -286,7 +282,7 @@ namespace Jib.Net.Core.Api
          */
         public JibContainerBuilder SetProgramArguments(params string[] programArguments)
         {
-            return SetProgramArguments(programArguments.ToList());
+            return SetProgramArguments((IEnumerable<string>)programArguments);
         }
 
         /**
@@ -561,8 +557,8 @@ namespace Jib.Net.Core.Api
             return buildConfigurationBuilder
                 .SetTargetImageConfiguration(containerizer.GetImageConfiguration())
                 .SetAdditionalTargetImageTags(containerizer.GetAdditionalTags())
-                .SetBaseImageLayersCacheDirectory(containerizer.GetBaseImageLayersCacheDirectory())
-                .SetApplicationLayersCacheDirectory(containerizer.GetApplicationLayersCacheDirectory())
+                .SetBaseImageLayersCacheDirectory(SystemPath.From(containerizer.GetBaseImageLayersCacheDirectory()))
+                .SetApplicationLayersCacheDirectory(SystemPath.From(containerizer.GetApplicationLayersCacheDirectory()))
                 .SetContainerConfiguration(containerConfigurationBuilder.Build())
                 .SetLayerConfigurations(layerConfigurations)
                 .SetAllowInsecureRegistries(containerizer.GetAllowInsecureRegistries())
@@ -586,11 +582,11 @@ namespace Jib.Net.Core.Api
                     continue;
                 }
 
-                message.Append('\t').Append(layerConfiguration.Name).Append(':');
+                message.AppendLine("\t").Append(layerConfiguration.Name).Append(':');
 
                 foreach (LayerEntry layerEntry in layerConfiguration.LayerEntries)
                 {
-                    message.Append("\t\t").Append(layerEntry.SourceFile);
+                    message.AppendLine("\t\t").Append(layerEntry.SourceFile);
                 }
             }
             eventHandlers.Dispatch(LogEvent.Info(message.ToString()));

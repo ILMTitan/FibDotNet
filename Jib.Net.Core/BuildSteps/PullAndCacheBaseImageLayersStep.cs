@@ -14,9 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Async;
 using Jib.Net.Core.Caching;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Global;

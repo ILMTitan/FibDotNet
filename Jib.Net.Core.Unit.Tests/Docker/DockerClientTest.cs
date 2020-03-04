@@ -14,9 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Docker;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -29,7 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Unit.Tests.Docker
 {
     /** Tests for {@link DockerClient}. */
     public class DockerClientTest
@@ -92,7 +93,7 @@ namespace com.google.cloud.tools.jib.docker
                     m.GetOutputStream().WriteAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
                 .Throws<IOException>();
 
-            Mock.Get(mockProcess).Setup(m => m.GetErrorReader().ReadToEnd()).Returns("error");
+            Mock.Get(mockProcess).Setup(m => m.GetErrorReader()).Returns(new StringReader("error"));
 
             try
             {
@@ -152,18 +153,20 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void TestTag()
+        public async Task TestTag()
         {
             DockerClient testDockerClient =
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(new []{"tag", "original", "new"}, subcommand);
+                        Assert.AreEqual(new[] { "tag", "original", "new" }, subcommand);
                         return mockProcessBuilder;
                     });
             Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(0);
 
-            testDockerClient.Tag(ImageReference.Of(null, "original", null), ImageReference.Parse("new"));
+            ImageReference originalImageReference = ImageReference.Of(null, "original", null);
+            ImageReference newImageReference = ImageReference.Parse("new");
+            await testDockerClient.TagAsync(originalImageReference, newImageReference).ConfigureAwait(false);
         }
 
         [Test]
@@ -171,13 +174,13 @@ namespace com.google.cloud.tools.jib.docker
         {
             ProcessBuilder processBuilder =
                 DockerClient.DefaultProcessBuilderFactory("docker-executable", ImmutableDictionary.Create<string, string>())
-(new []{"sub", "command"});
+(new[] { "sub", "command" });
 
             Assert.AreEqual("docker-executable sub command", processBuilder.Command());
             CollectionAssert.AreEquivalent(
                 Environment.GetEnvironmentVariables()
                     .Cast<DictionaryEntry>()
-                    .ToDictionary(e => e.Key.ToString(), e=>e.Value.ToString()),
+                    .ToDictionary(e => e.Key.ToString(), e => e.Value.ToString()),
                 processBuilder.GetEnvironment());
         }
 
@@ -200,13 +203,13 @@ namespace com.google.cloud.tools.jib.docker
         }
 
         [Test]
-        public void TestTag_fail()
+        public async Task TestTag_fail()
         {
             DockerClient testDockerClient =
                 new DockerClient(
                     subcommand =>
                     {
-                        Assert.AreEqual(new []{"tag", "original", "new"}, subcommand);
+                        Assert.AreEqual(new[] { "tag", "original", "new" }, subcommand);
                         return mockProcessBuilder;
                     });
             Mock.Get(mockProcess).Setup(m => m.WaitFor()).Returns(1);
@@ -215,7 +218,9 @@ namespace com.google.cloud.tools.jib.docker
 
             try
             {
-                testDockerClient.Tag(ImageReference.Of(null, "original", null), ImageReference.Parse("new"));
+                ImageReference originalImageReference = ImageReference.Of(null, "original", null);
+                ImageReference newImageReference = ImageReference.Parse("new");
+                await testDockerClient.TagAsync(originalImageReference, newImageReference).ConfigureAwait(false);
                 Assert.Fail("docker tag should have failed");
             }
             catch (IOException ex)

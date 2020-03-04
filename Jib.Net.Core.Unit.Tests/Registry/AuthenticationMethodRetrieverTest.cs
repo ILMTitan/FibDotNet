@@ -15,6 +15,7 @@
  */
 
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Registry;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -23,7 +24,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link AuthenticationMethodRetriever}. */
     public class AuthenticationMethodRetrieverTest

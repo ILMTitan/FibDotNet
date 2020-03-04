@@ -14,9 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
+using Jib.Net.Core.Api;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Registry
 {
     /** Thrown when a pulled BLOB did not have the same digest as requested. */
     internal class UnexpectedBlobDigestException : RegistryException

@@ -17,12 +17,14 @@
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Unit.Tests.Hash
 {
     /** Tests for {@link CountingDigestOutputStream}. */
     public class CountingDigestOutputStreamTest
@@ -36,7 +38,7 @@ namespace com.google.cloud.tools.jib.hash
             };
 
         [Test]
-        public async System.Threading.Tasks.Task Test_smokeTestAsync()
+        public async Task Test_smokeTestAsync()
         {
             foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES)
             {
@@ -49,7 +51,7 @@ namespace com.google.cloud.tools.jib.hash
 
                 byte[] bytesToHash = Encoding.UTF8.GetBytes(toHash);
                 Stream toHashInputStream = new MemoryStream(bytesToHash);
-                await ByteStreams.CopyAsync(toHashInputStream, countingDigestOutputStream).ConfigureAwait(false);
+                await toHashInputStream.CopyToAsync(countingDigestOutputStream).ConfigureAwait(false);
 
                 BlobDescriptor blobDescriptor = countingDigestOutputStream.ComputeDigest();
                 Assert.AreEqual(DescriptorDigest.FromHash(expectedHash), blobDescriptor.GetDigest());

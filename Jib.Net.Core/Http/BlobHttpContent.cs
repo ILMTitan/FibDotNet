@@ -14,7 +14,7 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
+using Jib.Net.Core.Blob;
 using System;
 using System.IO;
 using System.Net;
@@ -22,7 +22,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Http
 {
     /** {@link Blob}-backed {@link HttpContent}. */
     public class BlobHttpContent : HttpContent
@@ -37,7 +37,7 @@ namespace com.google.cloud.tools.jib.http
         public BlobHttpContent(IBlob blob, string contentType, Action<long> writtenByteCountListener)
         {
             this.blob = blob;
-            this.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            Headers.ContentType = new MediaTypeHeaderValue(contentType);
             this.writtenByteCountListener = writtenByteCountListener;
         }
 
@@ -50,10 +50,10 @@ namespace com.google.cloud.tools.jib.http
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
             stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            using (NotifyingOutputStream outputStream = new NotifyingOutputStream(stream, writtenByteCountListener))
+            using (NotifyingOutputStream outputStream = new NotifyingOutputStream(stream, writtenByteCountListener, true))
             {
                 await blob.WriteToAsync(outputStream).ConfigureAwait(false);
-                await stream.FlushAsync().ConfigureAwait(false);
+                await outputStream.FlushAsync().ConfigureAwait(false);
             }
         }
 

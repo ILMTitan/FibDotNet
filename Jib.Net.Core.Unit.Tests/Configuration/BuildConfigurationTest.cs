@@ -14,10 +14,11 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Test.Common;
 using Moq;
 using NodaTime;
 using NUnit.Framework;
@@ -25,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Unit.Tests.Configuration
 {
     /** Tests for {@link BuildConfiguration}. */
     public class BuildConfigurationTest
@@ -44,8 +45,8 @@ namespace com.google.cloud.tools.jib.configuration
             IList<CredentialRetriever> credentialRetrievers =
                 new List<CredentialRetriever> { () => Maybe.Of(Credential.From("username", "password")) };
             Instant expectedCreationTime = Instant.FromUnixTimeSeconds(10000);
-            IList<string> expectedEntrypoint = new []{"some", "entrypoint"};
-            IList<string> expectedProgramArguments = new []{"arg1", "arg2"};
+            IList<string> expectedEntrypoint = new[] { "some", "entrypoint" };
+            IList<string> expectedProgramArguments = new[] { "arg1", "arg2" };
             IDictionary<string, string> expectedEnvironment = ImmutableDic.Of("key", "value");
             ImmutableHashSet<Port> expectedExposedPorts = ImmutableHashSet.Create(Port.Tcp(1000), Port.Tcp(2000));
             IDictionary<string, string> expectedLabels = ImmutableDic.Of("key1", "value1", "key2", "value2");

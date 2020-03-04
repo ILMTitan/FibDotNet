@@ -157,44 +157,51 @@ csharp_preserve_single_line_statements = true
 
 # Naming rules
 
-dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
-dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
-dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
+dotnet_naming_rule.interface_should_be_ipascalcase.severity = suggestion
+dotnet_naming_rule.interface_should_be_ipascalcase.symbols = interface
+dotnet_naming_rule.interface_should_be_ipascalcase.style = ipascalcase
 
-dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.types_should_be_pascal_case.symbols = types
-dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.types_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.types_should_be_pascalcase.symbols = types
+dotnet_naming_rule.types_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
-dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
-dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.non_field_members_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.non_field_members_should_be_pascalcase.symbols = non_field_members
+dotnet_naming_rule.non_field_members_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = constant_field
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = pascal_case
+dotnet_naming_rule.constant_field_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.constant_field_should_be_pascalcase.symbols = constant_field
+dotnet_naming_rule.constant_field_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = static_readonly_field
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = pascal_case
+dotnet_naming_rule.static_readonly_field_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.static_readonly_field_should_be_pascalcase.symbols = static_readonly_field
+dotnet_naming_rule.static_readonly_field_should_be_pascalcase.style = pascalcase
 
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.severity = suggestion
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.symbols = private_or_internal_field
-dotnet_naming_rule.private_or_internal_field_should_be_private_fields.style = private_fields
+dotnet_naming_rule.private_or_internal_field_should_be__camelcase.severity = suggestion
+dotnet_naming_rule.private_or_internal_field_should_be__camelcase.symbols = private_or_internal_field
+dotnet_naming_rule.private_or_internal_field_should_be__camelcase.style = _camelcase
+
+dotnet_naming_rule.parameters_should_be_camelcase.severity = suggestion
+dotnet_naming_rule.parameters_should_be_camelcase.symbols = parameters
+dotnet_naming_rule.parameters_should_be_camelcase.style = camelcase
+
+dotnet_naming_rule.local_variables_should_be_camelcase.severity = suggestion
+dotnet_naming_rule.local_variables_should_be_camelcase.symbols = local_variables
+dotnet_naming_rule.local_variables_should_be_camelcase.style = camelcase
+
+dotnet_naming_rule.type_parameters_should_be_tpascalcase.severity = suggestion
+dotnet_naming_rule.type_parameters_should_be_tpascalcase.symbols = type_parameters
+dotnet_naming_rule.type_parameters_should_be_tpascalcase.style = tpascalcase
+
+dotnet_naming_rule.local_function_should_be_pascalcase.severity = suggestion
+dotnet_naming_rule.local_function_should_be_pascalcase.symbols = local_function
+dotnet_naming_rule.local_function_should_be_pascalcase.style = pascalcase
 
 # Symbol specifications
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
-dotnet_naming_symbols.interface.applicable_accessibilities = public, protected, protected_internal, internal, private
+dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, private, protected, protected_internal
 dotnet_naming_symbols.interface.required_modifiers = 
-
-dotnet_naming_symbols.constant_field.applicable_kinds = field
-dotnet_naming_symbols.constant_field.applicable_accessibilities = public, protected, protected_internal, internal, private
-dotnet_naming_symbols.constant_field.required_modifiers = const
-
-dotnet_naming_symbols.static_readonly_field.applicable_kinds = field
-dotnet_naming_symbols.static_readonly_field.applicable_accessibilities = public, protected, protected_internal, internal, private
-dotnet_naming_symbols.static_readonly_field.required_modifiers = static, readonly
-
 
 dotnet_naming_symbols.private_or_internal_field.applicable_kinds = field
 dotnet_naming_symbols.private_or_internal_field.applicable_accessibilities = internal, private
@@ -208,19 +215,56 @@ dotnet_naming_symbols.non_field_members.applicable_kinds = property, event, meth
 dotnet_naming_symbols.non_field_members.applicable_accessibilities = public, internal, private, protected, protected_internal
 dotnet_naming_symbols.non_field_members.required_modifiers = 
 
+dotnet_naming_symbols.static_readonly_field.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_field.applicable_accessibilities = *
+dotnet_naming_symbols.static_readonly_field.required_modifiers = readonly, static
+
+dotnet_naming_symbols.constant_field.applicable_kinds = field
+dotnet_naming_symbols.constant_field.applicable_accessibilities = *
+dotnet_naming_symbols.constant_field.required_modifiers = const
+
+dotnet_naming_symbols.parameters.applicable_kinds = parameter
+dotnet_naming_symbols.parameters.applicable_accessibilities = local
+dotnet_naming_symbols.parameters.required_modifiers = 
+
+dotnet_naming_symbols.local_variables.applicable_kinds = local
+dotnet_naming_symbols.local_variables.applicable_accessibilities = local
+dotnet_naming_symbols.local_variables.required_modifiers = 
+
+dotnet_naming_symbols.type_parameters.applicable_kinds = type_parameter
+dotnet_naming_symbols.type_parameters.applicable_accessibilities = *
+dotnet_naming_symbols.type_parameters.required_modifiers = 
+
+dotnet_naming_symbols.local_function.applicable_kinds = local_function
+dotnet_naming_symbols.local_function.applicable_accessibilities = *
+dotnet_naming_symbols.local_function.required_modifiers = 
+
 # Naming styles
 
-dotnet_naming_style.pascal_case.required_prefix = 
-dotnet_naming_style.pascal_case.required_suffix = 
-dotnet_naming_style.pascal_case.word_separator = 
-dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.pascalcase.required_prefix = 
+dotnet_naming_style.pascalcase.required_suffix = 
+dotnet_naming_style.pascalcase.word_separator = 
+dotnet_naming_style.pascalcase.capitalization = pascal_case
 
-dotnet_naming_style.begins_with_i.required_prefix = I
-dotnet_naming_style.begins_with_i.required_suffix = 
-dotnet_naming_style.begins_with_i.word_separator = 
-dotnet_naming_style.begins_with_i.capitalization = pascal_case
+dotnet_naming_style.ipascalcase.required_prefix = I
+dotnet_naming_style.ipascalcase.required_suffix = 
+dotnet_naming_style.ipascalcase.word_separator = 
+dotnet_naming_style.ipascalcase.capitalization = pascal_case
 
-dotnet_naming_style.private_fields.required_prefix =
-dotnet_naming_style.private_fields.required_suffix = 
-dotnet_naming_style.private_fields.word_separator = 
-dotnet_naming_style.private_fields.capitalization = camel_case
+dotnet_naming_style._camelcase.required_prefix = _
+dotnet_naming_style._camelcase.required_suffix = 
+dotnet_naming_style._camelcase.word_separator = 
+dotnet_naming_style._camelcase.capitalization = camel_case
+
+dotnet_naming_style.camelcase.required_prefix = 
+dotnet_naming_style.camelcase.required_suffix = 
+dotnet_naming_style.camelcase.word_separator = 
+dotnet_naming_style.camelcase.capitalization = camel_case
+
+dotnet_naming_style.tpascalcase.required_prefix = T
+dotnet_naming_style.tpascalcase.required_suffix = 
+dotnet_naming_style.tpascalcase.word_separator = 
+dotnet_naming_style.tpascalcase.capitalization = pascal_case
+
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = warning

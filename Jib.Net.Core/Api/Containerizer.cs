@@ -14,15 +14,15 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.docker;
-using com.google.cloud.tools.jib.filesystem;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Configuration;
+using Jib.Net.Core.Docker;
 using Jib.Net.Core.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 
 namespace Jib.Net.Core.Api
 {
@@ -33,14 +33,14 @@ namespace Jib.Net.Core.Api
          * The default directory for caching the base image layers, in {@code [user cache
          * home]/google-cloud-tools-java/jib}.
          */
-        public static readonly SystemPath DefaultBaseCacheDirectory =
-            UserCacheHome.GetCacheHome(SystemEnvironment.Instance).Resolve("google-cloud-tools-java").Resolve("jib");
+        public static readonly string DefaultBaseCacheDirectory =
+            Path.Combine(UserCacheHome.GetCacheHome(SystemEnvironment.Instance), "jibdotnet", "cache");
 
-        private const string DEFAULT_TOOL_NAME = "jib-core";
+        private const string DefaultToolName = "jib-core";
 
-        private const string DESCRIPTION_FOR_DOCKER_REGISTRY = "Building and pushing image";
-        private const string DESCRIPTION_FOR_DOCKER_DAEMON = "Building image to Docker daemon";
-        private const string DESCRIPTION_FOR_TARBALL = "Building image tarball";
+        public const string DescriptionForDockerRegistry = "Building and pushing image";
+        public const string DescriptionForDockerDaemon = "Building image to Docker daemon";
+        public const string DescriptionForImageTarFile = "Building image tar file.";
 
         /**
          * Gets a new {@link Containerizer} that containerizes to a container registry.
@@ -58,9 +58,9 @@ namespace Jib.Net.Core.Api
                     .Build();
 
             return new Containerizer(
-                DESCRIPTION_FOR_DOCKER_REGISTRY, imageConfiguration, stepsRunnerFactory, true);
+                DescriptionForDockerRegistry, imageConfiguration, StepsRunnerFactory, true);
 
-            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
+            StepsRunner StepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.Begin(buildConfiguration)
                         .RetrieveTargetRegistryCredentials()
                         .AuthenticatePush()
@@ -91,9 +91,9 @@ namespace Jib.Net.Core.Api
             dockerClientBuilder.SetDockerEnvironment(ImmutableDictionary.CreateRange(dockerDaemonImage.GetDockerEnvironment()));
 
             return new Containerizer(
-                DESCRIPTION_FOR_DOCKER_DAEMON, imageConfiguration, stepsRunnerFactory, false);
+                DescriptionForDockerDaemon, imageConfiguration, StepsRunnerFactory, false);
 
-            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
+            StepsRunner StepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.Begin(buildConfiguration)
                         .PullBaseImage()
                         .PullAndCacheBaseImageLayers()
@@ -115,9 +115,9 @@ namespace Jib.Net.Core.Api
                 ImageConfiguration.CreateBuilder(tarImage.GetImageReference()).Build();
 
             return new Containerizer(
-                DESCRIPTION_FOR_TARBALL, imageConfiguration, stepsRunnerFactory, false);
+                DescriptionForImageTarFile, imageConfiguration, StepsRunnerFactory, false);
 
-            StepsRunner stepsRunnerFactory(BuildConfiguration buildConfiguration) =>
+            StepsRunner StepsRunnerFactory(BuildConfiguration buildConfiguration) =>
                     StepsRunner.Begin(buildConfiguration)
                         .PullBaseImage()
                         .PullAndCacheBaseImageLayers()
@@ -133,12 +133,12 @@ namespace Jib.Net.Core.Api
         private readonly ISet<string> additionalTags = new HashSet<string>();
         public event Action<IJibEvent> JibEvents = _ => { };
 
-        private SystemPath baseImageLayersCacheDirectory = DefaultBaseCacheDirectory;
+        private string baseImageLayersCacheDirectory = DefaultBaseCacheDirectory;
         private TemporaryDirectory tempAppLayersCacheDir;
         private SystemPath applicationLayersCacheDirectory;
         private bool allowInsecureRegistries = false;
         private bool offline = false;
-        private string toolName = DEFAULT_TOOL_NAME;
+        private string toolName = DefaultToolName;
 
         /** Instantiate with {@link #to}. */
         private Containerizer(
@@ -186,7 +186,7 @@ namespace Jib.Net.Core.Api
          */
         public IContainerizer WithAdditionalTags(IEnumerable<string> tags)
         {
-            foreach (string tag in tags)
+            foreach (string tag in tags ?? Enumerable.Empty<string>())
             {
                 WithAdditionalTag(tag);
             }
@@ -204,7 +204,7 @@ namespace Jib.Net.Core.Api
          */
         public IContainerizer SetBaseImageLayersCache(string cacheDirectory)
         {
-            baseImageLayersCacheDirectory = SystemPath.From(cacheDirectory) ?? DefaultBaseCacheDirectory;
+            baseImageLayersCacheDirectory = cacheDirectory ?? DefaultBaseCacheDirectory;
             return this;
         }
 
@@ -295,12 +295,12 @@ namespace Jib.Net.Core.Api
             return additionalTags;
         }
 
-        public SystemPath GetBaseImageLayersCacheDirectory()
+        public string GetBaseImageLayersCacheDirectory()
         {
             return baseImageLayersCacheDirectory;
         }
 
-        public SystemPath GetApplicationLayersCacheDirectory()
+        public string GetApplicationLayersCacheDirectory()
         {
             if (applicationLayersCacheDirectory == null)
             {

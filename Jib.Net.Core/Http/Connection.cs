@@ -14,7 +14,6 @@
  * the License.
  */
 
-using Jib.Net.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -22,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.http
+namespace Jib.Net.Core.Http
 {
     /**
      * Sends an HTTP {@link Request} and stores the {@link Response}. Clients should not send more than

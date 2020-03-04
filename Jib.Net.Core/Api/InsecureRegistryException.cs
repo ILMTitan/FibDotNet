@@ -17,7 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Api
 {
     /**
      * Throw when attempting to access an insecure registry when only secure connections are allowed.

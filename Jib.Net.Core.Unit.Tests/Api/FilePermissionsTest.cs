@@ -14,14 +14,13 @@
  * the License.
  */
 
-using Jib.Net.Core;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link FilePermissions}. */
 
@@ -77,15 +76,15 @@ namespace com.google.cloud.tools.jib.api
             Assert.AreEqual(
                 new FilePermissions(PosixFilePermissions.None), FilePermissions.FromPosixFilePermissions(ImmutableHashSet.Create<PosixFilePermissions>()));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermissions.OwnerExecute| PosixFilePermissions.GroupExecute),
+                new FilePermissions(PosixFilePermissions.OwnerExecute | PosixFilePermissions.GroupExecute),
                 FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.OwnerExecute, PosixFilePermissions.GroupExecute)));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermissions.OwnerWrite| PosixFilePermissions.OthersWrite),
+                new FilePermissions(PosixFilePermissions.OwnerWrite | PosixFilePermissions.OthersWrite),
                 FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.OwnerWrite, PosixFilePermissions.OthersWrite)));
             Assert.AreEqual(
-                new FilePermissions(PosixFilePermissions.GroupRead| PosixFilePermissions.OthersRead),
+                new FilePermissions(PosixFilePermissions.GroupRead | PosixFilePermissions.OthersRead),
                 FilePermissions.FromPosixFilePermissions(
                     ImmutableHashSet.Create(PosixFilePermissions.GroupRead, PosixFilePermissions.OthersRead)));
             Assert.AreEqual(

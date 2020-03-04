@@ -14,8 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using System.Collections.Generic;
 
 namespace Jib.Net.Core.Images.Json

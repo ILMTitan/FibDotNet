@@ -14,10 +14,10 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.async;
-using com.google.cloud.tools.jib.configuration;
+using Jib.Net.Core.Async;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Caching;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events.Progress;
 using Jib.Net.Core.Events.Time;
 using Jib.Net.Core.Global;
@@ -71,11 +71,7 @@ namespace Jib.Net.Core.BuildSteps
                     var pushBlobSteps = new List<Task<BlobDescriptor>>();
                     foreach (ICachedLayer cachedLayer in cachedLayers)
                     {
-                        ProgressEventDispatcher.Factory childProgressEventDispatcherFactory =
-                            progressEventDispatcher.NewChildProducer();
-                        Task<BlobDescriptor> pushBlobStepFuture =
-                            PushBlobAsync(cachedLayer, childProgressEventDispatcherFactory);
-                        JavaExtensions.Add(pushBlobSteps, pushBlobStepFuture);
+                        pushBlobSteps.Add(PushBlobAsync(cachedLayer, progressEventDispatcher.NewChildProducer()));
                     }
 
                     return await Task.WhenAll(pushBlobSteps).ConfigureAwait(false);

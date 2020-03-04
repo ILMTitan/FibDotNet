@@ -14,14 +14,14 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
+using Jib.Net.Core.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.hash
+namespace Jib.Net.Core.Hash
 {
     /**
      * Utility class for computing a digest for various inputs while optionally writing to an output
@@ -45,9 +45,9 @@ namespace com.google.cloud.tools.jib.hash
 
         public static async Task<BlobDescriptor> ComputeJsonDigestAsync(object template, Stream outStream)
         {
-            async Task contentsAsync(Stream contentsOut) =>
+            async Task ContentsAsync(Stream contentsOut) =>
                 await JsonTemplateMapper.WriteToAsync(template, contentsOut).ConfigureAwait(false);
-            return await ComputeDigestAsync(contentsAsync, outStream).ConfigureAwait(false);
+            return await ComputeDigestAsync(ContentsAsync, outStream).ConfigureAwait(false);
         }
 
         public static async Task<BlobDescriptor> ComputeDigestAsync(Stream inStream)
@@ -91,8 +91,8 @@ namespace com.google.cloud.tools.jib.hash
          */
         public static async Task<BlobDescriptor> ComputeDigestAsync(Stream inStream, Stream outStream)
         {
-            async Task contents(Stream contentsOut) => await ByteStreams.CopyAsync(inStream, contentsOut).ConfigureAwait(false);
-            return await ComputeDigestAsync(contents, outStream).ConfigureAwait(false);
+            async Task Contents(Stream contentsOut) => await inStream.CopyToAsync(contentsOut).ConfigureAwait(false);
+            return await ComputeDigestAsync(Contents, outStream).ConfigureAwait(false);
         }
 
         /**

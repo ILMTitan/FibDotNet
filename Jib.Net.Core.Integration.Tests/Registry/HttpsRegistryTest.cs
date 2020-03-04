@@ -14,11 +14,12 @@
  * the License.
  */
 
+using Jib.Net.Test.LocalRegistry;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Integration.Tests.Registry
 {
     [TestFixture]
     public abstract class HttpRegistryTest
@@ -31,7 +32,8 @@ namespace com.google.cloud.tools.jib.registry
             try
             {
                 await localRegistry.StartAsync().ConfigureAwait(false);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 await TestContext.Out.WriteLineAsync(e.ToString()).ConfigureAwait(false);
                 throw new Exception(e.ToString(), e);

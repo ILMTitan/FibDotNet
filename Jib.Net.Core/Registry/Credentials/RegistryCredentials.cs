@@ -14,9 +14,9 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.http;
+using Jib.Net.Core.Http;
 
-namespace com.google.cloud.tools.jib.registry.credentials
+namespace Jib.Net.Core.Registry.Credentials
 {
     /**
      * Stores retrieved registry credentials and their source.

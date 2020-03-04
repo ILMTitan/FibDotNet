@@ -20,19 +20,19 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Text;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link ImageReference}. */
 
     public class ImageReferenceTest
     {
         private static readonly IList<string> goodRegistries =
-            new []{"some.domain---name.123.com:8080", "gcr.io", "localhost", null, ""};
+            new[] { "some.domain---name.123.com:8080", "gcr.io", "localhost", null, "" };
 
         private static readonly IList<string> goodRepositories =
-            new []{"some123_abc/repository__123-456/name---here", "distroless/java", "repository"};
+            new[] { "some123_abc/repository__123-456/name---here", "distroless/java", "repository" };
 
-        private static readonly IList<string> goodTags = new []{"some-.-.Tag", "", "latest", null};
+        private static readonly IList<string> goodTags = new[] { "some-.-.Tag", "", "latest", null };
 
         private static readonly IList<string> goodDigests = new[]
         {
@@ -229,7 +229,7 @@ namespace com.google.cloud.tools.jib.api
         {
             // Gets the expected parsed components.
             string expectedRegistry = registry;
-            if (Strings.IsNullOrEmpty(expectedRegistry))
+            if (string.IsNullOrEmpty(expectedRegistry))
             {
                 expectedRegistry = "registry-1.docker.io";
             }
@@ -239,19 +239,19 @@ namespace com.google.cloud.tools.jib.api
                 expectedRepository = "library/" + expectedRepository;
             }
             string expectedTag = tag;
-            if (Strings.IsNullOrEmpty(expectedTag))
+            if (string.IsNullOrEmpty(expectedTag))
             {
                 expectedTag = "latest";
             }
 
             // Builds the image reference to parse.
             StringBuilder imageReferenceBuilder = new StringBuilder();
-            if (!Strings.IsNullOrEmpty(registry))
+            if (!string.IsNullOrEmpty(registry))
             {
                 JavaExtensions.Append(JavaExtensions.Append(imageReferenceBuilder, registry), '/');
             }
             JavaExtensions.Append(imageReferenceBuilder, repository);
-            if (!Strings.IsNullOrEmpty(tag))
+            if (!string.IsNullOrEmpty(tag))
             {
                 JavaExtensions.Append(JavaExtensions.Append(imageReferenceBuilder, tagSeparator), tag);
             }

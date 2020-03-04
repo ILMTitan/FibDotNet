@@ -14,9 +14,8 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.blob;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Blob;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
@@ -29,7 +28,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link CacheStorageReader}. */
     public class CacheStorageReaderTest : IDisposable
@@ -90,7 +89,7 @@ namespace com.google.cloud.tools.jib.cache
 
             // Checks that layer directories created are all listed.
             Assert.AreEqual(
-                new HashSet<DescriptorDigest>(new []{layerDigest1, layerDigest2}),
+                new HashSet<DescriptorDigest>(new[] { layerDigest1, layerDigest2 }),
                 cacheStorageReader.FetchDigests());
 
             // Checks that non-digest directories means the cache is corrupted.
@@ -103,7 +102,7 @@ namespace com.google.cloud.tools.jib.cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(),Does.StartWith("Found non-digest file in layers directory"));
+                    ex.GetMessage(), Does.StartWith("Found non-digest file in layers directory"));
                 Assert.IsInstanceOf<DigestException>(ex.InnerException);
             }
         }

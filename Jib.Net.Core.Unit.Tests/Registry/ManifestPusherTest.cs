@@ -14,15 +14,16 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.hash;
-using com.google.cloud.tools.jib.http;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
+using Jib.Net.Core.Hash;
+using Jib.Net.Core.Http;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
+using Jib.Net.Core.Registry;
 using Jib.Net.Test.Common;
 using Moq;
 using NUnit.Framework;
@@ -34,7 +35,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.registry
+namespace Jib.Net.Core.Unit.Tests.Registry
 {
     /** Tests for {@link ManifestPusher}. */
     public class ManifestPusherTest
@@ -108,7 +109,7 @@ namespace com.google.cloud.tools.jib.registry
             DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", new []{"too", "many"} } }
+                Headers = { { "Docker-Content-Digest", new[] { "too", "many" } } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));

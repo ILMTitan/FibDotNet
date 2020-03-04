@@ -22,7 +22,7 @@ using NodaTime;
 using NUnit.Framework;
 using System.Collections.Immutable;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Unit.Tests.Api
 {
     /** Tests for {@link LayerConfiguration}. */
 

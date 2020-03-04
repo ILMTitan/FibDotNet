@@ -15,13 +15,16 @@
  */
 
 using Jib.Net.Core.Api;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Global;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Resources = Jib.Net.Core.Configuration.Resources;
 
-namespace com.google.cloud.tools.jib.configuration
+
+namespace Jib.Net.Core.Unit.Tests.Configuration
 {
     /** Tests for {@link ContainerConfiguration}. */
     public class ContainerConfigurationTest
@@ -32,23 +35,23 @@ namespace com.google.cloud.tools.jib.configuration
             // Java arguments element should not be null.
             try
             {
-                ContainerConfiguration.CreateBuilder().SetProgramArguments(new []{"first", null});
+                ContainerConfiguration.CreateBuilder().SetProgramArguments(new[] { "first", null });
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("program arguments list contains null elements", ex.GetMessage());
+                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullProgramArgument));
             }
 
             // Entrypoint element should not be null.
             try
             {
-                ContainerConfiguration.CreateBuilder().SetEntrypoint(new []{"first", null});
+                ContainerConfiguration.CreateBuilder().SetEntrypoint(new[] { "first", null });
                 Assert.Fail("The IllegalArgumentException should be thrown.");
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("entrypoint contains null elements", ex.GetMessage());
+                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullEntrypointArgument));
             }
 
             // Exposed ports element should not be null.
@@ -60,7 +63,7 @@ namespace com.google.cloud.tools.jib.configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("ports list contains null elements", ex.GetMessage());
+                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullPort));
             }
 
             // Volume element should not be null.
@@ -73,34 +76,7 @@ namespace com.google.cloud.tools.jib.configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("volumes list contains null elements", ex.GetMessage());
-            }
-
-            IDictionary<string, string> nullValueMap = new Dictionary<string, string>
-            {
-                ["key"] = null
-            };
-
-            // Labels values should not be null.
-            try
-            {
-                ContainerConfiguration.CreateBuilder().SetLabels(nullValueMap);
-                Assert.Fail("The IllegalArgumentException should be thrown.");
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual("labels map contains null values", ex.GetMessage());
-            }
-
-            // Environment values should not be null.
-            try
-            {
-                ContainerConfiguration.CreateBuilder().SetEnvironment(nullValueMap);
-                Assert.Fail("The IllegalArgumentException should be thrown.");
-            }
-            catch (ArgumentException ex)
-            {
-                Assert.AreEqual("environment map contains null values", ex.GetMessage());
+                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullVolume));
             }
         }
 

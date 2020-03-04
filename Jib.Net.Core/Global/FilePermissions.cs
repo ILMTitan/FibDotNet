@@ -14,21 +14,19 @@
  * the License.
  */
 
-using Jib.Net.Core;
-using Jib.Net.Core.Global;
 using System;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Global
 {
     /** Represents read/write/execute file permissions for owner, group, and others. */
     public class FilePermissions
     {
         /** Default permissions for files added to the container. */
-        public static readonly FilePermissions DefaultFilePermissions = FilePermissions.FromOctalString("644");
+        public static readonly FilePermissions DefaultFilePermissions = FromOctalString("644");
 
         /** Default permissions for folders added to the container. */
-        public static readonly FilePermissions DefaultFolderPermissions = FilePermissions.FromOctalString("755");
+        public static readonly FilePermissions DefaultFolderPermissions = FromOctalString("755");
 
         /**
          * Matches an octal string representation of file permissions. From left to right, each digit

@@ -14,14 +14,13 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.blob;
-using com.google.cloud.tools.jib.json;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.Blob;
 using Jib.Net.Core.Caching;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Images.Json;
+using Jib.Net.Core.Json;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
@@ -29,7 +28,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.cache
+namespace Jib.Net.Core.Unit.Tests.Cache
 {
     /** Tests for {@link CacheStorageWriter}. */
     public class CacheStorageWriterTest : IDisposable

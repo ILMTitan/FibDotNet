@@ -14,17 +14,17 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.registry;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
+using Jib.Net.Test.LocalRegistry;
 using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace com.google.cloud.tools.jib.api
+namespace Jib.Net.Core.Integration.Tests.Api
 {
     /** Integration tests for {@link Jib}. */
     public class JibIntegrationTest : IDisposable
@@ -77,7 +77,7 @@ namespace com.google.cloud.tools.jib.api
         }
 
         [Test]
-        public async Task TestBasic_helloWorldAsync()
+        public async Task TestBasic_HelloWorldAsync()
         {
             ImageReference targetImageReference =
                 ImageReference.Of("localhost:5002", "jib-core", "basic-helloworld");
@@ -90,7 +90,7 @@ namespace com.google.cloud.tools.jib.api
                                     .AddCredentialRetriever(
                                         () => Maybe.Of(Credential.From("username", "password"))))
                             .SetAllowInsecureRegistries(true)
-                            .AddEventHandler<IJibEvent>(e=>TestContext.Out.WriteLine(e))).ConfigureAwait(false);
+                            .AddEventHandler<IJibEvent>(e => TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
             Assert.AreEqual("Hello World\n", PullAndRunBuiltImage(JavaExtensions.ToString(targetImageReference)));
             Assert.AreEqual(

@@ -14,7 +14,7 @@
  * the License.
  */
 
-namespace com.google.cloud.tools.jib.docker
+namespace Jib.Net.Core.Docker
 {
     internal static class Win32ErrorCodes
     {

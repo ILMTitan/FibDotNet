@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using com.google.cloud.tools.jib.api;
 using Jib.Net.Core.Api;
 using NUnit.Framework;
 

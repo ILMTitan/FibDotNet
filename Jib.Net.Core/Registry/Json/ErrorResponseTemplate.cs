@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
-namespace com.google.cloud.tools.jib.registry.json
+namespace Jib.Net.Core.Registry.Json
 {
     /**
      * Template for the registry response body JSON when a request errored.
@@ -41,7 +41,7 @@ namespace com.google.cloud.tools.jib.registry.json
     [JsonObject(
         NamingStrategyType = typeof(CamelCaseNamingStrategy),
         MissingMemberHandling = MissingMemberHandling.Ignore,
-        ItemNullValueHandling =NullValueHandling.Ignore)]
+        ItemNullValueHandling = NullValueHandling.Ignore)]
     public class ErrorResponseTemplate
     {
         private readonly List<ErrorEntryTemplate> _errors = new List<ErrorEntryTemplate>();

@@ -14,13 +14,12 @@
  * the License.
  */
 
-using com.google.cloud.tools.jib.api;
-using com.google.cloud.tools.jib.configuration;
-using com.google.cloud.tools.jib.registry.credentials;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.BuildSteps;
+using Jib.Net.Core.Configuration;
 using Jib.Net.Core.Events;
 using Jib.Net.Core.Events.Progress;
+using Jib.Net.Core.Registry.Credentials;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;

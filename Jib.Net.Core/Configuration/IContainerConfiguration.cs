@@ -2,7 +2,7 @@
 using Jib.Net.Core.Api;
 using NodaTime;
 
-namespace com.google.cloud.tools.jib.configuration
+namespace Jib.Net.Core.Configuration
 {
     public interface IContainerConfiguration
     {
