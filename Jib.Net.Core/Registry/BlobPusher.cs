@@ -290,6 +290,10 @@ namespace Jib.Net.Core.Registry
          */
         public static Uri GetRedirectLocation(HttpResponseMessage response)
         {
+            if(response?.Headers?.Location == null)
+            {
+                throw new RegistryErrorException("Expected a single location headder returned", response);
+            }
             return new Uri(response.RequestMessage.RequestUri, response.Headers.Location);
         }
     }
