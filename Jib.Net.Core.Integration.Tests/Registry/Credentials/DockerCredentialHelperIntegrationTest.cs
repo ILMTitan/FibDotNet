@@ -18,7 +18,6 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Registry.Credentials;
 using Jib.Net.Test.Common;
-using Jib.Net.Test.LocalRegistry;
 using NUnit.Framework;
 
 namespace Jib.Net.Core.Integration.Tests.Registry.Credentials

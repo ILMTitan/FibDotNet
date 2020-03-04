@@ -21,7 +21,6 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Core.Integration.Tests.Registry;
 using Jib.Net.Test.Common;
-using Jib.Net.Test.LocalRegistry;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;

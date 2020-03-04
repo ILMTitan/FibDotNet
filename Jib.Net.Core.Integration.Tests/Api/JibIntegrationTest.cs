@@ -18,7 +18,6 @@ using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
-using Jib.Net.Test.LocalRegistry;
 using NUnit.Framework;
 using System;
 using System.IO;

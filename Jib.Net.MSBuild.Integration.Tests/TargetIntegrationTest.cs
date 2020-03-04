@@ -1,6 +1,6 @@
 
+using Jib.Net.Test.Common;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,23 +11,29 @@ namespace Tests
 {
     public class TargetIntegrationTest
     {
+        private const string TarFileName = "TestTar.tar.gz";
+        private const string TestProjectName = "RazorTestProject";
+        private const string TestProjectVersion = "1.0.0-alpha1";
 
+        [TearDown]
+        public void DeleteTarFile()
+        {
+            File.Delete(Path.Combine(TestProjectName, TarFileName));
+        }
 
         [Test]
         public async Task TestTarFileBuildAsync()
         {
             var properties = new Dictionary<string, string>
             {
-                ["JibPublishType"] = "Tar",
                 ["PublishProvider"] = "JibDotNet",
-                ["JibOutputTarFile"] = "TestTar.tar.gz"
+                ["JibPublishType"] = "Tar",
+                ["JibOutputTarFile"] = TarFileName
             };
-            string arguments = "publish RazorTestProject -v:d "
+            string arguments = "publish " + TestProjectName + " -v:d "
                 + string.Join(" ", properties.Select(kvp => $"-p:{kvp.Key}={kvp.Value}"));
             var p = Process.Start(
-                new ProcessStartInfo(
-                    "dotnet",
-                    arguments)
+                new ProcessStartInfo("dotnet", arguments)
                 {
                     UseShellExecute = false,
                     RedirectStandardError = true,
@@ -43,11 +49,84 @@ namespace Tests
                 await tcs.Task;
             }
 
-            Console.WriteLine(await stderrTask);
-            Console.WriteLine(await stdOutTask);
             Assert.AreEqual(0, p.ExitCode);
 
-            Assert.IsTrue(File.Exists("TestTar.tar.gz"));
+            Assert.IsTrue(File.Exists(Path.Combine(TestProjectName, TarFileName)));
+        }
+
+        [Test]
+        public async Task TestRegistryBuildAsync()
+        {
+            using (var localRegistry = new LocalRegistry(5000))
+            {
+                await localRegistry.StartAsync();
+                var properties = new Dictionary<string, string>
+                {
+                    ["PublishProvider"] = "JibDotNet",
+                    ["JibPublishType"] = "Push",
+                    ["JibTargetRegistry"] = "localhost:5000",
+                    ["JibAllowInsecureRegistries"] = "True"
+                };
+                string propertiesString = string.Join(" ", properties.Select(kvp => $"-p:{kvp.Key}={kvp.Value}"));
+                string arguments = $"publish {TestProjectName} {propertiesString}";
+                var p = Process.Start(
+                    new ProcessStartInfo("dotnet", arguments)
+                    {
+                        UseShellExecute = false,
+                        RedirectStandardError = true,
+                        RedirectStandardOutput = true
+                    });
+                p.EnableRaisingEvents = true;
+                TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+                p.Exited += (sender, args) => tcs.TrySetResult(p.ExitCode);
+                if (!p.HasExited)
+                {
+                    await tcs.Task;
+                }
+
+                Assert.AreEqual(0, p.ExitCode);
+                new Command("docker", "pull", "localhost:5000/"+ TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion).Run();
+            }
+        }
+
+        [Test]
+        public async Task TestDeamonBuildAsync()
+        {
+            var properties = new Dictionary<string, string>
+            {
+                ["PublishProvider"] = "JibDotNet",
+                ["JibPublishType"] = "Daemon",
+                ["JibTargetRegistry"] = "localhost:5000",
+                ["JibAllowInsecureRegistries"] = "True",
+                ["JibPort"] = "80"
+            };
+            string propertiesString = string.Join(" ", properties.Select(kvp => $"-p:{kvp.Key}={kvp.Value}"));
+            string arguments = $"publish {TestProjectName} -v:d {propertiesString}";
+            var p = Process.Start(
+                new ProcessStartInfo("dotnet", arguments)
+                {
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                });
+            p.EnableRaisingEvents = true;
+            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            p.Exited += (sender, args) => tcs.TrySetResult(p.ExitCode);
+            if (!p.HasExited)
+            {
+                await tcs.Task;
+            }
+
+            Assert.AreEqual(0, p.ExitCode);
+            string imageReference = "localhost:5000/" + TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion;
+            string dockerPortsEnv = new Command("docker", "inspect", imageReference, "-f", "{{.Config.ExposedPorts}}").Run();
+            Assert.That(dockerPortsEnv, Does.Contain("80/tcp"));
+            string dockerConfigEnv =
+                new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).Run();
+            Assert.That(dockerConfigEnv, Does.Contain("ASPNETCORE_URLS=http://+:80"));
+
+            string history = new Command("docker", "history", imageReference).Run();
+            Assert.That(history, Does.Contain("Jib.Net.MSBuild"));
         }
     }
 }

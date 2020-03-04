@@ -1,0 +1,5 @@
+{
+  "BaseImage": "scratch",
+  "TargetImage": "trivial-image",
+  "OfflineMode": true
+}

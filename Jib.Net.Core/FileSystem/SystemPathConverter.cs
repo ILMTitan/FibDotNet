@@ -32,7 +32,7 @@ namespace Jib.Net.Core.FileSystem
             bool hasExistingValue,
             JsonSerializer serializer)
         {
-            Debug.Assert(serializer is JsonSerializer);
+            Debug.Assert(serializer != null);
             return SystemPath.From(serializer.Deserialize<string>(reader));
         }
 

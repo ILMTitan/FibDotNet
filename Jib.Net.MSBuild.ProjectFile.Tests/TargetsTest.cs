@@ -12,10 +12,13 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
 {
     public class TargetsTest
     {
-        private const string existingFilePath = "build/path/ExistingFile.txt";
+        private const string ExistingFilePath = "build/path/ExistingFile.txt";
         private ProjectInstance _projectInstance;
 
-        private static IEnumerable<ILogger> Loggers { get; } = new[] { new ConsoleLogger(LoggerVerbosity.Normal, s => TestContext.Out.WriteLine(s), _ => { }, () => { }) };
+        private static IEnumerable<ILogger> Loggers { get; } =
+            new[] {
+                new ConsoleLogger(LoggerVerbosity.Normal, s => TestContext.Out.WriteLine(s), _ => { }, () => { })
+            };
 
         [SetUp]
         public void Setup()
@@ -30,14 +33,11 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                     tasksFile,
                     new Dictionary<string, string>
                     {
-                        ["JibDotNetPublishTaskAssembly"] =
-                            Path.Combine(
-                                TestContext.CurrentContext.TestDirectory,
-                                "Jib.Net.MsBuild.ProjectFile.Tests.dll")
+                        ["JibTaskAssembly"] = typeof(TargetsTest).Assembly.Location,
+                        ["JibCliExecutablePath"] = "Fake/Folder",
                     },
                     null);
             _projectInstance = BuildManager.DefaultBuildManager.GetProjectInstanceForBuild(project);
-            _projectInstance.SetProperty("JibDotNetPublishTaskAssembly", typeof(TargetsTest).Assembly.Location);
         }
 
         [Test]
@@ -149,20 +149,20 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
             _projectInstance.AddItem("IntermediateAssembly", "build/path/MyAssembly.dll");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
                     ["Layer"] = "OriginalLayer"
                 });
-            _projectInstance.AddItem("IntermediateAssembly", existingFilePath);
+            _projectInstance.AddItem("IntermediateAssembly", ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -259,7 +259,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestGatherImageFiles_FromAppConfig()
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
@@ -274,7 +274,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                 });
             _projectInstance.AddItem(
                 "AppConfigWithTargetPath",
-                existingFilePath,
+                ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "target/path/MyProject.appconfig.json"
@@ -285,7 +285,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -298,21 +298,21 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestGatherImageFiles_FromRazorAssembly()
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
                     ["Layer"] = "OriginalLayer"
                 });
             _projectInstance.AddItem("RazorIntermediateAssembly", "build/path/MyProject.Views.dll");
-            _projectInstance.AddItem("RazorIntermediateAssembly", existingFilePath);
+            _projectInstance.AddItem("RazorIntermediateAssembly", ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -326,21 +326,21 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
             _projectInstance.SetProperty("CopyOutputSymbolsToPublishDirectory", "True");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
                     ["Layer"] = "OriginalLayer"
                 });
             _projectInstance.AddItem("_DebugSymbolsIntermediatePath", "build/path/MyProject.pdb");
-            _projectInstance.AddItem("_DebugSymbolsIntermediatePath", existingFilePath);
+            _projectInstance.AddItem("_DebugSymbolsIntermediatePath", ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -354,21 +354,21 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
             _projectInstance.SetProperty("PublishDocumentationFile", "True");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
                     ["Layer"] = "OriginalLayer"
                 });
             _projectInstance.AddItem("FinalDocFile", "build/path/MyProject.Doc.xml");
-            _projectInstance.AddItem("FinalDocFile", existingFilePath);
+            _projectInstance.AddItem("FinalDocFile", ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -382,21 +382,21 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
             _projectInstance.SetProperty("CopyOutputSymbolsToPublishDirectory", "True");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
                     ["Layer"] = "OriginalLayer"
                 });
             _projectInstance.AddItem("_RazorDebugSymbolsIntermediatePath", "build/path/MyProject.Views.pdb");
-            _projectInstance.AddItem("_RazorDebugSymbolsIntermediatePath", existingFilePath);
+            _projectInstance.AddItem("_RazorDebugSymbolsIntermediatePath", ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -409,7 +409,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestGatherImageFiles_FromSatelliteAssemblies()
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
@@ -417,7 +417,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                 });
             _projectInstance.AddItem(
                 "IntermediateSatelliteAssembliesWithTargetPath",
-                existingFilePath,
+                ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["Culture"] = "en-US"
@@ -436,7 +436,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
 
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -449,7 +449,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestGatherImageFiles_FromLocalPublishAssets()
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
@@ -464,7 +464,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                 });
             _projectInstance.AddItem(
                 "_ResolvedCopyLocalPublishAssets",
-                existingFilePath,
+                ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["DestinationSubDirectory"] = "subdirectory/"
@@ -476,7 +476,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
 
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -489,7 +489,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestGatherImageFiles_FromDotNetPublishFiles()
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
@@ -504,7 +504,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                 });
             _projectInstance.AddItem(
                 "DotNetPublishFiles",
-                existingFilePath,
+                ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["DestinationRelativePath"] = "subdirectory/ExistingFile.txt"
@@ -515,7 +515,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -529,7 +529,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         {
             _projectInstance.SetProperty("JibAppBasePath", "/base/path/");
             _projectInstance.SetProperty("EFSQLScriptsFolderName", "scripts");
-            _projectInstance.AddItem("JibImageFile", existingFilePath,
+            _projectInstance.AddItem("JibImageFile", ExistingFilePath,
                 new Dictionary<string, string>
                 {
                     ["TargetPath"] = "OriginalTargetPath",
@@ -540,14 +540,14 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
                 "build/path/MyProject.Script.sql");
             _projectInstance.AddItem(
                 "_EFSQLScripts",
-                existingFilePath);
+                ExistingFilePath);
 
             Assert.IsTrue(_projectInstance.Build("GatherImageFiles", Loggers));
 
             var imageFiles = _projectInstance.GetItems("JibImageFile");
             Assert.AreEqual(2, imageFiles.Count);
 
-            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == existingFilePath);
+            var existingFile = imageFiles.Single(i => i.EvaluatedInclude == ExistingFilePath);
             Assert.AreEqual("OriginalTargetPath", existingFile.GetMetadataValue("TargetPath"));
             Assert.AreEqual("OriginalLayer", existingFile.GetMetadataValue("Layer"));
 
@@ -608,6 +608,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         [Test]
         public void TestJibPublish_FailsMissingJibBaseImage()
         {
+            _projectInstance.SetProperty("PublishProvider", "JibDotNet");
             _projectInstance.SetProperty("JibPublishType", "Docker");
             _projectInstance.SetProperty("JibTargetImage", "target/image:tag");
 
@@ -617,6 +618,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         [Test]
         public void TestJibPublish_FailsMissingJibTargetImage()
         {
+            _projectInstance.SetProperty("PublishProvider", "JibDotNet");
             _projectInstance.SetProperty("JibPublishType", "Docker");
             _projectInstance.SetProperty("JibBaseImage", "base/image:tag");
 
@@ -626,6 +628,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         [Test]
         public void TestJibPublish_FailsMissingJibPublishType()
         {
+            _projectInstance.SetProperty("PublishProvider", "JibDotNet");
             _projectInstance.SetProperty("JibBaseImage", "base/image:tag");
             _projectInstance.SetProperty("JibTargetImage", "target/image:tag");
 
@@ -636,9 +639,10 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public void TestJibPublish_CallsTask()
         {
             bool called = false;
-            Action<PublishImage> onExecute = _ => called = true;
-            PublishImage.OnExecute += onExecute;
-            
+            void OnExecute(PublishImage _) => called = true;
+            PublishImage.OnExecute += OnExecute;
+
+            _projectInstance.SetProperty("PublishProvider", "JibDotNet");
             _projectInstance.SetProperty("JibPublishType", "Docker");
             _projectInstance.SetProperty("JibBaseImage", "base/image:tag");
             _projectInstance.SetProperty("JibTargetImage", "target/image:tag");
@@ -647,7 +651,23 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
 
             Assert.IsTrue(called);
 
-            PublishImage.OnExecute -= onExecute;
+            PublishImage.OnExecute -= OnExecute;
+        }
+
+        [Test]
+        public void TestJibPublish_SkipsTask_DifferentPublishProvider()
+        {
+            bool called = false;
+            void OnExecute(PublishImage _) => called = true;
+            PublishImage.OnExecute += OnExecute;
+
+            _projectInstance.SetProperty("PublishProvider", "SomethingElse");
+
+            Assert.IsTrue(_projectInstance.Build("JibPublish", Loggers));
+
+            Assert.IsFalse(called);
+
+            PublishImage.OnExecute -= OnExecute;
         }
 
         [Test]
@@ -663,6 +683,7 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
             const string appLayersCache = "app/layers/cache";
             const string baseLayersCache = "base/layers/cache";
 
+            _projectInstance.SetProperty("PublishProvider", "JibDotNet");
             _projectInstance.SetProperty("JibPublishType", "Registry");
             _projectInstance.SetProperty("JibBaseImage", baseImage);
             _projectInstance.SetProperty("JibTargetImage", targetImage);

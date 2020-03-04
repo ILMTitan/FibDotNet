@@ -5,9 +5,10 @@
 -->
 <Project TreatAsLocalProperty="TaskFolder">
   <PropertyGroup>
-    <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netstandard2.0</TaskFolder>
+    <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</TaskFolder>
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>
     <JibTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\$(TaskFolder)\Jib.Net.MSBuild.dll</JibTaskAssembly>
+    <JibCliExecutablePath>$(MSBuildThisFileDirectory)..\tool\$(TaskFolder)\Jib.Net.Cli.dll</JibCliExecutablePath>
     
     <!-- JibPublishType can be Docker, Registry or Tar. -->
     <JibPublishType Condition="$(JibPublishType) == ''">Docker</JibPublishType>
@@ -27,8 +28,4 @@
     <JibReproducableBuild Condition="$(JibReproducableBuild) == ''">True</JibReproducableBuild>
     <JibImageFormat Condition="$(JibImageFormat) == ''">Docker</JibImageFormat>
   </PropertyGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-jib" Version="1.0.0-alpha1"/>
-  </ItemGroup>
 </Project>

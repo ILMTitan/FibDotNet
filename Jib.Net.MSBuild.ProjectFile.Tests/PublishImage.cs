@@ -36,6 +36,9 @@ namespace Jib.Net.MSBuild.ProjectFile.Tests
         public bool ReproducableBuild { get; set; }
         public string ImageFormat { get; set; } = "Docker";
 
+        [Required]
+        public string CliExecutablePath { get; set; }
+
         [Output]
         public string ImageId { get; set; }
 

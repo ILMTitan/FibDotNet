@@ -14,7 +14,7 @@
  * the License.
  */
 
-using Jib.Net.Test.LocalRegistry;
+using Jib.Net.Test.Common;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;

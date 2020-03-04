@@ -1,91 +1,55 @@
-﻿using System;
-using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
+﻿using CommandLine;
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Jib.Net.Cli
 {
     public class Program
     {
+        internal TextWriter Output { get;  }
+        internal TextWriter Error { get; }
+        private Parser CommandParser { get; }
+
+        public Program(TextWriter outputWriter, TextWriter errorWriter, Parser parser)
+        {
+            Output = outputWriter;
+            Error = errorWriter;
+            CommandParser = parser;
+        }
+
         public static async Task<int> Main(string[] args)
         {
-            TarCommandHandler tarCommandHandler = new TarCommandHandler();
-            DaemonCommandHandler daemonCommandHandler = new DaemonCommandHandler();
-            PushCommandHandler pushCommandHandler = new PushCommandHandler();
-            RootCommand rootCommand = CreateCommand(tarCommandHandler, daemonCommandHandler, pushCommandHandler);
-            return await rootCommand.InvokeAsync(args).ConfigureAwait(false);
+            var program = new Program(Console.Out, Console.Error, Parser.Default);
+            return await program.ExecuteAsync(args).ConfigureAwait(false);
         }
 
-        private static RootCommand CreateCommand(
-            TarCommandHandler tarCommandHandler,
-            DaemonCommandHandler daemonCommandHandler,
-            PushCommandHandler pushCommandHandler)
+        public async Task<int> ExecuteAsync(params string[] args)
         {
-            return new RootCommand("Build a container image with Jib.NET")
-            {
-                new Option("--tool-name", "The name of the tool.")
+            var parsed = CommandParser.ParseArguments<TarCommand, DaemonCommand, PushCommand>(args);
+            var result = parsed.MapResult(
+                async (Command command) =>
                 {
-                    Argument = new Argument<string>(() => "jib.net.cli")
+                    await command.ExecuteAsync(Output, Error).ConfigureAwait(false);
+                    return 0;
+                },
+                errors =>
+                {
+                    if (errors.All(e =>
+                        e.Tag == ErrorType.HelpVerbRequestedError ||
+                        e.Tag == ErrorType.HelpRequestedError ||
+                        e.Tag == ErrorType.VersionRequestedError))
                     {
-                        Arity = ArgumentArity.ExactlyOne
+                        return Task.FromResult(0);
                     }
-                },
-                CreateTarCommand(tarCommandHandler),
-                CreateDaemonCommand(daemonCommandHandler),
-                CreatePushCommand(pushCommandHandler)
-            };
-        }
+                    else
+                    {
+                        return Task.FromResult(1);
+                    }
+                });
 
-        private static Command CreatePushCommand(PushCommandHandler pushCommandHandler)
-        {
-            Command pushConfigFileCommand = CreateConfigFileCommand();
-            Func<string, FileInfo, Task<int>> handlerFunc = pushCommandHandler.FromConfigFileAsync;
-            pushConfigFileCommand.Handler = CommandHandler.Create(handlerFunc);
-            return new Command("push", "Build an image and push to a remote registry.")
-            {
-                pushConfigFileCommand
-            };
-        }
-
-        private static Command CreateDaemonCommand(DaemonCommandHandler daemonCommandHandler)
-        {
-            Command daemonConfigFileCommand = CreateConfigFileCommand();
-            Func<string, FileInfo, Task<int>> handlerFunc = daemonCommandHandler.FromConfigFileAsync;
-            daemonConfigFileCommand.Handler = CommandHandler.Create(handlerFunc);
-            return new Command("daemon", "Build an image and push to the local docker daemon.")
-            {
-                daemonConfigFileCommand
-            };
-        }
-
-        private static Command CreateTarCommand(TarCommandHandler tarCommandHandler)
-        {
-            Command tarConfigFileCommand = CreateConfigFileCommand();
-            Func<string, FileInfo, FileInfo, Task<int>> handlerFunc = tarCommandHandler.BuildFromConfigFileAsync;
-            tarConfigFileCommand.Handler = CommandHandler.Create(handlerFunc);
-            return new Command("tar", "Build an image to a compressed tar file.")
-            {
-                new Argument<FileInfo>("--output-file")
-                {
-                    Description = "The file to write the resulting tar file to.",
-                    Arity = ArgumentArity.ExactlyOne,
-                },
-                tarConfigFileCommand,
-            };
-        }
-
-        private static Command CreateConfigFileCommand()
-        {
-            return new Command("--config-file", "Take the configuration as json in a file")
-            {
-                new Argument<FileInfo>("--config-file")
-                {
-                    Description = "The json file of the configuration.",
-                    Arity = ArgumentArity.ExactlyOne,
-                }.ExistingOnly(),
-            };
+            return await result.ConfigureAwait(false);
         }
     }
 }

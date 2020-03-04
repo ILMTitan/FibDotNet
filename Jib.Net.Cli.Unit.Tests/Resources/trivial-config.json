@@ -1,0 +1,4 @@
+{
+  "BaseImage": "scratch",
+  "TargetImage":  "trivial-image"
+}

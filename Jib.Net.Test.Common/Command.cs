@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Jib.Net.Test.LocalRegistry
+namespace Jib.Net.Test.Common
 {
     /** Test utility to run shell commands for integration tests. */
     public class Command
@@ -65,7 +65,11 @@ namespace Jib.Net.Test.LocalRegistry
 
                 if (process.WaitFor() != 0)
                 {
-                    string stderr = new StreamReader(process.GetErrorStream()).ReadToEnd();
+                    string stderr;
+                    using (StreamReader errorStreamReader = new StreamReader(process.GetErrorStream()))
+                    {
+                        stderr = errorStreamReader.ReadToEnd();
+                    }
                     throw new Exception("Command '" + command + " " + string.Join(" ", args) + "' failed: " + stderr);
                 }
 

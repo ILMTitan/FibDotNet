@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1308: Normalize strings to uppercase
+dotnet_diagnostic.CA1308.severity = none

@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Jib.Net.Core\Jib.Net.Core.csproj" />
     <ProjectReference Include="..\Jib.Net.Test.Common\Jib.Net.Test.Common.csproj" />
-    <ProjectReference Include="..\Jib.Net.Test.LocalRegistry\Jib.Net.Test.LocalRegistry.csproj" />
   </ItemGroup>
 
   <ItemGroup>

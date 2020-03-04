@@ -22,7 +22,8 @@
                   ApplicationLayersCacheDirectory="$(JibApplicationLayersCacheDirectory)"
                   BaseLayersCacheDirectory="$(JibBaseLayersCacheDirectory)"
                   ReproducableBuild="$(JibReproducableBuild)"
-                  ImageFormat="$(JibImageFormat)">
+                  ImageFormat="$(JibImageFormat)"
+                  CliExecutablePath="$(JibCliExecutablePath)">
       <Output TaskParameter="ImageId" PropertyName="JibImageId"/>
       <Output TaskParameter="ImageDigest" PropertyName="JibImageDigest"/>
     </PublishImage>
@@ -58,8 +59,18 @@
     <PropertyGroup>
       <JibTargetTag Condition="$(JibTargetTag) == ''">$(PackageVersion)</JibTargetTag>
     </PropertyGroup>
+    
     <ItemGroup>
       <JibTargetTag Include="$(JibTargetTag)"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="SetJibPort" BeforeTargets="SetJibProperties" DependsOnTargets="SetJibBaseImage">
+    <ItemGroup>
+      <JibPort Include="$(JibPort)"/>
+    </ItemGroup>
+    <ItemGroup Condition="'@(JibPort)' == '' and '@(JibBaseImage)' == 'mcr.microsoft.com/dotnet/core/aspnet'">
+      <JibPort Include="80"/>
     </ItemGroup>
   </Target>
 
@@ -68,8 +79,8 @@
       GatherBinaryLayerFiles;
       GatherDebugLayerFiles;
       GatherResourcesLayerFiles;
-      GatherOtherFilesLayerFiles;
       GatherReferencesLayerFiles;
+      GatherOtherFilesLayerFiles;
       $(GatherImageFilesDependsOn)
     </GatherImageFilesDependsOn>
   </PropertyGroup>
@@ -142,6 +153,20 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="GatherReferencesLayerFiles">
+    <ItemGroup>
+      <_ReferencesLayerCadidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) == '.dll'">
+        <TargetPath>$(JibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
+      </_ReferencesLayerCadidates>
+
+      <_ReferencesLayerCadidates Remove="@(JibImageFile)"/>
+
+      <JibImageFile Include="@(_ReferencesLayerCadidates)">
+        <Layer>References</Layer>
+      </JibImageFile>
+    </ItemGroup>
+  </Target>
+
   <Target Name="GatherOtherFilesLayerFiles">
     <ItemGroup>
       <_OtherFilesLayerCandidates Include="@(_ResolvedCopyLocalPublishAssets)">
@@ -164,22 +189,7 @@
 
       <JibImageFile Include="@(_OtherFilesLayerCandidates)">
         <Layer>OtherFiles</Layer>
-      </JibImageFile>
-      
-    </ItemGroup>
-  </Target>
-
-  <Target Name="GatherReferencesLayerFiles">
-    <ItemGroup>
-      <_ReferencesLayerCadidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) == '.dll'">
-        <TargetPath>$(JibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
-      </_ReferencesLayerCadidates>
-      
-      <_ReferencesLayerCadidates Remove="@(JibImageFile)"/>
-
-      <JibImageFile Include="@(_ReferencesLayerCadidates)">
-        <Layer>References</Layer>
-      </JibImageFile>
+      </JibImageFile>      
     </ItemGroup>
   </Target>
 </Project>

@@ -2,13 +2,13 @@
 using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web;
 
 namespace Jib.Net.MSBuild
 {
-
     public class PublishImage : ToolTask
     {
         private string _targetImage;
@@ -52,6 +52,9 @@ namespace Jib.Net.MSBuild
         public string BaseLayersCacheDirectory { get; set; }
         public bool ReproducableBuild { get; set; }
         public string ImageFormat { get; set; }
+
+        [Required]
+        public string CliExecutablePath { get; set; }
 
         [Output]
         public string ImageId { get; set; }
@@ -140,63 +143,62 @@ namespace Jib.Net.MSBuild
         protected override string GenerateCommandLineCommands()
         {
             string publishType = PublishType.ToLowerInvariant();
-            string commandLine = $"-d jib --tool-name Jib.Net.MSBuild {publishType}";
+            string commandLine = $" \"{CliExecutablePath}\" {publishType} --toolname Jib.Net.MSBuild";
             if (publishType == "tar")
             {
-                return commandLine + $" {OutputTarFile}";
+                return commandLine + $" --outputfile {OutputTarFile}";
             }
             return commandLine;
         }
-
+        
         protected override string GetResponseFileSwitch(string responseFilePath)
         {
-            return $"--config-file \"{responseFilePath}\"";
+            return $"--configfile \"{responseFilePath}\"";
         }
 
         protected override string GenerateResponseFileCommands()
         {
-            Func<ITaskItem, string> encodeItemSpec = i => EncodeJavaScriptString(i.ItemSpec);
-            Func<IEnumerable<ITaskItem>, string> encodeItemSpecArray = i => EncodeJavaScriptArray(i, encodeItemSpec);
-            Func<IEnumerable<ITaskItem>, string> encodeItemSpecMap =
-                items => EncodeJavaScriptDictionary(
+            string EncodeItemSpec(ITaskItem i) => EncodeJavaScriptString(i.ItemSpec);
+            string EncodeItemSpecArray(IEnumerable<ITaskItem> i) => EncodeJavaScriptArray(i, EncodeItemSpec);
+            string EncodeItemSpecMap(IEnumerable<ITaskItem> items) => EncodeJavaScriptDictionary(
                     items.Select(i => i.ItemSpec)
                         .ToDictionary(
                             i => i.Substring(i.IndexOf('=')),
                             i => i.Substring(i.IndexOf('=') + 1, i.Length)));
-            Func<string, string> encodeCommandLine = i =>
+            string EncodeCommandLine(string i) =>
                 EncodeJavaScriptArray(CommandLineToArgs(i), EncodeJavaScriptString);
+            Log.LogMessage(MessageImportance.High, "Ports Is Null: " + (Ports == null));
+            Log.LogMessage(MessageImportance.High, "Ports count: " + Ports?.Length);
             return $@"
 {{
     ""BaseImage"": {EncodeJavaScriptString(BaseImage)},
     ""TargetImage"": {EncodeJavaScriptString(TargetImage)},
-    {EncodeJavaScriptProperty("TargetTags", TargetTags, encodeItemSpecArray)}
+    {EncodeJavaScriptProperty("TargetTags", TargetTags, EncodeItemSpecArray)}
     {EncodeJavaScriptProperty("ImageFormat", ImageFormat, EncodeJavaScriptString)}
     {EncodeJavaScriptProperty("ImageLayers", ImageFiles, EncodeJavaScriptLayersArray)}
-    {EncodeJavaScriptProperty("Entrypoint", Entrypoint, encodeCommandLine)}
-    {EncodeJavaScriptProperty("Cmd", Cmd, encodeCommandLine)}
-    {EncodeJavaScriptProperty("Environment", Environment, encodeItemSpecMap)}
+    {EncodeJavaScriptProperty("Entrypoint", Entrypoint, EncodeCommandLine)}
+    {EncodeJavaScriptProperty("Cmd", Cmd, EncodeCommandLine)}
+    {EncodeJavaScriptProperty("Environment", Environment, EncodeItemSpecMap)}
     {EncodeJavaScriptProperty("ImageWorkingDirectory", ImageWorkingDirectory, EncodeJavaScriptString)}
     {EncodeJavaScriptProperty("ImageUser", ImageUser, EncodeJavaScriptString)}
-    {EncodeJavaScriptProperty("Ports", Ports, encodeItemSpecArray)}
-    {EncodeJavaScriptProperty("Volumes", Volumes, encodeItemSpecArray)}
-    {EncodeJavaScriptProperty("Labels", Labels, encodeItemSpecMap)}
+    {EncodeJavaScriptProperty("Ports", Ports, EncodeItemSpecArray)}
+    {EncodeJavaScriptProperty("Volumes", Volumes, EncodeItemSpecArray)}
+    {EncodeJavaScriptProperty("Labels", Labels, EncodeItemSpecMap)}
     {EncodeJavaScriptProperty("ApplicationLayersCacheDirectory", ApplicationLayersCacheDirectory, EncodeJavaScriptString)}
     {EncodeJavaScriptProperty("BaseLayersCacheDirectory", BaseLayersCacheDirectory, EncodeJavaScriptString)}
-    ""ReproducableBuild"": {ReproducableBuild.ToString().ToLowerInvariant()},
-    ""AllowInsecureRegistries"": {AllowInsecureRegistries.ToString().ToLowerInvariant()},
-    ""OfflineMode"": {OfflineMode.ToString().ToLowerInvariant()}
+    ""ReproducableBuild"": {ReproducableBuild.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()},
+    ""AllowInsecureRegistries"": {AllowInsecureRegistries.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()},
+    ""OfflineMode"": {OfflineMode.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}
 }}
 ";
         }
 
         private static string EncodeJavaScriptDictionary(IReadOnlyDictionary<string, string> values)
         {
-            return $@"
-        {{
+            return $@"{{
             {string.Join(@",
             ", values.Select(pair => $"\"{pair.Key}\": \"{pair.Value}\""))}
-        }}
-";
+        }}";
         }
 
         private string EncodeJavaScriptLayersArray(ITaskItem[] imageFiles) =>
@@ -204,8 +206,7 @@ namespace Jib.Net.MSBuild
 
         private string EncodeJavaScriptLayerObject(IGrouping<string, ITaskItem> value)
         {
-            return $@"
-        {{
+            return $@"{{
             ""Name"": {EncodeJavaScriptString(value.Key)},
             ""LayerEntries"": {EncodeJavaScriptArray(value, EncodeJavaScriptLayerEntryObject)}
         }}";
@@ -213,8 +214,7 @@ namespace Jib.Net.MSBuild
 
         private string EncodeJavaScriptLayerEntryObject(ITaskItem value)
         {
-            return $@"
-            {{
+            return $@"{{
                 ""SourceFile"": {EncodeJavaScriptString(value.GetMetadata("FullPath"))},
                 ""ExtractionPath"": {EncodeJavaScriptString(value.GetMetadata("TargetPath"))}
             }}";
