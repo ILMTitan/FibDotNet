@@ -57,9 +57,9 @@ namespace Jib.Net.Core.Hash
                 StringBuilder stringBuilder = new StringBuilder(2 * hashedBytes.Length);
                 foreach (byte b in hashedBytes)
                 {
-                    JavaExtensions.Append(stringBuilder, $"{b:x2}");
+                    stringBuilder.Append($"{b:x2}");
                 }
-                string hash = JavaExtensions.ToString(stringBuilder);
+                string hash = stringBuilder.ToString();
 
                 BlobDescriptor blobDescriptor =
                     new BlobDescriptor(bytesSoFar, DescriptorDigest.FromHash(hash));
@@ -68,7 +68,7 @@ namespace Jib.Net.Core.Hash
             }
             catch (DigestException ex)
             {
-                throw new Exception("SHA-256 algorithm produced invalid hash: " + ex.GetMessage(), ex);
+                throw new Exception("SHA-256 algorithm produced invalid hash: " + ex.Message, ex);
             }
         }
 

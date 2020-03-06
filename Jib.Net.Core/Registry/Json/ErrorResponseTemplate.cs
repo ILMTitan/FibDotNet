@@ -53,7 +53,7 @@ namespace Jib.Net.Core.Registry.Json
 
         public ErrorResponseTemplate AddError(ErrorEntryTemplate errorEntryTemplate)
         {
-            JavaExtensions.Add(_errors, errorEntryTemplate);
+            _errors.Add(errorEntryTemplate);
             return this;
         }
     }

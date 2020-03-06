@@ -15,6 +15,7 @@
  */
 
 using System;
+using System.Text.RegularExpressions;
 using Jib.Net.Core.Global;
 using Newtonsoft.Json;
 
@@ -52,7 +53,8 @@ namespace Jib.Net.Core.Api
          */
         public static DescriptorDigest FromHash(string hash)
         {
-            if (!hash.Matches(HASH_REGEX))
+            var match = Regex.Match(hash, HASH_REGEX);
+            if (!match.Success || match.Value != hash)
             {
                 throw new DigestException("Invalid hash: " + hash);
             }
@@ -70,7 +72,7 @@ namespace Jib.Net.Core.Api
         public static DescriptorDigest FromDigest(string digest)
         {
             digest = digest ?? throw new ArgumentNullException(nameof(digest));
-            if (!digest.Matches(DigestRegex))
+            if (!IsValidDigest(digest))
             {
                 throw new DigestException("Invalid digest: " + digest);
             }
@@ -78,6 +80,12 @@ namespace Jib.Net.Core.Api
             // Extracts the hash portion of the digest.
             string hash = digest.Substring(DIGEST_PREFIX.Length);
             return new DescriptorDigest(hash);
+        }
+
+        public static bool IsValidDigest(string digest)
+        {
+            var match = Regex.Match(digest, DigestRegex);
+            return match.Success && match.Value == digest;
         }
 
         private DescriptorDigest(string hash)

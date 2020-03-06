@@ -104,7 +104,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("Cannot find field 'schemaVersion' in manifest", ex.GetMessage());
+                Assert.AreEqual("Cannot find field 'schemaVersion' in manifest", ex.Message);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("`schemaVersion` field is not an integer", ex.GetMessage());
+                Assert.AreEqual("`schemaVersion` field is not an integer", ex.Message);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             }
             catch (UnknownManifestFormatException ex)
             {
-                Assert.AreEqual("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.GetMessage());
+                Assert.AreEqual("Unknown schemaVersion: 0 - only 1 and 2 are supported", ex.Message);
             }
         }
 

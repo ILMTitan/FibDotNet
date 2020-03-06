@@ -40,7 +40,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.GetMessage(), Does.Contain("layerDigest"));
+                Assert.That(ex.Message, Does.Contain("layerDigest"));
             }
 
             try
@@ -50,7 +50,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.GetMessage(), Does.Contain("layerDiffId"));
+                Assert.That(ex.Message, Does.Contain("layerDiffId"));
             }
 
             try
@@ -60,7 +60,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             }
             catch (ArgumentNullException ex)
             {
-                Assert.That(ex.GetMessage(), Does.Contain("layerBlob"));
+                Assert.That(ex.Message, Does.Contain("layerBlob"));
             }
         }
 

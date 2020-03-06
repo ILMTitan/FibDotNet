@@ -91,7 +91,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
                             .SetAllowInsecureRegistries(true)
                             .AddEventHandler<IJibEvent>(e => TestContext.Out.WriteLine(e))).ConfigureAwait(false);
 
-            Assert.AreEqual("Hello World\n", PullAndRunBuiltImage(JavaExtensions.ToString(targetImageReference)));
+            Assert.AreEqual("Hello World\n", PullAndRunBuiltImage(targetImageReference.ToString()));
             Assert.AreEqual(
                 "Hello World\n",
                 PullAndRunBuiltImage(
@@ -112,9 +112,9 @@ namespace Jib.Net.Core.Integration.Tests.Api
                         .SetAllowInsecureRegistries(true)).ConfigureAwait(false);
 
             // Check that resulting image has no layers
-            localRegistry.Pull(JavaExtensions.ToString(targetImageReference));
-            string inspectOutput = new Command("docker", "inspect", JavaExtensions.ToString(targetImageReference)).Run();
-            Assert.IsFalse(JavaExtensions.Contains(inspectOutput, "\"Layers\": ["), "docker inspect output contained layers: " + inspectOutput);
+            localRegistry.Pull(targetImageReference.ToString());
+            string inspectOutput = new Command("docker", "inspect", targetImageReference.ToString()).Run();
+            Assert.That(inspectOutput, Does.Not.Contain("\"Layers\": ["), "docker inspect output contained layers: " + inspectOutput);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
             }
             catch (InvalidOperationException ex)
             {
-                Assert.AreEqual("Cannot build to a container registry in offline mode", ex.GetMessage());
+                Assert.AreEqual("Cannot build to a container registry in offline mode", ex.Message);
             }
 
             // Should fail since Jib hasn't cached the base image yet
@@ -155,7 +155,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
             {
                 Assert.AreEqual(
                     "Cannot run Jib in offline mode; localhost:5001/busybox not found in local Jib cache",
-                    ex.GetMessage());
+                    ex.Message);
             }
             using (LocalRegistry tempRegistry = new LocalRegistry(5001))
             {
@@ -178,7 +178,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
             // Verify output
             Assert.AreEqual(
                 "Hello World\n",
-                new Command("docker", "run", "--rm", JavaExtensions.ToString(targetImageReferenceOffline)).Run());
+                new Command("docker", "run", "--rm", targetImageReferenceOffline.ToString()).Run());
         }
     }
 }

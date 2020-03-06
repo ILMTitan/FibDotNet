@@ -103,16 +103,11 @@ namespace Jib.Net.Core.Docker
         {
             return dockerSubCommand =>
             {
-                IList<string> dockerCommand = new List<string>(1 + dockerSubCommand.Count);
-                JavaExtensions.Add(dockerCommand, dockerExecutable);
-                dockerCommand.AddAll(dockerSubCommand);
+                List<string> dockerCommand = new List<string>(1 + dockerSubCommand.Count);
+                dockerCommand.Add(dockerExecutable);
+                dockerCommand.AddRange(dockerSubCommand);
 
-                ProcessBuilder processBuilder =
-                    new ProcessBuilder(dockerExecutable, string.Join(" ", dockerSubCommand));
-                IDictionary<string, string> environment = processBuilder.GetEnvironment();
-                environment.PutAll(dockerEnvironment);
-
-                return processBuilder;
+                return new ProcessBuilder(dockerExecutable, string.Join(" ", dockerSubCommand), dockerEnvironment);
             };
         }
 
@@ -160,7 +155,7 @@ namespace Jib.Net.Core.Docker
             dockerExecutable = dockerExecutable ?? throw new ArgumentNullException(nameof(dockerExecutable));
             try
             {
-                new ProcessBuilder(JavaExtensions.ToString(dockerExecutable)).Start();
+                new ProcessBuilder(dockerExecutable.ToString()).Start();
                 return true;
             }
             catch (Win32Exception e) when (e.NativeErrorCode == Win32ErrorCodes.FileNotFound)
@@ -259,7 +254,7 @@ namespace Jib.Net.Core.Docker
             newImageReference = newImageReference ?? throw new ArgumentNullException(nameof(newImageReference));
             // Runs 'docker tag'.
             IProcess dockerProcess =
-                Docker("tag", JavaExtensions.ToString(originalImageReference), JavaExtensions.ToString(newImageReference));
+                Docker("tag", originalImageReference.ToString(), newImageReference.ToString());
 
             if (dockerProcess.WaitFor() != 0)
             {

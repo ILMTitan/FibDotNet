@@ -202,7 +202,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (InvalidOperationException ex)
             {
-                Assert.AreEqual("target image configuration is required but not set", ex.GetMessage());
+                Assert.AreEqual("Required field is not set: target image configuration", ex.Message);
             }
 
             // Two required fields missing
@@ -217,8 +217,8 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             catch (InvalidOperationException ex)
             {
                 Assert.AreEqual(
-                    "base image configuration and target image configuration are required but not set",
-                    ex.GetMessage());
+                    "Required fields are not set: base image configuration, target image configuration",
+                    ex.Message);
             }
 
             // All required fields missing
@@ -230,9 +230,12 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             catch (InvalidOperationException ex)
             {
                 Assert.AreEqual(
-                    "base image configuration, target image configuration, base image layers cache directory, and "
-                        + "application layers cache directory are required but not set",
-                    ex.GetMessage());
+                    "Required fields are not set: " +
+                    "base image configuration, " +
+                    "target image configuration, " +
+                    "base image layers cache directory, " +
+                    "application layers cache directory",
+                    ex.Message);
             }
         }
     }

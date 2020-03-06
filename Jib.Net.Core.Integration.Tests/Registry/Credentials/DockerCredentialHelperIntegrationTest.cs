@@ -54,7 +54,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry.Credentials
             catch (CredentialHelperNotFoundException ex)
             {
                 Assert.AreEqual(
-                    "The system does not have docker-credential-fake-cloud-provider CLI", ex.GetMessage());
+                    "The system does not have docker-credential-fake-cloud-provider CLI", ex.Message);
             }
         }
 
@@ -73,7 +73,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry.Credentials
             catch (CredentialHelperUnhandledServerUrlException ex)
             {
                 Assert.That(
-                    ex.GetMessage(),
+                    ex.Message,
                     Does.Contain(
                         "The credential helper (docker-credential-gcr) has nothing for server Uri: fake.server.url"));
             }

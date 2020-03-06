@@ -15,6 +15,7 @@
  */
 
 using Jib.Net.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace Jib.Net.Core.Registry
         {
             foreach (ImmutableHashSet<string> aliasGroup in REGISTRY_ALIAS_GROUPS)
             {
-                if (JavaExtensions.Contains(aliasGroup, registry))
+                if (aliasGroup.Contains(registry, StringComparer.Ordinal))
                 {
                     // Found a group. Move the requested "registry" to the front before returning it.
                     IEnumerable<string> self = new[] { registry };
@@ -68,7 +69,11 @@ namespace Jib.Net.Core.Registry
          */
         public static string GetHost(string registry)
         {
-            return REGISTRY_HOST_MAP.GetOrDefault(registry, registry);
+            if (REGISTRY_HOST_MAP.TryGetValue(registry, out var host)) {
+                return host;
+            } else {
+                return registry;
+            }
         }
     }
 }

@@ -170,7 +170,7 @@ namespace Jib.Net.Core.Events.Progress
                     .IfPresent(
                         parentAllocation =>
                             UpdateIndexedRemainingUnits(
-                                Preconditions.CheckNotNull(completionMap.Get(parentAllocation)), 1L));
+                                Preconditions.CheckNotNull(completionMap[parentAllocation]), 1L));
             }
         }
 

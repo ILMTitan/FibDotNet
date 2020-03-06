@@ -158,7 +158,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             {
                 Assert.AreEqual(
                     "Failed to authenticate with registry someserver/someimage because: 'Bearer' was not found in the 'WWW-Authenticate' header, tried to parse: unknown",
-                    ex.GetMessage());
+                    ex.Message);
             }
         }
 
@@ -177,7 +177,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             {
                 Assert.AreEqual(
                     "Failed to authenticate with registry someserver/someimage because: 'realm' was not found in the 'WWW-Authenticate' header, tried to parse: scope=\"somescope\"",
-                    ex.GetMessage());
+                    ex.Message);
             }
         }
 

@@ -22,6 +22,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{FC27239F-B361-4B7E-B5F5-B62417299910}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorTestProject", "TestProjects\RazorTestProject\RazorTestProject.csproj", "{EC3EA8B7-3971-40BD-A247-7E2B1693067D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F} = {E9474117-6C4A-4808-A35C-0FC032CDBD7F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jib.Net.MSBuild.ProjectFile.Tests", "Jib.Net.MSBuild.ProjectFile.Tests\Jib.Net.MSBuild.ProjectFile.Tests.csproj", "{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}"
 EndProject

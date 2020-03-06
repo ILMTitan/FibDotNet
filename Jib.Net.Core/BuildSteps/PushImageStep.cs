@@ -109,7 +109,7 @@ namespace Jib.Net.Core.BuildSteps
                     using (progressEventDispatcherFactory.Create("tagging with " + tag, 1))
                     {
                         buildConfiguration.GetEventHandlers().Dispatch(LogEvent.Info("Tagging with " + tag + "..."));
-                        JavaExtensions.Add(pushAllTagsFutures, registryClient.PushManifestAsync(manifestTemplate, tag));
+                        pushAllTagsFutures.Add(registryClient.PushManifestAsync(manifestTemplate, tag));
                     }
                 }
 

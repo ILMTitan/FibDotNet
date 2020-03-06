@@ -33,7 +33,7 @@ namespace Jib.Net.Core.FileSystem
             ImmutableArray<string>.Builder pathComponents = ImmutableArray.CreateBuilder<string>();
             foreach (string pathComponent in Splitter.On('/').Split(unixPath))
             {
-                if (pathComponent.IsEmpty())
+                if (string.IsNullOrEmpty(pathComponent))
                 {
                     // Skips empty components.
                     continue;

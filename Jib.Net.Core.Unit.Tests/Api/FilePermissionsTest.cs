@@ -14,7 +14,7 @@
  * the License.
  */
 
-using Jib.Net.Core.Global;
+using Jib.Net.Core.FileSystem;
 using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
@@ -65,7 +65,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 catch (ArgumentException ex)
                 {
                     Assert.AreEqual(
-                        "octalPermissions must be a 3-digit octal number (000-777)", ex.GetMessage());
+                        "octalPermissions must be a 3-digit octal number (000-777)", ex.Message);
                 }
             }
         }

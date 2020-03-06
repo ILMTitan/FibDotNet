@@ -118,7 +118,7 @@ namespace Jib.Net.Core.Api
              *
              * See https://github.com/docker/distribution/blob/245ca4659e09e9745f3cc1217bf56e946509220c/reference/normalize.go#L62
              */
-            if (!JavaExtensions.Contains(registry, ".") && !JavaExtensions.Contains(registry, ":") && "localhost" != registry)
+            if (!registry.Contains(".") && !registry.Contains(":") && "localhost" != registry)
             {
                 repository = registry + "/" + repository;
                 registry = DOCKER_HUB_REGISTRY;
@@ -130,7 +130,7 @@ namespace Jib.Net.Core.Api
              *
              * See https://docs.docker.com/engine/reference/commandline/pull/#pull-an-image-from-docker-hub
              */
-            if (DOCKER_HUB_REGISTRY == registry && JavaExtensions.IndexOf(repository, '/') < 0)
+            if (DOCKER_HUB_REGISTRY == registry && repository.IndexOf('/') < 0)
             {
                 repository = LIBRARY_REPOSITORY_PREFIX + repository;
             }
@@ -212,7 +212,8 @@ namespace Jib.Net.Core.Api
          */
         public static bool IsValidRegistry(string registry)
         {
-            return registry.Matches(REGISTRY_REGEX);
+            var match = Regex.Match(registry, REFERENCE_REGEX);
+            return match.Success && match.Value == registry;
         }
 
         /**
@@ -224,7 +225,8 @@ namespace Jib.Net.Core.Api
          */
         public static bool IsValidRepository(string repository)
         {
-            return repository.Matches(REPOSITORY_REGEX);
+            var match = Regex.Match(repository, REPOSITORY_REGEX);
+            return match.Success && match.Value == repository;
         }
 
         /**
@@ -236,7 +238,13 @@ namespace Jib.Net.Core.Api
          */
         public static bool IsValidTag(string tag)
         {
-            return tag.Matches(TAG_REGEX) || tag.Matches(DescriptorDigest.DigestRegex);
+            return IsValidTagName(tag) || DescriptorDigest.IsValidDigest(tag);
+        }
+
+        private static bool IsValidTagName(string tag)
+        {
+            var match = Regex.Match(tag, TAG_REGEX);
+            return match.Success && match.Value == tag;
         }
 
         /**
@@ -249,7 +257,7 @@ namespace Jib.Net.Core.Api
          */
         public static bool IsDefaultTag(string tag)
         {
-            return tag.IsEmpty() || DEFAULT_TAG == tag;
+            return string.IsNullOrEmpty(tag) || DEFAULT_TAG == tag;
         }
 
         private readonly string registry;
@@ -313,7 +321,7 @@ namespace Jib.Net.Core.Api
          */
         public bool IsTagDigest()
         {
-            return tag.Matches(DescriptorDigest.DigestRegex);
+            return DescriptorDigest.IsValidDigest(tag);
         }
 
         /**
@@ -353,7 +361,7 @@ namespace Jib.Net.Core.Api
                 // Use registry and repository if not Docker Hub.
                 referenceString.Append(registry).Append('/').Append(repository);
             }
-            else if (JavaExtensions.StartsWith(repository, LIBRARY_REPOSITORY_PREFIX))
+            else if (repository.StartsWith(LIBRARY_REPOSITORY_PREFIX))
             {
                 // If Docker Hub and repository has 'library/' prefix, remove the 'library/' prefix.
                 string repositorySubstring = repository.Substring(LIBRARY_REPOSITORY_PREFIX.Length);
@@ -372,7 +380,7 @@ namespace Jib.Net.Core.Api
                 referenceString.Append(IsTagDigest() ? '@' : ':').Append(tag);
             }
 
-            return JavaExtensions.ToString(referenceString);
+            return referenceString.ToString();
         }
 
         /**

@@ -338,7 +338,8 @@ namespace Jib.Net.Core.Caching
             {
                 using (Stream fileOut = FileOperations.NewLockingOutputStream(temporarySelectorFile.Path))
                 {
-                    fileOut.Write(Encoding.UTF8.GetBytes(layerDigest.GetHash()));
+                    byte[] bytes = Encoding.UTF8.GetBytes(layerDigest.GetHash());
+                    fileOut.Write(bytes, 0, bytes.Length);
                 }
 
                 // Attempts an atomic move first, and falls back to non-atomic if the file system does not

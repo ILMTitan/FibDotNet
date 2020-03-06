@@ -126,6 +126,12 @@ namespace Jib.Net.Core.Http
             underlyingOutputStream.SetLength(value);
         }
 
+        public void Write(byte[] buffer)
+        {
+            buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
+            Write(buffer, 0, buffer.Length);
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             underlyingOutputStream.Write(buffer, offset, count);

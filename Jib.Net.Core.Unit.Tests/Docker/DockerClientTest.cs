@@ -102,7 +102,7 @@ namespace Jib.Net.Core.Unit.Tests.Docker
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker load' command failed with error: error", ex.GetMessage());
+                Assert.AreEqual("'docker load' command failed with error: error", ex.Message);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Jib.Net.Core.Unit.Tests.Docker
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker load' command failed with output: error", ex.GetMessage());
+                Assert.AreEqual("'docker load' command failed with output: error", ex.Message);
             }
         }
 
@@ -192,12 +192,13 @@ namespace Jib.Net.Core.Unit.Tests.Docker
             var expectedEnvironment = new Dictionary<string, string>(
                 Environment.GetEnvironmentVariables()
                     .Cast<DictionaryEntry>()
-                    .Select(e => new KeyValuePair<string, string>(e.Key?.ToString(), e.Value?.ToString())));
-            expectedEnvironment.PutAll(environment);
+                    .Select(e => new KeyValuePair<string, string>(e.Key?.ToString(), e.Value?.ToString())))
+            {
+                ["Key1"] = "Value1"
+            };
 
             ProcessBuilder processBuilder =
-                DockerClient.DefaultProcessBuilderFactory("docker", environment)
-(new List<string>());
+                DockerClient.DefaultProcessBuilderFactory("docker", environment)(new List<string>());
 
             CollectionAssert.AreEquivalent(expectedEnvironment, processBuilder.GetEnvironment());
         }
@@ -225,7 +226,7 @@ namespace Jib.Net.Core.Unit.Tests.Docker
             }
             catch (IOException ex)
             {
-                Assert.AreEqual("'docker tag' command failed with error: error", ex.GetMessage());
+                Assert.AreEqual("'docker tag' command failed with error: error", ex.Message);
             }
         }
     }

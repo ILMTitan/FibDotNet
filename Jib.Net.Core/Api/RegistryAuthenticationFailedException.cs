@@ -30,7 +30,7 @@ namespace Jib.Net.Core.Api
         private readonly string imageName;
 
         public RegistryAuthenticationFailedException(string registry, string imageName, Exception cause)
-            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, cause?.GetMessage()), cause)
+            : base(string.Format(CultureInfo.CurrentCulture, REASON, registry, imageName, cause?.Message), cause)
         {
             this.registry = registry;
             this.imageName = imageName;

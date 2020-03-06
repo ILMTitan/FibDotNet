@@ -100,9 +100,10 @@ namespace Jib.Net.Core.Registry.Credentials
                 {
                     // 'auth' is a basic authentication token that should be parsed back into credentials
                     string usernameColonPassword = Encoding.UTF8.GetString(Convert.FromBase64String(auth));
-                    string username = JavaExtensions.Substring(usernameColonPassword, 0, usernameColonPassword.IndexOf(":", StringComparison.Ordinal));
+                    int colonIndex = usernameColonPassword.IndexOf(":", StringComparison.Ordinal);
+                    string username = usernameColonPassword.Substring(0, colonIndex);
 
-                    string password = usernameColonPassword.Substring(usernameColonPassword.IndexOf(":", StringComparison.Ordinal) + 1);
+                    string password = usernameColonPassword.Substring(colonIndex + 1);
                     return Maybe.Of(Credential.From(username, password));
                 }
 
@@ -119,12 +120,12 @@ namespace Jib.Net.Core.Registry.Credentials
                     catch (Exception ex) when (ex is IOException || ex is CredentialHelperUnhandledServerUrlException || ex is CredentialHelperNotFoundException)
                     {
                         // Warns the user that the specified credential helper cannot be used.
-                        if (ex.GetMessage() != null)
+                        if (ex.Message != null)
                         {
-                            logger(LogEvent.Warn(ex.GetMessage()));
-                            if (ex.InnerException?.GetMessage() != null)
+                            logger(LogEvent.Warn(ex.Message));
+                            if (ex.InnerException?.Message != null)
                             {
-                                logger(LogEvent.Warn("  Caused by: " + ex.InnerException.GetMessage()));
+                                logger(LogEvent.Warn("  Caused by: " + ex.InnerException.Message));
                             }
                         }
                     }

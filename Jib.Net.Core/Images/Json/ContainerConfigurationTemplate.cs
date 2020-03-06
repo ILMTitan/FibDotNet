@@ -285,12 +285,12 @@ namespace Jib.Net.Core.Images.Json
 
         public void AddLayerDiffId(DescriptorDigest diffId)
         {
-            JavaExtensions.Add(Rootfs.DiffIds, diffId);
+            Rootfs.DiffIds.Add(diffId);
         }
 
         public void AddHistoryEntry(HistoryEntry historyEntry)
         {
-            JavaExtensions.Add(History, historyEntry);
+            History.Add(historyEntry);
         }
 
         public IList<DescriptorDigest> GetDiffIds()

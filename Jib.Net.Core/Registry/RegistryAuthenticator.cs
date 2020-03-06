@@ -64,13 +64,13 @@ namespace Jib.Net.Core.Registry
                 throw new ArgumentNullException(nameof(registryEndpointRequestProperties));
             // If the authentication method starts with 'basic ' (case insensitive), no registry
             // authentication is needed.
-            if (authenticationMethod.Scheme.Matches("^(?i)(basic)"))
+            if (string.Equals(authenticationMethod.Scheme, "basic", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }
 
             // Checks that the authentication method starts with 'bearer ' (case insensitive).
-            if (!authenticationMethod.Scheme.Matches("^(?i)(bearer)"))
+            if (!string.Equals(authenticationMethod.Scheme, "bearer", StringComparison.OrdinalIgnoreCase))
             {
                 throw NewRegistryAuthenticationFailedException(
                     registryEndpointRequestProperties.GetRegistry(),

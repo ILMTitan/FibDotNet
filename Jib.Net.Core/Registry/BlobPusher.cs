@@ -89,16 +89,15 @@ namespace Jib.Net.Core.Registry
 
             public Uri GetApiRoute(string apiRouteBase)
             {
-                StringBuilder url =
-                    JavaExtensions.Append(JavaExtensions.Append(new StringBuilder(apiRouteBase)
-, parent.registryEndpointRequestProperties.GetImageName())
-, "/blobs/uploads/");
+                StringBuilder url = new StringBuilder(apiRouteBase)
+                    .Append(parent.registryEndpointRequestProperties.GetImageName())
+                    .Append("/blobs/uploads/");
                 if (parent.sourceRepository != null)
                 {
-                    JavaExtensions.Append(JavaExtensions.Append(JavaExtensions.Append(JavaExtensions.Append(url, "?mount="), parent.blobDigest), "&from="), parent.sourceRepository);
+                    url.Append("?mount=").Append(parent.blobDigest).Append("&from=").Append(parent.sourceRepository);
                 }
 
-                return new Uri(JavaExtensions.ToString(url));
+                return new Uri(url.ToString());
             }
 
             public HttpMethod GetHttpMethod()

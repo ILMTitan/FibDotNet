@@ -154,7 +154,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             {
                 Assert.AreEqual(
                     "Failed to verify the server at https://apiroutebase/api because only secure connections are allowed.",
-                    ex.GetMessage());
+                    ex.Message);
             }
         }
 
@@ -320,7 +320,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             {
                 Assert.AreEqual(
                     "Required credentials for serverUrl/imageName were not sent because the connection was over HTTP",
-                    ex.GetMessage());
+                    ex.Message);
             }
         }
 
@@ -482,7 +482,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             Assert.AreEqual(
                 "Tried to actionDescription but failed because: manifest unknown | If this is a bug, "
                     + "please file an issue at https://github.com/GoogleContainerTools/jib/issues/new",
-                registryException.GetMessage());
+                registryException.Message);
         }
 
         [Test]
@@ -502,7 +502,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
                     + ">>>>> (404) page not found <<<<<\n"
                     + " | If this is a bug, please file an issue at "
                     + "https://github.com/GoogleContainerTools/jib/issues/new",
-                registryException.GetMessage());
+                registryException.Message);
         }
 
         /**
@@ -549,7 +549,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain(
+                    ex.Message, Does.Contain(
                         "Tried to actionDescription but failed because: unknown: message"));
             }
         }

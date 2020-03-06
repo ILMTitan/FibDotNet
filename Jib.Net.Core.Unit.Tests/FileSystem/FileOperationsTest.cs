@@ -36,7 +36,7 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
                 try
                 {
                     // Checks that the file was locked.
-                    File.ReadAllText(JavaExtensions.ToString(file));
+                    File.ReadAllText(file.ToString());
                     Assert.Fail("Lock attempt should have failed");
                 }
                 catch (IOException)
@@ -44,10 +44,11 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
                     // pass
                 }
 
-                JavaExtensions.Write(fileOutputStream, Encoding.UTF8.GetBytes("jib"));
+                byte[] bytes = Encoding.UTF8.GetBytes("jib");
+                fileOutputStream.Write(bytes, 0, bytes.Length);
             }
 
-            Assert.AreEqual("jib", File.ReadAllText(JavaExtensions.ToString(file)));
+            Assert.AreEqual("jib", File.ReadAllText(file.ToString()));
         }
 
         private readonly TemporaryFolder temporaryFolder = new TemporaryFolder();

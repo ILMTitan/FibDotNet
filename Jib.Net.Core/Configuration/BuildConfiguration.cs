@@ -226,19 +226,19 @@ namespace Jib.Net.Core.Configuration
                 IList<string> missingFields = new List<string>();
                 if (baseImageConfiguration == null)
                 {
-                    JavaExtensions.Add(missingFields, "base image configuration");
+                    missingFields.Add("base image configuration");
                 }
                 if (targetImageConfiguration == null)
                 {
-                    JavaExtensions.Add(missingFields, "target image configuration");
+                    missingFields.Add("target image configuration");
                 }
                 if (baseImageLayersCacheDirectory == null)
                 {
-                    JavaExtensions.Add(missingFields, "base image layers cache directory");
+                    missingFields.Add("base image layers cache directory");
                 }
                 if (applicationLayersCacheDirectory == null)
                 {
-                    JavaExtensions.Add(missingFields, "application layers cache directory");
+                    missingFields.Add("application layers cache directory");
                 }
 
                 switch (missingFields.Count)
@@ -269,20 +269,9 @@ namespace Jib.Net.Core.Configuration
                             eventHandlers);
 
                     case 1:
-                        throw new InvalidOperationException(missingFields[0] + " is required but not set");
-
-                    case 2:
-                        throw new InvalidOperationException(
-                            missingFields[0] + " and " + missingFields[1] + " are required but not set");
-
+                        throw new InvalidOperationException("Required field is not set: " + missingFields[0]);
                     default:
-                        JavaExtensions.Add(missingFields, "and " + missingFields.Remove(missingFields.Count - 1));
-                        StringJoiner errorMessage = new StringJoiner(", ", "", " are required but not set");
-                        foreach (string missingField in missingFields)
-                        {
-                            errorMessage.Add(missingField);
-                        }
-                        throw new InvalidOperationException(errorMessage.ToString());
+                        throw new InvalidOperationException("Required fields are not set: " + string.Join(", ", missingFields));
                 }
             }
 
@@ -365,7 +354,7 @@ namespace Jib.Net.Core.Configuration
         public ImmutableHashSet<string> GetAllTargetImageTags()
         {
             ImmutableHashSet<string>.Builder allTargetImageTags = ImmutableHashSet.CreateBuilder<string>();
-            JavaExtensions.Add(allTargetImageTags, targetImageConfiguration.GetImageTag());
+            allTargetImageTags.Add(targetImageConfiguration.GetImageTag());
             allTargetImageTags.UnionWith(additionalTargetImageTags);
             return allTargetImageTags.ToImmutable();
         }

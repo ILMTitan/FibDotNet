@@ -87,7 +87,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("invalid tag '+invalid+'", ex.GetMessage());
+                Assert.AreEqual("invalid tag '+invalid+'", ex.Message);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                     RegistryImage.Named("registry/image").AddCredentialRetriever(credentialRetriever));
 
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
-            Assert.AreEqual("registry/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
+            Assert.AreEqual("registry/image", imageConfiguration.GetImage().ToString());
             Assert.AreEqual(
                 new[] { credentialRetriever }, imageConfiguration.GetCredentialRetrievers());
         }
@@ -108,10 +108,10 @@ namespace Jib.Net.Core.Unit.Tests.Api
         [Test]
         public void TestGetImageConfiguration_dockerDaemonImage()
         {
-            Containerizer containerizer = Containerizer.To(DockerDaemonImage.Named("docker/deamon/image"));
+            Containerizer containerizer = Containerizer.To(DockerDaemonImage.Named("docker/daemon/image"));
 
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
-            Assert.AreEqual("docker/deamon/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
+            Assert.AreEqual("docker/daemon/image", imageConfiguration.GetImage().ToString());
             Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Length);
         }
 
@@ -122,7 +122,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 Containerizer.To(TarImage.Named("tar/image").SaveTo(Paths.Get("output/file")));
 
             ImageConfiguration imageConfiguration = containerizer.GetImageConfiguration();
-            Assert.AreEqual("tar/image", JavaExtensions.ToString(imageConfiguration.GetImage()));
+            Assert.AreEqual("tar/image", imageConfiguration.GetImage().ToString());
             Assert.AreEqual(0, imageConfiguration.GetCredentialRetrievers().Length);
         }
     }

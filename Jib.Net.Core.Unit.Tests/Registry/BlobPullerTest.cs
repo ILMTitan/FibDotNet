@@ -121,7 +121,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
                         + "', but the request digest was '"
                         + fakeDigest
                         + "'",
-                    ex.GetMessage());
+                    ex.Message);
             }
         }
 

@@ -84,7 +84,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             DescriptorDigest expectedDigest = await Digests.ComputeJsonDigestAsync(fakeManifestTemplate).ConfigureAwait(false);
             HttpResponseMessage mockResponse = new HttpResponseMessage
             {
-                Headers = { { "Docker-Content-Digest", new List<string> { JavaExtensions.ToString(expectedDigest) } } }
+                Headers = { { "Docker-Content-Digest", new List<string> { expectedDigest.ToString() } } }
             };
 
             Assert.AreEqual(expectedDigest, await testManifestPusher.HandleResponseAsync(mockResponse).ConfigureAwait(false));
@@ -177,7 +177,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain(
+                    ex.Message, Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }
@@ -201,7 +201,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain(
+                    ex.Message, Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }
@@ -226,7 +226,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain(
+                    ex.Message, Does.Contain(
                         "Registry may not support pushing OCI Manifest or "
                             + "Docker Image Manifest Version 2, Schema 2"));
             }

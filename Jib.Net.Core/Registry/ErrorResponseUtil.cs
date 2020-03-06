@@ -53,7 +53,7 @@ namespace Jib.Net.Core.Registry
                     JsonTemplateMapper.ReadJson<ErrorResponseTemplate>(errorContent);
                 IReadOnlyList<ErrorEntryTemplate> errors = errorResponse?.Errors;
                 // There may be multiple error objects
-                if (errors?.Size() == 1)
+                if (errors?.Count == 1)
                 {
                     var errorCode = errors[0].Code;
                     // May not get an error code back.

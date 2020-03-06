@@ -34,17 +34,9 @@ namespace Jib.Net.Core.Registry.Credentials
         private static Maybe<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, IList<Func<K, bool>> keyMatches)
         {
             return keyMatches
-                .Select(keyMatch => FindFirstInMapByKey(map, keyMatch))
-                .Where(o => o.IsPresent())
-                .FindFirst();
-        }
-
-        /** Returns the first entry matching the given key predicate. */
-        private static Maybe<KeyValuePair<K, T>> FindFirstInMapByKey<K, T>(IDictionary<K, T> map, Func<K, bool> keyMatch)
-        {
-            return map
-                .Where(entry => keyMatch(entry.GetKey()))
-                .FindFirst();
+                .SelectMany(keyMatch => map.Where(entry => keyMatch(entry.Key)))
+                .Select(Maybe.Of)
+                .FirstOrDefault();
         }
 
         private readonly DockerConfigTemplate dockerConfigTemplate;
@@ -74,7 +66,7 @@ namespace Jib.Net.Core.Registry.Credentials
             registry = registry ?? throw new ArgumentNullException(nameof(registry));
             KeyValuePair<string, AuthTemplate>? authEntry =
                 FindFirstInMapByKey(dockerConfigTemplate.Auths, GetRegistryMatchersFor(registry)).AsNullable();
-            return authEntry?.GetValue().Auth;
+            return authEntry?.Value.Auth;
         }
 
         /**
@@ -101,7 +93,7 @@ namespace Jib.Net.Core.Registry.Credentials
             if (firstAuthMatch != null && dockerConfigTemplate.CredsStore != null)
             {
                 return new DockerCredentialHelper(
-                    firstAuthMatch.Value.GetKey(), dockerConfigTemplate.CredsStore);
+                    firstAuthMatch.Value.Key, dockerConfigTemplate.CredsStore);
             }
 
             KeyValuePair<string, string>? firstCredHelperMatch =
@@ -109,7 +101,7 @@ namespace Jib.Net.Core.Registry.Credentials
             if (firstCredHelperMatch != null)
             {
                 return new DockerCredentialHelper(
-                    firstCredHelperMatch.Value.GetKey(), firstCredHelperMatch.Value.GetValue());
+                    firstCredHelperMatch.Value.Key, firstCredHelperMatch.Value.Value);
             }
 
             return null;
@@ -132,8 +124,8 @@ namespace Jib.Net.Core.Registry.Credentials
         {
             Func<string, bool> exactMatch = registry.Equals;
             Func<string, bool> withHttps = ("https://" + registry).Equals;
-            bool withSuffix(string name) => JavaExtensions.StartsWith(name, registry + "/");
-            bool withHttpsAndSuffix(string name) => JavaExtensions.StartsWith(name, "https://" + registry + "/");
+            bool withSuffix(string name) => name.StartsWith(registry + "/");
+            bool withHttpsAndSuffix(string name) => name.StartsWith("https://" + registry + "/");
             return new[] { exactMatch, withHttps, withSuffix, withHttpsAndSuffix };
         }
     }

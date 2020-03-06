@@ -69,7 +69,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(),
+                    ex.Message,
                     Does.StartWith("Layer file did not include valid diff ID: not long enough"));
 
                 Assert.IsInstanceOf<DigestException>(ex.InnerException);
@@ -85,7 +85,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(),
+                    ex.Message,
                     Does.StartWith(
                         "Layer file did not include valid diff ID: "
                             + "not valid hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));

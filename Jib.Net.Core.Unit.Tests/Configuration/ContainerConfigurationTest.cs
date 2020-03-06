@@ -40,7 +40,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullProgramArgument));
+                Assert.That(ex.Message, Contains.Substring(Resources.NullProgramArgument));
             }
 
             // Entrypoint element should not be null.
@@ -51,7 +51,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullEntrypointArgument));
+                Assert.That(ex.Message, Contains.Substring(Resources.NullEntrypointArgument));
             }
 
             // Exposed ports element should not be null.
@@ -63,7 +63,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullPort));
+                Assert.That(ex.Message, Contains.Substring(Resources.NullPort));
             }
 
             // Volume element should not be null.
@@ -76,7 +76,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.That(ex.GetMessage(), Contains.Substring(Resources.NullVolume));
+                Assert.That(ex.Message, Contains.Substring(Resources.NullVolume));
             }
         }
 

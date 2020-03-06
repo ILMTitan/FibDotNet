@@ -37,7 +37,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(
-                    "Path does not start with forward slash (/): not/absolute", ex.GetMessage());
+                    "Path does not start with forward slash (/): not/absolute", ex.Message);
             }
         }
 
@@ -45,7 +45,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         public void TestFromPath()
         {
             Assert.AreEqual(
-                "/absolute/path", JavaExtensions.ToString(AbsoluteUnixPath.FromPath(Paths.Get("/absolute/path"))));
+                "/absolute/path", AbsoluteUnixPath.FromPath(Paths.Get("/absolute/path")).ToString());
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             Assume.That(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
             Assert.AreEqual(
-                "/absolute/path", JavaExtensions.ToString(AbsoluteUnixPath.FromPath(Paths.Get("T:\\absolute\\path"))));
+                "/absolute/path", AbsoluteUnixPath.FromPath(Paths.Get("T:\\absolute\\path")).ToString());
         }
 
         [Test]
@@ -72,14 +72,14 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.Get("/");
             Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.Resolve(""));
-            Assert.AreEqual("/file", JavaExtensions.ToString(absoluteUnixPath1.Resolve("file")));
-            Assert.AreEqual("/relative/path", JavaExtensions.ToString(absoluteUnixPath1.Resolve("relative/path")));
+            Assert.AreEqual("/file", absoluteUnixPath1.Resolve("file").ToString());
+            Assert.AreEqual("/relative/path", absoluteUnixPath1.Resolve("relative/path").ToString());
 
             AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.Get("/some/path");
             Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.Resolve(""));
-            Assert.AreEqual("/some/path/file", JavaExtensions.ToString(absoluteUnixPath2.Resolve("file")));
+            Assert.AreEqual("/some/path/file", absoluteUnixPath2.Resolve("file").ToString());
             Assert.AreEqual(
-                "/some/path/relative/path", JavaExtensions.ToString(absoluteUnixPath2.Resolve("relative/path")));
+                "/some/path/relative/path", absoluteUnixPath2.Resolve("relative/path").ToString());
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             catch (ArgumentException ex)
             {
                 Assert.AreEqual(
-                    "Cannot resolve against absolute Path: " + Paths.Get("/not/relative"), ex.GetMessage());
+                    "Cannot resolve against absolute Path: " + Paths.Get("/not/relative"), ex.Message);
             }
         }
 
@@ -102,17 +102,17 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             AbsoluteUnixPath absoluteUnixPath1 = AbsoluteUnixPath.Get("/");
             Assert.AreEqual(absoluteUnixPath1, absoluteUnixPath1.Resolve(Paths.Get("")));
-            Assert.AreEqual("/file", JavaExtensions.ToString(absoluteUnixPath1.Resolve(Paths.Get("file"))));
+            Assert.AreEqual("/file", absoluteUnixPath1.Resolve(Paths.Get("file")).ToString());
             Assert.AreEqual(
-                "/relative/path", JavaExtensions.ToString(absoluteUnixPath1.Resolve(Paths.Get("relative/path"))));
+                "/relative/path", absoluteUnixPath1.Resolve(Paths.Get("relative/path")).ToString());
 
             AbsoluteUnixPath absoluteUnixPath2 = AbsoluteUnixPath.Get("/some/path");
             Assert.AreEqual(absoluteUnixPath2, absoluteUnixPath2.Resolve(Paths.Get("")));
             Assert.AreEqual(
-                "/some/path/file", JavaExtensions.ToString(absoluteUnixPath2.Resolve(Paths.Get("file///"))));
+                "/some/path/file", absoluteUnixPath2.Resolve(Paths.Get("file///")).ToString());
             Assert.AreEqual(
                 "/some/path/relative/path",
-                JavaExtensions.ToString(absoluteUnixPath2.Resolve(Paths.Get("relative//path/"))));
+                absoluteUnixPath2.Resolve(Paths.Get("relative//path/")).ToString());
         }
     }
 }

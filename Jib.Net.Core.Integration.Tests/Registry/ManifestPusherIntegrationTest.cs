@@ -99,7 +99,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry
             // Pulls the manifest.
             V22ManifestTemplate manifestTemplate =
                 await registryClient.PullManifestAsync<V22ManifestTemplate>("latest").ConfigureAwait(false);
-            Assert.AreEqual(1, manifestTemplate.Layers.Size());
+            Assert.AreEqual(1, manifestTemplate.Layers.Count);
             Assert.AreEqual(testLayerBlobDigest, manifestTemplate.Layers[0].Digest);
             Assert.IsNotNull(manifestTemplate.GetContainerConfiguration());
             Assert.AreEqual(
@@ -108,7 +108,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry
 
             // Pulls the manifest by digest.
             V22ManifestTemplate manifestTemplateByDigest =
-                await registryClient.PullManifestAsync<V22ManifestTemplate>(JavaExtensions.ToString(imageDigest)).ConfigureAwait(false);
+                await registryClient.PullManifestAsync<V22ManifestTemplate>(imageDigest.ToString()).ConfigureAwait(false);
             Assert.AreEqual(
                 await Digests.ComputeJsonDigestAsync(manifestTemplate).ConfigureAwait(false),
                 await Digests.ComputeJsonDigestAsync(manifestTemplateByDigest).ConfigureAwait(false));

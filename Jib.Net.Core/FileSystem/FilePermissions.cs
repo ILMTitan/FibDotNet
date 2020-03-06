@@ -16,8 +16,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
-namespace Jib.Net.Core.Global
+namespace Jib.Net.Core.FileSystem
 {
     /** Represents read/write/execute file permissions for owner, group, and others. */
     public class FilePermissions
@@ -44,10 +45,16 @@ namespace Jib.Net.Core.Global
         public static FilePermissions FromOctalString(string octalPermissions)
         {
             Preconditions.CheckArgument(
-                octalPermissions.Matches(OCTAL_PATTERN),
+                IsOctalString(octalPermissions),
                 "octalPermissions must be a 3-digit octal number (000-777)");
 
             return new FilePermissions((PosixFilePermissions)Convert.ToInt32(octalPermissions, 8));
+        }
+
+        private static bool IsOctalString(string octalString)
+        {
+            var match = Regex.Match(octalString, OCTAL_PATTERN);
+            return match.Success && match.Value == octalString;
         }
 
         /**

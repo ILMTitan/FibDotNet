@@ -16,7 +16,6 @@
 
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -33,7 +32,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DefaultFilePermissionsProvider.Apply(source, destination),
+                LayerConfiguration.DefaultFilePermissionsProvider(source, destination),
                 LayerConfiguration.DefaultModifiedTime);
         }
 
@@ -79,9 +78,9 @@ namespace Jib.Net.Core.Unit.Tests.Api
             Instant timestamp2 = Instant.FromUnixTimeSeconds(987);
 
             FilePermissions permissionsProvider(SystemPath _, AbsoluteUnixPath destination) =>
-                    JavaExtensions.StartsWith(destination.ToString(), "/app/layer/a") ? permissions1 : permissions2;
+                    destination.ToString().StartsWith("/app/layer/a") ? permissions1 : permissions2;
             Instant timestampProvider(SystemPath _, AbsoluteUnixPath destination) =>
-                    JavaExtensions.StartsWith(destination.ToString(), "/app/layer/a") ? timestamp1 : timestamp2;
+                    destination.ToString().StartsWith("/app/layer/a") ? timestamp1 : timestamp2;
 
             ILayerConfiguration layerConfiguration =
                 LayerConfiguration.CreateBuilder()

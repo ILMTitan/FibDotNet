@@ -42,8 +42,8 @@ namespace Jib.Net.Core.Unit.Tests.Hash
         {
             foreach (KeyValuePair<string, string> knownHash in KNOWN_SHA256_HASHES)
             {
-                string toHash = knownHash.GetKey();
-                string expectedHash = knownHash.GetValue();
+                string toHash = knownHash.Key;
+                string expectedHash = knownHash.Value;
 
                 Stream underlyingOutputStream = new MemoryStream();
                 CountingDigestOutputStream countingDigestOutputStream =

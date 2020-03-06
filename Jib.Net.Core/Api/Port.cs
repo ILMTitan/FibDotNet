@@ -188,7 +188,7 @@ namespace Jib.Net.Core.Api
 
                 for (int portNumber = min; portNumber <= max; portNumber++)
                 {
-                    JavaExtensions.Add(result, Port.ParseProtocol(portNumber, protocol));
+                    result.Add(Port.ParseProtocol(portNumber, protocol));
                 }
             }
 

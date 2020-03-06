@@ -95,7 +95,7 @@ namespace Jib.Net.Core.Images.Json
 
         public void AddLayer(long size, DescriptorDigest digest)
         {
-            JavaExtensions.Add(layers, new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
+            layers.Add(new ContentDescriptorTemplate(LAYER_MEDIA_TYPE, size, digest));
         }
 
         public ManifestFormat GetFormat()

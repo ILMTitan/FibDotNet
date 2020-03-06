@@ -102,22 +102,22 @@ namespace Jib.Net.Core.Unit.Tests.Events
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(1, allocationCompletionMap.Count);
-            Assert.AreEqual(50, allocationCompletionMap.Get(child1Child));
+            Assert.AreEqual(50, allocationCompletionMap[child1Child]);
 
             eventHandlers.Dispatch(new ProgressEvent(child1Child, 50));
 
             Assert.AreEqual(3, allocationCompletionMap.Count);
-            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child));
-            Assert.AreEqual(1, allocationCompletionMap.Get(child1));
-            Assert.AreEqual(1, allocationCompletionMap.Get(root));
+            Assert.AreEqual(100, allocationCompletionMap[child1Child]);
+            Assert.AreEqual(1, allocationCompletionMap[child1]);
+            Assert.AreEqual(1, allocationCompletionMap[root]);
 
             eventHandlers.Dispatch(new ProgressEvent(child2, 200));
 
             Assert.AreEqual(4, allocationCompletionMap.Count);
-            Assert.AreEqual(100, allocationCompletionMap.Get(child1Child));
-            Assert.AreEqual(1, allocationCompletionMap.Get(child1));
-            Assert.AreEqual(200, allocationCompletionMap.Get(child2));
-            Assert.AreEqual(2, allocationCompletionMap.Get(root));
+            Assert.AreEqual(100, allocationCompletionMap[child1Child]);
+            Assert.AreEqual(1, allocationCompletionMap[child1]);
+            Assert.AreEqual(200, allocationCompletionMap[child2]);
+            Assert.AreEqual(2, allocationCompletionMap[root]);
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace Jib.Net.Core.Unit.Tests.Events
         {
             if (allocationCompletionMap.ContainsKey(allocation))
             {
-                units += allocationCompletionMap.Get(allocation);
+                units += allocationCompletionMap[allocation];
             }
             allocationCompletionMap[allocation] = units;
 

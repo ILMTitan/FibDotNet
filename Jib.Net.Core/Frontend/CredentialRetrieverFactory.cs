@@ -151,7 +151,7 @@ namespace Jib.Net.Core.Frontend
             IList<string> inferredCredentialHelperSuffixes = new List<string>();
             foreach (string registrySuffix in COMMON_CREDENTIAL_HELPERS.Keys)
             {
-                if (!JavaExtensions.EndsWith(imageReference.GetRegistry(), registrySuffix))
+                if (!imageReference.GetRegistry().EndsWith(registrySuffix, StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -161,7 +161,7 @@ namespace Jib.Net.Core.Frontend
                     throw new InvalidOperationException(
                         Resources.CredentialRetrieverFactoryCommonCredentialNullExceptionMessage);
                 }
-                JavaExtensions.Add(inferredCredentialHelperSuffixes, inferredCredentialHelperSuffix);
+                inferredCredentialHelperSuffixes.Add(inferredCredentialHelperSuffix);
             }
 
             return () =>
@@ -178,13 +178,13 @@ namespace Jib.Net.Core.Frontend
                     }
                     catch (Exception ex) when (ex is CredentialHelperNotFoundException || ex is CredentialHelperUnhandledServerUrlException)
                     {
-                        if (ex.GetMessage() != null)
+                        if (ex.Message != null)
                         {
                             // Warns the user that the specified (or inferred) credential helper cannot be used.
-                            logger(LogEvent.Info(ex.GetMessage()));
-                            if (ex.InnerException?.GetMessage() != null)
+                            logger(LogEvent.Info(ex.Message));
+                            if (ex.InnerException?.Message != null)
                             {
-                                logger(LogEvent.Info("  Caused by: " + ex.InnerException.GetMessage()));
+                                logger(LogEvent.Info("  Caused by: " + ex.InnerException.Message));
                             }
                         }
                     }
@@ -253,7 +253,7 @@ namespace Jib.Net.Core.Frontend
             Credential credentials =
                 dockerCredentialHelperFactory(imageReference.GetRegistry(), credentialHelper)
                     .Retrieve();
-            LogGotCredentialsFrom(JavaExtensions.ToString(credentialHelper.GetFileName()));
+            LogGotCredentialsFrom(credentialHelper.GetFileName().ToString());
             return credentials;
         }
 

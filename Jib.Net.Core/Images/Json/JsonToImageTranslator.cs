@@ -106,8 +106,7 @@ namespace Jib.Net.Core.Images.Json
                     throw new ArgumentException(Resources.JsonToImageTranslatorMissingDigestExceptionMessage);
                 }
 
-                JavaExtensions.Add(
-layers, new ReferenceNoDiffIdLayer(
+                layers.Add(new ReferenceNoDiffIdLayer(
                         new BlobDescriptor(layerObjectTemplate.Size, layerObjectTemplate.Digest)));
             }
 
@@ -240,7 +239,7 @@ layers, new ReferenceNoDiffIdLayer(
             ImmutableHashSet<Port>.Builder ports = ImmutableHashSet.CreateBuilder<Port>();
             foreach (KeyValuePair<string, IDictionary<object, object>> entry in portMap)
             {
-                string port = entry.GetKey();
+                string port = entry.Key;
                 Match matcher = PORT_PATTERN.Match(port);
                 if (!matcher.Success)
                 {
@@ -250,7 +249,7 @@ layers, new ReferenceNoDiffIdLayer(
 
                 int portNumber = int.Parse(matcher.Groups["portNum"].Value, CultureInfo.InvariantCulture);
                 string protocol = matcher.Groups["protocol"].Value;
-                JavaExtensions.Add(ports, Port.ParseProtocol(portNumber, protocol));
+                ports.Add(Port.ParseProtocol(portNumber, protocol));
             }
             return ports.ToImmutable();
         }
@@ -275,7 +274,7 @@ layers, new ReferenceNoDiffIdLayer(
             {
                 try
                 {
-                    JavaExtensions.Add(volumeList, AbsoluteUnixPath.Get(volume));
+                    volumeList.Add(AbsoluteUnixPath.Get(volume));
                 }
                 catch (ArgumentException)
                 {

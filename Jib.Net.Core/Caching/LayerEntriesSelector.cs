@@ -66,32 +66,32 @@ namespace Jib.Net.Core.Caching
 
             public LayerEntryTemplate(LayerEntry layerEntry)
             {
-                SourceFile = JavaExtensions.ToString(layerEntry.SourceFile.ToAbsolutePath());
-                ExtractionPath = JavaExtensions.ToString(layerEntry.ExtractionPath);
+                SourceFile = layerEntry.SourceFile.ToAbsolutePath().ToString();
+                ExtractionPath = layerEntry.ExtractionPath.ToString();
                 LastModifiedTime = Files.GetLastModifiedTime(layerEntry.SourceFile);
                 Permissions = layerEntry.Permissions.ToOctalString();
             }
 
             public int CompareTo(LayerEntryTemplate otherLayerEntryTemplate)
             {
-                int sourceFileComparison = JavaExtensions.CompareTo(SourceFile, otherLayerEntryTemplate.SourceFile);
+                int sourceFileComparison = string.CompareOrdinal(SourceFile, otherLayerEntryTemplate.SourceFile);
                 if (sourceFileComparison != 0)
                 {
                     return sourceFileComparison;
                 }
                 int extractionPathComparison =
-                    JavaExtensions.CompareTo(ExtractionPath, otherLayerEntryTemplate.ExtractionPath);
+                    string.CompareOrdinal(ExtractionPath, otherLayerEntryTemplate.ExtractionPath);
                 if (extractionPathComparison != 0)
                 {
                     return extractionPathComparison;
                 }
                 int lastModifiedTimeComparison =
-                    JavaExtensions.CompareTo(LastModifiedTime, otherLayerEntryTemplate.LastModifiedTime);
+                    LastModifiedTime.CompareTo(otherLayerEntryTemplate.LastModifiedTime);
                 if (lastModifiedTimeComparison != 0)
                 {
                     return lastModifiedTimeComparison;
                 }
-                return JavaExtensions.CompareTo(Permissions, otherLayerEntryTemplate.Permissions);
+                return string.CompareOrdinal(Permissions, otherLayerEntryTemplate.Permissions);
             }
 
             public override bool Equals(object other)
@@ -136,7 +136,7 @@ namespace Jib.Net.Core.Caching
             List<LayerEntryTemplate> jsonTemplates = new List<LayerEntryTemplate>();
             foreach (LayerEntry entry in layerEntries)
             {
-                JavaExtensions.Add(jsonTemplates, new LayerEntryTemplate(entry));
+                jsonTemplates.Add(new LayerEntryTemplate(entry));
             }
             jsonTemplates.Sort();
             return jsonTemplates;

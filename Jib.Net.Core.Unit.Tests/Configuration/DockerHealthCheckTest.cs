@@ -57,7 +57,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("command must not be empty", ex.GetMessage());
+                Assert.AreEqual("command must not be empty", ex.Message);
             }
 
             try
@@ -67,7 +67,7 @@ namespace Jib.Net.Core.Unit.Tests.Configuration
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("command must not contain null elements", ex.GetMessage());
+                Assert.AreEqual("command must not contain null elements", ex.Message);
             }
         }
     }

@@ -53,9 +53,10 @@ namespace Jib.Net.Core.FileSystem
          *     accepted and {@code false} otherwise.
          * @return this
          */
-        public DirectoryWalker Filter(Func<SystemPath, bool> pathFilter)
+        public DirectoryWalker Filter(Func<SystemPath, bool> additionalPathFilter)
         {
-            this.pathFilter = this.pathFilter.And(pathFilter);
+            var currentPathFilter = pathFilter;
+            pathFilter = p => currentPathFilter(p) && additionalPathFilter(p);
             return this;
         }
 

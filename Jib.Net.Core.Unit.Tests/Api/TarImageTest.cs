@@ -28,7 +28,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         public void TestGetters()
         {
             TarImage tarImage = TarImage.Named("tar/image").SaveTo(Paths.Get("output/file"));
-            Assert.AreEqual("tar/image", JavaExtensions.ToString(tarImage.GetImageReference()));
+            Assert.AreEqual("tar/image", tarImage.GetImageReference().ToString());
             Assert.AreEqual(Paths.Get("output/file"), tarImage.GetOutputFile());
         }
     }

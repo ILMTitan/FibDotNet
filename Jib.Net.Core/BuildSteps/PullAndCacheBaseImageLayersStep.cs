@@ -72,8 +72,8 @@ namespace Jib.Net.Core.BuildSteps
                 List<Task<ICachedLayer>> pullAndCacheBaseImageLayerStepsBuilder = new List<Task<ICachedLayer>>();
                 foreach (ILayer layer in baseImageLayers)
                 {
-                    JavaExtensions.Add(
-pullAndCacheBaseImageLayerStepsBuilder, new PullAndCacheBaseImageLayerStep(
+                    pullAndCacheBaseImageLayerStepsBuilder.Add(
+                        new PullAndCacheBaseImageLayerStep(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer(),
                             layer.GetBlobDescriptor().GetDigest(),

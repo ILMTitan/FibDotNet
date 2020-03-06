@@ -61,7 +61,7 @@ namespace Jib.Net.Core.Caching
             try
             {
                 layerFile = layerFile ?? throw new ArgumentNullException(nameof(layerFile));
-                string diffId = JavaExtensions.ToString(layerFile.GetFileName());
+                string diffId = layerFile.GetFileName().ToString();
                 return DescriptorDigest.FromHash(diffId);
             }
             catch (Exception ex) when (ex is DigestException || ex is IndexOutOfRangeException)
@@ -161,7 +161,7 @@ namespace Jib.Net.Core.Caching
         {
             imageReference = imageReference ?? throw new ArgumentNullException(nameof(imageReference));
             // Replace ':' and '@' with '!' to avoid directory-naming restrictions
-            string replacedReference = JavaExtensions.Replace(JavaExtensions.Replace(imageReference.ToStringWithTag(), ':', '!'), '@', '!');
+            string replacedReference = imageReference.ToStringWithTag().Replace(':', '!').Replace('@', '!');
 
             // Split image reference on '/' to build directory structure
             IEnumerable<string> directories = Splitter.On('/').Split(replacedReference);

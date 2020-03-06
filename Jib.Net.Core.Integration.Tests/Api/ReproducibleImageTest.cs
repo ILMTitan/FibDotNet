@@ -18,7 +18,7 @@ using ICSharpCode.SharpZipLib.Tar;
 using Jib.Net.Core;
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
+using Jib.Net.Core.Tar;
 using Jib.Net.Test.Common;
 using NodaTime;
 using NUnit.Framework;
@@ -95,7 +95,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
                 TarEntry imageEntry;
                 while ((imageEntry = input.GetNextEntry()) != null)
                 {
-                    JavaExtensions.Add(actual, imageEntry.Name);
+                    actual.Add(imageEntry.Name);
                 }
             }
 
@@ -185,7 +185,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
                 {
                     if (layerEntry.IsFile())
                     {
-                        JavaExtensions.Add(paths, layerEntry.Name);
+                        paths.Add(layerEntry.Name);
                     }
                 });
             CollectionAssert.AreEquivalent(
@@ -260,15 +260,15 @@ namespace Jib.Net.Core.Integration.Tests.Api
                     string entryPath = layerEntry.Name;
                     if (layerEntry.IsDirectory)
                     {
-                        Assert.IsTrue(JavaExtensions.EndsWith(entryPath, "/"), "directories in tar end with /");
-                        entryPath = JavaExtensions.Substring(entryPath, 0, entryPath.Length - 1);
+                        Assert.That(entryPath, Does.EndWith("/"), "directories in tar end with /");
+                        entryPath = entryPath.Substring(0, entryPath.Length - 1);
                     }
 
                     int lastSlashPosition = entryPath.LastIndexOf('/');
-                    string parent = JavaExtensions.Substring(entryPath, 0, Math.Max(0, lastSlashPosition));
-                    if (!parent.IsEmpty())
+                    string parent = entryPath.Substring(0, Math.Max(0, lastSlashPosition));
+                    if (!string.IsNullOrEmpty(parent))
                     {
-                        Assert.IsTrue(directories.Contains(parent), "layer has implicit parent directory: " + parent);
+                        Assert.That(directories, Does.Contain(parent), "layer has implicit parent directory: " + parent);
                     }
                     if (layerEntry.IsDirectory)
                     {
@@ -314,7 +314,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
                 {
                     string imageEntryName = imageEntry.Name;
                     // assume all .tar.gz files are layers
-                    if (imageEntry.IsFile() && JavaExtensions.EndsWith(imageEntryName, ".tar.gz"))
+                    if (imageEntry.IsFile() && imageEntryName.EndsWith(".tar.gz", StringComparison.Ordinal))
                     {
                         TarInputStream layer = new TarInputStream(new GZipStream(input, CompressionMode.Decompress));
                         TarEntry layerEntry;

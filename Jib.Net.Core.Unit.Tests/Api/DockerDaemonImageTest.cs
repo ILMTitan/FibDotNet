@@ -32,7 +32,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             DockerDaemonImage dockerDaemonImage = DockerDaemonImage.Named("docker/daemon/image");
 
-            Assert.AreEqual("docker/daemon/image", JavaExtensions.ToString(dockerDaemonImage.GetImageReference()));
+            Assert.AreEqual("docker/daemon/image", dockerDaemonImage.GetImageReference().ToString());
             Assert.AreEqual(Maybe.Empty<SystemPath>(), dockerDaemonImage.GetDockerExecutable());
             Assert.AreEqual(0, dockerDaemonImage.GetDockerEnvironment().Count);
         }

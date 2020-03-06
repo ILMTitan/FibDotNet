@@ -84,12 +84,12 @@ namespace Jib.Net.Core.Unit.Tests.Events
 
             EventHandlers eventHandlers =
                 EventHandlers.CreateBuilder()
-                    .Add<TestJibEvent2>(_ => JavaExtensions.Add(emissions, "handled 2 first"))
-                    .Add<TestJibEvent2>(_ => JavaExtensions.Add(emissions, "handled 2 second"))
+                    .Add<TestJibEvent2>(_ => emissions.Add("handled 2 first"))
+                    .Add<TestJibEvent2>(_ => emissions.Add("handled 2 second"))
 
-                    .Add<TestJibEvent3>(_ => JavaExtensions.Add(emissions, "handled 3"))
+                    .Add<TestJibEvent3>(_ => emissions.Add("handled 3"))
 
-                    .Add<IJibEvent>(_ => JavaExtensions.Add(emissions, "handled generic"))
+                    .Add<IJibEvent>(_ => emissions.Add("handled generic"))
 
                     .Build();
 

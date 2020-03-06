@@ -295,7 +295,7 @@ namespace Jib.Net.Core.Integration.Tests.Api
 
             progressChecker.CheckCompletion();
 
-            new Command("docker", "load", "--input", JavaExtensions.ToString(outputPath)).Run();
+            new Command("docker", "load", "--input", outputPath.ToString()).Run();
             AssertLayerSizer(7, "testtar");
             Assert.AreEqual(
                 "Hello, world. An argument.\n", new Command("docker", "run", "--rm", "testtar").Run());

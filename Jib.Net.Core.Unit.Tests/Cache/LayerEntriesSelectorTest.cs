@@ -16,7 +16,6 @@
 
 using Jib.Net.Core.Api;
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using Jib.Net.Core.Hash;
 using Jib.Net.Test.Common;
 using NodaTime;
@@ -38,7 +37,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             return new LayerEntry(
                 source,
                 destination,
-                LayerConfiguration.DefaultFilePermissionsProvider.Apply(source, destination),
+                LayerConfiguration.DefaultFilePermissionsProvider(source, destination),
                 LayerConfiguration.DefaultModifiedTime);
         }
 

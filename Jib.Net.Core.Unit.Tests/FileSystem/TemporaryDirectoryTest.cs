@@ -60,7 +60,7 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
             {
                 CreateFilesInDirectory(temporaryDirectory.GetDirectory());
 
-                temporaryDirectory.Close();
+                temporaryDirectory.Dispose();
                 Assert.IsFalse(Files.Exists(temporaryDirectory.GetDirectory()));
             }
         }
@@ -78,7 +78,7 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
                 Assert.IsFalse(Files.Exists(destinationParent.Resolve("destination")));
                 Files.Move(temporaryDirectory.GetDirectory(), destinationParent.Resolve("destination"));
 
-                temporaryDirectory.Close();
+                temporaryDirectory.Dispose();
                 Assert.IsFalse(Files.Exists(temporaryDirectory.GetDirectory()));
                 Assert.IsTrue(Files.Exists(destinationParent.Resolve("destination")));
             }

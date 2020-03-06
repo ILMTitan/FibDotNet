@@ -115,7 +115,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain("'WWW-Authenticate' header not found"));
+                    ex.Message, Does.Contain("'WWW-Authenticate' header not found"));
             }
         }
 

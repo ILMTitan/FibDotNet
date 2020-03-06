@@ -59,7 +59,7 @@ namespace Jib.Net.Core.Caching
             {
                 try
                 {
-                    JavaExtensions.Add(layerDigests, DescriptorDigest.FromHash(JavaExtensions.ToString(layerDirectory.GetFileName())));
+                    layerDigests.Add(DescriptorDigest.FromHash(layerDirectory.GetFileName().ToString()));
                 }
                 catch (DigestException ex)
                 {
@@ -108,7 +108,7 @@ namespace Jib.Net.Core.Caching
                     Resources.CacheStorageReaderSchemaVersionMissingExecpetionMessage);
             }
 
-            int schemaVersion = node.Get("schemaVersion").Value<int>();
+            int schemaVersion = node["schemaVersion"].Value<int>();
             if (schemaVersion == -1)
             {
                 throw new CacheCorruptedException(
@@ -126,7 +126,7 @@ namespace Jib.Net.Core.Caching
             if (schemaVersion == 2)
             {
                 // 'schemaVersion' of 2 can be either Docker V2.2 or OCI.
-                string mediaType = node.Get("mediaType").Value<string>();
+                string mediaType = node["mediaType"].Value<string>();
 
                 IManifestTemplate manifestTemplate;
                 if (V22ManifestTemplate.ManifestMediaType == mediaType)

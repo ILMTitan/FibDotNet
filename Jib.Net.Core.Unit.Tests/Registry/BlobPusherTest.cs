@@ -104,7 +104,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             }
             catch (RegistryErrorException ex)
             {
-                Assert.That(ex.GetMessage(), Does.Contain("Received unrecognized status code Unused"));
+                Assert.That(ex.Message, Does.Contain("Received unrecognized status code Unused"));
             }
         }
 

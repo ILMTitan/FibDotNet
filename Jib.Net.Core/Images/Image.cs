@@ -21,6 +21,7 @@ using Jib.Net.Core.Images.Json;
 using NodaTime;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Jib.Net.Core.Images
 {
@@ -99,9 +100,9 @@ namespace Jib.Net.Core.Images
              */
             public Builder AddEnvironment(IDictionary<string, string> environment)
             {
-                if (environment != null)
+                foreach ((string key, string value) in environment ?? Enumerable.Empty<KeyValuePair<string, string>>())
                 {
-                    environmentBuilder.PutAll(environment);
+                    environmentBuilder[key] = value;
                 }
                 return this;
             }
@@ -205,9 +206,9 @@ namespace Jib.Net.Core.Images
              */
             public Builder AddLabels(IDictionary<string, string> labels)
             {
-                if (labels != null)
+                foreach ((string key, string value) in labels ?? Enumerable.Empty<KeyValuePair<string, string>>())
                 {
-                    labelsBuilder.PutAll(labels);
+                    labelsBuilder[key] = value;
                 }
                 return this;
             }

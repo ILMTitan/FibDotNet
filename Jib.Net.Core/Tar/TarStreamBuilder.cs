@@ -46,8 +46,8 @@ namespace Jib.Net.Core.Tar
             {
                 foreach (KeyValuePair<TarEntry, IBlob> entry in archiveMap)
                 {
-                    tarArchiveOutputStream.PutNextEntry(entry.GetKey());
-                    await entry.GetValue().WriteToAsync(tarArchiveOutputStream).ConfigureAwait(false);
+                    tarArchiveOutputStream.PutNextEntry(entry.Key);
+                    await entry.Value.WriteToAsync(tarArchiveOutputStream).ConfigureAwait(false);
                     tarArchiveOutputStream.CloseEntry();
                 }
             }

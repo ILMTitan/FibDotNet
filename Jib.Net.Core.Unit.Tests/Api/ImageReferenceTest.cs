@@ -106,7 +106,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 }
                 catch (InvalidImageReferenceException ex)
                 {
-                    Assert.That(ex.GetMessage(), Does.Contain(badImageReference))
+                    Assert.That(ex.Message, Does.Contain(badImageReference))
 ;
                 }
             }
@@ -142,29 +142,28 @@ namespace Jib.Net.Core.Unit.Tests.Api
         [Test]
         public void TestToString()
         {
-            Assert.AreEqual("someimage", JavaExtensions.ToString(ImageReference.Of(null, "someimage", null)));
-            Assert.AreEqual("someimage", JavaExtensions.ToString(ImageReference.Of("", "someimage", "")));
+            Assert.AreEqual("someimage", ImageReference.Of(null, "someimage", null).ToString());
+            Assert.AreEqual("someimage", ImageReference.Of("", "someimage", "").ToString());
             Assert.AreEqual(
-                "someotherimage", JavaExtensions.ToString(ImageReference.Of(null, "library/someotherimage", null)));
+                "someotherimage", ImageReference.Of(null, "library/someotherimage", null).ToString());
             Assert.AreEqual(
                 "someregistry/someotherimage",
-                JavaExtensions.ToString(ImageReference.Of("someregistry", "someotherimage", null)));
+                ImageReference.Of("someregistry", "someotherimage", null).ToString());
             Assert.AreEqual(
                 "anotherregistry/anotherimage:sometag",
-                JavaExtensions.ToString(ImageReference.Of("anotherregistry", "anotherimage", "sometag")));
+                ImageReference.Of("anotherregistry", "anotherimage", "sometag").ToString());
 
             Assert.AreEqual(
                 "someimage@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                JavaExtensions.ToString(ImageReference.Of(
+                ImageReference.Of(
                         null,
                         "someimage",
-                        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-));
+                        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").ToString());
             Assert.AreEqual(
                 "gcr.io/distroless/java@sha256:b430543bea1d8326e767058bdab3a2482ea45f59d7af5c5c61334cd29ede88a1",
-                JavaExtensions.ToString(ImageReference.Parse(
+                ImageReference.Parse(
                         "gcr.io/distroless/java@sha256:b430543bea1d8326e767058bdab3a2482ea45f59d7af5c5c61334cd29ede88a1")
-));
+                    .ToString());
         }
 
         [Test]
@@ -234,7 +233,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 expectedRegistry = "registry-1.docker.io";
             }
             string expectedRepository = repository;
-            if ("registry-1.docker.io" == expectedRegistry && JavaExtensions.IndexOf(repository, '/') < 0)
+            if ("registry-1.docker.io" == expectedRegistry && repository.IndexOf('/') < 0)
             {
                 expectedRepository = "library/" + expectedRepository;
             }
@@ -248,15 +247,15 @@ namespace Jib.Net.Core.Unit.Tests.Api
             StringBuilder imageReferenceBuilder = new StringBuilder();
             if (!string.IsNullOrEmpty(registry))
             {
-                JavaExtensions.Append(JavaExtensions.Append(imageReferenceBuilder, registry), '/');
+                imageReferenceBuilder.Append(registry).Append('/');
             }
-            JavaExtensions.Append(imageReferenceBuilder, repository);
+            imageReferenceBuilder.Append(repository);
             if (!string.IsNullOrEmpty(tag))
             {
-                JavaExtensions.Append(JavaExtensions.Append(imageReferenceBuilder, tagSeparator), tag);
+                imageReferenceBuilder.Append(tagSeparator).Append(tag);
             }
 
-            ImageReference imageReference = ImageReference.Parse(JavaExtensions.ToString(imageReferenceBuilder));
+            ImageReference imageReference = ImageReference.Parse(imageReferenceBuilder.ToString());
 
             Assert.AreEqual(expectedRegistry, imageReference.GetRegistry());
             Assert.AreEqual(expectedRepository, imageReference.GetRepository());

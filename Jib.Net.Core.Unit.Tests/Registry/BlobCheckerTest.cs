@@ -79,7 +79,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             catch (RegistryErrorException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.Contain("Did not receive Content-Length header"));
+                    ex.Message, Does.Contain("Did not receive Content-Length header"));
             }
         }
 

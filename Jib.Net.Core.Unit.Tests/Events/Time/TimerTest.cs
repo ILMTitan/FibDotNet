@@ -51,9 +51,9 @@ namespace Jib.Net.Core.Unit.Tests.Events.Time
 
             Duration parentDuration3 = parentTimer.Lap();
 
-            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration2, parentDuration1) > 0);
-            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration1, parentDuration3) > 0);
-            Assert.IsTrue(JavaExtensions.CompareTo(parentDuration3, childDuration) > 0);
+            Assert.IsTrue(parentDuration2.CompareTo(parentDuration1) > 0);
+            Assert.IsTrue(parentDuration1.CompareTo(parentDuration3) > 0);
+            Assert.IsTrue(parentDuration3.CompareTo(childDuration) > 0);
         }
     }
 }

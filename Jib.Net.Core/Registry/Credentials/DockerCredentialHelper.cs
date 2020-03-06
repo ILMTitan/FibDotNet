@@ -93,10 +93,11 @@ namespace Jib.Net.Core.Registry.Credentials
         {
             try
             {
-                IProcess process = new ProcessBuilder(JavaExtensions.ToString(credentialHelper), "get").Start();
+                IProcess process = new ProcessBuilder(credentialHelper, "get").Start();
                 using (Stream processStdin = process.GetOutputStream())
                 {
-                    processStdin.Write(Encoding.UTF8.GetBytes(registry));
+                    byte[] bytes = Encoding.UTF8.GetBytes(registry);
+                    processStdin.Write(bytes, 0, bytes.Length);
                 }
 
                 using (StreamReader processStdoutReader =
@@ -105,12 +106,12 @@ namespace Jib.Net.Core.Registry.Credentials
                     string output = processStdoutReader.ReadToEnd();
 
                     // Throws an exception if the credential store does not have credentials for serverUrl.
-                    if (JavaExtensions.Contains(output, "credentials not found in native keychain"))
+                    if (output.Contains("credentials not found in native keychain"))
                     {
                         throw new CredentialHelperUnhandledServerUrlException(
                             credentialHelper, registry, output);
                     }
-                    if (output.IsEmpty())
+                    if (string.IsNullOrEmpty(output))
                     {
                         ThrowUnhandledUrlException(process);
                     }
@@ -137,14 +138,14 @@ namespace Jib.Net.Core.Registry.Credentials
             }
             catch (Win32Exception ex) when (ex.NativeErrorCode == Win32ErrorCodes.FileNotFound)
             {
-                if (ex.GetMessage() == null)
+                if (ex.Message == null)
                 {
                     throw;
                 }
 
                 // Checks if the failure is due to a nonexistent credential helper CLI.
-                if (JavaExtensions.Contains(ex.GetMessage(), "No such file or directory")
-                    || JavaExtensions.Contains(ex.GetMessage(), "cannot find the file"))
+                if (ex.Message.Contains("No such file or directory")
+                    || ex.Message.Contains("cannot find the file"))
                 {
                     throw new CredentialHelperNotFoundException(credentialHelper, ex);
                 }

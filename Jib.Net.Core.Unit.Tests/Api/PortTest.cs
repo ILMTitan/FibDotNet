@@ -29,7 +29,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             Port port = Port.Tcp(5555);
             Assert.AreEqual(5555, port.GetPort());
-            Assert.AreEqual("5555/tcp", JavaExtensions.ToString(port));
+            Assert.AreEqual("5555/tcp", port.ToString());
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             Port port = Port.Udp(6666);
             Assert.AreEqual(6666, port.GetPort());
-            Assert.AreEqual("6666/udp", JavaExtensions.ToString(port));
+            Assert.AreEqual("6666/udp", port.ToString());
         }
 
         [Test]

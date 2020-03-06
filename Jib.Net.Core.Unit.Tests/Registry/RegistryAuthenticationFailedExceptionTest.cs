@@ -33,7 +33,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             Assert.AreEqual("imageName", exception.GetImageName());
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
-                exception.GetMessage());
+                exception.Message);
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Jib.Net.Core.Unit.Tests.Registry
             Assert.AreSame(cause, exception.InnerException);
             Assert.AreEqual(
                 "Failed to authenticate with registry serverUrl/imageName because: message",
-                exception.GetMessage());
+                exception.Message);
         }
     }
 }

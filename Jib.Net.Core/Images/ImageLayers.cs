@@ -50,8 +50,8 @@ namespace Jib.Net.Core.Images
             public Builder Add(ILayer layer)
             {
                 layer = layer ?? throw new ArgumentNullException(nameof(layer));
-                JavaExtensions.Add(layerDigestsBuilder, layer.GetBlobDescriptor().GetDigest());
-                JavaExtensions.Add(layers, layer);
+                layerDigestsBuilder.Add(layer.GetBlobDescriptor().GetDigest());
+                layers.Add(layer);
                 return this;
             }
 
@@ -168,7 +168,7 @@ namespace Jib.Net.Core.Images
          */
         public bool Has(DescriptorDigest digest)
         {
-            return JavaExtensions.Contains(layerDigests, digest);
+            return layerDigests.Contains(digest);
         }
 
         public Enumerator GetEnumerator()

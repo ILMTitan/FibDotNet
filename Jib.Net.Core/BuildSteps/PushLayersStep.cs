@@ -65,7 +65,7 @@ namespace Jib.Net.Core.BuildSteps
                 new TimerEventDispatcher(buildConfiguration.GetEventHandlers(), DESCRIPTION))
             {
                 using (ProgressEventDispatcher progressEventDispatcher =
-                    progressEventDispatcherFactory.Create("setting up to push layers", cachedLayers.Size()))
+                    progressEventDispatcherFactory.Create("setting up to push layers", cachedLayers.Count))
                 {
                     // Constructs a PushBlobStep for each layer.
                     var pushBlobSteps = new List<Task<BlobDescriptor>>();

@@ -34,7 +34,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             DescriptorDigest descriptorDigest = DescriptorDigest.FromHash(goodHash);
 
             Assert.AreEqual(goodHash, descriptorDigest.GetHash());
-            Assert.AreEqual("sha256:" + goodHash, JavaExtensions.ToString(descriptorDigest));
+            Assert.AreEqual("sha256:" + goodHash, descriptorDigest.ToString());
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid hash: " + badHash, ex.GetMessage());
+                Assert.AreEqual("Invalid hash: " + badHash, ex.Message);
             }
         }
 
@@ -65,7 +65,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid hash: " + badHash, ex.GetMessage());
+                Assert.AreEqual("Invalid hash: " + badHash, ex.Message);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             DescriptorDigest descriptorDigest = DescriptorDigest.FromDigest(goodDigest);
 
             Assert.AreEqual(goodHash, descriptorDigest.GetHash());
-            Assert.AreEqual(goodDigest, JavaExtensions.ToString(descriptorDigest));
+            Assert.AreEqual(goodDigest, descriptorDigest.ToString());
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             }
             catch (DigestException ex)
             {
-                Assert.AreEqual("Invalid digest: " + badDigest, ex.GetMessage());
+                Assert.AreEqual("Invalid digest: " + badDigest, ex.Message);
             }
         }
 
@@ -110,28 +110,28 @@ namespace Jib.Net.Core.Unit.Tests.Api
             {
                 [descriptorDigestA1] = "digest with a"
             };
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
-            Assert.IsNull(digestMap.Get(descriptorDigestB));
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA1]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA2]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA3]);
+            Assert.IsFalse(digestMap.ContainsKey(descriptorDigestB));
 
             digestMap[descriptorDigestA2] = "digest with a";
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
-            Assert.IsNull(digestMap.Get(descriptorDigestB));
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA1]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA2]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA3]);
+            Assert.IsFalse(digestMap.ContainsKey(descriptorDigestB));
 
             digestMap[descriptorDigestA3] = "digest with a";
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
-            Assert.IsNull(digestMap.Get(descriptorDigestB));
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA1]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA2]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA3]);
+            Assert.IsFalse(digestMap.ContainsKey(descriptorDigestB));
 
             digestMap[descriptorDigestB] = "digest with b";
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA1));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA2));
-            Assert.AreEqual("digest with a", digestMap.Get(descriptorDigestA3));
-            Assert.AreEqual("digest with b", digestMap.Get(descriptorDigestB));
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA1]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA2]);
+            Assert.AreEqual("digest with a", digestMap[descriptorDigestA3]);
+            Assert.AreEqual("digest with b", digestMap[descriptorDigestB]);
         }
 
         /** Creates a 32 byte hexademical string to fit valid hash pattern. */
@@ -141,9 +141,9 @@ namespace Jib.Net.Core.Unit.Tests.Api
             StringBuilder goodHashBuffer = new StringBuilder(64);
             for (int i = 0; i < 64; i++)
             {
-                JavaExtensions.Append(goodHashBuffer, character);
+                goodHashBuffer.Append(character);
             }
-            return JavaExtensions.ToString(goodHashBuffer);
+            return goodHashBuffer.ToString();
         }
     }
 }

@@ -90,7 +90,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry
                     throw;
                 }
                 StringAssert.Contains(
-                    ex.GetMessage(),
+                    ex.Message,
                         "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest);
             }
         }

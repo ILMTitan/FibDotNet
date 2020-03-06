@@ -98,7 +98,7 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
             }
             catch (InvalidOperationException ex)
             {
-                Assert.AreEqual("Progress exceeds max for 'child1': 1 more beyond 1", ex.GetMessage());
+                Assert.AreEqual("Progress exceeds max for 'child1': 1 more beyond 1", ex.Message);
             }
         }
 
@@ -125,10 +125,10 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 allocationCompletionTracker.GetUnfinishedAllocations());
 
             // Adds 50 to child1Child and 100 to child2.
-            IList<Func<bool>> callables = new List<Func<bool>>(150);
-            callables.AddAll(
+            List<Func<bool>> callables = new List<Func<bool>>(150);
+            callables.AddRange(
                 Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.UpdateProgress(child1Child, 1L)), 50));
-            callables.AddAll(
+            callables.AddRange(
                 Enumerable.Repeat((Func<bool>)(() => allocationCompletionTracker.UpdateProgress(child2, 1L)), 100));
 
             CollectionAssert.AreEqual(

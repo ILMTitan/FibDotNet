@@ -71,9 +71,9 @@ namespace Jib.Net.Core.Registry
         {
             this.cause = cause;
 
-            JavaExtensions.Append(errorMessageBuilder, "Tried to ");
-            JavaExtensions.Append(errorMessageBuilder, method);
-            JavaExtensions.Append(errorMessageBuilder, " but failed because: ");
+            errorMessageBuilder.Append("Tried to ");
+            errorMessageBuilder.Append(method);
+            errorMessageBuilder.Append(" but failed because: ");
         }
 
         /** @param method the registry method that errored */
@@ -100,9 +100,9 @@ namespace Jib.Net.Core.Registry
         {
             if (!firstErrorReason)
             {
-                JavaExtensions.Append(errorMessageBuilder, ", ");
+                errorMessageBuilder.Append(", ");
             }
-            JavaExtensions.Append(errorMessageBuilder, reason);
+            errorMessageBuilder.Append(reason);
             firstErrorReason = false;
             return this;
         }
@@ -110,9 +110,8 @@ namespace Jib.Net.Core.Registry
         public RegistryErrorException Build()
         {
             // Provides a feedback channel.
-            JavaExtensions.Append(
-errorMessageBuilder, " | If this is a bug, please file an issue at " + ProjectInfo.GitHubNewIssueUrl);
-            return new RegistryErrorException(JavaExtensions.ToString(errorMessageBuilder), cause);
+            errorMessageBuilder.Append(" | If this is a bug, please file an issue at " + ProjectInfo.GitHubNewIssueUrl);
+            return new RegistryErrorException(errorMessageBuilder.ToString(), cause);
         }
     }
 }

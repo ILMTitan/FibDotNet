@@ -51,7 +51,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry
 
             Assert.AreEqual(2, manifestTemplate.SchemaVersion);
             V22ManifestTemplate v22ManifestTemplate = (V22ManifestTemplate)manifestTemplate;
-            Assert.IsTrue(v22ManifestTemplate.Layers.Size() > 0);
+            Assert.IsTrue(v22ManifestTemplate.Layers.Count > 0);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace Jib.Net.Core.Integration.Tests.Registry
             }
             catch (RegistryErrorException ex)
             {
-                Assert.That(ex.GetMessage(),
+                Assert.That(ex.Message,
                     Does.Contain("pull image manifest for localhost:5000/busybox:nonexistent-tag"));
             }
         }

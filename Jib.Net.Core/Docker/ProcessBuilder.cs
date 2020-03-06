@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Jib.Net.Core.Global;
 
 namespace Jib.Net.Core.Docker
 {
@@ -26,21 +27,27 @@ namespace Jib.Net.Core.Docker
     {
         private readonly string _args;
         private readonly string _cmd;
+        private readonly IDictionary<string, string> env;
 
-        private readonly IDictionary<string, string> env =
-            Environment.GetEnvironmentVariables()
-                .Cast<DictionaryEntry>()
-                .ToDictionary(e => e.Key.ToString(), e => e.Value.ToString());
+        public ProcessBuilder(string command, string args) : this(command, args, new Dictionary<string, string>()) { }
 
-        public ProcessBuilder(string command, string args)
+        public ProcessBuilder(string command) : this(command, null) { }
+
+        public ProcessBuilder(string command, string args, IDictionary<string, string> additonalEnv)
         {
             _cmd = command;
             _args = args;
-        }
+            env = new Dictionary<string, string>();
+            
+            foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
+            {
+                env.Add((string)entry.Key, (string)entry.Value);
+            }
 
-        public ProcessBuilder(string command)
-        {
-            _cmd = command;
+            foreach ((string key, string value) in additonalEnv ?? Enumerable.Empty<KeyValuePair<string, string>>())
+            {
+                env[key] = value;
+            }
         }
 
         internal IDictionary<string, string> GetEnvironment()

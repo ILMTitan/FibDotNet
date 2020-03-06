@@ -113,7 +113,7 @@ namespace Jib.Net.Core.BuildSteps
                     containerConfiguration == null
                         ? ContainerConfiguration.DefaultCreationTime
                         : containerConfiguration.GetCreationTime();
-                for (int count = 0; count < baseImageLayers.Size() - nonEmptyLayerCount; count++)
+                for (int count = 0; count < baseImageLayers.Count - nonEmptyLayerCount; count++)
                 {
                     imageBuilder.AddHistory(
                         HistoryEntry.CreateBuilder()
@@ -156,7 +156,7 @@ namespace Jib.Net.Core.BuildSteps
                         .AddLabels(containerConfiguration.GetLabels());
                     if (containerConfiguration.GetWorkingDirectory() != null)
                     {
-                        imageBuilder.SetWorkingDirectory(JavaExtensions.ToString(containerConfiguration.GetWorkingDirectory()));
+                        imageBuilder.SetWorkingDirectory(containerConfiguration.GetWorkingDirectory().ToString());
                     }
                 }
 

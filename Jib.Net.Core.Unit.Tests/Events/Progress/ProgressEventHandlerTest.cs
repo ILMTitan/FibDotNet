@@ -73,10 +73,10 @@ namespace Jib.Net.Core.Unit.Tests.Events.Progress
                 Assert.AreEqual(0.0, maxProgress.Get(), DOUBLE_ERROR_MARGIN);
 
                 // Adds 50 to child1Child and 100 to child2.
-                IList<Action> callables = new List<Action>(150);
-                callables.AddAll(
+                List<Action> callables = new List<Action>(150);
+                callables.AddRange(
                     Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child1Child, 1L))), 50));
-                callables.AddAll(
+                callables.AddRange(
                     Enumerable.Repeat((Action)(() => eventHandlers.Dispatch(new ProgressEvent(child2, 1L))), 100));
 
                 await MultithreadedExecutor.InvokeAllAsync(callables).ConfigureAwait(false);

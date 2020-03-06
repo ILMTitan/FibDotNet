@@ -31,7 +31,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
         {
             RegistryImage image = RegistryImage.Named("registry/image");
 
-            Assert.AreEqual("registry/image", JavaExtensions.ToString(image.GetImageReference()));
+            Assert.AreEqual("registry/image", image.GetImageReference().ToString());
             Assert.AreEqual(0, image.GetCredentialRetrievers().Count);
         }
 

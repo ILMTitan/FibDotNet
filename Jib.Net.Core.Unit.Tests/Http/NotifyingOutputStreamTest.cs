@@ -35,10 +35,12 @@ namespace Jib.Net.Core.Unit.Tests.Http
             List<long> byteCounts = new List<long>();
 
             using (NotifyingOutputStream notifyingOutputStream =
-                new NotifyingOutputStream(byteArrayOutputStream, byteCounts.Add<long>))
+                new NotifyingOutputStream(byteArrayOutputStream, byteCounts.Add))
             {
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 0 });
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 1, 2, 3 });
+                byte[] firstBytes = new byte[] { 0 };
+                notifyingOutputStream.Write(firstBytes);
+                byte[] secondBites = new byte[] { 1, 2, 3 };
+                notifyingOutputStream.Write(secondBites, 0, secondBites.Length);
                 notifyingOutputStream.Write(new byte[] { 1, 2, 3, 4, 5 }, 3, 2);
             }
 
@@ -58,7 +60,7 @@ namespace Jib.Net.Core.Unit.Tests.Http
 
             using (ThrottledAccumulatingConsumer byteCounter =
                     new ThrottledAccumulatingConsumer(
-                        byteCounts.Add<long>, Duration.FromSeconds(3), instantQueue.Dequeue))
+                        byteCounts.Add, Duration.FromSeconds(3), instantQueue.Dequeue))
             using (NotifyingOutputStream notifyingOutputStream =
                     new NotifyingOutputStream(byteArrayOutputStream, byteCounter.Accept))
 
@@ -66,15 +68,15 @@ namespace Jib.Net.Core.Unit.Tests.Http
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0));
                 notifyingOutputStream.WriteByte(100);
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0));
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 101, 102, 103 });
+                notifyingOutputStream.Write(new byte[] { 101, 102, 103 });
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(4));
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 104, 105, 106 });
+                notifyingOutputStream.Write(new byte[] { 104, 105, 106 });
 
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 107, 108 });
+                notifyingOutputStream.Write(new byte[] { 107, 108 });
 
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(10));
-                JavaExtensions.Write(notifyingOutputStream, new byte[] { 109 });
+                notifyingOutputStream.Write(new byte[] { 109 });
                 instantQueue.Enqueue(Instant.FromUnixTimeSeconds(0) + Duration.FromSeconds(13));
                 notifyingOutputStream.Write(new byte[] { 0, 110 }, 1, 1);
             }

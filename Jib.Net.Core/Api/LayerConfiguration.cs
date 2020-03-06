@@ -15,7 +15,6 @@
  */
 
 using Jib.Net.Core.FileSystem;
-using Jib.Net.Core.Global;
 using NodaTime;
 using System;
 using System.Collections.Generic;
@@ -105,7 +104,7 @@ namespace Jib.Net.Core.Api
                 return AddEntry(
                     sourceFile,
                     pathInContainer,
-                    DefaultFilePermissionsProvider.Apply(sourceFile, pathInContainer));
+                    DefaultFilePermissionsProvider(sourceFile, pathInContainer));
             }
 
             /**
@@ -129,7 +128,7 @@ namespace Jib.Net.Core.Api
                     sourceFile,
                     pathInContainer,
                     permissions,
-                    DefaultModifiedTimeProvider.Apply(sourceFile, pathInContainer));
+                    DefaultModifiedTimeProvider(sourceFile, pathInContainer));
             }
 
             /**
@@ -217,8 +216,8 @@ namespace Jib.Net.Core.Api
                 Func<SystemPath, AbsoluteUnixPath, FilePermissions> filePermissionProvider,
                 Func<SystemPath, AbsoluteUnixPath, Instant> lastModifiedTimeProvider)
             {
-                FilePermissions permissions = filePermissionProvider?.Apply(sourceFile, pathInContainer);
-                Instant modifiedTime = lastModifiedTimeProvider.Apply(sourceFile, pathInContainer);
+                FilePermissions permissions = filePermissionProvider?.Invoke(sourceFile, pathInContainer);
+                Instant modifiedTime = lastModifiedTimeProvider(sourceFile, pathInContainer);
                 AddEntry(sourceFile, pathInContainer, permissions, modifiedTime);
                 if (!Files.IsDirectory(sourceFile))
                 {

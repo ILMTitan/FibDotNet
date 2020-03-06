@@ -66,7 +66,7 @@ namespace Jib.Net.Core.Images.Json
 
         public static ImmutableSortedDictionary<string, IDictionary<object, object>> VolumesSetToMap(ISet<AbsoluteUnixPath> volumes)
         {
-            return SetToMap(volumes, p => JavaExtensions.ToString(p));
+            return SetToMap(volumes, p => p.ToString());
         }
 
         /**
@@ -82,10 +82,10 @@ namespace Jib.Net.Core.Images.Json
                 return ImmutableArray<string>.Empty;
             }
             Preconditions.CheckArgument(
-                !environment.Keys.Any((Func<string, bool>)(key => JavaExtensions.Contains(key, "="))),
+                !environment.Keys.Any(key => key.Contains("=")),
                 "Illegal environment variable: name cannot contain '='");
             return environment
-                .Select(entry => entry.GetKey() + "=" + entry.GetValue())
+                .Select(entry => entry.Key + "=" + entry.Value)
                 .OrderBy(i => i)
                 .ToImmutableArray();
         }

@@ -117,8 +117,8 @@ namespace Jib.Net.Core.Unit.Tests.Events.Time
         private void VerifyStateNotFirstLap(TimerEvent timerEvent, State expectedState)
         {
             Assert.AreEqual(expectedState, timerEvent.GetState());
-            Assert.IsTrue(JavaExtensions.CompareTo(timerEvent.GetDuration(), Duration.Zero) > 0);
-            Assert.IsTrue(JavaExtensions.CompareTo(timerEvent.GetElapsed(), timerEvent.GetDuration()) > 0);
+            Assert.IsTrue(timerEvent.GetDuration().CompareTo(Duration.Zero) > 0);
+            Assert.IsTrue(timerEvent.GetElapsed().CompareTo(timerEvent.GetDuration()) > 0);
         }
 
         /**

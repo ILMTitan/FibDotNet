@@ -52,7 +52,7 @@ namespace Jib.Net.Core.Unit.Tests
             }
             catch (FormatException ex)
             {
-                Assert.AreEqual("jib.httpTimeout must be an integer: random string", ex.GetMessage());
+                Assert.AreEqual("jib.httpTimeout must be an integer: random string", ex.Message);
             }
         }
     }

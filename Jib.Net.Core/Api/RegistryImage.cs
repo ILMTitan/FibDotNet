@@ -106,7 +106,7 @@ namespace Jib.Net.Core.Api
          */
         public RegistryImage AddCredentialRetriever(CredentialRetriever credentialRetriever)
         {
-            JavaExtensions.Add(credentialRetrievers, credentialRetriever);
+            credentialRetrievers.Add(credentialRetriever);
             return this;
         }
 

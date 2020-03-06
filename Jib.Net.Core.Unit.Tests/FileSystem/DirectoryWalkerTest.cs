@@ -19,6 +19,7 @@ using Jib.Net.Core.FileSystem;
 using Jib.Net.Core.Global;
 using Jib.Net.Test.Common;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace Jib.Net.Core.Unit.Tests.FileSystem
@@ -36,7 +37,7 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
         {
             testDir = Paths.Get(TestResources.GetResource("core/layer").ToURI());
             walkedPaths = new HashSet<SystemPath>();
-            addToWalkedPaths = walkedPaths.Add;
+            addToWalkedPaths = p => walkedPaths.Add(p);
         }
 
         [Test]
@@ -63,7 +64,7 @@ namespace Jib.Net.Core.Unit.Tests.FileSystem
             // Filters to immediate subdirectories of testDir, and foo.
             new DirectoryWalker(testDir)
                 .Filter(path => path.GetParent().Equals(testDir))
-                .Filter(path => !JavaExtensions.EndsWith(path.ToString(), "foo"))
+                .Filter(path => !path.ToString().EndsWith("foo", StringComparison.Ordinal))
                 .Walk(addToWalkedPaths);
 
             ISet<SystemPath> expectedPaths =

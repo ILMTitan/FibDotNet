@@ -32,20 +32,5 @@ namespace Jib.Net.Core.Global
             }
             return hashValue;
         }
-
-        internal static bool IsNull(object arg)
-        {
-            return arg == null;
-        }
-
-        internal static bool NonNull(object arg)
-        {
-            return arg != null;
-        }
-
-        internal static bool NonNull<T>(T? arg) where T : struct
-        {
-            return arg != null;
-        }
     }
 }

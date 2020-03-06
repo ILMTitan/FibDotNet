@@ -36,7 +36,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             }
             catch (ArgumentException ex)
             {
-                Assert.AreEqual("Path starts with forward slash (/): /absolute", ex.GetMessage());
+                Assert.AreEqual("Path starts with forward slash (/): /absolute", ex.Message);
             }
         }
 

@@ -102,7 +102,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.StartWith("Found non-digest file in layers directory"));
+                    ex.Message, Does.StartWith("Found non-digest file in layers directory"));
                 Assert.IsInstanceOf<DigestException>(ex.InnerException);
             }
         }
@@ -177,7 +177,8 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             using (Stream @out =
                 Files.NewOutputStream(cacheStorageFiles.GetLayerFile(layerDigest, layerDiffId)))
             {
-                JavaExtensions.Write(@out, Encoding.UTF8.GetBytes("layerBlob"));
+                byte[] bytes = Encoding.UTF8.GetBytes("layerBlob");
+                @out.Write(bytes, 0, bytes.Length);
             }
 
             // Checks that the CachedLayer is retrieved correctly.
@@ -198,7 +199,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(), Does.StartWith(
+                    ex.Message, Does.StartWith(
                         "Multiple layer files found for layer with digest "
                             + layerDigest.GetHash()
                             + " in directory: "
@@ -227,7 +228,7 @@ namespace Jib.Net.Core.Unit.Tests.Cache
             catch (CacheCorruptedException ex)
             {
                 Assert.That(
-                    ex.GetMessage(),
+                    ex.Message,
                     Does.StartWith(
                         "Expected valid layer digest as contents of selector file `"
                             + selectorFile

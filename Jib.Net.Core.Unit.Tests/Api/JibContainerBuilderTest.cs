@@ -129,14 +129,14 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 buildConfiguration.GetContainerConfiguration());
 
             Assert.AreEqual(
-                "base/image", JavaExtensions.ToString(buildConfiguration.GetBaseImageConfiguration().GetImage()));
+                "base/image", buildConfiguration.GetBaseImageConfiguration().GetImage().ToString());
             Assert.AreEqual(
                 new[] { mockCredentialRetriever },
                 buildConfiguration.GetBaseImageConfiguration().GetCredentialRetrievers());
 
             Assert.AreEqual(
                 "gcr.io/my-project/my-app",
-                JavaExtensions.ToString(buildConfiguration.GetTargetImageConfiguration().GetImage()));
+                buildConfiguration.GetTargetImageConfiguration().GetImage().ToString());
             Assert.AreEqual(
                 1, buildConfiguration.GetTargetImageConfiguration().GetCredentialRetrievers().Length);
             Assert.AreEqual(

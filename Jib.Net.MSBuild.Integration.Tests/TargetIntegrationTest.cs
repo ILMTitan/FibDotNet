@@ -77,12 +77,17 @@ namespace Tests
                         RedirectStandardOutput = true
                     });
                 p.EnableRaisingEvents = true;
-                TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+                var stdOutTask = p.StandardOutput.ReadToEndAsync();
+                var stdErrTask = p.StandardError.ReadToEndAsync();
+                var tcs = new TaskCompletionSource<int>();
                 p.Exited += (sender, args) => tcs.TrySetResult(p.ExitCode);
                 if (!p.HasExited)
                 {
                     await tcs.Task;
                 }
+
+                TestContext.WriteLine(await stdOutTask);
+                TestContext.WriteLine(await stdErrTask);
 
                 Assert.AreEqual(0, p.ExitCode);
                 new Command("docker", "pull", "localhost:5000/"+ TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion).Run();
@@ -110,12 +115,17 @@ namespace Tests
                     RedirectStandardOutput = true
                 });
             p.EnableRaisingEvents = true;
+            var stdOutTask = p.StandardOutput.ReadToEndAsync();
+            var stdErrTask = p.StandardError.ReadToEndAsync();
             TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
             p.Exited += (sender, args) => tcs.TrySetResult(p.ExitCode);
             if (!p.HasExited)
             {
                 await tcs.Task;
             }
+
+            TestContext.WriteLine(await stdOutTask);
+            TestContext.WriteLine(await stdErrTask);
 
             Assert.AreEqual(0, p.ExitCode);
             string imageReference = "localhost:5000/" + TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion;

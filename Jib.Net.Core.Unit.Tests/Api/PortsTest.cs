@@ -33,8 +33,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             IList<string> goodInputs =
                 new[] { "1000", "2000-2003", "3000-3000", "4000/tcp", "5000/udp", "6000-6002/udp" };
             ImmutableHashSet<Port> expected =
-                ImmutableHashSet.CreateBuilder<Port>()
-                    .Add(
+                new HashSet<Port> {
                         Port.Tcp(1000),
                         Port.Tcp(2000),
                         Port.Tcp(2001),
@@ -45,8 +44,8 @@ namespace Jib.Net.Core.Unit.Tests.Api
                         Port.Udp(5000),
                         Port.Udp(6000),
                         Port.Udp(6001),
-                        Port.Udp(6002))
-.ToImmutable();
+                        Port.Udp(6002)
+                }.ToImmutableHashSet();
             ImmutableHashSet<Port> result = Port.Parse(goodInputs);
             Assert.AreEqual(expected, result);
 
@@ -66,7 +65,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                             + "'. Make sure the port is a single number or a range of two numbers separated "
                             + "with a '-', with or without protocol specified (e.g. '<portNum>/tcp' or "
                             + "'<portNum>/udp').",
-                        ex.GetMessage());
+                        ex.Message);
                 }
             }
 
@@ -78,7 +77,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
             catch (FormatException ex)
             {
                 Assert.AreEqual(
-                    "Invalid port range '4002-4000'; smaller number must come first.", ex.GetMessage());
+                    "Invalid port range '4002-4000'; smaller number must come first.", ex.Message);
             }
 
             badInputs = new[] { "0", "70000", "0-400", "1-70000" };
@@ -92,7 +91,7 @@ namespace Jib.Net.Core.Unit.Tests.Api
                 catch (FormatException ex)
                 {
                     Assert.AreEqual(
-                        "Port number '" + input + "' is out of usual range (1-65535).", ex.GetMessage());
+                        "Port number '" + input + "' is out of usual range (1-65535).", ex.Message);
                 }
             }
         }

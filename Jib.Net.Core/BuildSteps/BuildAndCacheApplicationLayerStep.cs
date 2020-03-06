@@ -62,8 +62,8 @@ namespace Jib.Net.Core.BuildSteps
                         continue;
                     }
 
-                    JavaExtensions.Add(
-buildAndCacheApplicationLayerSteps, new BuildAndCacheApplicationLayerStep(
+                    buildAndCacheApplicationLayerSteps.Add(
+                        new BuildAndCacheApplicationLayerStep(
                             buildConfiguration,
                             progressEventDispatcher.NewChildProducer(),
                             layerConfiguration.Name,

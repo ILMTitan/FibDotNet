@@ -41,7 +41,7 @@ namespace Jib.Net.Core.Unit.Tests.Images
             }
             catch (LayerPropertyNotFoundException ex)
             {
-                Assert.AreEqual("Blob not available for reference layer", ex.GetMessage());
+                Assert.AreEqual("Blob not available for reference layer", ex.Message);
             }
 
             Assert.AreEqual(mockBlobDescriptor, layer.GetBlobDescriptor());
@@ -60,7 +60,7 @@ namespace Jib.Net.Core.Unit.Tests.Images
             }
             catch (LayerPropertyNotFoundException ex)
             {
-                Assert.AreEqual("Blob not available for digest-only layer", ex.GetMessage());
+                Assert.AreEqual("Blob not available for digest-only layer", ex.Message);
             }
 
             Assert.IsFalse(layer.GetBlobDescriptor().HasSize());
@@ -73,7 +73,7 @@ namespace Jib.Net.Core.Unit.Tests.Images
             }
             catch (LayerPropertyNotFoundException ex)
             {
-                Assert.AreEqual("Diff ID not available for digest-only layer", ex.GetMessage());
+                Assert.AreEqual("Diff ID not available for digest-only layer", ex.Message);
             }
         }
     }

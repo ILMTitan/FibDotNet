@@ -53,7 +53,7 @@ namespace Jib.Net.Core.Images
              */
             public void Add(TarEntry tarArchiveEntry)
             {
-                if (JavaExtensions.Contains(names, tarArchiveEntry.Name))
+                if (names.Contains(tarArchiveEntry.Name))
                 {
                     return;
                 }
@@ -63,7 +63,7 @@ namespace Jib.Net.Core.Images
                 SystemPath namePath = Paths.Get(tarArchiveEntry.Name);
                 if (namePath.GetParent() != namePath.GetRoot())
                 {
-                    TarEntry dir = TarEntry.CreateTarEntry(JavaExtensions.ToString(namePath.GetParent()).Replace(Path.DirectorySeparatorChar, '/'));
+                    TarEntry dir = TarEntry.CreateTarEntry(namePath.GetParent().ToString().Replace(Path.DirectorySeparatorChar, '/'));
                     dir.Name += "/";
                     dir.ModTime = DateTimeOffset.FromUnixTimeMilliseconds(LayerConfiguration.DefaultModifiedTime.ToUnixTimeMilliseconds()).DateTime;
                     dir.TarHeader.Mode &= ~(int)PosixFilePermissions.All;
@@ -75,8 +75,8 @@ namespace Jib.Net.Core.Images
                     Add(dir);
                 }
 
-                JavaExtensions.Add(entries, tarArchiveEntry);
-                JavaExtensions.Add(names, tarArchiveEntry.Name);
+                entries.Add(tarArchiveEntry);
+                names.Add(tarArchiveEntry.Name);
             }
 
             public List<TarEntry> GetSortedEntries()
@@ -109,7 +109,7 @@ namespace Jib.Net.Core.Images
                 // Adds the entries to uniqueTarArchiveEntries, which makes sure all entries are unique and
                 // adds parent directories for each extraction path.
                 TarEntry entry = TarEntry.CreateEntryFromFile(layerEntry.SourceFile);
-                entry.Name = JavaExtensions.ToString(layerEntry.ExtractionPath).TrimStart('/');
+                entry.Name = layerEntry.ExtractionPath.ToString().TrimStart('/');
 
                 if (Directory.Exists(layerEntry.SourceFile))
                 {
