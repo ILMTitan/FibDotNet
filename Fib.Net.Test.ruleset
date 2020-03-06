@@ -71,8 +71,10 @@
     <Rule Id="CA1034" Action="None" />
     <Rule Id="CA1063" Action="None" />
     <Rule Id="CA1707" Action="None" />
+    <Rule Id="CA2007" Action="Info" />
   </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
+    <Rule Id="CA1303" Action="None" />
     <Rule Id="CA1816" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.VisualStudio.Threading.Analyzers" RuleNamespace="Microsoft.VisualStudio.Threading.Analyzers">
