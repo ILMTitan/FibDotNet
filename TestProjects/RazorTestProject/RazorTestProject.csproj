@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App"/>
-    <PackageReference Include="Jib.Net.MSBuild" Version="1.0.0-alpha1"/>
+    <PackageReference Include="Fib.Net.MSBuild" Version="1.0.0-alpha1"/>
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
   </ItemGroup>
 

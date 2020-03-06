@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+  This file is automatically imported by NuGet into a user's project
+  when it targets a single framework, or in classic (pre 2017) csproj projects.
+-->
+<Project TreatAsLocalProperty="TaskFolder">
+  <PropertyGroup>
+    <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</TaskFolder>
+    <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>
+    <FibTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\$(TaskFolder)\Fib.Net.MSBuild.dll</FibTaskAssembly>
+    <FibCliExecutablePath>$(MSBuildThisFileDirectory)..\tool\$(TaskFolder)\Fib.Net.Cli.dll</FibCliExecutablePath>
+    
+    <!-- FibPublishType can be Docker, Registry or Tar. -->
+    <FibPublishType Condition="$(FibPublishType) == ''">Docker</FibPublishType>
+    <FibAppBasePath Condition="$(FibAppBasePath) == ''">/app/</FibAppBasePath>
+    <FibBaseRegistry Condition="$(FibBaseRegistry) == ''">mcr.microsoft.com</FibBaseRegistry>
+    <FibBaseRepository Condition="$(FibBaseRepository) == ''">dotnet/core/aspnet</FibBaseRepository>
+    <FibBaseTag Condition="$(FibBaseTag) == ''">$(BundledNETCoreAppTargetFrameworkVersion)</FibBaseTag>
+    <FibTargetRepository Condition="$(FibTargetRepository) == ''">$(PackageId)</FibTargetRepository>
+    <FibTargetTag Condition="$(FibTargetTag) == ''">$(PackageVersion)</FibTargetTag>
+    <FibEntrypoint Condition="$(FibEntrypoint) == ''">dotnet</FibEntrypoint>
+    <FibCmd Condition="$(FibCmd) == ''">Use Default FibCmd</FibCmd>
+    <FibOutputTarFile Condition="$(FibOutputTarFile) == ''">$(OutputPath)$(PackageId).tar</FibOutputTarFile>
+    <FibAllowInsecureRegistries Condition="$(FibAllowInsecureRegistries) == ''">false</FibAllowInsecureRegistries>
+    <FibOfflineMode Condition="$(FibOfflineMode) == ''">false</FibOfflineMode>
+    <FibApplicationLayersCacheDirectory Condition="$(FibApplicationLayersCacheDirectory) == ''">Use Default FibApplicationLayersCacheDirectory</FibApplicationLayersCacheDirectory>
+    <FibBaseLayersCacheDirectory Condition="$(FibBaseLayersCacheDirectory) == ''"></FibBaseLayersCacheDirectory>
+    <FibReproducableBuild Condition="$(FibReproducableBuild) == ''">True</FibReproducableBuild>
+    <FibImageFormat Condition="$(FibImageFormat) == ''">Docker</FibImageFormat>
+  </PropertyGroup>
+</Project>

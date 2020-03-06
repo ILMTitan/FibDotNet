@@ -1,0 +1,102 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29001.49
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Core", "Fib.Net.Core\Fib.Net.Core.csproj", "{BACA6F88-CA59-4588-8E54-29651029BE0B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Core.Unit.Tests", "Fib.Net.Core.Unit.Tests\Fib.Net.Core.Unit.Tests.csproj", "{72871F57-1CF5-4977-93D9-FFAFD4917520}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Core.Integration.Tests", "Fib.Net.Core.Integration.Tests\Fib.Net.Core.Integration.Tests.csproj", "{F13B7B33-15C4-4B80-9658-0144A06D037F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D0728E95-9B51-49B6-BC19-0AF1B8FAE478}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		Regexes.txt = Regexes.txt
+		TextFile1.txt = TextFile1.txt
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Test.Common", "Fib.Net.Test.Common\Fib.Net.Test.Common.csproj", "{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{FC27239F-B361-4B7E-B5F5-B62417299910}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorTestProject", "TestProjects\RazorTestProject\RazorTestProject.csproj", "{EC3EA8B7-3971-40BD-A247-7E2B1693067D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F} = {E9474117-6C4A-4808-A35C-0FC032CDBD7F}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.MSBuild.ProjectFile.Tests", "Fib.Net.MSBuild.ProjectFile.Tests\Fib.Net.MSBuild.ProjectFile.Tests.csproj", "{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.MSBuild", "Fib.Net.MSBuild\Fib.Net.MSBuild.csproj", "{E9474117-6C4A-4808-A35C-0FC032CDBD7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.MSBuild.Integration.Tests", "Fib.Net.MSBuild.Integration.Tests\Fib.Net.MSBuild.Integration.Tests.csproj", "{4B6EFAC7-420D-42C2-ABAB-083458B05F78}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Cli", "Fib.Net.Cli\Fib.Net.Cli.csproj", "{EC5184BA-151B-41E1-9FAF-F769D532E310}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Cli.Unit.Tests", "Fib.Net.Cli.Unit.Tests\Fib.Net.Cli.Unit.Tests.csproj", "{B2DD3822-E8B4-41FC-BF76-F88625789BEA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C611AB70-1C55-4AB7-A440-21EC083861F7}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Fib.Net.ruleset = Fib.Net.ruleset
+		Fib.Net.Test.ruleset = Fib.Net.Test.ruleset
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BACA6F88-CA59-4588-8E54-29651029BE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BACA6F88-CA59-4588-8E54-29651029BE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BACA6F88-CA59-4588-8E54-29651029BE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BACA6F88-CA59-4588-8E54-29651029BE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72871F57-1CF5-4977-93D9-FFAFD4917520}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72871F57-1CF5-4977-93D9-FFAFD4917520}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72871F57-1CF5-4977-93D9-FFAFD4917520}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72871F57-1CF5-4977-93D9-FFAFD4917520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F13B7B33-15C4-4B80-9658-0144A06D037F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F13B7B33-15C4-4B80-9658-0144A06D037F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F13B7B33-15C4-4B80-9658-0144A06D037F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F13B7B33-15C4-4B80-9658-0144A06D037F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC3EA8B7-3971-40BD-A247-7E2B1693067D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC3EA8B7-3971-40BD-A247-7E2B1693067D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC3EA8B7-3971-40BD-A247-7E2B1693067D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC3EA8B7-3971-40BD-A247-7E2B1693067D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B9D9613-3E11-4C1C-8434-CDB678BB26F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9474117-6C4A-4808-A35C-0FC032CDBD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B6EFAC7-420D-42C2-ABAB-083458B05F78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B6EFAC7-420D-42C2-ABAB-083458B05F78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B6EFAC7-420D-42C2-ABAB-083458B05F78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B6EFAC7-420D-42C2-ABAB-083458B05F78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC5184BA-151B-41E1-9FAF-F769D532E310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC5184BA-151B-41E1-9FAF-F769D532E310}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC5184BA-151B-41E1-9FAF-F769D532E310}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC5184BA-151B-41E1-9FAF-F769D532E310}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2DD3822-E8B4-41FC-BF76-F88625789BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2DD3822-E8B4-41FC-BF76-F88625789BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2DD3822-E8B4-41FC-BF76-F88625789BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2DD3822-E8B4-41FC-BF76-F88625789BEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EC3EA8B7-3971-40BD-A247-7E2B1693067D} = {FC27239F-B361-4B7E-B5F5-B62417299910}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFF6E788-C335-4B75-AB6C-B6D8CC0C656E}
+	EndGlobalSection
+EndGlobal

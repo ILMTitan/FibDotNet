@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Fib.Net.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "push --toolname Fib.Net.MSBuild --configfile FibCliConfig.json",
+      "workingDirectory": "C:\\Users\\Jim\\Source\\Repos\\GoogleContainerTools\\jib\\TestProjects\\RazorTestProject"
+    }
+  }
+}

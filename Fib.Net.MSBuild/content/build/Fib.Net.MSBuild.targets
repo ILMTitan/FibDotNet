@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <UsingTask TaskName="PublishImage" AssemblyFile="$(FibTaskAssembly)" />
+
+  <Target Name="FibPublish" AfterTargets="Publish" Condition="$(PublishProvider) == 'FibDotNet'">
+    <PublishImage PublishType="$(FibPublishType)"
+                  BaseImage="$(FibBaseImage)"
+                  TargetImage="$(FibTargetImage)"
+                  TargetTags="@(FibTargetTag)"
+                  OutputTarFile="$(FibOutputTarFile)"
+                  ImageFiles="@(FibImageFile)"
+                  Entrypoint="$(FibEntrypoint)"
+                  Cmd="$(FibCmd)"
+                  Environment="@(FibEnvironment)"
+                  ImageWorkingDirectory="$(FibImageWorkingDirectory)"
+                  ImageUser="$(FibImageUser)"
+                  Ports="@(FibPort)"
+                  Volumes="@(FibVolume)"
+                  Labels="@(FibLabel)"
+                  AllowInsecureRegistries="$(FibAllowInsecureRegistries)"
+                  OfflineMode="$(FibOfflineMode)"
+                  ApplicationLayersCacheDirectory="$(FibApplicationLayersCacheDirectory)"
+                  BaseLayersCacheDirectory="$(FibBaseLayersCacheDirectory)"
+                  ReproducableBuild="$(FibReproducableBuild)"
+                  ImageFormat="$(FibImageFormat)"
+                  CliExecutablePath="$(FibCliExecutablePath)">
+      <Output TaskParameter="ImageId" PropertyName="FibImageId"/>
+      <Output TaskParameter="ImageDigest" PropertyName="FibImageDigest"/>
+    </PublishImage>
+  </Target>
+
+  <Target Name="SetFibProperties" BeforeTargets="FibPublish">
+    <PropertyGroup>
+      <FibCmd Condition="$(FibCmd) == 'Use Default FibCmd'">"$(FibAppBasePath)@(IntermediateAssembly -> '%(FileName)%(Extension)')"</FibCmd>
+      <FibApplicationLayersCacheDirectory Condition="$(FibApplicationLayersCacheDirectory) == 'Use Default FibApplicationLayersCacheDirectory'">$(BaseIntermediateOutputPath)Fib\Cache\</FibApplicationLayersCacheDirectory>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="SetFibBaseImage" BeforeTargets="SetFibProperties">
+    <PropertyGroup>
+      <_FibBaseImageSuffix Condition="$(FibBaseDigest) != ''">@$(FibBaseDigest)</_FibBaseImageSuffix>
+      <_FibBaseImageSuffix Condition="$(_FibBaseImageSuffix) == '' and $(FibBaseTag) != ''">:$(FibBaseTag)</_FibBaseImageSuffix>
+      <FibBaseImage Condition="$(FibBaseImage) == '' and $(FibBaseRegistry) != '' and $(FibBaseRepository) != ''">$(FibBaseRegistry)/$(FibBaseRepository)$(_FibBaseImageSuffix)</FibBaseImage>
+      <FibBaseImage Condition="$(FibBaseImage) == '' and $(FibBaseRegistry) != ''">$(FibBaseRegistry)$(_FibBaseImageSuffix)</FibBaseImage>
+      <FibBaseImage Condition="$(FibBaseImage) == '' and $(FibBaseRepository) != ''">$(FibBaseRepository)$(_FibBaseImageSuffix)</FibBaseImage>
+    </PropertyGroup>
+  </Target>
+  
+  <Target Name="SetFibTargetImage" BeforeTargets="SetFibProperties">
+    <PropertyGroup>
+      <FibTargetRepository Condition="$(FibTargetRepository) == ''">$(PackageId)</FibTargetRepository>
+      <FibTargetImage Condition="$(FibTargetImage) == '' and $(FibTargetRegistry) != '' and $(FibTargetRepository) != ''">$(FibTargetRegistry)/$(FibTargetRepository)</FibTargetImage>
+      <FibTargetImage Condition="$(FibTargetImage) == '' and $(FibTargetRegistry) != '' ">$(FibTargetRegistry)</FibTargetImage>
+      <FibTargetImage Condition="$(FibTargetImage) == '' and $(FibTargetRepository) != ''">$(FibTargetRepository)</FibTargetImage>
+    </PropertyGroup>
+  </Target>
+  
+  <Target Name="SetFibTargetTag" BeforeTargets="SetFibProperties">
+    <PropertyGroup>
+      <FibTargetTag Condition="$(FibTargetTag) == ''">$(PackageVersion)</FibTargetTag>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <FibTargetTag Include="$(FibTargetTag)"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="SetFibPort" BeforeTargets="SetFibProperties" DependsOnTargets="SetFibBaseImage">
+    <ItemGroup>
+      <FibPort Include="$(FibPort)"/>
+    </ItemGroup>
+    <ItemGroup Condition="'@(FibPort)' == '' and '@(FibBaseImage)' == 'mcr.microsoft.com/dotnet/core/aspnet'">
+      <FibPort Include="80"/>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <GatherImageFilesDependsOn>
+      GatherBinaryLayerFiles;
+      GatherDebugLayerFiles;
+      GatherResourcesLayerFiles;
+      GatherReferencesLayerFiles;
+      GatherOtherFilesLayerFiles;
+      $(GatherImageFilesDependsOn)
+    </GatherImageFilesDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GatherImageFiles" BeforeTargets="FibPublish" DependsOnTargets="$(GatherImageFilesDependsOn)"/>
+
+  <Target Name="GatherBinaryLayerFiles">
+    <ItemGroup>
+      <_BinaryLayerCandidate Include="@(IntermediateAssembly)">
+        <TargetPath>$(FibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="$(ProjectDepsFilePath)">
+        <TargetPath>$(FibAppBasePath)$(ProjectDepsFileName)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="$(ProjectRuntimeConfigFilePath)">
+        <TargetPath>$(FibAppBasePath)$(ProjectRuntimeConfigFileName)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="@(AppConfigWithTargetPath)">
+        <TargetPath>$(FibAppBasePath)%(AppConfigWithTargetPath.TargetPath)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Include="@(RazorIntermediateAssembly)">
+        <TargetPath>$(FibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_BinaryLayerCandidate>
+
+      <_BinaryLayerCandidate Remove="@(FibImageFile)"/>
+
+      <FibImageFile Include="@(_BinaryLayerCandidate)">
+        <Layer>Binary</Layer>
+      </FibImageFile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherDebugLayerFiles">
+    <ItemGroup>
+      <_DebugLayerCandidate Include="@(_DebugSymbolsIntermediatePath)"  Condition="$(CopyOutputSymbolsToPublishDirectory) == 'true'">
+        <TargetPath>$(FibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Include="@(FinalDocFile)" Condition="$(PublishDocumentationFile) == 'true'">
+        <TargetPath>$(FibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Include="@(_RazorDebugSymbolsIntermediatePath)" Condition="$(CopyOutputSymbolsToPublishDirectory) == 'true'">
+        <TargetPath>$(FibAppBasePath)%(Filename)%(Extension)</TargetPath>
+      </_DebugLayerCandidate>
+
+      <_DebugLayerCandidate Remove="@(FibImageFile)"/>
+
+      <FibImageFile Include="@(_DebugLayerCandidate)">
+        <Layer>Debug</Layer>
+      </FibImageFile>
+    </ItemGroup>
+  </Target>
+  
+  <Target Name="GatherResourcesLayerFiles">
+    <ItemGroup>
+      <_ResourcesLayerCandidate Include="@(IntermediateSatelliteAssembliesWithTargetPath)">
+        <TargetPath>$(FibAppBasePath)%(IntermediateSatelliteAssembliesWithTargetPath.Culture)/%(Filename)%(Extension)</TargetPath>
+      </_ResourcesLayerCandidate>
+
+      <_ResourcesLayerCandidate Remove="@(FibImageFile)"/>
+
+      <FibImageFile Include="@(_ResourcesLayerCandidate)">
+        <Layer>Resources</Layer>
+      </FibImageFile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherReferencesLayerFiles">
+    <ItemGroup>
+      <_ReferencesLayerCadidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) == '.dll'">
+        <TargetPath>$(FibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
+      </_ReferencesLayerCadidates>
+
+      <_ReferencesLayerCadidates Remove="@(FibImageFile)"/>
+
+      <FibImageFile Include="@(_ReferencesLayerCadidates)">
+        <Layer>References</Layer>
+      </FibImageFile>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GatherOtherFilesLayerFiles">
+    <ItemGroup>
+      <_OtherFilesLayerCandidates Include="@(_ResolvedCopyLocalPublishAssets)">
+        <TargetPath>$(FibAppBasePath)%(_ResolvedCopyLocalPublishAssets.DestinationSubDirectory)%(Filename)%(Extension)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(DotNetPublishFiles)">
+        <TargetPath>$(FibAppBasePath)%(DotNetPublishFiles.DestinationRelativePath)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(_EFSQLScripts)">
+        <TargetPath>$(FibAppBasePath)$(EFSQLScriptsFolderName)/%(Filename)%(Extension)</TargetPath>
+      </_OtherFilesLayerCandidates>
+
+      <_OtherFilesLayerCandidates Include="@(ResolvedFileToPublish)" Condition="%(Extension) != '.dll'">
+        <TargetPath>$(FibAppBasePath)%(ResolvedFileToPublish.RelativePath)</TargetPath>
+      </_OtherFilesLayerCandidates>
+      
+      <_OtherFilesLayerCandidates Remove="@(FibImageFile)"/>
+
+      <FibImageFile Include="@(_OtherFilesLayerCandidates)">
+        <Layer>OtherFiles</Layer>
+      </FibImageFile>      
+    </ItemGroup>
+  </Target>
+</Project>

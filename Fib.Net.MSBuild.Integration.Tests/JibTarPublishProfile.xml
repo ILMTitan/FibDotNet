@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project>
+  <ItemGroup>
+    <PackageReference Include="Fib.Net.MSBuild" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PublishProvider>FibDotNet</PublishProvider>
+    <FibPublishType>Tar</FibPublishType>
+    <FibOutputTarFile>$(MSBuildThisFileDirectory)/TestTar.tar.gz</FibOutputTarFile>
+  </PropertyGroup>
+</Project>

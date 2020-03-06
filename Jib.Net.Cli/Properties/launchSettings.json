@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Jib.Net.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "push --toolname Jib.Net.MSBuild --configfile JibCliConfig.json",
-      "workingDirectory": "C:\\Users\\Jim\\Source\\Repos\\GoogleContainerTools\\jib\\TestProjects\\RazorTestProject"
-    }
-  }
-}
