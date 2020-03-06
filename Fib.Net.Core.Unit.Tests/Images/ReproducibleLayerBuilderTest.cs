@@ -29,6 +29,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Fib.Net.Core.Unit.Tests.Images
 {
@@ -44,6 +45,7 @@ namespace Fib.Net.Core.Unit.Tests.Images
          * @param expectedFile the file to match against the contents of the next entry
          * @throws IOException if an I/O exception occurs
          */
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Stream must not be closed.")]
         private static void VerifyNextTarArchiveEntry(
             TarInputStream tarArchiveInputStream, string expectedExtractionPath, SystemPath expectedFile)
         {
