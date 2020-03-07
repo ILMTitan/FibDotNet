@@ -21,7 +21,7 @@ namespace Fib.Net.Core
     public static class ProjectInfo
     {
         /** Link to the GitHub repository. */
-        public static readonly string GitHubUrl = "https://github.com/GoogleContainerTools/fib";
+        public static readonly string GitHubUrl = "https://github.com/ILMTitan/FibDotNet";
 
         /** Link to file an issue against the GitHub repository. */
         public static readonly string GitHubNewIssueUrl = GitHubUrl + "/issues/new";

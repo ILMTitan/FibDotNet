@@ -41,7 +41,7 @@ Valid values are:
 
 - `Daemon` (default): Publishes the image to the local docker daemon using the `docker` command.
 - `Push`: Pushes the image to the remote registry.
-- `Tar`: Build a tar file of your image. Requires `$(FibOutputTarFile)` to be set.
+- `Tar`: Build a tar file of your image.
 
 ##### FibOutputTarFile property
 The path/name of the tar file to be written for publish type `Tar`.
@@ -84,12 +84,12 @@ If not set, built from `$(FibTargetRegistry)` and `$(FibTargetRepository)`.
 The registry of the image being built. Defaults to '', which means the docker registry.
 
 ##### FibTargetRepository property
-The repository of the image being built. Defaults to `$(PackageId)`.
+The repository of the image being built. Defaults to [`$(PackageId)`][Pack Target].
 
 ##### FibTargetTag property
 Semicolon separated list of tags to tag your image with.
 Gets converted to FibTargetTag items.
-Defaults to `$(PackageVersion)`.
+Defaults to [`$(PackageVersion)`][Pack Target].
 
 #### Image configuration properties
 
@@ -146,3 +146,4 @@ The [metadata labels][Docker label] to apply to the image. They have the format 
 [Docker label]: https://docs.docker.com/engine/reference/builder/#label
 [Docker image format]: https://docs.docker.com/registry/spec/manifest-v2-2/
 [OCI image format]: https://github.com/opencontainers/image-spec/blob/master/manifest.md
+[Pack Target]: https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target

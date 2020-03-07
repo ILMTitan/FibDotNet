@@ -5,6 +5,14 @@
     <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <CodeAnalysisRuleSet>../Fib.Net.ruleset</CodeAnalysisRuleSet>
+    <Authors>James Przybylinski</Authors>
+    <Description>Integrates fast image builder into a dotnet project.</Description>
+    <Copyright>2020 James Przybylinski</Copyright>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ILMTitan/FibDotNet</PackageProjectUrl>
+    <PackageTags>docker;oci;msbuild</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ILMTitan/FibDotNet.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
