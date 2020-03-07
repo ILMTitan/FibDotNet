@@ -9,14 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Core.Unit.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Core.Integration.Tests", "Fib.Net.Core.Integration.Tests\Fib.Net.Core.Integration.Tests.csproj", "{F13B7B33-15C4-4B80-9658-0144A06D037F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D0728E95-9B51-49B6-BC19-0AF1B8FAE478}"
-	ProjectSection(SolutionItems) = preProject
-		Directory.Build.props = Directory.Build.props
-		Directory.Build.targets = Directory.Build.targets
-		Regexes.txt = Regexes.txt
-		TextFile1.txt = TextFile1.txt
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fib.Net.Test.Common", "Fib.Net.Test.Common\Fib.Net.Test.Common.csproj", "{7104AAD8-05C4-4F56-9FD5-8F5D96306F29}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{FC27239F-B361-4B7E-B5F5-B62417299910}"
@@ -39,8 +31,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C611AB70-1C55-4AB7-A440-21EC083861F7}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		Fib.Net.ruleset = Fib.Net.ruleset
 		Fib.Net.Test.ruleset = Fib.Net.Test.ruleset
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

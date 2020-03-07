@@ -38,10 +38,15 @@ namespace Fib.Net.Test.Common
             this.args = string.Join(" ", args);
         }
 
+        public static string Run(string command, params string[] args)
+        {
+            return new Command(command, args).Run();
+        }
+
         /** Runs the command. */
         public string Run()
         {
-            return Run(null);
+            return Run((byte[]) null);
         }
 
         /** Runs the command and pipes in {@code stdin}. */

@@ -78,7 +78,8 @@ namespace Tests
                     ["PublishProvider"] = "FibDotNet",
                     ["FibPublishType"] = "Push",
                     ["FibTargetRegistry"] = "localhost:5000",
-                    ["FibAllowInsecureRegistries"] = "True"
+                    ["FibAllowInsecureRegistries"] = "True",
+                    ["FibPort"] = "80"
                 };
                 string propertiesString = string.Join(" ", properties.Select(kvp => $"-p:{kvp.Key}={kvp.Value}"));
                 string arguments = $"publish {TestProjectName} {propertiesString}";
@@ -103,7 +104,19 @@ namespace Tests
                 TestContext.WriteLine(await stdErrTask);
 
                 Assert.AreEqual(0, p.ExitCode);
-                new Command("docker", "pull", "localhost:5000/"+ TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion).Run();
+
+                string imageReference = "localhost:5000/" + TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion;
+                Command.Run("docker", "pull", imageReference);
+                string dockerPortsEnv = Command.Run("docker", "inspect", imageReference, "-f", "{{.Config.ExposedPorts}}");
+                Assert.That(dockerPortsEnv, Does.Contain("80/tcp"));
+                string dockerConfigEnv =
+                    Command.Run("docker", "inspect", "-f", "{{.Config.Env}}", imageReference);
+                Assert.That(dockerConfigEnv, Does.Contain("ASPNETCORE_URLS=http://+:80"));
+
+                string history = Command.Run("docker", "history", imageReference);
+                Assert.That(history, Does.Contain("Fib.Net.MSBuild"));
+
+                Command.Run("docker", "image", "rm", imageReference);
             }
         }
 
@@ -114,8 +127,6 @@ namespace Tests
             {
                 ["PublishProvider"] = "FibDotNet",
                 ["FibPublishType"] = "Daemon",
-                ["FibTargetRegistry"] = "localhost:5000",
-                ["FibAllowInsecureRegistries"] = "True",
                 ["FibPort"] = "80"
             };
             string propertiesString = string.Join(" ", properties.Select(kvp => $"-p:{kvp.Key}={kvp.Value}"));
@@ -130,7 +141,7 @@ namespace Tests
             p.EnableRaisingEvents = true;
             var stdOutTask = p.StandardOutput.ReadToEndAsync();
             var stdErrTask = p.StandardError.ReadToEndAsync();
-            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            var tcs = new TaskCompletionSource<int>();
             p.Exited += (sender, args) => tcs.TrySetResult(p.ExitCode);
             if (!p.HasExited)
             {
@@ -141,15 +152,17 @@ namespace Tests
             TestContext.WriteLine(await stdErrTask);
 
             Assert.AreEqual(0, p.ExitCode);
-            string imageReference = "localhost:5000/" + TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion;
-            string dockerPortsEnv = new Command("docker", "inspect", imageReference, "-f", "{{.Config.ExposedPorts}}").Run();
+            string imageReference = TestProjectName.ToLowerInvariant() + ":" + TestProjectVersion;
+            string dockerPortsEnv = Command.Run("docker", "inspect", imageReference, "-f", "{{.Config.ExposedPorts}}");
             Assert.That(dockerPortsEnv, Does.Contain("80/tcp"));
             string dockerConfigEnv =
-                new Command("docker", "inspect", "-f", "{{.Config.Env}}", imageReference).Run();
+                Command.Run("docker", "inspect", "-f", "{{.Config.Env}}", imageReference);
             Assert.That(dockerConfigEnv, Does.Contain("ASPNETCORE_URLS=http://+:80"));
 
-            string history = new Command("docker", "history", imageReference).Run();
+            string history = Command.Run("docker", "history", imageReference);
             Assert.That(history, Does.Contain("Fib.Net.MSBuild"));
+
+            Command.Run("docker", "image", "rm", imageReference);
         }
     }
 }
