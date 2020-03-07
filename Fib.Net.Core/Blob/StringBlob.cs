@@ -27,7 +27,7 @@ namespace Fib.Net.Core.Blob
 
         public override string ToString()
         {
-            return Encoding.UTF8.GetString(bytes.ToArray());
+            return Encoding.UTF8.GetString(Bytes.ToArray());
         }
     }
 }

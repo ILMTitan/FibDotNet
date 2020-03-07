@@ -164,7 +164,7 @@ namespace Fib.Net.MSBuild
             }
             return commandLine;
         }
-        
+
         protected override string GetResponseFileSwitch(string responseFilePath)
         {
             return $"--configfile \"{responseFilePath}\"";

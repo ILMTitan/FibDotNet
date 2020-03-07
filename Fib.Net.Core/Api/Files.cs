@@ -134,20 +134,13 @@ namespace Fib.Net.Core.Api
             {
                 File.Move(source, destination);
             }
-            catch (IOException)
+            catch (IOException) when (File.Exists(destination) && copyOption.HasFlag(StandardCopyOption.REPLACE_EXISTING))
             {
-                if (File.Exists(destination) && copyOption.HasFlag(StandardCopyOption.REPLACE_EXISTING))
+                var backupPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                File.Replace(source, destination, backupPath);
+                if (File.Exists(backupPath))
                 {
-                    var backupPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-                    File.Replace(source, destination, backupPath);
-                    if (File.Exists(backupPath))
-                    {
-                        File.Delete(backupPath);
-                    }
-                }
-                else
-                {
-                    throw;
+                    File.Delete(backupPath);
                 }
             }
         }

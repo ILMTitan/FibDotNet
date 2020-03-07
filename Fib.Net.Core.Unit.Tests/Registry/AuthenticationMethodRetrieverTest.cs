@@ -88,7 +88,6 @@ namespace Fib.Net.Core.Unit.Tests.Registry
         {
             using (var mockHttpResponse = new HttpResponseMessage(HttpStatusCode.InternalServerError))
             {
-
                 try
                 {
                     testAuthenticationMethodRetriever.HandleHttpResponse(mockHttpResponse);

@@ -83,12 +83,8 @@ namespace Fib.Net.Core.Integration.Tests.Registry
                     .WriteToAsync(Stream.Null).ConfigureAwait(false);
                 Assert.Fail("Trying to pull nonexistent blob should have errored");
             }
-            catch (IOException ex)
+            catch (IOException ex) when (ex.InnerException is RegistryErrorException)
             {
-                if (!(ex.InnerException is RegistryErrorException))
-                {
-                    throw;
-                }
                 StringAssert.Contains(
                     ex.Message,
                         "pull BLOB for localhost:5000/busybox with digest " + nonexistentDigest);

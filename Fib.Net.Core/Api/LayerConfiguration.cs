@@ -274,14 +274,12 @@ namespace Fib.Net.Core.Api
             return new Builder();
         }
 
-
         /**
          * Gets the name.
          *
          * @return the name
          */
         public string Name { get; }
-
 
         /**
          * Gets the list of layer entries.

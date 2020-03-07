@@ -23,7 +23,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Resources = Fib.Net.Core.Configuration.Resources;
 
-
 namespace Fib.Net.Core.Unit.Tests.Configuration
 {
     /** Tests for {@link ContainerConfiguration}. */

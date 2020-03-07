@@ -41,7 +41,6 @@ namespace Fib.Net.Core.Unit.Tests.Http
             using (HttpRequestMessage request = new HttpRequestMessage())
             using (HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false))
             {
-
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 using (Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                 {
@@ -82,7 +81,6 @@ namespace Fib.Net.Core.Unit.Tests.Http
             using (HttpResponseMessage response = await connection.SendAsync(request).ConfigureAwait(false))
             using (Stream responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
             {
-
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
                 CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("Hello World!"), ByteStreams.ToByteArray(responseStream));
             }

@@ -42,6 +42,7 @@ namespace Fib.Net.Cli
 
         [JsonConverter(typeof(JsonPortsConverter))]
         public IReadOnlyCollection<Port> Ports { get; set; }
+
         public IReadOnlyCollection<AbsoluteUnixPath> Volumes { get; set; }
         public IReadOnlyDictionary<string, string> Labels { get; set; }
         public string ApplicationLayersCacheDirectory { get; set; }

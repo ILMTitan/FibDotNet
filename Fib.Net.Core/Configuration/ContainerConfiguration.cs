@@ -117,7 +117,6 @@ namespace Fib.Net.Core.Configuration
                 }
                 else
                 {
-
                     HashSet<Port> exposedPortsSet = new HashSet<Port>(exposedPorts);
                     if (exposedPortsSet.Contains(null))
                     {
@@ -130,7 +129,6 @@ namespace Fib.Net.Core.Configuration
 
             public void AddExposedPort(Port port)
             {
-
                 port = port ?? throw new ArgumentNullException(nameof(port));
                 (exposedPorts ?? (exposedPorts = new HashSet<Port>())).Add(port);
             }

@@ -331,7 +331,6 @@ namespace Fib.Net.Core.Unit.Tests.Registry
         {
             using (HttpResponseMessage redirectResponse = MockRedirectHttpResponse("http://newlocation"))
             {
-
                 Mock.Get(mockConnection)
                     .Setup(c =>
                         c.SendAsync(It.Is<HttpRequestMessage>(m => m.RequestUri.Equals(new Uri("https://apiroutebase/api")))))
@@ -578,7 +577,6 @@ namespace Fib.Net.Core.Unit.Tests.Registry
             using (HttpResponseMessage redirectResponse =
                 MockHttpResponse(httpStatusCode, h => h.Location = new Uri("https://newlocation")))
             {
-
                 // Has mockConnection.send throw first, then succeed.
                 HttpResponseException redirectException = new HttpResponseException(redirectResponse);
                 Mock.Get(mockConnection)

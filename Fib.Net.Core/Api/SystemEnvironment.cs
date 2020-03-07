@@ -36,6 +36,7 @@ namespace Fib.Net.Core.Api
         {
             return Environment.GetFolderPath(folder);
         }
+
         public bool IsOsx()
         {
 #if NETSTANDARD2_0

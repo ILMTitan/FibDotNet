@@ -38,7 +38,7 @@ namespace Fib.Net.Core.FileSystem
          * @return a new {@link LockFile} that can be released later
          * @throws IOException if creating the lock file fails
          */
-        public static LockFile @lock(SystemPath lockFile)
+        public static LockFile Create(SystemPath lockFile)
         {
             lockFile = lockFile ?? throw new ArgumentNullException(nameof(lockFile));
             Files.CreateDirectories(lockFile.GetParent());

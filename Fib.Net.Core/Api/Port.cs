@@ -34,7 +34,7 @@ namespace Fib.Net.Core.Api
          *
          * <p>Example matches: 100, 200-210, 1000/tcp, 2000/udp, 500-600/tcp
          */
-        private static readonly Regex portPattern = new Regex("^(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?$");
+        private static readonly Regex PortPattern = new Regex("^(\\d+)(?:-(\\d+))?(?:/(tcp|udp))?$");
 
         /**
          * Create a new {@link Port} with TCP protocol.
@@ -151,7 +151,7 @@ namespace Fib.Net.Core.Api
             foreach (string port in ports)
 
             {
-                Match matcher = portPattern.Match(port);
+                Match matcher = PortPattern.Match(port);
 
                 if (!matcher.Success)
                 {

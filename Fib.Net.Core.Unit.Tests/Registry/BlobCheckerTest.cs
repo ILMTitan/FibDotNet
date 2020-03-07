@@ -72,7 +72,6 @@ namespace Fib.Net.Core.Unit.Tests.Registry
                 }
             })
             {
-
                 try
                 {
                     await testBlobChecker.HandleResponseAsync(mockResponse).ConfigureAwait(false);
@@ -137,7 +136,6 @@ namespace Fib.Net.Core.Unit.Tests.Registry
                 Content = new StringContent(JsonTemplateMapper.ToUtf8String(emptyErrorResponseTemplate))
             })
             {
-
                 try
                 {
                     await testBlobChecker.HandleHttpResponseExceptionAsync(mockHttpResponseException).ConfigureAwait(false);

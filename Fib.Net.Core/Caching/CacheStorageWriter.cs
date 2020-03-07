@@ -220,7 +220,7 @@ namespace Fib.Net.Core.Caching
             SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
             Files.CreateDirectories(imageDirectory);
 
-            using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
+            using (LockFile ignored1 = LockFile.Create(imageDirectory.Resolve("lock")))
             {
                 await WriteMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
                 await WriteMetadataAsync(containerConfiguration, imageDirectory.Resolve("config.json")).ConfigureAwait(false);
@@ -238,7 +238,7 @@ namespace Fib.Net.Core.Caching
             SystemPath imageDirectory = cacheStorageFiles.GetImageDirectory(imageReference);
             Files.CreateDirectories(imageDirectory);
 
-            using (LockFile ignored1 = LockFile.@lock(imageDirectory.Resolve("lock")))
+            using (LockFile ignored1 = LockFile.Create(imageDirectory.Resolve("lock")))
             {
                 await WriteMetadataAsync(manifestTemplate, imageDirectory.Resolve("manifest.json")).ConfigureAwait(false);
             }

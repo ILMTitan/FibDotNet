@@ -723,13 +723,13 @@ namespace Fib.Net.MSBuild.ProjectFile.Tests
             _projectInstance.SetProperty("FibReproducableBuild", "false");
             _projectInstance.SetProperty("FibImageFormat", "OCI");
 
-            PublishImage.OnExecute += verifyProperties;
+            PublishImage.OnExecute += VerifyProperties;
 
             Assert.IsTrue(_projectInstance.Build("FibPublish", Loggers));
 
-            PublishImage.OnExecute -= verifyProperties;
+            PublishImage.OnExecute -= VerifyProperties;
 
-            void verifyProperties(PublishImage task)
+            void VerifyProperties(PublishImage task)
             {
                 Assert.AreEqual("Registry", task.PublishType);
                 Assert.AreEqual(baseImage, task.BaseImage);

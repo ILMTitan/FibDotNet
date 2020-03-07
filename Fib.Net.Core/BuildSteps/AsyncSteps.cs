@@ -23,15 +23,10 @@ namespace Fib.Net.Core.BuildSteps
 {
     internal static class AsyncSteps
     {
-        internal static IAsyncStep<T> Immediate<T>(T value)
-        {
-            return AsyncStep.Of(() => Task.FromResult(value));
-        }
-
         internal static IAsyncStep<IReadOnlyList<T>> FromTasks<T>(IEnumerable<Task<T>> tasks)
         {
-            async Task<IReadOnlyList<T>> f() => await Task.WhenAll(tasks).ConfigureAwait(false);
-            return AsyncStep.Of(f);
+            async Task<IReadOnlyList<T>> WhenAllTasks() => await Task.WhenAll(tasks).ConfigureAwait(false);
+            return AsyncStep.Of(WhenAllTasks);
         }
     }
 }

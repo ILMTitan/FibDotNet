@@ -25,7 +25,7 @@ namespace Fib.Net.Core.Blob
     internal class BytesBlob : IBlob
     {
         private readonly byte[] _bytes;
-        protected IReadOnlyList<byte> bytes => _bytes;
+        protected IReadOnlyList<byte> Bytes => _bytes;
 
         public BytesBlob(byte[] bytes)
         {
