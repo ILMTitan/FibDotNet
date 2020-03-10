@@ -32,10 +32,9 @@ These can be set at the command line, or saved in either your project file,
 
 ### Properties
 
-
 #### General Properties
 
-##### FibPublishType property
+##### FibPublishType
 The type of publish action being performed. Defaults to `Daemon` when not explicitly set.
 Valid values are:
 
@@ -43,71 +42,71 @@ Valid values are:
 - `Push`: Pushes the image to the remote registry.
 - `Tar`: Build a tar file of your image.
 
-##### FibOutputTarFile property
+##### FibOutputTarFile
 The path/name of the tar file to be written for publish type `Tar`.
 Defaults to `$(OutputPath)$(PackageId).tar`
 
-##### FibImageFormat property
+##### FibImageFormat
 The format of the image. Can be [Docker][Docker image format] or [OCI][OCI image format].
 Defaults to `Docker`.
 
-##### FibReproducableBuild property
+##### FibReproducableBuild
 When true, sets the time metadata of the image to be Jan 1, 1970.
 This allows every build to have the same hash.
 
 #### Base Image Properties
 
-##### FibBaseImage property
+##### FibBaseImage
 The base image the final image is built from. By default it is built from `$(FibBaseRegistry)`,
 `$(FibBaseRepository)`, `$(FibBaseTag)` and `$(FibBaseDigest)`.
 
-##### FibBaseRegistry property
+##### FibBaseRegistry
 The registry of the base image. Defaults to `mcr.microsoft.com`.
 
-##### FibBaseRepository property
+##### FibBaseRepository
 The base image repository. Defaults to `dotnet/core/aspnet`.
 
-##### FibBaseTag property
+##### FibBaseTag
 The base image tag. Defaults to `$(BundledNETCoreAppTargetFrameworkVersion)`.
 Overridden by `$(FibBaseDigest)`.
 
-##### FibBaseDigest property
+##### FibBaseDigest
 The hash/digest of the base image. Overrides FibBaseImage.
 
 #### Target Image Properties
 
-##### FibTargetImage property
+##### FibTargetImage
 The name/full tag of the image being built.
 If not set, built from `$(FibTargetRegistry)` and `$(FibTargetRepository)`.
 
-##### FibTargetRegistry property
+##### FibTargetRegistry
 The registry of the image being built. Defaults to '', which means the docker registry.
 
-##### FibTargetRepository property
+##### FibTargetRepository
 The repository of the image being built. Defaults to [`$(PackageId)`][Pack Target].
 
-##### FibTargetTag property
+##### FibTargetTag
 Semicolon separated list of tags to tag your image with.
 Gets converted to FibTargetTag items.
 Defaults to [`$(PackageVersion)`][Pack Target].
 
 #### Image configuration properties
 
-##### FibEntrypoint property
+##### FibEntrypoint
 The image [entrypoint][Docker Entrypoint]. Defaults to `dotnet`.
 
-##### FibCmd property
+##### FibCmd
 The image [cmd][Docker Cmd]. Defaults to the output assembly in the image.
 
-##### FibImageWorkingDirectory property
+##### FibImageWorkingDirectory
 The image [working directory][Docker WorkDir]. 
 
-##### FibImageUser property
+##### FibImageUser
 The image [user][Docker user].
 
 ### Items
 
-#### FibImageFile items
+#### FibImageFile
 The list of files to be added to the image.
 Fib.Net.MSBuild will take all the files in your publish directory
 and add them to the image in various layers.
@@ -118,18 +117,18 @@ FibImageFile items require two metadata properties:
   Fib.Net.MSBuild splits item types into separate layers to improve repeated build speed.
 - TargetPath: The location in the image to put the file.
 
-#### FibEnvironment items
+#### FibEnvironment
 The [environment variables][Docker env] to add to the image. They have the format `<key>=<value>`.
 
-#### FibPort items
+#### FibPort
 The [ports][Docker expose] the image will expose by default.
 Format can be any of port number (`80`),
 port/protocol (`8080/tcp`) or port range/protocol (`1000-3000/tcp`).
 
-#### FibVolume items
+#### FibVolume
 The [volume][Docker volume] mount points of the image.
 
-#### FibLabel items
+#### FibLabel
 The [metadata labels][Docker label] to apply to the image. They have the format `<key>=<value>`.
 
 [jib]: https://github.com/GoogleContainerTools/jib
