@@ -4,6 +4,10 @@
     <TargetFrameworks>netstandard2.0;net46;netcoreapp2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <Description>
+      $(Description)
+      Fib.Net.Core is the library that builds the docker image files and communicates with registries.
+    </Description>
     <CodeAnalysisRuleSet>../Fib.Net.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

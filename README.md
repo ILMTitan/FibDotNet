@@ -1,6 +1,6 @@
-# Fib.Net
+# Fib.Net [![NuGet][NuGet Shield]][NuGet Link]
 
-## What is Fib?
+## What is Fib.Net?
 A full C# rewrite of [Google's Jib][jib],
 Fib.Net builds optimized [Docker][Docker] and [OCI][OCI] images from .NET
 projects without the need for a Dockerfile or docker daemon.
@@ -146,3 +146,6 @@ The [metadata labels][Docker label] to apply to the image. They have the format 
 [Docker image format]: https://docs.docker.com/registry/spec/manifest-v2-2/
 [OCI image format]: https://github.com/opencontainers/image-spec/blob/master/manifest.md
 [Pack Target]: https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target
+
+[NuGet Shield]: https://img.shields.io/nuget/dt/Fib.Net.MSBuild
+[NuGet Link]: https://www.nuget.org/packages/Fib.Net.MSBuild/

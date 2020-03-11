@@ -5,18 +5,10 @@
     <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <CodeAnalysisRuleSet>../Fib.Net.ruleset</CodeAnalysisRuleSet>
-    <Authors>James Przybylinski</Authors>
-    <Description>Integrates fast image builder into a dotnet project.</Description>
-    <Copyright>2020 James Przybylinski</Copyright>
     <Description>
-      Fib.Net is a full C# rewrite of Jib, the fast java image builder.
+      $(Description)
       Fib.Net.MSBuild integrates the core Fib.Net library into the MSBuild pipeline.
     </Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/ILMTitan/FibDotNet</PackageProjectUrl>
-    <PackageTags>docker;oci;msbuild</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/ILMTitan/FibDotNet.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,6 +7,11 @@
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CodeAnalysisRuleSet>../Fib.Net.ruleset</CodeAnalysisRuleSet>
+    <Description>
+      $(Description)
+      Fib.Net.Cli is an executable program that uses the Fib.Net.Core library to build and publish an image.
+      Fib.Net.Cli is called by the Fib.Net.MSBuild PublishImage task.
+    </Description>
   </PropertyGroup>
 
   <ItemGroup>
